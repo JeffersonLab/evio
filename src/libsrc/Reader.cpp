@@ -285,6 +285,13 @@ namespace evio {
 
 
     /**
+     * Does this file/buffer contain non-evio format events?
+     * @return true if all events are in evio format, else false.
+     */
+    bool Reader::isEvioFormat() const {return evioFormat;}
+
+
+    /**
      * Get the XML format dictionary if there is one.
      * @return XML format dictionary, else null.
      */
@@ -553,22 +560,22 @@ namespace evio {
     std::shared_ptr<uint8_t> Reader::getEvent(uint32_t index, uint32_t * len) {
 
         if (index >= eventIndex.getMaxEvents()) {
-//std::cout << "[READER] getEvent: index = " << index << ", max events = " << eventIndex.getMaxEvents() << std::endl;
+std::cout << "[READER] getEvent: index = " << index << ", max events = " << eventIndex.getMaxEvents() << std::endl;
             return nullptr;
         }
 
         if (eventIndex.setEvent(index)) {
             // If here, the event is in another record
-//std::cout << "[READER] getEvent: read record at index = " << eventIndex.getRecordNumber() << std::endl;
+std::cout << "[READER] getEvent: read record at index = " << eventIndex.getRecordNumber() << std::endl;
             readRecord(eventIndex.getRecordNumber());
         }
 
         if (inputRecordStream.getEntries() == 0) {
-//std::cout << "[READER] getEvent: first time reading record at index = " << eventIndex.getRecordNumber() << std::endl;
+std::cout << "[READER] getEvent: first time reading record at index = " << eventIndex.getRecordNumber() << std::endl;
             readRecord(eventIndex.getRecordNumber());
         }
 
-//std::cout << "[READER] getEvent: try doing inputStream.getEvent(" << eventIndex.getRecordEventNumber() << ")" << std::endl;
+std::cout << "[READER] getEvent: try doing inputStream.getEvent(" << eventIndex.getRecordEventNumber() << ")" << std::endl;
         return inputRecordStream.getEvent(eventIndex.getRecordEventNumber(), len);
     }
 
@@ -715,16 +722,17 @@ namespace evio {
      * @throws EvioException if file/buffer not in hipo format
      */
     bool Reader::readRecord(uint32_t index) {
-//std::cout << "Reader.readRecord:  index = " << index << ", recPos.size() = " << recordPositions.size() << std::endl;
+std::cout << "Reader.readRecord:  index = " << index << ", recPos.size() = " << recordPositions.size() <<
+ ", rec pos = " << recordPositions[index].getPosition() << std::endl;
 
         if (index < recordPositions.size()) {
-            RecordPosition pos = recordPositions[index];
+            size_t pos = recordPositions[index].getPosition();
             if (fromFile) {
 //std::cout << "Reader.readRecord:  inputRecStream.readRecord(...)" << std::endl;
-                inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
+                inputRecordStream.readRecord(inStreamRandom, pos);
             }
             else {
-                inputRecordStream.readRecord(*(buffer.get()), pos.getPosition());
+                inputRecordStream.readRecord(*(buffer.get()), pos);
             }
             currentRecordLoaded = index;
             return true;
@@ -876,8 +884,8 @@ namespace evio {
      *      <li>compression type</li>
      *      <li>header length in bytes</li>
      *      <li>index array length in bytes</li>
-     *      <li>user header length in bytes</li>
-     *      <li>uncompressed data length in bytes (w/o record header)</li>
+     *      <li>user header length in bytes (no padding included) </li>
+     *      <li>uncompressed data length in bytes (no padding, w/o record header)</li>
      *  </ol>
      * @param  infoLen  len in 32-bit words of array at info.
      * @throws underflow_error if not enough data in buffer.
@@ -903,8 +911,8 @@ namespace evio {
      *      <li>compression type</li>
      *      <li>header length in bytes</li>
      *      <li>index array length in bytes</li>
-     *      <li>user header length in bytes</li>
-     *      <li>uncompressed data length in bytes (w/o record header)</li>
+     *      <li>user header length in bytes (no padding included) </li>
+     *      <li>uncompressed data length in bytes (no padding, w/o record header)</li>
      *  </ol>
      * @param  infoLen  len in 32-bit words of array at info.
      * @throws underflow_error if not enough data in buffer.
@@ -934,6 +942,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         info[4] = buf.getInt(offset + RecordHeader::INDEX_ARRAY_OFFSET);
         info[5] = buf.getInt(offset + RecordHeader::USER_LENGTH_OFFSET);
         info[6] = buf.getInt(offset + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
+        info[7] = buf.getInt(offset + RecordHeader::EVENT_COUNT_OFFSET);
 
 //        std::cout << "findRecInfo: record len bytes = " <<  info[1] << ", header len bytes = " << info[3] <<
 //                  ", index len = " << info[4] <<   ", user len = " << info[5] << std::endl;
@@ -950,11 +959,11 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      * @param buf   ByteBuffer containing evio/hipo data
      * @param info  integer array containing evio/hipo data. Elements are:
      *  <ol start="0">
-     *      <li>compressed length in bytes</li>
-     *      <li>uncompressed length in bytes</li>
+     *      <li>compressed length in bytes (padded) </li>
+     *      <li>uncompressed length in bytes (padded) </li>
      *  </ol>
      * @param infoLen number of elements in info array.
-     * @return total compressed hipo/evio data in bytes.
+     * @return total uncompressed hipo/evio data in bytes (padded).
      * @throws underflow_error if not enough data in buffer.
      * @throws EvioException null info arg or infoLen &lt; 7.
      */
@@ -966,17 +975,18 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
         size_t offset = buf.position();
         uint32_t totalCompressed = 0;
-        uint32_t recordBytes, totalBytes = 0;
+        uint32_t totalBytes = 0;
 
         do {
             // Look at the record
             findRecordInfo(buf, offset, info, infoLen);
 
-            // Total uncompressed length of record
-            recordBytes = info[3] + info[4] + info[5] + info[6];
+            // Total uncompressed length of record (with padding)
+            totalBytes += info[3] + info[4] +
+                          4*Util::getWords(info[5]) + // user array + padding
+                          4*Util::getWords(info[6]);  // uncompressed data + padding
 
-            // Track total uncompressed & compressed sizes
-            totalBytes += recordBytes;
+            // Track total compressed size (padded)
             totalCompressed += info[1];
 
             // Hop over record
@@ -988,7 +998,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         info[0] = totalCompressed;
         info[1] = totalBytes;
 
-        return totalCompressed;
+        return totalBytes;
     }
 
 
@@ -1001,11 +1011,11 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      * @param buf   ByteBuffer containing evio/hipo data
      * @param info  integer array containing evio/hipo data. Elements are:
      *  <ol start="0">
-     *      <li>compressed length in bytes</li>
-     *      <li>uncompressed length in bytes</li>
+     *      <li>compressed length in bytes (padded) </li>
+     *      <li>uncompressed length in bytes (padded) </li>
      *  </ol>
      * @param infoLen number of elements in info array.
-     * @return total compressed hipo/evio data in bytes.
+     * @return total uncompressed hipo/evio data in bytes (padded).
      * @throws underflow_error if not enough data in buffer.
      * @throws EvioException null info arg or infoLen &lt; 7.
      */
@@ -1052,16 +1062,16 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
         // The previous method call will set the endianness of the buffer properly.
         // Hop through ALL RECORDS to find their total lengths. This does NOT
-        // change pos/limit of buffer.
+        // change pos/limit of buffer. Results returned in headerInfo[0] & [1].
+        // All other values in headerInfo reflect the LAST record (ususally trailer).
         uint32_t headerInfo[headerInfoLen];
-        int totalCompressedBytes = getTotalByteCounts(buf, headerInfo, headerInfoLen);
-        int totalUncompressedBytes = headerInfo[1];
+        uint32_t totalUncompressedBytes = getTotalByteCounts(buf, headerInfo, headerInfoLen);; // padded
+
+std::cout << "  scanBuffer: total UNcompressed bytes = " << totalUncompressedBytes <<
+             " >? cap - off = " << (buf.capacity() - bufferOffset) << std::endl;
 
         std::shared_ptr<ByteBuffer> bigEnoughBuf;
         bool useTempBuffer = false;
-
-//std::cout << "scanBuffer: total Uncomp bytes = " << totalUncompressedBytes <<
-//             " >? cap - off = " << (buf.capacity() - bufferOffset) << std::endl;
 
         // If the buffer is too small to hold the expanded data, create one that isn't
         if (totalUncompressedBytes > (buf.capacity() - bufferOffset)) {
@@ -1087,10 +1097,11 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             else if (tempBuffer->capacity() < totalUncompressedBytes + bufferOffset) {
                 tempBuffer->expand(totalUncompressedBytes + bufferOffset + 4096);
             }
-            tempBuffer->order(buf.order()).limit(tempBuffer->capacity()).position(0);
+            tempBuffer->order(buf.order()).limit(tempBuffer->capacity()).position(bufferOffset);
 
             bigEnoughBuf = tempBuffer;
-            // Put stuff starting at bigEnoughBuf->position() = 0.
+            // Put stuff starting at bigEnoughBuf->position() = bufferOffset
+            // so code is same whether using temp or new buffer.
         }
 
         bool haveFirstRecordHeader = false;
@@ -1098,13 +1109,13 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         RecordHeader recordHeader(HeaderType::EVIO_RECORD);
 
         // Start at the buffer's initial position
-        int position  = bufferOffset;
-        int recordPos = bufferOffset;
-        int bytesLeft = totalUncompressedBytes;
+        uint32_t position  = bufferOffset;
+        uint32_t recordPos = bufferOffset;
+        int32_t  bytesLeft = totalUncompressedBytes;
 
-//std::cout << "  scanBuffer: buffer pos = " << bufferOffset << ", bytesLeft = " << bytesLeft << std::endl;
+std::cout << "  scanBuffer: buffer pos = " << bufferOffset << ", bytesLeft = " << bytesLeft << std::endl;
         // Keep track of the # of records, events, and valid words in file/buffer
-        int eventCount = 0, byteLen, recordBytes, eventsInRecord;
+        uint32_t eventPlace = 0, byteLen;
         eventNodes.clear();
         recordPositions.clear();
         eventIndex.clear();
@@ -1116,9 +1127,14 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // If this is not the first record anymore, then the limit of bigEnoughBuf,
             // set above, may not be big enough.
 
-            // Uncompress record in buffer and place into bigEnoughBuf
+            // Uncompress record in buffer & place into bigEnoughBuf, then read record header
             int origRecordBytes = RecordInput::uncompressRecord(
                     buf, recordPos, *(bigEnoughBuf.get()), recordHeader);
+//std::cout << "  scanBuffer: origRecordBytes = " << origRecordBytes << std::endl;
+            // recordHeader is now describing the uncompressed buffer, bigEnoughBuf
+            uint32_t eventCount = recordHeader.getEntries();
+            uint32_t recordHeaderLen = recordHeader.getHeaderLength();
+            uint32_t recordBytes = recordHeader.getLength();
 
             // The only certainty at this point about pos/limit is that
             // bigEnoughBuf->position = after header/index/user, just before data.
@@ -1135,7 +1151,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 haveFirstRecordHeader = true;
             }
 
-            //std::cout << "read header ->" << std::endl << recordHeader.toString() << std::endl;
+//std::cout << "  scanBuffer: read header ->" << std::endl << recordHeader.toString() << std::endl;
 
             if (checkRecordNumberSequence) {
                 if (recordHeader.getRecordNumber() != recordNumberExpected) {
@@ -1153,16 +1169,24 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 throw std::underflow_error("Bad hipo format: not enough data to read record");
             }
 
-            // Header is now describing the uncompressed buffer, bigEnoughBuf
-            recordBytes = recordHeader.getLength();
-            eventsInRecord = recordHeader.getEntries();
             // Create a new RecordPosition object and store in vector
-            recordPositions.emplace_back(position, recordBytes, eventsInRecord);
+//std::cout << "  *** scanBuffer: record position saved as " << position << std::endl;
+            recordPositions.emplace_back(position, recordBytes, eventCount);
             // Track # of events in this record for event index handling
-            eventIndex.addEventSize(eventsInRecord);
+            eventIndex.addEventSize(eventCount);
 
-            // Next record position
-            recordPos += origRecordBytes;
+            // Find & store the index of event sizes (words)
+            std::vector<uint32_t> eventLengths;
+            if (eventCount > 0) {
+                // Place in buffer to start reading event lengths (
+                uint32_t lenIndex = position + recordHeaderLen + bufferOffset;
+
+                for (int i=0; i < eventCount; i++) {
+                    uint32_t evLen = bigEnoughBuf->getUInt(lenIndex);
+                    eventLengths.push_back(evLen);
+                    lenIndex += 4;
+                }
+            }
 
             // How many bytes left in the newly expanded buffer
             bytesLeft -= recordHeader.getUncompressedRecordLength();
@@ -1170,30 +1194,69 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // After calling uncompressRecord(), bigEnoughBuf will be positioned
             // right before where the events start.
             position = bigEnoughBuf->position();
+//std::cout << "  *** scanBuffer: (right before event) set position to " << position << std::endl;
 
-            // For each event in record, store its location
-            for (int i=0; i < eventsInRecord; i++) {
-                std::shared_ptr<EvioNode> node;
-//std::cout << "      try extracting event " << i << ", pos = " << position <<
-//             ", place = " << (eventCount + i) << std::endl;
-                node = EvioNode::extractEventNode(bigEnoughBuf, 0,
-                                                  position, eventCount + i);
-//std::cout << "      event " << i << ", pos = " << node->getPosition() <<
-//             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventCount + i + 1) << std::endl;
-                eventNodes.push_back(node);
+            //-----------------------------------------------------
+            // For each event in record, store its location.
+            // THIS ONLY WORKS AND IS ONLY NEEDED FOR EVIO DATA!
+            // So the question is, how do we know when we've got
+            // evio data and when we don't?
+            //-----------------------------------------------------
+            for (int i=0; i < eventCount; i++) {
+                // Is the length we get from the first word of an evio bank/event (bytes)
+                // the same as the length we got from the record header? If not, it's not evio.
+                bool isEvio = 4*(bigEnoughBuf->getUInt(position) + 1) == eventLengths[i];
+
+                if (isEvio) {
+                    try {
+                        // If the event is in evio format, parse it a bit
+                        //std::cout << "      try extracting event " << i << ", pos = " << position <<
+                        //             ", place = " << (eventPlace + i) << std::endl;
+                        auto node = EvioNode::extractEventNode(bigEnoughBuf, recordPos,
+                                                               position, eventPlace + i);
+                        byteLen = node->getTotalBytes();
+std::cout << "      event (evio)" << i << ", pos = " << node->getPosition() <<
+             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventPlace + i + 1) <<
+             ", bytes = " << byteLen << std::endl;
+                        eventNodes.push_back(node);
+                    }
+                    catch (std::exception & e) {
+                        // If we're here, the event is not in evio format
+
+                        // The problem with doing things in the following way
+                        // (throwing an exception if the event is NOT is evio format)
+                        // is that the exception throwing mechanism is not a good way to
+                        // handle normal logic flow. But not sure what else can be done.
+                        // This should only happen very, very seldom.
+
+                        byteLen = eventLengths[i];
+                        evioFormat = false;
+std::cout << "      event (binary, exception)" << i << ", bytes = " << byteLen << std::endl;
+                    }
+                }
+                else {
+                    // If we're here, the event is not in evio format, so just use the length we got
+                    // previously from the record index.
+                    byteLen = eventLengths[i];
+                    evioFormat = false;
+std::cout << "      event (binary, regular logic)" << i << ", bytes = " << byteLen << std::endl;
+                }
 
                 // Hop over event
-                byteLen   = node->getTotalBytes();
                 position += byteLen;
+                std::cout << "  *** scanBuffer: after event, set position to " << position << std::endl;
 
                 if (byteLen < 8) {
                     throw EvioException("Bad evio format: bad bank length");
                 }
-//std::cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << std::endl << std::endl;
+std::cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << std::endl << std::endl;
             }
 
             bigEnoughBuf->position(position);
-            eventCount += eventsInRecord;
+            eventPlace += eventCount;
+
+            // Next record position
+            recordPos += origRecordBytes;
 
             // If the evio buffer was written with the DAQ Java evio library,
             // there is only 1 record with event per buffer -- the first record.
@@ -1212,7 +1275,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Since we're using a temp buffer, it does NOT contain buffer's data
             // from position = 0 to bufferOffset.
             std::memcpy((void *)(buf.array() + bufferOffset + buf.arrayOffset()),
-                        (const void *)(bigEnoughBuf->array()), totalUncompressedBytes);
+                        (const void *)(bigEnoughBuf->array() + bufferOffset), totalUncompressedBytes);
 
             // Restore the original position and set new limit
             buf.limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
@@ -1227,7 +1290,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // We had to allocate memory in this method since buffer was too small,
             // so return the new larger buffer.
             bigEnoughBuf->position(bufferOffset);
-            return bigEnoughBuf;
+            buffer = bigEnoughBuf;
         }
 
         return buffer;
@@ -1237,24 +1300,25 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
     /**
       * Scan buffer to find all records and store their position, length, and event count.
       * Also finds all events and creates & stores their associated EvioNode objects.
+      * Note: buffers are never compressed.
       * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6;
       *                       if checkRecordNumberSequence is true and records are out of sequence.
       */
     void Reader::scanUncompressedBuffer() {
 
-        auto headerBytes = new uint8_t[RecordHeader::HEADER_SIZE_BYTES];
-        ByteBuffer headerBuffer(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
-        RecordHeader recordHeader;
+        ByteBuffer headerBuffer(RecordHeader::HEADER_SIZE_BYTES);
+        auto headerBytes = headerBuffer.array();
 
+        RecordHeader recordHeader;
         bool haveFirstRecordHeader = false;
 
         // Start at the buffer's initial position
-        int position  = bufferOffset;
-        int bytesLeft = bufferLimit - bufferOffset;
+        uint32_t position  = bufferOffset;
+        uint32_t recordPos = bufferOffset;
+        int32_t  bytesLeft = bufferLimit - bufferOffset;
 
-//std::cout << "scanUncompressedBuffer: buffer pos = " << bufferOffset << ", bytesLeft = " << bytesLeft << std::endl;
         // Keep track of the # of records, events, and valid words in file/buffer
-        int eventCount = 0, byteLen, recordBytes, eventsInRecord, recPosition;
+        uint32_t eventPlace = 0;
         eventNodes.clear();
         recordPositions.clear();
         eventIndex.clear();
@@ -1262,22 +1326,16 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         recordNumberExpected = 1;
 
         while (bytesLeft >= RecordHeader::HEADER_SIZE_BYTES) {
+
             // Read record header
             buffer->position(position);
             // This moves the buffer's position
             buffer->getBytes(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
             // Only sets the byte order of headerBuffer
             recordHeader.readHeader(headerBuffer);
-//cout << "read header ->" << endl << recordHeader.toString() << endl;
-
-            if (checkRecordNumberSequence) {
-                if (recordHeader.getRecordNumber() != recordNumberExpected) {
-                    //std::cout << "  scanBuffer: record # out of sequence, got " << recordHeader.getRecordNumber() <<
-                    //        " expecting " << recordNumberExpected << std::endl;
-                    throw EvioException("bad record # sequence");
-                }
-                recordNumberExpected++;
-            }
+            uint32_t eventCount = recordHeader.getEntries();
+            uint32_t recordHeaderLen = recordHeader.getHeaderLength();
+            uint32_t recordBytes = recordHeader.getLength();
 
             // Save the first record header
             if (!haveFirstRecordHeader) {
@@ -1290,6 +1348,15 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 haveFirstRecordHeader = true;
             }
 
+            if (checkRecordNumberSequence) {
+                if (recordHeader.getRecordNumber() != recordNumberExpected) {
+                    //std::cout << "  scanBuffer: record # out of sequence, got " << recordHeader.getRecordNumber() <<
+                    //        " expecting " << recordNumberExpected << std::endl;
+                    throw EvioException("bad record # sequence");
+                }
+                recordNumberExpected++;
+            }
+
             // Check to see if the whole record is there
             if (recordHeader.getLength() > bytesLeft) {
                 std::cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
@@ -1299,18 +1366,28 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
 //std::cout << ">>>>>==============================================" << std::endl;
 //std::cout << recordHeader.toString() << std::endl;
-            recordBytes = recordHeader.getLength();
-            eventsInRecord = recordHeader.getEntries();
-            recPosition = position;
-            //cout << " RECORD HEADER ENTRIES = " << eventsInRecord << endl;
-            recordPositions.emplace_back(position, recordBytes, eventsInRecord);
+
+            recordPositions.emplace_back(position, recordBytes, eventCount);
             // Track # of events in this record for event index handling
-            eventIndex.addEventSize(eventsInRecord);
+            eventIndex.addEventSize(eventCount);
+
+            // Find & store the index of event sizes (words)
+            std::vector<uint32_t> eventLengths;
+            if (eventCount > 0) {
+                // Place in buffer to start reading event lengths (
+                uint32_t lenIndex = position + recordHeaderLen + bufferOffset;
+
+                for (int i=0; i < eventCount; i++) {
+                    uint32_t evLen = buffer->getUInt(lenIndex);
+                    eventLengths.push_back(evLen);
+                    lenIndex += 4;
+                }
+            }
 
             // Hop over record header, user header, and index to events
-            byteLen = recordHeader.getHeaderLength() +
-                      recordHeader.getUserHeaderLength() +
-                      recordHeader.getIndexLength();
+            uint32_t byteLen =   recordHeader.getHeaderLength() +
+                               4*recordHeader.getUserHeaderLengthWords() + // This takes padding into account
+                                 recordHeader.getIndexLength();
             position  += byteLen;
             bytesLeft -= byteLen;
 
@@ -1319,31 +1396,62 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 //std::cout << "      hopped to data, pos = " << position << std::endl;
 
             // For each event in record, store its location
-            for (int i=0; i < eventsInRecord; i++) {
-                std::shared_ptr<EvioNode> node;
-//std::cout << "      try extracting event " << i << " in record pos = " << recPosition <<
-//             ", pos = " << position << ", place = " << (eventCount + i) << std::endl;
-                node = EvioNode::extractEventNode(buffer, recPosition,
-                                                  position, eventCount + i);
-//std::cout << "\n      scanUncompressedBuffer: extracted node : " << node->toString() << std::endl;
+            for (int i=0; i < eventCount; i++) {
 
+                // Is the length we get from the first word of an evio bank/event (bytes)
+                // the same as the length we got from the record header? If not, it's not evio.
+                bool isEvio = 4*(buffer->getUInt(position) + 1) == eventLengths[i];
+
+                std::shared_ptr<EvioNode> node;
+
+                if (isEvio) {
+                    try {
+                        // If the event is in evio format, parse it a bit
+                        //std::cout << "      try extracting event " << i << " in record pos = " << recPosition <<
+                        //      ", pos = " << position << ", place = " << (eventPlace + i) << std::endl;
+                        node = EvioNode::extractEventNode(buffer, recordPos,
+                                                      position, eventPlace + i);
+                        byteLen = node->getTotalBytes();
+//std::cout << "\n      scanUncompressedBuffer: extracted node : " << node->toString() << std::endl;
 //std::cout << "      scanUncompressedBuffer: event " << i << " in record: pos = " << node->getPosition() <<
-//             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventCount + i + 1) << std::endl;
-                eventNodes.push_back(node);
+//             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventPlace + i + 1) << std::endl;
+                        eventNodes.push_back(node);
+                    }
+                    catch (std::exception & e) {
+                        // If we're here, the event is not in evio format
+
+                        // The problem with doing things in the following way
+                        // (throwing an exception if the event is NOT is evio format)
+                        // is that the exception throwing mechanism is not a good way to
+                        // handle normal logic flow. But not sure what else can be done.
+                        // This should only happen very, very seldom.
+
+                        byteLen = eventLengths[i];
+                        evioFormat = false;
+std::cout << "      event (binary, exception)" << i << ", bytes = " << byteLen << std::endl;
+                    }
+                }
+                else {
+                    // If we're here, the event is not in evio format, so just use the length we got
+                    // previously from the record index.
+                    byteLen = eventLengths[i];
+                    evioFormat = false;
+std::cout << "      event (binary, regular logic)" << i << ", bytes = " << byteLen << std::endl;
+                }
 
                 // Hop over event
-                byteLen    = node->getTotalBytes();
                 position  += byteLen;
                 bytesLeft -= byteLen;
+std::cout << "      scanUncompressedBuffer: byteLen = " << byteLen << ", bytesLeft = " << bytesLeft << std::endl;
 
                 if (byteLen < 8 || bytesLeft < 0) {
                     throw EvioException("Bad evio format: bad bank length");
                 }
 
-//std::cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << std::endl << std::endl;
+std::cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << std::endl << std::endl;
             }
 
-            eventCount += eventsInRecord;
+            eventPlace += eventCount;
         }
 
         buffer->position(bufferOffset);
@@ -1447,7 +1555,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
     void Reader::scanFile(bool force) {
 
         if (force) {
-//std::cout << "\nscanFile ---> calling forceScanFile ..." << std::endl;
+std::cout << "\nscanFile ---> calling forceScanFile ..." << std::endl;
             forceScanFile();
             return;
         }
@@ -1456,7 +1564,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         recordPositions.clear();
         // recordNumberExpected = 1;
 
-//std::cout << "\n\nscanFile ---> scanning the file" << std::endl;
+std::cout << "\n\nscanFile ---> scanning the file" << std::endl;
         auto headerBytes = new char[FileHeader::HEADER_SIZE_BYTES];
         ByteBuffer headerBuffer(headerBytes, FileHeader::HEADER_SIZE_BYTES);
 
@@ -1470,19 +1578,19 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         fileHeader.readHeader(headerBuffer);
         byteOrder = fileHeader.getByteOrder();
         evioVersion = fileHeader.getVersion();
-//std::cout << "scanFile: file header: " << std::endl << fileHeader.toString() << std::endl;
+std::cout << "scanFile: file header: " << std::endl << fileHeader.toString() << std::endl;
 
         // Is there an existing record length index?
         // Index in trailer gets first priority.
         // Index in file header gets next priority.
         bool fileHasIndex = fileHeader.hasTrailerWithIndex() || (fileHeader.hasIndex());
-//std::cout << "scanFile: file has index = " << fileHasIndex <<
-//     ", has trailer with index =  " << fileHeader.hasTrailerWithIndex() <<
-//     ", file header has index " << fileHeader.hasIndex() << std::endl;
+std::cout << "scanFile: file has index = " << fileHasIndex <<
+     ", has trailer with index =  " << fileHeader.hasTrailerWithIndex() <<
+     ", file header has index " << fileHeader.hasIndex() << std::endl;
 
         // If there is no index, scan file
         if (!fileHasIndex) {
-//std::cout << "scanFile: CALL forceScanFile" << std::endl;
+std::cout << "scanFile: CALL forceScanFile" << std::endl;
             forceScanFile();
             return;
         }
@@ -1493,7 +1601,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         if (useTrailer) {
             // If trailer position is NOT valid ...
             if (fileHeader.getTrailerPosition() < 1) {
-//std::cout << "scanFile: bad trailer position, " << fileHeader.getTrailerPosition() << std::endl;
+std::cout << "scanFile: bad trailer position, " << fileHeader.getTrailerPosition() << std::endl;
                 if (fileHeader.hasIndex()) {
                     // Use file header index if there is one
                     useTrailer = false;
@@ -1508,7 +1616,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
         // First record position (past file's header + index + user header)
         uint32_t recordPosition = fileHeader.getLength();
-//std::cout << "scanFile: record position (past file's header + index + user header) = " << recordPosition << std::endl;
+std::cout << "scanFile: record position (past file's header + index + user header) = " << recordPosition << std::endl;
 
         // Move to first record and save the header
         inStreamRandom.seekg(recordPosition);
@@ -1516,7 +1624,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         firstRecordHeader = std::make_shared<RecordHeader>();
         firstRecordHeader->readHeader(headerBuffer);
         compressed = firstRecordHeader->getCompressionType() != Compressor::UNCOMPRESSED;
-//std::cout << "scanFile: read first record header ->\n" << firstRecordHeader->toString() << std::endl;
+std::cout << "scanFile: read first record header ->\n" << firstRecordHeader->toString() << std::endl;
 
         int indexLength;
 
@@ -1802,7 +1910,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
     }
 
 
-//    int Reader::main(int argc, char **argv) {
+    //    int Reader::main(int argc, char **argv) {
 //
 //        try {
 //            std::string filename = "/tmp/filename";
