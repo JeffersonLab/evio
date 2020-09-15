@@ -183,7 +183,7 @@ namespace evio {
 
 
         /** Size of array in which to store record header info. */
-        static const uint32_t headerInfoLen = 7;
+        static const uint32_t headerInfoLen = 8;
 
 
         /**
@@ -236,6 +236,9 @@ namespace evio {
         std::shared_ptr<uint8_t> firstEvent = nullptr;
         /** First event size in bytes. */
         uint32_t firstEventSize = 0;
+
+        // TODO: The HIPO library is NOT evio dependent!!!!
+
         /** Stores info of all the (top-level) events in a scanned buffer. */
         std::vector<std::shared_ptr<EvioNode>> eventNodes;
 
@@ -250,7 +253,14 @@ namespace evio {
         * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
         int32_t sequentialIndex = -1;
 
+        /**
+         * If this buf/file contains non-evio events (permissible to read in this class),
+         * set this flag to false, which helps EvioCompactReader and EvioReader to avoid
+         * choking while trying to parse them.
+         */
+        bool evioFormat = true;
 
+    private:
         /** If true, the last sequential call was to getNextEvent or getNextEventNode.
          *  If false, the last sequential call was to getPrevEvent. Used to determine
          *  which event is prev or next. */
@@ -297,6 +307,7 @@ namespace evio {
         ByteOrder & getByteOrder();
         uint32_t getVersion() const;
         bool isCompressed() const;
+        bool isEvioFormat() const;
         std::string getDictionary();
         bool hasDictionary() const;
 
@@ -354,7 +365,11 @@ namespace evio {
         void forceScanFile();
         void scanFile(bool force);
 
-
+        // The next 2 methods will not work on events which are not evio format data.
+        // They are included here so other classes, like EvioCompactReader and EvioReader,
+        // can use their APIs to call the new evio version 6 classes like this one.
+        // These new classes were initially designed to be data format agnostic, but adding
+        // these methods violates that.
         std::shared_ptr<ByteBuffer> & addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
         std::shared_ptr<ByteBuffer> & removeStructure(std::shared_ptr<EvioNode> & removeNode);
 
