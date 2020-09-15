@@ -468,12 +468,14 @@ namespace evio {
         bankNode->dataPos = position + 8;
         // Len of data for a bank
         bankNode->dataLen = length - 1;
+//std::cout << "          extractNode: len = " << length << ", pos = " << position << ", type = " << DataType::BANK.toString() <<
+//             ", dataPos = " << bankNode->dataPos << ", dataLen = " << bankNode->dataLen << std::endl;
 
         // Make sure there is enough data to read full bank
         // even though it is NOT completely read at this time.
         if (buffer->remaining() < 4*(length + 1)) {
-            std::cout << "ERROR: remaining = " << buffer->remaining() <<
-                 ", node len bytes = " << ( 4*(length + 1)) << ", len = " << length << std::endl;
+//std::cout << "ERROR: remaining = " << buffer->remaining() <<
+//             ", node len bytes = " << ( 4*(length + 1)) << ", len = " << length << std::endl;
             throw EvioException("buffer underflow");
         }
 
