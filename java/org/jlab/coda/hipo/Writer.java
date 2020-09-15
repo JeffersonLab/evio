@@ -262,9 +262,21 @@ public class Writer implements AutoCloseable {
      * Constructor for writing to a ByteBuffer. Byte order is taken from the buffer.
      * No compression.
      * @param buf buffer in to which to write events and/or records.
+     * @throws HipoException if buf arg is null.
      */
-    public Writer(ByteBuffer buf) {
+    public Writer(ByteBuffer buf) throws HipoException {
         this(buf, 0, 0, null, null);
+    }
+
+    /**
+     * Constructor for writing to a ByteBuffer with a user header. Byte order is taken from the buffer.
+     * No compression.
+     * @param buf buffer in to which to write events and/or records.
+     * @throws HipoException if buf arg is null.
+     */
+    public Writer(ByteBuffer buf, byte[] userHeader) throws HipoException {
+        this(buf, 0, 0, null, null);
+        open(buf, userHeader, 0, userHeader.length);
     }
 
     /**
@@ -280,9 +292,14 @@ public class Writer implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
+     * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf, int maxEventCount, int maxBufferSize,
-                  String dictionary, byte[] firstEvent) {
+                  String dictionary, byte[] firstEvent) throws HipoException {
+
+        if (buf == null) {
+            throw new HipoException("buf arg is null");
+        }
 
         byteOrder = buf.order();
         buffer = buf;
@@ -757,12 +774,14 @@ System.out.println("createRecord: add first event to record");
      * It's best <b>NOT</b> to call this directly. The way to write a trailer to
      * file or buffer is to call {@link #addTrailer(boolean)} or
      * {@link #addTrailerWithIndex(boolean)}. Then when {@link #close()} is
-     * called, the trailer will be written.
+     * called, the trailer will be written, so only called by close().
+     *
      * @param writeIndex if true, write an index of all record lengths in trailer.
      * @param recordNum record number for trailing record.
+     * @param trailerPos stqrting position of trailer in buffer.
      * @throws IOException if error writing to file.
      */
-    private void writeTrailer(boolean writeIndex, int recordNum) throws IOException {
+    private void writeTrailer(boolean writeIndex, int recordNum, long trailerPos) throws IOException {
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
@@ -782,6 +801,7 @@ System.out.println("createRecord: add first event to record");
                     fileWritingPosition += RecordHeader.HEADER_SIZE_BYTES;
                 }
                 else {
+                    buffer.position((int)trailerPos);
                     buffer.put(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
                 }
             }
@@ -1141,6 +1161,7 @@ System.out.println("createRecord: add first event to record");
                 System.arraycopy(outputRecord.getBinaryBuffer().array(), 0,
                                  buffer.array(), buffer.arrayOffset() + buffer.position(),
                                  bytesToWrite);
+                buffer.position(buffer.position() + bytesToWrite);
             }
             else {
                 buffer.put(outputRecord.getBinaryBuffer().array(), 0, bytesToWrite);
@@ -1151,6 +1172,7 @@ System.out.println("createRecord: add first event to record");
                 outputRecord.getBinaryBuffer().get(buffer.array(),
                                                    buffer.arrayOffset() + buffer.position(),
                                                    bytesToWrite);
+                buffer.position(buffer.position() + bytesToWrite);
             }
             else {
                 buffer.put(outputRecord.getBinaryBuffer());
@@ -1201,7 +1223,7 @@ System.out.println("createRecord: add first event to record");
             long trailerPosition = writerBytesWritten;
 
             // Write the trailer
-            writeTrailer(addTrailerIndex, recordCount);
+            writeTrailer(addTrailerIndex, recordCount, trailerPosition);
 
             if (toFile) {
                 try {
