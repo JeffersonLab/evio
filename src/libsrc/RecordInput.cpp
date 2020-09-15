@@ -210,7 +210,7 @@ namespace evio {
             *len = length;
         }
 
-std::cout << "getEvent: reading from " << offset << ",  length = " << length << std::endl;
+//std::cout << "getEvent: reading from " << offset << ",  length = " << length << std::endl;
         return event;
     }
 
@@ -532,8 +532,8 @@ std::cout << "getEvent: reading from " << offset << ",  length = " << length << 
 
 // TODO: BUG BUG, This has a bad value! (for uncompressed data anyway). Offset is bad!!!
         size_t compDataOffset = offset + headerLength;
-        std::cout << "readRecord: copy uncompressed data from pos = " << compDataOffset << " = ?" << std::endl;
-        std::cout << "readRecord: offset to header = " << offset << " + headerLen of " << headerLength << std::endl;
+//std::cout << "readRecord: copy uncompressed data from pos = " << compDataOffset << " = ?" << std::endl;
+//std::cout << "readRecord: offset to header = " << offset << " + headerLen of " << headerLength << std::endl;
 
         // How many bytes will the expanded record take?
         // Just data:
