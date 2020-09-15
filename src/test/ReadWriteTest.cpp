@@ -86,11 +86,11 @@ namespace evio {
             buffer->order(order);
 
 
-            std::cout << "Running with:" << std::endl;
-            std::cout << " data elements = " << dataElementCount << std::endl;
-            std::cout << "       bufSize = " << bufSize << std::endl;
-            std::cout << "        useBuf = " << useBuf << std::endl;
-            std::cout << "      old evio = " << oldEvio << std::endl;
+//            std::cout << "Running with:" << std::endl;
+//            std::cout << " data elements = " << dataElementCount << std::endl;
+//            std::cout << "       bufSize = " << bufSize << std::endl;
+//            std::cout << "        useBuf = " << useBuf << std::endl;
+//            std::cout << "      old evio = " << oldEvio << std::endl;
 
 
             setDataSize(dataElementCount);
@@ -129,10 +129,7 @@ namespace evio {
                "</xmlDict>";
 
             dictionary = ss.str();
-
-            std::cout << "Const: dictionary = " << dictionary << std::endl;
-
-
+            //std::cout << "Const: dictionary = " << dictionary << std::endl;
         }
 
 
@@ -340,40 +337,31 @@ namespace evio {
 
 
 
-        void writeFile(string finalFilename) {
 
-            // Variables to track record build rate
-            double freqAvg;
-            long totalC = 0;
+
+        void writeAndReadBuffer() {
+
             long loops = 3;
 
-            uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+            uint8_t firstEvent[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29};
             uint32_t firstEventLen = 10;
-            bool addTrailerIndex = true;
 
             ByteOrder order = ByteOrder::ENDIAN_LOCAL;
-            //Compressor::CompressionType compType = Compressor::GZIP;
             Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
 
             // Possible user header data
-            uint8_t * userHdr = new uint8_t[10];
+            uint8_t userHdr[10];
             for (uint8_t i = 0; i < 10; i++) {
-                userHdr[i] = i;
+                userHdr[i] = i+16;
             }
 
+            // Create Buffer
+            auto buffer = std::make_shared<ByteBuffer>(3000);
+            buffer->order(order);
 
-//            Writer::Writer(const HeaderType & hType, const ByteOrder & order,
-//            uint32_t maxEventCount, uint32_t maxBufferSize,
-//            const std::string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen,
-//            const Compressor::CompressionType & compType, bool addTrailerIndex) {
-
-
-            // Create files
-            Writer writer(HeaderType::EVIO_FILE, order, 0, 0,
-                          dictionary, firstEvent, firstEventLen, compType, addTrailerIndex);
-            writer.open(finalFilename);
-            //writer.open(finalFilename, userHdr, 10);
-            cout << "Past creating Writer object" << endl;
+            //Writer writer(buffer, 0, 0, "", firstEvent, firstEventLen);
+            Writer writer(buffer, userHdr, 10);
+cout << "Past creating Writer object" << endl;
 
             // Calling the following method makes a shared pointer out of dataArray, so don't delete
             ByteBuffer dataBuffer(20);
@@ -382,37 +370,24 @@ namespace evio {
             }
             dataBuffer.flip();
 
-            //cout << "Data buffer ->\n" << dataBuffer.toString() << endl;
+//cout << "Data buffer ->\n" << dataBuffer.toString() << endl;
 
             // Create an evio bank of ints
             auto evioDataBuf = generateEvioBuffer(order, 0, 0);
             // Create node from this buffer
             std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
 
-            auto t1 = std::chrono::high_resolution_clock::now();
-
             while (true) {
                 // random data array
                 //writer.addEvent(dataArray, 0, 20);
-                cout << "add event of len = " << dataBuffer.remaining() << endl;
+cout << "add event of len = " << dataBuffer.remaining() << endl;
                 writer.addEvent(dataBuffer);
-
-                //cout << int(20000000 - loops) << endl;
-                totalC++;
 
                 if (--loops < 1) break;
             }
 
-            cout << "add event of node,  data type = " << node->getDataTypeObj().toString() << ", bytes = " << node->getTotalBytes() << endl;
+cout << "add event of node,  data type = " << node->getDataTypeObj().toString() << ", bytes = " << node->getTotalBytes() << endl;
             writer.addEvent(*node.get());
-
-            auto t2 = std::chrono::high_resolution_clock::now();
-            auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-
-            freqAvg = (double) totalC / deltaT.count() * 1000;
-
-            cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
-            cout << "Finished all loops, count = " << totalC << endl;
 
             //------------------------------
             // Add entire record at once, 2x
@@ -440,21 +415,175 @@ namespace evio {
 
             //------------------------------
 
-            //writer1.addTrailer(true);
-            //writer.addTrailerWithIndex(addTrailerIndex);
-            cout << "Past write" << endl;
+            cout << "Past writes" << endl;
 
             writer.close();
-            cout << "Past close" << endl;
 
-            // Doing a diff between files shows they're identical!
+            // Get ready-to-read buffer
+            buffer = writer.getBuffer();
+            cout << "Finished buffer ->\n" << buffer->toString() << endl;
+            cout << "Past close, now read it" << endl;
 
-            cout << "Finished writing file " << finalFilename << " now read it" << endl;
+            Util::printBytes(buffer, 0, 1040, "Buffer Bytes");
 
-            Util::printBytes(finalFilename, 0, 2000, "File bytes");
+            //------------------------------
+            //---- READ --------------------
+            //------------------------------
 
-            delete[] userHdr;
+            bool useHipoReader = true;
+
+            if (useHipoReader) {
+                Reader reader(buffer);
+                cout << "Past reader's constructor" << endl;
+
+                int32_t evCount = reader.getEventCount();
+                cout << "Read in buffer, got " << evCount << " events" << endl;
+
+                string dict = reader.getDictionary();
+                cout << "   Got dictionary = " << dict << endl;
+
+                shared_ptr<uint8_t> &pFE = reader.getFirstEvent();
+                if (pFE != nullptr) {
+                    int32_t feBytes = reader.getFirstEventSize();
+                    cout << "   First Event bytes = " << feBytes << endl;
+                    cout << "   First Event values = " << endl << "   ";
+                    for (int i = 0; i < feBytes; i++) {
+                        cout << (uint32_t) ((pFE.get())[i]) << ",  ";
+                    }
+                    cout << endl << endl;
+                }
+
+                cout << "Print out regular events:" << endl;
+                uint32_t byteLen;
+
+                for (int i = 0; i < reader.getEventCount(); i++) {
+                    shared_ptr<uint8_t> data = reader.getEvent(i, &byteLen);
+                    Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
+                }
+            }
+            // Use evio reader to see what happens when we have non-evio events ....
+            else {
+
+            }
         }
+
+
+
+            void writeFile(string finalFilename) {
+
+                // Variables to track record build rate
+                double freqAvg;
+                long totalC = 0;
+                long loops = 3;
+
+                uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+                uint32_t firstEventLen = 10;
+                bool addTrailerIndex = true;
+
+                ByteOrder order = ByteOrder::ENDIAN_LOCAL;
+                //Compressor::CompressionType compType = Compressor::GZIP;
+                Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
+
+                // Possible user header data
+                uint8_t userHdr[10];
+                for (uint8_t i = 0; i < 10; i++) {
+                    userHdr[i] = i+16;
+                }
+
+
+                //            Writer::Writer(const HeaderType & hType, const ByteOrder & order,
+                //            uint32_t maxEventCount, uint32_t maxBufferSize,
+                //            const std::string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen,
+                //            const Compressor::CompressionType & compType, bool addTrailerIndex) {
+
+
+                // Create files
+                Writer writer(HeaderType::EVIO_FILE, order, 0, 0,
+                              dictionary, firstEvent, firstEventLen, compType, addTrailerIndex);
+                //writer.open(finalFilename);
+                writer.open(finalFilename, userHdr, 10);
+                cout << "Past creating Writer object" << endl;
+
+                // Calling the following method makes a shared pointer out of dataArray, so don't delete
+                ByteBuffer dataBuffer(20);
+                for (int i=0; i < 10; i++) {
+                    dataBuffer.putShort(i);
+                }
+                dataBuffer.flip();
+
+                //cout << "Data buffer ->\n" << dataBuffer.toString() << endl;
+
+                // Create an evio bank of ints
+                auto evioDataBuf = generateEvioBuffer(order, 0, 0);
+                // Create node from this buffer
+                std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
+
+                auto t1 = std::chrono::high_resolution_clock::now();
+
+                while (true) {
+                    // random data array
+                    //writer.addEvent(dataArray, 0, 20);
+                    cout << "add event of len = " << dataBuffer.remaining() << endl;
+                    writer.addEvent(dataBuffer);
+
+                    //cout << int(20000000 - loops) << endl;
+                    totalC++;
+
+                    if (--loops < 1) break;
+                }
+
+                cout << "add event of node,  data type = " << node->getDataTypeObj().toString() << ", bytes = " << node->getTotalBytes() << endl;
+                writer.addEvent(*node.get());
+
+                auto t2 = std::chrono::high_resolution_clock::now();
+                auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+
+                freqAvg = (double) totalC / deltaT.count() * 1000;
+
+                cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
+                cout << "Finished all loops, count = " << totalC << endl;
+
+                //------------------------------
+                // Add entire record at once, 2x
+                //------------------------------
+
+                RecordOutput recOut(order);
+                ByteBuffer dataBuffer2(40);
+                for (int i=0; i < 20; i++) {
+                    dataBuffer2.putShort(i);
+                }
+                dataBuffer2.flip();
+                cout << "add entire record (containing " << dataBuffer2.remaining() << " bytes of data) " << endl;
+                recOut.addEvent(dataBuffer2.array(), 40, 0);
+                writer.writeRecord(recOut);
+
+                cout << "add the previous record again, but with one more event added  ... " << endl;
+                recOut.addEvent(dataBuffer2.array(), 40, 0);
+                writer.writeRecord(recOut);
+
+                //------------------------------
+                // Add last event
+                //------------------------------
+                cout << "once more, add event of len = " << dataBuffer.remaining() << endl;
+                writer.addEvent(dataBuffer);
+
+                //------------------------------
+
+                //writer1.addTrailer(true);
+                //writer.addTrailerWithIndex(addTrailerIndex);
+                cout << "Past writes" << endl;
+
+                writer.close();
+                cout << "Past close and finished writing file " << finalFilename << " now read it" << endl;
+
+                Util::printBytes(finalFilename, 0, 2000, "File bytes");
+            }
+
+
+
+
+
+
 
 
         void writeFileMT(string fileName) {
@@ -547,103 +676,103 @@ namespace evio {
 
 
 
-//
-//        string eventWriteFileMT(const string & filename) {
-//
-//            // Variables to track record build rate
-//            double freqAvg;
-//            long totalC = 0;
-//            long loops = 6;
-//
-//
-//            string dictionary = "";
-//
-//            uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-//            uint32_t firstEventLen = 10;
-//            bool addTrailerIndex = true;
-//            ByteOrder order = ByteOrder::ENDIAN_BIG;
-//            //Compressor::CompressionType compType = Compressor::GZIP;
-//            Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
-//
-//            // Create files
-//            string directory;
-//            uint32_t runNum = 123;
-//            uint64_t split = 000000; // 2 MB
-//            uint32_t maxRecordSize = 0; // 0 -> use default
-//            uint32_t maxEventCount = 2; // 0 -> use default
-//            bool overWriteOK = true;
-//            bool append = true;
-//            uint32_t streamId = 3;
-//            uint32_t splitNumber = 2;
-//            uint32_t splitIncrement = 1;
-//            uint32_t streamCount = 2;
-//            uint32_t compThreads = 2;
-//            uint32_t ringSize = 16;
-//            uint32_t bufSize = 1;
-//
-//            EventWriter writer(filename, directory, "runType",
-//                               runNum, split, maxRecordSize, maxEventCount,
-//                               order, dictionary, overWriteOK, append,
-//                               nullptr, streamId, splitNumber, splitIncrement, streamCount,
-//                               compType, compThreads, ringSize, bufSize);
-//
-//            //            string firstEv = "This is the first event";
-//            //            ByteBuffer firstEvBuf(firstEv.size());
-//            //            Util::stringToASCII(firstEv, firstEvBuf);
-//            //            writer.setFirstEvent(firstEvBuf);
-//
-//
-//            //            //uint8_t *dataArray = generateSequentialInts(100, order);
-//            //            uint8_t *dataArray = generateSequentialShorts(13, order);
-//            //            // Calling the following method makes a shared pointer out of dataArray, so don't delete
-//            //            ByteBuffer dataBuffer(dataArray, 26);
-//
-//            //  When appending, it's possible the byte order gets switched
-//            order = writer.getByteOrder();
-//
-//
-//            // Create an evio bank of ints
-//            auto evioDataBuf = generateEvioBuffer(order, 0, 0);
-//            // Create node from this buffer
-//            std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
-//
-//
-//            auto t1 = std::chrono::high_resolution_clock::now();
-//
-//            while (true) {
-//                cout << "Write event ~ ~ ~ " << endl;
-//                // event in evio format
-//                writer.writeEvent(*(evioDataBuf.get()));
-//
-//                totalC++;
-//
-//                if (--loops < 1) break;
-//            }
-//
-//            //writer.addEvent(*node.get());
-//
-//            //            auto t2 = std::chrono::high_resolution_clock::now();
-//            //            auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-//            //
-//            //            freqAvg = (double) totalC / deltaT.count() * 1000;
-//            //
-//            //            cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
-//            //            cout << "Finished all loops, count = " << totalC << endl;
-//
-//            //------------------------------
-//
-//            //cout << "Past write, sleep for 2 sec ..., then close" << endl;
-//            //std::this_thread::sleep_for(2s);
-//
-//            writer.close();
-//            cout << "Past close" << endl;
-//
-//            // Doing a diff between files shows they're identical!
-//
-//            cout << "Finished writing file " << writer.getCurrentFilename() << ", now read it in" << endl;
-//            return writer.getCurrentFilename();
-//
-//        }
+        //
+        //        string eventWriteFileMT(const string & filename) {
+        //
+        //            // Variables to track record build rate
+        //            double freqAvg;
+        //            long totalC = 0;
+        //            long loops = 6;
+        //
+        //
+        //            string dictionary = "";
+        //
+        //            uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        //            uint32_t firstEventLen = 10;
+        //            bool addTrailerIndex = true;
+        //            ByteOrder order = ByteOrder::ENDIAN_BIG;
+        //            //Compressor::CompressionType compType = Compressor::GZIP;
+        //            Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
+        //
+        //            // Create files
+        //            string directory;
+        //            uint32_t runNum = 123;
+        //            uint64_t split = 000000; // 2 MB
+        //            uint32_t maxRecordSize = 0; // 0 -> use default
+        //            uint32_t maxEventCount = 2; // 0 -> use default
+        //            bool overWriteOK = true;
+        //            bool append = true;
+        //            uint32_t streamId = 3;
+        //            uint32_t splitNumber = 2;
+        //            uint32_t splitIncrement = 1;
+        //            uint32_t streamCount = 2;
+        //            uint32_t compThreads = 2;
+        //            uint32_t ringSize = 16;
+        //            uint32_t bufSize = 1;
+        //
+        //            EventWriter writer(filename, directory, "runType",
+        //                               runNum, split, maxRecordSize, maxEventCount,
+        //                               order, dictionary, overWriteOK, append,
+        //                               nullptr, streamId, splitNumber, splitIncrement, streamCount,
+        //                               compType, compThreads, ringSize, bufSize);
+        //
+        //            //            string firstEv = "This is the first event";
+        //            //            ByteBuffer firstEvBuf(firstEv.size());
+        //            //            Util::stringToASCII(firstEv, firstEvBuf);
+        //            //            writer.setFirstEvent(firstEvBuf);
+        //
+        //
+        //            //            //uint8_t *dataArray = generateSequentialInts(100, order);
+        //            //            uint8_t *dataArray = generateSequentialShorts(13, order);
+        //            //            // Calling the following method makes a shared pointer out of dataArray, so don't delete
+        //            //            ByteBuffer dataBuffer(dataArray, 26);
+        //
+        //            //  When appending, it's possible the byte order gets switched
+        //            order = writer.getByteOrder();
+        //
+        //
+        //            // Create an evio bank of ints
+        //            auto evioDataBuf = generateEvioBuffer(order, 0, 0);
+        //            // Create node from this buffer
+        //            std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
+        //
+        //
+        //            auto t1 = std::chrono::high_resolution_clock::now();
+        //
+        //            while (true) {
+        //                cout << "Write event ~ ~ ~ " << endl;
+        //                // event in evio format
+        //                writer.writeEvent(*(evioDataBuf.get()));
+        //
+        //                totalC++;
+        //
+        //                if (--loops < 1) break;
+        //            }
+        //
+        //            //writer.addEvent(*node.get());
+        //
+        //            //            auto t2 = std::chrono::high_resolution_clock::now();
+        //            //            auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+        //            //
+        //            //            freqAvg = (double) totalC / deltaT.count() * 1000;
+        //            //
+        //            //            cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
+        //            //            cout << "Finished all loops, count = " << totalC << endl;
+        //
+        //            //------------------------------
+        //
+        //            //cout << "Past write, sleep for 2 sec ..., then close" << endl;
+        //            //std::this_thread::sleep_for(2s);
+        //
+        //            writer.close();
+        //            cout << "Past close" << endl;
+        //
+        //            // Doing a diff between files shows they're identical!
+        //
+        //            cout << "Finished writing file " << writer.getCurrentFilename() << ", now read it in" << endl;
+        //            return writer.getCurrentFilename();
+        //
+        //        }
 
 
 
@@ -679,22 +808,22 @@ namespace evio {
                 shared_ptr<uint8_t> data = reader1.getEvent(i, &byteLen);
                 Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
 
-//                uint32_t wordLen = byteLen / 2;
-//                if (data != nullptr) {
-//                    short *pData = reinterpret_cast<short *>(data.get());
-//                    cout << "   Event #0, values =" << endl << "   ";
-//                    for (int i = 0; i < wordLen; i++) {
-//                        if (order.isLocalEndian()) {
-//                            cout << *pData << ",  ";
-//                        }
-//                        else {
-//                            cout << SWAP_16(*pData) << ",  ";
-//                        }
-//                        pData++;
-//                        if ((i + 1) % 5 == 0) cout << endl;
-//                    }
-//                    cout << endl;
-//                }
+                //                uint32_t wordLen = byteLen / 2;
+                //                if (data != nullptr) {
+                //                    short *pData = reinterpret_cast<short *>(data.get());
+                //                    cout << "   Event #0, values =" << endl << "   ";
+                //                    for (int i = 0; i < wordLen; i++) {
+                //                        if (order.isLocalEndian()) {
+                //                            cout << *pData << ",  ";
+                //                        }
+                //                        else {
+                //                            cout << SWAP_16(*pData) << ",  ";
+                //                        }
+                //                        pData++;
+                //                        if ((i + 1) % 5 == 0) cout << endl;
+                //                    }
+                //                    cout << endl;
+                //                }
             }
 
         }
@@ -793,14 +922,16 @@ int main(int argc, char **argv) {
 
     evio::ReadWriteTest tester;
 
-    // Write files
-    tester.writeFile(filename);
+    // Write, then read files
     //tester.writeFileMT(filenameMT);
+    //tester.readFile(filenameMT);
 
-    // Read files just written
-    tester.readFile(filename);
+    //    tester.writeFile(filename);
+    //    tester.readFile(filename);
+
+    // Buffers ...
+    tester.writeAndReadBuffer();
     cout << endl << endl << "----------------------------------------" << endl << endl;
-   // tester.readFile(filenameMT);
 
     return 0;
 }
