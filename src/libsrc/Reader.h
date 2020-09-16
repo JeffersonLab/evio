@@ -311,7 +311,7 @@ namespace evio {
         std::string getDictionary();
         bool hasDictionary() const;
 
-        std::shared_ptr<uint8_t> & getFirstEvent();
+        std::shared_ptr<uint8_t> & getFirstEvent(uint32_t *size);
         uint32_t getFirstEventSize();
         bool hasFirstEvent() const;
 
