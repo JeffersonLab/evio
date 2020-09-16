@@ -41,13 +41,24 @@ namespace evio {
         if (byteBuffer == nullptr) {
             throw EvioException("Buffer arg is null");
         }
+
         reader.setBuffer(byteBuffer);
+
+        if (!reader.isEvioFormat()) {
+            std::cout << "EvioCompactReaderV6: buffer is NOT in evio format" << std::endl;
+            throw EvioException("buffer not in evio format");
+        }
     }
 
 
     /** {@inheritDoc} */
     void EvioCompactReaderV6::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         reader.setBuffer(buf);
+        if (!reader.isEvioFormat()) {
+            std::cout << "EvioCompactReaderV6: buffer is NOT in evio format" << std::endl;
+            throw EvioException("buffer not in evio format");
+        }
+        
         dictionary = nullptr;
         closed = false;
     }

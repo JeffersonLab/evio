@@ -49,12 +49,18 @@ namespace evio {
      * @param synced if true, this class's methods are mutex protected for thread safety.
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
-     *                       if first record number != 1 when checkRecNumSeq arg is true
+     *                       if first record number != 1 when checkRecNumSeq arg is true;
+     *                       if buffer data not in evio format.
      */
     EvioReaderV6::EvioReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkRecNumSeq, bool synced) {
         synchronized = synced;
         reader = std::make_shared<Reader>(byteBuffer);
         parser = std::make_shared<EventParser>();
+
+        if (!reader->isEvioFormat()) {
+            std::cout << "EvioCompactReaderV6: buffer is NOT in evio format" << std::endl;
+            throw EvioException("buffer not in evio format");
+        }
     }
 
 
@@ -63,7 +69,13 @@ namespace evio {
         if (synchronized) {
             const std::lock_guard<std::mutex> lock(mtx);
         }
+
         reader->setBuffer(buf);
+
+        if (!reader->isEvioFormat()) {
+            std::cout << "EvioCompactReaderV6: buffer is NOT in evio format" << std::endl;
+            throw EvioException("buffer not in evio format");
+        }
     }
 
 
@@ -111,8 +123,11 @@ namespace evio {
             const std::lock_guard<std::mutex> lock(mtx);
         }
 
-        std::shared_ptr<uint8_t> & feBuf = reader->getFirstEvent();
-        uint32_t len = reader->getFirstEventSize();
+        uint32_t len;
+        std::shared_ptr<uint8_t> & feBuf = reader->getFirstEvent(&len);
+        if (feBuf == nullptr) {
+            return nullptr;
+        }
 
         // Turn this buffer into an EvioEvent object
 
