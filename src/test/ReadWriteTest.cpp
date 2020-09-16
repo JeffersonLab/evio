@@ -377,41 +377,42 @@ cout << "Past creating Writer object" << endl;
             // Create node from this buffer
             std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
 
-            while (true) {
-                // random data array
-                //writer.addEvent(dataArray, 0, 20);
-cout << "add event of len = " << dataBuffer.remaining() << endl;
-                writer.addEvent(dataBuffer);
-
-                if (--loops < 1) break;
-            }
+//            while (true) {
+//                // random data array
+//                //writer.addEvent(dataArray, 0, 20);
+//cout << "add event of len = " << dataBuffer.remaining() << endl;
+//                writer.addEvent(dataBuffer);
+//
+//                if (--loops < 1) break;
+//            }
 
 cout << "add event of node,  data type = " << node->getDataTypeObj().toString() << ", bytes = " << node->getTotalBytes() << endl;
             writer.addEvent(*node.get());
+            writer.addEvent(*node.get());
 
-            //------------------------------
-            // Add entire record at once, 2x
-            //------------------------------
-
-            RecordOutput recOut(order);
-            ByteBuffer dataBuffer2(40);
-            for (int i=0; i < 20; i++) {
-                dataBuffer2.putShort(i);
-            }
-            dataBuffer2.flip();
-            cout << "add entire record (containing " << dataBuffer2.remaining() << " bytes of data) " << endl;
-            recOut.addEvent(dataBuffer2.array(), 40, 0);
-            writer.writeRecord(recOut);
-
-            cout << "add the previous record again, but with one more event added  ... " << endl;
-            recOut.addEvent(dataBuffer2.array(), 40, 0);
-            writer.writeRecord(recOut);
-
-            //------------------------------
-            // Add last event
-            //------------------------------
-            cout << "once more, add event of len = " << dataBuffer.remaining() << endl;
-            writer.addEvent(dataBuffer);
+//            //------------------------------
+//            // Add entire record at once, 2x
+//            //------------------------------
+//
+//            RecordOutput recOut(order);
+//            ByteBuffer dataBuffer2(40);
+//            for (int i=0; i < 20; i++) {
+//                dataBuffer2.putShort(i);
+//            }
+//            dataBuffer2.flip();
+//            cout << "add entire record (containing " << dataBuffer2.remaining() << " bytes of data) " << endl;
+//            recOut.addEvent(dataBuffer2.array(), 40, 0);
+//            writer.writeRecord(recOut);
+//
+//            cout << "add the previous record again, but with one more event added  ... " << endl;
+//            recOut.addEvent(dataBuffer2.array(), 40, 0);
+//            writer.writeRecord(recOut);
+//
+//            //------------------------------
+//            // Add last event
+//            //------------------------------
+//            cout << "once more, add event of len = " << dataBuffer.remaining() << endl;
+//            writer.addEvent(dataBuffer);
 
             //------------------------------
 
@@ -430,9 +431,9 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
             //---- READ --------------------
             //------------------------------
 
-            bool useHipoReader = true;
+            int readerType = 2;
 
-            if (useHipoReader) {
+            if (readerType == 0) {
                 Reader reader(buffer);
                 cout << "Past reader's constructor" << endl;
 
@@ -442,9 +443,9 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
                 string dict = reader.getDictionary();
                 cout << "   Got dictionary = " << dict << endl;
 
-                shared_ptr<uint8_t> &pFE = reader.getFirstEvent();
+                uint32_t feBytes;
+                shared_ptr<uint8_t> &pFE = reader.getFirstEvent(&feBytes);
                 if (pFE != nullptr) {
-                    int32_t feBytes = reader.getFirstEventSize();
                     cout << "   First Event bytes = " << feBytes << endl;
                     cout << "   First Event values = " << endl << "   ";
                     for (int i = 0; i < feBytes; i++) {
@@ -462,9 +463,75 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
                 }
             }
             // Use evio reader to see what happens when we have non-evio events ....
-            else {
+            else if (readerType == 1) {
+                try {
+                    EvioCompactReader reader(buffer);
+                    cout << "Past compact reader's constructor" << endl;
 
+                    int32_t evCount = reader.getEventCount();
+                    cout << "Read in buffer, got " << evCount << " events" << endl;
+
+                    string dict = reader.getDictionaryXML();
+                    cout << "   Got dictionary = " << dict << endl;
+
+                    // Compact reader does not deal with first events, so skip over it
+
+                    cout << "Print out regular events:" << endl;
+
+                    for (int i = 0; i < reader.getEventCount(); i++) {
+                        std::shared_ptr<EvioNode> compactNode = reader.getScannedEvent(i + 1);
+                        std::cout << "node ->\n" << compactNode->toString() << std::endl;
+
+                        auto dataBuf = compactNode->getByteData(true);
+//                        ByteBuffer buffie(4*compactNode->getDataLength());
+//                        auto dataBuf = compactNode->getByteData(buffie,true);
+
+                        Util::printBytes(dataBuf, dataBuf->position(), dataBuf->remaining(),
+                                   "  Event #" + std::to_string(i));
+                    }
+                }
+                catch (EvioException &e) {
+                    std::cout << "PROBLEM: " << e.what() << std::endl;
+                }
             }
+            else if (readerType == 2) {
+                try {
+                    EvioReader reader(buffer);
+                    cout << "Past compact reader's constructor" << endl;
+
+                    int32_t evCount = reader.getEventCount();
+                    cout << "Read in buffer, got " << evCount << " events" << endl;
+
+                    string dict = reader.getDictionaryXML();
+                    cout << "   Got dictionary = " << dict << endl;
+
+                    std::shared_ptr<EvioEvent> fe = reader.getFirstEvent();
+                    if (fe != nullptr) {
+                        cout << "   First Event bytes = " << fe->getTotalBytes() << endl;
+                        cout << "   First Event values = " << endl << "   ";
+                        std::vector<uint8_t> & rawByteVector = fe->getRawBytes();
+                        for (int i = 0; i < rawByteVector.size(); i++) {
+                            cout << (uint32_t) (rawByteVector[i]) << ",  ";
+                        }
+                        cout << endl << endl;
+                    }
+
+                    cout << "Print out regular events:" << endl;
+
+                    for (int i = 0; i < reader.getEventCount(); i++) {
+                        std::shared_ptr<EvioEvent> ev = reader.getEvent(i + 1);
+                        std::cout << "node ->\n" << ev->toString() << std::endl;
+
+                        auto dataVec = ev->getRawBytes();
+                        Util::printBytes(dataVec.data(), dataVec.size(),
+                                         "  Event #" + std::to_string(i));
+                    }
+                }
+                catch (EvioException &e) {
+                    std::cout << "PROBLEM: " << e.what() << std::endl;
+                }
+            }
+
         }
 
 
@@ -790,9 +857,9 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
             string dict = reader1.getDictionary();
             cout << "   Got dictionary = " << dict << endl;
 
-            shared_ptr<uint8_t> & pFE = reader1.getFirstEvent();
+            uint32_t feBytes;
+            shared_ptr<uint8_t> & pFE = reader1.getFirstEvent(&feBytes);
             if (pFE != nullptr) {
-                int32_t feBytes = reader1.getFirstEventSize();
                 cout << "   First Event bytes = " << feBytes << endl;
                 cout << "   First Event values = " << endl << "   ";
                 for (int i = 0; i < feBytes; i++) {
@@ -840,9 +907,9 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
             string dict = reader1.getDictionary();
             cout << "   Got dictionary = " << dict << endl;
 
-            shared_ptr<uint8_t> & pFE = reader1.getFirstEvent();
+            uint32_t feBytes;
+            shared_ptr<uint8_t> & pFE = reader1.getFirstEvent(&feBytes);
             if (pFE != nullptr) {
-                int32_t feBytes = reader1.getFirstEventSize();
                 auto feData = reinterpret_cast<char *>(pFE.get());
                 string feString(feData, feBytes);
 
