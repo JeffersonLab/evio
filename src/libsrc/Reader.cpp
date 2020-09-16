@@ -317,11 +317,16 @@ namespace evio {
 
     /**
      * Get a byte array representing the first event.
+     * @param size pointer filled with the size, in bytes, of the first event (0 if none).
+     *             If null, this is ignored.
      * @return byte array representing the first event. Null if none.
      */
-    std::shared_ptr<uint8_t> & Reader::getFirstEvent() {
+    std::shared_ptr<uint8_t> & Reader::getFirstEvent(uint32_t *size) {
         // Read in first event if necessary
         extractDictionaryAndFirstEvent();
+        if (size != nullptr) {
+            *size = firstEventSize;
+        }
         return firstEvent;
     }
 
