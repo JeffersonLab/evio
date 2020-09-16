@@ -61,7 +61,8 @@ namespace evio {
          *
          * @param buf ByteBuffer to be read
          * @throws EvioException if arg is null;
-         *                       if failure to read first block header
+         *                       if failure to read first block header;
+         *                       if buffer not in evio format.
          */
         virtual void setBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
 
