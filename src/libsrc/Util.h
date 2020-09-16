@@ -492,7 +492,7 @@ namespace evio {
                 }
                 // Accessing buf in this way does not change position or limit of buffer
                 std::cout << std::hex << std::noshowbase << std::internal << std::setfill('0') <<
-                std::setw(2) << (int)(buf[i]) << " ";
+                std::setw(2) << (int)(buf[i + position]) << " ";
             }
 
             std::cout << std::dec << std::endl << std::endl << std::setfill(' ');
