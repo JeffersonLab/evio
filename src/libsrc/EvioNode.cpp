@@ -1121,6 +1121,41 @@ namespace evio {
 
 
     /**
+     * Get the data associated with this node in ByteBuffer form.
+     * Depending on the copy argument, the given buffer will be filled with either
+     * a copy of or a view into this node's buffer.
+     * Position and limit are set for reading.<p>
+     *
+     * @param copy if <code>true</code>, then return a copy as opposed to a
+     *             view into this node's buffer.
+     * @return newly created ByteBuffer containing data.
+     *         Position and limit are set for reading.
+     */
+    std::shared_ptr<ByteBuffer> EvioNode::getByteData(bool copy) {
+        // The tricky thing to keep in mind is that the buffer
+        // which this node uses may also be used by other nodes.
+        // That means setting its limit and position may interfere
+        // with other operations being done to it.
+        // So even though it is less efficient, use a duplicate of the
+        // buffer which gives us our own limit and position.
+        ByteOrder order = buffer->order();
+        auto buffer2 = buffer->duplicate();
+        buffer2->order(order);
+        buffer2->limit(dataPos + 4*dataLen - pad).position(dataPos);
+std::cout << "getByteData: dataPos (pos) = " << dataPos << ", lim = " << (dataPos + 4*dataLen - pad) << std::endl;
+        if (copy) {
+            auto newBuf = std::make_shared<ByteBuffer>(4*dataLen - pad);
+            newBuf->order(order);
+            newBuf->put(buffer2);
+            newBuf->flip();
+            return newBuf;
+        }
+
+        return buffer2;
+    }
+
+
+    /**
      * Get the data associated with this node as an 32-bit integer vector.
      * Store it and return it in future calls (like in event builder).
      * If data is of a type less than 32 bits, the last int will be junk.

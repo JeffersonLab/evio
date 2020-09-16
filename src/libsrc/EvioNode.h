@@ -70,7 +70,7 @@ namespace evio {
         /** Position of the record in buffer containing this node in bytes
          *  @since version 6. */
         size_t recordPos = 0;
-        
+
         /** Store data in int array form if calculated. */
         std::vector<uint32_t> data;
 
@@ -234,6 +234,8 @@ namespace evio {
 
         ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
         std::shared_ptr<ByteBuffer> & getByteData(std::shared_ptr<ByteBuffer> & dest, bool copy);
+        std::shared_ptr<ByteBuffer> getByteData(bool copy);
+
         std::vector<uint32_t> & getIntData();
         void getIntData(std::vector<uint32_t> & intData);
         void getLongData(std::vector<uint64_t> & longData);
