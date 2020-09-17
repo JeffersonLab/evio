@@ -260,7 +260,6 @@ namespace evio {
          */
         bool evioFormat = true;
 
-    private:
         /** If true, the last sequential call was to getNextEvent or getNextEventNode.
          *  If false, the last sequential call was to getPrevEvent. Used to determine
          *  which event is prev or next. */
@@ -269,7 +268,6 @@ namespace evio {
         uint32_t evioVersion = 6;
 
 
-    private:
 
         void setByteOrder(ByteOrder & order);
         static uint32_t getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLen);
