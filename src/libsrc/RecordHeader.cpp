@@ -1276,7 +1276,7 @@ namespace evio {
         }
 
         // First read the magic word to establish endianness
-        int magicWord = buffer.getInt(28 + offset);
+        int magicWord = buffer.getInt(MAGIC_OFFSET + offset);
 
         // If it's NOT in the proper byte order ...
         if (magicWord != HEADER_MAGIC) {
@@ -1333,7 +1333,7 @@ namespace evio {
         }
 
         // First read the magic word to establish endianness
-        headerMagicWord = buffer.getInt(28 + offset);    // 7*4
+        headerMagicWord = buffer.getInt(MAGIC_OFFSET + offset);    // 7*4
 
         // If it's NOT in the proper byte order ...
         if (headerMagicWord != HEADER_MAGIC) {
@@ -1361,7 +1361,7 @@ namespace evio {
         }
 
         // Look at the bit-info word
-        bitInfo = buffer.getInt(20 + offset);   // 5*4
+        bitInfo = buffer.getInt(BIT_INFO_OFFSET + offset);   // 5*4
 
         // Set padding and header type
         decodeBitInfoWord(bitInfo);
@@ -1371,31 +1371,32 @@ namespace evio {
             throw EvioException("buffer is in evio format version " + to_string(bitInfo & 0xff));
         }
 
-        recordLengthWords   = buffer.getInt(     offset);        //  0*4
+        recordLengthWords   = buffer.getInt(RECORD_LENGTH_OFFSET + offset);         //  0*4
         recordLength        = 4*recordLengthWords;
-        recordNumber        = buffer.getInt( 4 + offset);        //  1*4
-        headerLengthWords   = buffer.getInt( 8 + offset);        //  2*4
+std::cout << "readHeader:  recordLengthWords = " << recordLengthWords << ", recordLength = " << recordLength << std::endl;
+        recordNumber        = buffer.getInt( RECORD_NUMBER_OFFSET + offset);        //  1*4
+        headerLengthWords   = buffer.getInt( HEADER_LENGTH_OFFSET + offset);        //  2*4
         setHeaderLength(4*headerLengthWords);
-        entries             = buffer.getInt(12 + offset);        //  3*4
+        entries             = buffer.getInt(EVENT_COUNT_OFFSET + offset);           //  3*4
 
-        indexLength         = buffer.getInt(16 + offset);        //  4*4
+        indexLength         = buffer.getInt(INDEX_ARRAY_OFFSET + offset);           //  4*4
         //cout << "readHeader (Record): indexLen = " << indexLength << endl;
         setIndexLength(indexLength);
 
-        userHeaderLength    = buffer.getInt(24 + offset);        //  6*4
+        userHeaderLength    = buffer.getInt(USER_LENGTH_OFFSET + offset);           //  6*4
         setUserHeaderLength(userHeaderLength);
 
         // uncompressed data length
-        dataLength          = buffer.getInt(32 + offset);        //  8*4
+        dataLength          = buffer.getInt(UNCOMPRESSED_LENGTH_OFFSET + offset);   //  8*4
         setDataLength(dataLength);
 
-        uint32_t compressionWord = buffer.getInt(36 + offset);   //  9*4
+        uint32_t compressionWord = buffer.getInt(COMPRESSION_TYPE_OFFSET + offset); //  9*4
         compressionType = Compressor::toCompressionType((compressionWord >> 28) & 0xf);
         compressedDataLengthWords = (compressionWord & 0x0FFFFFFF);
         compressedDataLengthPadding = (bitInfo >> 24) & 0x3;
         compressedDataLength = compressedDataLengthWords*4 - compressedDataLengthPadding;
-        recordUserRegisterFirst  = buffer.getLong(40 + offset);  // 10*4
-        recordUserRegisterSecond = buffer.getLong(48 + offset);  // 12*4
+        recordUserRegisterFirst  = buffer.getLong(REGISTER1_OFFSET + offset);       // 10*4
+        recordUserRegisterSecond = buffer.getLong(REGISTER2_OFFSET + offset);       // 12*4
     }
 
 
