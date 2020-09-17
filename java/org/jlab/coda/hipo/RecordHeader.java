@@ -1251,12 +1251,12 @@ System.out.println("writeTrailer buf: put index");
      */
     static public boolean isCompressed(ByteBuffer buffer, int offset) throws HipoException {
 
-        if (buffer == null || (buffer.capacity() - offset) < 40) {
+        if (buffer == null || (buffer.limit() - offset) < 40) {
             throw new HipoException("buffer is null or too small");
         }
 
         // First read the magic word to establish endianness
-        int headerMagicWord = buffer.getInt(28 + offset);
+        int headerMagicWord = buffer.getInt(MAGIC_OFFSET + offset);
         ByteOrder byteOrder;
         
         // If it's NOT in the proper byte order ...
@@ -1277,8 +1277,8 @@ System.out.println("writeTrailer buf: put index");
             }
         }
 
-        int compressionWord = buffer.getInt(36 + offset);
-        return ((compressionWord >>> 28) == 0);
+        int compressionWord = buffer.getInt(COMPRESSION_TYPE_OFFSET + offset);
+        return ((compressionWord >>> 28) != 0);
     }
 
 
@@ -1299,7 +1299,7 @@ System.out.println("writeTrailer buf: put index");
 //System.out.println("RecordHeader.readHeader: buf lim = " + buffer.limit() +
 //                ", cap = " + buffer.capacity() + ", pos = " + buffer.position());
         // First read the magic word to establish endianness
-        headerMagicWord = buffer.getInt(28 + offset);    // 7*4
+        headerMagicWord = buffer.getInt(MAGIC_OFFSET + offset);    // 7*4
 
         // If it's NOT in the proper byte order ...
         if (headerMagicWord != HEADER_MAGIC) {
@@ -1328,7 +1328,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
 //Utilities.printBuffer(buffer, 0, 40, "RecordHeader: BUFFER:");
 
         // Look at the bit-info word
-        bitInfo = buffer.getInt(20 + offset);   // 5*4
+        bitInfo = buffer.getInt(BIT_INFO_OFFSET + offset);   // 5*4
 
         // Set padding and header type
         decodeBitInfoWord(bitInfo);
@@ -1338,30 +1338,31 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
             throw new HipoException("buffer is in evio format version " + (bitInfo & 0xff));
         }
 
-        recordLengthWords   = buffer.getInt(     offset);        //  0*4
+        recordLengthWords   = buffer.getInt(RECORD_LENGTH_OFFSET + offset);         //  0*4
         recordLength        = 4*recordLengthWords;
-        recordNumber        = buffer.getInt( 4 + offset);        //  1*4
-        headerLengthWords   = buffer.getInt( 8 + offset);        //  2*4
+        System.out.println("readHeader:  recordLengthWords = " + recordLengthWords + ", recordLength = " + recordLength);
+        recordNumber        = buffer.getInt( RECORD_NUMBER_OFFSET + offset);        //  1*4
+        headerLengthWords   = buffer.getInt( HEADER_LENGTH_OFFSET + offset);        //  2*4
         setHeaderLength(4*headerLengthWords);
-        entries             = buffer.getInt(12 + offset);        //  3*4
+        entries             = buffer.getInt(EVENT_COUNT_OFFSET + offset);           //  3*4
 
-        indexLength         = buffer.getInt(16 + offset);        //  4*4
+        indexLength         = buffer.getInt(INDEX_ARRAY_OFFSET + offset);           //  4*4
         setIndexLength(indexLength);
 
-        userHeaderLength    = buffer.getInt(24 + offset);        //  6*4
+        userHeaderLength    = buffer.getInt(USER_LENGTH_OFFSET + offset);           //  6*4
         setUserHeaderLength(userHeaderLength);
 
         // uncompressed data length
-        dataLength          = buffer.getInt(32 + offset);        //  8*4
+        dataLength          = buffer.getInt(UNCOMPRESSED_LENGTH_OFFSET + offset);   //  8*4
         setDataLength(dataLength);
 
-        int compressionWord = buffer.getInt(36 + offset);        //  9*4
+        int compressionWord = buffer.getInt(COMPRESSION_TYPE_OFFSET + offset);      //  9*4
         compressionType     = CompressionType.getCompressionType(compressionWord >>> 28);
         compressedDataLengthWords = (compressionWord & 0x0FFFFFFF);
         compressedDataLengthPadding = (bitInfo >>> 24) & 0x3;
         compressedDataLength = compressedDataLengthWords*4 - compressedDataLengthPadding;
-        recordUserRegisterFirst  = buffer.getLong(40 + offset);  // 10*4
-        recordUserRegisterSecond = buffer.getLong(48 + offset);  // 12*4
+        recordUserRegisterFirst  = buffer.getLong(REGISTER1_OFFSET + offset);       // 10*4
+        recordUserRegisterSecond = buffer.getLong(REGISTER2_OFFSET + offset);       // 12*4
     }
 
 
