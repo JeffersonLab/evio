@@ -1288,7 +1288,11 @@ System.out.println("createRecord: add first event to record");
             asyncFileChannel.close();
             recordLengths.clear();
         }
-        
+        else {
+            // Get it ready for reading
+            buffer.limit((int)writerBytesWritten).position(0);
+        }
+
         closed = true;
         opened = false;
        //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
