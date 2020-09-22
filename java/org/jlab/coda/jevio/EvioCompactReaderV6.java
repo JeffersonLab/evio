@@ -78,6 +78,9 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
 
         try {
             reader = new Reader(byteBuffer, pool);
+            if (!reader.isEvioFormat()) {
+                throw new EvioException("buffer not in evio format");
+            }
         }
         catch (HipoException e) {
             throw new EvioException(e);
@@ -120,6 +123,9 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
     public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
         try {
             reader.setBuffer(buf, pool);
+            if (!reader.isEvioFormat()) {
+                throw new EvioException("buffer not in evio format");
+            }
         }
         catch (HipoException e) {
             throw new EvioException(e);
