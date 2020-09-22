@@ -1118,7 +1118,7 @@ namespace evio {
             // Second the index
             if (indexLen > 0) {
                 // Get vector of ints out of shared pointer
-                std::vector<uint32_t> vec = *(recordLengths.get());
+                std::vector<uint32_t> & vec = *(recordLengths.get());
                 for (int i=0; i < recordLengths->size(); i++) {
                     Util::toBytes(vec[i], order, array + HEADER_SIZE_BYTES + 4*i);
                 }
@@ -1170,7 +1170,7 @@ namespace evio {
             // Second the index
             if (indexLen > 0) {
                 // Get vector of ints out of shared pointer
-                std::vector<uint32_t> vec = *(recordLengths.get());
+                std::vector<uint32_t> & vec = *(recordLengths.get());
                 for (int i=0; i < recordLengths->size(); i++) {
                     Util::toBytes(vec[i], order, array, HEADER_SIZE_BYTES + off + 4*i);
                 }
@@ -1231,7 +1231,7 @@ namespace evio {
             // Second the index
             if (indexLen > 0) {
                 // Get vector of ints out of shared pointer
-                std::vector<uint32_t> vec = *(recordLengths.get());
+                std::vector<uint32_t> & vec = *(recordLengths.get());
                 for (int i=0; i < recordLengths->size(); i++) {
                     buf.putInt(vec[i]);
                 }
@@ -1373,7 +1373,6 @@ namespace evio {
 
         recordLengthWords   = buffer.getInt(RECORD_LENGTH_OFFSET + offset);         //  0*4
         recordLength        = 4*recordLengthWords;
-std::cout << "readHeader:  recordLengthWords = " << recordLengthWords << ", recordLength = " << recordLength << std::endl;
         recordNumber        = buffer.getInt( RECORD_NUMBER_OFFSET + offset);        //  1*4
         headerLengthWords   = buffer.getInt( HEADER_LENGTH_OFFSET + offset);        //  2*4
         setHeaderLength(4*headerLengthWords);
