@@ -973,7 +973,7 @@ namespace evio {
                     int words = uncompressedDataSize/4;
                     if (uncompressedDataSize % 4 != 0) words++;
                     header->setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
-//std::cout << "set header length = " << header->getLength() << ", uncompressed data size = " << uncompressedDataSize << std::endl;
+//std::cout << "  build(): set header length = " << header->getLength() << ", uncompressed data size = " << uncompressedDataSize << std::endl;
             }
         }
         catch (EvioException & e) {/* should not happen */}
