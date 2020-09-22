@@ -67,7 +67,8 @@ public interface IEvioCompactReader {
      *
      * @param buf ByteBuffer to be read
      * @throws EvioException if arg is null;
-     *                       if failure to read first block header
+     *                       if failure to read first block header;
+     *                       buf not in evio format.
      */
     void setBuffer(ByteBuffer buf) throws EvioException;
 
@@ -81,7 +82,8 @@ public interface IEvioCompactReader {
      * @param buf  ByteBuffer to be read
      * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
      * @throws EvioException if arg is null;
-     *                       if failure to read first block header
+     *                       if failure to read first block header;
+     *                       buf not in evio format.
      */
     void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException;
 
