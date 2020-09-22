@@ -108,6 +108,7 @@ namespace evio {
         ByteBuffer & zero();
 
         static std::shared_ptr<ByteBuffer> copyBuffer(const std::shared_ptr<const ByteBuffer> & srcBuf);
+        void copyData(const std::shared_ptr<const ByteBuffer> & srcBuf, size_t pos, size_t limit);
         void copy(const ByteBuffer & srcBuf);
         void copy(const std::shared_ptr<const ByteBuffer> & srcBuf);
         bool equals(const ByteBuffer & other);
@@ -206,7 +207,7 @@ namespace evio {
 
         // Utility Methods
         void printBytes(size_t offset, size_t bytes, std::string const & label);
-        std::string toString();
+        std::string toString() const;
 
     private:
 

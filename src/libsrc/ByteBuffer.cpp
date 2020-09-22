@@ -272,6 +272,38 @@ namespace evio {
 
 
     /**
+     * Copy the source buffer's data (position to limit) into this buffer starting at local position 0.
+     * Limit and capacity are set to the "limit - position" bytes of srcBuf.
+     * This can reallocate memory if more is needed and can therefore resize this buffer.
+     * @param srcBuf ByteBuffer to copy data from.
+     */
+    void ByteBuffer::copyData(const std::shared_ptr<const ByteBuffer> & srcBuf, size_t position, size_t limit) {
+        // How many bytes do we copy?
+        size_t newSize = limit - position;
+
+        if (newSize < 1) return;
+        if (newSize > cap) {
+            std::cout << "copyData:  REALLOCATING MEM!!!\n";
+            buf = std::shared_ptr<uint8_t>(new uint8_t[newSize], std::default_delete<uint8_t[]>());
+            cap = newSize;
+            totalSize = newSize;
+        }
+
+        pos = 0;
+        lim = newSize;
+        mrk = -1;
+        off = 0;
+        byteOrder = srcBuf->byteOrder;
+        isHostEndian = srcBuf->isHostEndian;
+        isLittleEndian = srcBuf->isLittleEndian;
+
+        memcpy((void *)(buf.get()),
+               (const void *)(srcBuf->buf.get() + srcBuf->arrayOffset() + position),
+                newSize);
+    }
+
+
+    /**
      * This method writes zeroes into the buffer memory (from pos = 0 to capacity).
      * If this ByteBuffer was obtained through calling {@link #slice}, the underlying
      * data array may not be fully zeroed as position = 0 may occur at a non-zero offset
@@ -668,7 +700,7 @@ namespace evio {
      * @return  the same byte buffer as passed in as the argument.
      */
     std::shared_ptr<ByteBuffer> & ByteBuffer::duplicate(std::shared_ptr<ByteBuffer> & destBuf) {
-        auto buff = *(destBuf.get());
+        auto & buff = *(destBuf.get());
         duplicate(buff);
         return destBuf;
     }
@@ -808,7 +840,7 @@ namespace evio {
      * @return  the same byte buffer as passed in as the argument.
     */
     std::shared_ptr<ByteBuffer> & ByteBuffer::slice(std::shared_ptr<ByteBuffer> & destBuf) {
-        auto buff = *(destBuf.get());
+        auto & buff = *(destBuf.get());
         slice(buff);
         return destBuf;
     }
@@ -1739,7 +1771,7 @@ namespace evio {
      * Obtain a string representation of the buffer.
      * @return a string representation of the buffer.
      */
-    std::string ByteBuffer::toString() {
+    std::string ByteBuffer::toString() const {
         std::stringstream ss;
 
         ss << "buffer capacity: " << cap << std::endl;
