@@ -422,20 +422,42 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
 
             // Get ready-to-read buffer
             buffer = writer.getBuffer();
+
+            auto copy = std::make_shared<ByteBuffer>(*(buffer.get()));
+            std::memcpy(copy->array(), buffer->array(), buffer->capacity());
+
             cout << "Finished buffer ->\n" << buffer->toString() << endl;
             cout << "Past close, now read it" << endl;
 
             Util::printBytes(buffer, 0, 1040, "Buffer Bytes");
 
             //------------------------------
-            //---- READ --------------------
+            //----  READER1  ---------------
             //------------------------------
 
-            int readerType = 2;
+            int readerType = 0;
 
-            if (readerType == 0) {
+//            if (readerType == 0) {
+
                 Reader reader(buffer);
                 cout << "Past reader's constructor" << endl;
+
+                // COmpare original with copy
+                bool unchanged = true;
+                int index = 0;
+                for (int i=0; i < buffer->capacity(); i++) {
+                    if (buffer->array()[i] != copy->array()[i]) {
+                        unchanged = false;
+                        index = i;
+                        std::cout << "Orig buffer CHANGED at byte #" << index << std::endl;
+                        std::cout << ", " << +buffer->array()[i] << " changed to " << +copy->array()[i] << std::endl;
+                        Util::printBytes(buffer, 0, 200, "Buffer Bytes");
+                        break;
+                    }
+                }
+                if (unchanged) {
+                    std::cout << "ORIGINAL buffer Unchanged!\n";
+                }
 
                 int32_t evCount = reader.getEventCount();
                 cout << "Read in buffer, got " << evCount << " events" << endl;
@@ -455,57 +477,87 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
                 }
 
                 cout << "Print out regular events:" << endl;
+                shared_ptr<uint8_t> data;
                 uint32_t byteLen;
 
                 for (int i = 0; i < reader.getEventCount(); i++) {
-                    shared_ptr<uint8_t> data = reader.getEvent(i, &byteLen);
+                    data = reader.getEvent(i, &byteLen);
                     Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
                 }
-            }
-            // Use evio reader to see what happens when we have non-evio events ....
-            else if (readerType == 1) {
-                try {
-                    EvioCompactReader reader(buffer);
-                    cout << "Past compact reader's constructor" << endl;
 
-                    int32_t evCount = reader.getEventCount();
-                    cout << "Read in buffer, got " << evCount << " events" << endl;
+//            }
+//            // Use evio reader to see what happens when we have non-evio events ....
+//            else if (readerType == 1) {
 
-                    string dict = reader.getDictionaryXML();
-                    cout << "   Got dictionary = " << dict << endl;
+            std::cout << "--------------------------------------------\n";
+            std::cout << "--------------  Reader 2 -------------------\n";
+            std::cout << "--------------------------------------------\n";
+
+            std::shared_ptr<ByteBuffer> dataBuf = nullptr;
+
+            try {
+                EvioCompactReader reader2(copy);
+
+                    int32_t evCount2 = reader2.getEventCount();
+                    cout << "Read in buffer, got " << evCount2 << " events" << endl;
+
+                    string dict2 = reader2.getDictionaryXML();
+                    cout << "   Got dictionary = " << dict2 << endl;
 
                     // Compact reader does not deal with first events, so skip over it
 
-                    cout << "Print out regular events:" << endl;
+                    std::cout << "Print out regular events:" << std::endl;
 
-                    for (int i = 0; i < reader.getEventCount(); i++) {
-                        std::shared_ptr<EvioNode> compactNode = reader.getScannedEvent(i + 1);
-                        std::cout << "node ->\n" << compactNode->toString() << std::endl;
+                    for (int i = 0; i < reader2.getEventCount(); i++) {
+                        std::shared_ptr<EvioNode> compactNode = reader2.getScannedEvent(i + 1);
 
-                        auto dataBuf = compactNode->getByteData(true);
+                        dataBuf = std::make_shared<ByteBuffer>(compactNode->getTotalBytes());
+                        dataBuf->order(order);
+                        compactNode->getByteData(dataBuf, true);
+
 //                        ByteBuffer buffie(4*compactNode->getDataLength());
 //                        auto dataBuf = compactNode->getByteData(buffie,true);
 
                         Util::printBytes(dataBuf, dataBuf->position(), dataBuf->remaining(),
-                                   "  Event #" + std::to_string(i));
+                                   "  Event #" + std::to_string(i) + " at pos " + std::to_string(dataBuf->position()));
                     }
                 }
                 catch (EvioException &e) {
                     std::cout << "PROBLEM: " << e.what() << std::endl;
                 }
-            }
-            else if (readerType == 2) {
-                try {
-                    EvioReader reader(buffer);
+
+                for (int i=0; i < dataBuf->limit(); i++) {
+                    if ((data.get()[i+8] != dataBuf->array()[i])) {
+                        unchanged = false;
+                        index = i;
+                        std::cout << "Reader different than EvioCompactReader at byte #" << index << std::endl;
+                        std::cout << showbase << hex << +data.get()[i] << " changed to " << +dataBuf->array()[i] << std::endl;
+                        break;
+                    }
+                }
+                if (unchanged) {
+                    std::cout << "EVENT same whether using Reader or EvioCompactReader!\n";
+                }
+
+
+            //            }
+//            else if (readerType == 2) {
+
+            std::cout << "--------------------------------------------\n";
+            std::cout << "--------------  Reader 3 -------------------\n";
+            std::cout << "--------------------------------------------\n";
+
+            try {
+                    EvioReader reader3(buffer);
                     cout << "Past compact reader's constructor" << endl;
 
-                    int32_t evCount = reader.getEventCount();
-                    cout << "Read in buffer, got " << evCount << " events" << endl;
+                    int32_t evCount3 = reader3.getEventCount();
+                    cout << "Read in buffer, got " << evCount3 << " events" << endl;
 
-                    string dict = reader.getDictionaryXML();
-                    cout << "   Got dictionary = " << dict << endl;
+                    string dict3 = reader3.getDictionaryXML();
+                    cout << "   Got dictionary = " << dict3 << endl;
 
-                    std::shared_ptr<EvioEvent> fe = reader.getFirstEvent();
+                    std::shared_ptr<EvioEvent> fe = reader3.getFirstEvent();
                     if (fe != nullptr) {
                         cout << "   First Event bytes = " << fe->getTotalBytes() << endl;
                         cout << "   First Event values = " << endl << "   ";
@@ -518,8 +570,8 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
 
                     cout << "Print out regular events:" << endl;
 
-                    for (int i = 0; i < reader.getEventCount(); i++) {
-                        std::shared_ptr<EvioEvent> ev = reader.getEvent(i + 1);
+                    for (int i = 0; i < reader3.getEventCount(); i++) {
+                        std::shared_ptr<EvioEvent> ev = reader3.getEvent(i + 1);
                         std::cout << "node ->\n" << ev->toString() << std::endl;
 
                         auto dataVec = ev->getRawBytes();
@@ -532,7 +584,7 @@ cout << "add event of node,  data type = " << node->getDataTypeObj().toString() 
                 }
             }
 
-        }
+//        }
 
 
 
