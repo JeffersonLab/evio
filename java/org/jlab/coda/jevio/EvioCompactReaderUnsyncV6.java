@@ -65,8 +65,10 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      * @param pool pool of EvioNode objects.
      *
      * @see EventWriter
-     * @throws EvioException if buffer arg is null;
-     *                       failure to read first block header
+     * @throws EvioException if buffer arg is null,
+     *                       buffer too small,
+     *                       buffer not in the proper format,
+     *                       or earlier than version 6.
      */
     public EvioCompactReaderUnsyncV6(ByteBuffer byteBuffer, EvioNodeSource pool)
             throws EvioException {
@@ -77,6 +79,9 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
         try {
             reader = new Reader(byteBuffer, pool);
+            if (!reader.isEvioFormat()) {
+                throw new EvioException("buffer not in evio format");
+            }
         }
         catch (HipoException e) {
             throw new EvioException(e);
@@ -93,6 +98,9 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
     public void setBuffer(ByteBuffer buf) throws EvioException {
         try {
             reader.setBuffer(buf);
+            if (!reader.isEvioFormat()) {
+                throw new EvioException("buffer not in evio format");
+            }
         }
         catch (HipoException e) {
             throw new EvioException(e);
@@ -106,6 +114,9 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
     public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
         try {
             reader.setBuffer(buf, pool);
+            if (!reader.isEvioFormat()) {
+                throw new EvioException("buffer not in evio format");
+            }
         }
         catch (HipoException e) {
             throw new EvioException(e);
