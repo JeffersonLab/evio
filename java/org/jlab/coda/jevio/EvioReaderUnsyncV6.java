@@ -148,13 +148,17 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
      *                       and throw an exception if it is not sequential starting
      *                       with 1
      * @see EventWriter
-     * @throws EvioException if buffer arg is null;
-     *                       if first record number != 1 when checkRecNumSeq arg is true
+     * @throws EvioException if buf is null;
+     *                       if first record number != 1 when checkRecNumSeq arg is true;
+     *                       if buffer too small, not in the proper format, or earlier than version 6.
      */
     public EvioReaderUnsyncV6(ByteBuffer byteBuffer, boolean checkRecNumSeq) throws EvioException {
 
          try {
              reader = new Reader(byteBuffer);
+             if (!reader.isEvioFormat()) {
+                 throw new EvioException("buffer not in evio format");
+             }
              parser = new EventParser();
          }
          catch (HipoException e) {
@@ -170,12 +174,16 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
      * @param buf ByteBuffer to be read
      * @throws IOException   if read failure
      * @throws EvioException if buf is null;
-     *                       if first record number != 1 when checkRecNumSeq arg is true
+     *                       if first record number != 1 when checkRecNumSeq arg is true;
+     *                       if buffer too small, not in the proper format, or earlier than version 6.
      */
     @Override
     public void setBuffer(ByteBuffer buf) throws EvioException, IOException {
         try {
             reader.setBuffer(buf);
+            if (!reader.isEvioFormat()) {
+                throw new EvioException("buffer not in evio format");
+            }
         }
         catch (HipoException e) {/* never thrown cause buf never null */}
     }
