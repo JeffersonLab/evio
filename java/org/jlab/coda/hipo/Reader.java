@@ -191,7 +191,13 @@ public class Reader {
      * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
     protected int sequentialIndex = -1;
 
-    
+    /**
+     * If this buf/file contains non-evio events (permissible to read in this class),
+     * set this flag to false, which helps EvioCompactReader and EvioReader to avoid
+     * choking while trying to parse them.
+     */
+    protected boolean evioFormat = true;
+
     /** If true, the last sequential call was to getNextEvent or getNextEventNode.
      *  If false, the last sequential call was to getPrevEvent. Used to determine
      *  which event is prev or next. */
@@ -501,6 +507,12 @@ public class Reader {
     public boolean isCompressed() {return compressed;}
 
     /**
+     * Does this file/buffer contain non-evio format events?
+     * @return true if all events are in evio format, else false.
+     */
+    public boolean isEvioFormat() {return evioFormat;}
+
+    /**
      * Get the XML format dictionary if there is one.
      * @return XML format dictionary, else null.
      */
@@ -741,12 +753,12 @@ public class Reader {
 
         if (eventIndex.setEvent(index)) {
             // If here, the event is in the next record
-            //System.out.println("[READER] getEvent: read record");
+//System.out.println("[READER] getEvent: read record at index =" + eventIndex.getRecordNumber());
             readRecord(eventIndex.getRecordNumber());
         }
 
         if (inputRecordStream.getEntries() == 0) {
-            //System.out.println("[READER] getEvent: first time reading");
+//System.out.println("[READER] getEvent: first time reading record at index = " + eventIndex.getRecordNumber());
             readRecord(eventIndex.getRecordNumber());
         }
         
@@ -839,8 +851,6 @@ public class Reader {
      * @throws HipoException if file/buffer not in hipo format
      */
     public boolean readRecord(int index) throws HipoException {
-        System.out.println("Reader.readRecord:  index = " + index + ", recPos.size() = " +
-                                   recordPositions.size());
         if (index >= 0 && index < recordPositions.size()) {
             RecordPosition pos = recordPositions.get(index);
             if (fromFile) {
@@ -988,7 +998,7 @@ public class Reader {
      *      <li>record length in bytes (inclusive)</li>
      *      <li>compression type</li>
      *      <li>header length in bytes</li>
-     *      <li>index array length in bytes</li>
+     *      <li>index array length in bytes (not padded) </li>
      *      <li>user header length in bytes</li>
      *      <li>uncompressed data length in bytes (w/o record header)</li>
      *  </ol>
@@ -1030,10 +1040,10 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
      * @param buf   ByteBuffer containing evio/hipo data
      * @param info  integer array containing evio/hipo data. Elements are:
      *  <ol start="0">
-     *      <li>compressed length in bytes</li>
-     *      <li>uncompressed length in bytes</li>
+     *      <li>compressed length in bytes (padded) </li>
+     *      <li>uncompressed length in bytes (padded) </li>
       *  </ol>
-     * @return total compressed hipo/evio data in bytes.
+     * @return total uncompressed hipo/evio data in bytes (padded).
      * @throws BufferUnderflowException if not enough data in buffer.
      * @throws HipoException null arg(s), negative offset, or info.length &lt; 7.
      */
@@ -1046,29 +1056,32 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
 
         int offset = buf.position();
         int totalCompressed = 0;
-        int recordBytes, totalBytes = 0;
+        int totalBytes = 0;
 
-        do {
+        while (true) {
             // Look at the record
             findRecordInfo(buf, offset, info);
 
             // Total uncompressed length of record
-            recordBytes = info[3] + info[4] + info[5] + info[6];
+            totalBytes += info[3] + info[4] +
+                          4*Utilities.getWords(info[5]) + // user array + padding
+                          4*Utilities.getWords(info[6]);  // uncompressed data + padding
 
             // Track total uncompressed & compressed sizes
-            totalBytes += recordBytes;
             totalCompressed += info[1];
 
             // Hop over record
             offset += info[1];
 
-        } while (!RecordHeader.isLastRecord(info[0])); // Go to the next record if any
+            // Quit after last record
+            if (RecordHeader.isLastRecord(info[0])) break;
+        }
 
         // No longer input, we now use array for output
         info[0] = totalCompressed;
         info[1] = totalBytes;
 
-        return totalCompressed;
+        return totalBytes;
     }
 
     /**
@@ -1095,18 +1108,17 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
      */
     public ByteBuffer scanBuffer() throws HipoException, BufferUnderflowException {
 
-        // Quick check to see if data in buffer is compressed (pos/limit unchanged)
         if (!RecordHeader.isCompressed(buffer, bufferOffset)) {
             // Since data is not compressed ...
-            scanUncompressedBuffer();
+           scanUncompressedBuffer();
             return buffer;
         }
 
         // The previous method call will set the endianness of the buffer properly.
         // Hop through ALL RECORDS to find their total lengths. This does NOT
         // change pos/limit of buffer.
-        int totalCompressedBytes = getTotalByteCounts(buffer, headerInfo);
-        int totalUncompressedBytes = headerInfo[1];
+        int totalUncompressedBytes = getTotalByteCounts(buffer, headerInfo);
+        int totalCompressedBytes = headerInfo[0];
 
         ByteBuffer bigEnoughBuf;
         boolean useTempBuffer = false;
@@ -1153,10 +1165,11 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 (tempBuffer.capacity() < totalUncompressedBytes + bufferOffset)) {
                  tempBuffer = ByteBuffer.allocate(totalUncompressedBytes + bufferOffset + 4096);
             }
-            tempBuffer.order(buffer.order()).limit(tempBuffer.capacity()).position(0);
+            tempBuffer.order(buffer.order()).limit(tempBuffer.capacity()).position(bufferOffset);
 
             bigEnoughBuf = tempBuffer;
-            // Put stuff starting at bigEnoughBuf.position() = 0.
+            // Put stuff starting at bigEnoughBuf->position() = bufferOffset
+            // so code is same whether using temp or new buffer.
         }
 
         boolean isArrayBacked = (bigEnoughBuf.hasArray() && buffer.hasArray());
@@ -1170,19 +1183,22 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
         int bytesLeft = totalUncompressedBytes;
 
 //System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft = " + bytesLeft);
-        // Keep track of the # of records, events, and valid words in file/buffer
-        int eventCount = 0, byteLen, recordBytes, eventsInRecord;
+        // Keep track of the # of records, events, and valid words in file/buffer.
+        // eventPlace is the place of each event (evio or not) with repect to each other (0, 1, 2 ...)
+        int eventPlace = 0, byteLen;
         eventNodes.clear();
         recordPositions.clear();
         eventIndex.clear();
         // TODO: this should NOT change in records in 1 buffer, only BETWEEN buffers!!!!!!!!!!!!
         recordNumberExpected = 1;
 
+        // Try to allocate this only once
+        int[] eventLengths = new int[2000];
+
         // Go through data record-by-record
         do {
             // If this is not the first record anymore, then the limit of bigEnoughBuf,
             // set above, may not be big enough.
-
 
             // Uncompress record in buffer and place into bigEnoughBuf
             int origRecordBytes = inputRecordStream.uncompressRecord(
@@ -1193,11 +1209,17 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             // bigEnoughBuf.position = after header/index/user, just before data.
             // What exactly the decompression methods do is unknown.
 
+            // recordHeader is now describing the uncompressed buffer, bigEnoughBuf
+            int eventCount = recordHeader.getEntries();
+            int recordHeaderLen = recordHeader.getHeaderLength();
+            int recordBytes = recordHeader.getLength();
+
             // uncompressRecord(), above, read the header. Save the first header.
             if (!haveFirstRecordHeader) {
                 // First time through, save byte order and version
                 byteOrder = recordHeader.getByteOrder();
                 buffer.order(byteOrder);
+                bigEnoughBuf.order(byteOrder);
                 evioVersion = recordHeader.getVersion();
                 firstRecordHeader = new RecordHeader(recordHeader);
                 compressed = recordHeader.getCompressionType() != CompressionType.RECORD_UNCOMPRESSED;
@@ -1223,15 +1245,26 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
             }
 
             // Header is now describing the uncompressed buffer, bigEnoughBuf
-            recordBytes = recordHeader.getLength();
-            eventsInRecord = recordHeader.getEntries();
-            RecordPosition rp = new RecordPosition(position, recordBytes, eventsInRecord);
+            RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
             recordPositions.add(rp);
             // Track # of events in this record for event index handling
-            eventIndex.addEventSize(eventsInRecord);
+            eventIndex.addEventSize(eventCount);
 
-            // Next record position
-            recordPos += origRecordBytes;
+            // Find & store the index of event sizes (words)
+            if (eventCount > 0) {
+                // allocate more memory if we need it
+                if (eventCount > eventLengths.length) {
+                    eventLengths = new int[2*eventCount];
+                }
+
+                // Place in buffer to start reading event lengths (
+                int lenIndex = position + recordHeaderLen + bufferOffset;
+
+                for (int i=0; i < eventCount; i++) {
+                    eventLengths[i] = bigEnoughBuf.getInt(lenIndex);
+                    lenIndex += 4;
+                }
+            }
 
             // How many bytes left in the newly expanded buffer
             bytesLeft -= recordHeader.getUncompressedRecordLength();
@@ -1240,24 +1273,52 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
             // right before where the events start.
             position = bigEnoughBuf.position();
 
-            // For each event in record, store its location
-            for (int i=0; i < eventsInRecord; i++) {
-                EvioNode node;
-                try {
-//System.out.println("      try extracting event " + i + ", pos = " + position +
-//                                               ", place = " + (eventCount + i));
-                    node = EvioNode.extractEventNode(bigEnoughBuf, nodePool, 0,
-                                                     position, eventCount + i);
+            //-----------------------------------------------------
+            // For each event in record, store its location.
+            // THIS ONLY WORKS AND IS ONLY NEEDED FOR EVIO DATA!
+            // So the question is, how do we know when we've got
+            // evio data and when we don't?
+            //-----------------------------------------------------
+            for (int i=0; i < eventCount; i++) {
+                // Is the length we get from the first word of an evio bank/event (bytes)
+                // the same as the length we got from the record header? If not, it's not evio.
+                boolean isEvio = 4*(bigEnoughBuf.getInt(position) + 1) == eventLengths[i];
+
+                if (isEvio) {
+                    try {
+                        // If the event is in evio format, parse it a bit
+                        EvioNode node = EvioNode.extractEventNode(bigEnoughBuf, nodePool, recordPos,
+                                position, eventPlace + i);
+                        byteLen = node.getTotalBytes();
+                        eventNodes.add(node);
+//System.out.println("\n      scanUncompressedBuffer: extracted node : " + node.toString());
+//System.out.println("      event (evio)" + i + ", pos = " + node.getPosition() +
+//                   ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventPlace + i + 1) +
+//                   ", bytes = " + byteLen);
+                    }
+                    catch (EvioException e) {
+                        // If we're here, the event is not in evio format
+
+                        // The problem with doing things in the following way
+                        // (throwing an exception if the event is NOT is evio format)
+                        // is that the exception throwing mechanism is not a good way to
+                        // handle normal logic flow. But not sure what else can be done.
+                        // This should only happen very, very seldom.
+
+                        byteLen = eventLengths[i];
+                        evioFormat = false;
+//System.out.println("      event (binary, exception)" + i + ", bytes = " + byteLen);
+                    }
                 }
-                catch (EvioException e) {
-                    throw new HipoException("Bad evio format: not enough data to read event (bad bank len?)", e);
+                else {
+                    // If we're here, the event is not in evio format, so just use the length we got
+                    // previously from the record index.
+                    byteLen = eventLengths[i];
+                    evioFormat = false;
+//System.out.println( "      event (binary, regular logic)" + i + ", bytes = " + byteLen);
                 }
-//System.out.println("      event " + i + ", pos = " + node.getPosition() +
-//                           ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventCount + i + 1));
-                eventNodes.add(node);
 
                 // Hop over event
-                byteLen   = node.getTotalBytes();
                 position += byteLen;
 
                 if (byteLen < 8) {
@@ -1267,7 +1328,10 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
             }
 
             bigEnoughBuf.position(position);
-            eventCount += eventsInRecord;
+            eventPlace += eventCount;
+
+            // Next record position
+            recordPos += origRecordBytes;
 
             // If the evio buffer was written with the DAQ Java evio library,
             // there is only 1 record with event per buffer -- the first record.
@@ -1286,12 +1350,12 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
             // Since we're using a temp buffer, it does NOT contain buffer's data
             // from position = 0 to bufferOffset.
             if (isArrayBacked) {
-                System.arraycopy(bigEnoughBuf.array(), 0,
+                System.arraycopy(bigEnoughBuf.array(), bufferOffset,
                                  buffer.array(), bufferOffset + buffer.arrayOffset(),
                                  totalUncompressedBytes);
             }
             else {
-                bigEnoughBuf.limit(totalUncompressedBytes).position(0);
+                bigEnoughBuf.limit(totalUncompressedBytes).position(bufferOffset);
                 buffer.position(bufferOffset);
                 buffer.put(bigEnoughBuf);
             }
@@ -1333,16 +1397,20 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
 
          // Start at the buffer's initial position
          int position  = bufferOffset;
+         int recordPos = bufferOffset;
          int bytesLeft = bufferLimit - bufferOffset;
 
- //System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft = " + bytesLeft);
+//System.out.println("  scanUncompressedBuffer: buffer pos = " + bufferOffset + ", bytesLeft = " + bytesLeft);
          // Keep track of the # of records, events, and valid words in file/buffer
-         int eventCount = 0, byteLen, recordBytes, eventsInRecord, recPosition;
+         int eventPlace = 0;
          eventNodes.clear();
          recordPositions.clear();
          eventIndex.clear();
 // TODO: this should NOT change in records in 1 buffer, only BETWEEN buffers!!!!!!!!!!!!
          recordNumberExpected = 1;
+
+         // Try to allocate this only once
+         int[] eventLengths = new int[2000];
 
          while (bytesLeft >= RecordHeader.HEADER_SIZE_BYTES) {
              // Read record header
@@ -1351,16 +1419,11 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
              buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
              // Only sets the byte order of headerBuffer
              recordHeader.readHeader(headerBuffer);
- //System.out.println("read header ->\n" + recordHeader);
+             int eventCount = recordHeader.getEntries();
+             int recordHeaderLen = recordHeader.getHeaderLength();
+             int recordBytes = recordHeader.getLength();
 
-             if (checkRecordNumberSequence) {
-                 if (recordHeader.getRecordNumber() != recordNumberExpected) {
- //System.out.println("  scanBuffer: record # out of sequence, got " + recordHeader.getRecordNumber() +
- //                   " expecting " + recordNumberExpected);
-                     throw new HipoException("bad record # sequence");
-                 }
-                 recordNumberExpected++;
-             }
+             //System.out.println("read header ->\n" + recordHeader);
 
              // Save the first record header
              if (!haveFirstRecordHeader) {
@@ -1373,6 +1436,15 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
                  haveFirstRecordHeader = true;
              }
 
+             if (checkRecordNumberSequence) {
+                 if (recordHeader.getRecordNumber() != recordNumberExpected) {
+                     //System.out.println("  scanBuffer: record # out of sequence, got " + recordHeader.getRecordNumber() +
+                     //                   " expecting " + recordNumberExpected);
+                     throw new HipoException("bad record # sequence");
+                 }
+                 recordNumberExpected++;
+             }
+
              // Check to see if the whole record is there
              if (recordHeader.getLength() > bytesLeft) {
  System.out.println("    record size = " + recordHeader.getLength() + " >? bytesLeft = " + bytesLeft +
@@ -1382,19 +1454,33 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
 
              //System.out.println(">>>>>==============================================");
              //System.out.println(recordHeader.toString());
-             recordBytes = recordHeader.getLength();
-             eventsInRecord = recordHeader.getEntries();
-             recPosition = position;
-             RecordPosition rp = new RecordPosition(position, recordBytes, eventsInRecord);
+
+             RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
  //System.out.println(" RECORD HEADER ENTRIES = " + eventsInRecord);
              recordPositions.add(rp);
              // Track # of events in this record for event index handling
-             eventIndex.addEventSize(eventsInRecord);
+             eventIndex.addEventSize(eventCount);
+
+             // Find & store the index of event sizes (words)
+             if (eventCount > 0) {
+                 // allocate more memory if we need it
+                 if (eventCount > eventLengths.length) {
+                     eventLengths = new int[2*eventCount];
+                 }
+
+                 // Place in buffer to start reading event lengths (
+                 int lenIndex = position + recordHeaderLen + bufferOffset;
+
+                 for (int i=0; i < eventCount; i++) {
+                     eventLengths[i] = buffer.getInt(lenIndex);
+                     lenIndex += 4;
+                 }
+             }
 
              // Hop over record header, user header, and index to events
-             byteLen = recordHeader.getHeaderLength() +
-                     4*recordHeader.getUserHeaderLengthWords() + // takes account of padding
-                       recordHeader.getIndexLength();
+             int byteLen = recordHeader.getHeaderLength() +
+                         4*recordHeader.getUserHeaderLengthWords() + // takes account of padding
+                           recordHeader.getIndexLength();
              position  += byteLen;
              bytesLeft -= byteLen;
 
@@ -1403,23 +1489,49 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
  //System.out.println("    hopped to data, pos = " + position);
 
              // For each event in record, store its location
-             for (int i=0; i < eventsInRecord; i++) {
-                 EvioNode node;
-                 try {
- //System.out.println("      try extracting event "+i+" in record pos = " + recPosition + ", pos = " + position +
- //                                               ", place = " + (eventCount + i));
-                     node = EvioNode.extractEventNode(buffer, nodePool, recPosition,
-                                                      position, eventCount + i);
-                 }
-                 catch (EvioException e) {
-                     throw new HipoException("Bad evio format: not enough data to read event (bad bank len?)", e);
-                 }
- //System.out.println("      event "+i+" in record: pos = " + node.getPosition() +
- //                           ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventCount + i + 1));
-                 eventNodes.add(node);
+             for (int i=0; i < eventCount; i++) {
+                 // Is the length we get from the first word of an evio bank/event (bytes)
+                 // the same as the length we got from the record header? If not, it's not evio.
+                 boolean isEvio = 4*(buffer.getInt(position) + 1) == eventLengths[i];
+                 //EvioNode node;
 
-                 // Hop over event
-                 byteLen    = node.getTotalBytes();
+
+                 if (isEvio) {
+                     try {
+                         // If the event is in evio format, parse it a bit
+                         EvioNode node = EvioNode.extractEventNode(buffer, nodePool, recordPos,
+                                 position, eventPlace + i);
+                         byteLen = node.getTotalBytes();
+                         eventNodes.add(node);
+//System.out.println("\n      scanUncompressedBuffer: extracted node : " + node.toString());
+//System.out.println("      event (evio)" + i + ", pos = " + node.getPosition() +
+//                   ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventPlace + i + 1) +
+//                   ", bytes = " + byteLen);
+                     }
+                     catch (EvioException e) {
+                         // If we're here, the event is not in evio format
+
+                         // The problem with doing things in the following way
+                         // (throwing an exception if the event is NOT is evio format)
+                         // is that the exception throwing mechanism is not a good way to
+                         // handle normal logic flow. But not sure what else can be done.
+                         // This should only happen very, very seldom.
+
+                         byteLen = eventLengths[i];
+                         evioFormat = false;
+//System.out.println("      event (binary, exception)" + i + ", bytes = " + byteLen);
+                     }
+                 }
+                 else {
+                     // If we're here, the event is not in evio format, so just use the length we got
+                     // previously from the record index.
+                     byteLen = eventLengths[i];
+                     evioFormat = false;
+//System.out.println( "      event (binary, regular logic)" + i + ", bytes = " + byteLen);
+                 }
+
+
+                // Hop over event
                  position  += byteLen;
                  bytesLeft -= byteLen;
 
@@ -1430,7 +1542,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
  //System.out.println("        hopped event " + i + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
              }
 
-             eventCount += eventsInRecord;
+             eventPlace += eventCount;
          }
 
          buffer.position(bufferOffset);
@@ -1566,7 +1678,7 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
         fileHeader.readHeader(headerBuffer);
         byteOrder = fileHeader.getByteOrder();
         evioVersion = fileHeader.getVersion();
-System.out.println("scanFile: file header: \n" + fileHeader.toString());
+//System.out.println("scanFile: file header: \n" + fileHeader.toString());
 
         // Is there an existing record length index?
         // Index in trailer gets first priority.
@@ -1603,7 +1715,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
 
         // First record position (past file's header + index + user header)
         long recordPosition = fileHeader.getLength();
-System.out.println("scanFile: record position = " + recordPosition);
+//System.out.println("scanFile: record position = " + recordPosition);
 
         // Move to first record and save the header
         channel.position(recordPosition);
@@ -1618,7 +1730,7 @@ System.out.println("scanFile: record position = " + recordPosition);
         if (useTrailer) {
             // Position read right before trailing header
             channel.position(fileHeader.getTrailerPosition());
-System.out.println("scanFile: position file to trailer = " + fileHeader.getTrailerPosition());
+//System.out.println("scanFile: position file to trailer = " + fileHeader.getTrailerPosition());
             // Read trailer
             inStreamRandom.read(headerBytes);
             recordHeader.readHeader(headerBuffer);
@@ -1638,14 +1750,14 @@ System.out.println("scanFile: position file to trailer = " + fileHeader.getTrail
         int len, count;
         try {
             // Turn bytes into record lengths & event counts
-System.out.println("scanFile: transform int array from " + fileHeader.getByteOrder());
+//System.out.println("scanFile: transform int array from " + fileHeader.getByteOrder());
             int[] intData = ByteDataTransformer.toIntArray(index, fileHeader.getByteOrder());
             // Turn record lengths into file positions and store in list
             recordPositions.clear();
             for (int i=0; i < intData.length; i += 2) {
                 len = intData[i];
                 count = intData[i+1];
-System.out.println("scanFile: record pos = " + recordPosition + ", len = " + len + ", count = " + count);
+//System.out.println("scanFile: record pos = " + recordPosition + ", len = " + len + ", count = " + count);
                 RecordPosition pos = new RecordPosition(recordPosition, len, count);
                 recordPositions.add(pos);
                 // Track # of events in this record for event index handling
