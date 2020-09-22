@@ -981,7 +981,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         uint32_t totalCompressed = 0;
         uint32_t totalBytes = 0;
 
-        do {
+        while (true) {
             // Look at the record
             findRecordInfo(buf, offset, info, infoLen);
 
@@ -996,7 +996,9 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Hop over record
             offset += info[1];
 
-        } while (!RecordHeader::isLastRecord(info[0])); // Go to the next record if any
+            // Quit after last record
+            if (RecordHeader::isLastRecord(info[0])) break;
+        }
 
         // No longer input, we now use array for output
         info[0] = totalCompressed;
@@ -1118,7 +1120,8 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         int32_t  bytesLeft = totalUncompressedBytes;
 
 //std::cout << "  scanBuffer: buffer pos = " << bufferOffset << ", bytesLeft = " << bytesLeft << std::endl;
-        // Keep track of the # of records, events, and valid words in file/buffer
+        // Keep track of the # of records, events, and valid words in file/buffer.
+        // eventPlace is the place of each event (evio or not) with repect to each other (0, 1, 2 ...)
         uint32_t eventPlace = 0, byteLen;
         eventNodes.clear();
         recordPositions.clear();
@@ -1131,7 +1134,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // If this is not the first record anymore, then the limit of bigEnoughBuf,
             // set above, may not be big enough.
 
-            // Uncompress record in buffer & place into bigEnoughBuf, then read record header
+            // Uncompress record in buffer & place into bigEnoughBuf, then READ RECORD HEADER
             int origRecordBytes = RecordInput::uncompressRecord(
                     buf, recordPos, *(bigEnoughBuf.get()), recordHeader);
 //std::cout << "  scanBuffer: origRecordBytes = " << origRecordBytes << std::endl;
@@ -1149,6 +1152,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 // First time through, save byte order and version
                 byteOrder = recordHeader.getByteOrder();
                 buf.order(byteOrder);
+                bigEnoughBuf->order(byteOrder);
                 evioVersion = recordHeader.getVersion();
                 firstRecordHeader = std::make_shared<RecordHeader>(recordHeader);
                 compressed = recordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
@@ -1180,14 +1184,13 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             eventIndex.addEventSize(eventCount);
 
             // Find & store the index of event sizes (words)
-            std::vector<uint32_t> eventLengths;
+            int eventLengths[eventCount];
             if (eventCount > 0) {
                 // Place in buffer to start reading event lengths (
                 uint32_t lenIndex = position + recordHeaderLen + bufferOffset;
 
                 for (int i=0; i < eventCount; i++) {
-                    uint32_t evLen = bigEnoughBuf->getUInt(lenIndex);
-                    eventLengths.push_back(evLen);
+                    eventLengths[i] = bigEnoughBuf->getUInt(lenIndex);
                     lenIndex += 4;
                 }
             }
@@ -1278,6 +1281,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         if (useTempBuffer) {
             // Since we're using a temp buffer, it does NOT contain buffer's data
             // from position = 0 to bufferOffset.
+//std::cout << "  *** scanBuffer: copy expanded data back into buffer" << std::endl;
             std::memcpy((void *)(buf.array() + bufferOffset + buf.arrayOffset()),
                         (const void *)(bigEnoughBuf->array() + bufferOffset), totalUncompressedBytes);
 
@@ -1417,8 +1421,9 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                                                       position, eventPlace + i);
                         byteLen = node->getTotalBytes();
 //std::cout << "\n      scanUncompressedBuffer: extracted node : " << node->toString() << std::endl;
-//std::cout << "      scanUncompressedBuffer: event " << i << " in record: pos = " << node->getPosition() <<
-//             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventPlace + i + 1) << std::endl;
+//std::cout << "      event (evio)" << i << ", pos = " << node->getPosition() <<
+//             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventPlace + i + 1) <<
+//             ", bytes = " << byteLen << std::endl;
                         eventNodes.push_back(node);
                     }
                     catch (std::exception & e) {
