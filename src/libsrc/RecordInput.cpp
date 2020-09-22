@@ -523,6 +523,7 @@ namespace evio {
         // This will switch buffer to proper byte order
         header->readHeader(buffer, offset);
 
+//std::cout << "readRecord: header = \n" << header->toString() << std::endl;
         // Make sure all internal buffers have the same byte order
         setByteOrder(buffer.order());
 
@@ -574,7 +575,11 @@ namespace evio {
             default:
                 // TODO: See if we can avoid this unnecessary copy!
                 // Read uncompressed data - rest of record
+//std::cout << "readRecord: start recordLengthByte = " << recordLengthBytes << ", headerLength = " << headerLength << std::endl;
                 uint32_t len = recordLengthBytes - headerLength;
+//std::cout << "readRecord: start reading at buffer pos = " << (buffer.arrayOffset() + compDataOffset) <<
+//", buffer limit = " << buffer.limit() << ", dataBuf pos = " << dataBuffer->position() << ", lim = " << dataBuffer->limit() <<
+//", LEN ===== " << len << std::endl;
                 std::memcpy((void *)dataBuffer->array(),
                             (const void *)(buffer.array() + buffer.arrayOffset() + compDataOffset), len);
         }
@@ -585,7 +590,7 @@ namespace evio {
         userHeaderOffset = nEntries*4;
         // Offset from just past header to data (past index + user header)
         eventsOffset = userHeaderOffset + header->getUserHeaderLengthWords()*4;
-std::cout << "readRecord: eventsOffset = " << eventsOffset << std::endl;
+//std::cout << "readRecord: eventsOffset = " << eventsOffset << std::endl;
 
         // TODO: How do we handle trailers???
         // Overwrite event lengths with event offsets
@@ -714,7 +719,7 @@ std::cout << "readRecord: eventsOffset = " << eventsOffset << std::endl;
         hdr.setCompressionType(Compressor::UNCOMPRESSED).setCompressedDataLength(0);
 
         // Reset the header length
-        dstBuf.putInt(dstOff + RecordHeader::RECORD_LENGTH_OFFSET, uncompressedRecordLength);
+        dstBuf.putInt(dstOff + RecordHeader::RECORD_LENGTH_OFFSET, uncompressedRecordLength/4);
         hdr.setLength(uncompressedRecordLength);
 
         //            // If there is an index, change lengths to event offsets
