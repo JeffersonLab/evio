@@ -293,7 +293,7 @@ namespace evio {
 
             headerArray   = other.headerArray;
             // Copy over the vector
-            auto recLenVector = *recordLengths.get();
+            auto & recLenVector = *(recordLengths.get());
             recLenVector = *(other.recordLengths.get());
 
             compressionType = other.compressionType;
