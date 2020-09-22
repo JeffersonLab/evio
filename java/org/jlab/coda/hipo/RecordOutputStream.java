@@ -1037,7 +1037,6 @@ public class RecordOutputStream {
                     int words = uncompressedDataSize/4;
                     if (uncompressedDataSize % 4 != 0) words++;
                     header.setLength(words*4 + RecordHeader.HEADER_SIZE_BYTES);                    
-                    //header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
             }
         }
         catch (HipoException e) {/* should not happen */}
