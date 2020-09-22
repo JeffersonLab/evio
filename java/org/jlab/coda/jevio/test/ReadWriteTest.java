@@ -528,43 +528,43 @@ System.out.println("Data buffer ->\n" + dataBuffer.toString());
         // Create node from this buffer
         EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0,0,0);
 
-            while (true) {
-                // random data array
-                //writer.addEvent(dataArray, 0, 20);
-System.out.println("add event of len = " + dataBuffer.remaining());
-                writer.addEvent(dataBuffer);
-
-                if (--loops < 1) break;
-            }
+//            while (true) {
+//                // random data array
+//                //writer.addEvent(dataArray, 0, 20);
+//System.out.println("add event of len = " + dataBuffer.remaining());
+//                writer.addEvent(dataBuffer);
+//
+//                if (--loops < 1) break;
+//            }
 
 System.out.println("add event of node,  data type = " + node.getDataTypeObj().toString() +
                    ", bytes = " + node.getTotalBytes());
         writer.addEvent(node);
         writer.addEvent(node);
 
-            //------------------------------
-            // Add entire record at once, 2x
-            //------------------------------
-
-            RecordOutputStream recOut = new RecordOutputStream(order, 0, 0, CompressionType.RECORD_UNCOMPRESSED);
-            ByteBuffer dataBuffer2 = ByteBuffer.allocate(40);
-            for (short i=0; i < 20; i++) {
-                dataBuffer2.putShort(i);
-            }
-            dataBuffer2.flip();
-System.out.println("add entire record (containing " + dataBuffer2.remaining() + " bytes of data");
-            recOut.addEvent(dataBuffer2.array(), 0, 40);
-            writer.writeRecord(recOut);
-
-System.out.println("add the previous record again, but with one more event added  ... ");
-            recOut.addEvent(dataBuffer2.array(), 0, 40);
-            writer.writeRecord(recOut);
-
-            //------------------------------
-            // Add last event
-            //------------------------------
-System.out.println("once more, add event of len = " + dataBuffer.remaining());
-            writer.addEvent(dataBuffer);
+//            //------------------------------
+//            // Add entire record at once, 2x
+//            //------------------------------
+//
+//            RecordOutputStream recOut = new RecordOutputStream(order, 0, 0, CompressionType.RECORD_UNCOMPRESSED);
+//            ByteBuffer dataBuffer2 = ByteBuffer.allocate(40);
+//            for (short i=0; i < 20; i++) {
+//                dataBuffer2.putShort(i);
+//            }
+//            dataBuffer2.flip();
+//System.out.println("add entire record (containing " + dataBuffer2.remaining() + " bytes of data");
+//            recOut.addEvent(dataBuffer2.array(), 0, 40);
+//            writer.writeRecord(recOut);
+//
+//System.out.println("add the previous record again, but with one more event added  ... ");
+//            recOut.addEvent(dataBuffer2.array(), 0, 40);
+//            writer.writeRecord(recOut);
+//
+//            //------------------------------
+//            // Add last event
+//            //------------------------------
+//System.out.println("once more, add event of len = " + dataBuffer.remaining());
+//            writer.addEvent(dataBuffer);
 
         //------------------------------
 
@@ -577,17 +577,17 @@ System.out.println("Past writes");
 System.out.println("Finished buffer ->\n" + buffer);
 System.out.println("Past close, now read it");
 
-Utilities.printBytes(buffer, 0, 200, "Buffer Bytes");
+Utilities.printBytes(buffer, 0, 1600, "Buffer Bytes");
 ByteBuffer copy = ByteBuffer.allocate(buffer.capacity());
 System.arraycopy(buffer.array(), 0, copy.array(), 0, buffer.capacity());
 
         //------------------------------
-        //---- READ --------------------
+        //----  READER1 ----------------
         //------------------------------
 
         int readerType = 0;
 
-        if (readerType == 0) {
+//        if (readerType == 0) {
             Reader reader = new Reader(buffer);
 System.out.println("PAST creating Reader object");
 
@@ -599,8 +599,9 @@ System.out.println("PAST creating Reader object");
                     unchanged = false;
                     index = i;
                     System.out.print("Orig buffer CHANGED at byte #" + index);
-                    System.out.println(", " + buffer.array()[i] + " changed to " + copy.array()[i]);
-                    Utilities.printBytes(buffer, 0, 200, "Buffer Bytes");
+                    System.out.println(", 0x" + Integer.toHexString(copy.array()[i]) + " changed to 0x" +
+                            Integer.toHexString(buffer.array()[i]));
+                    Utilities.printBytes(buffer, 0, 1600, "Buffer Bytes");
                     break;
                 }
             }
@@ -625,32 +626,41 @@ System.out.println("PAST creating Reader object");
             }
 
             System.out.println("Print out regular events:");
+            byte[] data = null;
 
             for (int i = 0; i < reader.getEventCount(); i++) {
-                byte[] data = reader.getEvent(i);
+                data = reader.getEvent(i);
                 Utilities.printBytes(data, 0, data.length, "  Event #" + i);
             }
-        }
+//        }
         // Use evio reader to see what happens when we have non-evio events ....
-        else if (readerType == 1) {
-            try {
-                EvioCompactReader reader = new EvioCompactReader(buffer);
+ //       else if (readerType == 1) {
 
-                int evCount = reader.getEventCount();
-                System.out.println("Read in buffer, got " + evCount + " events");
+        System.out.println("--------------------------------------------");
+        System.out.println("----------      READER2       --------------");
+        System.out.println("--------------------------------------------");
 
-                String dict = reader.getDictionaryXML();
-                System.out.println("   Got dictionary = " + dict);
+        ByteBuffer dataBuf = null;
+
+        try {
+                EvioCompactReader reader2 = new EvioCompactReader(copy);
+
+                int evCount2 = reader.getEventCount();
+                System.out.println("Read in buffer, got " + evCount2 + " events");
+
+                String dict2 = reader2.getDictionaryXML();
+                System.out.println("   Got dictionary = " + dict2);
 
                 // Compact reader does not deal with first events, so skip over it
 
                 System.out.println("Print out regular events:");
 
-                for (int i = 0; i < reader.getEventCount(); i++) {
-                    EvioNode compactNode = reader.getScannedEvent(i + 1);
+                for (int i = 0; i < reader2.getEventCount(); i++) {
+                    System.out.println("scanned event #" + i + " :");
+                    EvioNode compactNode = reader2.getScannedEvent(i + 1);
                     System.out.println("node ->\n" + compactNode);
 
-                    ByteBuffer dataBuf = compactNode.getByteData(true);
+                    dataBuf = compactNode.getStructureBuffer(true);
 //                        ByteBuffer buffie(4*compactNode->getDataLength());
 //                        auto dataBuf = compactNode->getByteData(buffie,true);
 
@@ -661,58 +671,81 @@ System.out.println("PAST creating Reader object");
             catch (EvioException e) {
                 System.out.println("PROBLEM: " + e.getMessage());
             }
+
+        for (int i=0; i < dataBuf.limit(); i++) {
+            if ((data[i] != dataBuf.array()[i]) && (i > 3)) {
+                unchanged = false;
+                index = i;
+                System.out.print("Reader different than EvioCompactReader at byte #" + index);
+                System.out.println(", 0x" + Integer.toHexString(data[i]) + " changed to 0x" +
+                        Integer.toHexString(dataBuf.array()[i]));
+                break;
+            }
         }
-        else if (readerType == 2) {
-            try {
-                EvioReader reader = new EvioReader(buffer);
+        if (unchanged) {
+            System.out.println("EVENT same whether using Reader or EvioCompactReader!");
+        }
 
-                int evCount = reader.getEventCount();
-                System.out.println("Read in buffer, got " + evCount + " events");
+//        }
+//        else if (readerType == 2) {
 
-                String dict = reader.getDictionaryXML();
-                System.out.println("   Got dictionary = " + dict);
+        System.out.println("--------------------------------------------");
+        System.out.println("----------      READER3       --------------");
+        System.out.println("--------------------------------------------");
 
-                EvioEvent pFE = reader.getFirstEvent();
-                if (pFE != null) {
-                    System.out.println("   First Event bytes = " + pFE.getTotalBytes());
+
+        byte[] dataVec = null;
+        try {
+                EvioReader reader3 = new EvioReader(buffer);
+
+                int evCount3 = reader3.getEventCount();
+                System.out.println("Read in buffer, got " + evCount3 + " events");
+
+                String dict3 = reader3.getDictionaryXML();
+                System.out.println("   Got dictionary = " + dict3);
+
+                EvioEvent pFE3 = reader3.getFirstEvent();
+                if (pFE3 != null) {
+                    System.out.println("   First Event bytes = " + pFE3.getTotalBytes());
                     System.out.println("   First Event values = \n" + "   ");
-                    for (int i = 0; i < pFE.getRawBytes().length; i++) {
-                        System.out.println((int) (pFE.getRawBytes()[i]) + ",  ");
+                    for (int i = 0; i < pFE3.getRawBytes().length; i++) {
+                        System.out.println((int) (pFE3.getRawBytes()[i]) + ",  ");
                     }
                     System.out.println("\n");
                 }
 
                 System.out.println("Print out regular events:");
 
-                for (int i = 0; i < reader.getEventCount(); i++) {
-                    EvioEvent ev = reader.getEvent(i + 1);
-                    //System.out.println("ev ->\n" + ev);
+                for (int i = 0; i < reader3.getEventCount(); i++) {
+                    EvioEvent ev = reader3.getEvent(i + 1);
+                    System.out.println("ev ->\n" + ev);
 
-                    byte[] dataVec = ev.getRawBytes();
+                    dataVec = ev.getRawBytes();
                     Utilities.printBytes(dataVec, 0, dataVec.length, "  Event #" + i);
                 }
             }
             catch (EvioException e) {
                 System.out.println("PROBLEM: " + e.getMessage());
             }
-        }
 
-        // COmpare original with copy
-        boolean unchanged = true;
-        for (int i=0; i < buffer.capacity(); i++) {
-            if (buffer.array()[i] != copy.array()[i]) {
+        System.out.println("COmparing data (len = " +data.length + ") with dataVec (len = " + dataVec.length + ")");
+        for (int i=0; i < dataVec.length; i++) {
+            if ((data[i+8] != dataVec[i]) && (i > 3)) {
                 unchanged = false;
+                index = i;
+                System.out.print("Reader different than EvioReader at byte #" + index);
+                System.out.println(", 0x" + Integer.toHexString(data[i]) + " changed to 0x" +
+                        Integer.toHexString(dataVec[i]));
                 break;
             }
         }
         if (unchanged) {
-            System.out.println("ORIGINAL BUFFER Unchanged!");
-        }
-        else {
-            System.out.println("ORIGINAL BUFFER CHANGED!!!!");
+            System.out.println("EVENT same whether using Reader or EvioReader!");
         }
 
     }
+
+//    }
 
 
 
