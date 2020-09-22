@@ -943,8 +943,8 @@ public class RecordHeader implements IBlockHeader {
     public RecordHeader  setLength(int length) {
         recordLength      = length;
         recordLengthWords = length/4;
-        //System.out.println(" LENGTH = " + recordLength + "  WORDS = " + recordLengthWords
-        //+ "  SIZE = " + recordLengthWords*4 );
+//System.out.println("  RecordHeader: set LENGTH = " + recordLength + "  WORDS = " + recordLengthWords
+//                   + "  SIZE = " + recordLengthWords*4 );
         return this;
     }
 
@@ -1340,7 +1340,6 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
 
         recordLengthWords   = buffer.getInt(RECORD_LENGTH_OFFSET + offset);         //  0*4
         recordLength        = 4*recordLengthWords;
-        System.out.println("readHeader:  recordLengthWords = " + recordLengthWords + ", recordLength = " + recordLength);
         recordNumber        = buffer.getInt( RECORD_NUMBER_OFFSET + offset);        //  1*4
         headerLengthWords   = buffer.getInt( HEADER_LENGTH_OFFSET + offset);        //  2*4
         setHeaderLength(4*headerLengthWords);
