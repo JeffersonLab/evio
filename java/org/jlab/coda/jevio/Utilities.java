@@ -30,6 +30,32 @@ import java.util.regex.Pattern;
 final public class Utilities {
 
 
+    // Some methods to help deal with padding data to 4-byte boundaries
+
+    /** Array to help find number of bytes to pad data. */
+    static public int[] padValue = {0,3,2,1};
+
+
+    /**
+     * Returns length padded to 4-byte boundary for given length in bytes.
+     * @param length length in bytes.
+     * @return length in bytes padded to 4-byte boundary.
+     */
+    static public int getWords(int length) {
+        int words = length/4;
+        if (getPadding(length) > 0) words++;
+        return words;
+    }
+
+
+    /**
+     * Returns number of bytes needed to pad to 4-byte boundary for the given length.
+     * @param length length in bytes.
+     * @return number of bytes needed to pad to 4-byte boundary.
+     */
+    static public int getPadding(int length) {return padValue[length%4];}
+
+
     /**
      * This method generates part of a file name given a base file name as an argument.<p>
      *
@@ -59,7 +85,7 @@ final public class Utilities {
      * @throws EvioException  if baseName arg is improperly formatted;
      *                        if baseName or newNameBuilder arg is null
      */
-    final static public int[] generateBaseFileName(String baseName, String runType,
+    static public int[] generateBaseFileName(String baseName, String runType,
                                                    StringBuilder newNameBuilder)
             throws EvioException {
 
@@ -154,7 +180,7 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static String generateFileNameOld(String baseFileName, int specifierCount,
+    static String generateFileNameOld(String baseFileName, int specifierCount,
                                             int runNumber, long split, int splitNumber)
             throws IllegalFormatException {
 
@@ -191,7 +217,7 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static String generateFileNameOld(String baseFileName, int specifierCount,
+    static String generateFileNameOld(String baseFileName, int specifierCount,
                                             int runNumber, long split, int splitNumber,
                                             int streamId)
             throws IllegalFormatException {
@@ -284,7 +310,7 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static public String generateFileName(String fileName, int specifierCount,
+    static public String generateFileName(String fileName, int specifierCount,
                                                 int runNumber, long split, int splitNumber,
                                                 int streamId, int streamCount)
             throws IllegalFormatException {
@@ -433,7 +459,7 @@ final public class Utilities {
      * @throws EvioException if file exists but overwriting is not permitted;
      *                       if null arg(s)
      */
-    final static public void bufferToFile(String fileName, ByteBuffer buf,
+    static public void bufferToFile(String fileName, ByteBuffer buf,
                                     boolean overWriteOK, boolean addBlockHeader)
             throws IOException, EvioException{
 
@@ -477,7 +503,7 @@ final public class Utilities {
 
 
     /** This method prints out the current stack trace. */
-    final static public void printStackTrace() {
+    static public void printStackTrace() {
         for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
             System.out.println(ste);
         }
@@ -494,7 +520,7 @@ final public class Utilities {
      * @param words     number of 32 bit words to print in hex
      * @param label     a label to print as header
      */
-    final static public void printBuffer(ByteBuffer buf, int position, int words, String label) {
+    static public void printBuffer(ByteBuffer buf, int position, int words, String label) {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
@@ -534,7 +560,7 @@ final public class Utilities {
      * @param bytes     number of bytes to print in hex
      * @param label     a label to print as header
      */
-    final static public void printBytes(ByteBuffer buf, int position, int bytes, String label) {
+    static public void printBytes(ByteBuffer buf, int position, int bytes, String label) {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
@@ -577,7 +603,7 @@ final public class Utilities {
      * @param bytes   number of bytes to print in hex
      * @param label   a label to print as header
      */
-    final static public void printBytes(byte[] array, int offset, int bytes, String label) {
+    static public void printBytes(byte[] array, int offset, int bytes, String label) {
 
         if (array == null) {
             System.out.println("printBuffer: array arg is null");
@@ -601,7 +627,7 @@ final public class Utilities {
                 System.out.print("  ");
             }
 
-            System.out.print(String.format("%02x", array[i]));
+            System.out.print(String.format("%02x", array[i]) + " ");
         }
         System.out.println();
         System.out.println();
@@ -617,7 +643,7 @@ final public class Utilities {
      * @param bytes    number of bytes to print in hex
      * @param label    a label to print as header
      */
-    final static public void printBytes(String fileName, long offset, int bytes, String label) {
+    static public void printBytes(String fileName, long offset, int bytes, String label) {
 
         if (fileName == null || fileName.length() < 1) {
             System.out.println("printBuffer: file name arg is invalid");
@@ -654,7 +680,7 @@ final public class Utilities {
      * @param order byte order of returned bank. If null use big endian.
      * @return byte array containing evio bank with string data. Null if text is null.
      */
-    final static public byte[] stringToBank(String text, short tag,
+    static public byte[] stringToBank(String text, short tag,
                                             byte num, ByteOrder order) {
 
         if (text  == null) return null;
@@ -698,7 +724,7 @@ final public class Utilities {
      * @param order byte order of returned bank. If null use big endian.
      * @return byte array containing evio bank as byte array. Null if bank is null.
      */
-    final static public byte[] bankToBytes(EvioBank bank, ByteOrder order) {
+    static public byte[] bankToBytes(EvioBank bank, ByteOrder order) {
 
         if (bank  == null) return null;
         if (order == null) order = ByteOrder.BIG_ENDIAN;
@@ -725,7 +751,7 @@ final public class Utilities {
      * @return EvioEvent object created from EvioNode arg.
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
-    final static public EvioEvent nodeToEvent(EvioNode node) throws EvioException {
+    static public EvioEvent nodeToEvent(EvioNode node) throws EvioException {
 
         if (node == null) {
             return null;
@@ -783,7 +809,7 @@ final public class Utilities {
      * @param roundUp if true, round up, else down
      * @return -1 if x is negative or the closest power of 2 to value
      */
-    static final public int powerOfTwo(int x, boolean roundUp) {
+    static public int powerOfTwo(int x, boolean roundUp) {
         if (x < 0) return -1;
 
         // The following algorithms are found in
@@ -815,7 +841,7 @@ final public class Utilities {
     /**
      * Class that keeps info about a particular xml level.
      */
-    private static final class EvioXmlLevel {
+    private static class EvioXmlLevel {
         /** Number of data items. */
         int nData;
         /** Header's tag value. */
@@ -843,7 +869,7 @@ final public class Utilities {
      * @return list of EvioEvent objects constructed from arg
      * @throws EvioException if xml is not in proper format
      */
-    final static public List<EvioEvent> toEvents(String xmlString) throws EvioException {
+    static public List<EvioEvent> toEvents(String xmlString) throws EvioException {
         return toEvents(xmlString, 0, 0, null, false);
     }
 
@@ -861,7 +887,7 @@ final public class Utilities {
      * @return list of EvioEvent objects constructed from arg
      * @throws EvioException if xml is not in proper format
      */
-    final static public List<EvioEvent> toEvents(String xmlString, int maxEvents, int skip,
+    static public List<EvioEvent> toEvents(String xmlString, int maxEvents, int skip,
                                                  EvioXMLDictionary dictionary, boolean debug)
             throws EvioException {
 
@@ -1220,7 +1246,7 @@ if (debug) System.out.println("END_DOCUMENT");
      * @throws EvioException
      * @throws XMLStreamException
      */
-    final static private void parseComposite(EvioXmlLevel level, XMLEventReader evReader)
+    static private void parseComposite(EvioXmlLevel level, XMLEventReader evReader)
             throws EvioException, XMLStreamException {
 
         String[] formats = new String[level.nData];
@@ -1455,7 +1481,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param location   place in xml file being parsed
      * @throws EvioException
      */
-    final static private void parseData(EvioXmlLevel level, String data, Location location)
+    static private void parseData(EvioXmlLevel level, String data, Location location)
             throws EvioException {
 
 // System.out.println("CHARACTERS:");
@@ -1668,7 +1694,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
     }
 
 
-    final static private void parseCompositeData(DataType dataType, int count, String data,
+    static private void parseCompositeData(DataType dataType, int count, String data,
                                    CompositeData.Data cData, Location location)
             throws EvioException {
 
@@ -1858,7 +1884,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param type evio data type
      * @return XML element name used in evio event xml output
      */
-    final static public DataType getDataType(String type) {
+    static public DataType getDataType(String type) {
 
         if (type == null) return null;
 
@@ -1898,7 +1924,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param xmlIndent String of spaces to increase.
      * @return increased indentation String
      */
-    final static String increaseXmlIndent(String xmlIndent) {
+    static String increaseXmlIndent(String xmlIndent) {
         if (xmlIndent == null) return "   ";
         xmlIndent += "   ";
         return xmlIndent;
@@ -1910,7 +1936,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param xmlIndent String of spaces to increase.
      * @return Decreased indentation String
      */
-    final static String decreaseXmlIndent(String xmlIndent) {
+    static String decreaseXmlIndent(String xmlIndent) {
         if (xmlIndent == null || xmlIndent.length() < 3) return "";
         xmlIndent = xmlIndent.substring(0, xmlIndent.length() - 3);
         return xmlIndent;
@@ -1924,7 +1950,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @return XML string.
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
-    final static public String toXML(EvioNode node, boolean hex) throws EvioException {
+    static public String toXML(EvioNode node, boolean hex) throws EvioException {
 
         if (node == null) {
             return null;
@@ -1953,7 +1979,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param xmlElementName name of xml element to start.
      * @param xmlIndent String of spaces.
      */
-    final static private void commonXMLStart(XMLStreamWriter xmlWriter, String xmlElementName,
+    static private void commonXMLStart(XMLStreamWriter xmlWriter, String xmlElementName,
                                        String xmlIndent) {
         try {
             xmlWriter.writeCharacters("\n");
@@ -1971,7 +1997,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param xmlWriter the writer used to write the node.
      * @param xmlIndent String of spaces.
      */
-    final static private void commonXMLClose(XMLStreamWriter xmlWriter, String xmlIndent) {
+    static private void commonXMLClose(XMLStreamWriter xmlWriter, String xmlIndent) {
         try {
             xmlWriter.writeCharacters("\n");
             xmlWriter.writeCharacters(xmlIndent);
@@ -1991,7 +2017,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param hex       if true, ints get displayed in hexadecimal
      * @param xmlWriter the writer used to write the node.
      */
-    final static private void nodeToString(EvioNode node, String xmlIndent,
+    static private void nodeToString(EvioNode node, String xmlIndent,
                                            boolean hex, XMLStreamWriter xmlWriter) {
 
         DataType nodeType = node.getTypeObj();
@@ -2097,7 +2123,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @return number of stored data items (not size or length),
      *         or number of bytes if container
      */
-    final static private int getNumberDataItems(EvioNode node) {
+    static private int getNumberDataItems(EvioNode node) {
         int numberDataItems = 0;
 
         if (node.getDataTypeObj().isStructure()) {
@@ -2177,7 +2203,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param type evio data type
      * @return XML element name used in evio event xml output
      */
-    final static private String getTypeName(DataType type) {
+    static private String getTypeName(DataType type) {
 
         if (type == null) return null;
 
@@ -2240,7 +2266,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param hex       if true, ints get displayed in hexadecimal
      * @param xmlWriter the writer used to write the node.
   	 */
-    final static private void writeXmlData(EvioNode node, int count, String xmlIndent,
+    static private void writeXmlData(EvioNode node, int count, String xmlIndent,
                                            boolean hex, XMLStreamWriter xmlWriter) {
 
   		// Only leaves write data
