@@ -583,6 +583,7 @@ public class RecordInputStream {
         try {
             // This will switch buffer to proper byte order
             header.readHeader(buffer, offset);
+//System.out.println("readRecord: header = \n" + header.toString());
 
             // Make sure all internal buffers have the same byte order
             setByteOrder(buffer.order());
@@ -626,8 +627,12 @@ public class RecordInputStream {
                 default:
 // TODO: See if we can avoid this unnecessary copy!
                     // Read uncompressed data - rest of record
+//System.out.println("readRecord: recordLengthBytes = " + recordLengthBytes + ", headerLength = " + headerLength);
                     int len = recordLengthBytes - headerLength;
                     if (buffer.hasArray() && dataBuffer.hasArray()) {
+//System.out.println("readRecord: start reading at buffer pos = " + (buffer.arrayOffset() + compDataOffset) +
+//        ", buffer limit = " + buffer.limit() + ", databuf limit = " + dataBuffer.limit() +
+//        ", dataBuf pos = " + dataBuffer.position() + ", LEN ==== " + len);
                         System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
                                          dataBuffer.array(), 0, len);
                     }
@@ -768,7 +773,7 @@ public class RecordInputStream {
         header.setCompressionType(CompressionType.RECORD_UNCOMPRESSED).setCompressedDataLength(0);
 
         // Reset the header length
-        dstBuf.putInt(dstOff + RecordHeader.RECORD_LENGTH_OFFSET, uncompressedRecordLength);
+        dstBuf.putInt(dstOff + RecordHeader.RECORD_LENGTH_OFFSET, uncompressedRecordLength/4);
         header.setLength(uncompressedRecordLength);
 
 //            // If there is an index, change lengths to event offsets
