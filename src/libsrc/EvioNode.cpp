@@ -1091,12 +1091,12 @@ namespace evio {
     ByteBuffer & EvioNode::getByteData(ByteBuffer & dest, bool copy) {
         if (copy) {
             // copy data & everything else
-            dest.copy(buffer);
+            dest.copyData(buffer, dataPos, (dataPos + 4*dataLen - pad));
         } else {
             // dest now has shared pointer to buffer's data
             buffer->duplicate(dest);
+            dest.limit(dataPos + 4*dataLen - pad).position(dataPos);
         }
-        dest.limit(dataPos + 4*dataLen - pad).position(dataPos);
         return dest;
     }
 
@@ -1114,7 +1114,7 @@ namespace evio {
      *         Position and limit are set for reading.
      */
     std::shared_ptr<ByteBuffer> & EvioNode::getByteData(std::shared_ptr<ByteBuffer> & dest, bool copy) {
-        auto buff = *(dest.get());
+        auto & buff = *(dest.get());
         getByteData(buff, copy);
         return dest;
     }
@@ -1142,7 +1142,7 @@ namespace evio {
         auto buffer2 = buffer->duplicate();
         buffer2->order(order);
         buffer2->limit(dataPos + 4*dataLen - pad).position(dataPos);
-std::cout << "getByteData: dataPos (pos) = " << dataPos << ", lim = " << (dataPos + 4*dataLen - pad) << std::endl;
+//std::cout << "getByteData: dataPos (pos) = " << dataPos << ", lim = " << (dataPos + 4*dataLen - pad) << std::endl;
         if (copy) {
             auto newBuf = std::make_shared<ByteBuffer>(4*dataLen - pad);
             newBuf->order(order);
@@ -1237,12 +1237,12 @@ std::cout << "getByteData: dataPos (pos) = " << dataPos << ", lim = " << (dataPo
     ByteBuffer & EvioNode::getStructureBuffer(ByteBuffer & dest, bool copy) {
         if (copy) {
             // copy data & everything else
-            dest.copy(buffer);
+            dest.copyData(buffer, pos, (dataPos + 4 * dataLen));
         } else {
             // dest now has shared pointer to buffer's data
             buffer->duplicate(dest);
+            dest.limit(dataPos + 4 * dataLen).position(pos);
         }
-        dest.limit(dataPos + 4 * dataLen).position(pos);
         return dest;
     }
 
@@ -1260,7 +1260,7 @@ std::cout << "getByteData: dataPos (pos) = " << dataPos << ", lim = " << (dataPo
      *         Position and limit are set for reading.
      */
     std::shared_ptr<ByteBuffer> & EvioNode::getStructureBuffer(std::shared_ptr<ByteBuffer> & dest, bool copy) {
-        auto buff = *(dest.get());
+        auto & buff = *(dest.get());
         getStructureBuffer(buff, copy);
         return dest;
     }
