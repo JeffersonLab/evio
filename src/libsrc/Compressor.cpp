@@ -438,8 +438,7 @@ int Compressor::uncompressGZIP(uint8_t* dest, uint32_t *destLen,
 
     return err == Z_STREAM_END ? Z_OK :
            err == Z_NEED_DICT ? Z_DATA_ERROR  :
-           err == Z_BUF_ERROR && left + avail_out ? Z_DATA_ERROR :
-           err;
+           err == Z_BUF_ERROR && left + avail_out ? Z_DATA_ERROR : err;
 }
 
 /**
@@ -447,21 +446,27 @@ int Compressor::uncompressGZIP(uint8_t* dest, uint32_t *destLen,
  * Caller must delete[] it.
  *
  * @param gzipped compressed data.
- * @param uncompLen pointer to be filled with uncompressed data size in bytes.
+ * @param uncompLen upon entry, *uncompLen is the size of originally uncompressed data in bytes.
+ *                  (The size of the uncompressed data must have been saved previously
+ *                  by the compressor and transmitted to the decompressor by some
+ *                  mechanism outside the scope of this compression library.)
+ *                  Upon exit, *uncompLen is the uncompressed data size in bytes.
+
  * @return uncompressed data. Number of valid bytes returned in uncompLen.
+ *
  * @throws EvioException if error in uncompressing gzipped data.
  */
 uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) {
-
     // Length of compressed data
     uint32_t srcLen = gzipped.remaining();
 
     // Max length of uncompressed data.
-    // As a rough overestimate, create array double the compressed data size.
-    uint32_t dstLen = 2*srcLen;
+    uint32_t dstLen = *uncompLen;
     auto ungzipped = new uint8_t[dstLen];
 
-    int err = uncompressGZIP(ungzipped, &dstLen, gzipped.array(), &srcLen, dstLen);
+    int err = uncompressGZIP(ungzipped, &dstLen,
+                     gzipped.array() + gzipped.arrayOffset() + gzipped.position(),
+                             &srcLen, *uncompLen);
     if (err != Z_OK) {
         delete[] ungzipped;
         throw EvioException("error in uncompressing gzipped data");
