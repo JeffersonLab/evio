@@ -183,7 +183,7 @@ namespace evio {
             node->clearLists();
         }
 
-        // Do this before actual scan so clone() sets all "scanned" fields
+        // Do this before actual scan so scanStructure() sets all "scanned" fields
         // of child nodes to "true" as well.
         node->scanned = true;
         EvioNode::scanStructure(node);
