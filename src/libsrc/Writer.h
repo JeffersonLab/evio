@@ -136,7 +136,7 @@ namespace evio {
                         uint32_t maxEventCount = 0,
                         uint32_t maxBufferSize = 0);
 
-        Writer(std::string & filename,
+        Writer(const std::string & filename,
                const ByteOrder & order,
                uint32_t maxEventCount = 0,
                uint32_t maxBufferSize = 0);
@@ -190,8 +190,8 @@ namespace evio {
         bool addTrailerWithIndex();
         void addTrailerWithIndex(bool addTrailingIndex);
 
-        void open(std::string & filename);
-        void open(std::string & filename, uint8_t* userHdr, uint32_t len);
+        void open(const std::string & filename);
+        void open(const std::string & filename, uint8_t* userHdr, uint32_t len);
         void open(std::shared_ptr<ByteBuffer> & buf,  uint8_t* userHdr, uint32_t len);
 
         static std::shared_ptr<ByteBuffer> createRecord(const std::string & dictionary,

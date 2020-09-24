@@ -51,7 +51,7 @@ namespace evio {
      *                      Value of < 8MB results in default of 8MB.
      * @throws EvioException  if file cannot be found or IO error writing to file
      */
-    Writer::Writer(std::string & filename, const ByteOrder & order,
+    Writer::Writer(const std::string & filename, const ByteOrder & order,
                    uint32_t maxEventCount, uint32_t maxBufferSize) :
             Writer(order, maxEventCount, maxBufferSize) {
 
@@ -445,7 +445,7 @@ namespace evio {
      * @throws EvioException if open already called without being followed by calling close.
      * @throws IOException if file cannot be found or IO error writing to file
      */
-    void Writer::open(std::string & filename) {
+    void Writer::open(const std::string & filename) {
         open(filename, nullptr, 0);
     }
 
@@ -464,7 +464,7 @@ namespace evio {
      *                       if file cannot be found, if IO error writing to file,
      *                       or if filename is empty.
      */
-    void Writer::open(std::string & filename, uint8_t* userHdr, uint32_t userLen) {
+    void Writer::open(const std::string & filename, uint8_t* userHdr, uint32_t userLen) {
 
         if (opened) {
             throw EvioException("currently open, call reset() first");
