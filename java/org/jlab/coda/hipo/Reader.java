@@ -1258,7 +1258,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
                 }
 
                 // Place in buffer to start reading event lengths (
-                int lenIndex = position + recordHeaderLen + bufferOffset;
+                int lenIndex = position + recordHeaderLen;
 
                 for (int i=0; i < eventCount; i++) {
                     eventLengths[i] = bigEnoughBuf.getInt(lenIndex);
@@ -1366,7 +1366,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
             // We've copied data from one buffer to another,
             // so adjust the nodes to compensate.
             for (EvioNode n : eventNodes) {
-                n.shift(bufferOffset).setBuffer(buffer);
+                n.setBuffer(buffer);
             }
         }
         else {
@@ -1469,7 +1469,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
                  }
 
                  // Place in buffer to start reading event lengths (
-                 int lenIndex = position + recordHeaderLen + bufferOffset;
+                 int lenIndex = position + recordHeaderLen;
 
                  for (int i=0; i < eventCount; i++) {
                      eventLengths[i] = buffer.getInt(lenIndex);
