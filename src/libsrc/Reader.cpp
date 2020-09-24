@@ -675,12 +675,12 @@ namespace evio {
      * @throws EvioException index too large or reading from file.
      */
     std::shared_ptr<EvioNode>  Reader::getEventNode(uint32_t index) {
-//std::cout << "getEventNode: index = " << index << " >? " << eventIndex.getMaxEvents() <<
+//std::cout << "     getEventNode: index = " << index << " >? " << eventIndex.getMaxEvents() <<
 //             ", fromFile = " << fromFile << ", compressed = " << compressed << std::endl;
         if (index >= eventIndex.getMaxEvents() || fromFile) {
             throw EvioException("index too large or reading from file");
         }
-//std::cout << "getEventNode: Getting node at index = " << index << std::endl;
+//std::cout << "     getEventNode: Getting node at index = " << index << std::endl;
         return eventNodes[index];
     }
 
@@ -773,6 +773,9 @@ namespace evio {
         if (userLen < 8) {
             return;
         }
+
+//std::cout << "extractDictionaryFromBuffer: IN, hasFirst = " << fileHeader.hasFirstEvent() <<
+//             ", hasDict = " << fileHeader.hasDictionary() << std::endl;
 
         RecordInput record;
 
@@ -1120,6 +1123,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         int32_t  bytesLeft = totalUncompressedBytes;
 
 //std::cout << "  scanBuffer: buffer pos = " << bufferOffset << ", bytesLeft = " << bytesLeft << std::endl;
+
         // Keep track of the # of records, events, and valid words in file/buffer.
         // eventPlace is the place of each event (evio or not) with repect to each other (0, 1, 2 ...)
         uint32_t eventPlace = 0, byteLen;
@@ -1137,7 +1141,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Uncompress record in buffer & place into bigEnoughBuf, then READ RECORD HEADER
             int origRecordBytes = RecordInput::uncompressRecord(
                     buf, recordPos, *(bigEnoughBuf.get()), recordHeader);
-//std::cout << "  scanBuffer: origRecordBytes = " << origRecordBytes << std::endl;
+
             // recordHeader is now describing the uncompressed buffer, bigEnoughBuf
             uint32_t eventCount = recordHeader.getEntries();
             uint32_t recordHeaderLen = recordHeader.getHeaderLength();
@@ -1172,8 +1176,8 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
             // Check to see if the whole record is there
             if (recordHeader.getLength() > bytesLeft) {
-                //std::cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
-                //     ", pos = " << buf.position() << std::endl;
+                std::cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
+                     ", pos = " << buf.position() << std::endl;
                 throw std::underflow_error("Bad hipo format: not enough data to read record");
             }
 
@@ -1187,10 +1191,12 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             int eventLengths[eventCount];
             if (eventCount > 0) {
                 // Place in buffer to start reading event lengths (
-                uint32_t lenIndex = position + recordHeaderLen + bufferOffset;
+                uint32_t lenIndex = position + recordHeaderLen;
 
                 for (int i=0; i < eventCount; i++) {
                     eventLengths[i] = bigEnoughBuf->getUInt(lenIndex);
+//std::cout << "  *** scanBuffer: eventLengths[" << i << "] = bigEnoughtBuf[" << lenIndex << "] = " <<
+//              eventLengths[i] << std::endl;
                     lenIndex += 4;
                 }
             }
@@ -1213,18 +1219,22 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 // Is the length we get from the first word of an evio bank/event (bytes)
                 // the same as the length we got from the record header? If not, it's not evio.
                 bool isEvio = 4*(bigEnoughBuf->getUInt(position) + 1) == eventLengths[i];
+//std::cout << "  *** scanBuffer: is event " << i << " evio format? " << isEvio << std::endl;
+//std::cout << "  *** scanBuffer: 4*(bigEnoughBuf[" << position << "] + 1)= " << 4*(bigEnoughBuf->getUInt(position) + 1) << std::endl;
+//std::cout << "  *** scanBuffer: eventLengths[ " << i << "] = " << eventLengths[i] << std::endl;
 
                 if (isEvio) {
                     try {
                         // If the event is in evio format, parse it a bit
-//std::cout << "      try extracting event " << i << ", pos = " << position <<
+//std::cout << "      try extracting event " << i << ", pos = " << position << ", record pos = " << recordPos <<
 //             ", place = " << (eventPlace + i) << std::endl;
                         auto node = EvioNode::extractEventNode(bigEnoughBuf, recordPos,
                                                                position, eventPlace + i);
                         byteLen = node->getTotalBytes();
 //std::cout << "      event (evio)" << i << ", pos = " << node->getPosition() <<
-//             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventPlace + i + 1) <<
-//             ", bytes = " << byteLen << std::endl;
+//             ", dataPos = " << node->getDataPosition() << ", recordPos = " << node->getRecordPosition() <<
+//             ", ev # = " << (eventPlace + i + 1) << ", bytes = " << byteLen << std::endl;
+
                         eventNodes.push_back(node);
                     }
                     catch (std::exception & e) {
@@ -1291,7 +1301,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // We've copied data from one buffer to another,
             // so adjust the nodes to compensate.
             for (auto & n : eventNodes) {
-                n->shift(bufferOffset).setBuffer(buffer);
+                n->setBuffer(buffer);
             }
         }
         else {
@@ -1374,6 +1384,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
 //std::cout << ">>>>>==============================================" << std::endl;
 //std::cout << recordHeader.toString() << std::endl;
+//std::cout << "bufferOffset = " << bufferOffset << std::endl;
 
             recordPositions.emplace_back(position, recordBytes, eventCount);
             // Track # of events in this record for event index handling
@@ -1383,11 +1394,13 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             std::vector<uint32_t> eventLengths;
             if (eventCount > 0) {
                 // Place in buffer to start reading event lengths (
-                uint32_t lenIndex = position + recordHeaderLen + bufferOffset;
+                uint32_t lenIndex = position + recordHeaderLen;
 
                 for (int i=0; i < eventCount; i++) {
                     uint32_t evLen = buffer->getUInt(lenIndex);
                     eventLengths.push_back(evLen);
+//std::cout << "  *** scanUncompressedBuffer: eventLengths[" << i << "] = bigEnoughtBuf[" << lenIndex << "] = " <<
+//                                                                                          evLen << std::endl;
                     lenIndex += 4;
                 }
             }
@@ -1409,6 +1422,9 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 // Is the length we get from the first word of an evio bank/event (bytes)
                 // the same as the length we got from the record header? If not, it's not evio.
                 bool isEvio = 4*(buffer->getUInt(position) + 1) == eventLengths[i];
+//                std::cout << "  *** scanUncompressedBuffer: is event " << i << " evio format? " << isEvio << std::endl;
+//                std::cout << "  *** scanUncompressedBuffer: 4*(bigEnoughBuf[" << position << "] + 1)= " << 4*(buffer->getUInt(position) + 1) << std::endl;
+//                std::cout << "  *** scanUncompressedBuffer: eventLengths[ " << i << "] = " << eventLengths[i] << std::endl;
 
                 std::shared_ptr<EvioNode> node;
 
