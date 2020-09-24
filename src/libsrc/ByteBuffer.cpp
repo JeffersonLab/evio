@@ -283,7 +283,7 @@ namespace evio {
 
         if (newSize < 1) return;
         if (newSize > cap) {
-            std::cout << "copyData:  REALLOCATING MEM!!!\n";
+//std::cout << "copyData:  REALLOCATING MEM!!!\n";
             buf = std::shared_ptr<uint8_t>(new uint8_t[newSize], std::default_delete<uint8_t[]>());
             cap = newSize;
             totalSize = newSize;
