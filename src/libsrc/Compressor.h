@@ -101,19 +101,19 @@ namespace evio {
         //---------------
 #ifdef USE_GZIP
         static uint8_t* compressGZIP(uint8_t* ungzipped, uint32_t offset,
-                                 uint32_t length, uint32_t *compLen);
+                                     uint32_t length, uint32_t *compLen);
 
-    static uint8_t* uncompressGZIP(uint8_t* gzipped, uint32_t off,
-                                   uint32_t length, uint32_t *uncompLen, uint32_t origUncompLen);
+        static uint8_t* uncompressGZIP(uint8_t* gzipped, uint32_t off,
+                                       uint32_t length, uint32_t *uncompLen, uint32_t origUncompLen);
 
-    static int compressGZIP(uint8_t* dest, uint32_t *destLen,
-                            const uint8_t* source, uint32_t sourceLen);
+        static int compressGZIP(uint8_t* dest, uint32_t *destLen,
+                                const uint8_t* source, uint32_t sourceLen);
 
-    static int uncompressGZIP(uint8_t* dest, uint32_t *destLen,
-                              const uint8_t* source, uint32_t *sourceLen,
-                              uint32_t uncompLen);
+        static int uncompressGZIP(uint8_t* dest, uint32_t *destLen,
+                                  const uint8_t* source, uint32_t *sourceLen,
+                                  uint32_t uncompLen);
 
-    static uint8_t* uncompressGZIP(ByteBuffer & gzipped, uint32_t *uncompLen);
+        static uint8_t* uncompressGZIP(ByteBuffer & gzipped, uint32_t *uncompLen);
 #endif
 
         //---------------
