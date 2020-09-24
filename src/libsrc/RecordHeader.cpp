@@ -363,15 +363,15 @@ namespace evio {
 
 
     /**
-     * Get the length of this header data in bytes (NOT including user header or index).
-     * @return length of this header data in bytes.
+     * Get the length of this header in bytes (NOT including user header or index).
+     * @return length of this header in bytes.
      */
     uint32_t  RecordHeader::getHeaderLength() const {return headerLength;}
 
 
     /**
-     * Get the length of this header data in words.
-     * @return length of this header data in words.
+     * Get the length of this header in words.
+     * @return length of this header in words.
      */
     uint32_t  RecordHeader::getHeaderWords() {return headerLengthWords;}
 
@@ -1517,11 +1517,11 @@ namespace evio {
 
         ss << setw(24) << "user header length" << "   : " << setw(8) << userHeaderLength <<
            setw(10) << userHeaderLengthWords << setw(10) << userHeaderLengthPadding << endl;
-        ss << setw(24) << "uncompressed header length" << " : " << setw(8) << dataLength <<
+        ss << setw(24) << "uncompressed data length" << "   : " << setw(8) << dataLength <<
            setw(10) << dataLengthWords << setw(10) << dataLengthPadding << endl;
         ss << setw(24) << "record length" << "   : " << setw(8) << recordLength <<
            setw(10) << recordLengthWords << endl;
-        ss << setw(24) << "compressed length" << "   : " << setw(8) << compressedDataLength <<
+        ss << setw(24) << "compressed data length" << "   : " << setw(8) << compressedDataLength <<
            setw(10) << compressedDataLengthWords << setw(10) << compressedDataLengthPadding << endl;
 
         ss << setw(24) << "header length" << "   : " << headerLength << endl;
