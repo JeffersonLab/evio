@@ -297,9 +297,9 @@ namespace evio {
                 bool addTrailerIndex = false,
                 uint32_t ringSize = 16);
 
-        explicit WriterMT(std::string & filename);
+        explicit WriterMT(const std::string & filename);
 
-        WriterMT(std::string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
+        WriterMT(const std::string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                  Compressor::CompressionType compressionType, uint32_t compressionThreads);
 
         ~WriterMT() = default;
@@ -325,8 +325,8 @@ namespace evio {
         bool addTrailerWithIndex();
         void addTrailerWithIndex(bool addTrailingIndex);
 
-        void open(std::string & filename);
-        void open(std::string & filename, uint8_t* userHdr, uint32_t userLen);
+        void open(const std::string & filename);
+        void open(const std::string & filename, uint8_t* userHdr, uint32_t userLen);
 
         std::shared_ptr<ByteBuffer> createHeader(uint8_t* userHdr, uint32_t userLen);
         std::shared_ptr<ByteBuffer> createHeader(ByteBuffer & userHdr);

@@ -139,7 +139,7 @@ namespace evio {
      * File byte order is little endian.
      * @param filename output file name
      */
-    WriterMT::WriterMT(std::string & filename) : WriterMT() {
+    WriterMT::WriterMT(const std::string & filename) : WriterMT() {
         open(filename);
     }
 
@@ -158,7 +158,7 @@ namespace evio {
      * @param compType      type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
      * @param compressionThreads number of threads doing compression simultaneously
      */
-    WriterMT::WriterMT(std::string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
+    WriterMT::WriterMT(const std::string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                        Compressor::CompressionType compType, uint32_t compressionThreads) :
             WriterMT(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize,
                      "", nullptr, 0, compType, compressionThreads, true, 4) {
@@ -260,7 +260,7 @@ namespace evio {
      * @throws EvioException if open already called without being followed by calling close.
      * @throws IOException if file cannot be found or IO error writing to file
      */
-    void WriterMT::open(std::string & filename) {
+    void WriterMT::open(const std::string & filename) {
         open(filename, nullptr, 0);
     }
 
@@ -278,7 +278,7 @@ namespace evio {
      *                       or if open() was already called without being followed by reset().
      * @throws IOException   if file cannot be found or IO error writing to file
      */
-    void WriterMT::open(std::string & filename, uint8_t* userHdr, uint32_t userLen) {
+    void WriterMT::open(const std::string & filename, uint8_t* userHdr, uint32_t userLen) {
 
         if (opened) {
             throw EvioException("currently open, call reset() first");
