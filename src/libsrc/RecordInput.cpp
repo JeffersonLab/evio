@@ -518,8 +518,6 @@ namespace evio {
      */
     void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
 
-        //std::cout << "readRecord: from buffer, IN" << std::endl;
-
         // This will switch buffer to proper byte order
         header->readHeader(buffer, offset);
 
@@ -537,12 +535,10 @@ namespace evio {
 //std::cout << "readRecord: offset to header = " << offset << " + headerLen of " << headerLength << std::endl;
 
         // How many bytes will the expanded record take?
-        // Just data:
-        uncompressedEventsLength = 4*header->getDataLengthWords();
         // Everything except the header & don't forget padding:
         uint32_t neededSpace =  header->getIndexLength() +
                                 4*header->getUserHeaderLengthWords() +
-                                uncompressedEventsLength;
+                                4*header->getDataLengthWords();
 
         // Make room to handle all data to be read & uncompressed
         dataBuffer->clear();
@@ -562,7 +558,7 @@ namespace evio {
 #ifdef USE_GZIP
                 {
                 // Read GZIP compressed data
-                uint32_t uncompLen;
+                uint32_t uncompLen = neededSpace;
                 buffer.limit(compDataOffset + cLength).position(compDataOffset);
                 uint8_t* ungzipped = Compressor::getInstance().uncompressGZIP(buffer, &uncompLen);
                 dataBuffer->put(ungzipped, uncompLen);
@@ -647,7 +643,7 @@ namespace evio {
 
         // Read in header. This will switch srcBuf to proper byte order.
         hdr.readHeader(srcBuf, srcOff);
-        //std::cout << std::endl << "uncompressRecord: hdr --> " << std::endl << hdr.toString() << std::endl;
+//std::cout << std::endl << "uncompressRecord: hdr --> " << std::endl << hdr.toString() << std::endl;
 
         uint32_t headerBytes              = hdr.getHeaderLength();
         uint32_t compressionType          = hdr.getCompressionType();
@@ -658,6 +654,10 @@ namespace evio {
         size_t   compressedDataOffset = srcOff + headerBytes;
         uint32_t indexLen = hdr.getIndexLength();
         uint32_t userLen  = 4*hdr.getUserHeaderLengthWords();  // padded
+
+        // How many bytes will the expanded record take?
+        // Everything except the record header & don't forget padding:
+        uint32_t neededSpace = indexLen + userLen + 4 * hdr.getDataLengthWords();
 
         // Make sure destination buffer has the same byte order
         //dstBuf.order(srcBuf.order());
@@ -671,10 +671,8 @@ namespace evio {
         }
         else {
             // Since everything is uncompressed, copy it all over as is
-            uint32_t copyBytes = indexLen + userLen + 4*hdr.getDataLengthWords();  // padded
-
             std::memcpy((void *)(dstBuf.array() + dstOff + dstBuf.arrayOffset()),
-                        (const void *)(srcBuf.array() + srcOff + srcBuf.arrayOffset()), headerBytes + copyBytes);
+                        (const void *)(srcBuf.array() + srcOff + srcBuf.arrayOffset()), headerBytes + neededSpace);
 
             dstBuf.position(dstOff + headerBytes);
         }
@@ -693,12 +691,12 @@ namespace evio {
                 // Read GZIP compressed data
 #ifdef USE_GZIP
                 {
-                uint32_t uncompLen;
-                srcBuf.limit(compressedDataOffset + compressedDataLength).position(compressedDataOffset);
-                uint8_t* ungzipped = Compressor::getInstance().uncompressGZIP(srcBuf, &uncompLen);
-                dstBuf.put(ungzipped, uncompLen);
-                delete[] ungzipped;
-            }
+                 uint32_t uncompLen = neededSpace;
+                 srcBuf.limit(compressedDataOffset + compressedDataLength).position(compressedDataOffset);
+                 uint8_t* ungzipped = Compressor::getInstance().uncompressGZIP(srcBuf, &uncompLen);
+                 dstBuf.put(ungzipped, uncompLen);
+                 delete[] ungzipped;
+      }
 #endif
                 break;
 
