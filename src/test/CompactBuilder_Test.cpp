@@ -711,6 +711,7 @@ namespace evio {
                 }
                 std::cout << std::endl;
             }
+            std::cout << dec;
         }
 
     }
