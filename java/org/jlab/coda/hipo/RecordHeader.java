@@ -1400,7 +1400,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
                                  dataLength, dataLengthWords, dataLengthPadding));
         str.append(String.format("%24s : %8d  %8d\n","record length",
                                  recordLength, recordLengthWords));
-        str.append(String.format("%24s : %8d  %8d  %8d\n","compressed length",
+        str.append(String.format("%24s : %8d  %8d  %8d\n","compressed data length",
                                  compressedDataLength, compressedDataLengthWords,
                                  compressedDataLengthPadding));
         str.append(String.format("%24s : %d\n","header length",headerLength));
