@@ -29,7 +29,7 @@ namespace evio {
      * Constructor with byte order. <b>No</b> file is opened.
      * File header type is evio file ({@link HeaderType#EVIO_FILE}).
      * Any dictionary will be placed in the user header which will create a conflict if
-     * user tries to call {@link #open(std::string &, uint8_t*, uint32_t)} with another user header array.
+     * user tries to call {@link #open(const std::string &, uint8_t *, uint32_t)} with another user header array.
      *
      * @param order byte order of written file.
      * @param maxEventCount max number of events a record can hold.
@@ -169,7 +169,7 @@ namespace evio {
 
     //////////////////////////////////////////////////////////////////////
 
-    
+
     /**
      * Get the file's byte order.
      * @return file's byte order.
@@ -661,7 +661,7 @@ namespace evio {
 
 
     /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(std::string &)}. */
+     * Follow calling this with call to {@link #open(const std::string &)}. */
     void WriterMT::reset() {
         outputRecord->reset();
         fileHeader.reset();

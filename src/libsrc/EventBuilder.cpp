@@ -912,7 +912,6 @@ namespace evio {
      * Fill array of shorts, sequential, 1..size, for test purposes.
      * @param array pointer to short array.
      * @param size the size of the array.
-     * @return the fake short array.
      */
     void EventBuilder::fakeShortArray(uint16_t* array, uint32_t size) {
         for (int i = 0; i < size; i++) {

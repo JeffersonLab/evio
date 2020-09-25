@@ -84,9 +84,9 @@ namespace evio {
 
         /**
          * Constructor.
-         * @param value int value of this DataType object.
-         * @param byteLen number of bytes this type takes (if relevant).
+         * @param val   int value of this DataType object.
          * @param name  name (string representation) of this DataType object.
+         * @param byteLen number of bytes this type takes (if relevant).
          */
         DataType(uint32_t val, std::string name, int byteLen = -1) : value(val), name(std::move(name)), bytes(byteLen) {}
 

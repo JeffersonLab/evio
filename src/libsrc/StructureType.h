@@ -59,8 +59,9 @@ namespace evio {
 
         /**
          * Constructor.
-         * @param value int value of this StructureType object.
          * @param name  name (string representation) of this StructureType object.
+         * @param val int value of this StructureType object.
+         * @param val2 possible second int value of this StructureType object.
          */
         StructureType(std::string name, uint32_t val, uint32_t val2=0) : name(std::move(name)), value(val), value2(val2) {}
 

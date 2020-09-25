@@ -247,7 +247,7 @@ namespace evio {
         /** Byte order of file/buffer being read. */
         ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
         /** Keep track of next EvioNode when calling {@link #getNextEventNode()},
-        * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
+        * {@link #getEvent(uint32_t, uint32_t *)}, or {@link #getPrevEvent(uint32_t *)}. */
         int32_t sequentialIndex = -1;
 
         /**

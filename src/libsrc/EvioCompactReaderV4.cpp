@@ -118,13 +118,6 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
-        setBuffer(buf);
-        return buf;
-    }
-
-
-    /** {@inheritDoc} */
     bool EvioCompactReaderV4::isFile() {return readingFile;}
 
 
@@ -271,7 +264,7 @@ namespace evio {
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Uses only absolute gets so byteBuffer position
      * does not change. Called only in constructors and
-     * {@link #setBuffer(ByteBuffer)}.
+     * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)}.
      *
      * @throws EvioException if bytes not in evio format
      */

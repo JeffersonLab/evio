@@ -62,7 +62,8 @@ namespace evio {
 
         /**
          * Constructor.
-         * @param value int value of this HeaderType object.
+         * @param val int value of this HeaderType object.
+         * @param name name of this HeaderType object.
          */
         HeaderType(uint32_t val, std::string name) : value(val), name(std::move(name)) {}
 

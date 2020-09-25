@@ -114,12 +114,6 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
-        return reader->setCompressedBuffer(buf);
-    }
-
-
-    /** {@inheritDoc} */
     bool EvioCompactReader::isClosed() {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);

@@ -699,7 +699,7 @@ namespace evio {
      * to the list of all nodes contained in event.
      * This is called internally in sequence so every node ends up in the right
      * place in allNodes. When the user adds a structure by calling
-     * {@link EvioCompactReader#addStructure(int, ByteBuffer)}, the structure or node
+     * {@link EvioCompactReader#addStructure(size_t, ByteBuffer &)}, the structure or node
      * gets added at the very end - as the last child of the event.
      *
      * @param node child node to add to the end of the child list.

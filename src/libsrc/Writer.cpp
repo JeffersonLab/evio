@@ -1008,7 +1008,6 @@ namespace evio {
      * match the byte order given in constructor!</b>
      *
      * @param buf buffer to add to the file.
-     * @param offset offset into buffer from which to start writing data.
      * @param length number of bytes to write from buffer.
      * @throws EvioException if cannot write to file.
      */
@@ -1225,7 +1224,7 @@ namespace evio {
     //---------------------------------------------------------------------
 
     /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(std::string &)}. */
+     * Follow calling this with call to {@link #open(const std::string &)}. */
     void Writer::reset() {
         outputRecord->reset();
         fileHeader.reset();

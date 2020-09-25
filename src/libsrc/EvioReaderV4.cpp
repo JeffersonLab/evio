@@ -909,7 +909,7 @@ namespace evio {
      * Get the event in the file/buffer at a given index (starting at 1).
      * It is only valid for evio versions 4+.
      * As useful as this sounds, most applications will probably call
-     * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
+     * {@link #parseNextEvent()} or {@link #parseEvent(size_t)} instead,
      * since it combines combines getting an event with parsing it.
      * Only called if not sequential reading.<p>
      *
@@ -1296,7 +1296,7 @@ namespace evio {
     /**
      * Go to a specific event in the file. The events are numbered 1..N.
      * This number is transient--it is not part of the event as stored in the evio file.
-     * Before version 4, this does the work for {@link #getEvent(int)}.
+     * Before version 4, this does the work for {@link #getEvent(size_t)}.
      *
      * @param  evNumber the event number in a 1,2,..N counting sense, from beginning of file/buffer.
      * @param  parse if {@code true}, parse the desired event

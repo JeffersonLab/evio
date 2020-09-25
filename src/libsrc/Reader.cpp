@@ -16,7 +16,7 @@ namespace evio {
 
     /**
      * Default constructor. Does nothing.
-     * The {@link #open(std::string const &)} method has to be called to open the input stream.
+     * The {@link #open(std::string const &, bool)} method has to be called to open the input stream.
      * Also {@link #forceScanFile()} needs to be called to find records.
      */
     Reader::Reader() {}

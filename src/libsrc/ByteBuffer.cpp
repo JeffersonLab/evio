@@ -275,7 +275,10 @@ namespace evio {
      * Copy the source buffer's data (position to limit) into this buffer starting at local position 0.
      * Limit and capacity are set to the "limit - position" bytes of srcBuf.
      * This can reallocate memory if more is needed and can therefore resize this buffer.
+     * Existing data in this buffer will be overwritten.
      * @param srcBuf ByteBuffer to copy data from.
+     * @param position position in srcByf to start from.
+     * @param limit position in srcByf to end at.
      */
     void ByteBuffer::copyData(const std::shared_ptr<const ByteBuffer> & srcBuf, size_t position, size_t limit) {
         // How many bytes do we copy?

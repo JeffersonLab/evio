@@ -1384,7 +1384,7 @@ namespace evio {
 
 
     /**
-     * This method positions a file for the first {@link #writeEvent(EvioBank)}
+     * This method positions a file for the first {@link #writeEvent(std::shared_ptr<EvioBank>)}
      * in append mode. It places the writing position after the last event (not record header).
      *
      * @throws EvioException     if file reading/writing problems,

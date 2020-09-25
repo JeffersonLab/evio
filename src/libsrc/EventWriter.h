@@ -176,9 +176,8 @@ namespace evio {
 
             /**
              * Constructor.
-             * @param pWriter pointer to WriterMT object which owns this thread.
-             * @param qs vector of input queues containing compressed records that need to be written to file.
-             *           Each queue is being filled by a CompressionThread.
+             * @param pwriter pointer to WriterMT object which owns this thread.
+             * @param recordSupply shared pointer to an object supplying compressed records that need to be written to file.
              */
             RecordWriter(EventWriter * pwriter, std::shared_ptr<RecordSupply> & recordSupply) :
                     writer(pwriter), supply(recordSupply)  {
@@ -623,10 +622,21 @@ namespace evio {
             }
 
 
-            /**
-             * Close the given file, in the order received, in a separate thread.
-             * @param afc file channel to close
-             */
+             /**
+              * Close the given file, in the order received, in a separate thread.
+              * @param afc file channel to close
+              * @param future1
+              * @param supply
+              * @param ringItem
+              * @param fileHeader
+              * @param recordLengths
+              * @param bytesWritten
+              * @param recordNumber
+              * @param addingTrailer
+              * @param writeIndex
+              * @param noFileWriting
+              * @param order
+              */
             void closeAsyncFile( std::shared_ptr<std::fstream> &afc,
                                  std::shared_ptr<std::future<void>> &future1,
                                  std::shared_ptr<RecordSupply> &supply,

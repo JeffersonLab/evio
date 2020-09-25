@@ -152,7 +152,6 @@ namespace evio {
         explicit EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer);
 
         void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
-        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
 
         bool isFile() override ;
         bool isCompressed() override ;

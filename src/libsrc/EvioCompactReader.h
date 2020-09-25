@@ -77,7 +77,6 @@ namespace evio {
         bool isCompressed() override;
 
         void setBuffer(std::shared_ptr<ByteBuffer> & buf) override;
-        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) override;
 
         bool isClosed() override;
 

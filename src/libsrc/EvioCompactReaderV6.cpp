@@ -65,14 +65,6 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
-        dictionary = nullptr;
-        closed = false;
-        return reader.setCompressedBuffer(buf);
-    }
-
-
-    /** {@inheritDoc} */
     bool EvioCompactReaderV6::isFile() {return reader.isFile();}
 
 

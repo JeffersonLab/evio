@@ -70,7 +70,7 @@ namespace evio {
 
         /**
          * Constructor.
-         * @param value int value of this headerType object.
+         * @param val   int value of this headerType object.
          * @param name  name (string representation) of this headerType object.
          */
         ByteOrder(int val, std::string name) : value(val), name(std::move(name)) {}

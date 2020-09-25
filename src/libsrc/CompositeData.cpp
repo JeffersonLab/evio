@@ -465,7 +465,7 @@ namespace evio {
      * Warning, in this case, M may not be greater than 15.
      * If you want a longer string or array of strings, use the
      * format "Na" with a literal N. The N value can be added
-     * through {@link org.jlab.coda.jevio.CompositeData.Data#addN(int)}
+     * through {@link CompositeData::Data#addN(uint32_t)}
      *
      * @param strings array of strings to eventually put into a
      *                CompositeData object.
@@ -1190,8 +1190,8 @@ namespace evio {
      * composite type items and all will be swapped.<p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
-     * @param srcBuffer   source data buffer
-     * @param destBuffer  destination data buffer
+     * @param srcBuf      source data buffer
+     * @param destBuf     destination data buffer
      * @param srcPos      position in srcBuffer to beginning swapping
      * @param destPos     position in destBuffer to beginning writing swapped data
      * @param len         length of data in srcBuffer to swap in 32 bit words
@@ -1336,7 +1336,7 @@ namespace evio {
      * @param srcBuf   source data buffer.
      * @param destBuf  destination data buffer.
      * @param nBytes   length of data to swap in bytes
-     * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
+     * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt empty or nBytes &lt; 8;
      *                       srcBuf or destBuf limit/position combo too small;
@@ -1365,7 +1365,7 @@ namespace evio {
      * @param destPos  position in destBuf to beginning writing swapped data unless
      *                 data is swapped in place (then set to srcPos).
      * @param nBytes   length of data to swap in bytes (be sure to account for padding)
-     * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
+     * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt empty or nBytes &lt; 8;
      *                       srcBuf or destBuf limit/position combo too small;
@@ -1395,7 +1395,7 @@ namespace evio {
      * @param destPos  position in destBuf to beginning writing swapped data unless
      *                 data is swapped in place (then set to srcPos).
      * @param nBytes   length of data to swap in bytes (be sure to account for padding)
-     * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
+     * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt empty or nBytes &lt; 8;
      *                       srcBuf or destBuf limit/position combo too small;
@@ -1765,7 +1765,7 @@ namespace evio {
      * @param src        data source data pointer.
      * @param dest       destination pointer or can be null if swapping in place.
      * @param nwrd       number of data words (32-bit ints) to be swapped.
-     * @param ifmt       format list as produced by {@link #compositeFormatToInt(String)}.
+     * @param ifmt       format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}.
      * @param padding    number of bytes to ignore in last data word (starting from data end).
      * @param srcIsLocal true if src is local endian, else false.
      *
@@ -2472,7 +2472,7 @@ namespace evio {
      *
      * @param rawBuf   data buffer in which to put the raw bytes
      * @param data     data to convert to raw bytes
-     * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
+     * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt size <= 0; if srcBuf or destBuf is too
      *                       small; not enough dataItems for the given format
@@ -3228,7 +3228,7 @@ namespace evio {
 
     /**
      * This method returns a string representation of this CompositeData object
-     * suitable for displaying in {@docRoot org.jlab.coda.jevio.graphics.EventTreeFrame}
+     * suitable for displaying in org.jlab.coda.jevio.graphics.EventTreeFrame
      * gui. Each data item is separated from those before and after by a line.
      * Non-parenthesis repeats are printed together.
      *

@@ -67,30 +67,6 @@ namespace evio {
         virtual void setBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
 
         /**
-         * This method can be used to avoid creating additional EvioCompactReader
-         * objects by reusing this one with another buffer. If the given buffer has
-         * uncompressed data or evio version is less than 6, this method becomes equivalent
-         * to {@link #setBuffer(std::shared_ptr<ByteBuffer> &)} and its return value is just
-         * the buf argument.<p>
-         *
-         * The given buffer may have compressed data, and if so, the data is uncompressed
-         * in placed back into the same buffer. If, however, the given buffer does not have
-         * enough space for the uncompressed data, a new buffer is internally allocated,
-         * data is placed in the new buffer, and the new buffer is the return value.<p>
-         *     
-         * The method {@link #close()} is called before anything else. The pool is <b>not</b>
-         * reset in this method. Caller may do that prior to calling method.
-         *
-         * @param buf  ByteBuffer to be read
-         * @return buf arg if data is not compressed. If compressed and buf does not have the
-         *         necessary space to contain all uncompressed data, a new buffer is allocated,
-         *         filled, and returned.
-         * @throws EvioException if arg is null;
-         *                       if failure to read first block header
-         */
-        virtual std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
-
-        /**
          * Has {@link #close()} been called (without reopening by calling
          * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)})?
          *
