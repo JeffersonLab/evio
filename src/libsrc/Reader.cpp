@@ -1247,7 +1247,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         bigEnoughBuf->flip();
         return bigEnoughBuf;
     }
-    
+
 
     /**
       * Scan buffer to find all records and store their position, length, and event count.
