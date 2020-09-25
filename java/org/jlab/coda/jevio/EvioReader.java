@@ -276,7 +276,7 @@ public class EvioReader implements IEvioReader {
             throw new EvioException("Buffer arg is null");
         }
 
-        this.byteBuffer = byteBuffer.slice(); // remove necessity to track initial position
+        this.byteBuffer = byteBuffer;
         initialPosition = byteBuffer.position();
 
         // Read first block header and find the file's endianness & evio version #.
@@ -364,6 +364,7 @@ public class EvioReader implements IEvioReader {
      * @return status of read attempt
      */
     private ReadStatus findEvioVersion() {
+
         // Look at first record header
         // Have enough remaining bytes to read 8 words of header?
         if (byteBuffer.limit() - initialPosition < 32) {
