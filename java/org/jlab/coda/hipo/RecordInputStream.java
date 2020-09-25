@@ -771,6 +771,8 @@ public class RecordInputStream {
         // Reset the compression type and length in header to 0
         dstBuf.putInt(dstOff + RecordHeader.COMPRESSION_TYPE_OFFSET, 0);
         header.setCompressionType(CompressionType.RECORD_UNCOMPRESSED).setCompressedDataLength(0);
+        // The previous call updated the bitinfo word in header. Write this into buf:
+        dstBuf.putInt(dstOff + RecordHeader.BIT_INFO_OFFSET, header.getBitInfoWord());
 
         // Reset the header length
         dstBuf.putInt(dstOff + RecordHeader.RECORD_LENGTH_OFFSET, uncompressedRecordLength/4);
