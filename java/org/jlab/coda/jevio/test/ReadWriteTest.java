@@ -5,6 +5,7 @@ import org.jlab.coda.jevio.*;
 import proguard.io.JarWriter;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -492,41 +493,46 @@ public class ReadWriteTest {
 
     static void writeAndReadBuffer() throws EvioException, HipoException, IOException {
 
-        int loops = 3;
-
-        byte firstEvent[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29};
-        int firstEventLen = 10;
-
-        ByteOrder order = ByteOrder.BIG_ENDIAN;
-        CompressionType compType = CompressionType.RECORD_UNCOMPRESSED;
-
-        // Possible user header data
-        byte[] userHdr = new byte[10];
-        for (byte i = 0; i < 10; i++) {
-            userHdr[i] = (byte)(i+16);
-        }
-
         // Create Buffer
-        ByteBuffer buffer = ByteBuffer.allocate(3000);
+        int bufSize = 3000;
+        ByteOrder order = ByteOrder.BIG_ENDIAN;
+        ByteBuffer buffer = ByteBuffer.allocate(bufSize);
         buffer.order(order);
 
-        //Writer writer(buffer, 0, 0, "", firstEvent, firstEventLen);
-        Writer writer = new Writer(buffer, userHdr);
-System.out.println("Past creating Writer object");
+        boolean compressed = true;
 
-        // Calling the following method makes a shared pointer out of dataArray, so don't delete
-        ByteBuffer dataBuffer = ByteBuffer.allocate(20);
-        for (short i=0; i < 10; i++) {
-            dataBuffer.putShort(i);
-        }
-        dataBuffer.flip();
+        if (!compressed) {
 
-System.out.println("Data buffer ->\n" + dataBuffer.toString());
+            int loops = 3;
 
-        // Create an evio bank of ints
-        ByteBuffer evioDataBuf = generateEvioBuffer(order, 0, 0);
-        // Create node from this buffer
-        EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0,0,0);
+            byte firstEvent[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29};
+            int firstEventLen = 10;
+
+            CompressionType compType = CompressionType.RECORD_UNCOMPRESSED;
+
+            // Possible user header data
+            byte[] userHdr = new byte[10];
+            for (byte i = 0; i < 10; i++) {
+                userHdr[i] = (byte) (i + 16);
+            }
+
+            //Writer writer(buffer, 0, 0, "", firstEvent, firstEventLen);
+            Writer writer = new Writer(buffer, userHdr);
+            System.out.println("Past creating Writer object");
+
+            // Calling the following method makes a shared pointer out of dataArray, so don't delete
+            ByteBuffer dataBuffer = ByteBuffer.allocate(20);
+            for (short i = 0; i < 10; i++) {
+                dataBuffer.putShort(i);
+            }
+            dataBuffer.flip();
+
+            System.out.println("Data buffer ->\n" + dataBuffer.toString());
+
+            // Create an evio bank of ints
+            ByteBuffer evioDataBuf = generateEvioBuffer(order, 0, 0);
+            // Create node from this buffer
+            EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0, 0, 0);
 
 //            while (true) {
 //                // random data array
@@ -537,10 +543,10 @@ System.out.println("Data buffer ->\n" + dataBuffer.toString());
 //                if (--loops < 1) break;
 //            }
 
-System.out.println("add event of node,  data type = " + node.getDataTypeObj().toString() +
-                   ", bytes = " + node.getTotalBytes());
-        writer.addEvent(node);
-        writer.addEvent(node);
+            System.out.println("add event of node,  data type = " + node.getDataTypeObj().toString() +
+                    ", bytes = " + node.getTotalBytes());
+            writer.addEvent(node);
+            writer.addEvent(node);
 
 //            //------------------------------
 //            // Add entire record at once, 2x
@@ -566,35 +572,137 @@ System.out.println("add event of node,  data type = " + node.getDataTypeObj().to
 //System.out.println("once more, add event of len = " + dataBuffer.remaining());
 //            writer.addEvent(dataBuffer);
 
-        //------------------------------
+            //------------------------------
 
-System.out.println("Past writes");
+            System.out.println("Past writes");
 
-        writer.close();
+            writer.close();
 
-        // Get ready-to-read buffer
-        buffer = writer.getBuffer();
-System.out.println("Finished buffer ->\n" + buffer);
+            // Get ready-to-read buffer
+            buffer = writer.getBuffer();
+
+        }
+        else {
+
+            int loops = 3;
+
+            byte firstEvent[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29};
+            int firstEventLen = 10;
+
+            CompressionType compType = CompressionType.RECORD_COMPRESSION_GZIP;
+
+            // Possible user header data
+            byte[] userHdr = new byte[10];
+            for (byte i = 0; i < 10; i++) {
+                userHdr[i] = (byte) (i + 16);
+            }
+
+            // We cannot write compressed data into a buffer directly, but we can write it to a file
+            // and then read the file back into a buffer (minus the file header).
+            Writer writer = new Writer(HeaderType.EVIO_FILE, order, 0, 0,
+            null, null, compType, false);
+            writer.open("./temp");
+
+
+            //Writer writer(buffer, 0, 0, "", firstEvent, firstEventLen);
+            //Writer writer = new Writer(buffer, userHdr);
+
+            // Calling the following method makes a shared pointer out of dataArray, so don't delete
+            ByteBuffer dataBuffer = ByteBuffer.allocate(20);
+            for (short i = 0; i < 10; i++) {
+                dataBuffer.putShort(i);
+            }
+            dataBuffer.flip();
+
+            System.out.println("Data buffer ->\n" + dataBuffer.toString());
+
+            // Create an evio bank of ints
+            ByteBuffer evioDataBuf = generateEvioBuffer(order, 0, 0);
+            // Create node from this buffer
+            EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0, 0, 0);
+
+//            while (true) {
+//                // random data array
+//                //writer.addEvent(dataArray, 0, 20);
+//System.out.println("add event of len = " + dataBuffer.remaining());
+//                writer.addEvent(dataBuffer);
+//
+//                if (--loops < 1) break;
+//            }
+
+            System.out.println("add event of node,  data type = " + node.getDataTypeObj().toString() +
+                    ", bytes = " + node.getTotalBytes());
+            writer.addEvent(node);
+            writer.addEvent(node);
+
+//            //------------------------------
+//            // Add entire record at once, 2x
+//            //------------------------------
+//
+//            RecordOutputStream recOut = new RecordOutputStream(order, 0, 0, CompressionType.RECORD_UNCOMPRESSED);
+//            ByteBuffer dataBuffer2 = ByteBuffer.allocate(40);
+//            for (short i=0; i < 20; i++) {
+//                dataBuffer2.putShort(i);
+//            }
+//            dataBuffer2.flip();
+//System.out.println("add entire record (containing " + dataBuffer2.remaining() + " bytes of data");
+//            recOut.addEvent(dataBuffer2.array(), 0, 40);
+//            writer.writeRecord(recOut);
+//
+//System.out.println("add the previous record again, but with one more event added  ... ");
+//            recOut.addEvent(dataBuffer2.array(), 0, 40);
+//            writer.writeRecord(recOut);
+//
+//            //------------------------------
+//            // Add last event
+//            //------------------------------
+//System.out.println("once more, add event of len = " + dataBuffer.remaining());
+//            writer.addEvent(dataBuffer);
+
+            //------------------------------
+
+            System.out.println("Past writes");
+
+            writer.close();
+
+            Utilities.printBytes("./temp", 0, 1000, "file bytes");
+
+            System.out.println("PAST printBytes");
+
+            // Find out size of file.
+            // "ate" mode flag will go immediately to file's end (do this to get its size)
+            File file = new File("./temp");
+            bufSize = (int)file.length();
+            System.out.println("Compressed file has byte length = " + bufSize);
+
+            buffer.limit(bufSize);
+            Utilities.readBytes("./temp", buffer);
+            buffer.position(FileHeader.HEADER_SIZE_BYTES);
+        }
+
 System.out.println("Past close, now read it");
 
-Utilities.printBytes(buffer, 0, 1600, "Buffer Bytes");
-ByteBuffer copy = ByteBuffer.allocate(buffer.capacity());
-System.arraycopy(buffer.array(), 0, copy.array(), 0, buffer.capacity());
+Utilities.printBytes(buffer, 0, bufSize, "Buffer Bytes");
+
+        ByteBuffer copy = ByteBuffer.allocate(buffer.capacity());
+        ByteBuffer copy2 = ByteBuffer.allocate(buffer.capacity());
+        System.arraycopy(buffer.array(), 0, copy.array(), 0, buffer.capacity());
+        System.arraycopy(buffer.array(), 0, copy2.array(), 0, buffer.capacity());
+        copy.limit(buffer.limit()).position(FileHeader.HEADER_SIZE_BYTES);
+        copy2.limit(buffer.limit()).position(FileHeader.HEADER_SIZE_BYTES);
 
         //------------------------------
         //----  READER1 ----------------
         //------------------------------
 
-        int readerType = 0;
 
-//        if (readerType == 0) {
-            Reader reader = new Reader(buffer);
-System.out.println("PAST creating Reader object");
+        Reader reader = new Reader(buffer);
 
-            // COmpare original with copy
-            boolean unchanged = true;
+        // Compare original with copy
+        boolean unchanged = true;
+        if (!compressed) {
             int index = 0;
-            for (int i=0; i < buffer.capacity(); i++) {
+            for (int i = 0; i < buffer.capacity(); i++) {
                 if (buffer.array()[i] != copy.array()[i]) {
                     unchanged = false;
                     index = i;
@@ -608,33 +716,32 @@ System.out.println("PAST creating Reader object");
             if (unchanged) {
                 System.out.println("ORIGINAL buffer Unchanged!");
             }
+        }
 
-            int evCount = reader.getEventCount();
-            System.out.println("Read in buffer, got " + evCount + " events");
+        int evCount = reader.getEventCount();
+        System.out.println("Read in buffer, got " + evCount + " events");
 
-            String dict = reader.getDictionary();
-            System.out.println("   Got dictionary = " + dict);
+        String dict = reader.getDictionary();
+        System.out.println("   Got dictionary = " + dict);
 
-            byte[] pFE = reader.getFirstEvent();
-            if (pFE != null) {
-                System.out.println("   First Event bytes = " + pFE.length);
-                System.out.println("   First Event values = \n" + "   ");
-                for (int i = 0; i < pFE.length; i++) {
-                    System.out.println((int) (pFE[i]) + ",  ");
-                }
-                System.out.println("\n");
+        byte[] pFE = reader.getFirstEvent();
+        if (pFE != null) {
+            System.out.println("   First Event bytes = " + pFE.length);
+            System.out.println("   First Event values = \n" + "   ");
+            for (int i = 0; i < pFE.length; i++) {
+                System.out.println((int) (pFE[i]) + ",  ");
             }
+            System.out.println("\n");
+        }
 
-            System.out.println("Print out regular events:");
-            byte[] data = null;
+        System.out.println("Print out regular events:");
+        byte[] data = null;
 
-            for (int i = 0; i < reader.getEventCount(); i++) {
-                data = reader.getEvent(i);
-                Utilities.printBytes(data, 0, data.length, "  Event #" + i);
-            }
-//        }
-        // Use evio reader to see what happens when we have non-evio events ....
- //       else if (readerType == 1) {
+        for (int i = 0; i < reader.getEventCount(); i++) {
+            data = reader.getEvent(i);
+            Utilities.printBytes(data, 0, data.length, "  Event #" + i);
+        }
+
 
         System.out.println("--------------------------------------------");
         System.out.println("----------      READER2       --------------");
@@ -643,35 +750,36 @@ System.out.println("PAST creating Reader object");
         ByteBuffer dataBuf = null;
 
         try {
-                EvioCompactReader reader2 = new EvioCompactReader(copy);
+            EvioCompactReader reader2 = new EvioCompactReader(copy);
 
-                int evCount2 = reader.getEventCount();
-                System.out.println("Read in buffer, got " + evCount2 + " events");
+            int evCount2 = reader2.getEventCount();
+            System.out.println("Read in buffer, got " + evCount2 + " events");
 
-                String dict2 = reader2.getDictionaryXML();
-                System.out.println("   Got dictionary = " + dict2);
+            String dict2 = reader2.getDictionaryXML();
+            System.out.println("   Got dictionary = " + dict2);
 
-                // Compact reader does not deal with first events, so skip over it
+            // Compact reader does not deal with first events, so skip over it
 
-                System.out.println("Print out regular events:");
+            System.out.println("Print out regular events:");
 
-                for (int i = 0; i < reader2.getEventCount(); i++) {
-                    System.out.println("scanned event #" + i + " :");
-                    EvioNode compactNode = reader2.getScannedEvent(i + 1);
-                    System.out.println("node ->\n" + compactNode);
+            for (int i = 0; i < reader2.getEventCount(); i++) {
+                System.out.println("scanned event #" + i + " :");
+                EvioNode compactNode = reader2.getScannedEvent(i + 1);
+                System.out.println("node ->\n" + compactNode);
 
-                    dataBuf = compactNode.getStructureBuffer(true);
+                dataBuf = compactNode.getStructureBuffer(true);
 //                        ByteBuffer buffie(4*compactNode->getDataLength());
 //                        auto dataBuf = compactNode->getByteData(buffie,true);
 
-                    Utilities.printBytes(dataBuf, dataBuf.position(), dataBuf.remaining(),
-                            "  Event #" + i);
-                }
+                Utilities.printBytes(dataBuf, dataBuf.position(), dataBuf.remaining(),
+                        "  Event #" + i);
             }
-            catch (EvioException e) {
-                System.out.println("PROBLEM: " + e.getMessage());
-            }
+        }
+        catch (EvioException e) {
+            System.out.println("PROBLEM: " + e.getMessage());
+        }
 
+        int index;
         for (int i=0; i < dataBuf.limit(); i++) {
             if ((data[i] != dataBuf.array()[i]) && (i > 3)) {
                 unchanged = false;
@@ -686,8 +794,6 @@ System.out.println("PAST creating Reader object");
             System.out.println("EVENT same whether using Reader or EvioCompactReader!");
         }
 
-//        }
-//        else if (readerType == 2) {
 
         System.out.println("--------------------------------------------");
         System.out.println("----------      READER3       --------------");
@@ -696,37 +802,37 @@ System.out.println("PAST creating Reader object");
 
         byte[] dataVec = null;
         try {
-                EvioReader reader3 = new EvioReader(buffer);
+            EvioReader reader3 = new EvioReader(copy2);
 
-                int evCount3 = reader3.getEventCount();
-                System.out.println("Read in buffer, got " + evCount3 + " events");
+            int evCount3 = reader3.getEventCount();
+            System.out.println("Read in buffer, got " + evCount3 + " events");
 
-                String dict3 = reader3.getDictionaryXML();
-                System.out.println("   Got dictionary = " + dict3);
+            String dict3 = reader3.getDictionaryXML();
+            System.out.println("   Got dictionary = " + dict3);
 
-                EvioEvent pFE3 = reader3.getFirstEvent();
-                if (pFE3 != null) {
-                    System.out.println("   First Event bytes = " + pFE3.getTotalBytes());
-                    System.out.println("   First Event values = \n" + "   ");
-                    for (int i = 0; i < pFE3.getRawBytes().length; i++) {
-                        System.out.println((int) (pFE3.getRawBytes()[i]) + ",  ");
-                    }
-                    System.out.println("\n");
+            EvioEvent pFE3 = reader3.getFirstEvent();
+            if (pFE3 != null) {
+                System.out.println("   First Event bytes = " + pFE3.getTotalBytes());
+                System.out.println("   First Event values = \n" + "   ");
+                for (int i = 0; i < pFE3.getRawBytes().length; i++) {
+                    System.out.println((int) (pFE3.getRawBytes()[i]) + ",  ");
                 }
-
-                System.out.println("Print out regular events:");
-
-                for (int i = 0; i < reader3.getEventCount(); i++) {
-                    EvioEvent ev = reader3.getEvent(i + 1);
-                    System.out.println("ev ->\n" + ev);
-
-                    dataVec = ev.getRawBytes();
-                    Utilities.printBytes(dataVec, 0, dataVec.length, "  Event #" + i);
-                }
+                System.out.println("\n");
             }
-            catch (EvioException e) {
-                System.out.println("PROBLEM: " + e.getMessage());
+
+            System.out.println("Print out regular events:");
+
+            for (int i = 0; i < reader3.getEventCount(); i++) {
+                EvioEvent ev = reader3.getEvent(i + 1);
+                System.out.println("ev ->\n" + ev);
+
+                dataVec = ev.getRawBytes();
+                Utilities.printBytes(dataVec, 0, dataVec.length, "  Event #" + i);
             }
+        }
+        catch (EvioException e) {
+            System.out.println("PROBLEM: " + e.getMessage());
+        }
 
         System.out.println("COmparing data (len = " +data.length + ") with dataVec (len = " + dataVec.length + ")");
         for (int i=0; i < dataVec.length; i++) {
@@ -743,9 +849,9 @@ System.out.println("PAST creating Reader object");
             System.out.println("EVENT same whether using Reader or EvioReader!");
         }
 
+
     }
 
-//    }
 
 
 

@@ -469,43 +469,43 @@ namespace evio {
                 // Create node from this buffer
                 std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
 
-                //            while (true) {
-                //                // random data array
-                //                //writer.addEvent(dataArray, 0, 20);
-                //cout << "add event of len = " << dataBuffer.remaining() << endl;
-                //                writer.addEvent(dataBuffer);
-                //
-                //                if (--loops < 1) break;
-                //            }
+//                while (true) {
+//                    // random data array
+//                    //writer.addEvent(dataArray, 0, 20);
+//                    cout << "add event of len = " << dataBuffer.remaining() << endl;
+//                    writer.addEvent(dataBuffer);
+//
+//                    if (--loops < 1) break;
+//                }
 
                 cout << "add events of node,  data type = " << node->getDataTypeObj().toString() << ", bytes = "
                      << node->getTotalBytes() << endl;
                 writer.addEvent(*node.get());
                 writer.addEvent(*node.get());
 
-                //            //------------------------------
-                //            // Add entire record at once, 2x
-                //            //------------------------------
-                //
-                //            RecordOutput recOut(order);
-                //            ByteBuffer dataBuffer2(40);
-                //            for (int i=0; i < 20; i++) {
-                //                dataBuffer2.putShort(i);
-                //            }
-                //            dataBuffer2.flip();
-                //            cout << "add entire record (containing " << dataBuffer2.remaining() << " bytes of data) " << endl;
-                //            recOut.addEvent(dataBuffer2.array(), 40, 0);
-                //            writer.writeRecord(recOut);
-                //
-                //            cout << "add the previous record again, but with one more event added  ... " << endl;
-                //            recOut.addEvent(dataBuffer2.array(), 40, 0);
-                //            writer.writeRecord(recOut);
-                //
-                //            //------------------------------
-                //            // Add last event
-                //            //------------------------------
-                //            cout << "once more, add event of len = " << dataBuffer.remaining() << endl;
-                //            writer.addEvent(dataBuffer);
+//                //------------------------------
+//                // Add entire record at once, 2x
+//                //------------------------------
+//
+//                RecordOutput recOut(order);
+//                ByteBuffer dataBuffer2(40);
+//                for (int i=0; i < 20; i++) {
+//                    dataBuffer2.putShort(i);
+//                }
+//                dataBuffer2.flip();
+//                cout << "add entire record (containing " << dataBuffer2.remaining() << " bytes of data) " << endl;
+//                recOut.addEvent(dataBuffer2.array(), 40, 0);
+//                writer.writeRecord(recOut);
+//
+//                cout << "add the previous record again, but with one more event added  ... " << endl;
+//                recOut.addEvent(dataBuffer2.array(), 40, 0);
+//                writer.writeRecord(recOut);
+//
+//                //------------------------------
+//                // Add last event
+//                //------------------------------
+//                cout << "once more, add event of len = " << dataBuffer.remaining() << endl;
+//                writer.addEvent(dataBuffer);
 
                 //------------------------------
 
@@ -529,14 +529,14 @@ namespace evio {
                 Util::readBytes("./temp", *(buffer.get()));
 
                 buffer->position(FileHeader::HEADER_SIZE_BYTES);
-
-                std::cout << "New Compressed buffer ->\n" << buffer->toString() << std::endl;
             }
 
             auto copy = std::make_shared<ByteBuffer>(*(buffer.get()));
             auto copy2 = std::make_shared<ByteBuffer>(*(buffer.get()));
 
             cout << "Finished buffer ->\n" << buffer->toString() << endl;
+            cout << "COPY1 ->\n" << copy->toString() << endl;
+            cout << "COPY2 ->\n" << copy2->toString() << endl;
             cout << "Past close, now read it" << endl;
 
             Util::printBytes(buffer, 0, bufSize, "Buffer Bytes");
@@ -545,36 +545,33 @@ namespace evio {
             //----  READER1  ---------------
             //------------------------------
 
-            int readerType = 0;
-
-//            if (readerType == 0) {
 
                 Reader reader(buffer);
                 cout << "Past reader's constructor" << endl;
-            bool unchanged = false;
-            int index = 0;
+                bool unchanged = false;
+                int index = 0;
 
-            if (!compressed) {
-                // COmpare original with copy
-                unchanged = true;
-                index = 0;
-                for (int i = 0; i < buffer->capacity(); i++) {
-                    if (buffer->array()[i] != copy->array()[i]) {
-                        unchanged = false;
-                        index = i;
-                        std::cout << "Orig buffer CHANGED at byte #" << index << std::endl;
-                        std::cout << showbase << hex << ", " << +copy->array()[i] << " changed to "
-                                  << +buffer->array()[i] << std::endl;
-                        Util::printBytes(buffer, 0, 200, "Buffer Bytes");
-                        break;
+                if (!compressed) {
+                    // COmpare original with copy
+                    unchanged = true;
+                    index = 0;
+                    for (int i = 0; i < buffer->capacity(); i++) {
+                        if (buffer->array()[i] != copy->array()[i]) {
+                            unchanged = false;
+                            index = i;
+                            std::cout << "Orig buffer CHANGED at byte #" << index << std::endl;
+                            std::cout << showbase << hex << ", " << +copy->array()[i] << " changed to "
+                                      << +buffer->array()[i] << std::endl;
+                            Util::printBytes(buffer, 0, 200, "Buffer Bytes");
+                            break;
+                        }
+                    }
+                    if (unchanged) {
+                        std::cout << "ORIGINAL buffer Unchanged!\n";
                     }
                 }
-                if (unchanged) {
-                    std::cout << "ORIGINAL buffer Unchanged!\n";
-                }
-            }
 
-            int32_t evCount = reader.getEventCount();
+                int32_t evCount = reader.getEventCount();
                 cout << "Read in buffer, got " << evCount << " events" << endl;
 
                 string dict = reader.getDictionary();
@@ -600,18 +597,15 @@ namespace evio {
                     Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
                 }
 
-//            }
-//            // Use evio reader to see what happens when we have non-evio events ....
-//            else if (readerType == 1) {
 
-            std::cout << "--------------------------------------------\n";
-            std::cout << "--------------  Reader 2 -------------------\n";
-            std::cout << "--------------------------------------------\n";
+                std::cout << "--------------------------------------------\n";
+                std::cout << "--------------  Reader 2 -------------------\n";
+                std::cout << "--------------------------------------------\n";
 
-            std::shared_ptr<ByteBuffer> dataBuf = nullptr;
+                std::shared_ptr<ByteBuffer> dataBuf = nullptr;
 
-            try {
-                EvioCompactReader reader2(copy);
+                try {
+                    EvioCompactReader reader2(copy);
 
                     int32_t evCount2 = reader2.getEventCount();
                     cout << "Read in buffer, got " << evCount2 << " events" << endl;
@@ -625,47 +619,46 @@ namespace evio {
 
                     for (int i = 0; i < evCount2; i++) {
                         std::shared_ptr<EvioNode> compactNode = reader2.getScannedEvent(i + 1);
-//std::cout << "   xxxxx Node " << i << " = " << compactNode->toString() << std::endl;
+                        //std::cout << "   xxxxx Node " << i << " = " << compactNode->toString() << std::endl;
                         auto nodeBuf = compactNode->getBuffer();
                         dataBuf = std::make_shared<ByteBuffer>(compactNode->getTotalBytes());
                         dataBuf->order(order);
                         compactNode->getByteData(dataBuf, true);
 
-//                        ByteBuffer buffie(4*compactNode->getDataLength());
-//                        auto dataBuf = compactNode->getByteData(buffie,true);
+                        //                        ByteBuffer buffie(4*compactNode->getDataLength());
+                        //                        auto dataBuf = compactNode->getByteData(buffie,true);
 
                         Util::printBytes(dataBuf, dataBuf->position(), dataBuf->remaining(),
-                                   "  Event #" + std::to_string(i) + " at pos " + std::to_string(dataBuf->position()));
+                                         "  Event #" + std::to_string(i) + " at pos " + std::to_string(dataBuf->position()));
                     }
+
+
+                    for (int i=0; i < dataBuf->limit(); i++) {
+                        if ((data.get()[i+8] != dataBuf->array()[i])) {
+                            unchanged = false;
+                            index = i;
+                            std::cout << "Reader different than EvioCompactReader at byte #" << index << std::endl;
+                            std::cout << showbase << hex << +data.get()[i] << " changed to " << +dataBuf->array()[i] << dec << std::endl;
+                            break;
+                        }
+                    }
+                    if (unchanged) {
+                        std::cout << "EVENT same whether using Reader or EvioCompactReader!\n";
+                    }
+
                 }
                 catch (EvioException &e) {
                     std::cout << "PROBLEM: " << e.what() << std::endl;
                 }
 
-                for (int i=0; i < dataBuf->limit(); i++) {
-                    if ((data.get()[i+8] != dataBuf->array()[i])) {
-                        unchanged = false;
-                        index = i;
-                        std::cout << "Reader different than EvioCompactReader at byte #" << index << std::endl;
-                        std::cout << showbase << hex << +data.get()[i] << " changed to " << +dataBuf->array()[i] << dec << std::endl;
-                        break;
-                    }
-                }
-                if (unchanged) {
-                    std::cout << "EVENT same whether using Reader or EvioCompactReader!\n";
-                }
 
+                std::cout << "--------------------------------------------\n";
+                std::cout << "--------------  Reader 3 -------------------\n";
+                std::cout << "--------------------------------------------\n";
 
-            //            }
-//            else if (readerType == 2) {
+                std::vector<uint8_t> dataVec;
 
-            std::cout << "--------------------------------------------\n";
-            std::cout << "--------------  Reader 3 -------------------\n";
-            std::cout << "--------------------------------------------\n";
-
-            std::vector<uint8_t> dataVec;
-
-            try {
+                try {
                     EvioReader reader3(copy2);
 
                     int32_t evCount3 = reader3.getEventCount();
@@ -694,28 +687,29 @@ namespace evio {
                         Util::printBytes(dataVec.data(), dataVec.size(),
                                          "  Event #" + std::to_string(i));
                     }
+
+
+                    std::cout << "Comparing data with dataVec\n";
+                    for (int i=0; i < dataVec.size(); i++) {
+                        if ((data.get()[i+8] != dataVec[i]) && (i > 3)) {
+                            unchanged = false;
+                            index = i;
+                            std::cout << "Reader different than EvioReader at byte #" << index << std::endl;
+                            std::cout << showbase << hex << +data.get()[i] << " changed to " << +dataVec[i] << dec << std::endl;
+                            break;
+                        }
+                    }
+                    if (unchanged) {
+                        std::cout << "EVENT same whether using Reader or EvioReader!\n";
+                    }
+
                 }
                 catch (EvioException &e) {
                     std::cout << "PROBLEM: " << e.what() << std::endl;
                 }
 
-            std::cout << "Comparing data with dataVec\n";
-            for (int i=0; i < dataVec.size(); i++) {
-                if ((data.get()[i+8] != dataVec[i]) && (i > 3)) {
-                    unchanged = false;
-                    index = i;
-                    std::cout << "Reader different than EvioReader at byte #" << index << std::endl;
-                    std::cout << showbase << hex << +data.get()[i] << " changed to " << +dataVec[i] << dec << std::endl;
-                    break;
-                }
-            }
-            if (unchanged) {
-                std::cout << "EVENT same whether using Reader or EvioReader!\n";
-            }
 
         }
-
-//        }
 
 
 
