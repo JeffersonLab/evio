@@ -666,7 +666,37 @@ final public class Utilities {
         }
         catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * This method reads part of a file into a ByteBuffer.
+     * The buffer's position will be at the end of the data that is read.
+     * The caller will have to flip the buffer to read it.
+     *
+     * @param fileName file to read from.
+     * @param buf      buffer to write into.
+     * @throws EvioException if file not found, is a directory, or could not be read;
+     *                       if bad file name or unable to do I/O.
+     */
+    static public void readBytes(String fileName, ByteBuffer buf) throws EvioException {
+
+        if (fileName == null || fileName.length() < 1) {
+            System.out.println("printBuffer: file name arg is invalid");
             return;
+        }
+
+        try {
+            File file = new File(fileName);
+            FileInputStream fileStream = new FileInputStream(file);
+            FileChannel fileChannel = fileStream.getChannel();
+
+            fileChannel.read(buf);
+            fileStream.close();
+        }
+        catch (Exception ex) {
+            throw new EvioException(ex);
         }
     }
 
