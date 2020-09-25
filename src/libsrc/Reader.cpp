@@ -52,6 +52,10 @@ namespace evio {
     /**
      * Constructor for reading buffer with evio data.
      * Buffer must be ready to read with position and limit set properly.
+     * If the given buffer contains compressed data, it is uncompressed into another buffer.
+     * The buffer containing the newly uncompressed data then becomes the internal buffer of
+     * this object. It can be obtained by calling {@link #getBuffer}.
+     *
      * @param buffer buffer with evio data.
      * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
      *                          if not throw exception.
@@ -66,7 +70,14 @@ namespace evio {
         fromFile = false;
         checkRecordNumberSequence = checkRecordNumSeq;
 
-        scanBuffer();
+        auto bb = scanBuffer();
+        if (compressed) {
+            // scanBuffer() will uncompress all data in buffer
+            // and store it in the returned buffer (bb).
+            // Make that our internal buffer so we don't have to do any more uncompression.
+            this->buffer = bb;
+            compressed = false;
+        }
     }
 
 
@@ -147,6 +158,9 @@ namespace evio {
     /**
      * This method can be used to avoid creating additional Reader
      * objects by reusing this one with another buffer.
+     * If the given buffer contains compressed data, it is uncompressed into another buffer.
+     * The buffer containing the newly uncompressed data then becomes the internal buffer of
+     * this object. It can be obtained by calling {@link #getBuffer}.
      *
      * @param buf ByteBuffer to be read
      * @throws underflow_error if not enough data in buffer.
@@ -183,34 +197,16 @@ namespace evio {
         }
         currentRecordLoaded = 0;
 
-        scanBuffer();
+        auto bb = scanBuffer();
+        if (compressed) {
+            // scanBuffer() will uncompress all data in buffer
+            // and store it in the returned buffer (bb).
+            // Make that our internal buffer so we don't have to do any more uncompression.
+            this->buffer = bb;
+            compressed = false;
+        }
 
         closed = false;
-    }
-
-
-    /**
-     * This method can be used to avoid creating additional Reader
-     * objects by reusing this one with another buffer. If the given buffer has
-     * uncompressed data, this method becomes equivalent
-     * to {@link #setBuffer(std::shared_ptr<ByteBuffer> &)} and its return value is just
-     * the buf argument.<p>
-     *
-     * The given buffer may have compressed data, and if so, the data is uncompressed
-     * in placed back into the same buffer. If, however, the given buffer does not have
-     * enough space for the uncompressed data, a new buffer is internally allocated,
-     * data is placed in the new buffer, and the new buffer is the return value.<p>
-     *
-     * @param buf  ByteBuffer to be read
-     * @return buf arg if data is not compressed. If compressed and buf does not have the
-     *         necessary space to contain all uncompressed data, a new buffer is allocated,
-     *         filled, and returned.
-     * @throws EvioException if buf arg is null, buffer too small,
-     *                       not in the proper format, or earlier than version 6
-     */
-    std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
-        setBuffer(buf);
-        return buffer;
     }
 
 
@@ -230,6 +226,8 @@ namespace evio {
 
     /**
      * Get the buffer being read, if any.
+     * This may not be the buffer given in the constructor or in {@link #setBuffer} if
+     * the original data was compressed. All data in the returned buffer is uncompressed.
      * @return buffer being read, if any.
      */
     std::shared_ptr<ByteBuffer> Reader::getBuffer() {return buffer;}
@@ -239,7 +237,7 @@ namespace evio {
      * Get the beginning position of the buffer being read.
      * @return the beginning position of the buffer being read.
      */
-    uint32_t Reader::getBufferOffset() const {return bufferOffset;}
+    size_t Reader::getBufferOffset() const {return bufferOffset;}
 
 
     /**
@@ -1035,25 +1033,15 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
     // TODO: THIS method is inefficient as it copies data once too many times!!! FIX IT!!!
 
-
     /**
      * This method scans a buffer to find all records and store their position, length,
      * and event count. It also finds all events and creates & stores their associated
-     * EvioNode objects.<p>
-     *
+     * EvioNode objects.
      * The difficulty with doing this is that the buffer may contain compressed data.
-     * It must then be uncompressed into a different buffer. There are 2 possibilities.
-     * First, if the buffer being parsed is too small to hold its uncompressed form,
-     * then a new, larger buffer is created, filled with the uncompressed data and then
-     * given as the return value of this method. Second, if the buffer being parsed is
-     * large enough to hold its uncompressed form, the data is uncompressed into a
-     * temporary holding buffer. When all decompresssion and parsing is finished, the
-     * contents of the temporary buffer are copied back into the original buffer which
-     * then becomes the return value.
+     * It must then be uncompressed into a different buffer.
      *
-     * @return buffer containing uncompressed data. This buffer may be different than the
-     *         one originally scanned if the data was compressed and the uncompressed length
-     *         is greater than the original buffer could hold.
+     * @return buffer containing uncompressed data. This buffer is different than the internal
+     *         buffer. Ready to read.
      * @throws EvioException if buffer not in the proper format or earlier than version 6;
      *                       if checkRecordNumberSequence is true and records are out of sequence.
      * @throws underflow_error if not enough data in buffer.
@@ -1069,6 +1057,8 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             return buffer;
         }
 
+        compressed = true;
+
         // The previous method call will set the endianness of the buffer properly.
         // Hop through ALL RECORDS to find their total lengths. This does NOT
         // change pos/limit of buffer. Results returned in headerInfo[0] & [1].
@@ -1079,48 +1069,19 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 //std::cout << "  scanBuffer: total UNcompressed bytes = " << totalUncompressedBytes <<
 //             " >? cap - off = " << (buf.capacity() - bufferOffset) << std::endl;
 
-        std::shared_ptr<ByteBuffer> bigEnoughBuf;
-        bool useTempBuffer = false;
-
-        // If the buffer is too small to hold the expanded data, create one that isn't
-        if (totalUncompressedBytes > (buf.capacity() - bufferOffset)) {
-            // Time for a bigger buffer. Give buffer an extra 4KB, backed by array
-            bigEnoughBuf = std::make_shared<ByteBuffer>(totalUncompressedBytes + bufferOffset + 4096);
-            // Put stuff starting at bigEnoughBuf->position() = bufferOffset
-            //bigEnoughBuf->order(buffer.order()).limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
-            bigEnoughBuf->order(buf.order()).position(bufferOffset);
-
-            // Copy in stuff up to offset
-            std::memcpy((void *)(bigEnoughBuf->array()),
-                        (const void *)(buf.array() + buf.arrayOffset()), bufferOffset);
-        }
-        else {
-            // "buffer" is big enough to hold everything. However, we need another buffer
-            // in which to temporarily decompress data which will then be copied back into
-            // buffer. Don't bother to copy stuff from buffer.pos = 0 - bufferOffset, since
-            // we'll be copying stuff back into buffer anyway.
-            useTempBuffer = true;
-            if (tempBuffer == nullptr) {
-                tempBuffer = std::make_shared<ByteBuffer>(totalUncompressedBytes + bufferOffset + 4096);
-            }
-            else if (tempBuffer->capacity() < totalUncompressedBytes + bufferOffset) {
-                tempBuffer->expand(totalUncompressedBytes + bufferOffset + 4096);
-            }
-            tempBuffer->order(buf.order()).limit(tempBuffer->capacity()).position(bufferOffset);
-
-            bigEnoughBuf = tempBuffer;
-            // Put stuff starting at bigEnoughBuf->position() = bufferOffset
-            // so code is same whether using temp or new buffer.
-        }
+        // Create buffer big enough to hold everything
+        auto bigEnoughBuf = std::make_shared<ByteBuffer>(totalUncompressedBytes + bufferOffset + 1024);
+        bigEnoughBuf->order(buf.order()).position(bufferOffset);
+        // Copy over everything up to the current offset
+        std::memcpy((void *)(bigEnoughBuf->array()),(const void *)(buf.array() + buf.arrayOffset()), bufferOffset);
 
         bool haveFirstRecordHeader = false;
-
         RecordHeader recordHeader(HeaderType::EVIO_RECORD);
 
         // Start at the buffer's initial position
-        uint32_t position  = bufferOffset;
-        uint32_t recordPos = bufferOffset;
-        int32_t  bytesLeft = totalUncompressedBytes;
+        size_t position  = bufferOffset;
+        size_t recordPos = bufferOffset;
+        ssize_t bytesLeft = totalUncompressedBytes;
 
 //std::cout << "  scanBuffer: buffer pos = " << bufferOffset << ", bytesLeft = " << bytesLeft << std::endl;
 
@@ -1159,7 +1120,6 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 bigEnoughBuf->order(byteOrder);
                 evioVersion = recordHeader.getVersion();
                 firstRecordHeader = std::make_shared<RecordHeader>(recordHeader);
-                compressed = recordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
                 haveFirstRecordHeader = true;
             }
 
@@ -1275,8 +1235,8 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Next record position
             recordPos += origRecordBytes;
 
-            // If the evio buffer was written with the DAQ Java evio library,
-            // there is only 1 record with event per buffer -- the first record.
+            // If the evio buffer was written with the evio library,
+            // there is only 1 record with events per buffer -- the first record.
             // It's followed by a trailer.
 
             // Read the next record if this is not the last one and there's enough data to
@@ -1284,36 +1244,10 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
         } while (!recordHeader.isLastRecord() && bytesLeft >= RecordHeader::HEADER_SIZE_BYTES);
 
-
-        // At this point we have an uncompressed buffer in bigEnoughBuf.
-        // If that is our temporary buf, we now copy it back into buffer
-        // which we know will be big enough to handle it.
-        if (useTempBuffer) {
-            // Since we're using a temp buffer, it does NOT contain buffer's data
-            // from position = 0 to bufferOffset.
-//std::cout << "  *** scanBuffer: copy expanded data back into buffer" << std::endl;
-            std::memcpy((void *)(buf.array() + bufferOffset + buf.arrayOffset()),
-                        (const void *)(bigEnoughBuf->array() + bufferOffset), totalUncompressedBytes);
-
-            // Restore the original position and set new limit
-            buf.limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
-
-            // We've copied data from one buffer to another,
-            // so adjust the nodes to compensate.
-            for (auto & n : eventNodes) {
-                n->setBuffer(buffer);
-            }
-        }
-        else {
-            // We had to allocate memory in this method since buffer was too small,
-            // so return the new larger buffer.
-            bigEnoughBuf->position(bufferOffset);
-            buffer = bigEnoughBuf;
-        }
-
-        return buffer;
+        bigEnoughBuf->flip();
+        return bigEnoughBuf;
     }
-
+    
 
     /**
       * Scan buffer to find all records and store their position, length, and event count.
@@ -1331,9 +1265,9 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         bool haveFirstRecordHeader = false;
 
         // Start at the buffer's initial position
-        uint32_t position  = bufferOffset;
-        uint32_t recordPos = bufferOffset;
-        int32_t  bytesLeft = bufferLimit - bufferOffset;
+        size_t position  = bufferOffset;
+        size_t recordPos = bufferOffset;
+        ssize_t bytesLeft = bufferLimit - bufferOffset;
 
         // Keep track of the # of records, events, and valid words in file/buffer
         uint32_t eventPlace = 0;

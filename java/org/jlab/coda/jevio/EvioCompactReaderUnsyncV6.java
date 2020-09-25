@@ -127,18 +127,6 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
     }
 
     /** {@inheritDoc} */
-    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
-        try {
-            dictionary = null;
-            closed = false;
-            return reader.setCompressedBuffer(buf, pool);
-        }
-        catch (HipoException e) {
-            throw new EvioException(e);
-        }
-    }
-
-    /** {@inheritDoc} */
     public boolean isClosed() {return closed;}
 
     /** {@inheritDoc} */

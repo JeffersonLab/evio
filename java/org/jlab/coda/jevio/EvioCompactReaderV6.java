@@ -135,18 +135,6 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
         closed = false;
     }
 
-    /** {@inheritDoc} */
-    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
-        try {
-            dictionary = null;
-            closed = false;
-            return reader.setCompressedBuffer(buf, pool);
-        }
-        catch (HipoException e) {
-            throw new EvioException(e);
-        }
-    }
-
     /**
      * Has {@link #close()} been called (without reopening by calling
      * {@link #setBuffer(ByteBuffer)})?

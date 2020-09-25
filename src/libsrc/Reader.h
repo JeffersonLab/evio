@@ -206,13 +206,10 @@ namespace evio {
 
         /** Buffer being read. */
         std::shared_ptr<ByteBuffer> buffer = nullptr;
-        /** Buffer used to temporarily hold data while decompressing. */
-        std::shared_ptr<ByteBuffer> tempBuffer = nullptr;
-        //TODO: make this 64 bit ???
         /** Initial position of buffer. */
-        uint32_t bufferOffset = 0;
+        size_t bufferOffset = 0;
         /** Limit of buffer. */
-        uint32_t bufferLimit = 0;
+        size_t bufferLimit = 0;
 
 
         /** Keep one record for reading in data record-by-record. */
@@ -290,14 +287,12 @@ namespace evio {
         bool isClosed() const;
         bool isFile() const;
 
-        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
-        std::shared_ptr<ByteBuffer> & setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf);
-
         std::string getFileName() const;
         size_t getFileSize() const;
 
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
         std::shared_ptr<ByteBuffer> getBuffer();
-        uint32_t getBufferOffset() const;
+        size_t getBufferOffset() const;
 
         FileHeader & getFileHeader();
         std::shared_ptr<RecordHeader> & getFirstRecordHeader();
@@ -345,7 +340,6 @@ namespace evio {
 
 
     protected:
-
 
         void extractDictionaryAndFirstEvent();
         void extractDictionaryFromBuffer();

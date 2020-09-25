@@ -253,6 +253,10 @@ public class Reader {
     /**
      * Constructor for reading buffer with evio data.
      * Buffer must be ready to read with position and limit set properly.
+     * If the given buffer contains compressed data, it is uncompressed into another buffer.
+     * The buffer containing the newly uncompressed data then becomes the internal buffer of
+     * this object. It can be obtained by calling {@link #getBuffer}.
+     *
      * @param buffer buffer with evio data.
      * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
      */
@@ -263,6 +267,10 @@ public class Reader {
     /**
      * Constructor for reading buffer with evio data.
      * Buffer must be ready to read with position and limit set properly.
+     * If the given buffer contains compressed data, it is uncompressed into another buffer.
+     * The buffer containing the newly uncompressed data then becomes the internal buffer of
+     * this object. It can be obtained by calling {@link #getBuffer}.
+     *
      * @param buffer buffer with evio data.
      * @param pool pool of EvioNode objects for garbage-free operation.
      * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
@@ -274,6 +282,10 @@ public class Reader {
     /**
      * Constructor for reading buffer with evio data.
      * Buffer must be ready to read with position and limit set properly.
+     * If the given buffer contains compressed data, it is uncompressed into another buffer.
+     * The buffer containing the newly uncompressed data then becomes the internal buffer of
+     * this object. It can be obtained by calling {@link #getBuffer}.
+     *
      * @param buffer buffer with evio data.
      * @param pool pool of EvioNode objects for garbage-free operation.
      * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
@@ -288,8 +300,15 @@ public class Reader {
         nodePool = pool;
         fromFile = false;
         checkRecordNumberSequence = checkRecordNumSeq;
-        
-        scanBuffer();
+
+        ByteBuffer bb = scanBuffer();
+        if (compressed) {
+            // scanBuffer() will uncompress all data in buffer
+            // and store it in the returned buffer (bb).
+            // Make that our internal buffer so we don't have to do any more uncompression.
+            this.buffer = bb;
+            compressed = false;
+        }
     }
 
     /**
@@ -373,6 +392,10 @@ public class Reader {
     /**
      * This method can be used to avoid creating additional Reader
      * objects by reusing this one with another buffer.
+     * If the given buffer contains compressed data, it is uncompressed into another buffer.
+     * The buffer containing the newly uncompressed data then becomes the internal buffer of
+     * this object. It can be obtained by calling {@link #getBuffer}.
+     *
      * @param buf ByteBuffer to be read
      * @throws HipoException if buf arg is null, buffer too small,
      *                       not in the proper format, or earlier than version 6
@@ -383,9 +406,11 @@ public class Reader {
 
     /**
      * This method can be used to avoid creating additional Reader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.  The pool is <b>not</b>
-     * reset in this method. Caller may do that prior to calling method.
+     * objects by reusing this one with another buffer. The pool is <b>not</b>
+     * reset in this method. Caller may do that prior to calling this method.
+     * If the given buffer contains compressed data, it is uncompressed into another buffer.
+     * The buffer containing the newly uncompressed data then becomes the internal buffer of
+     * this object. It can be obtained by calling {@link #getBuffer}.
      *
      * @param buf ByteBuffer to be read
      * @param pool pool of EvioNode objects to use when parsing buf.
@@ -414,35 +439,16 @@ public class Reader {
         firstRecordHeader = null;
         currentRecordLoaded = 0;
 
-        scanBuffer();
+        ByteBuffer bb = scanBuffer();
+        if (compressed) {
+            // scanBuffer() will uncompress all data in buffer
+            // and store it in the returned buffer (bb).
+            // Make that our internal buffer so we don't have to do any more uncompression.
+            this.buffer = bb;
+            compressed = false;
+        }
 
         closed = false;
-    }
-
-    /**
-     * This method can be used to avoid creating additional Reader
-     * objects by reusing this one with another buffer. If the given buffer has
-     * uncompressed data, this method becomes equivalent
-     * to {@link #setBuffer(ByteBuffer, EvioNodeSource)} and its return value is just
-     * the buf argument.<p>
-     *
-     * The given buffer may have compressed data, and if so, the data is uncompressed
-     * in placed back into the same buffer. If, however, the given buffer does not have
-     * enough space for the uncompressed data, a new buffer is internally allocated,
-     * data is placed in the new buffer, and the new buffer is the return value.<p>
-     *
-     * @param buf  ByteBuffer to be read
-     * @param pool pool of EvioNode objects to use when parsing buf.
-     * @return buf arg if data is not compressed. If compressed and buf does not have the
-     *         necessary space to contain all uncompressed data, a new buffer is allocated,
-     *         filled, and returned.
-     * @throws HipoException if buf arg is null, buffer too small,
-     *                       not in the proper format, or earlier than version 6
-     */
-    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool)
-            throws HipoException {
-        setBuffer(buf, pool);
-        return buffer;
     }
 
     /**
@@ -1084,6 +1090,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
         return totalBytes;
     }
 
+
     /**
      * This method scans a buffer to find all records and store their position, length,
      * and event count. It also finds all events and then creates and stores their associated
@@ -1110,67 +1117,26 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
 
         if (!RecordHeader.isCompressed(buffer, bufferOffset)) {
             // Since data is not compressed ...
-           scanUncompressedBuffer();
+            scanUncompressedBuffer();
             return buffer;
         }
+
+        compressed = true;
 
         // The previous method call will set the endianness of the buffer properly.
         // Hop through ALL RECORDS to find their total lengths. This does NOT
         // change pos/limit of buffer.
         int totalUncompressedBytes = getTotalByteCounts(buffer, headerInfo);
-        int totalCompressedBytes = headerInfo[0];
 
-        ByteBuffer bigEnoughBuf;
-        boolean useTempBuffer = false;
-        
 //System.out.println("scanBuffer: total Uncomp bytes = " + totalUncompressedBytes +
 //                " >? cap - off = " + (buffer.capacity() - bufferOffset));
 
-        // If the buffer is too small to hold the expanded data, create one that isn't
-        if (totalUncompressedBytes > (buffer.capacity() - bufferOffset)) {
-            // Time for a bigger buffer. Give buffer an extra 4KB
-            if (buffer.isDirect()) {
-                bigEnoughBuf = ByteBuffer.allocateDirect(totalUncompressedBytes + bufferOffset + 4096);
-                //bigEnoughBuf.order(buffer.order()).limit(bufferOffset + totalUncompressedBytes);
-                bigEnoughBuf.order(buffer.order());
-
-                // Copy in stuff up to offset
-                buffer.limit(bufferOffset).position(0);
-                bigEnoughBuf.put(buffer);
-                // At this point, bigEnoughBuf.position() = bufferOffset.
-                // Put stuff starting there.
-
-                // Need to reset the limit & position from just having messed it up
-                buffer.limit(totalCompressedBytes + bufferOffset).position(bufferOffset);
-            }
-            else {
-                // Backed by array
-                bigEnoughBuf = ByteBuffer.allocate(totalUncompressedBytes + bufferOffset + 4096);
-                // Put stuff starting at bigEnoughBuf.position() = bufferOffset
-                //bigEnoughBuf.order(buffer.order()).limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
-                bigEnoughBuf.order(buffer.order()).position(bufferOffset);
-
-                // Copy in stuff up to offset
-                System.arraycopy(buffer.array(), buffer.arrayOffset(),
-                                 bigEnoughBuf.array(), 0, bufferOffset);
-            }
-        }
-        else {
-            // "buffer" is big enough to hold everything. However, we need another buffer
-            // in which to temporarily decompress data which will then be copied back into
-            // buffer. Don't bother to copy stuff from buffer.pos = 0 - bufferOffset, since
-            // we'll be copying stuff back into buffer anyway.
-            useTempBuffer = true;
-            if ((tempBuffer == null) ||
-                (tempBuffer.capacity() < totalUncompressedBytes + bufferOffset)) {
-                 tempBuffer = ByteBuffer.allocate(totalUncompressedBytes + bufferOffset + 4096);
-            }
-            tempBuffer.order(buffer.order()).limit(tempBuffer.capacity()).position(bufferOffset);
-
-            bigEnoughBuf = tempBuffer;
-            // Put stuff starting at bigEnoughBuf->position() = bufferOffset
-            // so code is same whether using temp or new buffer.
-        }
+        // Create buffer big enough to hold everything
+        ByteBuffer bigEnoughBuf = ByteBuffer.allocate(totalUncompressedBytes + bufferOffset + 1024);
+        bigEnoughBuf.order(buffer.order()).position(bufferOffset);
+        // Copy over everything up to the current offset
+        System.arraycopy(buffer.array(), buffer.arrayOffset(),
+                         bigEnoughBuf.array(), 0, bufferOffset);
 
         boolean isArrayBacked = (bigEnoughBuf.hasArray() && buffer.hasArray());
         boolean haveFirstRecordHeader = false;
@@ -1202,8 +1168,8 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
 
             // Uncompress record in buffer and place into bigEnoughBuf
             int origRecordBytes = inputRecordStream.uncompressRecord(
-                                                buffer, recordPos, bigEnoughBuf,
-                                                isArrayBacked, recordHeader);
+                    buffer, recordPos, bigEnoughBuf,
+                    isArrayBacked, recordHeader);
 
             // The only certainty at this point about pos/limit is that
             // bigEnoughBuf.position = after header/index/user, just before data.
@@ -1222,7 +1188,6 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 bigEnoughBuf.order(byteOrder);
                 evioVersion = recordHeader.getVersion();
                 firstRecordHeader = new RecordHeader(recordHeader);
-                compressed = recordHeader.getCompressionType() != CompressionType.RECORD_UNCOMPRESSED;
                 haveFirstRecordHeader = true;
             }
 
@@ -1239,8 +1204,8 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
 
             // Check to see if the whole record is there
             if (recordHeader.getLength() > bytesLeft) {
-System.out.println("    record size = " + recordHeader.getLength() + " >? bytesLeft = " + bytesLeft +
-                   ", pos = " + buffer.position());
+                System.out.println("    record size = " + recordHeader.getLength() + " >? bytesLeft = " + bytesLeft +
+                        ", pos = " + buffer.position());
                 throw new HipoException("Bad hipo format: not enough data to read record");
             }
 
@@ -1288,7 +1253,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
                     try {
                         // If the event is in evio format, parse it a bit
                         EvioNode node = EvioNode.extractEventNode(bigEnoughBuf, nodePool, recordPos,
-                                position, eventPlace + i);
+                                                                  position, eventPlace + i);
                         byteLen = node.getTotalBytes();
                         eventNodes.add(node);
 //System.out.println("\n      scanUncompressedBuffer: extracted node : " + node.toString());
@@ -1342,41 +1307,8 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
 
         } while (!recordHeader.isLastRecord() && bytesLeft >= RecordHeader.HEADER_SIZE_BYTES);
 
-        
-        // At this point we have an uncompressed buffer in bigEnoughBuf.
-        // If that is our temporary buf, we now copy it back into buffer
-        // which we know will be big enough to handle it.
-        if (useTempBuffer) {
-            // Since we're using a temp buffer, it does NOT contain buffer's data
-            // from position = 0 to bufferOffset.
-            if (isArrayBacked) {
-                System.arraycopy(bigEnoughBuf.array(), bufferOffset,
-                                 buffer.array(), bufferOffset + buffer.arrayOffset(),
-                                 totalUncompressedBytes);
-            }
-            else {
-                bigEnoughBuf.limit(totalUncompressedBytes).position(bufferOffset);
-                buffer.position(bufferOffset);
-                buffer.put(bigEnoughBuf);
-            }
-
-            // Restore the original position and set new limit
-            buffer.limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
-
-            // We've copied data from one buffer to another,
-            // so adjust the nodes to compensate.
-            for (EvioNode n : eventNodes) {
-                n.setBuffer(buffer);
-            }
-        }
-        else {
-            // We had to allocate memory in this method since buffer was too small,
-            // so return the new larger buffer.
-            bigEnoughBuf.position(bufferOffset);
-            buffer = bigEnoughBuf;
-        }
-
-        return buffer;
+        bigEnoughBuf.flip();
+        return bigEnoughBuf;
     }
 
     /**

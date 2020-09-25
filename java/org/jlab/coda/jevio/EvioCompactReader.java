@@ -227,7 +227,6 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
          return evioVersion;
      }
 
-
     /** {@inheritDoc} */
     public boolean isFile() {return reader.isFile();}
 
@@ -240,11 +239,6 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     /** {@inheritDoc} */
     public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
         reader.setBuffer(buf, pool);
-    }
-
-    /** {@inheritDoc} */
-    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
-        return reader.setCompressedBuffer(buf, pool);
     }
 
     /** {@inheritDoc} */
