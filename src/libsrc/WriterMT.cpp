@@ -169,14 +169,7 @@ namespace evio {
 
     //////////////////////////////////////////////////////////////////////
 
-
-    ///**
-    // * Get the buffer being written to.
-    // * @return buffer being written to.
-    // */
-    //ByteBuffer & WriterMT::getBuffer() {return buffer;}
-
-
+    
     /**
      * Get the file's byte order.
      * @return file's byte order.

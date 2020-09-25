@@ -529,7 +529,6 @@ namespace evio {
         uint32_t headerLength      = header->getHeaderLength();
         uint32_t cLength           = header->getCompressedDataLength();
 
-// TODO: BUG BUG, This has a bad value! (for uncompressed data anyway). Offset is bad!!!
         size_t compDataOffset = offset + headerLength;
 //std::cout << "readRecord: copy uncompressed data from pos = " << compDataOffset << " = ?" << std::endl;
 //std::cout << "readRecord: offset to header = " << offset << " + headerLen of " << headerLength << std::endl;
