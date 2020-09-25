@@ -96,7 +96,7 @@ namespace evio {
      */
     EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bool synced) {
 
-        byteBuffer = bb->slice(); // remove necessity to track initial position
+        byteBuffer = bb;
         initialPosition = byteBuffer->position();
 
         // Read first block header and find the file's endianness & evio version #
