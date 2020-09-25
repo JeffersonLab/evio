@@ -610,6 +610,9 @@ namespace evio {
 
         /**
          * This method reads part of a file into a ByteBuffer.
+         * The buffer's position will be at the end of the data that is read.
+         * The caller will have to flip the buffer to read it.
+         *
          * @param fileName file to read from.
          * @param buf      buffer to write into.
          * @throws EvioException bad file name or unable to do I/O.
