@@ -866,15 +866,9 @@ evclose(handle);
 where the node_handler callback is of type NH_TYPE, and the leaf_handler
 callback is of type LH_TYPE (either can be NULL):
 
-typedef void (*NH_TYPE)(int length, int ftype, int tag, int type,
+typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth);
 
-int num, int depth);
-
-typedef void (*LH_TYPE)(void \*data,
-
-int length, int ftype, int tag, int type,
-
-int num, int depth);
+typedef void (*LH_TYPE)(void \*data, int length, int ftype, int tag, int type, int num, int depth);
 
 where length is the length of the contents of the bank, ftype is the
 type of bank (BANK, SEGMENT, or TAGSEGMENT) , tag is the bank tag, type
@@ -1015,8 +1009,8 @@ leaf node. See the tutorial for more details.
 ~~~~~~~~~~~~~
 
 getVector<T>() returns a pointer to the data vector contained in a leaf
-node of type T, where T is one of the many supported data types (int,
-unsigned int, double, etc). NULL is returned if the node is a container
+node of type T, where T is one of the many supported data types (int, unsigned int, double, etc).
+NULL is returned if the node is a container
 node, or if it is a leaf node containing a different type. See the
 tutorial for more details.
 
@@ -1201,8 +1195,8 @@ Section
 ============
 
 Below are examples showing: how to read an event from a file into an
-evioDOMTree; how to query the tree to get lists of node pointers that
-satisfy various criteria and how to work with the lists; and how to
+evioDOMTree, how to query the tree to get lists of node pointers that
+satisfy various criteria and how to work with the lists, and how to
 modify the tree. Some advanced topics follow.
 
 Simple event I/O
