@@ -338,8 +338,6 @@ namespace evio {
 
 
 
-
-
         void writeAndReadBuffer() {
 
             // Create Buffer
