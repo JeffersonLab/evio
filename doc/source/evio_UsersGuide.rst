@@ -1027,84 +1027,85 @@ segments, and a bank of tagsegments). Each of these children have
 children of their own. It’s written out to a buffer. The code relies on
 the EvioEvent/Bank/Segment/TagSegment classes to get, fill, and update
 their internal data vectors:
-``
-| **// Data to write stored in these vectors**
 
-| vector<uint8_t> byteVec;
-| vector<uint32_t> intVec;
-| vector<double> doubleVec;
-| vector<string> stringsVec;
+::
+ **// Data to write stored in these vectors**
 
-| **//-------------------------------------**
-| **// Build event (bank of banks) with EventBuilder object**
+ vector<uint8_t> byteVec;
+ vector<uint32_t> intVec;
+ vector<double> doubleVec;
+ vector<string> stringsVec;
 
-| uint32_t tag = 1, num = 1;
-| EventBuilder builder(tag, DataType::BANK, num);
-| shared_ptr<EvioEvent> event = builder.getEvent();
+ **//-------------------------------------**
+ **// Build event (bank of banks) with EventBuilder object**
 
-| **//-------------------------------------**
-| **// First child of event = bank of banks**
-| auto bankBanks = EvioBank::getInstance(tag+1, DataType::BANK, num+1);
-| **// Add this bank as child of event**
-| builder.addChild(event, bankBanks);
+ uint32_t tag = 1, num = 1;
+ EventBuilder builder(tag, DataType::BANK, num);
+ shared_ptr<EvioEvent> event = builder.getEvent();
 
-| **// Create first (& only) child of bank of banks = bank of ints**
-| auto bankInts = EvioBank::getInstance(tag+11, DataType::UINT32, num+11);
+ **//-------------------------------------**
+ **// First child of event = bank of banks**
+ auto bankBanks = EvioBank::getInstance(tag+1, DataType::BANK, num+1);
+ **// Add this bank as child of event**
+ builder.addChild(event, bankBanks);
 
-| **// Get its internal vector of int data**
-| auto &iData = bankInts->getUIntData();
+ **// Create first (& only) child of bank of banks = bank of ints**
+ auto bankInts = EvioBank::getInstance(tag+11, DataType::UINT32, num+11);
 
-| **// Write our data into that vector**
-| iData.insert(iData.begin(), intVec.begin(), intVec.end());
+ **// Get its internal vector of int data**
+ auto &iData = bankInts->getUIntData();
 
-| **// Done writing so tell builder to update its internals for this bank**
-| bankInts->updateUIntData();
+ **// Write our data into that vector**
+ iData.insert(iData.begin(), intVec.begin(), intVec.end());
 
-| **// Add this bank as child of bankBanks**
-| builder.addChild(bankBanks, bankInts);
+ **// Done writing so tell builder to update its internals for this bank**
+ bankInts->updateUIntData();
 
-| **//-------------------------------------**
-| **// Second child of event = bank of segments**
-| auto bankSegs = EvioBank::getInstance(tag+2, DataType::SEGMENT, num+2);
-| builder.addChild(event, bankSegs);
+ **// Add this bank as child of bankBanks**
+ builder.addChild(bankBanks, bankInts);
 
-| **// Create first child of bank of segments = segment of doubles**
-| auto segDoubles = EvioSegment::getInstance(tag+22, DataType::DOUBLE64);
-| auto &sdData = segDoubles->getDoubleData();
-| sdData.insert(sdData.begin(), doubleVec.begin(), doubleVec.end());
-| segDoubles->updateDoubleData();
-| builder.addChild(bankSegs, segDoubles);
+ **//-------------------------------------**
+ **// Second child of event = bank of segments**
+ auto bankSegs = EvioBank::getInstance(tag+2, DataType::SEGMENT, num+2);
+ builder.addChild(event, bankSegs);
 
-| **// Create second child of bank of segments = segment of bytes**
-| auto segBytes = EvioSegment::getInstance(tag+23, DataType::CHAR8);
-| auto &scData = segBytes->getCharData();
-| scData.insert(scData.begin(), byteVec.begin(), byteVec.end());
-| segBytes->updateCharData();
-| builder.addChild(bankSegs, segBytes);
+ **// Create first child of bank of segments = segment of doubles**
+ auto segDoubles = EvioSegment::getInstance(tag+22, DataType::DOUBLE64);
+ auto &sdData = segDoubles->getDoubleData();
+ sdData.insert(sdData.begin(), doubleVec.begin(), doubleVec.end());
+ segDoubles->updateDoubleData();
+ builder.addChild(bankSegs, segDoubles);
 
-| **//-------------------------------------**
-| **// Third child of event = bank of tagsegments**
-| auto bankTsegs = EvioBank::getInstance(tag+3, DataType::TAGSEGMENT, num+3);
-| builder.addChild(event, bankTsegs);
+ **// Create second child of bank of segments = segment of bytes**
+ auto segBytes = EvioSegment::getInstance(tag+23, DataType::CHAR8);
+ auto &scData = segBytes->getCharData();
+ scData.insert(scData.begin(), byteVec.begin(), byteVec.end());
+ segBytes->updateCharData();
+ builder.addChild(bankSegs, segBytes);
 
-| **// Create first child of bank of tagsegments = tagsegment of strings**
-| auto tsegStrings = EvioTagSegment::getInstance(tag+33, DataType::CHARSTAR8);
-| auto &tstData = tsegStrings->getStringData();
-| tstData.insert(tstData.begin(), stringsVec.begin(), stringsVec.end());
-| tsegStrings->updateStringData();
-| builder.addChild(bankTsegs, tsegStrings);
+ **//-------------------------------------**
+ **// Third child of event = bank of tagsegments**
+ auto bankTsegs = EvioBank::getInstance(tag+3, DataType::TAGSEGMENT, num+3);
+ builder.addChild(event, bankTsegs);
 
-| **//-------------------------------------**
-| **// Remove first segment (and all descendants) in bank of segments**
-| builder.remove(segDoubles);
+ **// Create first child of bank of tagsegments = tagsegment of strings**
+ auto tsegStrings = EvioTagSegment::getInstance(tag+33, DataType::CHARSTAR8);
+ auto &tstData = tsegStrings->getStringData();
+ tstData.insert(tstData.begin(), stringsVec.begin(), stringsVec.end());
+ tsegStrings->updateStringData();
+ builder.addChild(bankTsegs, tsegStrings);
 
-| **//-------------------------------------**
-| **// Take event, write it into buffer, get buffer ready to read**
-| shared_ptr<ByteBuffer> buffer;
+ **//-------------------------------------**
+ **// Remove first segment (and all descendants) in bank of segments**
+ builder.remove(segDoubles);
 
-| event->write(*(buffer.get()));
-| buffer->flip();
-``
+ **//-------------------------------------**
+ **// Take event, write it into buffer, get buffer ready to read**
+ shared_ptr<ByteBuffer> buffer;
+
+ event->write(*(buffer.get()));
+ buffer->flip();
+
 
 In addition to the methods for creating and adding banks, segments and
 tagsegments, there are methods to add all the various data types like
