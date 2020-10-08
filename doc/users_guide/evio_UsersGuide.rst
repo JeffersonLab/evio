@@ -1,251 +1,29 @@
-Version
+=====================
+EVIO 6.0 User’s Guide
+=====================
 
-5.1
+   Carl Timmer
 
-jefferson lab
+   Jefferson Lab Experimental Physics Software
+   and Computing Infrastructure group
 
-Data Acquisition Group
+   30-Sep-2020
 
-EVIO User’s Guide
+    Thomas Jefferson National Accelerator Facility
 
-Jefferson Lab Data acquisition group
+   12000 Jefferson Ave
 
-EVIO User’s Guide
+   Newport News, VA 23606
 
-Elliott Wolin
+   Phone 757.269.7100
 
-Carl Timmer
+Chapter 1
 
-`timmer@jlab.org <timmer@jlab.org>`__
+Introduction To Evio Versions
+=============================
 
-11-Apr-2016
-
- Thomas Jefferson National Accelerator Facility
-
-12000 Jefferson Ave
-
-Newport News, VA 23606
-
-Phone 757.269.7365 • Fax 757.269.6248
-
-**Table of Contents**
-
-`1. Introduction 5 <#introduction>`__
-
-`1.1 Evio Format Version 1 5 <#evio-format-version-1>`__
-
-`1.2 Evio Format Versions 2 & 3 5 <#evio-format-versions-2-3>`__
-
-`1.3 Evio Package Version 4 6 <#evio-package-version-4>`__
-
-`1.3.1 File Format Block Size 6 <#file-format-block-size>`__
-
-`1.3.2 Network Communication Format 6 <#network-communication-format>`__
-
-`1.3.3 Expanded User Interface 6 <#expanded-user-interface>`__
-
-`1.3.4 Dictionary 6 <#dictionary>`__
-
-`1.3.5 Padding 6 <#padding>`__
-
-`1.3.6 Data Formats 7 <#data-formats>`__
-
-`1.3.7 Random Access 7 <#random-access>`__
-
-`1.3.8 Append Mode 7 <#append-mode>`__
-
-`1.3.9 Splitting Files 7 <#splitting-files>`__
-
-`1.3.10 Thread Safety 7 <#thread-safety>`__
-
-`1.3.11 Graphics 7 <#graphics>`__
-
-`1.4 Evio Package Version 5 7 <#_Toc448308396>`__
-
-`1.4.1 First Event 7 <#first-event>`__
-
-`2 Basics of the C Library 8 <#basics-of-the-c-library>`__
-
-`2.1 Starting to use Evio 8 <#starting-to-use-evio>`__
-
-`2.2 Reading events 9 <#reading-events>`__
-
-`2.3 Writing events 9 <#writing-events>`__
-
-`2.3.1 Splitting files 10 <#splitting-files-1>`__
-
-`2.3.2 Naming files 10 <#naming-files>`__
-
-`2.4 Controlling I/O through evIoctl()
-10 <#controlling-io-through-evioctl>`__
-
-`2.5 String manipulation 12 <#string-manipulation>`__
-
-`2.6 Network Communication Format
-12 <#network-communication-format-1>`__
-
-`2.7 Dictionary 12 <#dictionary-1>`__
-
-`2.8 First Event 12 <#first-event-1>`__
-
-`2.9 Data Formats 13 <#data-formats-1>`__
-
-`2.10 Documentation 13 <#documentation>`__
-
-`3 Basics of the C++ Library 14 <#basics-of-the-c-library-1>`__
-
-`3.1 evioChannel 14 <#eviochannel>`__
-
-`3.2 evioFileChannel 14 <#eviofilechannel>`__
-
-`3.3 evioBufferChannel 14 <#eviobufferchannel>`__
-
-`3.4 evioSocketChannel 15 <#eviosocketchannel>`__
-
-`4 EVIO Stream Parser 16 <#evio-stream-parser>`__
-
-`4.1 in C 16 <#in-c>`__
-
-`4.2 In C++ 17 <#in-c-1>`__
-
-`5 EVIO DOM Parser and DOM Trees 19 <#evio-dom-parser-and-dom-trees>`__
-
-`5.1 evioDOMNode 19 <#eviodomnode>`__
-
-`5.1.1 getChildList() 19 <#getchildlist>`__
-
-`5.1.2 geVector<T>() 20 <#gevectort>`__
-
-`5.2 evioDOMTree 20 <#eviodomtree>`__
-
-`5.2.1 Manual evioDOMTree construction
-20 <#manual-eviodomtree-construction>`__
-
-`5.2.2 Modification of existing trees
-20 <#modification-of-existing-trees>`__
-
-`6 Utilities 22 <#utilities>`__
-
-`6.1 evio2xml 22 <#evio2xml>`__
-
-`6.2 eviocopy 23 <#eviocopy>`__
-
-`6.3 evioCat 23 <#eviocat>`__
-
-`6.4 Xml2evio 23 <#xml2evio>`__
-
-`7 C++ Tutorial 24 <#c-tutorial>`__
-
-`7.1 Simple event I/O 24 <#simple-event-io>`__
-
-`7.2 Querying the event tree 25 <#querying-the-event-tree>`__
-
-`7.3 Manipulation of the event tree
-27 <#manipulation-of-the-event-tree>`__
-
-`7.4 Example programs 28 <#example-programs>`__
-
-`7.5 Advanced topics 28 <#advanced-topics>`__
-
-`8 Java Evio (Jevio) 29 <#java-evio-jevio>`__
-
-`8.1 Building 29 <#building>`__
-
-`8.2 Documentation 29 <#documentation-1>`__
-
-`8.3 Basics 30 <#basics>`__
-
-`8.4 Event Creating 30 <#event-creating>`__
-
-`8.5 Writing 31 <#writing>`__
-
-`8.5.1 Writing to file or buffer 31 <#writing-to-file-or-buffer>`__
-
-`8.5.2 Naming files 33 <#naming-files-1>`__
-
-`8.5.3 Splitting files 34 <#splitting-files-2>`__
-
-`8.6 Reading 35 <#reading>`__
-
-`8.7 Searching 37 <#searching>`__
-
-`8.8 Parsing 38 <#parsing>`__
-
-`8.9 Transforming 39 <#transforming>`__
-
-`8.10 Dictionaries 39 <#dictionaries>`__
-
-`8.11 First Event 41 <#first-event-2>`__
-
-`8.12 XML format events 41 <#xml-format-events>`__
-
-`9 Compact Java Evio 42 <#compact-java-evio>`__
-
-`9.1 Basics 42 <#basics-1>`__
-
-`9.2 Example 1 43 <#example-1>`__
-
-`9.3 Example 2 44 <#example-2>`__
-
-`9.4 Example 3 45 <#example-3>`__
-
-`9.5 Example 4 45 <#example-4>`__
-
-`9.6 XML format events 46 <#xml-format-events-1>`__
-
-`10 Java Evio Event-Viewing Gui 47 <#java-evio-event-viewing-gui>`__
-
-`A. Evio File Format 48 <#a.-evio-file-format>`__
-
-`A.1 Old Format, Evio Versions 1-3
-48 <#a.1-old-format-evio-versions-1-3>`__
-
-`A.2 New Format, Evio Version 4 49 <#a.2-new-format-evio-version-4>`__
-
-`B. EVIO Data Format 51 <#evio-data-format>`__
-
-`B.1 Bank Structures & Content 51 <#b.1-bank-structures-content>`__
-
-`B.2 Changes From Previous Versions
-52 <#b.2-changes-from-previous-versions>`__
-
-`B.3 Composite Data Type 53 <#b.3-composite-data-type>`__
-
-`B.3.1 General Type Info 53 <#b.3.1-general-type-info>`__
-
-`B.3.1 Creating Events with Composite Data
-55 <#b.3.1-creating-events-with-composite-data>`__
-
-`C. EVIO Dictionary Format 57 <#evio-dictionary-format>`__
-
-`C.1 Evio versions 2 & 3 57 <#c.1-evio-versions-2-3>`__
-
-`C.1.1 Jevio problems 58 <#c.1.1-jevio-problems>`__
-
-`C.1.2 C++ Evio problems 58 <#c.1.2-c-evio-problems>`__
-
-`C.2 Evio version 4 58 <#c.2-evio-version-4>`__
-
-`C.2.1 Pretty Printing 60 <#c.2.1-pretty-printing>`__
-
-`C.2.2 Behaviors 60 <#c.2.2-behaviors>`__
-
-`C.2.3 Differences between C++ and Java
-61 <#c.2.3-differences-between-c-and-java>`__
-
-`D. EVIO Function Objects 62 <#evio-function-objects>`__
-
-`E. Revision History 63 <#revision-history>`__
-
-Section
-
-1
-
-Introduction
-============
-
-Evio Format Version 1
----------------------
+Version 1
+---------
 
 Version 1 of the CODA EVIO package, written in C, was in use at
 Jefferson Lab for over a decade. It has seen extensive use in Halls A
@@ -254,16 +32,16 @@ seen limited use in the Hall B, where PRIMEX and the GlueX BCAL test
 stored their raw data in EVIO format (CLAS stored raw data in BOS/FPACK
 format).
 
-Evio Format Versions 2 & 3
---------------------------
+Versions 2 & 3
+--------------
 
-In the past few years, in EVIO format versions 2 and 3 (no difference
-between them), the JLab DAQ group upgraded and extended the EVIO package
-to meet some additional needs. First added were XML conversion and other
-utilities, support for all 1, 2, 4, and 8-byte data types, addition of a
-new TAGSEGMENT bank type, support for gzipped files and pipes (courtesy
-of Steve Wood), elimination of obsolete data types, as well as a number
-of bug fixes and performance enhancements.
+In EVIO format versions 2 and 3 (no difference between them), the JLab
+DAQ group upgraded and extended the EVIO package to meet some additional
+needs. First added were XML conversion and other utilities, support for
+all 1, 2, 4, and 8-byte data types, addition of a new TAGSEGMENT bank
+type, support for gzipped files and pipes (courtesy of Steve Wood),
+elimination of obsolete data types, as well as a number of bug fixes and
+performance enhancements.
 
 With the advent of object-orientation and C++ the DAQ group achieved a
 major upgrade to the EVIO package beyond simple wrapping of existing C
@@ -289,8 +67,8 @@ library, and except as noted the C library continues to work as before.
 On the Java front, the DAQ group adopted, extended, and supports Dave
 Heddle's jevio package.
 
-Evio Package Version 4
-----------------------
+Version 4
+---------
 
 EVIO version 4 which can be found at
 `http://coda.jlab.org <ftp://ftp.jlab.org/pub/coda/evio/2.0>`__ . The
@@ -389,27 +167,59 @@ files.
 
 1. 
 
-Evio Package Version 5
-----------------------
+Version 6
+---------
 
-. The following outlines the major changes that were made.
+EVIO version 6 can be found at
+`http://coda.jlab.org <ftp://ftp.jlab.org/pub/coda/evio/2.0>`__ . The
+following outlines the major changes that were made. A big factor for
+introducing another evio version was the desire to compress data in each
+block (now called a record). The HIPO format, in use in Jefferson Lab’s
+HallB, was merged with evio along with much of the code to do
+(un)compression of data. This has added a great deal of complexity to
+the record headers (which are not compressed).
 
-First Event
-~~~~~~~~~~~
+New Block or Record Format
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A “first event” can be defined so that when writing files, this event is
-written into each split file.
+Version 6 has an expanded record header which allows for bookkeeping
+associated with compression. It also allows for a user-defined portion
+of the header along with an index of the position of each contained
+event.
 
-Section
+Compressed Data
+~~~~~~~~~~~~~~~
 
-2
+Each record can contain data compressed in gzip, lz4 or lz4_best format.
+
+Data Format Agnostic API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The HIPO classes which were incorporated into evio are data format
+agnostic. Thus, part of the evio library can now deal with data not in
+evio format.
+
+New C++ library
+~~~~~~~~~~~~~~~
+
+The C++ library in this version was ported from Java. From a
+programmer’s point of view, this allows for simpler code maintenance.
+The C++ library of the previous version is no longer available. There is
+no independent C library either. All C library functions of the previous
+version are available in the new C++ library.
+
+Chapter 2
 
 Basics of the C Library
 =======================
 
-The EVIO file format is described in Appendix A while bank structures
-and content type are described in Appendix B. Appendix C explains the
-dictionary format.
+There is no C Evio library per se. But using the C++ library, all the C
+library calls of earlier versions can still be made. When using these
+methods, it is entirely up to the user to provide buffers of data in the
+exact evio format required. Thus, it requires a great deal of expert
+knowledge. What may help is that the Evio file format is described in
+Appendix A while bank structures and content type are described in
+Appendix B. Appendix C explains the dictionary format.
 
 Starting to use Evio
 --------------------
@@ -700,8 +510,6 @@ routine to get the dictionary, as a string, if it was defined:
 
 Note that if a file is being split, each file contains the dictionary.
 
-.. _first-event-1:
-
 First Event
 -----------
 
@@ -738,934 +546,625 @@ pages by going to the top level of the evio distribution and typing
 "scons doc". Then simply view the doc/doxygen/C[or CC]/html/index.html
 file in a browser.
 
-Section
-
-3
-
-.. _basics-of-the-c-library-1:
-
-Basics of the C++ Library
-=========================
-
-**Important:** all symbols in the EVIO C++ library reside in the “evio”
-namespace.
-
-evioChannel
------------
-
-The foundation for I/O in the C++ object-oriented version of EVIO is the
-notion of an EVIO channel, an abstract or pure virtual class that
-includes the methods open(), read(), write(), and close(). Real or
-concrete channels extend the evioChannel class and use their
-constructors to supply information needed to access the underlying EVIO
-data stream.
-
-There are three flavors of the write() method implementing output 1)
-from the internal evioChannel buffer, 2) from a user-supplied buffer,
-and 3) from the internal buffer in another evioChannel object.
-Additional methods include getBuffer() and getBufSize().
-
-evioFileChannel
----------------
-
-The evioFileChannel class is a subclass of evioChannel that implements
-I/O to and from files or file-like entities (e.g. pipes). The
-constructor accepts a file name, an optional mode string (default is
-“r”), and an optional internal buffer size (default is 8192 longwords).
-One of the constructors also accepts a “first event” argument which is
-an event which will get written to each split file. The internal buffer
-is allocated automatically. The ioctl() method can be used to set the
-EVIO file block size in write mode (default is 8192 longwords), and must
-be called immediately after the open() method (ioctl is ignored for read
-mode).
-
-This class is little more than an object-oriented wrapper around the
-original C function library. See the C++ tutorial for an example of how
-to use evioFileChannel, the C Library API in Appendix A for additional
-information, or the Doxygen docs for full API information.
-
-evioBufferChannel
------------------
-
-The evioBufferChannel class is similar to the evioFileChannel but reads
-and writes from a user-supplied buffer instead of a file. Underneath,
-the open method calls the C routine evOpenBuffer.
-
-evioSocketChannel
------------------
-
-The evioSocketChannel class is similar to the evioFileChannel and the
-evioBufferChannel classes but reads and writes over a user-supplied TCP
-socket instead of a file or buffer. Underneath, the open method calls
-the C routine evOpenSocket
-
-.
-
-Section
-
-4
-
-EVIO Stream Parser
-==================
-
-Stream parsing an EVIO event involves making a single pass through the
-event and dispatching to user-supplied callbacks as each new bank is
-reached. Two versions are supplied, a C version and a C++ version.
-
-In the C version the user supplies two callbacks to evio_stream_parse()
-along with a pointer to the event buffer. evio_stream_parse() works its
-way through all the banks in the event in order, calling the callbacks
-as each new node or bank is reached. One callback is called when
-container banks (ones containing other banks, not data) are reached, the
-other when leaf or data banks are reached.
-
-In the C++ version the evioStreamParser constructor is given an
-evioChannel object containing an event (e.g. an evioFileChannel object
-which obtained an event via its read() method) and a user-written
-callback handler object. The latter implements two methods:
-containerNodeHandler() and leafNodeHandler(). containerNodeHandler() is
-called when a container node or bank is reached, and leafNodeHandler()
-is called when a leaf or data node is reached.
-
-In general, stream parsing may be useful for a quick pass through the
-data, but in C++ DOM parsing and DOM trees (see the next section) are
-the preferred ways to deal with EVIO events in all but the simplest
-cases.
-
-in C
-----
-
-To use evio_stream_parser():
-
-#include “evio.h”
-
-int handle;
-
-unsigned int buffer[10000];
-
-int buflen=10000;
-
-/\* open file \*/
-
-status = evOpen(myFilename, “r”, &handle);
-
-/\* read events \*/
-
-while(evRead(handle, buffer, buflen)==S_SUCCESS) {
-
-/\* parse event and dispatch to callbacks \*/
-
-evio_stream_parser(buffer, node_handler, leaf_handler);
-
-}
-
-/\* close file \*/
-
-evclose(handle);
-
-where the node_handler callback is of type NH_TYPE, and the leaf_handler
-callback is of type LH_TYPE (either can be NULL):
-
-typedef void (*NH_TYPE)(int length, int ftype, int tag, int type,
-
-int num, int depth);
-
-typedef void (*LH_TYPE)(void \*data,
-
-int length, int ftype, int tag, int type,
-
-int num, int depth);
-
-where length is the length of the contents of the bank, ftype is the
-type of bank (BANK, SEGMENT, or TAGSEGMENT) , tag is the bank tag, type
-defines the content type of the bank, num is defined only for the BANK
-type (set to 0 for SEGMENT and TAGSEGMENT), depth is the level of the
-bank in the tree, and data is a pointer to the array of data contained
-by the leaf bank (must be cast to appropriate type before accessing
-data).
-
-.. _in-c-1:
-
-In C++
-------
-
-To use the evioStreamParser:
-
-#include <evioUtil.hxx>
-
-using namespace evio;
-
-using namespace std;
-
-int main(int argc, char \**argv) {
-
-try {
-
-// create evio file channel object for reading, argv[1] is filename
-
-evioFileChannel chan(argv[1], “r”);
-
-// open the file
-
-chan.open();
-
-// create parser and node handler objects
-
-evioStreamParser parser;
-
-myHandler handler;
-
-// read events and parse channel internal buffer
-
-while(chan.read()) {
-
-parser.parse(chan.getBuffer(),handler,(void*)NULL);
-
-}
-
-// eof reached...close file
-
-chan.close();
-
-} catch (evioException e) {
-
-cerr << endl << e.toString() << endl << endl;
-
-exit(EXIT_FAILURE);
-
-}
-
-// done
-
-exit(EXIT_SUCCESS);
-
-}
-
-where:
-
-class myHandler : public evioStreamParserHandler {
-
-void \*containerNodeHandler(int length, unsigned short tag,
-
-int contentType, unsigned char num, int depth, void \*userArg) {
-
-return(NULL);
-
-}
-
-void leafNodeHandler(int length, unsigned short tag, int contentType,
-
-unsigned char num, int depth, const void \*data, void \*userArg) {
-
-}
-
-};
-
-Section
-
-5
-
-EVIO DOM Parser and DOM Trees
-=============================
-
-In analogy with XML DOM parsing, the EVIO DOM parser constructs an
-in-memory object-oriented representation of an EVIO event. This
-in-memory representation is stored as an instance of the evioDOMTree
-class. The evioDOMTree constructor can automatically construct the tree
-based on an event contained in an evioChannel object (e.g. an instance
-of evioFileChannel). Manual construction and modification of trees is
-also possible.
-
-The tree itself consists of a hierarchy of nodes of two types, container
-nodes and leaf nodes. Container nodes hold lists of other nodes; leaf
-nodes contain vectors of data. Both node types inherit from the abstract
-base class evioDOMNode. The top node in the tree is called the root
-node. Note that the API is defined entirely by the evioDOMNode class,
-and that user code never calls its sub-classes directly.
-
-evioDOMNode
------------
-
-This is the abstract base class for the two concrete node types
-described above, and the only class that users deal with directly. The
-evioDOMNode class contains a parent pointer, parent tree pointer, tag,
-num, and content type. The latter three correspond to the fields in EVIO
-bank headers in EVIO files. Legal content types are listed in Appendix
-C.
-
-Nodes are created via static factory methods :
-
-   evioDOMNodeP evioDOMNode::createEvioDOMNode()
-
-where evioDOMNodeP is a node pointer and all objects are created on the
-heap. Other methods include toString(), which returns an XML fragment
-representing the node; bool isContainer() and isLeaf(), and a few others
-described below. operator== and operator!= are defined to compare tags
-if the argument is an integer, or tag and num if the argument is a
-tagNum pair (see API docs).
-
-getChildList()
-~~~~~~~~~~~~~~
-
-getChildList() returns a pointer to the child list of an evioDOMNode
-that actually is a container node. NULL is returned if the node is a
-leaf node. See the tutorial for more details.
-
- geVector<T>()
-~~~~~~~~~~~~~
-
-getVector<T>() returns a pointer to the data vector contained in a leaf
-node of type T, where T is one of the many supported data types (int,
-unsigned int, double, etc). NULL is returned if the node is a container
-node, or if it is a leaf node containing a different type. See the
-tutorial for more details.
-
-evioDOMTree
------------
-
-This class represents the EVIO DOM tree or event in memory. It contains
-a pointer to the evioDOMNode that forms the root of the tree (type is
-always BANK), and the name of the tree (default is “evio”). It can
-construct a tree from an event contained in an evioChannel object (see
-the tutorial). Manual construction of a tree is discussed below.
-
-Methods include toString(), which returns an XML string representing the
-entire contents of the tree, and getNodeList(Predicate P), which returns
-a (pointer to a) list of pointers to all nodes in the tree satisfying
-the predicate P. See the C++ tutorial or the API docs for details.
-
-Manual evioDOMTree construction
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Manual construction of an evioDOMTree might typically happen in a Monte
-Carlo program that outputs simulated data. A root node must first be
-created, then it can be filled with either data if it is a leaf node, or
-pointers to other evioDOMNode objects if it is a container node. This
-process can be repeated recursively until a complete tree is formed.
-Then e.g. the tree can be written to a file via use of the write()
-method of an evioFileChannel object.
-
-evioDOMTree constructors exist that can automatically create the root
-node. Alternatively, you can create the root node yourself and supply it
-to the tree constructor directly.
-
-Nodes are created via the static factory methods
-evioDOMNode::createEvioDOMNode(), and can be added to the root node
-(assuming it is a container) or other container nodes in a variety of
-ways. See the tutorial for examples of how to create nodes, add nodes to
-the child lists of container nodes, and add data to leaf nodes.
-
-Modification of existing trees
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Modification of an existing tree might typically happen in a
-reconstruction program that first constructs an evioDOMTree from data
-read in by an evioFileChannel object, and then adds additional
-reconstructed data to the tree before writing it out again. The program
-might create one or more sub-trees containing the new data, then add the
-subtrees to the child lists of container nodes in the original tree.
-Further, sub-trees of the existing tree might be deleted by removing
-them from the child lists of container nodes, or moved from one
-container node to another.
-
-These operations are easily carried out via the evioDOMNode methods
-cut(), cutAndDelete(), and move(). See the tutorial for details.
-
-Section
-
-6
-
- Utilities
-=========
-
-The utilities described below can be used to convert from binary EVIO to
-ASCII XML format and back, and to selectively copy EVIO events from one
-binary file to another. Below the term “event tag” refers to the tag of
-the outermost bank in an event, which is always of type BANK (two-word
-header, includes num).
-
-evio2xml
---------
-
-evio2xml, part of the C library, is a flexible utility that reads a
-binary EVIO file and dumps selected events in XML format to stdout or to
-a file:
-
-$ evio2xml –h
-
-evio2xml [-max max_event] [-pause] [-skip skip_event]
-
-[-dict dictfilename] [-dtag dtag]
-
-[-ev evtag] [-noev evtag] [-frag frag] [-nofrag frag]
-
-[-max_depth max_depth]
-
-[-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]
-
-[-verbose] [-brief] [-no_data] [-xtod] [-m main_tag]
-
-[-e event_tag]
-
-[-indent indent_size] [-no_typename] [-maxbuf maxbuf]
-
-[-debug]
-
-[-out outfilenema] [-gz] filenamee
-
-where most options customize the look and feel of the XML output, and
-defaults should be satisfactory. –max specifies the maximum number of
-events to dump, –pause causes evio2xml to pause between events, -skip
-causes it to skip events before starting to dump them. By default the
-bank tags are printed as numbers. The user can specify ASCII strings to
-be used instead in a tag dictionary (via –dict). Contact the DAQ group
-to get an example dictionary file.
-
-eviocopy
---------
-
-eviocopy, part of the C library, copies selected events from a binary
-EVIO file to another binary EVIO file.
-
-$ eviocopy –h
-
-eviocopy [-max max_event] [-skip skip_event] [-ev evtag]
-
-[-noev evtag] [-nonum evnum] [-debug]
-
-   input_filename output_filename
-
-where –max specifies the maximum number of events to copy, -skip cause
-eviocopy to skip events, -ev causes eviocopy to only copy events with
-the specified event tag, and
-
--noev inhibits copying of events with the specified tag. –ev and –noev
-can be specified multiple times on the command line.
-
-evioCat
--------
-
-evioCat, part of the C++ library, concatenates multiple EVIO binary
-files into 1 file.
-
-$ evioCat –h usage:
-
-evioCat [-maxev maxEvent] [-maxevFile maxEventFile] [-debug]
-
--o outputFile file1 file2 file3 ...
-
-where –maxev specifies the max number of events to add, -maxevFile is
-the max number of files to add, -debug causes debugging output to
-screen, -o specifies the output file name and the rest of the arguments
-are the files containing evio events to concatenate.
-
-Xml2evio
---------
-
-Xml2evio, part of the Java library, takes a file containing an xml
-representation of evio events and converts it into an evio format file
-and/or displays it on screen.
-
-$ Usage: java org.jlab.coda.jevio.apps.Xml2evio -x <xml file> -f <evio
-file>
-
-[-v] [-hex] [-d <dictionary file>]
-
-[-max <count>] [-skip <count>]
-
--h help
-
--v verbose output
-
--x xml input file name
-
--f evio output file name
-
--d xml dictionary file name
-
--hex display ints in hex with verbose option
-
--max maximum number of events to convert to evio
-
--skip number of initial events to skip in xml file
-
-This program takes evio events in an xml file and
-
-converts it to a binary evio file
-
-Section
-
-7
-
- C++ Tutorial
-============
-
-Below are examples showing: how to read an event from a file into an
-evioDOMTree; how to query the tree to get lists of node pointers that
-satisfy various criteria and how to work with the lists; and how to
-modify the tree. Some advanced topics follow.
-
-Simple event I/O
-----------------
-
-Below is a simple example that uses an evioFileChannel object to open
-and read an EVIO file, then create an evioDOMTree from the event in the
-evioFileChannel object, then dump the event to stdout:
-
-#include <evioUtil.hxx>
-
-using namespace evio;
-
-using namespace std;
-
-int main(int argc, char \**argv) {
-
-try {
-
-// create evio file channel object for reading, argv[1] is filename
-
-evioFileChannel chan(argv[1], “r”);
-
-// open the file
-
-chan.open();
-
-// loop over events
-
-while(chan.read()) {
-
-// create tree from contents of file channel object
-
-evioDOMTree tree(chan);
-
-// print tree
-
-cout << tree.toString() << endl;
-
-}
-
-// eof reached...close file
-
-chan.close();
-
-} catch (evioException e) {
-
-cerr << endl << e.toString() << endl << endl;
-
-exit(EXIT_FAILURE);
-
-}
-
-// done
-
-exit(EXIT_SUCCESS);
-
-}
-
-The tree can be written to a file via the write() method of the
-evioChannel class.
-
-Querying the event tree
------------------------
-
-There are many ways to query an evioDOMTree to get lists of subsets of
-nodes in the tree. To get an STL list of pointers to all nodes in the
-tree:
-
-evioDOMNodeListP pList = tree.getNodeList();
-
-(Note to experts: evioDOMNodeListP is actually auto_ptr<
-list<evioDOMNodeP> >, where evioDOMNodeP is evioDOMNode*)
-
-Here no predicate is given to getNodeList() so all pointers are
-returned. To get a list of pointers to just container nodes:
-
-evioDOMNodeListP pContainerList = tree.getNodeList(isContainer());
-
-where isContainer() is a function object provided with the EVIO package
-(see Appendix D for a list of all supplied function objects). Similarly,
-to get a list of just leaf nodes:
-
-evioDOMNodeListP pLeafList = tree.getNodeList(isLeaf());
-
-To get a list of pointers to nodes satisfying arbitrary user criteria:
-
-evioDOMNodeListP pMyList = tree.getNodeList(myChooser);
-
-where myChooser() is a simple C function instead of a function object.
-An example that specifies particular tag/num combinations is:
-
-bool myChooser(const evioDOMNodeP node) {
-
-return(
-
-((node->tag==3)&&(node->num==0)) \|\|
-
-((node->tag==2)&&(node->num==1))
-
-);
-
-}
-
-To print all the nodes in the list (there are many ways to do this):
-
-for_each(pList->begin(), pList->end(), toCout());
-
-for_each() is one of a large number of STL algorithms. It accepts an STL
-iterator range (pList->begin(), pList->end()) and applies the function
-object in its third argument to each object in the iterator range in
-turn. Here toCout() is another of the many function objects supplied by
-the EVIO package. toCout() invokes the toString() method of the objects
-pointed to by the iterator, then streams the result to cout.
-
-To print just leaf nodes, this time using iterators:
-
-evioDOMNodeList::iterator iter;
-
-for(iter=pLeafList->begin(); iter!=pLeafList->end(); iter++) {
-
-cout << endl << (*iter)->toString() << endl;
-
-}
-
-Note that (*iter) is an evioDOMNodeP, i.e. a pointer to an evioDOMNode
-object.
-
-To count the number of leaf nodes with tags between 0 and 20 (this is an
-inefficient algorithm shown for illustration only):
-
-for(int tag=0; tag<=20; tag++) {
-
-cout << "There are "
-
-<< count_if(pLeafList->begin(), pLeafList->end(), tagEquals(tag))
-
-<< " leaf nodes with tag " << tag << endl;
-
-}
-
-count_if() is another STL algorithm that counts all objects within the
-iterator range for which the predicate in the third argument is true.
-tagEquals() is another EVIO function object that returns true if the tag
-of the object pointed to by the iterator is equal to the argument given
-to the tagEquals() constructor, in this case the loop index “tag”.
-
-To search the full list and print the data from all leaf nodes
-containing floats (i.e. vector<float>) using the evioDOMNode member
-function getVector():
-
-evioDOMNodeList::iterator iter;
-
-for(iter=pList->begin(); iter!=pList->end(); iter++) {
-
-vector<float> \*v = (*iter)->getVector<float>();
-
-if(v!=NULL) {
-
-cout << endl << endl << “Float node data:" << endl;
-
-for(int i=0; i<v->size(); i++) cout << (*v)[i] << endl;
-
-}
-
-}
-
-Note that getVector<T>() returns NULL if the node is not a leaf node
-containing (in this case) floats. You can tell what type of data is
-contained in a node via the getContentType() member function. See
-Appendix C for a list of legal content types.
-
-To search the full list and access the child lists of container nodes
-using getChildList():
-
-evioDOMNodeList::iterator iter;
-
-for(iter=pList->begin(); iter!=pList->end(); iter++) {
-
-evioDOMNodeList \*pChildList = (*iter)->getChildList();
-
-cout << “Node has “ << pChildList->size() << “ children” << endl;
-
-if(pChildList->size()>0) {
-
-evioDOMNodeList::const_iterator cIter;
-
-for(cIter=pChildList->begin(); cIter!=pChildList->end(); cIter++) {
-
-cout << "child has tag: " << (*cIter)->tag << endl;
-
-}
-
-}
-
-}
-
-Manipulation of the event tree
-------------------------------
-
-To add a new leaf node containing integers to the root node (must be
-container) of a tree:
-
-unsigned short tag;
-
-unsigned char num;
-
-vector<int> myIntVec(100,1);
-
-tree.addBank(tag=5, num=10, myIntVec);
-
-or:
-
-tree << evioDOMNode::createEvioDOMNode(tag=5, num=10, myIntVec);
-
-or:
-
-tree.root->addNode(evioDOMNode::createEvioDOMNode(tag=5, num=10,
-myIntVec));
-
-If cn1 is a container node somewhere in the tree hierarchy you can add a
-new node ln2 to cn1 (here ln2 is a leaf node containing ints) via:
-
-evioDOMNodeP ln2 = evioDOMNOde::createEvioDOMNode(tag=2, num=8,
-myIntVec);
-
-cn1->addNode(ln2);
-
-or:
-
-\*cn1 << ln2;
-
-To append more data to ln2:
-
-vector<int> myIntVec2(100,2)
-
-ln2->append(myIntVec2);
-
-or:
-
-\*ln2 << myIntVec2;
-
-To replace the data in ln2 with new data:
-
-ln2->replace(myIntVec2);
-
-To move ln2 from cn1 to another container node cn3:
-
-ln2->move(cn3);
-
-To cut cn1 out of the tree:
-
-cn1->cut(); // just cut it out
-
-or:
-
-cn1->cutAndDelete(); // also delete cn1 and all of its contents
-
-Example programs
-----------------
-
-A number of annotated example programs exist in the examples directory
-in the EVIO distribution. These demonstrate how to read and write files;
-query and manipulate event trees; create, manipulate, modify, and delete
-banks; etc.
-
-Advanced topics
----------------
-
-The following examples cover some more advanced features and topics that
-can be ignored by most users:
-
-evioDOMNodeListP is a smart pointer (auto_ptr<>) that is used to ensure
-the memory used by the lists returned by getNodeList() is released when
-the lists go out of scope. While in most respects smart pointers act
-like normal pointers, they have some unusual assignment semantics. If
-one smart pointer is set equal to another, ownership of the contents is
-transferred, and the original loses ownership, e.g:
-
-evioDOMNodeListP p1(...); // p1 points to something
-
-evioDOMNodeLIstP p2(); // p2 empty
-
-p2=p1; // p2 points to something, p1 is now empty!!!
-
-Further, smart pointers must not be stored in STL containers. See the
-STL documentation for more information on smart pointers and auto_ptr.
-
-Note that if a standard shared pointer ever appears auto_ptr<> will be
-replaced. We decided not to use the Boost shared pointer as Boost is not
-part of the standard Linux distribution. We are considering
-incorporating a third-party shared pointer into the EVIO library if
-nothing else appears. Contact EJW for more information.
-
-Section
-
-8
-
-Java Evio (Jevio)
-=================
-
-The current Java EVIO package (org.jlab.coda.jevio) was originally
-written by Dr. Dave Heddle of CNU and was graciously given to the JLAB
-DAQ group for maintenance and continued development. Since it was
-created independently of the C++ implementation, it differs in its
-interface but contains much of the same functionality.
+Chapter 3
+
+C++ API Basics
+==============
+
+The current C++ Evio library is different from the previous version as
+it has been ported from the Java code. This was done for a number of
+reasons. First, a much more comprehensive C++ library was desired than
+currently existed. Second, it had to be able to (un)compress the data.
+Third it had to use a new format developed from a merging of java evio
+version 4 and the java HIPO library. Finally, the author and maintainer
+of the previous code was no longer working at Jefferson Lab. The
+simplest solution was to port the well-tested Java code which avoided
+having to redesign complex software from scratch.
+
+C++ evio is supported on both the MacOS and Linux platforms.
+
+Prerequisites
+-------------
+
+C++ evio depends upon the Disruptor-cpp software package available from
+github at https://github.com/Abc-Arbitrage/Disruptor-cpp.git. In terms
+of functionality, it is an ingenious, ultrafast ring buffer which was
+initially developed in Java
+(https://github.com/LMAX-Exchange/disruptor.git) and then ported to C++.
+It’s extremely useful when splitting work among multiple threads and
+then recombining it.
+
+If using the Disruptor software directly downloaded from github, be
+aware that the distribution of the Disruptor made available as part of
+the evio distribution has had 2 classes added. Thus, one must add the
+**SpinCountBackoffWaitStrategy.cpp** and
+**SpinCountBackoffWaitStrategy.h** files to any distribution taken
+directly from github.
+
+\*********\* Follow all instructions for compiling it in its README.MD
+file. Note that it requires GCC 5.0 / Clang 3.8 or newer. Its shared
+library must be installed where evio can find it.
 
 Building
 --------
 
-The java evio uses **ant** to compile. To get a listing of all the
-options available to the ant command, run **ant help** in the evio top
-level directory to get this output:
+There are 2 different methods to build the evio C++ library and
+executables. The first uses **scons**, a Python-based build software
+package which is available at https://scons.org. The second uses cmake
+and make.
 
-| help:
-|     [echo] Usage: ant [ant options] <target1> [target2 \| target3 \|
-  ...]
-|     [echo]        targets:
-|     [echo]        help       - print out usage
-|     [echo]        env        - print out build file variables' values
-|     [echo]        compile    - compile java files
-|     [echo]        clean      - remove class files
-|     [echo]        cleanall   - remove all generated files
-|     [echo]        jar        - compile and create jar file
-| [echo] install - create jar file and install into 'prefix'
+Scons
+~~~~~
 
-[echo] if given on command line by -Dprefix=dir',
+To get a listing of all the local options available to the scons
+command, run **scons -h** in the top-level directory to get this output:
 
-[echo] else install into CODA if defined
+-D                  build from subdirectory of package
 
-[echo] uninstall - remove jar file previously installed into 'prefix'
+local scons OPTIONS:
 
-[echo] if given on command line by -Dprefix=dir',
+--dbg               compile with debug flag
 
-| [echo] else installed into CODA if defined
-|     [echo]        all        - clean, compile and create jar file
-|     [echo]        javadoc    - create javadoc documentation
-|     [echo]        developdoc - create javadoc documentation for
-  developer
-| [echo] undoc - remove all javadoc documentation
+--32bits            compile 32bit libs & executables on 64bit system
 
-    [echo]        prepare    - create necessary directories
+--prefix=<dir>      use base directory <dir> when doing install
 
-Although this is fairly self-explanatory, executing **ant** is the same
-as **ant compile**. That will compile all the java. All compiled code is
-placed in the generated **./build** directory. If the user wants a jar
-file, execute **ant jar** to place the resulting file in the
-**./build/lib** directory.
+--incdir=<dir>      copy header  files to directory <dir> when doing
+install
+
+--libdir=<dir>      copy library files to directory <dir> when doing
+install
+
+--bindir=<dir>      copy binary  files to directory <dir> when doing
+install
+
+install             install libs, headers, and binaries
+
+install -c          uninstall libs, headers, and binaries
+
+doc                 create javadoc (in ./doc)
+
+undoc               remove javadoc (in ./doc)
+
+tar                 create tar file (in ./tar)
+
+Use scons -H for help about command-line options.
+
+Although this is fairly self-explanatory, executing **scons install**
+will compile and install all the code. All compiled code is placed in
+the generated **build** directory.
+
+Cmake / make
+~~~~~~~~~~~~
+
+\*******************************\*
 
 .. _documentation-1:
 
 Documentation
 -------------
 
-In addition to the documentation in this file, there is javadoc which
-can be generated from the full source distribution of evio. While not as
-detailed in explanation as this chapter, it will be much more complete
-with each publicly accessible class and method being listed. Javadoc can
-be generated by going into the top level evio directory and executing
-the command **ant javadoc**. If more detail is desired, classes and
-methods which are not public can be seen by creating the javadoc by
-executing the command **ant developdoc**. This is more suitable for a
-developer. The resulting javadoc is placed in the **./doc/javadoc**
-directory. Look in that directory at the file named **index.html** in a
-browser.
+The documentation for this software has already been created and is
+hosted on the readthedocs.org website at
+https://evio.readthedocs.io/en/latest/ (which, perhaps, you are reading
+right now). If one wishes to probe the depths of the complicated stream
+of operations necessary to produce the final result, here is a quick
+guide to the process.
+
+Doxygen
+~~~~~~~
+
+All the code is supplied with doxygen style comments. One can access it
+directly by calling **scons doc** in the top-level directory; and it
+will list each publicly accessible class and method. The result can be
+viewed by using your web browser to view the created
+doc/doxygen/CC/html/index.html file. To regenerate this file, first call
+**scons undoc**, then again, **scons doc**. The doxygen comments can be
+viewed from the readthedocs site as well so explicity dealing with
+doxygen is not necessary.
+
+User’s Guide
+~~~~~~~~~~~~
+
+The user’s guide is written and stored as a word document in the
+doc/users_guide directory. Of course, this can be viewed in Microsoft
+Word; however, in order to transform this document into something that
+can be hosted on the readthedocs website, it must first be transformed
+into the reStructuredText (rst) format. This is done by using the
+**pandoc** program available from https://pandoc.org. Follow
+instructions from that website in order to install it. On the Mac it’s
+as simple as:
+
+brew install pandoc
+
+The **brew** command is available from https://brew.sh and is a package
+manager. Once installed, the following command will do the
+transformation from word to rst:
+
+pandoc evio_UsersGuide.docx –f docx –t rst –s –o evio_UsersGuide.rst
+
+Sphinx and Breathe
+~~~~~~~~~~~~~~~~~~
+
+Sphinx is a Python software package which is designed to output
+documentation in various formats from input in rst format. This is why
+the user’s guide was transformed into rst format – so that sphinx could
+work its magic on it. Sphinx can be installed with the command:
+
+pip install sphinx
+
+And the Breathe plugin for sphinx, used to incorporate doxygen comments
+properly, can be installed by calling:
+
+pip install breathe
+
+However, as in the case with doxygen, dealing directly with sphinx and
+breathe is unnecessary. The readthedocs site is already linked to evio’s
+github location and can automatically generate docs using its own sphinx
+and breathe.
+
+Doing this by hand requires the following steps:
+
+\**********************************\*
 
 Basics
 ------
 
 There are some things necessary to know before reading and writing evio
-format files. However, this is **not** intended to be a full evio
-tutorial. First, let's look at the classes which form the basis of evio
-data and do some basic manipulations.
+format files. To see the technical details, go to `Appendix
+B <#evio-data-format>`__. However, this is **not** intended to be a full
+evio format tutorial. First, let's look at the classes which form the
+basis of evio.
 
-Evio's container structures are banks, segments, and tagsegments. These
-entities are implemented with 4 different classes. At the very top level
-is the **EvioEvent** which is just a special case (subclass) of an
-**EvioBank** with dictionary and other extra data included. Banks, of
-course, have 2 words (8 bytes) of header followed by data. The
-**EvioSegment** and **EvioTagSegment** classes represent segments and
-tagsegments respectively, each have 1 word of header, no num value and
-differing amounts of tag and type data.
+Evio's container structures are called banks, segments, and tagsegments.
+These entities are implemented with 4 different classes. The very top
+level of an evio structure is always a bank and is called an event. This
+is represented by the **EvioEvent** class which is just a special case
+(subclass) of an **EvioBank** with a little extra data included. Banks
+have 2 words (8 bytes) of header followed by data. The **EvioSegment**
+and **EvioTagSegment** classes represent segments and tagsegments
+respectively, each have 1 word of header, no num value and differing
+amounts of tag and type data.
 
-To get information contained in a header, call getHeader() with event,
-bank, seg, or tagseg objects. Using the returned **BaseStructureHeader**
-object, there are methods available to get & set values for content
-type, tag, num, length, and padding.
+To access the information about an evio structure contained in its
+header, call getHeader() with event, bank, segment, or tagsegment
+objects. Using the returned **BaseStructureHeader** object, there are
+methods available to get & set values for its contents including type,
+tag, number, length, and padding.
 
-Events of any complexity (containing container structures) are created
-using the **EventBuilder** class. The writing of events is done through
-**EventWriter** objects, and the reading of events through
-**EvioReader**. There is also a graphical viewer of events available in
-**EventTreeFrame**.
+Events of any complexity can be created using either the
+**EventBuilder** or **CompactEventBuilder** classes. The writing of
+events is done through **EventWriter**, and the reading of events
+through **EvioReader** or **EvioCompactReader**.
 
-In previous versions of evio, only files could be written and read.
-Currently, however, evio data can be handled by buffers as well.
+Three interfaces
+----------------
 
-The next 2 sections have examples which work together. The reading
-example will read what the writing example produces.
+The Java implementation of the evio library was developed first and the
+C++ was ported from that. Since Java has performance issues surrounding
+the creation and tracking of objects, additional classes (a second Java
+API) was developed to minimize object creation and thereby improve
+performance. As a result, there are now 2 different APIs to use in
+handling evio data. Each will be described in different sections.
 
-Event Creating
---------------
+There is also a third interface (also originally written in Java and
+ported ot C++) which treats events as buffers with any type of data,
+that is, it’s data format agnostic. This API reads, writes, compresses
+and uncompresses data of any type. The other 2 API’s call this one for
+all evio 6.0 operations. The reading of earlier formats is done with
+other code. This API will be described in its own section as well.
 
-There are 2 ways to create an evio event. Start with the simplest first
--- use the **EventBuilder** class to do it. This takes care of all the
-little details and requires only the initial calling of the constructor
-and subsequent calling of the addChild() method to create an evio event.
-The builder will check all arguments, the byte order of added data, type
-mismatches between parent & child, and will set all evio header lengths
-automatically. The following code uses the EventBuilder to create an
-event (bank) of banks with 1 child which is a bank of segments. The bank
-of segments also has 1 child which is a segment of shorts.
+Shared Pointers
+---------------
 
-// Use the EventBuilder class to create event of banks, tag=1, num=1
+Evio data is a represented by a tree structure. Each evio structure,
+EvioEvent, EvioBank, EvioSegment, and EvioTagSegment, contains
+references to both parent and children. In order to facilitate
+implementation in a safe way, all these references are shared pointers.
 
-| EventBuilder builder = new EventBuilder(1, DataType.BANK, 1);
-| EvioEvent event = builder.getEvent();
-| // bank of segments
-| EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
+ByteBuffer Class
+----------------
+
+The **ByteBuffer** class is a transplant from Java. It’s not a complete
+port due entirely to the big differences between C++ and Java. However,
+it is extremely useful, saves a lot of effort, automagically takes care
+of endian issues, and it’s used in much of the API. Here’s a little
+tutorial, but the reader can always read the volumes written on the Java
+version of this class to get a complete handle on it.
+
+Basic Usage
+~~~~~~~~~~~
+
+In C++, a ByteBuffer is an object which wraps an array of uint8_t type.
+This object provides a set of methods that makes it easier to work with
+the memory block. Using a ByteBuffer to write and read data typically
+follows this little 4-step process:
+
+1. Write data into the buffer
+
+2. Call buffer.flip()
+
+3. Read data out of the buffer
+
+4. Call buffer.clear() or buffer.compact()
+
+When you write data into a buffer, the buffer keeps track of how much
+data you have written. Once you need to read the data, you can prepare
+the buffer for this by using the flip() method. The buffer lets you read
+all the data written into the buffer. Once done reading, you can clear
+the buffer, to make it ready for writing again by calling clear() or
+compact().
+
+A buffer has four properties you should be familiar with how itvworks.
+These are:
+
+-  capacity
+
+-  position
+
+-  limit
+
+-  mark
+
+.. _section-1:
+
+Capacity
+~~~~~~~~
+
+The maximum number of byte elements the buffer can hold. The capacity is
+set when the buffer is created and can never be changed.
+
+Position
+~~~~~~~~
+
+The index of the next element to be read or written.
+
+When you write data into the ByteBuffer, you do so at a certain
+position. Initially the position is 0. There are 2 types of writing: 1)
+an absolute write which does not advance its position after the write,
+and 2) a relative write which when a byte, long etc. has been written
+into the ByteBuffer, the position is advanced to point to the next
+position in the buffer to insert data into. Position can maximally
+become capacity - 1.
+
+When you read data from a Buffer you also do so from a certain position.
+When you flip a ByteBuffer from writing to reading, it’s limit is set
+the current position and the position is reset back to 0, thus preparing
+it to be read. There are 2 types of reading: 1) an absolute read which
+does NOT advance its position after the read and 2) a relative read
+which does. In the relative case, as you read data from the ByteBuffer
+the position is advanced to next position to read.
+
+Limit
+~~~~~
+
+The first element of the buffer that should not be read or written. In
+other words, the count of live elements in the buffer. The limit is less
+than or equal to the capacity.
+
+Mark
+~~~~
+
+A remembered position. Calling mark() sets mark = position. Calling
+reset( ) sets position = mark. The mark is undefined until set.
+
+Example Diagrams
+~~~~~~~~~~~~~~~~
+
+**Initial buffer state in which position = 0, limit = capacity = N.**
+
+**Also the state after calling clear().**
+
+|image1|\ |image2|\ B\ **uffer after relative write of 4-byte integer =
+0x11223344 (big endian)**
+
+**Buffer after flip()**
+
+|image3|\ |image4|\ **Buffer after relative read of one 4-byte integer**
+
+Creating a Buffer
+~~~~~~~~~~~~~~~~~
+
+When creating a ByteBuffer object you can specify the amount memory in
+its buffer. If not specified it allocates 4096 bytes. Here is an example
+showing the allocation of a ByteBuffer, with a capacity of 128kBytes:
+
+ByteBuffer buf(128000);
+
+Writing Data
+~~~~~~~~~~~~
+
+You can write data into a buffer via its put() methods. The put() method
+is overloaded, allowing the writing of different types of data or an
+array of bytes into the buffer. Here is an example showing how to do a
+relative write which places the written value at the buffer’s current
+position and afterwards advances the position by the size of the write
+(4 bytes in this case):
+
+int myInt = 123;
+
+buffer.put(myInt);
+
+Here’s an example of writing at a specified position after which the
+position does not change:
+
+size_t position = 1024;
+
+int myInt = 123;
+
+buffer.put(position, myInt);
+
+The flip() method
+~~~~~~~~~~~~~~~~~
+
+The **flip** method prepares a ByteBuffer for reading after being
+written to. It sets the position back to 0, and sets the limit to where
+position just was. In other words, position now marks the reading
+position, and limit marks how many bytes, chars etc. were written into
+the buffer - the limit of how many bytes, chars etc. that can be read.
+
+Reading Data
+~~~~~~~~~~~~
+
+You can read data from the buffer using one of the get() methods. The
+get() method is overloaded, allowing you to read data in different ways.
+Here is an example of a relative read at the current position which
+afterwards advances the postion by the size of the read (8 bytes in this
+case):
+
+int64_t myLong = buf.getLong();
+
+Here’s an example of an absolute read at a specified position after
+which the position does not change:
+
+size_t position = 1024;
+
+double myDouble = buffer.getDouble(position);
+
+Endianness
+~~~~~~~~~~
+
+The transparent handling of the data’s endianness (big or little) is a
+feature of ByteBuffers which makes reading and writing much easier. The
+endianness can be set by calling the order() method. This works with the
+ByteOrder class in the following way:
+
+buf.order(ByteOrder::ENDIAN_BIG);
+
+This method directs each write to place the data into the ByteBuffer’s
+internal array in the prescribed endian. It also directs each read to
+retrieve that data properly. Thus, the endian value of a ByteBuffer can
+be set once and all reads and writes will transparently do the right
+thing. The default endian value of a ByteBuffer object is the endian
+value of the local node.
+
+The rewind() method
+~~~~~~~~~~~~~~~~~~~
+
+The **rewind()** method sets the position back to 0, so you can reread
+all the data in the buffer. The limit remains unchanged, thus still
+marking how many bytes that can be read from the buffer.
+
+The clear() and compact() methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once done reading data, one can make the buffer ready for writing again
+by calling either the **clear()** or **compact()** method. The clear()
+method does not erase any data, it merely sets the ByteBuffer back to
+its initial state (position = 0, limit = capacity).
+
+The compact() method only clears the data which you have already read.
+If there is still unread data in the buffer that needs to be read later,
+but some writing needs to be done first, call compact() instead of
+clear(). This will copy all unread data to the beginning of the buffer.
+Then it sets position to right after the last unread element. The limit
+is set to capacity, just as in clear(). Now the buffer is ready for
+writing, but you will not overwrite the unread data.
+
+The mark() and reset() methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can mark a given position in a buffer by calling the **mark()**
+method. You can then later reset the position back to the marked
+position by calling the **reset()** method.
+
+The array() method
+~~~~~~~~~~~~~~~~~~
+
+You can directly access the internal array that stores the data in a
+ByteBuffer by calling lthe **array()** method. For those readers
+familiar with it, all C++ ByteBuffers (unlike Java) are backed by
+arrays.
+
+Chapter 4
+
+Evio-specific C++ APIs
+======================
+
+As mentioned in the `previous section <#three-interfaces>`__, there are
+2 APIs which only deal with evio data. Where they differ is that one
+uses the classes **EventBuilder** and **EvioReader** to build events and
+read data, while the other uses **CompactEventBuilder** and
+**EvioCompactReader**. So what are the differences?
+
+When communicating EvioEvents objects over the network, each object (and
+all of its contained objects in its tree structure) must be serialized
+into an array or buffer of bytes when sending and must deserialize the
+same bytes back into objects on the receiving end. This can lead to a
+serious performance penalty, especially in the original Java. To avoid
+having to serialize and deserialize continually, a new API was developed
+to allow the handling of evio data in byte buffer form. For lack of a
+better term, **compact** was the word chosen to describe it since all
+evio data handled in this API are contained in ByteBuffer objects and
+never expanded into EvioEvent objects.
+
+Event Creating with EventBuilder
+--------------------------------
+
+The **EventBuilder** class constructs evio events. It takes care of all
+the little details and requires only the initial calling of a
+constructor and subsequent calling of the addChild() method to create an
+evio event. The builder will check all arguments, the byte order of
+added data, type mismatches between parent & child, and will set all
+evio header lengths automatically.
+
+The following code uses the EventBuilder to create an event (almost
+always a bank of banks) with 3 children (a bank of banks, a bank of
+segments, and a bank of tagsegments). Each of these children have
+children of their own. It’s written out to a buffer. The code relies on
+the EvioEvent/Bank/Segment/TagSegment classes to get, fill, and update
+their internal data vectors:
+
+**// Data to write stored in these vectors**
+
+vector<uint8_t> byteVec;
+
+| vector<uint32_t> intVec;
+| vector<double> doubleVec;
+| vector<string> stringsVec;
+
+**//-------------------------------------**
+
+**// Build event (bank of banks) with EventBuilder object**
+
+| uint32_t tag = 1, num = 1;
+| EventBuilder builder(tag, DataType::BANK, num);
+| shared_ptr<EvioEvent> event = builder.getEvent();
+
+| **//-------------------------------------
+  // First child of event = bank of banks
+  **\ auto bankBanks = EvioBank::getInstance(tag+1, DataType::BANK,
+  num+1);
+| **// Add this bank as child of event**
+| builder.addChild(event, bankBanks);
+
+| **// Create first (& only) child of bank of banks = bank of ints**
+| auto bankInts = EvioBank::getInstance(tag+11, DataType::UINT32,
+  num+11);
+
+| **// Get its internal vector of int data**
+| auto &iData = bankInts->getUIntData();
+
+| **// Write our data into that vector**
+| iData.insert(iData.begin(), intVec.begin(), intVec.end());
+
+| **// Done writing so tell builder to update its internals for this
+  bank**
+| bankInts->updateUIntData();
+
+| **// Add this bank as child of bankBanks**
+| builder.addChild(bankBanks, bankInts);
+
+**//-------------------------------------**
+
+| **// Second child of event = bank of segments**
+| auto bankSegs = EvioBank::getInstance(tag+2, DataType::SEGMENT,
+  num+2);
 | builder.addChild(event, bankSegs);
-| // segment of 3 shorts
-| EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
-| short[] sdata = new short[] {1,2,3};
+| **// Create first child of bank of segments = segment of doubles**\ *
+  *\ auto segDoubles = EvioSegment::getInstance(tag+22,
+  DataType::DOUBLE64);
+| auto &sdData = segDoubles->getDoubleData();
+| sdData.insert(sdData.begin(), doubleVec.begin(), doubleVec.end());
+| segDoubles->updateDoubleData();
+| builder.addChild(bankSegs, segDoubles);
+| **// Create second child of bank of segments = segment of bytes**
+| auto segBytes = EvioSegment::getInstance(tag+23, DataType::CHAR8);
+| auto &scData = segBytes->getCharData();
+| scData.insert(scData.begin(), byteVec.begin(), byteVec.end());
+| segBytes->updateCharData();
+| builder.addChild(bankSegs, segBytes);
 
-| segShorts.setShortData(sdata);
-| builder.addChild(bankSegs, segShorts);
+**//-------------------------------------**
 
-// To remove a structure
+| **// Third child of event = bank of tagsegments**
+| auto bankTsegs = EvioBank::getInstance(tag+3, DataType::TAGSEGMENT,
+  num+3);
+| builder.addChild(event, bankTsegs);
 
-builder.remove(segShorts);
+| **// Create first child of bank of tagsegments = tagsegment of
+  strings**
+| auto tsegStrings = EvioTagSegment::getInstance(tag+33,
+  DataType::CHARSTAR8);
+| auto &tstData = tsegStrings->getStringData();
+| tstData.insert(tstData.begin(), stringsVec.begin(), stringsVec.end());
+| tsegStrings->updateStringData();
+| builder.addChild(bankTsegs, tsegStrings);
 
-There are methods to create and add banks, segments and tagsegments as
-containers as well as methods to add all the various data types like
-chars, shorts, ints, longs, doubles, floats and their arrays. The only
+**//-------------------------------------**
+
+**// Remove first segment (and all descendants) in bank of segments**\ *
+*\ builder.remove(segDoubles);
+
+**//-------------------------------------**
+
+**// Take event, write it into buffer, get buffer ready to read**
+
+shared_ptr<ByteBuffer> buffer;
+
+| event->write(*(buffer.get()));
+| buffer->flip();
+
+In addition to the methods for creating and adding banks, segments and
+tagsegments, there are methods to add all the various data types like
+chars, shorts, ints, longs, doubles, floats, and strings. The only
 tricky thing is handling Composite format data. Look at `Appendix
 B <#b.3-composite-data-type>`__ to get more information on handling this
-format.
+complicated format.
 
-The second means is to call the insert() method of the event or its
-children. This method requires the event to call setAllHeaderLengths()
-at the end to make sure all the evio headers in the event have the
-proper lengths set. The following code does exactly what the previous
-example does but does not check for the issues mentioned above:
+Another way of creating events avoids the use of the EventBuilder class
+altogether. Call the insert() method of each structure to place it into
+another structure as a child. This way of doing things requires the
+event to call setAllHeaderLengths() at the end to make sure all the evio
+headers in the event have the proper lengths set. The following
+abbreviated code does what the previous example does:
 
-| // Use event constructor and insert() calls
-| EvioEvent event = new EvioEvent(1, DataType.BANK, 1);
-| // bank of segments
-| EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
-| event.insert(bankSegs);
-| // segment of 3 shorts
-| EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
-| short[] sdata = new short[] {1,2,3};
+**// Create an event**
 
-| segShorts.setShortData(sdata);
-| bankSegs.insert(segShorts);
+| auto event = EvioEvent::getInstance(tag, DataType::BANK, nm);
+| **//-------------------------------------
+  // First child of event = bank of banks
+  **\ auto bankBanks = EvioBank::getInstance(tag+1, DataType::BANK,
+  num+1);
+| event->insert(bankBanks, 0);
+| **// Create first (& only) child of bank of banks = bank of ints**\ *
+  *\ auto bankInts = EvioBank::getInstance(tag+11, DataType::UINT32,
+  num+11);
+| auto &iData = bankInts->getUIntData();
+| iData.insert(iData.begin(), intVec.begin(), intVec.end());
+| bankInts->updateUIntData();
+| bankBanks->insert(bankInts, 0);
+| **//-------------------------------------**
 
-// To remove a structure
+| **// Second child of event = bank of segments**\ *
+  *\ auto bankSegs = EvioBank::getInstance(tag2, DataType::SEGMENT,
+  num+2);
+| event->insert(bankSegs, 1);
+| **// Create first child of bank of segments = segment of bytes**\ *
+  *\ auto segBytes = EvioSegment::getInstance(tag+22, DataType::CHAR8);
+| auto &scData = segBytes->getCharData();
+| scData.insert(scData.begin(), byteVec.begin(), byteVec.end());
+| segBytes->updateCharData();
+| bankSegs->insert(segBytes, 0);
+| **//-------------------------------------**
 
-bankSegs.remove(segShorts);
+| **// Third child of event = bank of tagsegments**\ *
+  *\ auto bankTsegs = EvioBank::getInstance(tag+3, DataType::TAGSEGMENT,
+  num+3);
+| event->insert(bankTsegs, 2);
 
-// Make sure all evio headers have correct lengths
+| **// Create first child of bank of tagsegments = segment of ints**\ *
+  *\ auto tsegInts = EvioTagSegment::getInstance(tag+33,
+  DataType::UINT32);
+| auto &tiData = tsegInts->getUIntData();
+| tiData.insert(tiData.begin(), intVec.begin(), intVec.end());
+| tsegInts->updateUIntData();
+| bankTsegs->insert(tsegInts, 0);
+| **//-------------------------------------**
 
-event.setAllHeaderLengths();
+**// If doing things this way, be sure to set all the header lengths**
+
+event->setAllHeaderLengths();
 
 Writing
 -------
@@ -1675,136 +1174,50 @@ Writing to file or buffer
 
 Start writing an evio format file or buffer with an **EventWriter**
 object. Simply pick among the various constructors for your medium of
-choice. There are optional parameters including allowing the user to
-chose whether to append to or overwrite any previously existing data.
-The user can also set the block size and number of events per block as
-well as specify a dictionary and data byte order among other things.
-Refer to the javadoc for all of the possibilities.
+choice. There are optional parameters which allow the user to chose
+whether to append to or overwrite any previously existing data. The user
+can also set the maximum record size and the maximum number of events
+per record as well as specify a dictionary and data byte order among
+other things. Refer to the doxygen documentation for all of the
+possibilities.
 
 Below is some example code with comments showing how the writing is
 done. It shows how to write to both files and buffers as well as how to
 define a dictionary and how to create evio data. If the reader is
-unfamiliar with Java's **ByteBuffer** class, take some time to read up
-on it when using buffers. It will allow you to do many things.
+unfamiliar with the `ByteBuffer <#bytebuffer-class>`__ class, take some
+time to read up on it when using buffers. It will allow you to do many
+things.
 
-| // For WRITING a file or buffer
-| public static void main(String args[]) {
-|    // Define xml dictionary
-|    String xmlDictionary =
-|       "<xmlDict>\n" +
-|       "  <bank name=\"bank of banks\"          tag=\"1\"  
-  num=\"1\">\n" +
-|       "     <bank name=\"bank of segments\"    tag=\"2\"  
-  num=\"2\">\n" +
-|       "       <leaf name=\"segment of shorts\" tag=\"3\"   />\n" +
-|       "     </bank>\n" +
-|       "     <bank name=\"bank of banks\"       tag=\"4\"  
-  num=\"4\">\n" +
-|       "       <leaf name=\"bank of chars\"     tag=\"5\"  
-  num=\"5\"/>\n" +
-|       "     </bank>\n" +
-|       "  </bank>\n" +
-|       "  <dictEntry name=\"last bank\"        tag=\"33\" 
-  num=\"66\"/>\n" +
-|       "</xmlDict>";
+**// Append or overwrite**
 
-| // Data to write
-| byte[]  byteData1 = new byte[]  {1,2,3,4,5};
-| int[]   intData1  = new int[]   {4,5,6};
-| int[]   intData2  = new int[]   {7,8,9};
-| short[] shortData = new short[] {11,22,33};
+bool append = false;
 
-// Do we append or overwrite?
+| **// File’s name**
+| string filename = "./myData";
 
-boolean append = false;
+**// Byte order in which to write data**
 
-// Do we write to file or buffer?
+| ByteOrder order = ByteOrder::ENDIAN_LOCAL;
+|   
 
-boolean toFile = true;
+   **// Create an EventWriter object to write out events to file**
 
-| ByteBuffer myBuf = null;
-| try {
+EventWriter writer(file, order, append);
 
-EventWriter writer;
+   **// Create an event**\ `(see previous
+section) <#event-creating-with-eventbuilder>`__
 
-if (toFile) { 
+   EventBuilder builder(1, DataType::BANK, 1);
 
-          // Create an event writer to write out the test events to file
+**// Add structures & data here …**
 
-| // along with a dictionary
-| String fileName  = "./myData";
-|     File file = new File(fileName);
+| **// Get reference to the event just created
+  **   auto event = builder.getEvent();
+|    **// Write event to file**
+|    writer.writeEvent(event);
 
-| writer = new EventWriter(file, xmlDictionary, append);
-| }
-
-| else {
-|           // Or create an event writer to write to buffer
-|           myBuf = ByteBuffer.allocate(10000);
-|           myBuf.order(ByteOrder.LITTLE_ENDIAN);
-|           writer = new EventWriter(myBuf, xmlDictionary, append);
-| }
-
-|        // event - bank of banks
-|        EventBuilder builder = new EventBuilder(1, DataType.BANK, 1);
-|        EvioEvent event = builder.getEvent();
-|        // bank of segments
-|        EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
-|        builder.addChild(event, bankSegs);
-|        // segment of 3 shorts
-|        EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
-|        segShorts.setShortData(shortData);
-|        builder.addChild(bankSegs, segShorts);
-|        // another bank of banks
-|        EvioBank bankBanks = new EvioBank(4, DataType.BANK, 4);
-|        builder.addChild(event, bankBanks);
-|        // bank of chars
-|        EvioBank charBank = new EvioBank(5, DataType.CHAR8, 5);
-|        charBank.setByteData(byteData1);
-|        builder.addChild(bankBanks, charBank);
-|        // Write event to file
-|        writer.writeEvent(event);
-
-// How much room do I have left in the buffer now?
-
-if (!toFile) {
-
-System.out.println("I have " + myBuf.remaining() + " bytes left");
-
-| }
-|        // event - bank of ints
-|        EvioEvent lastEvent = new EvioEvent(33, DataType.INT32, 66);
-
-// Tell jevio what the data's endianness is.
-
-// This will not swap anything now but will
-
-// enable it to be written out properly.
-
-// NOT necessary to call if data is big endian.
-
-| // Call this BEFORE dealing with data!
-|        lastEvent.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-
-| // Overwrite all previous data with "setIntData"
-|        lastEvent.setIntData(intData1);
-
-| // Append data to end with "appendIntData"
-|        lastEvent.appendIntData(intData2);
-
-|        // Write last event to file or buffer
-|        writer.writeEvent(lastEvent);
-|        // All done writing
-|        writer.close();
-|    }
-|    catch (IOException e) {
-|        e.printStackTrace();
-|    }
-|    catch (EvioException e) {
-|        e.printStackTrace();
-|    }
-
-}
+|    **// All done writing**
+|    writer.close();
 
 .. _naming-files-1:
 
@@ -1840,14 +1253,14 @@ Splitting files
 
 When writing significant amounts of data to a single file, that file can
 get very large – too large. Historically, run control was able to split
-the data into multiple files with an automatic file naming system. For
-this version of evio, the ability to split files is built in as is the
-naming system. Simply pick the constructor designed for file splitting
-with parameters allowing the user to choose the number of bytes at which
-to start writing to a new file and the name of the files to use. The
-constructor of both the EventWriter and EvioCompactEventWriter (more on
-this in the next chapter) classes have input parameters for a base
-filename, run type, run number, and split size.
+the data into multiple files with an automatic file naming system. The
+ability to split files is now built into evio as is the naming system.
+Simply pick the constructor designed for file splitting with parameters
+allowing the user to choose the number of bytes at which to start
+writing to a new file and the name of the files to use. The constructor
+of both the EventWriter and EvioCompactEventWriter (more on this in the
+next chapter) classes have input parameters for a base filename, run
+type, run number, and split size.
 
 A description of the general file naming system is in the section above,
 but when splitting into multiple files (split size > 0), the user should
@@ -1861,18 +1274,18 @@ of the file name.
 Below is example code with comments showing how the file naming and
 splitting is done.
 
-int split = 100000000; // split at 100MB
+int split = 100000000; **// split at 100MB**
 
 int runNumber = 1;
 
-String runType = “myExperiment”;
+string runType = “myExperiment”;
 
-String directory = “/myDirectory”;
+string directory = “/myDirectory”;
 
-String baseFilename = “my$(BASE_NAME)_%s_%x_%03d.ext”;
+string baseFilename = “my$(BASE_NAME)_%s_%x_%03d.ext”;
 
-| EventWriter writer = new EventWriter(baseFilename, directory,
-|                        runType, runNumber, split,
+| EventWriter writer(baseFilename, directory,
+|                    runType, runNumber, split,
 
 64000, 1000, 300000,
 
@@ -1880,11 +1293,12 @@ byteOrder, dictionary,
 
 bitInfo, overWriteOK, append);
 
-The baseFilename string will have the environmental variable, BASE_NAME,
-substituted in the obvious location along with the runType substituted
-for the %s, the runNumber substituted for the %x (hex format), and the
-split number substituted for the %03d. If BASE_NAME has the value
-“File”, then the first 3 split files will have the names:
+The baseFilename string will have the value of the environmental
+variable BASE_NAME, substituted for the $(BASE_NAME) part of the string
+along with the runType substituted for the %s, the runNumber substituted
+for the %x (hex format), and the split number substituted for the %03d.
+If BASE_NAME has the value “File”, then the first 3 split files will
+have the names:
 
 myFile_myExperiment_1_001.ext
 
@@ -2343,7 +1757,7 @@ System.out.println("entry " + (++i) + ": name = " + entryName +
 
 }
 
-.. _first-event-2:
+.. _first-event-1:
 
 First Event
 -----------
@@ -2404,7 +1818,7 @@ list = Utilities.toEvents(xml, maxEvents, skip, dictionary, debug);
 
 Section
 
-9
+4
 
 Compact Java Evio
 =================
@@ -2729,6 +2143,1707 @@ compactWriter.close();
 | }
 
 .. _xml-format-events-1:
+
+XML format events
+-----------------
+
+If the user wants to view an event or any evio structure in xml format,
+that is easily possible.
+
+EvioNode node;
+
+boolean asHex = true;
+
+String xml = Utilities.toXML(node, asHex);
+
+Section
+
+5
+
+ Utilities
+=========
+
+The utilities described below can be used to convert from binary EVIO to
+ASCII XML format and back, and to selectively copy EVIO events from one
+binary file to another. Below the term “event tag” refers to the tag of
+the outermost bank in an event, which is always of type BANK (two-word
+header, includes num).
+
+evio2xml
+--------
+
+evio2xml, part of the C library, is a flexible utility that reads a
+binary EVIO file and dumps selected events in XML format to stdout or to
+a file:
+
+$ evio2xml –h
+
+evio2xml [-max max_event] [-pause] [-skip skip_event]
+
+[-dict dictfilename] [-dtag dtag]
+
+[-ev evtag] [-noev evtag] [-frag frag] [-nofrag frag]
+
+[-max_depth max_depth]
+
+[-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]
+
+[-verbose] [-brief] [-no_data] [-xtod] [-m main_tag]
+
+[-e event_tag]
+
+[-indent indent_size] [-no_typename] [-maxbuf maxbuf]
+
+[-debug]
+
+[-out outfilenema] [-gz] filenamee
+
+where most options customize the look and feel of the XML output, and
+defaults should be satisfactory. –max specifies the maximum number of
+events to dump, –pause causes evio2xml to pause between events, -skip
+causes it to skip events before starting to dump them. By default the
+bank tags are printed as numbers. The user can specify ASCII strings to
+be used instead in a tag dictionary (via –dict). Contact the DAQ group
+to get an example dictionary file.
+
+eviocopy
+--------
+
+eviocopy, part of the C library, copies selected events from a binary
+EVIO file to another binary EVIO file.
+
+$ eviocopy –h
+
+eviocopy [-max max_event] [-skip skip_event] [-ev evtag]
+
+[-noev evtag] [-nonum evnum] [-debug]
+
+   input_filename output_filename
+
+where –max specifies the maximum number of events to copy, -skip cause
+eviocopy to skip events, -ev causes eviocopy to only copy events with
+the specified event tag, and
+
+-noev inhibits copying of events with the specified tag. –ev and –noev
+can be specified multiple times on the command line.
+
+evioCat
+-------
+
+evioCat, part of the C++ library, concatenates multiple EVIO binary
+files into 1 file.
+
+$ evioCat –h usage:
+
+evioCat [-maxev maxEvent] [-maxevFile maxEventFile] [-debug]
+
+-o outputFile file1 file2 file3 ...
+
+where –maxev specifies the max number of events to add, -maxevFile is
+the max number of files to add, -debug causes debugging output to
+screen, -o specifies the output file name and the rest of the arguments
+are the files containing evio events to concatenate.
+
+Xml2evio
+--------
+
+Xml2evio, part of the Java library, takes a file containing an xml
+representation of evio events and converts it into an evio format file
+and/or displays it on screen.
+
+$ Usage: java org.jlab.coda.jevio.apps.Xml2evio -x <xml file> -f <evio
+file>
+
+[-v] [-hex] [-d <dictionary file>]
+
+[-max <count>] [-skip <count>]
+
+-h help
+
+-v verbose output
+
+-x xml input file name
+
+-f evio output file name
+
+-d xml dictionary file name
+
+-hex display ints in hex with verbose option
+
+-max maximum number of events to convert to evio
+
+-skip number of initial events to skip in xml file
+
+This program takes evio events in an xml file and
+
+converts it to a binary evio file
+
+Section
+
+6
+
+ C++ Tutorial
+============
+
+Below are examples showing: how to read an event from a file into an
+evioDOMTree; how to query the tree to get lists of node pointers that
+satisfy various criteria and how to work with the lists; and how to
+modify the tree. Some advanced topics follow.
+
+Simple event I/O
+----------------
+
+Below is a simple example that uses an evioFileChannel object to open
+and read an EVIO file, then create an evioDOMTree from the event in the
+evioFileChannel object, then dump the event to stdout:
+
+#include <evioUtil.hxx>
+
+using namespace evio;
+
+using namespace std;
+
+int main(int argc, char \**argv) {
+
+try {
+
+// create evio file channel object for reading, argv[1] is filename
+
+evioFileChannel chan(argv[1], “r”);
+
+// open the file
+
+chan.open();
+
+// loop over events
+
+while(chan.read()) {
+
+// create tree from contents of file channel object
+
+evioDOMTree tree(chan);
+
+// print tree
+
+cout << tree.toString() << endl;
+
+}
+
+// eof reached...close file
+
+chan.close();
+
+} catch (evioException e) {
+
+cerr << endl << e.toString() << endl << endl;
+
+exit(EXIT_FAILURE);
+
+}
+
+// done
+
+exit(EXIT_SUCCESS);
+
+}
+
+The tree can be written to a file via the write() method of the
+evioChannel class.
+
+Querying the event tree
+-----------------------
+
+There are many ways to query an evioDOMTree to get lists of subsets of
+nodes in the tree. To get an STL list of pointers to all nodes in the
+tree:
+
+evioDOMNodeListP pList = tree.getNodeList();
+
+(Note to experts: evioDOMNodeListP is actually auto_ptr<
+list<evioDOMNodeP> >, where evioDOMNodeP is evioDOMNode*)
+
+Here no predicate is given to getNodeList() so all pointers are
+returned. To get a list of pointers to just container nodes:
+
+evioDOMNodeListP pContainerList = tree.getNodeList(isContainer());
+
+where isContainer() is a function object provided with the EVIO package
+(see Appendix D for a list of all supplied function objects). Similarly,
+to get a list of just leaf nodes:
+
+evioDOMNodeListP pLeafList = tree.getNodeList(isLeaf());
+
+To get a list of pointers to nodes satisfying arbitrary user criteria:
+
+evioDOMNodeListP pMyList = tree.getNodeList(myChooser);
+
+where myChooser() is a simple C function instead of a function object.
+An example that specifies particular tag/num combinations is:
+
+bool myChooser(const evioDOMNodeP node) {
+
+return(
+
+((node->tag==3)&&(node->num==0)) \|\|
+
+((node->tag==2)&&(node->num==1))
+
+);
+
+}
+
+To print all the nodes in the list (there are many ways to do this):
+
+for_each(pList->begin(), pList->end(), toCout());
+
+for_each() is one of a large number of STL algorithms. It accepts an STL
+iterator range (pList->begin(), pList->end()) and applies the function
+object in its third argument to each object in the iterator range in
+turn. Here toCout() is another of the many function objects supplied by
+the EVIO package. toCout() invokes the toString() method of the objects
+pointed to by the iterator, then streams the result to cout.
+
+To print just leaf nodes, this time using iterators:
+
+evioDOMNodeList::iterator iter;
+
+for(iter=pLeafList->begin(); iter!=pLeafList->end(); iter++) {
+
+cout << endl << (*iter)->toString() << endl;
+
+}
+
+Note that (*iter) is an evioDOMNodeP, i.e. a pointer to an evioDOMNode
+object.
+
+To count the number of leaf nodes with tags between 0 and 20 (this is an
+inefficient algorithm shown for illustration only):
+
+for(int tag=0; tag<=20; tag++) {
+
+cout << "There are "
+
+<< count_if(pLeafList->begin(), pLeafList->end(), tagEquals(tag))
+
+<< " leaf nodes with tag " << tag << endl;
+
+}
+
+count_if() is another STL algorithm that counts all objects within the
+iterator range for which the predicate in the third argument is true.
+tagEquals() is another EVIO function object that returns true if the tag
+of the object pointed to by the iterator is equal to the argument given
+to the tagEquals() constructor, in this case the loop index “tag”.
+
+To search the full list and print the data from all leaf nodes
+containing floats (i.e. vector<float>) using the evioDOMNode member
+function getVector():
+
+evioDOMNodeList::iterator iter;
+
+for(iter=pList->begin(); iter!=pList->end(); iter++) {
+
+vector<float> \*v = (*iter)->getVector<float>();
+
+if(v!=NULL) {
+
+cout << endl << endl << “Float node data:" << endl;
+
+for(int i=0; i<v->size(); i++) cout << (*v)[i] << endl;
+
+}
+
+}
+
+Note that getVector<T>() returns NULL if the node is not a leaf node
+containing (in this case) floats. You can tell what type of data is
+contained in a node via the getContentType() member function. See
+Appendix C for a list of legal content types.
+
+To search the full list and access the child lists of container nodes
+using getChildList():
+
+evioDOMNodeList::iterator iter;
+
+for(iter=pList->begin(); iter!=pList->end(); iter++) {
+
+evioDOMNodeList \*pChildList = (*iter)->getChildList();
+
+cout << “Node has “ << pChildList->size() << “ children” << endl;
+
+if(pChildList->size()>0) {
+
+evioDOMNodeList::const_iterator cIter;
+
+for(cIter=pChildList->begin(); cIter!=pChildList->end(); cIter++) {
+
+cout << "child has tag: " << (*cIter)->tag << endl;
+
+}
+
+}
+
+}
+
+Manipulation of the event tree
+------------------------------
+
+To add a new leaf node containing integers to the root node (must be
+container) of a tree:
+
+unsigned short tag;
+
+unsigned char num;
+
+vector<int> myIntVec(100,1);
+
+tree.addBank(tag=5, num=10, myIntVec);
+
+or:
+
+tree << evioDOMNode::createEvioDOMNode(tag=5, num=10, myIntVec);
+
+or:
+
+tree.root->addNode(evioDOMNode::createEvioDOMNode(tag=5, num=10,
+myIntVec));
+
+If cn1 is a container node somewhere in the tree hierarchy you can add a
+new node ln2 to cn1 (here ln2 is a leaf node containing ints) via:
+
+evioDOMNodeP ln2 = evioDOMNOde::createEvioDOMNode(tag=2, num=8,
+myIntVec);
+
+cn1->addNode(ln2);
+
+or:
+
+\*cn1 << ln2;
+
+To append more data to ln2:
+
+vector<int> myIntVec2(100,2)
+
+ln2->append(myIntVec2);
+
+or:
+
+\*ln2 << myIntVec2;
+
+To replace the data in ln2 with new data:
+
+ln2->replace(myIntVec2);
+
+To move ln2 from cn1 to another container node cn3:
+
+ln2->move(cn3);
+
+To cut cn1 out of the tree:
+
+cn1->cut(); // just cut it out
+
+or:
+
+cn1->cutAndDelete(); // also delete cn1 and all of its contents
+
+Example programs
+----------------
+
+A number of annotated example programs exist in the examples directory
+in the EVIO distribution. These demonstrate how to read and write files;
+query and manipulate event trees; create, manipulate, modify, and delete
+banks; etc.
+
+Advanced topics
+---------------
+
+The following examples cover some more advanced features and topics that
+can be ignored by most users:
+
+evioDOMNodeListP is a smart pointer (auto_ptr<>) that is used to ensure
+the memory used by the lists returned by getNodeList() is released when
+the lists go out of scope. While in most respects smart pointers act
+like normal pointers, they have some unusual assignment semantics. If
+one smart pointer is set equal to another, ownership of the contents is
+transferred, and the original loses ownership, e.g:
+
+evioDOMNodeListP p1(...); // p1 points to something
+
+evioDOMNodeLIstP p2(); // p2 empty
+
+p2=p1; // p2 points to something, p1 is now empty!!!
+
+Further, smart pointers must not be stored in STL containers. See the
+STL documentation for more information on smart pointers and auto_ptr.
+
+Note that if a standard shared pointer ever appears auto_ptr<> will be
+replaced. We decided not to use the Boost shared pointer as Boost is not
+part of the standard Linux distribution. We are considering
+incorporating a third-party shared pointer into the EVIO library if
+nothing else appears. Contact EJW for more information.
+
+Section
+
+8
+
+Java Evio (Jevio)
+=================
+
+The current Java EVIO package (org.jlab.coda.jevio) was originally
+written by Dr. Dave Heddle of CNU and was graciously given to the JLAB
+DAQ group for maintenance and continued development. Since it was
+created independently of the C++ implementation, it differs in its
+interface but contains much of the same functionality.
+
+.. _building-1:
+
+Building
+--------
+
+The java evio uses **ant** to compile. To get a listing of all the
+options available to the ant command, run **ant help** in the evio top
+level directory to get this output:
+
+| help:
+|     [echo] Usage: ant [ant options] <target1> [target2 \| target3 \|
+  ...]
+|     [echo]        targets:
+|     [echo]        help       - print out usage
+|     [echo]        env        - print out build file variables' values
+|     [echo]        compile    - compile java files
+|     [echo]        clean      - remove class files
+|     [echo]        cleanall   - remove all generated files
+|     [echo]        jar        - compile and create jar file
+| [echo] install - create jar file and install into 'prefix'
+
+[echo] if given on command line by -Dprefix=dir',
+
+[echo] else install into CODA if defined
+
+[echo] uninstall - remove jar file previously installed into 'prefix'
+
+[echo] if given on command line by -Dprefix=dir',
+
+| [echo] else installed into CODA if defined
+|     [echo]        all        - clean, compile and create jar file
+|     [echo]        javadoc    - create javadoc documentation
+|     [echo]        developdoc - create javadoc documentation for
+  developer
+| [echo] undoc - remove all javadoc documentation
+
+    [echo]        prepare    - create necessary directories
+
+Although this is fairly self-explanatory, executing **ant** is the same
+as **ant compile**. That will compile all the java. All compiled code is
+placed in the generated **./build** directory. If the user wants a jar
+file, execute **ant jar** to place the resulting file in the
+**./build/lib** directory.
+
+.. _documentation-2:
+
+Documentation
+-------------
+
+In addition to the documentation in this file, there is javadoc which
+can be generated from the full source distribution of evio. While not as
+detailed in explanation as this chapter, it will be much more complete
+with each publicly accessible class and method being listed. Javadoc can
+be generated by going into the top level evio directory and executing
+the command **ant javadoc**. If more detail is desired, classes and
+methods which are not public can be seen by creating the javadoc by
+executing the command **ant developdoc**. This is more suitable for a
+developer. The resulting javadoc is placed in the **./doc/javadoc**
+directory. Look in that directory at the file named **index.html** in a
+browser.
+
+.. _basics-2:
+
+Basics
+------
+
+There are some things necessary to know before reading and writing evio
+format files. However, this is **not** intended to be a full evio
+tutorial. First, let's look at the classes which form the basis of evio
+data and do some basic manipulations.
+
+Evio's container structures are banks, segments, and tagsegments. These
+entities are implemented with 4 different classes. At the very top level
+is the **EvioEvent** which is just a special case (subclass) of an
+**EvioBank** with dictionary and other extra data included. Banks, of
+course, have 2 words (8 bytes) of header followed by data. The
+**EvioSegment** and **EvioTagSegment** classes represent segments and
+tagsegments respectively, each have 1 word of header, no num value and
+differing amounts of tag and type data.
+
+To get information contained in a header, call getHeader() with event,
+bank, seg, or tagseg objects. Using the returned **BaseStructureHeader**
+object, there are methods available to get & set values for content
+type, tag, num, length, and padding.
+
+Events of any complexity (containing container structures) are created
+using the **EventBuilder** class. The writing of events is done through
+**EventWriter** objects, and the reading of events through
+**EvioReader**. There is also a graphical viewer of events available in
+**EventTreeFrame**.
+
+In previous versions of evio, only files could be written and read.
+Currently, however, evio data can be handled by buffers as well.
+
+The next 2 sections have examples which work together. The reading
+example will read what the writing example produces.
+
+Event Creating
+--------------
+
+There are 2 ways to create an evio event. Start with the simplest first
+-- use the **EventBuilder** class to do it. This takes care of all the
+little details and requires only the initial calling of the constructor
+and subsequent calling of the addChild() method to create an evio event.
+The builder will check all arguments, the byte order of added data, type
+mismatches between parent & child, and will set all evio header lengths
+automatically. The following code uses the EventBuilder to create an
+event (bank) of banks with 1 child which is a bank of segments. The bank
+of segments also has 1 child which is a segment of shorts.
+
+// Use the EventBuilder class to create event of banks, tag=1, num=1
+
+| EventBuilder builder = new EventBuilder(1, DataType.BANK, 1);
+| EvioEvent event = builder.getEvent();
+| // bank of segments
+| EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
+| builder.addChild(event, bankSegs);
+| // segment of 3 shorts
+| EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
+| short[] sdata = new short[] {1,2,3};
+
+| segShorts.setShortData(sdata);
+| builder.addChild(bankSegs, segShorts);
+
+// To remove a structure
+
+builder.remove(segShorts);
+
+There are methods to create and add banks, segments and tagsegments as
+containers as well as methods to add all the various data types like
+chars, shorts, ints, longs, doubles, floats and their arrays. The only
+tricky thing is handling Composite format data. Look at `Appendix
+B <#b.3-composite-data-type>`__ to get more information on handling this
+format.
+
+The second means is to call the insert() method of the event or its
+children. This method requires the event to call setAllHeaderLengths()
+at the end to make sure all the evio headers in the event have the
+proper lengths set. The following code does exactly what the previous
+example does but does not check for the issues mentioned above:
+
+| // Use event constructor and insert() calls
+| EvioEvent event = new EvioEvent(1, DataType.BANK, 1);
+| // bank of segments
+| EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
+| event.insert(bankSegs);
+| // segment of 3 shorts
+| EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
+| short[] sdata = new short[] {1,2,3};
+
+| segShorts.setShortData(sdata);
+| bankSegs.insert(segShorts);
+
+// To remove a structure
+
+bankSegs.remove(segShorts);
+
+// Make sure all evio headers have correct lengths
+
+event.setAllHeaderLengths();
+
+.. _writing-1:
+
+Writing
+-------
+
+.. _writing-to-file-or-buffer-1:
+
+Writing to file or buffer
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Start writing an evio format file or buffer with an **EventWriter**
+object. Simply pick among the various constructors for your medium of
+choice. There are optional parameters including allowing the user to
+chose whether to append to or overwrite any previously existing data.
+The user can also set the block size and number of events per block as
+well as specify a dictionary and data byte order among other things.
+Refer to the javadoc for all of the possibilities.
+
+Below is some example code with comments showing how the writing is
+done. It shows how to write to both files and buffers as well as how to
+define a dictionary and how to create evio data. If the reader is
+unfamiliar with Java's **ByteBuffer** class, take some time to read up
+on it when using buffers. It will allow you to do many things.
+
+| // For WRITING a file or buffer
+| public static void main(String args[]) {
+|    // Define xml dictionary
+|    String xmlDictionary =
+|       "<xmlDict>\n" +
+|       "  <bank name=\"bank of banks\"          tag=\"1\"  
+  num=\"1\">\n" +
+|       "     <bank name=\"bank of segments\"    tag=\"2\"  
+  num=\"2\">\n" +
+|       "       <leaf name=\"segment of shorts\" tag=\"3\"   />\n" +
+|       "     </bank>\n" +
+|       "     <bank name=\"bank of banks\"       tag=\"4\"  
+  num=\"4\">\n" +
+|       "       <leaf name=\"bank of chars\"     tag=\"5\"  
+  num=\"5\"/>\n" +
+|       "     </bank>\n" +
+|       "  </bank>\n" +
+|       "  <dictEntry name=\"last bank\"        tag=\"33\" 
+  num=\"66\"/>\n" +
+|       "</xmlDict>";
+
+| // Data to write
+| byte[]  byteData1 = new byte[]  {1,2,3,4,5};
+| int[]   intData1  = new int[]   {4,5,6};
+| int[]   intData2  = new int[]   {7,8,9};
+| short[] shortData = new short[] {11,22,33};
+
+// Do we append or overwrite?
+
+boolean append = false;
+
+// Do we write to file or buffer?
+
+boolean toFile = true;
+
+| ByteBuffer myBuf = null;
+| try {
+
+EventWriter writer;
+
+if (toFile) { 
+
+          // Create an event writer to write out the test events to file
+
+| // along with a dictionary
+| String fileName  = "./myData";
+|     File file = new File(fileName);
+
+| writer = new EventWriter(file, xmlDictionary, append);
+| }
+
+| else {
+|           // Or create an event writer to write to buffer
+|           myBuf = ByteBuffer.allocate(10000);
+|           myBuf.order(ByteOrder.LITTLE_ENDIAN);
+|           writer = new EventWriter(myBuf, xmlDictionary, append);
+| }
+
+|        // event - bank of banks
+|        EventBuilder builder = new EventBuilder(1, DataType.BANK, 1);
+|        EvioEvent event = builder.getEvent();
+|        // bank of segments
+|        EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
+|        builder.addChild(event, bankSegs);
+|        // segment of 3 shorts
+|        EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
+|        segShorts.setShortData(shortData);
+|        builder.addChild(bankSegs, segShorts);
+|        // another bank of banks
+|        EvioBank bankBanks = new EvioBank(4, DataType.BANK, 4);
+|        builder.addChild(event, bankBanks);
+|        // bank of chars
+|        EvioBank charBank = new EvioBank(5, DataType.CHAR8, 5);
+|        charBank.setByteData(byteData1);
+|        builder.addChild(bankBanks, charBank);
+|        // Write event to file
+|        writer.writeEvent(event);
+
+// How much room do I have left in the buffer now?
+
+if (!toFile) {
+
+System.out.println("I have " + myBuf.remaining() + " bytes left");
+
+| }
+|        // event - bank of ints
+|        EvioEvent lastEvent = new EvioEvent(33, DataType.INT32, 66);
+
+// Tell jevio what the data's endianness is.
+
+// This will not swap anything now but will
+
+// enable it to be written out properly.
+
+// NOT necessary to call if data is big endian.
+
+| // Call this BEFORE dealing with data!
+|        lastEvent.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+
+| // Overwrite all previous data with "setIntData"
+|        lastEvent.setIntData(intData1);
+
+| // Append data to end with "appendIntData"
+|        lastEvent.appendIntData(intData2);
+
+|        // Write last event to file or buffer
+|        writer.writeEvent(lastEvent);
+|        // All done writing
+|        writer.close();
+|    }
+|    catch (IOException e) {
+|        e.printStackTrace();
+|    }
+|    catch (EvioException e) {
+|        e.printStackTrace();
+|    }
+
+}
+
+.. _naming-files-2:
+
+Naming files
+~~~~~~~~~~~~
+
+The filename passed to any of the constructors may contain characters of
+the form **$(env)** where “env” is the name of an environmental
+variable. When the file is created, all such constructs will be
+substituted with the actual environmental variable’s value (or nothing
+if it doesn’t exist).
+
+Similarly, the filename may contain constructs of the form **%s** which
+will be substituted with the actual run type’s value (if passed in as a
+parameter to the constructor).
+
+The filename may also contain the run number value (if passed in as a
+parameter to the constructor) and the split number (if splitting). This
+is done by allowing up to 2, C-style integer format specifiers (such as
+%03d, or %x) in the filename. If more than 2 are found, an exception
+will be thrown. If no "0" precedes any integer between the "%" and the
+"d" or "x" of the format specifier, it will be added automatically in
+order to avoid spaces in the generated filename. The first occurrence
+will be substituted with the given run number value. If the file is
+being split, the second will be substituted with the split number. If 2
+specifiers exist and the file is not being split, no substitutions are
+made.
+
+.. _splitting-files-3:
+
+Splitting files
+~~~~~~~~~~~~~~~
+
+When writing significant amounts of data to a single file, that file can
+get very large – too large. Historically, run control was able to split
+the data into multiple files with an automatic file naming system. For
+this version of evio, the ability to split files is built in as is the
+naming system. Simply pick the constructor designed for file splitting
+with parameters allowing the user to choose the number of bytes at which
+to start writing to a new file and the name of the files to use. The
+constructor of both the EventWriter and EvioCompactEventWriter (more on
+this in the next chapter) classes have input parameters for a base
+filename, run type, run number, and split size.
+
+A description of the general file naming system is in the section above,
+but when splitting into multiple files (split size > 0), the user should
+also be aware that the generated files names are distinguished by a
+split number. If the base filename contains C-style int format
+specifiers, then the first occurrence will be substituted with the given
+run number value. The second will be substituted with the split number.
+If no specifier for the split number exists, it is tacked onto the end
+of the file name.
+
+Below is example code with comments showing how the file naming and
+splitting is done.
+
+int split = 100000000; // split at 100MB
+
+int runNumber = 1;
+
+String runType = “myExperiment”;
+
+String directory = “/myDirectory”;
+
+String baseFilename = “my$(BASE_NAME)_%s_%x_%03d.ext”;
+
+| EventWriter writer = new EventWriter(baseFilename, directory,
+|                        runType, runNumber, split,
+
+64000, 1000, 300000,
+
+byteOrder, dictionary,
+
+bitInfo, overWriteOK, append);
+
+The baseFilename string will have the environmental variable, BASE_NAME,
+substituted in the obvious location along with the runType substituted
+for the %s, the runNumber substituted for the %x (hex format), and the
+split number substituted for the %03d. If BASE_NAME has the value
+“File”, then the first 3 split files will have the names:
+
+myFile_myExperiment_1_001.ext
+
+myFile_myExperiment_1_002.ext
+
+myFile_myExperiment_1_003.ext
+
+.. _reading-1:
+
+Reading
+-------
+
+Start reading an evio format file or buffer with an **EvioReader**
+object. Simply pick among the various constructors for your medium of
+choice. There is an optional parameter allowing the user to make sure
+the incoming block numbers are sequential. (Find out about block numbers
+by reading through Appendix A which describes the evio file format).
+There is also an optional parameter for choosing between sequential and
+random-access methods for reading a file.
+
+Looking "under the hood" for a moment, the preferred, random-access (and
+default) method of reading a file is to use a memory-mapped ByteBuffer
+to be able to address each byte. It is much faster than using streams to
+read a file sequentially. However, using a memory-mapped file is not
+always possible. There is a fundamental limitation built into the Java
+JVM which only allows indexes of arrays to be ints (and not longs).
+Since ints are signed 32 bit entities, and since a ByteBuffer object is
+backed by an array in which each byte is addressable, the result is that
+only files less than or equal to 2\ :sup:`31` - 1 (2.147G) bytes in size
+can be mapped. Files larger than that are read sequentially using
+streams. This version of jevio is the first to be able to read and write
+large files. The option exists to also read smaller files in a
+sequential manner but that would only slow things down. One possibly
+confusing part of the jevio interface is that methods that are
+random-access in nature are implemented using sequential reads for large
+files. Thus, jevio allows for a random-access style of approach even
+when the underlying reading mechanism is sequential. To implement this,
+all files and buffers are initially scanned to find the positions of
+each event. Note that this may take significant time for large files.
+
+On this matter of random-access vs. sequentially oriented method calls,
+these are the 2 independent means of retrieving events from a
+file/buffer. The following are the random-access methods of the
+EvioReader class:
+
+getEvent(int i)
+
+parseEvent(int i)
+
+gotoEventNumber(int i)
+
+and the sequential methods:
+
+nextEvent()
+
+parseNextEvent()
+
+rewind()
+
+When mixing calls of these two categories in one application, there is
+no need to worry about one type interfering with the other. For example,
+if an application does a series of parseNextEvent() calls to look at a
+file, then doing a parseEvent(20) method call in the middle of the
+series will **not** change the sequence of the events returned by
+parseNextEvent().
+
+Now for a word on performance. As previously mentioned, do not choose to
+read sequentially when reading files < 2.1 GB in size. When reading
+larger files, it is usually faster to use the sequential methods. The
+reason for that is they read in whole blocks (not individual events) at
+a time. If the file was written with block sizes substantially greater
+in size than a single event (the default when using small events), then
+it will be faster. The random-access methods will, on the other hand,
+hop to the event of interest and only read in that single event.
+
+It's easier to give an example of code used to read a file than to
+explain things abstractly. Various lines show how to get and use a
+dictionary, read events with the sequential or random-access methods,
+get the total number of events, and get & print data. The code below
+uses many of the available evio features for reading and will read the
+file or buffer created in the previous section.
+
+| // For READING a file or buffer
+| public static void main(String args[]) {
+| String fileName  = "/home/myAccount/myData";
+| File fileIn = new File(fileName);
+
+ByteBuffer myBuf = null;
+
+// Do we read from file or buffer?
+
+boolean useFile = true;
+
+|    try {
+|     EvioReader evioReader;
+|        if (useFile) {
+|            evioReader = new EvioReader(fileName);
+|        }
+|        else {
+|            myBuf.flip();
+|            evioReader = new EvioReader(myBuf);
+|        }
+|        // Get any existing dictionary
+|        String xmlDictString = evioReader.getDictionaryXML();
+|        EvioXMLDictionary dictionary = null;
+|        if (xmlDictString == null) {
+|            System.out.println("Ain't got no dictionary!");
+|        }
+|        else {
+|            // Create dictionary object from xml string
+|            dictionary = new EvioXMLDictionary(xmlDictString);
+|            System.out.println("Dictionary:\n" +
+  dictionary.toString());
+|        }
+|        // How many events in the file?
+|        int evCount = evioReader.getEventCount();
+|        System.out.println("Read file, got " + evCount + " events:\n");
+|        // Use "random access" capability to look at last event (starts
+  at 1)
+|        EvioEvent ev = evioReader.parseEvent(evCount);
+|        System.out.println("Last event = " + ev.toString());
+|        // Print out any data in the last event.
+|        // In the writing example, the data for this event was set to
+|        // be little endian so we need to read it in that way too.
+|        ev.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+|        int[] intData = ev.getIntData();
+|        if (intData != null) {
+|            for (int i=0; i < intData.length; i++) {
+|                System.out.println("intData[" + i + "] = " +
+  intData[i]);
+|            }
+|        }
+|        // Use the dictionary
+|        if (dictionary != null) {
+|            String eventName = dictionary.getName(ev);
+|            System.out.println("Name of last event = " + eventName);
+|        }
+|        // Use sequential access to events
+|        while ( (ev = evioReader.parseNextEvent()) != null) {
+|            System.out.println("Event = " + ev.toString());
+|        }
+|        // Go back to the beginning of file/buffer for sequential
+  methods
+|        evioReader.rewind();
+
+|    }
+|    catch (Exception e) { e.printStackTrace(); }
+| }
+
+.. _searching-1:
+
+Searching
+---------
+
+Most users are also interested in searching an event, a bank, a segment,
+or a tagsegment for various things. To this end, jevio has a couple of
+built in searches for ease of use. See the javadoc for the
+**StructureFinder** class for details. Custom searches can be done by
+creating filters conforming to the **IEvioFilter** interface. Simply
+define an **accept()** method to determine which structures to add to a
+returned list. Following is an example of code that uses both the built
+in search for banks with particular tag/num values and also a simple,
+user-defined search for finding **EvioSegment** type structures with odd
+numbered tags.
+
+// Take some event (not defined here)
+
+EvioEvent event;
+
+| // Search it for banks (not segs, tagsegs) with particular tag & num
+  values
+| int tag=1, num=1;
+| List<BaseStructure> list = StructureFinder.getMatchingBanks(
+|                               event, tag, num);
+| if (list != null) {
+
+| for (BaseStructure bs : list) {
+| System.out.println("Evio structure named \\"" + dictionary.getName(bs)
+  +
+
+| "\" has tag=1 & num=1");
+| }
+
+| }
+| // ------------------------------------------------------------------
+| // Search for banks/segs/tagsegs with a custom search criteria
+| // ------------------------------------------------------------------
+| // Define a filter to select Segment structures with odd numbered
+  tags.
+| class myEvioFilter implements IEvioFilter {
+| public boolean accept(StructureType type, IEvioStructure struct){
+|     return (type == StructureType.SEGMENT &&
+|                (struct.getHeader().getTag() % 2 == 1));
+|    }
+| };
+
+| // Create the defined filter
+| myEvioFilter filter = new myEvioFilter();
+
+| // Use the filter to search "event"
+| list = StructureFinder.getMatchingStructures(event, filter);
+| if (list != null) {
+| for (BaseStructure bs : list) {
+|    System.out.println("Evio structure named " +
+
+| dictionary.getName(bs) + " is Segment with odd tag");
+|    }
+| }
+
+Note that any bank, segment, or tagsegment structure can call
+getMatchingStructures() directly instead of through the StructureFinder
+class.
+
+.. _parsing-1:
+
+Parsing
+-------
+
+Users have some options while parsing events. Listeners and filters may
+be added to an EvioReader to be used while events are being parsed. The
+previous section has a good example of how to create a filter. One such
+filter can be set for a reader object allowing the user to weed out
+events of no interest.
+
+Jevio also has an **IEvioListener** interface that can be used to define
+multiple listeners that operate during parsing in a SAX-like manner. For
+each listener, simply define 3 methods to be run -- before an event is
+parsed, just after a structure in the event (bank, segment, or
+tagsegment) has been parsed, and after the entire event has been parsed.
+Following is an example of code that uses both a listener and a filter.
+
+// Read some evio format file
+
+EvioReader evioReader = new EvioReader(fileName);
+
+| // Get the parser which is contained in the reader
+| EventParser parser = evioReader.getParser();
+
+| // Define a listener to be used with an event parser
+| IEvioListener listener = new IEvioListener() {
+
+// Run this method after each bank/seg/tagseg has been parsed
+
+public void gotStructure(BaseStructure topStructure,
+
+| IEvioStructure structure) {
+|     System.out.println("Parsed structure of type " +
+
+| structure.getStructureType());
+|    }
+| // Run this method before the event is parsed
+
+| public void startEventParse(BaseStructure structure) {
+|     System.out.println("Starting event parse");
+|    }
+
+| // Run this method after the event has been parsed
+| public void endEventParse(BaseStructure structure) {
+| System.out.println("Ended event parse");
+| }
+| };
+
+| // Add the listener to the parser
+| parser.addEvioListener(listener);
+
+| // Define a filter to select everything (not much of a filter!)
+| class myEvioFilter implements IEvioFilter {
+| public boolean accept(StructureType type, IEvioStructure struct){
+|     return true;
+|    }
+| };
+
+// Create the above-defined filter
+
+myEvioFilter filter = new myEvioFilter();
+
+// Add the filter to the parser
+
+parser.setEvioFilter(filter);
+
+| // Now parse some event
+| EvioEvent ev = evioReader.parseEvent(1);
+
+.. _transforming-1:
+
+Transforming
+------------
+
+Occasionally there can arise problems with the "num" parameter defined
+by a EvioBank header but not the header of the EvioSegment or
+EvioTagsegment. The **StructureTransformer** class can be used to
+transform objects between these 3 classes while taking care of the
+troublesome num. For example:
+
+// Take an existing EvioSegment
+
+EvioSegment seg;
+
+int num = 10;
+
+// Turn that segment into a bank
+
+EvioBank bank = StructureTransformer.transform(seg, num);
+
+.. _dictionaries-1:
+
+Dictionaries
+------------
+
+This section describes how dictionaries can be used (refer to Appendix C
+for the format). In general it is easiest to have one global dictionary
+defined when manipulating evio data. For jevio this can be set in the
+singleton **NameProvider** class/object. To set this global dictionary
+simply do something like:
+
+| // Define xml dictionary String
+| String xmlDictString =
+|       "<xmlDict>\n" +
+
+|       "  <dictEntry name=\"first bank\"  tag=\"1\"  num=\"1\"/>\n" +
+|       "  <dictEntry name=\"second bank\"  tag=\"2\"  num=\"2\"/>\n" +
+|       "</xmlDict>";
+
+// Create a dictionary object from xml String
+
+EvioXmlDictionary dict = new EvioXmlDictionary(xmlDictString);
+
+// Make it the global dictionary
+
+NameProvider.setProvider(dict);
+
+Once the global dictionary is set, the question is, "how is it used"?
+The section in this chapter for "Searching" uses the **StructureFinder**
+class and that is the case here as well. This class uses the global
+dictionary if defined, but another dictionary may be specified as an
+argument to its methods. There three methods in this class that use the
+dictionary as seen below:
+
+// Take some event (not defined here)
+
+EvioEvent event;
+
+// Names to look for
+
+String name = "dictionaryEntry";
+
+String childName = "childEntry";
+
+String parentName = "parentEntry";
+
+| // Search for structures (banks, segs, tagsegs) with a particular name
+| List<BaseStructure> list1 = StructureFinder.getMatchingStructures(
+|                               event, name, dict);
+
+| // Search for structures whose parent has a particular name
+| List<BaseStructure> list2 = StructureFinder.getMatchingParent(
+|                               event, parentName, dict);
+
+| // Search for structures who have a child with a particular name
+| List<BaseStructure> list3 = StructureFinder.getMatchingChild(
+|                               event, childName, dict);
+
+// Print out the list of structures
+
+if (list2 != null) {
+
+| for (BaseStructure bs : list2) {
+| System.out.println("Structure named \\"" + dictionary.getName(bs) +
+
+| "\" has a parent named " + parentName);
+| }
+
+}
+
+In order to implement other types of searches, it would be relatively
+simple to copy the code for any of the three methods and modify it to
+suit.
+
+When a file or buffer is read, it may have a dictionary in xml format
+associated with it. That dictionary is accessible through the
+**EvioReader.getDictionaryXML()** method. For convenience, the
+**EvioEvent** class has a place to store and retrieve an xml dictionary
+string by using its **setDictionaryXML()**, **getDictionaryXML()**, and
+**hasDictionaryXML()** methods.
+
+The dictionary can also be used directly as an object of the
+**EvioXmlDictionary** class. Once an xml string is parsed into such an
+object (by means if its constructor), there are methods to retrieve the
+parsed information. These methods can obtain tag/num pairs associated
+with a name and vice versa. They can also obtain data types, data
+formats, and descriptive comments associated with either a name or
+tag/num pair.
+
+| // Define xml dictionary String
+| String xmlDictString =
+|  "<xmlDict>\n" +
+
+ " <dictEntry name=\"me\" tag=\"10\" num=\"0\" type=\"composite\" />\n"
++
+
+" <description format=\"2iN(FD)\" >\n" +
+
+" Any comments can go right here!" +
+
+| " </description>\n" +
+|  "  </dictEntry>\n" +
+|  "</xmlDict>";
+
+// Create a dictionary object from xml String
+
+EvioXmlDictionary dict = new EvioXmlDictionary(xmlDictString);
+
+// Retrieve & print info from dictionary
+
+| System.out.println("Getting stuff for name = \\"me\":");
+| System.out.println("    tag         = " + dict.getTag("me"));
+| System.out.println("    num         = " + dict.getNum("me"));
+| System.out.println("    type        = " + dict.getType("me"));
+| System.out.println("    format      = " + dict.getFormat("me"));
+| System.out.println("    description = " + dict.getDescription("me"));
+| System.out.println("Getting stuff for tag = 10, num = 0:");
+| System.out.println("    type        = " + dict.getType(10,0));
+| System.out.println("    name        = " + dict.getName(10,0));
+| System.out.println("    format      = " + dict.getFormat(10,0));
+| System.out.println("    description = " + dict.getDescription(10,0));
+
+There are also a couple of ways in which to iterate through the entries
+of a dictionary to see what it contains using the **dict.getMap()**
+method.
+
+Method 1:
+
+Map<String, EvioDictionaryEntry> map = dict.getMap();
+
+Set<String> keys = map.keySet();
+
+for (String key : keys) {
+
+System.out.println("key = " + key +
+
+", tag = " + dict.getTag(key) +
+
+", num = " + dict.getTag(key));
+
+}
+
+Method 2:
+
+int i=0;
+
+Map<String, EvioDictionaryEntry> map = dict.getMap();
+
+Set<Map.Entry<String, EvioDictionaryEntry>> set = map.entrySet();
+
+for (Map.Entry<String, EvioDictionaryEntry> entry : set) {
+
+String entryName = entry.getKey();
+
+EvioDictionaryEntry entryData = entry.getValue();
+
+System.out.println("entry " + (++i) + ": name = " + entryName +
+
+", tag = " + entryData.getTag() +
+
+", num = " + entryData.getTag());
+
+}
+
+.. _first-event-2:
+
+First Event
+-----------
+
+If the user wants the same (first) event in each split file, then simply
+select the **EventWriter** constructor that has an argument for the
+first event (for either file or buffer writing). An alternative method
+is to call the EventWriter’s:
+
+**setFirstEvent ( EvioBank firstEvent );**
+
+method. If calling the method, make sure it’s called before any other
+events are written in order to ensure that it is written to each of the
+split files.
+
+.. _xml-format-events-2:
+
+XML format events
+-----------------
+
+If the user wants to view an event in xml format, that is easily
+possible:
+
+EvioEvent ev;
+
+boolean asHex = true;
+
+String xml1 = ev.toXML();
+
+String xml2 = ev.toXML(asHex);
+
+It’s also possible to go in the other direction and parse a file of xml
+events into EvioEvent objects. In this case, if there is more than one
+event, the top-level xml element must be:
+
+<evio-data>
+
+If there is no dictionary, the events must be indicated by the xml
+element:
+
+<event>
+
+otherwise it can be any valid xml element whose value exists in the
+dictionary. Elements whose tag/num/type info is not in the xml may have
+it supplied by a dictionary entry.
+
+String xml;
+
+List<EvioEvent> list;
+
+list = Utilities.toEvents(xml);
+
+int maxEvents = 20, skip = 1;
+
+EvioXmlDictionary dictionary;
+
+boolean debug = false;
+
+list = Utilities.toEvents(xml, maxEvents, skip, dictionary, debug);
+
+Section
+
+9
+
+.. _compact-java-evio-1:
+
+Compact Java Evio
+=================
+
+When communicating EvioEvents (java objects) over the network, the user
+must serialize such events and all its contained objects into an array
+or buffer of bytes when sending and must deserialize the same bytes into
+objects on the receiving end. This can lead to a serious performance
+penalty. To avoid having to serialize and deserialize continually, a new
+API was developed to allow the handling of evio data in byte buffer
+form. For lack of a better term, **compact** was the word chosen to
+describe it since all evio data handled in this API are contained in
+ByteBuffer objects and never expanded into EvioEvent objects.
+
+.. _basics-3:
+
+Basics
+------
+
+There are 4 classes comprising all the functionality:
+**EvioCompactReader**, **EvioCompactStructureHandler**,
+**CompactEventBuilder**, and **EvioNode**. Starting with the simplest
+(and given a buffer of evio data) the EvioNode class stores information
+about a single evio structure (bank, segment, or tagsegment) in that
+buffer, but does not contain information about its internal structure.
+In other words, there is no expansion into a tree and its necessarily
+accompanying deserialization. It stores all the header information along
+with locations of the header and data in the buffer itself.
+
+The EvioCompactReader (compact reader for short) plays a similar role as
+the EvioReader in that it parses a buffer or file (not bigger than 2.1
+GB) in evio format. Its constructor creates an EvioNode object for each
+event and stores it in a list. Methods allow searching an event for
+structures of a given tag & num pair or dictionary entry. Once an
+EvioNode object is obtained from a search, its structure's data can be
+retrieved. A user-created evio structure can be added as the last child
+of any event by calling **EvioCompactReader.addStructure()**. Banks and
+entire events can be removed by calling
+**EvioCompactReader.removeEvent()** or **removeStructure()**. Perhaps
+the most powerful feature of the compact reader is that the user can
+obtain a ByteBuffer representing just a single structure - an event,
+bank, segment, or tagsegment (no block headers / no full evio file
+format). This allows for the extraction of bytes representing a single
+structure to be sent over the network. In this way it almost acts as a
+writer as well as being a reader.
+
+Working hand-in-hand with the compact reader, the
+EvioCompactStructureHandler (structure handler for short) can parse the
+bytes representing a single structure previously produced by the compact
+reader. Actually any EvioEvent, EvioBank, EvioSegment, or EvioTagSegment
+object can produce a byte representation of itself by calling its
+write() method which the structure handler can parse. The structure
+handler has methods to search for structures of a given tag & num pair
+or dictionary entry. Once an EvioNode object is obtained from a search,
+its structure's data can be retrieved. User-created evio structures can
+be added to the end of any structure (which contains structures, cannot
+add bank to bank of ints for example). As in the compact reader, the
+user can obtain a ByteBuffer representing just a single structure.
+
+There is no special class for writing compact events, just use
+EventWriter which can write events that are in ByteBuffer form. A simple
+measurement shows that using compact classes to search a file for
+structures of a given tag/num pair is about 9x faster than using
+EvioReader.
+
+Instead of using the **EventBuilder** class to create events, one can
+use the **CompactEventBuilder** class to do it. The advantage is that
+the CompactEventBuilder minimizes the creation of objects and constructs
+an event directly in a ByteBuffer and takes care of all the little
+details. Because the event is created in a single buffer, it must be
+done sequentially creating each evio element in its proper order.
+
+There are methods to create and add banks, segments and tagsegments as
+containers as well as methods to add all the various data types like
+chars, shorts, ints, longs, doubles, floats. One can even add EvioNode
+objects. The only tricky thing is handling Composite format data. Look
+at `Appendix B <#b.3-composite-data-type>`__ to get more information on
+handling this format.
+
+.. _example-1-1:
+
+Example 1
+---------
+
+// ---------------------------------------------------
+
+// Use CompactEventBuilder to create event
+
+| // ---------------------------------------------------
+| public static void main(String args[]) {
+| try {
+
+int tag=1, num=1;
+
+// Create buffer to store event in
+
+ByteBuffer buf = ByteBuffer.allocate(1024);
+
+// Use the CompactEventBuilder to create event
+
+   CompactEventBuilder builder = new CompactEventBuilder(buf);
+
+   | // create bank of banks
+   | builder.openBank(tag, num, DataType.BANK);
+   | // create bank of segments
+   | builder.openBank(tag+1, DataType.SEGMENT);
+   | // create segment of 3 shorts
+   | builder.openSegment(tag+2, DataType.SHORT16);
+   | short[] sdata = new short[] {1,2,3};
+
+   builder.addShortData(sdata);
+
+// Finish things up
+
+builder.closeAll();
+
+// Get buffer in ready-to-read form
+
+buf = builder.getBuffer();
+
+// -----------------------------------------------
+
+// Write event to file
+
+// -----------------------------------------------
+
+File file = new File(“/tmp/myFile”);
+
+| EventWriter writer = new EventWriter(file);
+| writer.writeEvent(buf);
+
+writer.close();
+
+// -----------------------------------------------
+
+// Read event from file and printout
+
+// -----------------------------------------------
+
+EvioCompactReader reader = new EvioCompactReader(“/tmp/myFile”);
+
+EvioNode node = reader.getScannedEvent(1);
+
+String xml = Utilities.toXML(node);
+
+System.out.println(“XML:\n” + xml);
+
+}
+
+| catch (EvioException e) {
+| e.printStackTrace();
+| }
+
+}
+
+.. _example-2-1:
+
+Example 2
+---------
+
+// ---------------------------------------------------
+
+// Read file, search for tag/num, print data, add bank
+
+| // ---------------------------------------------------
+| public static void main(String args[]) {
+| try {
+| // Read file /tmp/myFile with compact reader
+
+EvioCompactReader reader = new EvioCompactReader("/tmp/myFile");
+
+// -----------------------------------------------
+
+// Search for structure and print its data
+
+// -----------------------------------------------
+
+| // Search first event for tag = 3, num = 4
+| List<EvioNode> returnList = reader.searchEvent(1, 3, 4);
+| if (returnList.size() < 1) {
+| throw new Exception("Found nothing in search");
+| }
+
+// First structure found in event 1 with tag = 3, num = 4
+
+EvioNode node = returnList.get(0);
+
+| // Get data in structure
+| ByteBuffer buf = reader.getData(node);
+
+| // Type of data in structure
+| DataType dType = node.getDataTypeObj();
+| // Print data in structure
+| if (dType == DataType.DOUBLE64) {
+| System.out.println("Double data =");
+| DoubleBuffer dbuf = buf.asDoubleBuffer();
+| for (int i=0; i < dbuf.limit(); i++) {
+| System.out.println(i + "   " + dbuf.get(i));
+| }
+| }
+
+// -----------------------------------------------
+
+// Add user bank to first event
+
+// -----------------------------------------------
+
+// Create a bank to add to end of event, tag = 5, num = 6
+
+| EvioBank bank = new EvioBank(5, DataType.INT32, 6);
+| int[] intData = new int[] {1,2,3};
+| try {
+| bank.appendIntData(intData);
+| }
+| catch (EvioException e) {}
+| ByteBuffer bb = ByteBuffer.allocate(4*12);
+| bank.write(bb);
+| bb.flip();
+
+| // Add bank to event 1
+| reader.addStructure(1, bb);
+| }
+| catch (EvioException e) {
+| e.printStackTrace();
+| }
+| }
+
+.. _example-3-1:
+
+Example 3
+---------
+
+// ---------------------------------------------------
+
+// Read file, remove first event.
+
+// Get new first event (previously 2\ :sup:`nd`), remove structure,
+
+// write to file
+
+| // ---------------------------------------------------
+| public static void main(String args[]) {
+| try {
+| // Read file /tmp/myFile with compact reader
+
+EvioCompactReader reader = new EvioCompactReader("/tmp/myFile");
+
+// Remove first event
+
+if (reader.getEventCount() < 2) {
+
+return;
+
+}
+
+reader.removeEvent(1);
+
+// Get new first event (previously second)
+
+EvioNode node = reader.getScannedEvent(1);
+
+// Remove first child of event
+
+ByteBuffer newBuffer = reader.removeStructure(node.getChildAt(0));
+
+// Write to file
+
+reader.toFile(“/tmp/filename”);
+
+| }
+| catch (EvioException e) {
+| e.printStackTrace();
+| }
+| }
+
+.. _example-4-1:
+
+Example 4
+---------
+
+// ---------------------------------------------------
+
+// Read file, get events, obtain their buffers,
+
+// and write them to another file.
+
+| // ---------------------------------------------------
+| public static void main(String args[]) {
+| try {
+| // Read file /tmp/myFile with compact reader
+
+EvioCompactReader reader = new EvioCompactReader("/tmp/myFile");
+
+// Number of events in file
+
+int evCount = reader.getEventCount();
+
+// Create writer to file /home/user/outputFile
+
+int runNumber = 1, split = 0, internalBufSize = 1000000;
+
+String dictionary = null;
+
+| EvioCompactEventWriter compactWriter =
+| new EvioCompactEventWriter("outputFile", "/home/user",
+
+| runNumber, split, internalBufSize,
+|                                    ByteOrder.BIG_ENDIAN, dictionary);
+
+| // Loop over all events
+| for (int i=0; i < evCount; i++) {
+
+// Read event #i from input file
+
+ByteBuffer evBuf = reader.getEventBuffer(i);
+
+| // Write event to output file
+| compactWriter.writeEvent(evBuf);
+
+}
+
+// Flush internal buffer to file & close
+
+compactWriter.close();
+
+| }
+| catch (EvioException e) {
+| e.printStackTrace();
+| }
+| }
+
+.. _xml-format-events-3:
 
 XML format events
 -----------------
@@ -3661,3 +4776,16 @@ Revision History
 |                 |                  | using EvioCompactReader, bug  |
 |                 |                  | fixes**                       |
 +-----------------+------------------+-------------------------------+
+
+.. |image1| image:: media/image1.jpeg
+   :width: 2.00069in
+   :height: 3.55833in
+.. |image2| image:: media/image2.jpeg
+   :width: 1.91702in
+   :height: 3.40804in
+.. |image3| image:: media/image3.jpeg
+   :width: 1.8625in
+   :height: 3.31181in
+.. |image4| image:: media/image4.jpeg
+   :width: 1.82778in
+   :height: 3.25in
