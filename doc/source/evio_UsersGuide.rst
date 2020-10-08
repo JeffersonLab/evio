@@ -846,7 +846,7 @@ Mark
 ~~~~
 
 A remembered position. Calling mark() sets mark = position. Calling
-reset( ) sets position = mark. The mark is undefined until set.
+reset() sets position = mark. The mark is undefined until set.
 
 Example Diagrams
 ~~~~~~~~~~~~~~~~
@@ -856,26 +856,23 @@ Example Diagrams
 **Also the state after calling clear().**
 
 .. image:: figure1.jpg
-   :scale: 50
+   :scale: 40
 
-**uffer after relative write of 4-byte integer =
-0x11223344 (big endian)**
+**Buffer after relative write of 4-byte integer = 0x11223344 (big endian)**
 
 .. image:: figure2.jpg
-   :scale: 50
+   :scale: 40
 
 **Buffer after flip()**
 
 .. image:: figure3.jpg
-   :scale: 50
+   :scale: 40
 
 **Buffer after relative read of one 4-byte integer**
 
 .. image:: figure4.jpg
-   :scale: 50
+   :scale: 40
    
-.. image:: figure1.jpg
-   :scale: 20
 
 
 Creating a Buffer
@@ -1040,23 +1037,20 @@ vector<uint8_t> byteVec;
 | vector<string> stringsVec;
 
 **//-------------------------------------**
-
 **// Build event (bank of banks) with EventBuilder object**
 
 | uint32_t tag = 1, num = 1;
 | EventBuilder builder(tag, DataType::BANK, num);
 | shared_ptr<EvioEvent> event = builder.getEvent();
 
-| **//-------------------------------------
-  // First child of event = bank of banks
-  **\ auto bankBanks = EvioBank::getInstance(tag+1, DataType::BANK,
-  num+1);
+| **//-------------------------------------**
+| **// First child of event = bank of banks**
+| auto bankBanks = EvioBank::getInstance(tag+1, DataType::BANK, num+1);
 | **// Add this bank as child of event**
 | builder.addChild(event, bankBanks);
 
 | **// Create first (& only) child of bank of banks = bank of ints**
-| auto bankInts = EvioBank::getInstance(tag+11, DataType::UINT32,
-  num+11);
+| auto bankInts = EvioBank::getInstance(tag+11, DataType::UINT32, num+11);
 
 | **// Get its internal vector of int data**
 | auto &iData = bankInts->getUIntData();
@@ -1064,26 +1058,24 @@ vector<uint8_t> byteVec;
 | **// Write our data into that vector**
 | iData.insert(iData.begin(), intVec.begin(), intVec.end());
 
-| **// Done writing so tell builder to update its internals for this
-  bank**
+| **// Done writing so tell builder to update its internals for this bank**
 | bankInts->updateUIntData();
 
 | **// Add this bank as child of bankBanks**
 | builder.addChild(bankBanks, bankInts);
 
 **//-------------------------------------**
-
 | **// Second child of event = bank of segments**
-| auto bankSegs = EvioBank::getInstance(tag+2, DataType::SEGMENT,
-  num+2);
+| auto bankSegs = EvioBank::getInstance(tag+2, DataType::SEGMENT, num+2);
 | builder.addChild(event, bankSegs);
-| **// Create first child of bank of segments = segment of doubles**\ *
-  *\ auto segDoubles = EvioSegment::getInstance(tag+22,
-  DataType::DOUBLE64);
+
+| **// Create first child of bank of segments = segment of doubles**
+| **auto segDoubles = EvioSegment::getInstance(tag+22, DataType::DOUBLE64);
 | auto &sdData = segDoubles->getDoubleData();
 | sdData.insert(sdData.begin(), doubleVec.begin(), doubleVec.end());
 | segDoubles->updateDoubleData();
 | builder.addChild(bankSegs, segDoubles);
+
 | **// Create second child of bank of segments = segment of bytes**
 | auto segBytes = EvioSegment::getInstance(tag+23, DataType::CHAR8);
 | auto &scData = segBytes->getCharData();
@@ -1092,31 +1084,24 @@ vector<uint8_t> byteVec;
 | builder.addChild(bankSegs, segBytes);
 
 **//-------------------------------------**
-
 | **// Third child of event = bank of tagsegments**
-| auto bankTsegs = EvioBank::getInstance(tag+3, DataType::TAGSEGMENT,
-  num+3);
+| auto bankTsegs = EvioBank::getInstance(tag+3, DataType::TAGSEGMENT, num+3);
 | builder.addChild(event, bankTsegs);
 
-| **// Create first child of bank of tagsegments = tagsegment of
-  strings**
-| auto tsegStrings = EvioTagSegment::getInstance(tag+33,
-  DataType::CHARSTAR8);
+| **// Create first child of bank of tagsegments = tagsegment of strings**
+| auto tsegStrings = EvioTagSegment::getInstance(tag+33, DataType::CHARSTAR8);
 | auto &tstData = tsegStrings->getStringData();
 | tstData.insert(tstData.begin(), stringsVec.begin(), stringsVec.end());
 | tsegStrings->updateStringData();
 | builder.addChild(bankTsegs, tsegStrings);
 
 **//-------------------------------------**
-
-**// Remove first segment (and all descendants) in bank of segments**\ *
-*\ builder.remove(segDoubles);
+**// Remove first segment (and all descendants) in bank of segments**
+| builder.remove(segDoubles);
 
 **//-------------------------------------**
-
 **// Take event, write it into buffer, get buffer ready to read**
-
-shared_ptr<ByteBuffer> buffer;
+| shared_ptr<ByteBuffer> buffer;
 
 | event->write(*(buffer.get()));
 | buffer->flip();
