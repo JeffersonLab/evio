@@ -1028,16 +1028,15 @@ children of their own. It’s written out to a buffer. The code relies on
 the EvioEvent/Bank/Segment/TagSegment classes to get, fill, and update
 their internal data vectors:
 
-**// Data to write stored in these vectors**
+|**// Data to write stored in these vectors**
 
-vector<uint8_t> byteVec;
-
+| vector<uint8_t> byteVec;
 | vector<uint32_t> intVec;
 | vector<double> doubleVec;
 | vector<string> stringsVec;
 
-**//-------------------------------------**
-**// Build event (bank of banks) with EventBuilder object**
+| **//-------------------------------------**
+| **// Build event (bank of banks) with EventBuilder object**
 
 | uint32_t tag = 1, num = 1;
 | EventBuilder builder(tag, DataType::BANK, num);
@@ -1064,7 +1063,7 @@ vector<uint8_t> byteVec;
 | **// Add this bank as child of bankBanks**
 | builder.addChild(bankBanks, bankInts);
 
-**//-------------------------------------**
+| **//-------------------------------------**
 | **// Second child of event = bank of segments**
 | auto bankSegs = EvioBank::getInstance(tag+2, DataType::SEGMENT, num+2);
 | builder.addChild(event, bankSegs);
@@ -1083,7 +1082,7 @@ vector<uint8_t> byteVec;
 | segBytes->updateCharData();
 | builder.addChild(bankSegs, segBytes);
 
-**//-------------------------------------**
+| **//-------------------------------------**
 | **// Third child of event = bank of tagsegments**
 | auto bankTsegs = EvioBank::getInstance(tag+3, DataType::TAGSEGMENT, num+3);
 | builder.addChild(event, bankTsegs);
@@ -1095,12 +1094,12 @@ vector<uint8_t> byteVec;
 | tsegStrings->updateStringData();
 | builder.addChild(bankTsegs, tsegStrings);
 
-**//-------------------------------------**
-**// Remove first segment (and all descendants) in bank of segments**
+| **//-------------------------------------**
+| **// Remove first segment (and all descendants) in bank of segments**
 | builder.remove(segDoubles);
 
-**//-------------------------------------**
-**// Take event, write it into buffer, get buffer ready to read**
+| **//-------------------------------------**
+| **// Take event, write it into buffer, get buffer ready to read**
 | shared_ptr<ByteBuffer> buffer;
 
 | event->write(*(buffer.get()));
