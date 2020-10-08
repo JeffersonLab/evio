@@ -28,7 +28,7 @@ namespace evio {
 
     /**
      * An event is really just the outer, primary bank. That is, the first structure in an event
-     * (aka logical record, aka buffer) and must be a bank of banks.
+     * (aka logical record, aka buffer) and is <b>usually</b> a bank of banks.
      *
      * The Event trivially extends bank, just so there can be a distinct <code>EvioEvent</code> class, for clarity.
      *
