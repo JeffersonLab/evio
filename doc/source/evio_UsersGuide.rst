@@ -1027,8 +1027,8 @@ segments, and a bank of tagsegments). Each of these children have
 children of their own. It’s written out to a buffer. The code relies on
 the EvioEvent/Bank/Segment/TagSegment classes to get, fill, and update
 their internal data vectors:
-
-|**// Data to write stored in these vectors**
+``
+| **// Data to write stored in these vectors**
 
 | vector<uint8_t> byteVec;
 | vector<uint32_t> intVec;
@@ -1069,7 +1069,7 @@ their internal data vectors:
 | builder.addChild(event, bankSegs);
 
 | **// Create first child of bank of segments = segment of doubles**
-| **auto segDoubles = EvioSegment::getInstance(tag+22, DataType::DOUBLE64);
+| auto segDoubles = EvioSegment::getInstance(tag+22, DataType::DOUBLE64);
 | auto &sdData = segDoubles->getDoubleData();
 | sdData.insert(sdData.begin(), doubleVec.begin(), doubleVec.end());
 | segDoubles->updateDoubleData();
@@ -1104,6 +1104,7 @@ their internal data vectors:
 
 | event->write(*(buffer.get()));
 | buffer->flip();
+``
 
 In addition to the methods for creating and adding banks, segments and
 tagsegments, there are methods to add all the various data types like
