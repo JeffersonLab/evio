@@ -855,12 +855,20 @@ Example Diagrams
 
 **Also the state after calling clear().**
 
-|image1|\ |image2|\ B\ **uffer after relative write of 4-byte integer =
+.. image:: figure1.jpg
+
+**uffer after relative write of 4-byte integer =
 0x11223344 (big endian)**
+
+.. image:: figure2.jpg
 
 **Buffer after flip()**
 
-|image3|\ |image4|\ **Buffer after relative read of one 4-byte integer**
+.. image:: figure3.jpg
+
+**Buffer after relative read of one 4-byte integer**
+
+.. image:: figure4.jpg
 
 Creating a Buffer
 ~~~~~~~~~~~~~~~~~
