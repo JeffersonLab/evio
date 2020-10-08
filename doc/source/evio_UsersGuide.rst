@@ -856,23 +856,27 @@ Example Diagrams
 **Also the state after calling clear().**
 
 .. image:: figure1.jpg
-    :scale: 50 %
+   :scale: 50
 
 **uffer after relative write of 4-byte integer =
 0x11223344 (big endian)**
 
 .. image:: figure2.jpg
-    :scale: 50 %
+   :scale: 50
 
 **Buffer after flip()**
 
 .. image:: figure3.jpg
-    :scale: 50 %
+   :scale: 50
 
 **Buffer after relative read of one 4-byte integer**
 
 .. image:: figure4.jpg
-    :scale: 50 %
+   :scale: 50
+   
+.. image:: figure1.jpg
+   :scale: 20
+
 
 Creating a Buffer
 ~~~~~~~~~~~~~~~~~
