@@ -17,7 +17,9 @@ EVIO 6.0 User’s Guide
 
    Phone 757.269.7100
 
++++++++++
 Chapter 1
++++++++++
 
 Introduction To Evio Versions
 =============================
@@ -208,7 +210,9 @@ The C++ library of the previous version is no longer available. There is
 no independent C library either. All C library functions of the previous
 version are available in the new C++ library.
 
++++++++++
 Chapter 2
++++++++++
 
 Basics of the C Library
 =======================
@@ -546,7 +550,9 @@ pages by going to the top level of the evio distribution and typing
 "scons doc". Then simply view the doc/doxygen/C[or CC]/html/index.html
 file in a browser.
 
++++++++++
 Chapter 3
++++++++++
 
 C++ API Basics
 ==============
@@ -597,38 +603,35 @@ Scons
 ~~~~~
 
 To get a listing of all the local options available to the scons
-command, run **scons -h** in the top-level directory to get this output:
+command, run **scons -h** in the top-level directory to get this output::
 
--D                  build from subdirectory of package
+ -D                  build from subdirectory of package
 
-local scons OPTIONS:
+ local scons OPTIONS:
 
---dbg               compile with debug flag
+ --dbg               compile with debug flag
 
---32bits            compile 32bit libs & executables on 64bit system
+ --32bits            compile 32bit libs & executables on 64bit system
 
---prefix=<dir>      use base directory <dir> when doing install
+ --prefix=<dir>      use base directory <dir> when doing install
 
---incdir=<dir>      copy header  files to directory <dir> when doing
-install
+ --incdir=<dir>      copy header  files to directory <dir> when doing install
 
---libdir=<dir>      copy library files to directory <dir> when doing
-install
+ --libdir=<dir>      copy library files to directory <dir> when doing install
 
---bindir=<dir>      copy binary  files to directory <dir> when doing
-install
+ --bindir=<dir>      copy binary  files to directory <dir> when doing install
 
-install             install libs, headers, and binaries
+ install             install libs, headers, and binaries
 
-install -c          uninstall libs, headers, and binaries
+ install -c          uninstall libs, headers, and binaries
 
-doc                 create javadoc (in ./doc)
+ doc                 create javadoc (in ./doc)
 
-undoc               remove javadoc (in ./doc)
+ undoc               remove javadoc (in ./doc)
 
-tar                 create tar file (in ./tar)
+ tar                 create tar file (in ./tar)
 
-Use scons -H for help about command-line options.
+ Use scons -H for help about command-line options.
 
 Although this is fairly self-explanatory, executing **scons install**
 will compile and install all the code. All compiled code is placed in
@@ -989,7 +992,9 @@ ByteBuffer by calling lthe **array()** method. For those readers
 familiar with it, all C++ ByteBuffers (unlike Java) are backed by
 arrays.
 
++++++++++
 Chapter 4
++++++++++
 
 Evio-specific C++ APIs
 ======================
@@ -1029,6 +1034,7 @@ the EvioEvent/Bank/Segment/TagSegment classes to get, fill, and update
 their internal data vectors:
 
 ::
+
  **// Data to write stored in these vectors**
 
  vector<uint8_t> byteVec;
