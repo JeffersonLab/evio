@@ -622,6 +622,74 @@ namespace evio {
         }
 
 
+        /** Writing to a buffer using original evio interface. */
+        void createObjectEventsAlternate(uint16_t tag, uint8_t num) {
+
+            try {
+
+                for (int j = 0; j < runLoops; j++) {
+                    auto t1 = chrono::high_resolution_clock::now();
+
+                    for (int i = 0; i < bufferLoops; i++) {
+
+                        // Use event constructor and insert() calls
+                        std::shared_ptr<EvioEvent> event = EvioEvent::getInstance(1, DataType::BANK, 1);
+
+                        // bank of banks
+                        auto bankBanks = EvioBank::getInstance(tag + 1, DataType::BANK, num + 1);
+                        event->insert(bankBanks, 0);
+
+                        // bank of ints
+                        auto bankInts = EvioBank::getInstance(tag + 2, DataType::UINT32, num + 2);
+                        auto &iData = bankInts->getUIntData();
+                        iData.insert(iData.begin(), intVec.begin(), intVec.end());
+                        bankInts->updateUIntData();
+                        bankBanks->insert(bankInts, 0);
+
+                        // bank of segments
+                        auto bankSegs = EvioBank::getInstance(tag + 14, DataType::SEGMENT, num + 14);
+                        event->insert(bankSegs, 1);
+
+                        // seg of bytes
+                        auto segBytes = EvioSegment::getInstance(tag + 9, DataType::CHAR8);
+                        auto &scData = segBytes->getCharData();
+                        scData.insert(scData.begin(), byteVec.begin(), byteVec.end());
+                        segBytes->updateCharData();
+                        bankSegs->insert(segBytes, 0);
+
+                        // bank of tagsegments
+                        auto bankTsegs = EvioBank::getInstance(tag + 15, DataType::TAGSEGMENT, num + 15);
+                        event->insert(bankTsegs, 2);
+
+                        // tagsegments of ints
+                        auto tsegInts = EvioTagSegment::getInstance(tag + 16, DataType::UINT32);
+                        auto &tiData = tsegInts->getUIntData();
+                        tiData.insert(tiData.begin(), intVec.begin(), intVec.end());
+                        tsegInts->updateUIntData();
+                        bankTsegs->insert(tsegInts, 0);
+
+                        event->setAllHeaderLengths();
+                        std::cout << "Event:\n" << event->treeToString("") << std::endl;
+
+                        // Take event & write it into buffer
+                        event->write(*(buffer.get()));
+                        buffer->flip();
+                    }
+
+                    std::cout << "createObjectEvents: buffer -> \n" << buffer->toString() << std::endl;
+
+                    auto t2 = chrono::high_resolution_clock::now();
+                    auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1);
+                    cout << duration.count() << endl;
+                    std::cout << "Time = " << duration.count() << " milliseconds" << std::endl;
+                }
+            }
+            catch (EvioException &e) {
+                std::cout << e.what() << std::endl;
+            }
+        }
+
+
         // Test CompactEventBuilder class
         void CompactEBTest() {
 
@@ -732,9 +800,9 @@ namespace evio {
 
 int main(int argc, char **argv) {
     evio::CompactBuilderTest tester;
-    tester.createCompactEvents(1,1);
-    auto node = tester.searchBuffer(3, 3);
-    //tester.createObjectEvents(1,1);
+    //tester.createCompactEvents(1,1);
+    //auto node = tester.searchBuffer(3, 3);
+    tester.createObjectEventsAlternate(1,1);
 
     //evio::EventBuilderTest();
     return 0;
