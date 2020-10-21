@@ -31,9 +31,15 @@
 
     <!-- Set Classpath, ignore caller's classpath -->
     <property name="build.sysclasspath" value="ignore" />
-    <path id="classpath" />
+    <!-- By default use local jars in classpath -->
+    <path id="classpath">
+        <fileset dir="${local.jars}" >
+            <include name="*.jar" />
+        </fileset>
+    </path>
 
-    
+
+
     <!-- Targets -->
     
     <!-- Help -->
@@ -113,7 +119,7 @@
                 <include name="*.jar" />
             </fileset>
         </path>
-        <echo message="Compile with jars in $CODA/common/jar" />
+        <echo message="Compile with jars in $CODA/common/jar first, then ${local.jars}" />
     </target>
 
 
@@ -165,6 +171,7 @@
     <target name="javadoc" description="Create javadoc.">
         <mkdir dir="${doc.dir}" />
         <javadoc packagenames="org.jlab.coda.*"
+                 excludepackagenames="org.jlab.coda.jevio.test"
                  sourcepath="java"
                  access="public"
                  destdir="${doc.dir}"
@@ -177,6 +184,7 @@
     <target name="developdoc" description="Create javadoc for developer.">
         <mkdir dir="${doc.dir}" />
         <javadoc packagenames="org.jlab.coda.*"
+                 excludepackagenames="org.jlab.coda.jevio.test"
                  sourcepath="java"
                  access="package"
                  destdir="${doc.dir}"
