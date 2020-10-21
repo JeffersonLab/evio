@@ -31,46 +31,8 @@ include_directories(src/libsrc src/libsrc++ src/libsrc /usr/include/boost /usr/l
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/allBinaries)
 
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -lpthread -lexpat -ldl -lz -lm")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread -lexpat -ldl -lz -lm")
 
-set(C_HEADER_FILES
-    src/libsrc/evio.h
-    src/libsrc/msinttypes.h
-)
-
-set(C_LIB_FILES
-    src/libsrc/evio.c
-    src/libsrc/eviofmt.c
-    src/libsrc/eviofmtdump.c
-    src/libsrc/eviofmtswap.c
-    src/libsrc/evioswap.c
-    )
-
-set(CPP_HEADER_FILES
-    src/libsrc++/evioBankIndex.hxx
-    src/libsrc++/evioBufferChannel.hxx
-    src/libsrc++/evioFileChannel.hxx
-    src/libsrc++/evioSocketChannel.hxx
-    src/libsrc++/evioChannel.hxx
-    src/libsrc++/evioDictionary.hxx
-    src/libsrc++/evioException.hxx
-    src/libsrc++/evioTypedefs.hxx
-    src/libsrc++/evioUtil.hxx
-    src/libsrc++/evioUtilTemplates.hxx
-    src/libsrc++/evioDictEntry.hxx
-)
-
-set(CPP_LIB_FILES
-    src/libsrc++/evioBankIndex.cc
-    src/libsrc++/evioBufferChannel.cc
-    src/libsrc++/evioFileChannel.cc
-    src/libsrc++/evioSocketChannel.cc
-    src/libsrc++/evioDictionary.cc
-    src/libsrc++/evioException.cc
-    src/libsrc++/evioUtil.cc
-    src/libsrc++/evioDictEntry.cc
-)
 
 set(CPP_HEADER_FILES_NEW
         src/libsrc/FileEventIndex.h
@@ -141,6 +103,7 @@ set(CPP_HEADER_FILES_NEW
         src/libsrc/CompactEventBuilder.h
         src/libsrc/EvioSwap.h
         src/libsrc/StructureFinder.h
+        src/libsrc/evio.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -177,24 +140,20 @@ set(CPP_LIB_FILES_NEW
         src/libsrc/pugixml.cpp
         src/libsrc/EvioCompactReaderV4.cpp
         src/libsrc/EvioCompactReaderV6.cpp
-        src/libsrc/INameProvider.cpp
         src/libsrc/EventBuilder.cpp
-        src/libsrc/CompactEventBuilder.cpp
-        src/libsrc/StructureFinder.cpp)
+        src/libsrc/CompactEventBuilder.cpp)
 
-set(TEST_FILES_CC
-        ReadWriteTest.cpp
-        src/test/RingBufferTest.cpp
-        )
 
 set(TEST
-        src/cppTest/TNode.h
-        src/cppTest/TNodeSuper1.h
-        src/cppTest/TNodeSuper2.h
-        src/cppTest/TNodeHeader.h
-        src/cppTest/TNodeHeaderSuper1.h
-        src/cppTest/TNodeHeaderSuper2.h
-        src/cppTest/ReadWriteTest.cpp
+        src/test/CompactBuilder_Test.cpp
+        src/test/Dict_FirstEv_Test.cpp
+        src/test/Hipo_Test.cpp
+        src/test/ReadWriteTest.cpp
+        src/test/RecordSupplyTest.cpp
+        src/test/RingBufferTest.cpp
+        src/test/Tree_Buf_Composite_Builder_Test.cpp
+        src/test/Writer_Reader_Compression_Test.cpp
+        src/test/Writer_Reader_Test.cpp
         )
 
 
@@ -211,42 +170,20 @@ set(TEST
 
 
 
-#file(GLOB TEST_FILES_C src/test/*.c)
 #file(GLOB TEST_FILES_CC src/test/*.cc)
 
-#file(GLOB EXAMPLE_FILES_C src/examples/*.c)
-#file(GLOB EXAMPLE_FILES_CC src/examples/*.cc)
-
-
-# Shared evio C library
-add_library(evio SHARED ${C_LIB_FILES})
-target_include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 # Shared evio C++ library
-#add_library(evioxx SHARED ${CPP_LIB_FILES})
-#target_include_directories(evioxx PUBLIC src/libsrc src/libsrc++)
-
-
-# Shared hipo C++ library
-add_library(hipo SHARED ${CPP_LIB_FILES_NEW})
-target_include_directories(hipo PUBLIC src/libsrc /usr/local/include)
+add_library(evio SHARED ${CPP_LIB_FILES_NEW})
+target_include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 
 # Main Executables
-add_executable(ReadWriteTest ReadWriteTest.cpp)
+add_executable(ReadWriteTest src/test/ReadWriteTest.cpp)
 target_link_libraries(ReadWriteTest pthread expat z hipo)
 
 add_executable(RingBufferTest src/test/RingBufferTest.cpp)
 target_link_libraries(RingBufferTest pthread expat z hipo)
-
-add_executable(evio2xml src/execsrc/evio2xml.c)
-target_link_libraries(evio2xml pthread expat z evio)
-
-add_executable(eviocopy src/execsrc/eviocopy.c)
-target_link_libraries(eviocopy pthread evio)
-
-#add_executable(evioCat  src/execsrc/evioCat.cc)
-#target_link_libraries(evioCat evio evioxx)
 
 
 ## Test programs
@@ -262,19 +199,6 @@ target_link_libraries(eviocopy pthread evio)
 #endforeach(fileName)
 
 
-# Example programs
-#foreach(fileName ${EXAMPLE_FILES_C})
-#    get_filename_component(execName ${fileName} NAME_WE)
-#    add_executable(${execName} ${fileName})
-#    target_link_libraries(${execName} evio)
-#    install(TARGETS ${execName} DESTINATION bin/examples)
-#endforeach(fileName)
-
-
 # Installation relative to build/cmake
-#install(TARGETS evio evioxx DESTINATION lib)
-install(TARGETS evio hipo DESTINATION lib)
-#install(TARGETS evio DESTINATION lib)
-#install(TARGETS evio2xml eviocopy evioCat DESTINATION bin)
-#install(TARGETS evio2xml eviocopy DESTINATION bin)
-install(FILES ${C_HEADER_FILES} ${CPP_HEADER_FILES_NEW} DESTINATION inc)
+install(TARGETS evio DESTINATION lib)
+install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION inc)
