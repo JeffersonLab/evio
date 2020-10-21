@@ -1,0 +1,667 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d2/d66/_file_header_8h" kind="file" language="C++">
+    <compoundname>FileHeader.h</compoundname>
+    <includes local="no">string</includes>
+    <includes local="no">iostream</includes>
+    <includes local="no">ios</includes>
+    <includes local="no">iomanip</includes>
+    <includes local="no">sstream</includes>
+    <includes refid="d1/d02/_byte_order_8h" local="yes">ByteOrder.h</includes>
+    <includes refid="d5/d98/_header_type_8h" local="yes">HeaderType.h</includes>
+    <includes refid="d6/d6c/_byte_buffer_8h" local="yes">ByteBuffer.h</includes>
+    <includes refid="dc/d17/_compressor_8h" local="yes">Compressor.h</includes>
+    <includes refid="d8/d26/_evio_exception_8h" local="yes">EvioException.h</includes>
+    <includes refid="dd/d90/_util_8h" local="yes">Util.h</includes>
+    <includedby refid="d6/db6/_compact_event_builder_8h" local="yes">CompactEventBuilder.h</includedby>
+    <includedby refid="d6/d12/_event_writer_8h" local="yes">EventWriter.h</includedby>
+    <includedby refid="de/d46/_file_header_8cpp" local="yes">FileHeader.cpp</includedby>
+    <includedby refid="dd/d3d/_reader_8h" local="yes">Reader.h</includedby>
+    <includedby refid="dc/dd3/_record_output_8h" local="yes">RecordOutput.h</includedby>
+    <includedby refid="de/d9e/_writer_8h" local="yes">Writer.h</includedby>
+    <includedby refid="dd/db4/_writer_m_t_8h" local="yes">WriterMT.h</includedby>
+    <incdepgraph>
+      <node id="21">
+        <label>lz4.h</label>
+      </node>
+      <node id="5">
+        <label>iomanip</label>
+      </node>
+      <node id="29">
+        <label>RecordNode.h</label>
+        <link refid="d8/d7d/_record_node_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>EvioNode.h</label>
+        <link refid="d1/d31/_evio_node_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>cstdint</label>
+      </node>
+      <node id="17">
+        <label>sys/mman.h</label>
+      </node>
+      <node id="16">
+        <label>stdexcept</label>
+      </node>
+      <node id="30">
+        <label>IBlockHeader.h</label>
+        <link refid="de/d42/_i_block_header_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>string</label>
+      </node>
+      <node id="24">
+        <label>regex</label>
+      </node>
+      <node id="19">
+        <label>exception</label>
+      </node>
+      <node id="25">
+        <label>fstream</label>
+      </node>
+      <node id="8">
+        <label>HeaderType.h</label>
+        <link refid="d5/d98/_header_type_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>FileHeader.h</label>
+        <link refid="d2/d66/_file_header_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>ios</label>
+      </node>
+      <node id="22">
+        <label>lz4hc.h</label>
+      </node>
+      <node id="14">
+        <label>cstdio</label>
+      </node>
+      <node id="9">
+        <label>ByteBuffer.h</label>
+        <link refid="d6/d6c/_byte_buffer_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>Util.h</label>
+        <link refid="dd/d90/_util_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>vector</label>
+      </node>
+      <node id="6">
+        <label>sstream</label>
+      </node>
+      <node id="10">
+        <label>cstdlib</label>
+      </node>
+      <node id="3">
+        <label>iostream</label>
+      </node>
+      <node id="28">
+        <label>DataType.h</label>
+        <link refid="db/da7/_data_type_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>ByteOrder.h</label>
+        <link refid="d1/d02/_byte_order_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>EvioException.h</label>
+        <link refid="d8/d26/_evio_exception_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>algorithm</label>
+      </node>
+      <node id="20">
+        <label>Compressor.h</label>
+        <link refid="dc/d17/_compressor_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>cstring</label>
+      </node>
+      <node id="13">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="6">
+        <label>EventBuilder.h</label>
+        <link refid="d3/dd6/_event_builder_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>EvioReaderV6.h</label>
+        <link refid="de/d10/_evio_reader_v6_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>EvioCompactReaderV6.h</label>
+        <link refid="d1/de7/_evio_compact_reader_v6_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>Reader.h</label>
+        <link refid="dd/d3d/_reader_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>EvioReader.cpp</label>
+        <link refid="dc/d9c/_evio_reader_8cpp"/>
+      </node>
+      <node id="28">
+        <label>Writer.cpp</label>
+        <link refid="dc/d0e/_writer_8cpp"/>
+      </node>
+      <node id="23">
+        <label>RecordRingItem.h</label>
+        <link refid="d2/d05/_record_ring_item_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>WriterMT.cpp</label>
+        <link refid="d9/d77/_writer_m_t_8cpp"/>
+      </node>
+      <node id="24">
+        <label>RecordRingItem.cpp</label>
+        <link refid="d1/d53/_record_ring_item_8cpp"/>
+      </node>
+      <node id="7">
+        <label>EventBuilder.cpp</label>
+        <link refid="d4/dfa/_event_builder_8cpp"/>
+      </node>
+      <node id="17">
+        <label>Reader.cpp</label>
+        <link refid="d8/d15/_reader_8cpp"/>
+      </node>
+      <node id="22">
+        <label>RecordOutput.cpp</label>
+        <link refid="d4/df6/_record_output_8cpp"/>
+      </node>
+      <node id="18">
+        <label>RecordOutput.h</label>
+        <link refid="dc/dd3/_record_output_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>EventWriter.cpp</label>
+        <link refid="db/dc8/_event_writer_8cpp"/>
+      </node>
+      <node id="16">
+        <label>EvioReaderV6.cpp</label>
+        <link refid="db/de9/_evio_reader_v6_8cpp"/>
+      </node>
+      <node id="25">
+        <label>RecordSupply.h</label>
+        <link refid="d0/d2f/_record_supply_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>FileHeader.h</label>
+        <link refid="d2/d66/_file_header_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>WriterMT.h</label>
+        <link refid="dd/db4/_writer_m_t_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>CompactEventBuilder.cpp</label>
+        <link refid="da/d47/_compact_event_builder_8cpp"/>
+      </node>
+      <node id="19">
+        <label>RecordCompressor.h</label>
+        <link refid="d7/dd0/_record_compressor_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>EvioCompactReaderV6.cpp</label>
+        <link refid="d4/d08/_evio_compact_reader_v6_8cpp"/>
+      </node>
+      <node id="27">
+        <label>Writer.h</label>
+        <link refid="de/d9e/_writer_8h"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>FileHeader.cpp</label>
+        <link refid="de/d46/_file_header_8cpp"/>
+      </node>
+      <node id="5">
+        <label>EventWriter.h</label>
+        <link refid="d6/d12/_event_writer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>CompactEventBuilder.h</label>
+        <link refid="d6/db6/_compact_event_builder_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>evio.h</label>
+        <link refid="d9/df8/evio_8h"/>
+      </node>
+      <node id="14">
+        <label>EvioReader.h</label>
+        <link refid="d5/d63/_evio_reader_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>RecordSupply.cpp</label>
+        <link refid="d7/d33/_record_supply_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="d1/da6/classevio_1_1_file_header" prot="public">evio::FileHeader</innerclass>
+    <innernamespace refid="d9/deb/namespaceevio">evio</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Copyright<sp/>2020,<sp/>Jefferson<sp/>Science<sp/>Associates,<sp/>LLC.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Subject<sp/>to<sp/>the<sp/>terms<sp/>in<sp/>the<sp/>LICENSE<sp/>file<sp/>found<sp/>in<sp/>the<sp/>top-level<sp/>directory.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/>EPSCI<sp/>Group</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Thomas<sp/>Jefferson<sp/>National<sp/>Accelerator<sp/>Facility</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/>12000,<sp/>Jefferson<sp/>Ave,<sp/>Newport<sp/>News,<sp/>VA<sp/>23606</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(757)-269-7100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EVIO_6_0_FILEHEADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EVIO_6_0_FILEHEADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;ios&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iomanip&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d1/d02/_byte_order_8h" kindref="compound">ByteOrder.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d5/d98/_header_type_8h" kindref="compound">HeaderType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d6/d6c/_byte_buffer_8h" kindref="compound">ByteBuffer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="dc/d17/_compressor_8h" kindref="compound">Compressor.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d8/d26/_evio_exception_8h" kindref="compound">EvioException.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="dd/d90/_util_8h" kindref="compound">Util.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="d9/deb/namespaceevio" kindref="compound">evio</ref><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="d1/da6/classevio_1_1_file_header" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="d1/da6/classevio_1_1_file_header_1a7b7f161246d3784e4dca17430541c528" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a7b7f161246d3784e4dca17430541c528" kindref="member">HIPO_FILE_UNIQUE_WORD</ref><sp/>=<sp/>0x4F504948;<sp/></highlight><highlight class="comment">//<sp/>0x4849504F<sp/>=<sp/>HIPO</highlight></codeline>
+<codeline lineno="101" refid="d1/da6/classevio_1_1_file_header_1a37f94e6875b3d3eb9aaf672f91d3302b" refkind="member"><highlight class="comment"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a37f94e6875b3d3eb9aaf672f91d3302b" kindref="member">EVIO_FILE_UNIQUE_WORD</ref><sp/>=<sp/>0x4556494F;<sp/></highlight><highlight class="comment">//<sp/>=<sp/>EVIO</highlight></codeline>
+<codeline lineno="103" refid="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" refkind="member"><highlight class="comment"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" kindref="member">HEADER_SIZE_WORDS</ref><sp/>=<sp/>14;</highlight></codeline>
+<codeline lineno="105" refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" kindref="member">HEADER_SIZE_BYTES</ref><sp/>=<sp/>56;</highlight></codeline>
+<codeline lineno="107" refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" kindref="member">HEADER_MAGIC</ref><sp/>=<sp/>0xc0da0100;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Byte<sp/>offset<sp/>to<sp/>header<sp/>words</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="d1/da6/classevio_1_1_file_header_1a31b0469dbd7e4a887ca40b7ce1fb1ed1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a31b0469dbd7e4a887ca40b7ce1fb1ed1" kindref="member">FILE_ID_OFFSET</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="114" refid="d1/da6/classevio_1_1_file_header_1acb454bfc58f06d87bc0fcecbd26228a8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1acb454bfc58f06d87bc0fcecbd26228a8" kindref="member">FILE_NUMBER_OFFSET</ref><sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="116" refid="d1/da6/classevio_1_1_file_header_1a3e8ee4b12e47b0c2121331645a5b3770" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a3e8ee4b12e47b0c2121331645a5b3770" kindref="member">HEADER_LENGTH_OFFSET</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="118" refid="d1/da6/classevio_1_1_file_header_1a13a655d1b16e70688ec555e1f6cd7f5b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a13a655d1b16e70688ec555e1f6cd7f5b" kindref="member">RECORD_COUNT_OFFSET</ref><sp/>=<sp/>12;</highlight></codeline>
+<codeline lineno="120" refid="d1/da6/classevio_1_1_file_header_1a8ecbef932bf1750f05e8b188cf9e3135" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a8ecbef932bf1750f05e8b188cf9e3135" kindref="member">INDEX_ARRAY_OFFSET</ref><sp/>=<sp/>16;</highlight></codeline>
+<codeline lineno="122" refid="d1/da6/classevio_1_1_file_header_1abc05c2a44b4eeb3ee2abbd6cbd7c019e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1abc05c2a44b4eeb3ee2abbd6cbd7c019e" kindref="member">BIT_INFO_OFFSET</ref><sp/>=<sp/>20;</highlight></codeline>
+<codeline lineno="124" refid="d1/da6/classevio_1_1_file_header_1a6b4bdb1effb403d471e26dbb08fefe64" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a6b4bdb1effb403d471e26dbb08fefe64" kindref="member">USER_LENGTH_OFFSET</ref><sp/>=<sp/>24;</highlight></codeline>
+<codeline lineno="126" refid="d1/da6/classevio_1_1_file_header_1a823c07d8a612ed83e8e94f278a08694c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a823c07d8a612ed83e8e94f278a08694c" kindref="member">MAGIC_OFFSET</ref><sp/>=<sp/>28;</highlight></codeline>
+<codeline lineno="128" refid="d1/da6/classevio_1_1_file_header_1ab7d74ac60cc226c6901a1596409d4064" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ab7d74ac60cc226c6901a1596409d4064" kindref="member">REGISTER1_OFFSET</ref><sp/>=<sp/>32;</highlight></codeline>
+<codeline lineno="130" refid="d1/da6/classevio_1_1_file_header_1ac89e616aa3a757d6f32bee153048983f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ac89e616aa3a757d6f32bee153048983f" kindref="member">TRAILER_POSITION_OFFSET</ref><sp/>=<sp/>40;</highlight></codeline>
+<codeline lineno="132" refid="d1/da6/classevio_1_1_file_header_1ae00e22d5a8e89be307e94f2de486651d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ae00e22d5a8e89be307e94f2de486651d" kindref="member">INT1_OFFSET</ref><sp/>=<sp/>48;</highlight></codeline>
+<codeline lineno="134" refid="d1/da6/classevio_1_1_file_header_1a11ff2ba925ceb78d4b0d60ea8a420e17" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a11ff2ba925ceb78d4b0d60ea8a420e17" kindref="member">INT2_OFFSET</ref><sp/>=<sp/>52;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bits<sp/>in<sp/>bit<sp/>info<sp/>word</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" kindref="member">DICTIONARY_BIT</ref><sp/>=<sp/>0x100;</highlight></codeline>
+<codeline lineno="141" refid="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" kindref="member">FIRST_EVENT_BIT</ref><sp/>=<sp/>0x200;</highlight></codeline>
+<codeline lineno="143" refid="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" kindref="member">TRAILER_WITH_INDEX_BIT</ref><sp/>=<sp/>0x400;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>fileId<sp/>=<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a7b7f161246d3784e4dca17430541c528" kindref="member">HIPO_FILE_UNIQUE_WORD</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>fileNumber<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>userRegister<sp/>=<sp/>0L;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>trailerPosition<sp/>=<sp/>0L;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>userIntFirst<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>userIntSecond<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>position<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>entries<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>bitInfo<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>headerLength<sp/>=<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" kindref="member">HEADER_SIZE_BYTES</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>headerLengthWords<sp/>=<sp/><ref refid="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" kindref="member">HEADER_SIZE_WORDS</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>userHeaderLength<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>userHeaderLengthWords<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>indexLength<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>totalLength<sp/>=<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" kindref="member">HEADER_SIZE_BYTES</ref>;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>headerVersion<sp/>=<sp/>6;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>headerMagicWord<sp/>=<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" kindref="member">HEADER_MAGIC</ref>;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/>userHeaderLengthPadding<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/><sp/>byteOrder<sp/>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>};</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref><sp/>headerType<sp/>{<ref refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" kindref="member">HeaderType::HIPO_FILE</ref>};</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5b82a7db3af9c84ddcc518e00e6bbaa0" kindref="member">FileHeader</ref>();</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5b82a7db3af9c84ddcc518e00e6bbaa0" kindref="member">FileHeader</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5b82a7db3af9c84ddcc518e00e6bbaa0" kindref="member">FileHeader</ref><sp/>&amp;<sp/>header);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5b82a7db3af9c84ddcc518e00e6bbaa0" kindref="member">FileHeader</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isEvio);</highlight></codeline>
+<codeline lineno="203" refid="d1/da6/classevio_1_1_file_header_1a99e268ec843ca9ab953b00bca1e2a7f4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a99e268ec843ca9ab953b00bca1e2a7f4" kindref="member">~FileHeader</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a796a6c2a786dbd81dd57aecdafc41e92" kindref="member">copy</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/>head);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" kindref="member">reset</ref>();</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>bitInfoInit();</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>decodeBitInfoWord(uint32_t<sp/>word);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setUserHeaderLengthPadding(uint32_t<sp/>padding);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Getters</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a3dcda5bb2237da5621027d3cc3f079ef" kindref="member">getByteOrder</ref>()<sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1ad64222bc95c84bc4ce607d84d73565ba" kindref="member">getHeaderType</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ac64095f58c4e35abcbdc15a4f2fdb3e5" kindref="member">getFileNumber</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a1b9d2016df005cadf3a57a25bfd1f275" kindref="member">getFileId</ref>()<sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ac7d8b3b526c36a94f32c584129084d26" kindref="member">getVersion</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a82a13947f54e1c4a93fd66231fd66f3a" kindref="member">getEntries</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" kindref="member">getLength</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5c09903e37568563ecd71b92fae94188" kindref="member">getIndexLength</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ab307d9483f8651a997a1848caf0ee3a3" kindref="member">getHeaderLength</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a2d17cf7044ec110cbfb8ef440f4cd42a" kindref="member">getUserHeaderLength</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5a3a98dba3ec79a95ea878df40b3ecf6" kindref="member">getUserHeaderLengthWords</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ac3b2d21a621f65578bf76c61e9fd0816" kindref="member">getUserHeaderLengthPadding</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ad3b1e42dc05e16254b0d643a1cb6ac3e" kindref="member">getUserIntFirst</ref>()<sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a523d8675d0807cc0cd8ae8722f389186" kindref="member">getUserIntSecond</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a767473f82217f96c9fe7a1f15df4a7de" kindref="member">getUserRegister</ref>()<sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5f2a9e64261566a21780a3db2e5e752a" kindref="member">getPosition</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ae74a6ac13dcc45024e5db04491d96841" kindref="member">getTrailerPosition</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//--------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bit<sp/>info<sp/>methods</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//--------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="d1/da6/classevio_1_1_file_header_1aa014ecda139fbd1c6c0e8240d7e20aaa" kindref="member">getBitInfoWord</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a40390f1e268ded506169c3e347c443b2" kindref="member">setBitInfoWord</ref>(uint32_t<sp/>word);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" kindref="member">setBitInfo</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>haveFirst,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>haveDictionary,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>haveTrailerWithIndex);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="d1/da6/classevio_1_1_file_header_1acd0cfbbe33c75999f56823156fd6334f" kindref="member">generateBitInfoWord</ref>(uint32_t<sp/>version,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" kindref="member">hasDictionary</ref>,</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>hasFirst,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>trailerWithIndex,</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>headerType<sp/>=<sp/>1);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="d1/da6/classevio_1_1_file_header_1ab78a268c9c37ba4c9688b4c39a98c417" kindref="member">hasFirstEvent</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>hasFirst);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ab78a268c9c37ba4c9688b4c39a98c417" kindref="member">hasFirstEvent</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" kindref="member">hasDictionary</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" kindref="member">hasDictionary</ref>);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" kindref="member">hasDictionary</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" kindref="member">hasTrailerWithIndex</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" kindref="member">hasTrailerWithIndex</ref>);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" kindref="member">hasTrailerWithIndex</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a9c36a0485434443345d559e90757f545" kindref="member">hasUserHeader</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a34cb81cab9f49ec663cd083c4133747f" kindref="member">hasIndex</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1ab78a268c9c37ba4c9688b4c39a98c417" kindref="member">hasFirstEvent</ref>(uint32_t<sp/>bitInfo);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" kindref="member">hasDictionary</ref>(uint32_t<sp/>bitInfo);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" kindref="member">hasTrailerWithIndex</ref>(uint32_t<sp/>bitInfo);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Setters</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1afe18d8611bb342b36466efee2a816447" kindref="member">setFileNumber</ref>(uint32_t<sp/>num);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1aa45b1890092b8907f34889c8c6ae6681" kindref="member">setUserRegister</ref>(uint64_t<sp/>val);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a570e8146d40c8860d719008910753b1b" kindref="member">setUserIntFirst</ref>(uint32_t<sp/>val);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1acead3cce271d51a95bc463af375be4ae" kindref="member">setUserIntSecond</ref>(uint32_t<sp/>val);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a7d262d376a66843384782bed0e383010" kindref="member">setHeaderType</ref>(<ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref><sp/>&amp;<sp/>type);</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a8894cad0f3ed3da8623665ef8bb48898" kindref="member">setPosition</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a439865e7f0419180fff09aa45649a809" kindref="member">setIndexLength</ref>(uint32_t<sp/>length);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a458e829ff1871d048480de8a03d8727e" kindref="member">setEntries</ref>(uint32_t<sp/>n);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" kindref="member">setUserHeaderLength</ref>(uint32_t<sp/>length);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a5505b98f12f97aacb13592178185f3a1" kindref="member">setHeaderLength</ref>(uint32_t<sp/>length);</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref><sp/>&amp;<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a444289e3ebf9356c411112a67e493a55" kindref="member">setLength</ref>(uint32_t<sp/>length);</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Writing,<sp/>reading,<sp/>printing</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" kindref="member">writeHeader</ref>(<ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref><sp/>&amp;<sp/>buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>off);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" kindref="member">writeHeader</ref>(std::shared_ptr&lt;ByteBuffer&gt;<sp/>&amp;<sp/>buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>off<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" kindref="member">readHeader</ref>(<ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref><sp/>&amp;<sp/>buffer,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" kindref="member">readHeader</ref>(std::shared_ptr&lt;ByteBuffer&gt;<sp/>&amp;<sp/>buffer,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="d1/da6/classevio_1_1_file_header_1a6b90c0054a0107a84dcf67abc0d0f34e" kindref="member">toString</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//EVIO_6_0_FILEHEADER_H</highlight></codeline>
+    </programlisting>
+    <location file="src/libsrc/FileHeader.h"/>
+  </compounddef>
+</doxygen>

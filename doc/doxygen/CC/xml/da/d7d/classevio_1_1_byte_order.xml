@@ -1,0 +1,908 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="da/d7d/classevio_1_1_byte_order" kind="class" language="C++" prot="public">
+    <compoundname>evio::ByteOrder</compoundname>
+    <includes local="no">ByteOrder.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>const ByteOrder evio::ByteOrder::ENDIAN_LITTLE</definition>
+        <argsstring></argsstring>
+        <name>ENDIAN_LITTLE</name>
+        <briefdescription>
+<para>Little endian byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="57" column="32" bodyfile="src/libsrc/ByteOrder.h" bodystart="57" bodyend="-1"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" compoundref="dd/d90/_util_8h" startline="412" endline="446">evio::Util::findEvioVersion</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" compoundref="d1/d02/_byte_order_8h" startline="122" endline="127">getLocalByteOrder</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1a5240c7673d80d6e03e890b3472ac00d4" compoundref="d1/d02/_byte_order_8h" startline="108" endline="110">getOppositeEndian</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1ae4919bf2379c770b75c2d5d7ca87ff7c" compoundref="d1/d02/_byte_order_8h" startline="96" endline="96">isLittleEndian</referencedby>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1a424b67644964be8ca45eb6d4060fd8b1" compoundref="d4/d6c/_byte_buffer_8cpp" startline="629" endline="634">evio::ByteBuffer::order</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">evio::FileHeader::readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>const ByteOrder evio::ByteOrder::ENDIAN_BIG</definition>
+        <argsstring></argsstring>
+        <name>ENDIAN_BIG</name>
+        <briefdescription>
+<para>Big endian byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="58" column="32" bodyfile="src/libsrc/ByteOrder.h" bodystart="58" bodyend="-1"/>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" compoundref="dd/d90/_util_8h" startline="412" endline="446">evio::Util::findEvioVersion</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" compoundref="d1/d02/_byte_order_8h" startline="122" endline="127">getLocalByteOrder</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1a5240c7673d80d6e03e890b3472ac00d4" compoundref="d1/d02/_byte_order_8h" startline="108" endline="110">getOppositeEndian</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1aec4e6ef11064473104685009fede4e64" compoundref="d1/d02/_byte_order_8h" startline="90" endline="90">isBigEndian</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a14cd5da1c84c052c8a446235dd67f03c" compoundref="da/d47/_compact_event_builder_8cpp" startline="323" endline="398">evio::CompactEventBuilder::openBank</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a565d005085544e6e8c66e410fd1e8a8a" compoundref="da/d47/_compact_event_builder_8cpp" startline="165" endline="226">evio::CompactEventBuilder::openSegment</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9b7812e1d18349d5fec68cd1611dfcf8" compoundref="da/d47/_compact_event_builder_8cpp" startline="241" endline="308">evio::CompactEventBuilder::openTagSegment</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">evio::FileHeader::readHeader</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1516862f728d4f8b3795d377a68f644d" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="674" endline="901">evio::EvioCompactReaderV4::removeStructure</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a01e1b344efd2d7f26fe331c241175822" compoundref="da/d47/_compact_event_builder_8cpp" startline="455" endline="464">evio::CompactEventBuilder::setTopLevelTag</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1ab69d28ab3f58cc5457f5b39439937b10" compoundref="dd/d90/_util_8h" startline="257" endline="275">evio::Util::toBytes</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a107bf333efeb2bb3d65104ce9d2edbf9" compoundref="dd/d90/_util_8h" startline="156" endline="174">evio::Util::toInt</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a48601a712a5622c5b8cab2415e0d9ffe" compoundref="dd/d90/_util_8h" startline="217" endline="246">evio::Util::toLong</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" compoundref="d9/d45/_evio_node_8cpp" startline="991" endline="1014">evio::EvioNode::updateLengths</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a3227a6c38ef2a620c12d3725368793d1" compoundref="d9/d45/_evio_node_8cpp" startline="1063" endline="1076">evio::EvioNode::updateNum</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" compoundref="d9/d45/_evio_node_8cpp" startline="1024" endline="1054">evio::EvioNode::updateTag</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="da/d7d/classevio_1_1_byte_order_1a69586e13940d338c707da1d17d2e85a1" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>const ByteOrder evio::ByteOrder::ENDIAN_UNKNOWN</definition>
+        <argsstring></argsstring>
+        <name>ENDIAN_UNKNOWN</name>
+        <briefdescription>
+<para>Unknown endian byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="60" column="32" bodyfile="src/libsrc/ByteOrder.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>const ByteOrder evio::ByteOrder::ENDIAN_LOCAL</definition>
+        <argsstring></argsstring>
+        <name>ENDIAN_LOCAL</name>
+        <initializer>= <ref refid="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" kindref="member">ByteOrder::getLocalByteOrder</ref>()</initializer>
+        <briefdescription>
+<para>Local host&apos;s byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="61" column="32" bodyfile="src/libsrc/ByteOrder.h" bodystart="61" bodyend="-1"/>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" compoundref="dc/d0e/_writer_8cpp" startline="1247" endline="1321">evio::Writer::close</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1a0647993716e981fbedd6040f80114048" compoundref="d9/d77/_writer_m_t_8cpp" startline="684" endline="731">evio::WriterMT::close</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" compoundref="d1/d02/_byte_order_8h" startline="102" endline="102">isLocalEndian</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ab315c15b1c10617a2f9351320dadfc4c" compoundref="dc/de3/_base_structure_8cpp" startline="1517" endline="1517">evio::BaseStructure::needSwap</referencedby>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1a424b67644964be8ca45eb6d4060fd8b1" compoundref="d4/d6c/_byte_buffer_8cpp" startline="629" endline="634">evio::ByteBuffer::order</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="da/d7d/classevio_1_1_byte_order_1aefcbe8e2107bbca77f2f565530e2b736" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int evio::ByteOrder::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+<para>Value of this endian type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="66" column="13" bodyfile="src/libsrc/ByteOrder.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="da/d7d/classevio_1_1_byte_order_1ab4a8c7b68f22cae7164162e464d623ac" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::ByteOrder::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Store a name for each <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="69" column="21" bodyfile="src/libsrc/ByteOrder.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1af8ae444df545939845ffbb436be6c4b6" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::ByteOrder::ByteOrder</definition>
+        <argsstring>(int val, std::string name)</argsstring>
+        <name>ByteOrder</name>
+        <param>
+          <type>int</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>int value of this headerType object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name (string representation) of this headerType object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="76" column="9" bodyfile="src/libsrc/ByteOrder.h" bodystart="76" bodyend="76"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a23e150c194163000f504efa9b1e53d82" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::ByteOrder::getName</definition>
+        <argsstring>() const</argsstring>
+        <name>getName</name>
+        <briefdescription>
+<para>Get the object name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the object name. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="84" column="21" bodyfile="src/libsrc/ByteOrder.h" bodystart="84" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1aec4e6ef11064473104685009fede4e64" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::ByteOrder::isBigEndian</definition>
+        <argsstring>() const</argsstring>
+        <name>isBigEndian</name>
+        <briefdescription>
+<para>Is this big endian? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if big endian, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="90" column="14" bodyfile="src/libsrc/ByteOrder.h" bodystart="90" bodyend="90"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">ENDIAN_BIG</references>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1a5240c7673d80d6e03e890b3472ac00d4" compoundref="d1/d02/_byte_order_8h" startline="108" endline="110">getOppositeEndian</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1ae4919bf2379c770b75c2d5d7ca87ff7c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::ByteOrder::isLittleEndian</definition>
+        <argsstring>() const</argsstring>
+        <name>isLittleEndian</name>
+        <briefdescription>
+<para>Is this little endian? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if little endian, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="96" column="14" bodyfile="src/libsrc/ByteOrder.h" bodystart="96" bodyend="96"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" compoundref="d1/d02/_byte_order_8h" startline="57">ENDIAN_LITTLE</references>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1a9ebf5183862cb118242a27dfca41e0e4" compoundref="d4/d6c/_byte_buffer_8cpp" startline="29" endline="37">evio::ByteBuffer::ByteBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::ByteOrder::isLocalEndian</definition>
+        <argsstring>() const</argsstring>
+        <name>isLocalEndian</name>
+        <briefdescription>
+<para>Is this endian same as the local host? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if endian is the same as the local host, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="102" column="14" bodyfile="src/libsrc/ByteOrder.h" bodystart="102" bodyend="102"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" compoundref="d1/d02/_byte_order_8h" startline="61">ENDIAN_LOCAL</references>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a352207f5c6fb728773649bc44f17adca" compoundref="da/d47/_compact_event_builder_8cpp" startline="1043" endline="1081">evio::CompactEventBuilder::addDoubleData</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1add132a161db8b8cc578203233454df7f" compoundref="da/d47/_compact_event_builder_8cpp" startline="992" endline="1030">evio::CompactEventBuilder::addFloatData</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1afbc1aa2c526d31495a238f1282cbbbb1" compoundref="da/d47/_compact_event_builder_8cpp" startline="798" endline="840">evio::CompactEventBuilder::addIntData</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a279a3c0cc400a703d505ac116beb4885" compoundref="da/d47/_compact_event_builder_8cpp" startline="933" endline="979">evio::CompactEventBuilder::addLongData</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a11a8e0e5b532591b481c3a9c7ae14b5f" compoundref="da/d47/_compact_event_builder_8cpp" startline="854" endline="920">evio::CompactEventBuilder::addShortData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a5240c7673d80d6e03e890b3472ac00d4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::ByteOrder::getOppositeEndian</definition>
+        <argsstring>() const</argsstring>
+        <name>getOppositeEndian</name>
+        <briefdescription>
+<para>Get the oppposite endian (little if this is big and vice versa). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>he oppposite endian. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="108" column="19" bodyfile="src/libsrc/ByteOrder.h" bodystart="108" bodyend="110"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">ENDIAN_BIG</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" compoundref="d1/d02/_byte_order_8h" startline="57">ENDIAN_LITTLE</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aec4e6ef11064473104685009fede4e64" compoundref="d1/d02/_byte_order_8h" startline="90" endline="90">isBigEndian</references>
+        <referencedby refid="dd/db3/classevio_1_1_evio_reader_v4_1ab851d0a680a06875f14cbeee08c62c62" compoundref="de/da5/_evio_reader_v4_8cpp" startline="455" endline="574">evio::EvioReaderV4::parseFirstHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a89f850323e9475063a28fd791d6d1754" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::ByteOrder::operator==</definition>
+        <argsstring>(const ByteOrder &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="113" column="14" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="180" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a4d9e544de3c2343e2ebd418589b7d841" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::ByteOrder::operator!=</definition>
+        <argsstring>(const ByteOrder &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="115" column="14" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="184" bodyend="186"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const  &amp;</type>
+        <definition>static ByteOrder const&amp; evio::ByteOrder::getLocalByteOrder</definition>
+        <argsstring>()</argsstring>
+        <name>getLocalByteOrder</name>
+        <briefdescription>
+<para>Get the byte order of the local host. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>byte order of the local host. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="122" column="33" bodyfile="src/libsrc/ByteOrder.h" bodystart="122" bodyend="127"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">ENDIAN_BIG</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" compoundref="d1/d02/_byte_order_8h" startline="57">ENDIAN_LITTLE</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a15e39247b5d253ff34366e2830cea06a" compoundref="d1/d02/_byte_order_8h" startline="141" endline="144">isLocalHostBigEndian</references>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1aa96046df3a55b85a31f2c33e4d903cf1" compoundref="d1/d02/_byte_order_8h" startline="133" endline="135">nativeOrder</referencedby>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1a53f173621aa4ecf3bda24b74fdcb28b2" compoundref="d1/d02/_byte_order_8h" startline="151" endline="153">needToSwap</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1aa96046df3a55b85a31f2c33e4d903cf1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const  &amp;</type>
+        <definition>static ByteOrder const&amp; evio::ByteOrder::nativeOrder</definition>
+        <argsstring>()</argsstring>
+        <name>nativeOrder</name>
+        <briefdescription>
+<para>Get the byte order of the local host. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>byte order of the local host. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="133" column="33" bodyfile="src/libsrc/ByteOrder.h" bodystart="133" bodyend="135"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" compoundref="d1/d02/_byte_order_8h" startline="122" endline="127">getLocalByteOrder</references>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a15e39247b5d253ff34366e2830cea06a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::ByteOrder::isLocalHostBigEndian</definition>
+        <argsstring>()</argsstring>
+        <name>isLocalHostBigEndian</name>
+        <briefdescription>
+<para>Is the local host big endian? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if the local host is big endian, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="141" column="21" bodyfile="src/libsrc/ByteOrder.h" bodystart="141" bodyend="144"/>
+        <referencedby refid="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" compoundref="d1/d02/_byte_order_8h" startline="122" endline="127">getLocalByteOrder</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a53f173621aa4ecf3bda24b74fdcb28b2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::ByteOrder::needToSwap</definition>
+        <argsstring>(ByteOrder &amp;order)</argsstring>
+        <name>needToSwap</name>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Is the argument the opposite of the local host&apos;s endian? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order to compare to local host&apos;s. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the argument is the opposite of the local host&apos;s endian. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="151" column="21" bodyfile="src/libsrc/ByteOrder.h" bodystart="151" bodyend="153"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" compoundref="d1/d02/_byte_order_8h" startline="122" endline="127">getLocalByteOrder</references>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a89685661be04c90b3059e318f498531a" compoundref="dc/de3/_base_structure_8cpp" startline="3267" endline="3294">evio::BaseStructure::updateDoubleData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a39c24b766b220d1cda0e48a37f9b4881" compoundref="dc/de3/_base_structure_8cpp" startline="3230" endline="3257">evio::BaseStructure::updateFloatData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0264daf6e038c485628e364992c05e0e" compoundref="dc/de3/_base_structure_8cpp" startline="2904" endline="2935">evio::BaseStructure::updateIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a3b3dde0d329569255caa66a4f66d177f" compoundref="dc/de3/_base_structure_8cpp" startline="3084" endline="3111">evio::BaseStructure::updateLongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a408dedd1788bfcae0104b3455da671cc" compoundref="dc/de3/_base_structure_8cpp" startline="2981" endline="3024">evio::BaseStructure::updateShortData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0c3cfcf8e19805e392d092c8c7b9602c" compoundref="dc/de3/_base_structure_8cpp" startline="2945" endline="2971">evio::BaseStructure::updateUIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a1add8a09e87d9605a6da5deff79808e4" compoundref="dc/de3/_base_structure_8cpp" startline="3121" endline="3147">evio::BaseStructure::updateULongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1af3021857b10c869f6ade49085cc392c2" compoundref="dc/de3/_base_structure_8cpp" startline="3034" endline="3074">evio::BaseStructure::updateUShortData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1ab97d37587bd1206f03294e5b88545520" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void evio::ByteOrder::byteSwapInPlace</definition>
+        <argsstring>(T &amp;var)</argsstring>
+        <name>byteSwapInPlace</name>
+        <param>
+          <type>T &amp;</type>
+          <declname>var</declname>
+        </param>
+        <briefdescription>
+<para>Templated method to swap data in place. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>T</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>var</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>reference to data to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="163" column="21" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="18" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a90661733191471ae77ecf2f0e6082734" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void evio::ByteOrder::byteSwapInPlace</definition>
+        <argsstring>(T &amp;var, size_t elements)</argsstring>
+        <name>byteSwapInPlace</name>
+        <param>
+          <type>T &amp;</type>
+          <declname>var</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elements</declname>
+        </param>
+        <briefdescription>
+<para>Templated method to swap array data in place. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>T</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data type. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>var</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>reference to data to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of data elements to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="172" column="21" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="49" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a6bd357cb8be004145c7011c19c745391" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void evio::ByteOrder::byteSwapInPlace</definition>
+        <argsstring>(T *var, size_t elements)</argsstring>
+        <name>byteSwapInPlace</name>
+        <param>
+          <type>T *</type>
+          <declname>var</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elements</declname>
+        </param>
+        <briefdescription>
+<para>Templated method to swap array data in place. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If source pointer is null, nothing is done. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>T</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data type. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>var</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of data elements to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="182" column="21" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="62" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a1c12dcf8b5905395e4eb51afd501e546" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float evio::ByteOrder::byteSwap</definition>
+        <argsstring>(float var)</argsstring>
+        <name>byteSwap</name>
+        <param>
+          <type>float</type>
+          <declname>var</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to return swapped float. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>var</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>float to swap </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>swapped float. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="185" column="22" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="29" bodyend="34"/>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1a67dcdbbffad8bdd205358924f829ee73" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1273" endline="1278">evio::ByteBuffer::getDouble</referencedby>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1aed6c141ba0589c64122ed8b7f9dd86dd" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1238" endline="1243">evio::ByteBuffer::getFloat</referencedby>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1a4fd73c016a4204558255bd09d86f5499" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1705" endline="1714">evio::ByteBuffer::putDouble</referencedby>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1a6ec6454d1dda555d99b9701e5e9fe0b1" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1660" endline="1669">evio::ByteBuffer::putFloat</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a28ffcd414e51f592c5416aba4562a07c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double evio::ByteOrder::byteSwap</definition>
+        <argsstring>(double var)</argsstring>
+        <name>byteSwap</name>
+        <param>
+          <type>double</type>
+          <declname>var</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to return swapped double. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>var</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>double to swap </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>swapped double. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="186" column="23" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="41" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a4ba6cdff823495b629ad3283c18e5cff" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t *</type>
+        <definition>uint16_t * evio::ByteOrder::byteSwap16</definition>
+        <argsstring>(uint16_t *src, size_t elements, uint16_t *dst)</argsstring>
+        <name>byteSwap16</name>
+        <param>
+          <type>uint16_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elements</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>This method swaps an array of 2-byte data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If source pointer is null, nothing is done. If destination pointer is null, src is swapped in place.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data source. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of 2-byte elements to swap. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to destination or nullptr if data is to be swapped in place. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>pointer to beginning of swapped data; null if src is null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="189" column="25" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="86" bodyend="97"/>
+        <references refid="d1/d02/_byte_order_8h_1abf29e9eea0fd8b7b06dd855e1bad0293" compoundref="d1/d02/_byte_order_8h" startline="23">SWAP_16</references>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a408dedd1788bfcae0104b3455da671cc" compoundref="dc/de3/_base_structure_8cpp" startline="2981" endline="3024">evio::BaseStructure::updateShortData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1af3021857b10c869f6ade49085cc392c2" compoundref="dc/de3/_base_structure_8cpp" startline="3034" endline="3074">evio::BaseStructure::updateUShortData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a60983271868534fd949d944087e32db3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t *</type>
+        <definition>uint32_t * evio::ByteOrder::byteSwap32</definition>
+        <argsstring>(uint32_t *src, size_t elements, uint32_t *dst)</argsstring>
+        <name>byteSwap32</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elements</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>This method swaps an array of 4-byte data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If source pointer is null, nothing is done. If destination pointer is null, src is swapped in place.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data source. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of 4-byte elements to swap. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to destination or nullptr if data is to be swapped in place. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>pointer to beginning of swapped data; null if src is null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="190" column="25" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="109" bodyend="120"/>
+        <references refid="d1/d02/_byte_order_8h_1a700fb30611761c46a674a45cc28ff561" compoundref="d1/d02/_byte_order_8h" startline="28">SWAP_32</references>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1ad6ffbe34e5acec4a4a34277a4db200a7" compoundref="df/d3b/_evio_swap_8h" startline="69" endline="90">evio::EvioSwap::swapBank</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa73f2fbf22342d37418a28a8b67db4f9" compoundref="df/d3b/_evio_swap_8h" startline="106" endline="127">evio::EvioSwap::swapSegment</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1abb4f489ac9d0af245aa08b6844b5bbcb" compoundref="df/d3b/_evio_swap_8h" startline="143" endline="164">evio::EvioSwap::swapTagsegment</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a39c24b766b220d1cda0e48a37f9b4881" compoundref="dc/de3/_base_structure_8cpp" startline="3230" endline="3257">evio::BaseStructure::updateFloatData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0264daf6e038c485628e364992c05e0e" compoundref="dc/de3/_base_structure_8cpp" startline="2904" endline="2935">evio::BaseStructure::updateIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0c3cfcf8e19805e392d092c8c7b9602c" compoundref="dc/de3/_base_structure_8cpp" startline="2945" endline="2971">evio::BaseStructure::updateUIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1ab57f0490234e6d17fedb0c39cf5093c1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t *</type>
+        <definition>uint64_t * evio::ByteOrder::byteSwap64</definition>
+        <argsstring>(uint64_t *src, size_t elements, uint64_t *dst)</argsstring>
+        <name>byteSwap64</name>
+        <param>
+          <type>uint64_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elements</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>This method swaps an array of 8-byte data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If source pointer is null, nothing is done. If destination pointer is null, src is swapped in place.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data source. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of 8-byte elements to swap. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to destination or nullptr if data is to be swapped in place. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>pointer to beginning of swapped data; null if src is null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="191" column="25" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="132" bodyend="143"/>
+        <references refid="d1/d02/_byte_order_8h_1a8021644ad809413f98b4093a341b2041" compoundref="d1/d02/_byte_order_8h" startline="35">SWAP_64</references>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a89685661be04c90b3059e318f498531a" compoundref="dc/de3/_base_structure_8cpp" startline="3267" endline="3294">evio::BaseStructure::updateDoubleData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a3b3dde0d329569255caa66a4f66d177f" compoundref="dc/de3/_base_structure_8cpp" startline="3084" endline="3111">evio::BaseStructure::updateLongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a1add8a09e87d9605a6da5deff79808e4" compoundref="dc/de3/_base_structure_8cpp" startline="3121" endline="3147">evio::BaseStructure::updateULongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d7d/classevio_1_1_byte_order_1a5fcee1f9ff458a9b14595551c1b3a77c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::ByteOrder::byteNoSwap32</definition>
+        <argsstring>(const uint32_t *src, size_t elements, uint32_t *dst)</argsstring>
+        <name>byteNoSwap32</name>
+        <param>
+          <type>const uint32_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elements</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>This routine swaps nothing, it just copies the given number of 32 bit ints. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If source pointer is null, nothing is done.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data to be copied </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of 32 bit ints to be copied </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to where data is to be copied to. If null, nothing is done. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteOrder.h" line="192" column="26" bodyfile="src/libsrc/ByteOrder.cpp" bodystart="155" bodyend="165"/>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">evio::EvioSwap::swapData</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Numerical values associated with endian byte order. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 4/16/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>evio::ByteOrder</label>
+        <link refid="da/d7d/classevio_1_1_byte_order"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>ENDIAN_BIG</edgelabel>
+          <edgelabel>ENDIAN_LITTLE</edgelabel>
+          <edgelabel>ENDIAN_LOCAL</edgelabel>
+          <edgelabel>ENDIAN_UNKNOWN</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/ByteOrder.h" line="53" column="5" bodyfile="src/libsrc/ByteOrder.h" bodystart="53" bodyend="194"/>
+    <listofallmembers>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a5fcee1f9ff458a9b14595551c1b3a77c" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteNoSwap32</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1af8ae444df545939845ffbb436be6c4b6" prot="private" virt="non-virtual"><scope>evio::ByteOrder</scope><name>ByteOrder</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a1c12dcf8b5905395e4eb51afd501e546" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwap</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a28ffcd414e51f592c5416aba4562a07c" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwap</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a4ba6cdff823495b629ad3283c18e5cff" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwap16</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a60983271868534fd949d944087e32db3" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwap32</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ab57f0490234e6d17fedb0c39cf5093c1" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwap64</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ab97d37587bd1206f03294e5b88545520" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwapInPlace</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a90661733191471ae77ecf2f0e6082734" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwapInPlace</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a6bd357cb8be004145c7011c19c745391" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>byteSwapInPlace</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>ENDIAN_BIG</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>ENDIAN_LITTLE</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>ENDIAN_LOCAL</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a69586e13940d338c707da1d17d2e85a1" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>ENDIAN_UNKNOWN</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ad075e3d7351c6c4742b2c61df8b2e113" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>getLocalByteOrder</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a23e150c194163000f504efa9b1e53d82" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>getName</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a5240c7673d80d6e03e890b3472ac00d4" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>getOppositeEndian</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1aec4e6ef11064473104685009fede4e64" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>isBigEndian</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ae4919bf2379c770b75c2d5d7ca87ff7c" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>isLittleEndian</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>isLocalEndian</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a15e39247b5d253ff34366e2830cea06a" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>isLocalHostBigEndian</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1ab4a8c7b68f22cae7164162e464d623ac" prot="private" virt="non-virtual"><scope>evio::ByteOrder</scope><name>name</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1aa96046df3a55b85a31f2c33e4d903cf1" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>nativeOrder</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a53f173621aa4ecf3bda24b74fdcb28b2" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>needToSwap</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a4d9e544de3c2343e2ebd418589b7d841" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>operator!=</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1a89f850323e9475063a28fd791d6d1754" prot="public" virt="non-virtual"><scope>evio::ByteOrder</scope><name>operator==</name></member>
+      <member refid="da/d7d/classevio_1_1_byte_order_1aefcbe8e2107bbca77f2f565530e2b736" prot="private" virt="non-virtual"><scope>evio::ByteOrder</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

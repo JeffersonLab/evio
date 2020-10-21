@@ -1,0 +1,1056 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="dc/de8/classevio_1_1_record_supply" kind="class" language="C++" prot="public">
+    <compoundname>evio::RecordSupply</compoundname>
+    <includes local="no">RecordSupply.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a6375bbe180949de0e7b3693ca038ad2e" prot="private" static="no" mutable="no">
+        <type>std::mutex</type>
+        <definition>std::mutex evio::RecordSupply::supplyMutex</definition>
+        <argsstring></argsstring>
+        <name>supplyMutex</name>
+        <briefdescription>
+<para>Mutex for thread safety when setting error code or releasing resources. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="106" column="20" bodyfile="src/libsrc/RecordSupply.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1ae58d9b2d3925dcfce801427d73fea93b" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::RecordSupply::order</definition>
+        <argsstring></argsstring>
+        <name>order</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order of RecordOutputStream in each <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="109" column="19" bodyfile="src/libsrc/RecordSupply.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a29e675fbd9c5ae0d44eb1d3641980df0" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordSupply::maxEventCount</definition>
+        <argsstring></argsstring>
+        <name>maxEventCount</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Max number of events each record can hold. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Value of O means use default (1M). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="113" column="18" bodyfile="src/libsrc/RecordSupply.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a40ee381ab0e106f1a905f7a72d7e98e1" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordSupply::maxBufferSize</definition>
+        <argsstring></argsstring>
+        <name>maxBufferSize</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Max number of uncompressed data bytes each record can hold. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Value of &lt; 8MB results in default of 8MB. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="116" column="18" bodyfile="src/libsrc/RecordSupply.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a54dcd248f0e7de600d1dda648358ad44" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref></type>
+        <definition>Compressor::CompressionType evio::RecordSupply::compressionType</definition>
+        <argsstring></argsstring>
+        <name>compressionType</name>
+        <initializer>{<ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" kindref="member">Compressor::UNCOMPRESSED</ref>}</initializer>
+        <briefdescription>
+<para>Type type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="118" column="37" bodyfile="src/libsrc/RecordSupply.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1abc2267c398dd09cf3aab0c5bb06bc2f8" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordSupply::compressionThreadCount</definition>
+        <argsstring></argsstring>
+        <name>compressionThreadCount</name>
+        <initializer>= 1</initializer>
+        <briefdescription>
+<para>Number of threads doing compression simultaneously. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="120" column="18" bodyfile="src/libsrc/RecordSupply.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a106f27a7d861545f3fad57dff3c2030e" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordSupply::ringSize</definition>
+        <argsstring></argsstring>
+        <name>ringSize</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Number of records held in this supply. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="122" column="18" bodyfile="src/libsrc/RecordSupply.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a4eb6f686425ece86aacd4acfe6b0ad92" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; Disruptor::RingBuffer&lt; std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &gt; &gt;</type>
+        <definition>std::shared_ptr&lt;Disruptor::RingBuffer&lt;std::shared_ptr&lt;RecordRingItem&gt; &gt; &gt; evio::RecordSupply::ringBuffer</definition>
+        <argsstring></argsstring>
+        <name>ringBuffer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Variable ringSize needs to be defined first. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="126" column="25" bodyfile="src/libsrc/RecordSupply.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a32db32d573e2be731951b4b16218a76d" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; bool &gt;</type>
+        <definition>std::atomic&lt;bool&gt; evio::RecordSupply::haveErrorCondition</definition>
+        <argsstring></argsstring>
+        <name>haveErrorCondition</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+<para>Do we have an error writing and/or compressing data? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="132" column="21" bodyfile="src/libsrc/RecordSupply.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a7a5fbdbab8ddd13d8c2e006474c4d45b" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::RecordSupply::error</definition>
+        <argsstring></argsstring>
+        <name>error</name>
+        <initializer>{&quot;&quot;}</initializer>
+        <briefdescription>
+<para>Error string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>No atomic&lt;string&gt; in C++, so protect with mutex. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="134" column="21" bodyfile="src/libsrc/RecordSupply.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a9ca6e1ffd43d5a4b42cf29b4a4322313" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; bool &gt;</type>
+        <definition>std::atomic&lt;bool&gt; evio::RecordSupply::diskFull</definition>
+        <argsstring></argsstring>
+        <name>diskFull</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+<para>Writing of a <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> to disk has been stopped due to the disk partition being full. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="140" column="21" bodyfile="src/libsrc/RecordSupply.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a258053889d354124b21755df667ba655" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; Disruptor::ISequenceBarrier &gt;</type>
+        <definition>std::shared_ptr&lt;Disruptor::ISequenceBarrier&gt; evio::RecordSupply::compressBarrier</definition>
+        <argsstring></argsstring>
+        <name>compressBarrier</name>
+        <briefdescription>
+<para>Ring barrier to prevent records from being used by write thread before compression threads release them. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="146" column="25" bodyfile="src/libsrc/RecordSupply.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a9411e85ae3fff463284e6bca8af997c7" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; Disruptor::ISequence &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;Disruptor::ISequence&gt; &gt; evio::RecordSupply::compressSeqs</definition>
+        <argsstring></argsstring>
+        <name>compressSeqs</name>
+        <briefdescription>
+<para>Sequences for compressing data, one per compression thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="148" column="21" bodyfile="src/libsrc/RecordSupply.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1ae7c2042cb40bdb403240db1c0c87bc56" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int64_t &gt;</type>
+        <definition>std::vector&lt;int64_t&gt; evio::RecordSupply::nextCompressSeqs</definition>
+        <argsstring></argsstring>
+        <name>nextCompressSeqs</name>
+        <briefdescription>
+<para>Array of next sequences (index of next item desired), one per compression thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="151" column="21" bodyfile="src/libsrc/RecordSupply.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a106aa49436b7b030cc568871af5b1cff" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int64_t &gt;</type>
+        <definition>std::vector&lt;int64_t&gt; evio::RecordSupply::availableCompressSeqs</definition>
+        <argsstring></argsstring>
+        <name>availableCompressSeqs</name>
+        <briefdescription>
+<para>Array of available sequences (largest index of sequentially available items), one per compression thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="154" column="21" bodyfile="src/libsrc/RecordSupply.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a66b2b765b054f3c778428e07ba530b38" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; Disruptor::ISequenceBarrier &gt;</type>
+        <definition>std::shared_ptr&lt;Disruptor::ISequenceBarrier&gt; evio::RecordSupply::writeBarrier</definition>
+        <argsstring></argsstring>
+        <name>writeBarrier</name>
+        <briefdescription>
+<para>Ring barrier to prevent records from being re-used by producer before write thread releases them. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="160" column="25" bodyfile="src/libsrc/RecordSupply.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a3664782cc189fc14f4fd9db5ade9d488" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; Disruptor::ISequence &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;Disruptor::ISequence&gt; &gt; evio::RecordSupply::writeSeqs</definition>
+        <argsstring></argsstring>
+        <name>writeSeqs</name>
+        <briefdescription>
+<para>Sequence for writing data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="162" column="21" bodyfile="src/libsrc/RecordSupply.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a3e9acce50daeb6ffeb2234ee7bde2de5" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t evio::RecordSupply::nextWriteSeq</definition>
+        <argsstring></argsstring>
+        <name>nextWriteSeq</name>
+        <initializer>= 0L</initializer>
+        <briefdescription>
+<para>Index of next item desired. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="164" column="17" bodyfile="src/libsrc/RecordSupply.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a9fe766b6ff7666a1bff0a4201818c817" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t evio::RecordSupply::availableWriteSeq</definition>
+        <argsstring></argsstring>
+        <name>availableWriteSeq</name>
+        <initializer>= 0L</initializer>
+        <briefdescription>
+<para>Largest index of sequentially available items. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="166" column="17" bodyfile="src/libsrc/RecordSupply.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1ae08417b1b70ab8c4d711a42a8e868f0a" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t evio::RecordSupply::lastSequenceReleased</definition>
+        <argsstring></argsstring>
+        <name>lastSequenceReleased</name>
+        <initializer>= -1L</initializer>
+        <briefdescription>
+<para>The last sequence to have been released after writing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="171" column="17" bodyfile="src/libsrc/RecordSupply.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1a25df2c497199c962fc3fc4903a16f67a" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t evio::RecordSupply::maxSequence</definition>
+        <argsstring></argsstring>
+        <name>maxSequence</name>
+        <initializer>= -1L</initializer>
+        <briefdescription>
+<para>The highest sequence to have asked for release after writing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="173" column="17" bodyfile="src/libsrc/RecordSupply.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dc/de8/classevio_1_1_record_supply_1adc8feea2f6260a0b892ad1df9424f4e4" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordSupply::between</definition>
+        <argsstring></argsstring>
+        <name>between</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The number of sequences between maxSequence &amp; lastSequenceReleased which have called <ref refid="dc/de8/classevio_1_1_record_supply_1a035753d88ac18275851d42bde9b53eb3" kindref="member">releaseWriter()</ref>, but not been released yet. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="176" column="18" bodyfile="src/libsrc/RecordSupply.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a47d72338250d1be25e5e1fdfb2203684" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordSupply::RecordSupply</definition>
+        <argsstring>()</argsstring>
+        <name>RecordSupply</name>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ring size of 4 records, compression thread count of 1, no compression, little endian data. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="181" column="9" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="22" bodyend="24"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1ab292a973d6671f9581e940617eff7cb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordSupply::RecordSupply</definition>
+        <argsstring>(const RecordSupply &amp;supply)=delete</argsstring>
+        <name>RecordSupply</name>
+        <param>
+          <type>const <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &amp;</type>
+          <declname>supply</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="183" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a149df78b303a2043f849dd2670dcfff3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordSupply::RecordSupply</definition>
+        <argsstring>(uint32_t ringSize, ByteOrder order, uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize, Compressor::CompressionType &amp;compressionType)</argsstring>
+        <name>RecordSupply</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>ringSize</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>threadCount</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxEventCount</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxBufferSize</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref> &amp;</type>
+          <declname>compressionType</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ringSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> objects in ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of RecordOutputStream in each <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>threadCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of threads simultaneously doing compression. Must be &lt;= ringSize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxEventCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of events each record can hold. Value &lt;= O means use default (1M). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBufferSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of uncompressed data bytes each record can hold. Value of &lt; 8MB results in default of 8MB. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>compressionType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data compression to do. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if args &lt; 1, ringSize not power of 2, threadCount &gt; ringSize. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="184" column="9" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="41" bodyend="111"/>
+        <references refid="db/dc8/classevio_1_1_record_ring_item_1a6e3fd33c6c06c95a900a88a261b4590b" compoundref="d1/d53/_record_ring_item_8cpp" startline="32" endline="37">evio::RecordRingItem::eventFactory</references>
+        <references refid="db/dc8/classevio_1_1_record_ring_item_1a2fff048e382fec687bf8f62c1c84ae46" compoundref="d1/d53/_record_ring_item_8cpp" startline="52" endline="59">evio::RecordRingItem::setEventFactorySettings</references>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1ae73df7e609b8b0e534fed47a865f5e1b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordSupply::~RecordSupply</definition>
+        <argsstring>()</argsstring>
+        <name>~RecordSupply</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="188" column="9" bodyfile="src/libsrc/RecordSupply.h" bodystart="188" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a5b0898bcf9761a1867eaa2b0c00b3f6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordSupply::errorAlert</definition>
+        <argsstring>()</argsstring>
+        <name>errorAlert</name>
+        <briefdescription>
+<para>Method to have sequence barriers throw a Disruptor&apos;s AlertException. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In this case, we can use it to warn write and compress threads which are waiting on barrier.waitFor() in <ref refid="dc/de8/classevio_1_1_record_supply_1a63190f0963f537c6fb6b29d8377beaa5" kindref="member">getToCompress(uint32_t)</ref> and <ref refid="dc/de8/classevio_1_1_record_supply_1ada13c1639029905ae234fa384cadd82b" kindref="member">getToWrite()</ref>. Do this in case of a write, compress, or some other error. This allows any threads waiting on these 2 methods to wake up, clean up, and exit. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="197" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="122" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1ac1581122e8b78be37ce5283b99aa45da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordSupply::getMaxRingBytes</definition>
+        <argsstring>()</argsstring>
+        <name>getMaxRingBytes</name>
+        <briefdescription>
+<para>Get the max number of bytes the records in this supply can hold all together. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>max number of bytes the records in this supply can hold all together. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="199" column="18" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="132" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1ab01508dc964baf3d2f977e44fb6e4801" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordSupply::getRingSize</definition>
+        <argsstring>()</argsstring>
+        <name>getRingSize</name>
+        <briefdescription>
+<para>Get the number of records in this supply. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>number of records in this supply. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="200" column="18" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="139" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a980db60ae9c6f538d3a24ad95359a316" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+        <definition>ByteOrder &amp; evio::RecordSupply::getOrder</definition>
+        <argsstring>()</argsstring>
+        <name>getOrder</name>
+        <briefdescription>
+<para>Get the byte order of all records in this supply. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>byte order of all records in this supply. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="201" column="20" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="146" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a1f795d94a49b3b2e4e397c0107042c1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::RecordSupply::getFillLevel</definition>
+        <argsstring>()</argsstring>
+        <name>getFillLevel</name>
+        <briefdescription>
+<para>Get the percentage of data-filled but unwritten records in ring. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Value of 0 means everything&apos;s been written. Value of 100 means that all records in the ring are filled with data (perhaps in various stages of being compressed) and have not been written yet.</para>
+<para><simplesect kind="return"><para>percentage of used records in ring. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="202" column="18" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="157" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a196dfd437db8f2f2c6a0e23700ef2462" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t evio::RecordSupply::getLastSequence</definition>
+        <argsstring>()</argsstring>
+        <name>getLastSequence</name>
+        <briefdescription>
+<para>Get the sequence of last ring buffer item published (seq starts at 0). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>sequence of last ring buffer item published (seq starts at 0). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="203" column="17" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="166" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1af6ac986bb6d740afcbc0b9f4560e1564" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; RecordRingItem &gt; evio::RecordSupply::get</definition>
+        <argsstring>()</argsstring>
+        <name>get</name>
+        <briefdescription>
+<para>Get the next available record item from the ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Use it to write data into the record. <simplesect kind="return"><para>next available record item in ring buffer in order to write data into it. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="205" column="25" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="176" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a68fd39ed3f305468efa495962bf2b5a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordSupply::publish</definition>
+        <argsstring>(std::shared_ptr&lt; RecordRingItem &gt; &amp;item)</argsstring>
+        <name>publish</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &amp;</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>Tell consumers that the record item is ready for consumption. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>To be used in conjunction with <ref refid="dc/de8/classevio_1_1_record_supply_1af6ac986bb6d740afcbc0b9f4560e1564" kindref="member">get()</ref>. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>record item available for consumers&apos; use. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="206" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="198" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a63190f0963f537c6fb6b29d8377beaa5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; RecordRingItem &gt; evio::RecordSupply::getToCompress</definition>
+        <argsstring>(uint32_t threadNumber)</argsstring>
+        <name>getToCompress</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>threadNumber</declname>
+        </param>
+        <briefdescription>
+<para>Get the next available record item from the ring buffer in order to compress the data already in it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>threadNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of thread (0,1, ...) used to compress. This number cannot exceed (compressionThreadCount - 1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>next available record item in ring buffer in order to compress data already in it. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>Disruptor::AlertException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <ref refid="dc/de8/classevio_1_1_record_supply_1a5b0898bcf9761a1867eaa2b0c00b3f6a" kindref="member">errorAlert()</ref> called. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="207" column="25" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="212" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1ada13c1639029905ae234fa384cadd82b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; RecordRingItem &gt; evio::RecordSupply::getToWrite</definition>
+        <argsstring>()</argsstring>
+        <name>getToWrite</name>
+        <briefdescription>
+<para>Get the next available record item from the ring buffer in order to write data into it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>next available record item in ring buffer in order to write data into it. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>Disruptor::AlertException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <ref refid="dc/de8/classevio_1_1_record_supply_1a5b0898bcf9761a1867eaa2b0c00b3f6a" kindref="member">errorAlert()</ref> called. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="208" column="25" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="246" bodyend="263"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1ac80bfbdf6f82fd10cc0631348d784fa6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordSupply::releaseCompressor</definition>
+        <argsstring>(std::shared_ptr&lt; RecordRingItem &gt; &amp;item)</argsstring>
+        <name>releaseCompressor</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &amp;</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>A compressing thread releases its claim on the given ring buffer item so it becomes available for use by writing thread behind the write barrier. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Because a compressing thread gets only every Nth record where N = compressionThreadCount, once it releases this record it also needs to release all events coming after, up until the one it will take next. In other words, also release the records it will skip over next. This allows close() to be called at any time without things hanging up.</para>
+<para>To be used in conjunction with <ref refid="dc/de8/classevio_1_1_record_supply_1a63190f0963f537c6fb6b29d8377beaa5" kindref="member">getToCompress(uint32_t)</ref>. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>item in ring buffer to release for reuse. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="210" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="279" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a88283fcf1be35de2207549cbe8c00062" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordSupply::releaseWriterSequential</definition>
+        <argsstring>(std::shared_ptr&lt; RecordRingItem &gt; &amp;item)</argsstring>
+        <name>releaseWriterSequential</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &amp;</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by the producer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>To be used in conjunction with <ref refid="dc/de8/classevio_1_1_record_supply_1ada13c1639029905ae234fa384cadd82b" kindref="member">getToWrite()</ref>.</para>
+<para>Care must be taken to ensure thread-safety. This method may only be called if the writing is done IN THE SAME THREAD as the calling of this method so that items are released in sequence as ensured by the caller. Otherwise use <ref refid="dc/de8/classevio_1_1_record_supply_1a035753d88ac18275851d42bde9b53eb3" kindref="member">releaseWriter(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>item in ring buffer to release for reuse. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>false if item not released or item is null, else true. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="211" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="298" bodyend="302"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a035753d88ac18275851d42bde9b53eb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordSupply::releaseWriter</definition>
+        <argsstring>(std::shared_ptr&lt; RecordRingItem &gt; &amp;item)</argsstring>
+        <name>releaseWriter</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &amp;</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by the producer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>To be used in conjunction with <ref refid="dc/de8/classevio_1_1_record_supply_1ada13c1639029905ae234fa384cadd82b" kindref="member">getToWrite()</ref>.</para>
+<para>Care must be taken to ensure thread-safety. The following can happen if no precautions are taken. In the case of EventWriterUnsync, writing to a file involves 2, simultaneous, asynchronous writes to a file - both in separate threads to the thread which calls the &quot;write&quot; method. If the writing of the later item finishes first, it releases it&apos;s item and sequence which, unfortunately, also releases the previous item&apos;s sequence (which is still being written). When the first write is complete, it also releases its item. However item.getSequenceObj() will return null (causing NullPointerException) because it was already released thereby allowing it to be reused and reset called on it.</para>
+<para>In order to prevent such a scenario, releaseWriter ensures that items are only released in sequence.</para>
+<para>If the same item is released more than once, bad things will happen. Thus the caller must take steps to prevent it. To avoid problems, call <ref refid="db/dc8/classevio_1_1_record_ring_item_1a57a2eb1fd506a8f6b0f48406cc7c59a5" kindref="member">RecordRingItem#setAlreadyReleased(bool)</ref> and set to true if item is released but will still be used in some manner.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>item in ring buffer to release for reuse. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>false if item or released since item is null, else true. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="212" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="332" bodyend="370"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1aaa5d0c2544350e9e591205c9dd4d5016" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordSupply::release</definition>
+        <argsstring>(uint32_t threadNum, int64_t sequenceNum)</argsstring>
+        <name>release</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>threadNum</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>sequenceNum</declname>
+        </param>
+        <briefdescription>
+<para>Release claim on ring items up to sequenceNum for the given compressor thread. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For internal use only - to free up records that the compressor thread will skip over anyway. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>threadNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>compressor thread number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sequenceNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sequence to release. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="213" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="380" bodyend="383"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a57f2867953160df90bd086c5a14383d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordSupply::haveError</definition>
+        <argsstring>()</argsstring>
+        <name>haveError</name>
+        <briefdescription>
+<para>Has an error occurred in writing or compressing data? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> if an error occurred in writing or compressing data, else<programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> . </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="215" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="390" bodyend="390"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1af0186cf8e0547e4f6d4e804a0a0e88ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordSupply::haveError</definition>
+        <argsstring>(bool err)</argsstring>
+        <name>haveError</name>
+        <param>
+          <type>bool</type>
+          <declname>err</declname>
+        </param>
+        <briefdescription>
+<para>Set whether an error occurred in writing or compressing data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>err</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if<programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> an error occurred in writing or compressing data, else<programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> . </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="216" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="397" bodyend="397"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1acfc466964e70de677752a6010045ece6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::RecordSupply::getError</definition>
+        <argsstring>()</argsstring>
+        <name>getError</name>
+        <briefdescription>
+<para>If there is an error, this contains the error message. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>error message if there is an error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="217" column="21" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="404" bodyend="409"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a7ae9f6d3176378de853730c79c56ea4b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordSupply::setError</definition>
+        <argsstring>(std::string &amp;err)</argsstring>
+        <name>setError</name>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>err</declname>
+        </param>
+        <briefdescription>
+<para>Set the error message. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>err</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error message. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="218" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="416" bodyend="420"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1ac10918d77653c80b7ed9268d8621b8c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordSupply::isDiskFull</definition>
+        <argsstring>()</argsstring>
+        <name>isDiskFull</name>
+        <briefdescription>
+<para>Has the writing of a <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> to disk has been stopped due to the disk partition being full? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if he writing of a <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> to disk has been stopped due to the disk partition being full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="220" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="429" bodyend="429"/>
+      </memberdef>
+      <memberdef kind="function" id="dc/de8/classevio_1_1_record_supply_1a5b10f58e40cfaca7314ba8470de55b0e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordSupply::setDiskFull</definition>
+        <argsstring>(bool full)</argsstring>
+        <name>setDiskFull</name>
+        <param>
+          <type>bool</type>
+          <declname>full</declname>
+        </param>
+        <briefdescription>
+<para>Set whether the writing of a <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> to disk has been stopped due to the disk partition being full. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>full</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if he writing of a <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> to disk has been stopped due to the disk partition being full. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordSupply.h" line="221" column="14" bodyfile="src/libsrc/RecordSupply.cpp" bodystart="438" bodyend="438"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This thread-safe, lock-free class is used to provide a very fast supply of RecordRingItems which are reused (using Disruptor software package). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>It is a supply of RecordRingItems in which a single producer does a <ref refid="dc/de8/classevio_1_1_record_supply_1af6ac986bb6d740afcbc0b9f4560e1564" kindref="member">get()</ref>, fills the record with data, and finally does a <ref refid="dc/de8/classevio_1_1_record_supply_1a68fd39ed3f305468efa495962bf2b5a9" kindref="member">publish(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</ref> to let consumers know the data is ready.</para>
+<para>This class is setup to handle 2 types of consumers. The first type is a thread which compresses a record&apos;s data. The number of such consumers is set in the constructor. Each of these will call <ref refid="dc/de8/classevio_1_1_record_supply_1a63190f0963f537c6fb6b29d8377beaa5" kindref="member">getToCompress(uint32_t)</ref> to get a record and eventually call <ref refid="dc/de8/classevio_1_1_record_supply_1ac80bfbdf6f82fd10cc0631348d784fa6" kindref="member">releaseCompressor(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</ref> to indicate it is finished compressing and the record is available for writing to disk.</para>
+<para>The second type of consumer is a single thread which writes all compressed records to a file. This will call <ref refid="dc/de8/classevio_1_1_record_supply_1ada13c1639029905ae234fa384cadd82b" kindref="member">getToWrite()</ref> to get a record and eventually call <ref refid="dc/de8/classevio_1_1_record_supply_1a035753d88ac18275851d42bde9b53eb3" kindref="member">releaseWriter(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</ref> to indicate it is finished writing and the record is available for being filled with new data.</para>
+<para>Due to the multithreaded nature of writing files using this class, a mechanism for reporting errors that occur in the writing and compressing threads is provided. Also, and probably more importantly, one can call <ref refid="dc/de8/classevio_1_1_record_supply_1a5b0898bcf9761a1867eaa2b0c00b3f6a" kindref="member">errorAlert()</ref> to notify any compression or write threads that an error has occurred. That way these threads can clean up and exit.</para>
+<para>It transparently makes sure that all records are written in the proper order.</para>
+<para><preformatted><computeroutput></computeroutput></preformatted></para>
+<para><preformatted><computeroutput>  This is a graphical representation of how our ring buffer is set up.</computeroutput></preformatted></para>
+<para><preformatted><computeroutput>  (1) The producer who calls <ref refid="dc/de8/classevio_1_1_record_supply_1af6ac986bb6d740afcbc0b9f4560e1564" kindref="member">get()</ref> will get a ring item allowing a record to be
+      filled. That same user does a <ref refid="dc/de8/classevio_1_1_record_supply_1a68fd39ed3f305468efa495962bf2b5a9" kindref="member">publish()</ref> when done with the record.</computeroutput></preformatted></para>
+<para><preformatted><computeroutput>  (2) The consumer who calls <ref refid="dc/de8/classevio_1_1_record_supply_1a63190f0963f537c6fb6b29d8377beaa5" kindref="member">getToCompress()</ref> will get that ring item and will
+      compress its data. There may be any number of compression threads
+      as long as <bold># threads &lt;= # of ring items!!!</bold>.
+      That same user does a <ref refid="dc/de8/classevio_1_1_record_supply_1ac80bfbdf6f82fd10cc0631348d784fa6" kindref="member">releaseCompressor()</ref> when done with the record.</computeroutput></preformatted></para>
+<para><preformatted><computeroutput>  (3) The consumer who calls <ref refid="dc/de8/classevio_1_1_record_supply_1ada13c1639029905ae234fa384cadd82b" kindref="member">getToWrite()</ref> will get that ring item and will
+      write its data to a file or another buffer. There may be only 1
+      such thread. This same user does a <ref refid="dc/de8/classevio_1_1_record_supply_1a035753d88ac18275851d42bde9b53eb3" kindref="member">releaseWriter()</ref> when done with the record.</computeroutput></preformatted></para>
+<para><preformatted><computeroutput>                        ||
+                        ||  writeBarrier
+          &gt;             ||
+        /             ________
+   Write thread     /    |    \
+             ---&gt;  / 1 _ | _ 2 \  &lt;---- Compression Threads 1-M
+ ================ | __ /   \ __ |               |
+                  |  6 |    | 3 |               V
+            ^     | __ | __ | __| ==========================
+            |      \   5 |   4 /       compressBarrier
+        Producer-&gt;  \ __ | __ /</computeroutput></preformatted></para>
+<para><preformatted><computeroutput></computeroutput></preformatted></para>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 11/5/19 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/RecordSupply.h" line="101" column="5" bodyfile="src/libsrc/RecordSupply.h" bodystart="101" bodyend="223"/>
+    <listofallmembers>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a106aa49436b7b030cc568871af5b1cff" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>availableCompressSeqs</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a9fe766b6ff7666a1bff0a4201818c817" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>availableWriteSeq</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1adc8feea2f6260a0b892ad1df9424f4e4" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>between</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a258053889d354124b21755df667ba655" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>compressBarrier</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1abc2267c398dd09cf3aab0c5bb06bc2f8" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>compressionThreadCount</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a54dcd248f0e7de600d1dda648358ad44" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>compressionType</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a9411e85ae3fff463284e6bca8af997c7" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>compressSeqs</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a9ca6e1ffd43d5a4b42cf29b4a4322313" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>diskFull</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a7a5fbdbab8ddd13d8c2e006474c4d45b" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>error</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a5b0898bcf9761a1867eaa2b0c00b3f6a" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>errorAlert</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1af6ac986bb6d740afcbc0b9f4560e1564" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>get</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1acfc466964e70de677752a6010045ece6" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getError</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a1f795d94a49b3b2e4e397c0107042c1f" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getFillLevel</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a196dfd437db8f2f2c6a0e23700ef2462" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getLastSequence</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ac1581122e8b78be37ce5283b99aa45da" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getMaxRingBytes</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a980db60ae9c6f538d3a24ad95359a316" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getOrder</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ab01508dc964baf3d2f977e44fb6e4801" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getRingSize</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a63190f0963f537c6fb6b29d8377beaa5" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getToCompress</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ada13c1639029905ae234fa384cadd82b" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>getToWrite</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a57f2867953160df90bd086c5a14383d8" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>haveError</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1af0186cf8e0547e4f6d4e804a0a0e88ec" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>haveError</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a32db32d573e2be731951b4b16218a76d" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>haveErrorCondition</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ac10918d77653c80b7ed9268d8621b8c2" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>isDiskFull</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ae08417b1b70ab8c4d711a42a8e868f0a" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>lastSequenceReleased</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a40ee381ab0e106f1a905f7a72d7e98e1" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>maxBufferSize</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a29e675fbd9c5ae0d44eb1d3641980df0" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>maxEventCount</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a25df2c497199c962fc3fc4903a16f67a" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>maxSequence</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ae7c2042cb40bdb403240db1c0c87bc56" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>nextCompressSeqs</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a3e9acce50daeb6ffeb2234ee7bde2de5" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>nextWriteSeq</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ae58d9b2d3925dcfce801427d73fea93b" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>order</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a68fd39ed3f305468efa495962bf2b5a9" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>publish</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a47d72338250d1be25e5e1fdfb2203684" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>RecordSupply</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ab292a973d6671f9581e940617eff7cb0" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>RecordSupply</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a149df78b303a2043f849dd2670dcfff3" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>RecordSupply</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1aaa5d0c2544350e9e591205c9dd4d5016" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>release</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ac80bfbdf6f82fd10cc0631348d784fa6" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>releaseCompressor</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a035753d88ac18275851d42bde9b53eb3" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>releaseWriter</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a88283fcf1be35de2207549cbe8c00062" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>releaseWriterSequential</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a4eb6f686425ece86aacd4acfe6b0ad92" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>ringBuffer</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a106f27a7d861545f3fad57dff3c2030e" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>ringSize</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a5b10f58e40cfaca7314ba8470de55b0e" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>setDiskFull</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a7ae9f6d3176378de853730c79c56ea4b" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>setError</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a6375bbe180949de0e7b3693ca038ad2e" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>supplyMutex</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a66b2b765b054f3c778428e07ba530b38" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>writeBarrier</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1a3664782cc189fc14f4fd9db5ade9d488" prot="private" virt="non-virtual"><scope>evio::RecordSupply</scope><name>writeSeqs</name></member>
+      <member refid="dc/de8/classevio_1_1_record_supply_1ae73df7e609b8b0e534fed47a865f5e1b" prot="public" virt="non-virtual"><scope>evio::RecordSupply</scope><name>~RecordSupply</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

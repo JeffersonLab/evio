@@ -1,0 +1,1317 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d5/d23/classevio_1_1_data_type" kind="class" language="C++" prot="public">
+    <compoundname>evio::DataType</compoundname>
+    <includes local="no">DataType.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::UNKNOWN32</definition>
+        <argsstring></argsstring>
+        <name>UNKNOWN32</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x0, &quot;UNKNOWN32&quot;)</initializer>
+        <briefdescription>
+<para>Unknown data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="36" column="31" bodyfile="src/libsrc/DataType.h" bodystart="36" bodyend="-1"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1afbc1aa2c526d31495a238f1282cbbbb1" compoundref="da/d47/_compact_event_builder_8cpp" startline="798" endline="840">evio::CompactEventBuilder::addIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7dbf9d7691f2c8ebb1fea19fdfb67482" compoundref="dc/de3/_base_structure_8cpp" startline="2551" endline="2597">evio::BaseStructure::dataLength</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">getDataType</referencedby>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1ab6a9f7abd82a7c63eb366bafeb3c658e" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="1007" endline="1041">evio::EvioXMLDictionary::getName</referencedby>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1a522c4afb7b3601a7bf5c2469dff2397d" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="114" endline="428">evio::EvioXMLDictionary::parseXML</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a5e28fed061292b3f1fa35011ed54ccbc" compoundref="db/da7/_data_type_8h" startline="121" endline="130">valueOf</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::UINT32</definition>
+        <argsstring></argsstring>
+        <name>UINT32</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x1, &quot;UINT32&quot;, 4)</initializer>
+        <briefdescription>
+<para>Unsigned 32 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="37" column="31" bodyfile="src/libsrc/DataType.h" bodystart="37" bodyend="-1"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1afbc1aa2c526d31495a238f1282cbbbb1" compoundref="da/d47/_compact_event_builder_8cpp" startline="798" endline="840">evio::CompactEventBuilder::addIntData</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a859c1963dd27ee0ea8dd11bdd125f0b3" compoundref="d6/d36/_composite_data_8h" startline="304" endline="311">evio::CompositeData::Data::addN</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1abe2e8e36a014dcf82ef925375ebf4061" compoundref="d6/d36/_composite_data_8h" startline="373" endline="379">evio::CompositeData::Data::addUint</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a3c341ca987848a19579c3f4d099f9fdc" compoundref="d4/dfa/_event_builder_8cpp" startline="489" endline="504">evio::EventBuilder::appendUIntData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ab635c54c693b2475f39e29ee94c6311b" compoundref="dc/de3/_base_structure_8cpp" startline="1791" endline="1810">evio::BaseStructure::getUIntData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a5dbc92ac983758e2a149a932f01af188" compoundref="d4/dfa/_event_builder_8cpp" startline="183" endline="197">evio::EventBuilder::setUIntData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0c3cfcf8e19805e392d092c8c7b9602c" compoundref="dc/de3/_base_structure_8cpp" startline="2945" endline="2971">evio::BaseStructure::updateUIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::FLOAT32</definition>
+        <argsstring></argsstring>
+        <name>FLOAT32</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x2, &quot;FLOAT32&quot;, 4)</initializer>
+        <briefdescription>
+<para>32 bit float. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="38" column="31" bodyfile="src/libsrc/DataType.h" bodystart="38" bodyend="-1"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a8b2c41ee22dc35b7b59f3b7aa7d9ef4f" compoundref="d6/d36/_composite_data_8h" startline="564" endline="570">evio::CompositeData::Data::addFloat</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1add132a161db8b8cc578203233454df7f" compoundref="da/d47/_compact_event_builder_8cpp" startline="992" endline="1030">evio::CompactEventBuilder::addFloatData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a7c41fc5b670046f2d7012691cb9c6d46" compoundref="d4/dfa/_event_builder_8cpp" startline="671" endline="686">evio::EventBuilder::appendFloatData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1af78744f272c2da5a9e708a67c2c0cdbc" compoundref="dc/de3/_base_structure_8cpp" startline="1881" endline="1900">evio::BaseStructure::getFloatData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a94c380a5efed46e884de4a89a61d9d27" compoundref="d4/dfa/_event_builder_8cpp" startline="358" endline="372">evio::EventBuilder::setFloatData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a39c24b766b220d1cda0e48a37f9b4881" compoundref="dc/de3/_base_structure_8cpp" startline="3230" endline="3257">evio::BaseStructure::updateFloatData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::CHARSTAR8</definition>
+        <argsstring></argsstring>
+        <name>CHARSTAR8</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x3, &quot;CHARSTAR8&quot;)</initializer>
+        <briefdescription>
+<para>ASCII characters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="39" column="31" bodyfile="src/libsrc/DataType.h" bodystart="39" bodyend="-1"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3fc56698abe1c67bbd9c244c427090dd" compoundref="d6/d36/_composite_data_8h" startline="618" endline="626">evio::CompositeData::Data::addString</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9835683a45cb69bbaec9f8f41c691ce0" compoundref="da/d47/_compact_event_builder_8cpp" startline="1093" endline="1125">evio::CompactEventBuilder::addStringData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a9cd39d1509c902d8a6a98ccac659e54b" compoundref="d4/dfa/_event_builder_8cpp" startline="723" endline="738">evio::EventBuilder::appendStringData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7dbf9d7691f2c8ebb1fea19fdfb67482" compoundref="dc/de3/_base_structure_8cpp" startline="2551" endline="2597">evio::BaseStructure::dataLength</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ac32a371061bb108c2dcce0d21df4d87c" compoundref="dc/de3/_base_structure_8cpp" startline="1606" endline="1653">evio::BaseStructure::getNumberDataItems</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0c5d29c325064e230d12cd5a30e8ef68" compoundref="dc/de3/_base_structure_8cpp" startline="2027" endline="2042">evio::BaseStructure::getStringData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">evio::EventBuilder::main</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6018aa25e1bfcf309722d2aca2ad2b71" compoundref="d4/dfa/_event_builder_8cpp" startline="408" endline="422">evio::EventBuilder::setStringData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a4730e93ed7f947b82f022da6a417f611" compoundref="dc/de3/_base_structure_8cpp" startline="3304" endline="3315">evio::BaseStructure::updateStringData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::SHORT16</definition>
+        <argsstring></argsstring>
+        <name>SHORT16</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x4, &quot;SHORT16&quot;, 2)</initializer>
+        <briefdescription>
+<para>16 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="40" column="31" bodyfile="src/libsrc/DataType.h" bodystart="40" bodyend="-1"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aff22deec947ee7528a768e4ae85d96a7" compoundref="d6/d36/_composite_data_8h" startline="401" endline="407">evio::CompositeData::Data::addShort</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a11a8e0e5b532591b481c3a9c7ae14b5f" compoundref="da/d47/_compact_event_builder_8cpp" startline="854" endline="920">evio::CompactEventBuilder::addShortData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a89bbfc9f297917f66d397e13f00dd1a2" compoundref="d4/dfa/_event_builder_8cpp" startline="515" endline="530">evio::EventBuilder::appendShortData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ac7f038740895252926e0f05dc6e6c682" compoundref="dc/de3/_base_structure_8cpp" startline="1696" endline="1720">evio::BaseStructure::getShortData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">evio::EventBuilder::main</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a50e695828cbfbee4429616dcf6dcf41c" compoundref="d4/dfa/_event_builder_8cpp" startline="208" endline="222">evio::EventBuilder::setShortData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a408dedd1788bfcae0104b3455da671cc" compoundref="dc/de3/_base_structure_8cpp" startline="2981" endline="3024">evio::BaseStructure::updateShortData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::USHORT16</definition>
+        <argsstring></argsstring>
+        <name>USHORT16</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x5, &quot;USHORT16&quot;, 2)</initializer>
+        <briefdescription>
+<para>Unsigned 16 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="41" column="31" bodyfile="src/libsrc/DataType.h" bodystart="41" bodyend="-1"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a7bbcbb7357ebba6955183fca48582c78" compoundref="d6/d36/_composite_data_8h" startline="318" endline="325">evio::CompositeData::Data::addn</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a11a8e0e5b532591b481c3a9c7ae14b5f" compoundref="da/d47/_compact_event_builder_8cpp" startline="854" endline="920">evio::CompactEventBuilder::addShortData</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a72acfda240c05c1e3f605e0b85c30bd6" compoundref="d6/d36/_composite_data_8h" startline="427" endline="433">evio::CompositeData::Data::addUShort</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a15ab74ffb262076255317db1d201e943" compoundref="d4/dfa/_event_builder_8cpp" startline="541" endline="556">evio::EventBuilder::appendUShortData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a1b2a0620587c0eb2c39bcab988d2611c" compoundref="dc/de3/_base_structure_8cpp" startline="1731" endline="1750">evio::BaseStructure::getUShortData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ab3ce4c0d9b3ec33a3da13e9610bf4503" compoundref="d4/dfa/_event_builder_8cpp" startline="233" endline="247">evio::EventBuilder::setUShortData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1af3021857b10c869f6ade49085cc392c2" compoundref="dc/de3/_base_structure_8cpp" startline="3034" endline="3074">evio::BaseStructure::updateUShortData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::CHAR8</definition>
+        <argsstring></argsstring>
+        <name>CHAR8</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x6, &quot;CHAR8&quot;, 1)</initializer>
+        <briefdescription>
+<para>8 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="42" column="31" bodyfile="src/libsrc/DataType.h" bodystart="42" bodyend="-1"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a1a5d4684f272840631b56f19fb0870f6" compoundref="da/d47/_compact_event_builder_8cpp" startline="734" endline="785">evio::CompactEventBuilder::addByteData</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a0aff24b88bb1bb497dc5dbc58996d8a2" compoundref="d6/d36/_composite_data_8h" startline="509" endline="515">evio::CompositeData::Data::addChar</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a8d314a968d19a7152c2c57b1798aafce" compoundref="d4/dfa/_event_builder_8cpp" startline="619" endline="634">evio::EventBuilder::appendCharData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7dbf9d7691f2c8ebb1fea19fdfb67482" compoundref="dc/de3/_base_structure_8cpp" startline="2551" endline="2597">evio::BaseStructure::dataLength</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a807313df5509f3ebbe5e43bb25f471e3" compoundref="dc/de3/_base_structure_8cpp" startline="1963" endline="1976">evio::BaseStructure::getCharData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a3dcbd8ae3c255b2e29198289e4bc3426" compoundref="d4/dfa/_event_builder_8cpp" startline="308" endline="322">evio::EventBuilder::setCharData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a5fe3a48fb1f8898bdd13d08ea689ea41" compoundref="dc/de3/_base_structure_8cpp" startline="3157" endline="3184">evio::BaseStructure::updateCharData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::UCHAR8</definition>
+        <argsstring></argsstring>
+        <name>UCHAR8</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x7, &quot;UCHAR8&quot;, 1)</initializer>
+        <briefdescription>
+<para>Unsigned 8 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="43" column="31" bodyfile="src/libsrc/DataType.h" bodystart="43" bodyend="-1"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a1a5d4684f272840631b56f19fb0870f6" compoundref="da/d47/_compact_event_builder_8cpp" startline="734" endline="785">evio::CompactEventBuilder::addByteData</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a6bcde6f4b5585cf2686d0fb6a6f4835b" compoundref="d6/d36/_composite_data_8h" startline="332" endline="339">evio::CompositeData::Data::addm</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a0b2de91f48c9114fb4e37edde90e6e98" compoundref="d6/d36/_composite_data_8h" startline="536" endline="542">evio::CompositeData::Data::addUChar</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad35b3a27fbc4e7734f0c0d55e91c1085" compoundref="d4/dfa/_event_builder_8cpp" startline="645" endline="660">evio::EventBuilder::appendUCharData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7dbf9d7691f2c8ebb1fea19fdfb67482" compoundref="dc/de3/_base_structure_8cpp" startline="2551" endline="2597">evio::BaseStructure::dataLength</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1aa67b53fb0e89e5e68998bfdb5b4ae0b6" compoundref="dc/de3/_base_structure_8cpp" startline="1987" endline="2000">evio::BaseStructure::getUCharData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6dbfd214e717489d3d3c15dfadd9038a" compoundref="d4/dfa/_event_builder_8cpp" startline="333" endline="347">evio::EventBuilder::setUCharData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a896a4fdf01edece007470588d1835058" compoundref="dc/de3/_base_structure_8cpp" startline="3194" endline="3220">evio::BaseStructure::updateUCharData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::DOUBLE64</definition>
+        <argsstring></argsstring>
+        <name>DOUBLE64</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x8, &quot;DOUBLE64&quot;, 8)</initializer>
+        <briefdescription>
+<para>64 bit double. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="44" column="31" bodyfile="src/libsrc/DataType.h" bodystart="44" bodyend="-1"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a87e1e55c2270d80079f9962e5703ea7c" compoundref="d6/d36/_composite_data_8h" startline="590" endline="596">evio::CompositeData::Data::addDouble</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a352207f5c6fb728773649bc44f17adca" compoundref="da/d47/_compact_event_builder_8cpp" startline="1043" endline="1081">evio::CompactEventBuilder::addDoubleData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ac73f59b736d316cd45862fd24af4d274" compoundref="d4/dfa/_event_builder_8cpp" startline="697" endline="712">evio::EventBuilder::appendDoubleData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ac85e2171b9e2afb61ad572d015723fbf" compoundref="dc/de3/_base_structure_8cpp" startline="1911" endline="1930">evio::BaseStructure::getDoubleData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">evio::EventBuilder::main</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1add5d4f0b4d35f9fcab3e7093b6fcc2fd" compoundref="d4/dfa/_event_builder_8cpp" startline="383" endline="397">evio::EventBuilder::setDoubleData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a89685661be04c90b3059e318f498531a" compoundref="dc/de3/_base_structure_8cpp" startline="3267" endline="3294">evio::BaseStructure::updateDoubleData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::LONG64</definition>
+        <argsstring></argsstring>
+        <name>LONG64</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x9, &quot;LONG64&quot;, 8)</initializer>
+        <briefdescription>
+<para>64 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="45" column="31" bodyfile="src/libsrc/DataType.h" bodystart="45" bodyend="-1"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1acc3a86943d35b60da13c3e593c882b23" compoundref="d6/d36/_composite_data_8h" startline="455" endline="461">evio::CompositeData::Data::addLong</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a279a3c0cc400a703d505ac116beb4885" compoundref="da/d47/_compact_event_builder_8cpp" startline="933" endline="979">evio::CompactEventBuilder::addLongData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a2f91c162d2cf83510372796b8dff7a84" compoundref="d4/dfa/_event_builder_8cpp" startline="567" endline="582">evio::EventBuilder::appendLongData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a710023eaa51b01f35b8adf0159b472d8" compoundref="dc/de3/_base_structure_8cpp" startline="1821" endline="1840">evio::BaseStructure::getLongData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ac28e6dbf5d5fdf40ab8ca2f8706dcbd5" compoundref="d4/dfa/_event_builder_8cpp" startline="258" endline="272">evio::EventBuilder::setLongData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a3b3dde0d329569255caa66a4f66d177f" compoundref="dc/de3/_base_structure_8cpp" startline="3084" endline="3111">evio::BaseStructure::updateLongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::ULONG64</definition>
+        <argsstring></argsstring>
+        <name>ULONG64</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0xa, &quot;ULONG64&quot;, 8)</initializer>
+        <briefdescription>
+<para>Unsigned 64 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="46" column="31" bodyfile="src/libsrc/DataType.h" bodystart="46" bodyend="-1"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a279a3c0cc400a703d505ac116beb4885" compoundref="da/d47/_compact_event_builder_8cpp" startline="933" endline="979">evio::CompactEventBuilder::addLongData</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a02d778e9b3758affc79cc9bfdfd58dcb" compoundref="d6/d36/_composite_data_8h" startline="481" endline="487">evio::CompositeData::Data::addULong</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a2cafd71632f3855397135fefe7fa3a7d" compoundref="d4/dfa/_event_builder_8cpp" startline="593" endline="608">evio::EventBuilder::appendULongData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ae0327f6bc030cdd08266a3115f69a9e5" compoundref="dc/de3/_base_structure_8cpp" startline="1851" endline="1870">evio::BaseStructure::getULongData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a40078fa4ecd339fc032f35fd8c864747" compoundref="d4/dfa/_event_builder_8cpp" startline="283" endline="297">evio::EventBuilder::setULongData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a1add8a09e87d9605a6da5deff79808e4" compoundref="dc/de3/_base_structure_8cpp" startline="3121" endline="3147">evio::BaseStructure::updateULongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::INT32</definition>
+        <argsstring></argsstring>
+        <name>INT32</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0xb, &quot;INT32&quot;, 4)</initializer>
+        <briefdescription>
+<para>32 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="47" column="31" bodyfile="src/libsrc/DataType.h" bodystart="47" bodyend="-1"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a5cfab11bb482df01f2c51f8d21ed8211" compoundref="d6/d36/_composite_data_8h" startline="347" endline="353">evio::CompositeData::Data::addInt</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1afbc1aa2c526d31495a238f1282cbbbb1" compoundref="da/d47/_compact_event_builder_8cpp" startline="798" endline="840">evio::CompactEventBuilder::addIntData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a5aa89256839e6af453f36188ff9f0496" compoundref="d4/dfa/_event_builder_8cpp" startline="462" endline="478">evio::EventBuilder::appendIntData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a622bb507ede6789103db9fd9052ff57a" compoundref="dc/de3/_base_structure_8cpp" startline="1761" endline="1780">evio::BaseStructure::getIntData</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" compoundref="db/da7/_data_type_8h" startline="236" endline="245">isInteger</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">evio::EventBuilder::main</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6b550b0b63ed484643820c007c7275ab" compoundref="d4/dfa/_event_builder_8cpp" startline="158" endline="172">evio::EventBuilder::setIntData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0264daf6e038c485628e364992c05e0e" compoundref="dc/de3/_base_structure_8cpp" startline="2904" endline="2935">evio::BaseStructure::updateIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::TAGSEGMENT</definition>
+        <argsstring></argsstring>
+        <name>TAGSEGMENT</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0xc, &quot;TAGSEGMENT&quot;)</initializer>
+        <briefdescription>
+<para>Tag segment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="48" column="31" bodyfile="src/libsrc/DataType.h" bodystart="48" bodyend="-1"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" compoundref="db/da7/_data_type_8h" startline="139" endline="143">isStructure</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1afafccc742f056bb1740cc7dd31a1955f" compoundref="db/da7/_data_type_8h" startline="168" endline="170">isTagSegment</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">evio::EventBuilder::main</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9b7812e1d18349d5fec68cd1611dfcf8" compoundref="da/d47/_compact_event_builder_8cpp" startline="241" endline="308">evio::CompactEventBuilder::openTagSegment</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1516862f728d4f8b3795d377a68f644d" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="674" endline="901">evio::EvioCompactReaderV4::removeStructure</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" compoundref="d9/d45/_evio_node_8cpp" startline="504" endline="656">evio::EvioNode::scanStructure</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" compoundref="d9/d45/_evio_node_8cpp" startline="991" endline="1014">evio::EvioNode::updateLengths</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" compoundref="d9/d45/_evio_node_8cpp" startline="1024" endline="1054">evio::EvioNode::updateTag</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::ALSOSEGMENT</definition>
+        <argsstring></argsstring>
+        <name>ALSOSEGMENT</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0xd, &quot;ALSOSEGMENT&quot;)</initializer>
+        <briefdescription>
+<para>Segment alternate value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="49" column="31" bodyfile="src/libsrc/DataType.h" bodystart="49" bodyend="-1"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1ac61b68037bf610b0fc15df9fe69e7aed" compoundref="d1/d04/_structure_transformer_8h" startline="192" endline="209">evio::StructureTransformer::copy</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a8c5bd7f199a30c163c274be1f51d6da3" compoundref="db/da7/_data_type_8h" startline="159" endline="161">isSegment</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" compoundref="db/da7/_data_type_8h" startline="139" endline="143">isStructure</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a565d005085544e6e8c66e410fd1e8a8a" compoundref="da/d47/_compact_event_builder_8cpp" startline="165" endline="226">evio::CompactEventBuilder::openSegment</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1516862f728d4f8b3795d377a68f644d" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="674" endline="901">evio::EvioCompactReaderV4::removeStructure</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4b55bfb1a25acc690c9456f0869c4b49" compoundref="db/da7/_data_type_8h" startline="193" endline="197">toString</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1a726821c1aaeea163f426f4bc55a248e6" compoundref="d1/d04/_structure_transformer_8h" startline="158" endline="177">evio::StructureTransformer::transform</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" compoundref="d9/d45/_evio_node_8cpp" startline="991" endline="1014">evio::EvioNode::updateLengths</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" compoundref="d9/d45/_evio_node_8cpp" startline="1024" endline="1054">evio::EvioNode::updateTag</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::ALSOBANK</definition>
+        <argsstring></argsstring>
+        <name>ALSOBANK</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0xe, &quot;ALSOBANK&quot;)</initializer>
+        <briefdescription>
+<para>Bank alternate value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="50" column="31" bodyfile="src/libsrc/DataType.h" bodystart="50" bodyend="-1"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1ac61b68037bf610b0fc15df9fe69e7aed" compoundref="d1/d04/_structure_transformer_8h" startline="192" endline="209">evio::StructureTransformer::copy</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a43fa2881329c62cf42020bbc9b786106" compoundref="db/da7/_data_type_8h" startline="150" endline="152">isBank</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" compoundref="db/da7/_data_type_8h" startline="139" endline="143">isStructure</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a14cd5da1c84c052c8a446235dd67f03c" compoundref="da/d47/_compact_event_builder_8cpp" startline="323" endline="398">evio::CompactEventBuilder::openBank</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1516862f728d4f8b3795d377a68f644d" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="674" endline="901">evio::EvioCompactReaderV4::removeStructure</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a4b55bfb1a25acc690c9456f0869c4b49" compoundref="db/da7/_data_type_8h" startline="193" endline="197">toString</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1a726821c1aaeea163f426f4bc55a248e6" compoundref="d1/d04/_structure_transformer_8h" startline="158" endline="177">evio::StructureTransformer::transform</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" compoundref="d9/d45/_evio_node_8cpp" startline="991" endline="1014">evio::EvioNode::updateLengths</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a3227a6c38ef2a620c12d3725368793d1" compoundref="d9/d45/_evio_node_8cpp" startline="1063" endline="1076">evio::EvioNode::updateNum</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" compoundref="d9/d45/_evio_node_8cpp" startline="1024" endline="1054">evio::EvioNode::updateTag</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::COMPOSITE</definition>
+        <argsstring></argsstring>
+        <name>COMPOSITE</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0xf, &quot;COMPOSITE&quot;)</initializer>
+        <briefdescription>
+<para>Composite data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="51" column="31" bodyfile="src/libsrc/DataType.h" bodystart="51" bodyend="-1"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1aa9b4794a8a205b1e96fe7226cef3c864" compoundref="da/d47/_compact_event_builder_8cpp" startline="1137" endline="1177">evio::CompactEventBuilder::addCompositeData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a12a1e136528c944ae60635b50401266d" compoundref="d4/dfa/_event_builder_8cpp" startline="749" endline="766">evio::EventBuilder::appendCompositeData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7dbf9d7691f2c8ebb1fea19fdfb67482" compoundref="dc/de3/_base_structure_8cpp" startline="2551" endline="2597">evio::BaseStructure::dataLength</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ac5e88c4f6a89a59851bf08a613d6ac42" compoundref="dc/de3/_base_structure_8cpp" startline="1942" endline="1952">evio::BaseStructure::getCompositeData</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ac32a371061bb108c2dcce0d21df4d87c" compoundref="dc/de3/_base_structure_8cpp" startline="1606" endline="1653">evio::BaseStructure::getNumberDataItems</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ae94057017b57044ff884cbe53b2dd79b" compoundref="d4/dfa/_event_builder_8cpp" startline="433" endline="448">evio::EventBuilder::setCompositeData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a84c0b49e9886b62dae99c8b32bec410a" compoundref="dc/de3/_base_structure_8cpp" startline="3325" endline="3357">evio::BaseStructure::updateCompositeData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::BANK</definition>
+        <argsstring></argsstring>
+        <name>BANK</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x10, &quot;BANK&quot;)</initializer>
+        <briefdescription>
+<para>Bank. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="52" column="31" bodyfile="src/libsrc/DataType.h" bodystart="52" bodyend="-1"/>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a34f7490d31685ed7764dd05832fd9829" compoundref="d9/d45/_evio_node_8cpp" startline="99" endline="108">evio::EvioNode::EvioNode</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1ac61b68037bf610b0fc15df9fe69e7aed" compoundref="d1/d04/_structure_transformer_8h" startline="192" endline="209">evio::StructureTransformer::copy</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1ab6c201b2b277a809d6be58816a107bb2" compoundref="d9/d45/_evio_node_8cpp" startline="453" endline="494">evio::EvioNode::extractNode</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a43fa2881329c62cf42020bbc9b786106" compoundref="db/da7/_data_type_8h" startline="150" endline="152">isBank</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" compoundref="db/da7/_data_type_8h" startline="139" endline="143">isStructure</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">evio::EventBuilder::main</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a14cd5da1c84c052c8a446235dd67f03c" compoundref="da/d47/_compact_event_builder_8cpp" startline="323" endline="398">evio::CompactEventBuilder::openBank</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1516862f728d4f8b3795d377a68f644d" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="674" endline="901">evio::EvioCompactReaderV4::removeStructure</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" compoundref="d9/d45/_evio_node_8cpp" startline="504" endline="656">evio::EvioNode::scanStructure</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1af86dd6383766b1d5fc6c4615945effab" compoundref="d9/d45/_evio_node_8cpp" startline="342" endline="351">evio::EvioNode::setData</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1a726821c1aaeea163f426f4bc55a248e6" compoundref="d1/d04/_structure_transformer_8h" startline="158" endline="177">evio::StructureTransformer::transform</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" compoundref="d9/d45/_evio_node_8cpp" startline="991" endline="1014">evio::EvioNode::updateLengths</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a3227a6c38ef2a620c12d3725368793d1" compoundref="d9/d45/_evio_node_8cpp" startline="1063" endline="1076">evio::EvioNode::updateNum</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" compoundref="d9/d45/_evio_node_8cpp" startline="1024" endline="1054">evio::EvioNode::updateTag</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::SEGMENT</definition>
+        <argsstring></argsstring>
+        <name>SEGMENT</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x20, &quot;SEGMENT&quot;)</initializer>
+        <briefdescription>
+<para>Segment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="53" column="31" bodyfile="src/libsrc/DataType.h" bodystart="53" bodyend="-1"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1ac61b68037bf610b0fc15df9fe69e7aed" compoundref="d1/d04/_structure_transformer_8h" startline="192" endline="209">evio::StructureTransformer::copy</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a8c5bd7f199a30c163c274be1f51d6da3" compoundref="db/da7/_data_type_8h" startline="159" endline="161">isSegment</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" compoundref="db/da7/_data_type_8h" startline="139" endline="143">isStructure</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">evio::EventBuilder::main</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a565d005085544e6e8c66e410fd1e8a8a" compoundref="da/d47/_compact_event_builder_8cpp" startline="165" endline="226">evio::CompactEventBuilder::openSegment</referencedby>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1516862f728d4f8b3795d377a68f644d" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="674" endline="901">evio::EvioCompactReaderV4::removeStructure</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" compoundref="d9/d45/_evio_node_8cpp" startline="504" endline="656">evio::EvioNode::scanStructure</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1a726821c1aaeea163f426f4bc55a248e6" compoundref="d1/d04/_structure_transformer_8h" startline="158" endline="177">evio::StructureTransformer::transform</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" compoundref="d9/d45/_evio_node_8cpp" startline="991" endline="1014">evio::EvioNode::updateLengths</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" compoundref="d9/d45/_evio_node_8cpp" startline="1024" endline="1054">evio::EvioNode::updateTag</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a7e55a4c8ee5dd0e7b0d308ee9a2ae75d" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::HOLLERIT</definition>
+        <argsstring></argsstring>
+        <name>HOLLERIT</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x21, &quot;HOLLERIT&quot;)</initializer>
+        <briefdescription>
+<para>In composite data, Hollerit type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="57" column="31" bodyfile="src/libsrc/DataType.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a594dff401ed927c25cae6147977bf0b4" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::NVALUE</definition>
+        <argsstring></argsstring>
+        <name>NVALUE</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x22, &quot;NVALUE&quot;)</initializer>
+        <briefdescription>
+<para>In composite data, N value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="58" column="31" bodyfile="src/libsrc/DataType.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a8aeecc0417a67fb853c0e7508bc890f5" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::nVALUE</definition>
+        <argsstring></argsstring>
+        <name>nVALUE</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x23, &quot;nVALUE&quot;)</initializer>
+        <briefdescription>
+<para>In composite data, n value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="59" column="31" bodyfile="src/libsrc/DataType.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a5385213a97280d02166d3a8949374229" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::mVALUE</definition>
+        <argsstring></argsstring>
+        <name>mVALUE</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x24, &quot;mVALUE&quot;)</initializer>
+        <briefdescription>
+<para>In composite data, m value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="60" column="31" bodyfile="src/libsrc/DataType.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a64b4f4f0ccc080ba2d28040f49cfef3c" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>const DataType evio::DataType::NOT_A_VALID_TYPE</definition>
+        <argsstring></argsstring>
+        <name>NOT_A_VALID_TYPE</name>
+        <initializer>= <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>(0x30, &quot;INVALID&quot;)</initializer>
+        <briefdescription>
+<para>Not a valid data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="63" column="31" bodyfile="src/libsrc/DataType.h" bodystart="63" bodyend="-1"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">evio::Util::getDataType</referencedby>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1a0e9a772db2fd5e2d3128ce14105bb4ee" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="1338" endline="1345">evio::EvioXMLDictionary::getType</referencedby>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1a522c4afb7b3601a7bf5c2469dff2397d" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="114" endline="428">evio::EvioXMLDictionary::parseXML</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a43d7483fa26043377eeb1b57a20138d7" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::DataType::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+<para>Value of this data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="69" column="18" bodyfile="src/libsrc/DataType.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a08e28b82940bb598029b0070bea1e9af" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::DataType::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Name of this data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="72" column="21" bodyfile="src/libsrc/DataType.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a207a87cf653aae15a60da06a2b1ab1f4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int evio::DataType::bytes</definition>
+        <argsstring></argsstring>
+        <name>bytes</name>
+        <briefdescription>
+<para>Number of bytes this data type consumes (if relevant, else = -1). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="75" column="13" bodyfile="src/libsrc/DataType.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1a0dc4d538981e2cf792738c9d295e0ed9" prot="private" static="yes" mutable="no">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::DataType::intToType</definition>
+        <argsstring>[37]</argsstring>
+        <name>intToType</name>
+        <initializer>=
+            {<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" kindref="member">DataType::UINT32</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" kindref="member">DataType::FLOAT32</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" kindref="member">DataType::CHARSTAR8</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" kindref="member">DataType::SHORT16</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" kindref="member">DataType::USHORT16</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" kindref="member">DataType::CHAR8</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" kindref="member">DataType::UCHAR8</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" kindref="member">DataType::DOUBLE64</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" kindref="member">DataType::LONG64</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" kindref="member">DataType::ULONG64</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" kindref="member">DataType::INT32</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" kindref="member">DataType::TAGSEGMENT</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" kindref="member">DataType::ALSOSEGMENT</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" kindref="member">DataType::ALSOBANK</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" kindref="member">DataType::COMPOSITE</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" kindref="member">DataType::BANK</ref>,
+
+             <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>,
+
+             <ref refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" kindref="member">DataType::SEGMENT</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a7e55a4c8ee5dd0e7b0d308ee9a2ae75d" kindref="member">DataType::HOLLERIT</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a594dff401ed927c25cae6147977bf0b4" kindref="member">DataType::NVALUE</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a8aeecc0417a67fb853c0e7508bc890f5" kindref="member">DataType::nVALUE</ref>,
+             <ref refid="d5/d23/classevio_1_1_data_type_1a5385213a97280d02166d3a8949374229" kindref="member">DataType::mVALUE</ref>}</initializer>
+        <briefdescription>
+<para>Fast way to convert integer values into <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> objects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="80" column="25" bodyfile="src/libsrc/DataType.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d23/classevio_1_1_data_type_1aa282946ea01e3cb1d3ca2a6292b40c92" prot="private" static="yes" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::DataType::names</definition>
+        <argsstring>[37]</argsstring>
+        <name>names</name>
+        <initializer>=
+            {&quot;UNKNOWN32&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" kindref="member">UINT32</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" kindref="member">FLOAT32</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" kindref="member">CHARSTAR8</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" kindref="member">SHORT16</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" kindref="member">USHORT16</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" kindref="member">CHAR8</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" kindref="member">UCHAR8</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" kindref="member">DOUBLE64</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" kindref="member">LONG64</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" kindref="member">ULONG64</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" kindref="member">INT32</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" kindref="member">TAGSEGMENT</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" kindref="member">ALSOSEGMENT</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" kindref="member">ALSOBANK</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" kindref="member">COMPOSITE</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" kindref="member">BANK</ref>&quot;,
+
+                    
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;, &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">UNKNOWN32</ref>&quot;,
+
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" kindref="member">SEGMENT</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a7e55a4c8ee5dd0e7b0d308ee9a2ae75d" kindref="member">HOLLERIT</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a594dff401ed927c25cae6147977bf0b4" kindref="member">NVALUE</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a8aeecc0417a67fb853c0e7508bc890f5" kindref="member">nVALUE</ref>&quot;,
+             &quot;<ref refid="d5/d23/classevio_1_1_data_type_1a5385213a97280d02166d3a8949374229" kindref="member">mVALUE</ref>&quot;
+            }</initializer>
+        <briefdescription>
+<para>Store a name for each <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="83" column="28" bodyfile="src/libsrc/DataType.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a4b5fb0e053c168e8e08255ec49eaba7c" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::DataType::DataType</definition>
+        <argsstring>(uint32_t val, std::string name, int byteLen=-1)</argsstring>
+        <name>DataType</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>byteLen</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>int value of this <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name (string representation) of this <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes this type takes (if relevant). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="91" column="9" bodyfile="src/libsrc/DataType.h" bodystart="91" bodyend="91"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> &amp;</type>
+        <definition>static const DataType&amp; evio::DataType::getDataType</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>getDataType</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Get the object from the integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the matching <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="100" column="32" bodyfile="src/libsrc/DataType.h" bodystart="100" bodyend="103"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" compoundref="db/da7/_data_type_8h" startline="36">UNKNOWN32</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1ac61b68037bf610b0fc15df9fe69e7aed" compoundref="d1/d04/_structure_transformer_8h" startline="192" endline="209">evio::StructureTransformer::copy</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a77f6f98545da43fe65d80ecee8a545a9" compoundref="d9/d45/_evio_node_8cpp" startline="938" endline="938">evio::EvioNode::getDataTypeObj</referencedby>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1ae392ba10f52aa3798aae5b50fcfc75ad" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="796" endline="812">evio::EvioXMLDictionary::getName</referencedby>
+        <referencedby refid="d5/d23/classevio_1_1_data_type_1a65d3f882e19a958e2ad6a05aacb4e67b" compoundref="db/da7/_data_type_8h" startline="110" endline="113">getName</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8fcdbb769e77c2ceb6127953dc3056ee" compoundref="d9/d45/_evio_node_8cpp" startline="910" endline="910">evio::EvioNode::getTypeObj</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1ae745d3d6f9ab46be096ac75c33bf0cc8" compoundref="d1/d82/_base_structure_header_8cpp" startline="63" endline="63">evio::BaseStructureHeader::setDataType</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a441099dff9fd748e9438b7f551ac36aa" compoundref="dc/de3/_base_structure_8cpp" startline="157" endline="169">evio::BaseStructure::transform</referencedby>
+        <referencedby refid="d2/da4/classevio_1_1_structure_transformer_1a726821c1aaeea163f426f4bc55a248e6" compoundref="d1/d04/_structure_transformer_8h" startline="158" endline="177">evio::StructureTransformer::transform</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a65d3f882e19a958e2ad6a05aacb4e67b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string evio::DataType::getName</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>getName</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Get the name from the integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the name, or <computeroutput>null</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="110" column="28" bodyfile="src/libsrc/DataType.h" bodystart="110" bodyend="113"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">getDataType</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a20ecfb1490d3928289ce7e90717d797c" compoundref="d1/d82/_base_structure_header_8cpp" startline="82" endline="82">evio::BaseStructureHeader::getDataTypeName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a5e28fed061292b3f1fa35011ed54ccbc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>static DataType evio::DataType::valueOf</definition>
+        <argsstring>(std::string const &amp;typeName)</argsstring>
+        <name>valueOf</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>typeName</declname>
+        </param>
+        <briefdescription>
+<para>Get the enum constant from a string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>typeName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the name of the <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> to obtain. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> object associated with the given type name, or <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref> if there&apos;s no match. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="121" column="25" bodyfile="src/libsrc/DataType.h" bodystart="121" bodyend="130"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" compoundref="db/da7/_data_type_8h" startline="36">UNKNOWN32</references>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1a522c4afb7b3601a7bf5c2469dff2397d" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="114" endline="428">evio::EvioXMLDictionary::parseXML</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::DataType::isStructure</definition>
+        <argsstring>(uint32_t dataType)</argsstring>
+        <name>isStructure</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to see if the given integer arg represents a data type which is a structure (a container). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the data type corresponds to one of the structure types: BANK, SEGMENT, TAGSEGMENT, ALSOBANK, or ALSOSEGMENT. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="139" column="21" bodyfile="src/libsrc/DataType.h" bodystart="139" bodyend="143"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">SEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">TAGSEGMENT</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a441099dff9fd748e9438b7f551ac36aa" compoundref="dc/de3/_base_structure_8cpp" startline="157" endline="169">evio::BaseStructure::transform</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a43fa2881329c62cf42020bbc9b786106" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::DataType::isBank</definition>
+        <argsstring>(uint32_t dataType)</argsstring>
+        <name>isBank</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to see if the given integer arg represents a BANK. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the data type corresponds to a BANK. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="150" column="21" bodyfile="src/libsrc/DataType.h" bodystart="150" bodyend="152"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">BANK</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a82938baf95da3faf5345af0a3a19c781" compoundref="d4/df6/_record_output_8cpp" startline="659" endline="700">evio::RecordOutput::addEvent</referencedby>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1ae392ba10f52aa3798aae5b50fcfc75ad" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="796" endline="812">evio::EvioXMLDictionary::getName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a8c5bd7f199a30c163c274be1f51d6da3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::DataType::isSegment</definition>
+        <argsstring>(uint32_t dataType)</argsstring>
+        <name>isSegment</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to see if the given integer arg represents a SEGMENT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the data type corresponds to a SEGMENT. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="159" column="21" bodyfile="src/libsrc/DataType.h" bodystart="159" bodyend="161"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">SEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1afafccc742f056bb1740cc7dd31a1955f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::DataType::isTagSegment</definition>
+        <argsstring>(uint32_t dataType)</argsstring>
+        <name>isTagSegment</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to see if the given integer arg represents a TAGSEGMENT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the data type corresponds to a TAGSEGMENT. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="168" column="21" bodyfile="src/libsrc/DataType.h" bodystart="168" bodyend="170"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">TAGSEGMENT</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a725fbb9d81257ac84d8ff6111d6f06b4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const std::string &amp;</type>
+        <definition>const std::string&amp; evio::DataType::getName</definition>
+        <argsstring>() const</argsstring>
+        <name>getName</name>
+        <briefdescription>
+<para>Get the name associated with this data type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>name associated with this data type. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="178" column="28" bodyfile="src/libsrc/DataType.h" bodystart="178" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::DataType::getValue</definition>
+        <argsstring>() const</argsstring>
+        <name>getValue</name>
+        <briefdescription>
+<para>Get the integer value associated with this data type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>integer value associated with this data type. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="184" column="18" bodyfile="src/libsrc/DataType.h" bodystart="184" bodyend="184"/>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a34f7490d31685ed7764dd05832fd9829" compoundref="d9/d45/_evio_node_8cpp" startline="99" endline="108">evio::EvioNode::EvioNode</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1ab6c201b2b277a809d6be58816a107bb2" compoundref="d9/d45/_evio_node_8cpp" startline="453" endline="494">evio::EvioNode::extractNode</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a3b1e6ad65be46d90def73436ee2111db" compoundref="d1/d82/_base_structure_header_8cpp" startline="57" endline="57">evio::BaseStructureHeader::getDataTypeValue</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a14cd5da1c84c052c8a446235dd67f03c" compoundref="da/d47/_compact_event_builder_8cpp" startline="323" endline="398">evio::CompactEventBuilder::openBank</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a565d005085544e6e8c66e410fd1e8a8a" compoundref="da/d47/_compact_event_builder_8cpp" startline="165" endline="226">evio::CompactEventBuilder::openSegment</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9b7812e1d18349d5fec68cd1611dfcf8" compoundref="da/d47/_compact_event_builder_8cpp" startline="241" endline="308">evio::CompactEventBuilder::openTagSegment</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" compoundref="d9/d45/_evio_node_8cpp" startline="504" endline="656">evio::EvioNode::scanStructure</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1af86dd6383766b1d5fc6c4615945effab" compoundref="d9/d45/_evio_node_8cpp" startline="342" endline="351">evio::EvioNode::setData</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af17d69932a1d6ebd14bcdfe7b9022db5" compoundref="d9/d83/_bank_header_8cpp" startline="51" endline="58">evio::BankHeader::write</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8431fe65ab32bc72f25ae5584f07eb95" compoundref="df/d8a/_segment_header_8cpp" startline="50" endline="56">evio::SegmentHeader::write</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1aa792a400774c62abced5d451affb49e0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="61" endline="65">evio::TagSegmentHeader::write</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a4b55bfb1a25acc690c9456f0869c4b49" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::DataType::toString</definition>
+        <argsstring>() const</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Return a string which is usually the same as the name of the enumerated value, except in the cases of ALSOSEGMENT and ALSOBANK which return SEGMENT and BANK respectively. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>name of the enumerated type </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="193" column="21" bodyfile="src/libsrc/DataType.h" bodystart="193" bodyend="197"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">ALSOSEGMENT</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a82938baf95da3faf5345af0a3a19c781" compoundref="d4/df6/_record_output_8cpp" startline="659" endline="700">evio::RecordOutput::addEvent</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a9bcbd06eaea5dd49b931c7c4a5f701a7" compoundref="d9/d45/_evio_node_8cpp" startline="243" endline="257">evio::EvioNode::toString</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7f33ccd6c19c44b142215c835c0aa192" compoundref="dc/de3/_base_structure_8cpp" startline="1524" endline="1562">evio::BaseStructure::toString</referencedby>
+        <referencedby refid="d4/d12/classevio_1_1_evio_event_1a96cc08b2bd2a9eef2c97afd7db36e7d9" compoundref="df/d94/_evio_event_8h" startline="140" endline="178">evio::EvioEvent::toString</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a5fe3a48fb1f8898bdd13d08ea689ea41" compoundref="dc/de3/_base_structure_8cpp" startline="3157" endline="3184">evio::BaseStructure::updateCharData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a84c0b49e9886b62dae99c8b32bec410a" compoundref="dc/de3/_base_structure_8cpp" startline="3325" endline="3357">evio::BaseStructure::updateCompositeData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a89685661be04c90b3059e318f498531a" compoundref="dc/de3/_base_structure_8cpp" startline="3267" endline="3294">evio::BaseStructure::updateDoubleData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a39c24b766b220d1cda0e48a37f9b4881" compoundref="dc/de3/_base_structure_8cpp" startline="3230" endline="3257">evio::BaseStructure::updateFloatData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0264daf6e038c485628e364992c05e0e" compoundref="dc/de3/_base_structure_8cpp" startline="2904" endline="2935">evio::BaseStructure::updateIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a3b3dde0d329569255caa66a4f66d177f" compoundref="dc/de3/_base_structure_8cpp" startline="3084" endline="3111">evio::BaseStructure::updateLongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a408dedd1788bfcae0104b3455da671cc" compoundref="dc/de3/_base_structure_8cpp" startline="2981" endline="3024">evio::BaseStructure::updateShortData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a4730e93ed7f947b82f022da6a417f611" compoundref="dc/de3/_base_structure_8cpp" startline="3304" endline="3315">evio::BaseStructure::updateStringData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a896a4fdf01edece007470588d1835058" compoundref="dc/de3/_base_structure_8cpp" startline="3194" endline="3220">evio::BaseStructure::updateUCharData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a0c3cfcf8e19805e392d092c8c7b9602c" compoundref="dc/de3/_base_structure_8cpp" startline="2945" endline="2971">evio::BaseStructure::updateUIntData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a1add8a09e87d9605a6da5deff79808e4" compoundref="dc/de3/_base_structure_8cpp" startline="3121" endline="3147">evio::BaseStructure::updateULongData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1af3021857b10c869f6ade49085cc392c2" compoundref="dc/de3/_base_structure_8cpp" startline="3034" endline="3074">evio::BaseStructure::updateUShortData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1ad398e7fb1f5cd94dd7866c0ca2322644" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::DataType::isStructure</definition>
+        <argsstring>() const</argsstring>
+        <name>isStructure</name>
+        <briefdescription>
+<para>Convenience routine to see if &quot;this&quot; data type is a structure (a container.) </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if the data type corresponds to one of the structure types: BANK, SEGMENT, TAGSEGMENT, ALSOBANK, or ALSOSEGMENT. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="205" column="14" bodyfile="src/libsrc/DataType.h" bodystart="205" bodyend="211"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">SEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">TAGSEGMENT</references>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" compoundref="d9/d45/_evio_node_8cpp" startline="504" endline="656">evio::EvioNode::scanStructure</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1ad7e6fde70cb5eae2530bee8b2394977f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::DataType::isBank</definition>
+        <argsstring>() const</argsstring>
+        <name>isBank</name>
+        <briefdescription>
+<para>Convenience routine to see if &quot;this&quot; data type is a bank structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this data type corresponds to a bank structure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="217" column="14" bodyfile="src/libsrc/DataType.h" bodystart="217" bodyend="217"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">BANK</references>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" compoundref="d9/d45/_evio_node_8cpp" startline="504" endline="656">evio::EvioNode::scanStructure</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1afa6b14e9cdc06daf1ad89221cd7c572b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::DataType::isSegment</definition>
+        <argsstring>() const</argsstring>
+        <name>isSegment</name>
+        <briefdescription>
+<para>Convenience routine to see if &quot;this&quot; data type is a segment structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this data type corresponds to a bank structure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="223" column="14" bodyfile="src/libsrc/DataType.h" bodystart="223" bodyend="223"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">SEGMENT</references>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" compoundref="d9/d45/_evio_node_8cpp" startline="504" endline="656">evio::EvioNode::scanStructure</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1ae7d5a621c748b2bb68cf9cb8f7721036" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::DataType::isTagSegment</definition>
+        <argsstring>() const</argsstring>
+        <name>isTagSegment</name>
+        <briefdescription>
+<para>Convenience routine to see if &quot;this&quot; data type is a tagsegment structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this data type corresponds to a tagsegment structure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="229" column="14" bodyfile="src/libsrc/DataType.h" bodystart="229" bodyend="229"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">TAGSEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::DataType::isInteger</definition>
+        <argsstring>() const</argsstring>
+        <name>isInteger</name>
+        <briefdescription>
+<para>Convenience method to see if &quot;this&quot; data type is an integer of some kind - either 8, 16, 32, or 64 bits worth. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if the data type corresponds to an integer type </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="236" column="14" bodyfile="src/libsrc/DataType.h" bodystart="236" bodyend="245"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">CHAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">INT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">LONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">SHORT16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">UCHAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">UINT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">ULONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">USHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1a0a61f0f28a505939e06e84c1e6e51daf" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::DataType::getBytes</definition>
+        <argsstring>() const</argsstring>
+        <name>getBytes</name>
+        <briefdescription>
+<para>Return the number of bytes this data type takes (if relevant). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the number of bytes this data type takes (if relevant). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="251" column="13" bodyfile="src/libsrc/DataType.h" bodystart="251" bodyend="251"/>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7dbf9d7691f2c8ebb1fea19fdfb67482" compoundref="dc/de3/_base_structure_8cpp" startline="2551" endline="2597">evio::BaseStructure::dataLength</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ac32a371061bb108c2dcce0d21df4d87c" compoundref="dc/de3/_base_structure_8cpp" startline="1606" endline="1653">evio::BaseStructure::getNumberDataItems</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1aa6511be49823fba1f646a1f061edb148" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::DataType::operator==</definition>
+        <argsstring>(const DataType &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="253" column="14" bodyfile="src/libsrc/DataType.cpp" bodystart="17" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d23/classevio_1_1_data_type_1ad82c9c2bf4fec183c1751e3f02be373b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::DataType::operator!=</definition>
+        <argsstring>(const DataType &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/DataType.h" line="255" column="14" bodyfile="src/libsrc/DataType.cpp" bodystart="21" bodyend="23"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Numerical values associated with evio data types. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class approximates the Java enum it was copied from. ALSOTAGSEGMENT (0x40) value was removed from this class because the upper 2 bits of a byte containing the datatype are now used to store padding data.</para>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 7/22/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>evio::DataType</label>
+        <link refid="d5/d23/classevio_1_1_data_type"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>ALSOBANK</edgelabel>
+          <edgelabel>ALSOSEGMENT</edgelabel>
+          <edgelabel>BANK</edgelabel>
+          <edgelabel>CHAR8</edgelabel>
+          <edgelabel>CHARSTAR8</edgelabel>
+          <edgelabel>COMPOSITE</edgelabel>
+          <edgelabel>DOUBLE64</edgelabel>
+          <edgelabel>FLOAT32</edgelabel>
+          <edgelabel>HOLLERIT</edgelabel>
+          <edgelabel>INT32</edgelabel>
+          <edgelabel>...</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/DataType.h" line="32" column="5" bodyfile="src/libsrc/DataType.h" bodystart="32" bodyend="256"/>
+    <listofallmembers>
+      <member refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>ALSOBANK</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>ALSOSEGMENT</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>BANK</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a207a87cf653aae15a60da06a2b1ab1f4" prot="private" virt="non-virtual"><scope>evio::DataType</scope><name>bytes</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>CHAR8</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>CHARSTAR8</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>COMPOSITE</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a4b5fb0e053c168e8e08255ec49eaba7c" prot="private" virt="non-virtual"><scope>evio::DataType</scope><name>DataType</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>DOUBLE64</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>FLOAT32</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a0a61f0f28a505939e06e84c1e6e51daf" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>getBytes</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>getDataType</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a65d3f882e19a958e2ad6a05aacb4e67b" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>getName</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a725fbb9d81257ac84d8ff6111d6f06b4" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>getName</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>getValue</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a7e55a4c8ee5dd0e7b0d308ee9a2ae75d" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>HOLLERIT</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>INT32</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a0dc4d538981e2cf792738c9d295e0ed9" prot="private" virt="non-virtual"><scope>evio::DataType</scope><name>intToType</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a43fa2881329c62cf42020bbc9b786106" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isBank</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1ad7e6fde70cb5eae2530bee8b2394977f" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isBank</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a4a923d8f0249df81420fa8d21000efcb" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isInteger</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a8c5bd7f199a30c163c274be1f51d6da3" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isSegment</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1afa6b14e9cdc06daf1ad89221cd7c572b" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isSegment</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isStructure</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1ad398e7fb1f5cd94dd7866c0ca2322644" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isStructure</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1afafccc742f056bb1740cc7dd31a1955f" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isTagSegment</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1ae7d5a621c748b2bb68cf9cb8f7721036" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>isTagSegment</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>LONG64</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a5385213a97280d02166d3a8949374229" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>mVALUE</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a08e28b82940bb598029b0070bea1e9af" prot="private" virt="non-virtual"><scope>evio::DataType</scope><name>name</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1aa282946ea01e3cb1d3ca2a6292b40c92" prot="private" virt="non-virtual"><scope>evio::DataType</scope><name>names</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a64b4f4f0ccc080ba2d28040f49cfef3c" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>NOT_A_VALID_TYPE</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a8aeecc0417a67fb853c0e7508bc890f5" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>nVALUE</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a594dff401ed927c25cae6147977bf0b4" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>NVALUE</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1ad82c9c2bf4fec183c1751e3f02be373b" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>operator!=</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1aa6511be49823fba1f646a1f061edb148" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>operator==</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>SEGMENT</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>SHORT16</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>TAGSEGMENT</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a4b55bfb1a25acc690c9456f0869c4b49" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>toString</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>UCHAR8</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>UINT32</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>ULONG64</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>UNKNOWN32</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>USHORT16</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a43d7483fa26043377eeb1b57a20138d7" prot="private" virt="non-virtual"><scope>evio::DataType</scope><name>value</name></member>
+      <member refid="d5/d23/classevio_1_1_data_type_1a5e28fed061292b3f1fa35011ed54ccbc" prot="public" virt="non-virtual"><scope>evio::DataType</scope><name>valueOf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

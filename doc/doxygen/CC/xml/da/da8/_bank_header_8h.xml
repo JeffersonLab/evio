@@ -1,0 +1,686 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="da/da8/_bank_header_8h" kind="file" language="C++">
+    <compoundname>BankHeader.h</compoundname>
+    <includes refid="dd/d90/_util_8h" local="yes">Util.h</includes>
+    <includes refid="db/da7/_data_type_8h" local="yes">DataType.h</includes>
+    <includes refid="d1/d02/_byte_order_8h" local="yes">ByteOrder.h</includes>
+    <includes refid="d6/d6c/_byte_buffer_8h" local="yes">ByteBuffer.h</includes>
+    <includes refid="dd/de1/_base_structure_header_8h" local="yes">BaseStructureHeader.h</includes>
+    <includedby refid="d9/d83/_bank_header_8cpp" local="yes">BankHeader.cpp</includedby>
+    <includedby refid="d6/d36/_composite_data_8h" local="yes">CompositeData.h</includedby>
+    <includedby refid="d7/dfc/_event_header_parser_8h" local="yes">EventHeaderParser.h</includedby>
+    <includedby refid="d0/dd5/_event_parser_8h" local="yes">EventParser.h</includedby>
+    <includedby refid="d9/df8/evio_8h" local="yes">evio.h</includedby>
+    <includedby refid="dd/d6f/_evio_bank_8h" local="yes">EvioBank.h</includedby>
+    <includedby refid="df/d94/_evio_event_8h" local="yes">EvioEvent.h</includedby>
+    <includedby refid="d1/d04/_structure_transformer_8h" local="yes">StructureTransformer.h</includedby>
+    <incdepgraph>
+      <node id="4">
+        <label>iomanip</label>
+      </node>
+      <node id="24">
+        <label>RecordNode.h</label>
+        <link refid="d8/d7d/_record_node_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>EvioNode.h</label>
+        <link refid="d1/d31/_evio_node_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>BaseStructureHeader.h</label>
+        <link refid="dd/de1/_base_structure_header_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>cstdint</label>
+      </node>
+      <node id="20">
+        <label>sys/mman.h</label>
+      </node>
+      <node id="13">
+        <label>stdexcept</label>
+      </node>
+      <node id="25">
+        <label>IBlockHeader.h</label>
+        <link refid="de/d42/_i_block_header_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>string</label>
+      </node>
+      <node id="8">
+        <label>regex</label>
+      </node>
+      <node id="14">
+        <label>exception</label>
+      </node>
+      <node id="10">
+        <label>fstream</label>
+      </node>
+      <node id="6">
+        <label>cstdio</label>
+      </node>
+      <node id="16">
+        <label>ByteBuffer.h</label>
+        <link refid="d6/d6c/_byte_buffer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Util.h</label>
+        <link refid="dd/d90/_util_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>vector</label>
+      </node>
+      <node id="1">
+        <label>BankHeader.h</label>
+        <link refid="da/da8/_bank_header_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>sstream</label>
+      </node>
+      <node id="5">
+        <label>cstdlib</label>
+      </node>
+      <node id="3">
+        <label>iostream</label>
+      </node>
+      <node id="23">
+        <label>DataType.h</label>
+        <link refid="db/da7/_data_type_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>ByteOrder.h</label>
+        <link refid="d1/d02/_byte_order_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>EvioException.h</label>
+        <link refid="d8/d26/_evio_exception_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>algorithm</label>
+      </node>
+      <node id="18">
+        <label>cstring</label>
+      </node>
+      <node id="19">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="15">
+        <label>EvioCompactReaderV4.cpp</label>
+        <link refid="d6/d16/_evio_compact_reader_v4_8cpp"/>
+      </node>
+      <node id="45">
+        <label>EvioXMLDictionary.h</label>
+        <link refid="d6/dc6/_evio_x_m_l_dictionary_8h"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>EventBuilder.h</label>
+        <link refid="d3/dd6/_event_builder_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>EvioXMLDictionary.cpp</label>
+        <link refid="d7/d90/_evio_x_m_l_dictionary_8cpp"/>
+      </node>
+      <node id="9">
+        <label>EventParser.h</label>
+        <link refid="d0/dd5/_event_parser_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>EvioReaderV6.h</label>
+        <link refid="de/d10/_evio_reader_v6_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>EvioCompactReaderV6.h</label>
+        <link refid="d1/de7/_evio_compact_reader_v6_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>StructureTransformer.h</label>
+        <link refid="d1/d04/_structure_transformer_8h"/>
+      </node>
+      <node id="10">
+        <label>EventParser.cpp</label>
+        <link refid="de/d4a/_event_parser_8cpp"/>
+      </node>
+      <node id="17">
+        <label>EvioReader.cpp</label>
+        <link refid="dc/d9c/_evio_reader_8cpp"/>
+      </node>
+      <node id="38">
+        <label>Writer.cpp</label>
+        <link refid="dc/d0e/_writer_8cpp"/>
+      </node>
+      <node id="24">
+        <label>EvioBank.h</label>
+        <link refid="dd/d6f/_evio_bank_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>RecordRingItem.h</label>
+        <link refid="d2/d05/_record_ring_item_8h"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>WriterMT.cpp</label>
+        <link refid="d9/d77/_writer_m_t_8cpp"/>
+      </node>
+      <node id="34">
+        <label>RecordRingItem.cpp</label>
+        <link refid="d1/d53/_record_ring_item_8cpp"/>
+      </node>
+      <node id="4">
+        <label>BaseStructure.h</label>
+        <link refid="da/d80/_base_structure_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>EventBuilder.cpp</label>
+        <link refid="d4/dfa/_event_builder_8cpp"/>
+      </node>
+      <node id="32">
+        <label>RecordOutput.cpp</label>
+        <link refid="d4/df6/_record_output_8cpp"/>
+      </node>
+      <node id="28">
+        <label>RecordOutput.h</label>
+        <link refid="dc/dd3/_record_output_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>IEvioReader.h</label>
+        <link refid="d1/d21/_i_evio_reader_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>BankHeader.cpp</label>
+        <link refid="d9/d83/_bank_header_8cpp"/>
+      </node>
+      <node id="26">
+        <label>EventWriter.cpp</label>
+        <link refid="db/dc8/_event_writer_8cpp"/>
+      </node>
+      <node id="5">
+        <label>BaseStructure.cpp</label>
+        <link refid="dc/de3/_base_structure_8cpp"/>
+      </node>
+      <node id="19">
+        <label>EvioReaderV6.cpp</label>
+        <link refid="db/de9/_evio_reader_v6_8cpp"/>
+      </node>
+      <node id="35">
+        <label>RecordSupply.h</label>
+        <link refid="d0/d2f/_record_supply_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>WriterMT.h</label>
+        <link refid="dd/db4/_writer_m_t_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>CompositeData.h</label>
+        <link refid="d6/d36/_composite_data_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>EventHeaderParser.h</label>
+        <link refid="d7/dfc/_event_header_parser_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>EvioCompactReaderV4.h</label>
+        <link refid="d2/d74/_evio_compact_reader_v4_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>EvioCompactReader.cpp</label>
+        <link refid="dd/d6b/_evio_compact_reader_8cpp"/>
+      </node>
+      <node id="40">
+        <label>EvioSegment.h</label>
+        <link refid="d3/d37/_evio_segment_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>EvioReaderV4.h</label>
+        <link refid="d3/d9e/_evio_reader_v4_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>BankHeader.h</label>
+        <link refid="da/da8/_bank_header_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>CompactEventBuilder.cpp</label>
+        <link refid="da/d47/_compact_event_builder_8cpp"/>
+      </node>
+      <node id="29">
+        <label>RecordCompressor.h</label>
+        <link refid="d7/dd0/_record_compressor_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>EvioCompactReaderV6.cpp</label>
+        <link refid="d4/d08/_evio_compact_reader_v6_8cpp"/>
+      </node>
+      <node id="37">
+        <label>Writer.h</label>
+        <link refid="de/d9e/_writer_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>EvioCompactReader.h</label>
+        <link refid="d2/df7/_evio_compact_reader_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>IEvioCompactReader.h</label>
+        <link refid="d9/df7/_i_evio_compact_reader_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>EvioReaderV4.cpp</label>
+        <link refid="de/da5/_evio_reader_v4_8cpp"/>
+      </node>
+      <node id="25">
+        <label>EventWriter.h</label>
+        <link refid="d6/d12/_event_writer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>CompactEventBuilder.h</label>
+        <link refid="d6/db6/_compact_event_builder_8h"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>evio.h</label>
+        <link refid="d9/df8/evio_8h"/>
+      </node>
+      <node id="44">
+        <label>EvioTagSegment.h</label>
+        <link refid="df/d0d/_evio_tag_segment_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>StructureFinder.h</label>
+        <link refid="d5/d4b/_structure_finder_8h"/>
+      </node>
+      <node id="16">
+        <label>EvioReader.h</label>
+        <link refid="d5/d63/_evio_reader_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>EvioSwap.h</label>
+        <link refid="df/d3b/_evio_swap_8h"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>RecordSupply.cpp</label>
+        <link refid="d7/d33/_record_supply_8cpp"/>
+      </node>
+      <node id="27">
+        <label>EvioEvent.h</label>
+        <link refid="df/d94/_evio_event_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>CompositeData.cpp</label>
+        <link refid="dd/d79/_composite_data_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="dc/d90/classevio_1_1_bank_header" prot="public">evio::BankHeader</innerclass>
+    <innernamespace refid="d9/deb/namespaceevio">evio</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Copyright<sp/>2020,<sp/>Jefferson<sp/>Science<sp/>Associates,<sp/>LLC.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Subject<sp/>to<sp/>the<sp/>terms<sp/>in<sp/>the<sp/>LICENSE<sp/>file<sp/>found<sp/>in<sp/>the<sp/>top-level<sp/>directory.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/>EPSCI<sp/>Group</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Thomas<sp/>Jefferson<sp/>National<sp/>Accelerator<sp/>Facility</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/>12000,<sp/>Jefferson<sp/>Ave,<sp/>Newport<sp/>News,<sp/>VA<sp/>23606</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(757)-269-7100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EVIO_6_0_BANKHEADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EVIO_6_0_BANKHEADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="dd/d90/_util_8h" kindref="compound">Util.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="db/da7/_data_type_8h" kindref="compound">DataType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d1/d02/_byte_order_8h" kindref="compound">ByteOrder.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d6/d6c/_byte_buffer_8h" kindref="compound">ByteBuffer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="dd/de1/_base_structure_header_8h" kindref="compound">BaseStructureHeader.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="d9/deb/namespaceevio" kindref="compound">evio</ref><sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="dc/d90/classevio_1_1_bank_header" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="dc/d90/classevio_1_1_bank_header" kindref="compound">BankHeader</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="db/dfb/classevio_1_1_base_structure_header" kindref="compound">BaseStructureHeader</ref><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="dc/d90/classevio_1_1_bank_header_1ae07a5e3cb75d21f1fdc5840f87adfc27" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="df/dbd/classevio_1_1_evio_reader" kindref="compound">EvioReader</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="dc/d90/classevio_1_1_bank_header_1aa82fb4274cad2039831c954f29396e2a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dc/d90/classevio_1_1_bank_header_1aa82fb4274cad2039831c954f29396e2a" kindref="member">BankHeader</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="dc/d90/classevio_1_1_bank_header_1aa82fb4274cad2039831c954f29396e2a" kindref="member">BankHeader</ref>(uint16_t<sp/><ref refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" kindref="member">tag</ref>,<sp/><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>&amp;<sp/><ref refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" kindref="member">dataType</ref>,<sp/>uint8_t<sp/>num<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="dc/d90/classevio_1_1_bank_header_1a44439f36d2f08b0760e6d9dbe1546403" kindref="member">getDataLength</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="dc/d90/classevio_1_1_bank_header_1a4a5718504a25fb5d74417d572389869d" kindref="member">getHeaderLength</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/><sp/><sp/><ref refid="dc/d90/classevio_1_1_bank_header_1af941007bb8c0153b1d680dafe9b922e8" kindref="member">toString</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="dc/d90/classevio_1_1_bank_header_1a65f4a1d962a440fda7122d12e8baa466" kindref="member">write</ref>(std::shared_ptr&lt;ByteBuffer&gt;<sp/>&amp;<sp/>dest)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal"><sp/>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="dc/d90/classevio_1_1_bank_header_1a65f4a1d962a440fda7122d12e8baa466" kindref="member">write</ref>(<ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref><sp/>&amp;<sp/>dest)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="dc/d90/classevio_1_1_bank_header_1a65f4a1d962a440fda7122d12e8baa466" kindref="member">write</ref>(uint8_t<sp/>*dest,<sp/><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>&amp;<sp/>order)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//EVIO_6_0_BANKHEADER_H</highlight></codeline>
+    </programlisting>
+    <location file="src/libsrc/BankHeader.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xml__object__range" kind="class" language="C++" prot="public">
+    <compoundname>pugi::xml_object_range</compoundname>
+    <templateparamlist>
+      <param>
+        <type>typename It</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classpugi_1_1xml__object__range_1ace38fcf448c7134e13612f7ce439246c" prot="public" static="no">
+        <type>It</type>
+        <definition>typedef It pugi::xml_object_range&lt; It &gt;::const_iterator</definition>
+        <argsstring></argsstring>
+        <name>const_iterator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="305" column="12" bodyfile="src/libsrc/pugixml.hpp" bodystart="305" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classpugi_1_1xml__object__range_1a024ce5292d3b9f2164c1230855fdb501" prot="public" static="no">
+        <type>It</type>
+        <definition>typedef It pugi::xml_object_range&lt; It &gt;::iterator</definition>
+        <argsstring></argsstring>
+        <name>iterator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="306" column="12" bodyfile="src/libsrc/pugixml.hpp" bodystart="306" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpugi_1_1xml__object__range_1a68ed94ce08acb8b9b2c7f7be93d093a7" prot="private" static="no" mutable="no">
+        <type>It</type>
+        <definition>It pugi::xml_object_range&lt; It &gt;::_begin</definition>
+        <argsstring></argsstring>
+        <name>_begin</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="316" column="4" bodyfile="src/libsrc/pugixml.hpp" bodystart="316" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classpugi_1_1xml__object__range_1af76a51bf973137d5c99fcbcb8195be9b" prot="private" static="no" mutable="no">
+        <type>It</type>
+        <definition>It pugi::xml_object_range&lt; It &gt;::_end</definition>
+        <argsstring></argsstring>
+        <name>_end</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="316" column="11" bodyfile="src/libsrc/pugixml.hpp" bodystart="316" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xml__object__range_1abf214db65eac081e4478169cb03bce67" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_object_range&lt; It &gt;::xml_object_range</definition>
+        <argsstring>(It b, It e)</argsstring>
+        <name>xml_object_range</name>
+        <param>
+          <type>It</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>It</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="308" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="308" bodyend="310"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__object__range_1a10f4f757413e31861f8dec21bb4f8dec" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>It</type>
+        <definition>It pugi::xml_object_range&lt; It &gt;::begin</definition>
+        <argsstring>() const</argsstring>
+        <name>begin</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="312" column="4" bodyfile="src/libsrc/pugixml.hpp" bodystart="312" bodyend="312"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__object__range_1ac719fcaad171adb58b90b7f8973cbd9a" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>It</type>
+        <definition>It pugi::xml_object_range&lt; It &gt;::end</definition>
+        <argsstring>() const</argsstring>
+        <name>end</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="313" column="4" bodyfile="src/libsrc/pugixml.hpp" bodystart="313" bodyend="313"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/pugixml.hpp" line="302" column="12" bodyfile="src/libsrc/pugixml.hpp" bodystart="303" bodyend="317"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xml__object__range_1a68ed94ce08acb8b9b2c7f7be93d093a7" prot="private" virt="non-virtual"><scope>pugi::xml_object_range</scope><name>_begin</name></member>
+      <member refid="classpugi_1_1xml__object__range_1af76a51bf973137d5c99fcbcb8195be9b" prot="private" virt="non-virtual"><scope>pugi::xml_object_range</scope><name>_end</name></member>
+      <member refid="classpugi_1_1xml__object__range_1a10f4f757413e31861f8dec21bb4f8dec" prot="public" virt="non-virtual"><scope>pugi::xml_object_range</scope><name>begin</name></member>
+      <member refid="classpugi_1_1xml__object__range_1ace38fcf448c7134e13612f7ce439246c" prot="public" virt="non-virtual"><scope>pugi::xml_object_range</scope><name>const_iterator</name></member>
+      <member refid="classpugi_1_1xml__object__range_1ac719fcaad171adb58b90b7f8973cbd9a" prot="public" virt="non-virtual"><scope>pugi::xml_object_range</scope><name>end</name></member>
+      <member refid="classpugi_1_1xml__object__range_1a024ce5292d3b9f2164c1230855fdb501" prot="public" virt="non-virtual"><scope>pugi::xml_object_range</scope><name>iterator</name></member>
+      <member refid="classpugi_1_1xml__object__range_1abf214db65eac081e4478169cb03bce67" prot="public" virt="non-virtual"><scope>pugi::xml_object_range</scope><name>xml_object_range</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

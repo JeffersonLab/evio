@@ -1,0 +1,607 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d2/da4/classevio_1_1_structure_transformer" kind="class" language="C++" prot="public">
+    <compoundname>evio::StructureTransformer</compoundname>
+    <includes local="no">StructureTransformer.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1afa4f2b9a3ffb53c144a7b3cdb3996f52" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;EvioBank&gt; evio::StructureTransformer::transform</definition>
+        <argsstring>(std::shared_ptr&lt; EvioSegment &gt; const &amp;segment, uint8_t num)</argsstring>
+        <name>transform</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt; const &amp;</type>
+          <declname>segment</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Create an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object from an <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The new object has all data copied over, <bold>except</bold> that the segment&apos;s children were are added (not deep cloned) to the bank. Because a segment has no num, the user supplies that as an arg.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object to transform. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num of the created <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the created <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="54" column="32" bodyfile="src/libsrc/StructureTransformer.h" bodystart="54" bodyend="65"/>
+        <references refid="de/de3/classevio_1_1_evio_bank_1a7a7ff84cf9b0a3f659663483c8081e73" compoundref="dd/d6f/_evio_bank_8h" startline="57" endline="60">evio::EvioBank::getInstance</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1a542424101fb0293b18fd1ba2704deba1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureTransformer::copy</definition>
+        <argsstring>(std::shared_ptr&lt; EvioBank &gt; const &amp;bank, std::shared_ptr&lt; EvioSegment &gt; const &amp;segment, uint8_t num)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt; const &amp;</type>
+          <declname>bank</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt; const &amp;</type>
+          <declname>segment</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Copy the data in an <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object into an existing <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Note, however, that the segment&apos;s children were are added (not deep cloned) to the bank. Because a segment has no num, the user supplies that as an arg.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object to copy into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object to copy. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num of the <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="76" column="21" bodyfile="src/libsrc/StructureTransformer.h" bodystart="76" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1a4b79fbe0545d808384d8e904ea3fe4ba" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;EvioBank&gt; evio::StructureTransformer::transform</definition>
+        <argsstring>(std::shared_ptr&lt; EvioTagSegment &gt; const &amp;tagsegment, uint8_t num)</argsstring>
+        <name>transform</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> &gt; const &amp;</type>
+          <declname>tagsegment</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Create an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object from an <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The new object has all data copied over, <bold>except</bold> that the tagsegment&apos;s children were are added (not deep cloned) to the bank. Because a tagsegment has no num, the user supplies that as an arg.</para>
+<para>NOTE: A tagsegment has no associated padding data. However, the bank.transform() method will calculate it and set it in the bank header.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tagsegment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object to transform. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num of the created <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the created <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="107" column="32" bodyfile="src/libsrc/StructureTransformer.h" bodystart="107" bodyend="115"/>
+        <references refid="de/de3/classevio_1_1_evio_bank_1a7a7ff84cf9b0a3f659663483c8081e73" compoundref="dd/d6f/_evio_bank_8h" startline="57" endline="60">evio::EvioBank::getInstance</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1ae7f0a723d875c83730162526b9307a77" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureTransformer::copy</definition>
+        <argsstring>(std::shared_ptr&lt; EvioBank &gt; const &amp;bank, std::shared_ptr&lt; EvioTagSegment &gt; const &amp;tagsegment, uint8_t num)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt; const &amp;</type>
+          <declname>bank</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> &gt; const &amp;</type>
+          <declname>tagsegment</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Copy the data in an <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object into an existing <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Note, however, that the tagsegment&apos;s children were are added (not deep cloned) to the bank. Because a tagsegment has no num, the user supplies that as an arg.</para>
+<para>NOTE: A tagsegment has no associated padding data. However, the bank.transform() method will calculate it and set it in the bank header.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object to copy into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tagsegment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object to copy. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num of the <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="129" column="21" bodyfile="src/libsrc/StructureTransformer.h" bodystart="129" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1a726821c1aaeea163f426f4bc55a248e6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;EvioTagSegment&gt; evio::StructureTransformer::transform</definition>
+        <argsstring>(std::shared_ptr&lt; EvioSegment &gt; const &amp;segment)</argsstring>
+        <name>transform</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt; const &amp;</type>
+          <declname>segment</declname>
+        </param>
+        <briefdescription>
+<para>Create an <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object from an <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The new object has all data copied over, <bold>except</bold> that the segment&apos;s children were are added (not deep cloned) to the tagsegment.</para>
+<para>NOTE: No data should be lost in this transformaton since even though the segment serializes 6 bits of data type when being written out while the tag segment serializes 4, only 4 bits are needed to contain the equivalent type data. And, the segment&apos;s tag is serialized into 8 bits while the tagsegment&apos;s tag uses 12 bits so no problem there.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object to transform. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the created <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="158" column="32" bodyfile="src/libsrc/StructureTransformer.h" bodystart="158" bodyend="177"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+        <references refid="d7/d91/classevio_1_1_evio_tag_segment_1a70327d9a4b433b55aeb3d78fef704af3" compoundref="df/d0d/_evio_tag_segment_8h" startline="53" endline="56">evio::EvioTagSegment::getInstance</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1ac61b68037bf610b0fc15df9fe69e7aed" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureTransformer::copy</definition>
+        <argsstring>(std::shared_ptr&lt; EvioTagSegment &gt; const &amp;tagsegment, std::shared_ptr&lt; EvioSegment &gt; const &amp;segment)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> &gt; const &amp;</type>
+          <declname>tagsegment</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt; const &amp;</type>
+          <declname>segment</declname>
+        </param>
+        <briefdescription>
+<para>Copy the data in an <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object into an existing <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Note, however, that the segment&apos;s children were are added (not deep cloned) to the tagsegment.</para>
+<para>NOTE: No data should be lost in this transformaton since even though the segment serializes 6 bits of data type when being written out while the tag segment serializes 4, only 4 bits are needed to contain the equivalent type data. And, the segment&apos;s tag is serialized into 8 bits while the tagsegment&apos;s tag uses 12 bits so no problem there.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tagsegment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object to copy into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="192" column="21" bodyfile="src/libsrc/StructureTransformer.h" bodystart="192" bodyend="209"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1a9363e2205ead2f0646d37d073662db52" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;EvioSegment&gt; evio::StructureTransformer::transform</definition>
+        <argsstring>(std::shared_ptr&lt; EvioTagSegment &gt; const &amp;tagsegment)</argsstring>
+        <name>transform</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> &gt; const &amp;</type>
+          <declname>tagsegment</declname>
+        </param>
+        <briefdescription>
+<para>Create an <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object from an <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The new object has all data copied over, <bold>except</bold> that the tagsegment&apos;s children were are added (not deep cloned) to the segment.</para>
+<para>NOTE: A tagsegment has no associated padding data. However, the <ref refid="d2/da4/classevio_1_1_structure_transformer_1afa4f2b9a3ffb53c144a7b3cdb3996f52" kindref="member">transform()</ref> method will calculate it and set it in the segment header. Tags are stored in a 16 bit int and so this transformation will never lose any tag data. Only when a segment&apos;s tag is written out or serialized into 8 bits will this become an issue since a tagsegment&apos;s tag is serialized as 12 bits.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tagsegment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object to transform. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the created <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="228" column="32" bodyfile="src/libsrc/StructureTransformer.h" bodystart="228" bodyend="236"/>
+        <references refid="d5/d29/classevio_1_1_evio_segment_1a69247a8a943d8a1240843643bc606ca1" compoundref="d3/d37/_evio_segment_8h" startline="54" endline="57">evio::EvioSegment::getInstance</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1aff7d4c908d3cf864baddd9b5a1aa0ac6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureTransformer::copy</definition>
+        <argsstring>(std::shared_ptr&lt; EvioSegment &gt; const &amp;segment, std::shared_ptr&lt; EvioSegment &gt; const &amp;tagsegment)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt; const &amp;</type>
+          <declname>segment</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt; const &amp;</type>
+          <declname>tagsegment</declname>
+        </param>
+        <briefdescription>
+<para>Copy the data in an <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object into an existing <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Note, however, that the tagsegment&apos;s children were are added (not deep cloned) to the segment.</para>
+<para>NOTE: A tagsegment has no associated padding data. However, the <ref refid="d2/da4/classevio_1_1_structure_transformer_1afa4f2b9a3ffb53c144a7b3cdb3996f52" kindref="member">transform()</ref> method will calculate it and set it in the segment header. Tags are stored in a 16 bit int and so this transformation will never lose any tag data. Only when a segment&apos;s tag is written out or serialized into 8 bits will this become an issue since a tagsegment&apos;s tag is serialized as 12 bits.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object to copy into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tagsegment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="252" column="21" bodyfile="src/libsrc/StructureTransformer.h" bodystart="252" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1a0ba78cdcfe1c699f3f21424182922687" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;EvioSegment&gt; evio::StructureTransformer::transform</definition>
+        <argsstring>(std::shared_ptr&lt; EvioBank &gt; const &amp;bank)</argsstring>
+        <name>transform</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt; const &amp;</type>
+          <declname>bank</declname>
+        </param>
+        <briefdescription>
+<para>Create an <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object from an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The new object has all data copied over, <bold>except</bold> that the bank&apos;s children were are added (not deep cloned) to the segment.</para>
+<para><bold>TAG: </bold>Tags are stored in a 16 bit int and so this transformation will never lose any tag data. Only when a segment&apos;s tag is written out or serialized into 8 bits will this become an issue since a bank&apos;s tag is serialized as 16 bits.</para>
+<para><bold>NUM: </bold>A segment has no num data and so the bank&apos;s num is lost. The bank&apos;s num is actually copied into segment header so in that sense it still exists, but will never be written out or serialized.</para>
+<para><bold>LENGTH: </bold>It is possible that the length of the bank (32 bits) is too big for the segment (16 bits). This condition will cause an exception.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object to transform. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the created <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref>. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the bank is too long to change into a segment </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="284" column="32" bodyfile="src/libsrc/StructureTransformer.h" bodystart="284" bodyend="298"/>
+        <references refid="d5/d29/classevio_1_1_evio_segment_1a69247a8a943d8a1240843643bc606ca1" compoundref="d3/d37/_evio_segment_8h" startline="54" endline="57">evio::EvioSegment::getInstance</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1a04b47aab6dd7688ae8899f7a1ec299da" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureTransformer::copy</definition>
+        <argsstring>(std::shared_ptr&lt; EvioSegment &gt; const &amp;segment, std::shared_ptr&lt; EvioBank &gt; const &amp;bank)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> &gt; const &amp;</type>
+          <declname>segment</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt; const &amp;</type>
+          <declname>bank</declname>
+        </param>
+        <briefdescription>
+<para>Copy the data in an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object into an existing <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Note, however, that the banks&apos;s children were are added (not deep cloned) to the segment.</para>
+<para><bold>TAG: </bold>Tags are stored in a 16 bit int and so this transformation will never lose any tag data. Only when a segment&apos;s tag is written out or serialized into 8 bits will this become an issue since a bank&apos;s tag is serialized as 16 bits.</para>
+<para><bold>NUM: </bold>A segment has no num data and so the bank&apos;s num is lost. The bank&apos;s num is actually copied into segment header so in that sense it still exists, but will never be written out or serialized.</para>
+<para><bold>LENGTH: </bold>It is possible that the length of the bank (32 bits) is too big for the segment (16 bits). This condition will cause an exception.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> object to copy into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the bank is too long to change into a segment </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="321" column="21" bodyfile="src/libsrc/StructureTransformer.h" bodystart="321" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1ac6044826be8ee84cbcffe439d72ae9aa" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;EvioTagSegment&gt; evio::StructureTransformer::transform</definition>
+        <argsstring>(std::shared_ptr&lt; EvioBank &gt; const &amp;bank, int dummy)</argsstring>
+        <name>transform</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt; const &amp;</type>
+          <declname>bank</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dummy</declname>
+        </param>
+        <briefdescription>
+<para>Create an <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object from an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The new object has all data copied over, <bold>except</bold> that the bank&apos;s children were are added (not deep cloned) to the tagsegment.</para>
+<para><bold>TAG: </bold>Tags are stored in a 16 bit int and so this transformation will never lose any tag data. Only when a tagsegment&apos;s tag is written out or serialized into 12 bits will this become an issue since a bank&apos;s tag is serialized as 16 bits.</para>
+<para><bold>NUM: </bold>A tagsegment has no num data and so the bank&apos;s num is lost. The bank&apos;s num is actually copied into tagsegment header so in that sense it still exists, but will never be written out or serialized.</para>
+<para><bold>LENGTH: </bold>It is possible that the length of the bank (32 bits) is too big for the tagsegment (16 bits). This condition will cause an exception.</para>
+<para><bold>TYPE: </bold>No data should be lost in this transformaton since even though the bank serializes 6 bits of data type when being written out while the tagsegment serializes 4, only 4 bits are needed to contain the equivalent type data.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object to transform. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dummy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>only used to distinguish this method from <ref refid="d2/da4/classevio_1_1_structure_transformer_1a0ba78cdcfe1c699f3f21424182922687" kindref="member">transform(std::shared_ptr&lt;EvioBank&gt; const &amp;)</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the created <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref>. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the bank is too long to change into a tagsegment </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="364" column="32" bodyfile="src/libsrc/StructureTransformer.h" bodystart="364" bodyend="386"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+        <references refid="d7/d91/classevio_1_1_evio_tag_segment_1a70327d9a4b433b55aeb3d78fef704af3" compoundref="df/d0d/_evio_tag_segment_8h" startline="53" endline="56">evio::EvioTagSegment::getInstance</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/da4/classevio_1_1_structure_transformer_1ad0301266a49f6649cf0c248f07c912d3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureTransformer::copy</definition>
+        <argsstring>(std::shared_ptr&lt; EvioTagSegment &gt; const &amp;tagsegment, std::shared_ptr&lt; EvioBank &gt; const &amp;bank)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> &gt; const &amp;</type>
+          <declname>tagsegment</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt; const &amp;</type>
+          <declname>bank</declname>
+        </param>
+        <briefdescription>
+<para>Copy the data in an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object into an existing <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Note, however, that the banks&apos;s children were are added (not deep cloned) to the tagsegment.</para>
+<para><bold>TAG: </bold>Tags are stored in a 16 bit int and so this transformation will never lose any tag data. Only when a tagsegment&apos;s tag is written out or serialized into 12 bits will this become an issue since a bank&apos;s tag is serialized as 16 bits.</para>
+<para><bold>NUM: </bold>A segment has no num data and so the bank&apos;s num is lost. The bank&apos;s num is actually copied into segment header so in that sense it still exists, but will never be written out or serialized.</para>
+<para><bold>LENGTH: </bold>It is possible that the length of the bank (32 bits) is too big for the segment (16 bits). This condition will cause an exception.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tagsegment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> object to copy into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> object to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the bank is too long to change into a segment </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureTransformer.h" line="409" column="21" bodyfile="src/libsrc/StructureTransformer.h" bodystart="409" bodyend="430"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class contains methods to transform structures from one type to another, for example, changing an <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> into an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="date"><para>6/3/2020 (10/1/2010 original java) </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/StructureTransformer.h" line="38" column="5" bodyfile="src/libsrc/StructureTransformer.h" bodystart="38" bodyend="433"/>
+    <listofallmembers>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1a542424101fb0293b18fd1ba2704deba1" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>copy</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1ae7f0a723d875c83730162526b9307a77" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>copy</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1ac61b68037bf610b0fc15df9fe69e7aed" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>copy</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1aff7d4c908d3cf864baddd9b5a1aa0ac6" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>copy</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1a04b47aab6dd7688ae8899f7a1ec299da" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>copy</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1ad0301266a49f6649cf0c248f07c912d3" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>copy</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1afa4f2b9a3ffb53c144a7b3cdb3996f52" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>transform</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1a4b79fbe0545d808384d8e904ea3fe4ba" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>transform</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1a726821c1aaeea163f426f4bc55a248e6" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>transform</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1a9363e2205ead2f0646d37d073662db52" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>transform</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1a0ba78cdcfe1c699f3f21424182922687" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>transform</name></member>
+      <member refid="d2/da4/classevio_1_1_structure_transformer_1ac6044826be8ee84cbcffe439d72ae9aa" prot="public" virt="non-virtual"><scope>evio::StructureTransformer</scope><name>transform</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

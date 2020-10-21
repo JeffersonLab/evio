@@ -1,0 +1,1236 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d0/d19/classevio_1_1_composite_data_1_1_data" kind="class" language="C++" prot="public">
+    <compoundname>evio::CompositeData::Data</compoundname>
+    <includes local="no">CompositeData.h</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a29cf177916212b674ce7a85917b60f31" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class CompositeData</definition>
+        <argsstring></argsstring>
+        <name>CompositeData</name>
+        <briefdescription>
+<para>Encapsulating class needs access. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="186" column="13" bodyfile="src/libsrc/CompositeData.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a12cb54277ea84cf719b3b61474bd6969" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::Data::dataBytes</definition>
+        <argsstring></argsstring>
+        <name>dataBytes</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Keep a running total of how many bytes the data take without padding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This includes both the dataItems and N values and thus assumes all N values will be written. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="191" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a3cdd82f52b4ad6ae576547e66401b92b" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::Data::paddingBytes</definition>
+        <argsstring></argsstring>
+        <name>paddingBytes</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The number of bytes needed to complete a 4-byte boundary. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="194" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1ac6070b69073b71cdd1931e3e9d2836e8" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::Data::pads[4]</definition>
+        <argsstring>[4]</argsstring>
+        <name>pads</name>
+        <initializer>= {0,3,2,1}</initializer>
+        <briefdescription>
+<para>Convenient way to calculate padding. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="197" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="197" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a11d60eb4933a7cdbec36d8d62ce28c3e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; <ref refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item" kindref="compound">DataItem</ref> &gt;</type>
+        <definition>std::vector&lt;DataItem&gt; evio::CompositeData::Data::dataItems</definition>
+        <argsstring></argsstring>
+        <name>dataItems</name>
+        <briefdescription>
+<para>List of data objects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="200" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a93e6df048edd75714f6052a3b8d510dd" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> &gt;</type>
+        <definition>std::vector&lt;DataType&gt; evio::CompositeData::Data::dataTypes</definition>
+        <argsstring></argsstring>
+        <name>dataTypes</name>
+        <briefdescription>
+<para>List of types of data objects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="203" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1aa64bf02f977d32a72c4309a45a0bba12" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int32_t &gt;</type>
+        <definition>std::vector&lt;int32_t&gt; evio::CompositeData::Data::Nlist</definition>
+        <argsstring></argsstring>
+        <name>Nlist</name>
+        <briefdescription>
+<para>List of &quot;N&quot; (32 bit) values - multiplier values read from data instead of being part of the format string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="207" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a3be6e564417748c0d46327fea5ff6fa1" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int16_t &gt;</type>
+        <definition>std::vector&lt;int16_t&gt; evio::CompositeData::Data::nlist</definition>
+        <argsstring></argsstring>
+        <name>nlist</name>
+        <briefdescription>
+<para>List of &quot;n&quot; (16 bit) values - multiplier values read from data instead of being part of the format string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="211" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a373130a71d024d5d48cb004d6be8169f" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int8_t &gt;</type>
+        <definition>std::vector&lt;int8_t&gt; evio::CompositeData::Data::mlist</definition>
+        <argsstring></argsstring>
+        <name>mlist</name>
+        <briefdescription>
+<para>List of &quot;m&quot; (8 bit) values - multiplier values read from data instead of being part of the format string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="215" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1aec676703e55127e759ec7c5a50655bff" prot="private" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::CompositeData::Data::formatTag</definition>
+        <argsstring></argsstring>
+        <name>formatTag</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Though currently not used, this is the tag in the segment containing format string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="218" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a5cd6742d9022dca99a2120bc8ff7d7bc" prot="private" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::CompositeData::Data::dataTag</definition>
+        <argsstring></argsstring>
+        <name>dataTag</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Though currently not used, this is the tag in the bank containing data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="221" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a7302754696b90ebba477e8d1d6d9eeee" prot="private" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::CompositeData::Data::dataNum</definition>
+        <argsstring></argsstring>
+        <name>dataNum</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Though currently not used, this is the num in the bank containing data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="224" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a97e2e160d1d46e44f6eda071b866028a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::Data::Data</definition>
+        <argsstring>()</argsstring>
+        <name>Data</name>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="229" column="13" bodyfile="src/libsrc/CompositeData.h" bodystart="229" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1ae95f6b66e38d1ebcb8589b3bb6a160e1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::setFormatTag</definition>
+        <argsstring>(uint16_t tag)</argsstring>
+        <name>setFormatTag</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <briefdescription>
+<para>This method sets the tag in the segment containing the format string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag in segment containing the format string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="255" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="255" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1aa992eda6e7b3215fc80dd196b66d2333" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::setDataTag</definition>
+        <argsstring>(uint16_t tag)</argsstring>
+        <name>setDataTag</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <briefdescription>
+<para>This method sets the tag in the bank containing the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag in bank containing the data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="261" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="261" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1aa64088b7858780b2945bdc5af677f797" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::setDataNum</definition>
+        <argsstring>(uint8_t num)</argsstring>
+        <name>setDataNum</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>This method sets the num in the bank containing the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num in bank containing the data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="267" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="267" bodyend="267"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a0ed3af32e93021872f06003710518e3a" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::CompositeData::Data::getFormatTag</definition>
+        <argsstring>() const</argsstring>
+        <name>getFormatTag</name>
+        <briefdescription>
+<para>This method gets the tag in the segment containing the format string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>tag in segment containing the format string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="273" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="273" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a692d646297c885383613c7bc233f7131" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::CompositeData::Data::getDataTag</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataTag</name>
+        <briefdescription>
+<para>This method gets the tag in the bank containing the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>tag in bank containing the data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="279" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="279" bodyend="279"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a8a2db4b4c298d9b88758c1fdf1b9f7bd" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::CompositeData::Data::getDataNum</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataNum</name>
+        <briefdescription>
+<para>This method gets the num in the bank containing the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>num in bank containing the data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="285" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="285" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a809475107cba9005b4a4e0dd368b0db1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::Data::getDataSize</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataSize</name>
+        <briefdescription>
+<para>This method gets the raw data size in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>raw data size in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="291" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="291" bodyend="291"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a99d654eb6821b1427c47d0babda541fd" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::Data::getPadding</definition>
+        <argsstring>() const</argsstring>
+        <name>getPadding</name>
+        <briefdescription>
+<para>This method gets the padding (in bytes). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>padding (in bytes). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="297" column="22" bodyfile="src/libsrc/CompositeData.h" bodystart="297" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a859c1963dd27ee0ea8dd11bdd125f0b3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addN</definition>
+        <argsstring>(uint32_t N)</argsstring>
+        <name>addN</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>N</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an &quot;N&quot; or multiplier value to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It needs to be added in sequence with other data. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>N</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>N or multiplier value </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="304" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="304" bodyend="311"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a2fb71847a0713e6500e7495162048ca2" compoundref="d6/d36/_composite_data_8h" startline="128">evio::CompositeData::SingleMember::ui32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a7bbcbb7357ebba6955183fca48582c78" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addn</definition>
+        <argsstring>(uint16_t n)</argsstring>
+        <name>addn</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an &quot;n&quot; or multiplier value to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It needs to be added in sequence with other data. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>n or multiplier value </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="318" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="318" bodyend="325"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a98f1198d59a2b37757ffaafffafa4681" compoundref="d6/d36/_composite_data_8h" startline="132">evio::CompositeData::SingleMember::us16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a6bcde6f4b5585cf2686d0fb6a6f4835b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addm</definition>
+        <argsstring>(uint8_t m)</argsstring>
+        <name>addm</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an &quot;m&quot; or multiplier value to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It needs to be added in sequence with other data. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>m or multiplier value </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="332" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="332" bodyend="339"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ae8ce5637efc4179fddfcdf3739b9dc76" compoundref="d6/d36/_composite_data_8h" startline="136">evio::CompositeData::SingleMember::ub8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a5cfab11bb482df01f2c51f8d21ed8211" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addInt</definition>
+        <argsstring>(int32_t i)</argsstring>
+        <name>addInt</name>
+        <param>
+          <type>int32_t</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add a signed 32 bit integer to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>integer to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="347" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="347" bodyend="353"/>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a909f6f0ed0de5a7db3b3af834cfd3796" compoundref="d6/d36/_composite_data_8h" startline="130">evio::CompositeData::SingleMember::i32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1afd1df98fc8a61264ee9a12d9961d931f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addInt</definition>
+        <argsstring>(std::vector&lt; int32_t &gt; const &amp;i)</argsstring>
+        <name>addInt</name>
+        <param>
+          <type>std::vector&lt; int32_t &gt; const &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of signed 32 bit integers to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of integers to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="359" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="359" bodyend="367"/>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a909f6f0ed0de5a7db3b3af834cfd3796" compoundref="d6/d36/_composite_data_8h" startline="130">evio::CompositeData::SingleMember::i32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1abe2e8e36a014dcf82ef925375ebf4061" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addUint</definition>
+        <argsstring>(uint32_t i)</argsstring>
+        <name>addUint</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add an unsigned 32 bit integer to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>unsigned integer to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="373" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="373" bodyend="379"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a2fb71847a0713e6500e7495162048ca2" compoundref="d6/d36/_composite_data_8h" startline="128">evio::CompositeData::SingleMember::ui32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a1ee0f754a5c718f8316118b21d861d6a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addUint</definition>
+        <argsstring>(std::vector&lt; uint32_t &gt; const &amp;i)</argsstring>
+        <name>addUint</name>
+        <param>
+          <type>std::vector&lt; uint32_t &gt; const &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of unsigned 32 bit integers to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of unsigned integers to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="385" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="385" bodyend="393"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a2fb71847a0713e6500e7495162048ca2" compoundref="d6/d36/_composite_data_8h" startline="128">evio::CompositeData::SingleMember::ui32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1aff22deec947ee7528a768e4ae85d96a7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addShort</definition>
+        <argsstring>(int16_t s)</argsstring>
+        <name>addShort</name>
+        <param>
+          <type>int16_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Add a 16 bit short to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>short to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="401" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="401" bodyend="407"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1aafb2d66e1e6cde560f1b5d729e904a0e" compoundref="d6/d36/_composite_data_8h" startline="134">evio::CompositeData::SingleMember::s16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a3941eba3d9635de158900ade7f00e8c0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addShort</definition>
+        <argsstring>(std::vector&lt; int16_t &gt; const &amp;s)</argsstring>
+        <name>addShort</name>
+        <param>
+          <type>std::vector&lt; int16_t &gt; const &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of 16 bit shorts to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of shorts to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="413" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="413" bodyend="421"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1aafb2d66e1e6cde560f1b5d729e904a0e" compoundref="d6/d36/_composite_data_8h" startline="134">evio::CompositeData::SingleMember::s16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a72acfda240c05c1e3f605e0b85c30bd6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addUShort</definition>
+        <argsstring>(uint16_t s)</argsstring>
+        <name>addUShort</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Add an unsigned 16 bit short to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>unsigned short to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="427" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="427" bodyend="433"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a98f1198d59a2b37757ffaafffafa4681" compoundref="d6/d36/_composite_data_8h" startline="132">evio::CompositeData::SingleMember::us16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1aad70fba88e2fce2d37994adf9d29beb3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addUShort</definition>
+        <argsstring>(std::vector&lt; uint16_t &gt; const &amp;s)</argsstring>
+        <name>addUShort</name>
+        <param>
+          <type>std::vector&lt; uint16_t &gt; const &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of unsigned 16 bit shorts to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of unsigned shorts to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="439" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="439" bodyend="447"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a98f1198d59a2b37757ffaafffafa4681" compoundref="d6/d36/_composite_data_8h" startline="132">evio::CompositeData::SingleMember::us16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1acc3a86943d35b60da13c3e593c882b23" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addLong</definition>
+        <argsstring>(int64_t l)</argsstring>
+        <name>addLong</name>
+        <param>
+          <type>int64_t</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Add a 64 bit long to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>l</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>long to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="455" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="455" bodyend="461"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a6852a0a83cbd68efb7f240cdea0b02f1" compoundref="d6/d36/_composite_data_8h" startline="126">evio::CompositeData::SingleMember::l64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a194869184c935ac14c3e796c387d5002" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addLong</definition>
+        <argsstring>(std::vector&lt; int64_t &gt; const &amp;l)</argsstring>
+        <name>addLong</name>
+        <param>
+          <type>std::vector&lt; int64_t &gt; const &amp;</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of 64 bit longs to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>l</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of longs to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="467" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="467" bodyend="475"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a6852a0a83cbd68efb7f240cdea0b02f1" compoundref="d6/d36/_composite_data_8h" startline="126">evio::CompositeData::SingleMember::l64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a02d778e9b3758affc79cc9bfdfd58dcb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addULong</definition>
+        <argsstring>(uint64_t l)</argsstring>
+        <name>addULong</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Add an unsigned 64 bit long to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>l</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>unsigned long to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="481" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="481" bodyend="487"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ac6646a8ef3f588f2632c170fd1d41566" compoundref="d6/d36/_composite_data_8h" startline="124">evio::CompositeData::SingleMember::ul64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1ab4f1ad07b9a0583d224039ec0d1c69af" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addULong</definition>
+        <argsstring>(std::vector&lt; uint64_t &gt; const &amp;l)</argsstring>
+        <name>addULong</name>
+        <param>
+          <type>std::vector&lt; uint64_t &gt; const &amp;</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of unsigned 64 bit longs to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>l</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of unsigned longs to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="493" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="493" bodyend="501"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ac6646a8ef3f588f2632c170fd1d41566" compoundref="d6/d36/_composite_data_8h" startline="124">evio::CompositeData::SingleMember::ul64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a0aff24b88bb1bb497dc5dbc58996d8a2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addChar</definition>
+        <argsstring>(int8_t b)</argsstring>
+        <name>addChar</name>
+        <param>
+          <type>int8_t</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Add an 8 bit byte (char) to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="509" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="509" bodyend="515"/>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ae0abb3268b42cddec5582206b42efd64" compoundref="d6/d36/_composite_data_8h" startline="138">evio::CompositeData::SingleMember::b8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">evio::DataType::CHAR8</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a61e9481766a8eb7d5a9f3d0be33f9977" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addChar</definition>
+        <argsstring>(std::vector&lt; int8_t &gt; const &amp;b)</argsstring>
+        <name>addChar</name>
+        <param>
+          <type>std::vector&lt; int8_t &gt; const &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of 8 bit bytes (chars) to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of bytes to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="521" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="521" bodyend="530"/>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ae0abb3268b42cddec5582206b42efd64" compoundref="d6/d36/_composite_data_8h" startline="138">evio::CompositeData::SingleMember::b8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">evio::DataType::CHAR8</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a0b2de91f48c9114fb4e37edde90e6e98" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addUChar</definition>
+        <argsstring>(uint8_t b)</argsstring>
+        <name>addUChar</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Add an unsigned 8 bit byte (uchar) to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>unsigned byte to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="536" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="536" bodyend="542"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ae8ce5637efc4179fddfcdf3739b9dc76" compoundref="d6/d36/_composite_data_8h" startline="136">evio::CompositeData::SingleMember::ub8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a5628eb74df34a3f50a52279f81c1897c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addUChar</definition>
+        <argsstring>(std::vector&lt; uint8_t &gt; const &amp;b)</argsstring>
+        <name>addUChar</name>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; const &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of unsigned 8 bit bytes (uchars) to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of unsigned bytes to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="548" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="548" bodyend="556"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ae8ce5637efc4179fddfcdf3739b9dc76" compoundref="d6/d36/_composite_data_8h" startline="136">evio::CompositeData::SingleMember::ub8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a8b2c41ee22dc35b7b59f3b7aa7d9ef4f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addFloat</definition>
+        <argsstring>(float f)</argsstring>
+        <name>addFloat</name>
+        <param>
+          <type>float</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Add a 32 bit float to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>float to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="564" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="564" bodyend="570"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ae195c0e77ead2fe719b8476eb3899274" compoundref="d6/d36/_composite_data_8h" startline="120">evio::CompositeData::SingleMember::flt</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a6bf2ed8afaac6e7f8b7c826af1bc2279" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addFloat</definition>
+        <argsstring>(std::vector&lt; float &gt; const &amp;f)</argsstring>
+        <name>addFloat</name>
+        <param>
+          <type>std::vector&lt; float &gt; const &amp;</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of 32 bit floats to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of floats to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="576" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="576" bodyend="584"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1ae195c0e77ead2fe719b8476eb3899274" compoundref="d6/d36/_composite_data_8h" startline="120">evio::CompositeData::SingleMember::flt</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a87e1e55c2270d80079f9962e5703ea7c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addDouble</definition>
+        <argsstring>(double d)</argsstring>
+        <name>addDouble</name>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Add a 64 bit double to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>d</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>double to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="590" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="590" bodyend="596"/>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a60ade2dc284aaa06115147af561128ea" compoundref="d6/d36/_composite_data_8h" startline="122">evio::CompositeData::SingleMember::dbl</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a7b9905b6c4e350b7a55ba41412ac2517" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addDouble</definition>
+        <argsstring>(std::vector&lt; double &gt; const &amp;d)</argsstring>
+        <name>addDouble</name>
+        <param>
+          <type>std::vector&lt; double &gt; const &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of 64 bit doubles to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>d</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of doubles to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="602" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="602" bodyend="610"/>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a60ade2dc284aaa06115147af561128ea" compoundref="d6/d36/_composite_data_8h" startline="122">evio::CompositeData::SingleMember::dbl</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a3fc56698abe1c67bbd9c244c427090dd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addString</definition>
+        <argsstring>(std::string const &amp;s)</argsstring>
+        <name>addString</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Add a single string to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>string to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="618" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="618" bodyend="626"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a43522297b754583a0841348bb747cb50" compoundref="d6/d36/_composite_data_8h" startline="140">evio::CompositeData::SingleMember::str</references>
+        <references refid="d3/d87/classevio_1_1_util_1ad5fb04e9424d2289798ce4fa72a0427a" compoundref="dd/d90/_util_8h" startline="729" endline="748">evio::Util::stringsToRawSize</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a7b5bd903d5a71806f9982261cb61ea5d" compoundref="d6/d36/_composite_data_8h" startline="159">evio::CompositeData::DataItem::strVec</references>
+      </memberdef>
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a28a08cddc1c717a0cd4f5e23879ec409" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addString</definition>
+        <argsstring>(std::vector&lt; std::string &gt; const &amp;s)</argsstring>
+        <name>addString</name>
+        <param>
+          <type>std::vector&lt; std::string &gt; const &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Add an vector of strings to the data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of strings to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="632" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="632" bodyend="639"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">evio::CompositeData::DataItem::item</references>
+        <references refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member_1a43522297b754583a0841348bb747cb50" compoundref="d6/d36/_composite_data_8h" startline="140">evio::CompositeData::SingleMember::str</references>
+        <references refid="d3/d87/classevio_1_1_util_1ad5fb04e9424d2289798ce4fa72a0427a" compoundref="dd/d90/_util_8h" startline="729" endline="748">evio::Util::stringsToRawSize</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a7b5bd903d5a71806f9982261cb61ea5d" compoundref="d6/d36/_composite_data_8h" startline="159">evio::CompositeData::DataItem::strVec</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="d0/d19/classevio_1_1_composite_data_1_1_data_1a81db23ad300c72552e17ded866d9ad04" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::Data::addBytesToData</definition>
+        <argsstring>(uint32_t bytes)</argsstring>
+        <name>addBytesToData</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+<para>This method keeps track of the raw data size in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Also keeps track of padding. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to add. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="244" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="244" bodyend="248"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class is used to provide all data when constructing a <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Doing things this way keeps all internal data members self-consistent. </para>
+    </detaileddescription>
+    <location file="src/libsrc/CompositeData.h" line="181" column="9" bodyfile="src/libsrc/CompositeData.h" bodystart="181" bodyend="640"/>
+    <listofallmembers>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a81db23ad300c72552e17ded866d9ad04" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addBytesToData</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a0aff24b88bb1bb497dc5dbc58996d8a2" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addChar</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a61e9481766a8eb7d5a9f3d0be33f9977" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addChar</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a87e1e55c2270d80079f9962e5703ea7c" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addDouble</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a7b9905b6c4e350b7a55ba41412ac2517" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addDouble</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a8b2c41ee22dc35b7b59f3b7aa7d9ef4f" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addFloat</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a6bf2ed8afaac6e7f8b7c826af1bc2279" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addFloat</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a5cfab11bb482df01f2c51f8d21ed8211" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addInt</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1afd1df98fc8a61264ee9a12d9961d931f" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addInt</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1acc3a86943d35b60da13c3e593c882b23" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addLong</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a194869184c935ac14c3e796c387d5002" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addLong</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a6bcde6f4b5585cf2686d0fb6a6f4835b" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addm</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a859c1963dd27ee0ea8dd11bdd125f0b3" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addN</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a7bbcbb7357ebba6955183fca48582c78" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addn</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aff22deec947ee7528a768e4ae85d96a7" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addShort</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3941eba3d9635de158900ade7f00e8c0" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addShort</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3fc56698abe1c67bbd9c244c427090dd" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addString</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a28a08cddc1c717a0cd4f5e23879ec409" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addString</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a0b2de91f48c9114fb4e37edde90e6e98" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addUChar</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a5628eb74df34a3f50a52279f81c1897c" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addUChar</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1abe2e8e36a014dcf82ef925375ebf4061" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addUint</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a1ee0f754a5c718f8316118b21d861d6a" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addUint</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a02d778e9b3758affc79cc9bfdfd58dcb" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addULong</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1ab4f1ad07b9a0583d224039ec0d1c69af" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addULong</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a72acfda240c05c1e3f605e0b85c30bd6" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addUShort</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aad70fba88e2fce2d37994adf9d29beb3" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>addUShort</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a29cf177916212b674ce7a85917b60f31" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>CompositeData</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a97e2e160d1d46e44f6eda071b866028a" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>Data</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a12cb54277ea84cf719b3b61474bd6969" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>dataBytes</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a11d60eb4933a7cdbec36d8d62ce28c3e" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>dataItems</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a7302754696b90ebba477e8d1d6d9eeee" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>dataNum</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a5cd6742d9022dca99a2120bc8ff7d7bc" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>dataTag</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a93e6df048edd75714f6052a3b8d510dd" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>dataTypes</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aec676703e55127e759ec7c5a50655bff" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>formatTag</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a8a2db4b4c298d9b88758c1fdf1b9f7bd" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>getDataNum</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a809475107cba9005b4a4e0dd368b0db1" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>getDataSize</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a692d646297c885383613c7bc233f7131" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>getDataTag</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a0ed3af32e93021872f06003710518e3a" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>getFormatTag</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a99d654eb6821b1427c47d0babda541fd" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>getPadding</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a373130a71d024d5d48cb004d6be8169f" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>mlist</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3be6e564417748c0d46327fea5ff6fa1" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>nlist</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aa64bf02f977d32a72c4309a45a0bba12" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>Nlist</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3cdd82f52b4ad6ae576547e66401b92b" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>paddingBytes</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1ac6070b69073b71cdd1931e3e9d2836e8" prot="private" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>pads</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aa64088b7858780b2945bdc5af677f797" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>setDataNum</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aa992eda6e7b3215fc80dd196b66d2333" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>setDataTag</name></member>
+      <member refid="d0/d19/classevio_1_1_composite_data_1_1_data_1ae95f6b66e38d1ebcb8589b3bb6a160e1" prot="public" virt="non-virtual"><scope>evio::CompositeData::Data</scope><name>setFormatTag</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

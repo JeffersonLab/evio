@@ -1,0 +1,623 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="df/d7a/classevio_1_1_evio_swap" kind="class" language="C++" prot="public">
+    <compoundname>evio::EvioSwap</compoundname>
+    <includes local="no">EvioSwap.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1aefb920407520e2ac716e8cd1daf51656" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapEvent</definition>
+        <argsstring>(uint32_t *buf, int tolocal, uint32_t *dest)</argsstring>
+        <name>swapEvent</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tolocal</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Method to swap the endianness of an evio event (bank). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="author"><para>: Elliott Wolin, 21-nov-2003 </para>
+</simplesect>
+<simplesect kind="author"><para>: Carl Timmer, jan-2012</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer of evio event data to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolocal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if 0 buf contains data of same endian as local host, else buf has data of opposite endian. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to place swapped data into. If this is null, then dest = buf. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="51" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="51" bodyend="53"/>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1ad6ffbe34e5acec4a4a34277a4db200a7" compoundref="df/d3b/_evio_swap_8h" startline="69" endline="90">swapBank</references>
+      </memberdef>
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1ad6ffbe34e5acec4a4a34277a4db200a7" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapBank</definition>
+        <argsstring>(uint32_t *buf, bool toLocal, uint32_t *dest)</argsstring>
+        <name>swapBank</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>toLocal</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Routine to swap the endianness of an evio bank. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Null buf argument does nothing.</para>
+<para><simplesect kind="author"><para>: Elliott Wolin, 21-nov-2003 </para>
+</simplesect>
+<simplesect kind="author"><para>: Carl Timmer, jan-2012</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer of evio bank data to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>toLocal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if false buf contains data of same endian as local host, else buf has data of opposite endian. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to place swapped data into. If this is null, then dest = buf. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="69" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="69" bodyend="90"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a60983271868534fd949d944087e32db3" compoundref="dd/d95/_byte_order_8cpp" startline="109" endline="120">evio::ByteOrder::byteSwap32</references>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">swapData</references>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aefb920407520e2ac716e8cd1daf51656" compoundref="df/d3b/_evio_swap_8h" startline="51" endline="53">swapEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1aa73f2fbf22342d37418a28a8b67db4f9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapSegment</definition>
+        <argsstring>(uint32_t *buf, bool toLocal, uint32_t *dest)</argsstring>
+        <name>swapSegment</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>toLocal</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Routine to swap the endianness of an evio segment. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Null buf argument does nothing.</para>
+<para><simplesect kind="author"><para>: Elliott Wolin, 21-nov-2003 </para>
+</simplesect>
+<simplesect kind="author"><para>: Carl Timmer, jan-2012</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer of evio segment data to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>toLocal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if false buf contains data of same endian as local host, else buf has data of opposite endian </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to place swapped data into. If this is NULL, then dest = buf. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="106" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="106" bodyend="127"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a60983271868534fd949d944087e32db3" compoundref="dd/d95/_byte_order_8cpp" startline="109" endline="120">evio::ByteOrder::byteSwap32</references>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">swapData</references>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">swapData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1abb4f489ac9d0af245aa08b6844b5bbcb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapTagsegment</definition>
+        <argsstring>(uint32_t *buf, bool toLocal, uint32_t *dest)</argsstring>
+        <name>swapTagsegment</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>toLocal</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Routine to swap the endianness of an evio tagsegment. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Null buf argument does nothing.</para>
+<para><simplesect kind="author"><para>: Elliott Wolin, 21-nov-2003 </para>
+</simplesect>
+<simplesect kind="author"><para>: Carl Timmer, jan-2012</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer of evio tagsegment data to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>toLocal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if false buf contains data of same endian as local host, else buf has data of opposite endian </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to place swapped data into. If this is NULL, then dest = buf. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="143" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="143" bodyend="164"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a60983271868534fd949d944087e32db3" compoundref="dd/d95/_byte_order_8cpp" startline="109" endline="120">evio::ByteOrder::byteSwap32</references>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">swapData</references>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">swapData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1ad55272ce6a50fdd74211ff235d083189" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapLeafData</definition>
+        <argsstring>(DataType const &amp;type, std::shared_ptr&lt; ByteBuffer &gt; &amp;srcBuf, std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuf, size_t srcPos, size_t destPos, size_t len)</argsstring>
+        <name>swapLeafData</name>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>srcBuf</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>destBuf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>destPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method swaps the data of an evio leaf structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In other words the structure being swapped does not contain evio structures. It does nothing for container types.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data being swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing data to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data in 32 bit words</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer not in evio format; if destBuffer too small; if bad values for srcPos and/or destPos; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="184" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="184" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapLeafData</definition>
+        <argsstring>(DataType const &amp;type, ByteBuffer &amp;srcBuf, ByteBuffer &amp;destBuf, size_t srcPos, size_t destPos, size_t len)</argsstring>
+        <name>swapLeafData</name>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>srcBuf</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>destBuf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>destPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method swaps the data of an evio leaf structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In other words the structure being swapped does not contain evio structures. It does nothing for container types.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data being swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing data to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data in 32 bit words</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer not in evio format; if destBuffer too small; if bad values for srcPos and/or destPos; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="208" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="208" bodyend="256"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">evio::DataType::CHAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" compoundref="db/da7/_data_type_8h" startline="51">evio::DataType::COMPOSITE</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a822845f421867ea1e93993f749c0d056" compoundref="d4/d6c/_byte_buffer_8cpp" startline="936" endline="936">evio::ByteBuffer::getByte</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a085757efaf22f29f6383d391498408a9" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1156" endline="1164">evio::ByteBuffer::getLong</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a52ce23d6735060439f6e3965b866247e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="989" endline="998">evio::ByteBuffer::getShort</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1ab864753c79b9a896ae8ff2e09ebfc44f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1325" endline="1340">evio::ByteBuffer::put</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a0f3ae4b0b792506bb6ea752edb028dc3" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1615" endline="1624">evio::ByteBuffer::putLong</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a49e1d59fb665b50a9b3d117ef4bc2ff6" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1525" endline="1534">evio::ByteBuffer::putShort</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+        <references refid="d5/d4b/classevio_1_1_composite_data_1adf40a2dfe3ba46ef019b16c2abcf9aba">evio::CompositeData::swapAll</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" compoundref="db/da7/_data_type_8h" startline="36">evio::DataType::UNKNOWN32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapData</definition>
+        <argsstring>(uint32_t *src, uint32_t type, uint32_t length, bool toLocal, uint32_t *dst)</argsstring>
+        <name>swapData</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>toLocal</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>Routine to swap any type of evio data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This only swaps data associated with an evio structure; i.e. it completely ignores the header associated with it. If this data consists of structures like banks &amp; segments, it will swap them completely. Null src argument does nothing.</para>
+<para><simplesect kind="author"><para>: Elliott Wolin, 21-nov-2003 </para>
+</simplesect>
+<simplesect kind="author"><para>: Carl Timmer, jan-2012</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of evio data to be swapped (after evio header). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of evio data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of evio data in 32 bit words </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>toLocal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if false data is of same endian as local host, else data is of opposite endian. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination of swapped data. If this is null, then dst = src. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="277" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="277" bodyend="377"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a5fcee1f9ff458a9b14595551c1b3a77c" compoundref="dd/d95/_byte_order_8cpp" startline="155" endline="165">evio::ByteOrder::byteNoSwap32</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a4ba6cdff823495b629ad3283c18e5cff" compoundref="dd/d95/_byte_order_8cpp" startline="86" endline="97">evio::ByteOrder::byteSwap16</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a60983271868534fd949d944087e32db3" compoundref="dd/d95/_byte_order_8cpp" startline="109" endline="120">evio::ByteOrder::byteSwap32</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ab57f0490234e6d17fedb0c39cf5093c1" compoundref="dd/d95/_byte_order_8cpp" startline="132" endline="143">evio::ByteOrder::byteSwap64</references>
+        <references refid="d5/d4b/classevio_1_1_composite_data_1adf40a2dfe3ba46ef019b16c2abcf9aba">evio::CompositeData::swapAll</references>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1ad6ffbe34e5acec4a4a34277a4db200a7" compoundref="df/d3b/_evio_swap_8h" startline="69" endline="90">swapBank</references>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1aa73f2fbf22342d37418a28a8b67db4f9" compoundref="df/d3b/_evio_swap_8h" startline="106" endline="127">swapSegment</references>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1abb4f489ac9d0af245aa08b6844b5bbcb" compoundref="df/d3b/_evio_swap_8h" startline="143" endline="164">swapTagsegment</references>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1ad6ffbe34e5acec4a4a34277a4db200a7" compoundref="df/d3b/_evio_swap_8h" startline="69" endline="90">swapBank</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" compoundref="df/d3b/_evio_swap_8h" startline="394" endline="448">swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa73f2fbf22342d37418a28a8b67db4f9" compoundref="df/d3b/_evio_swap_8h" startline="106" endline="127">swapSegment</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1abb4f489ac9d0af245aa08b6844b5bbcb" compoundref="df/d3b/_evio_swap_8h" startline="143" endline="164">swapTagsegment</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EvioSwap::swapData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; strc)</argsstring>
+        <name>swapData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>strc</declname>
+        </param>
+        <briefdescription>
+<para>Routine to swap the endianness of an evio structure&apos;s (bank, seg, tagseg) data in place, including descendants&apos; data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The endianness of the given structure, obtained through <ref refid="d9/ddd/classevio_1_1_base_structure_1a714c3de502f914d68f40025e8754fc0d" kindref="member">BaseStructure#getByteOrder()</ref>, does <bold>NOT</bold> change. The caller must explicitly call <ref refid="d9/ddd/classevio_1_1_base_structure_1a7d44ced2b37f73f90022b9aee6e4c24f" kindref="member">BaseStructure#setByteOrder()</ref> to do that.</para>
+<para>If this structure contains Composite data, and since it is stored as a vector of shared pointers to <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> objects, it is only serialized into bytes when written out. Thus the only way to switch it&apos;s endianness is for the user to call <ref refid="d9/ddd/classevio_1_1_base_structure_1a7d44ced2b37f73f90022b9aee6e4c24f" kindref="member">BaseStructure#setByteOrder()</ref> before writing it out as bytes. In other words, this method does <bold>NOT</bold> swap Composite data.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio structure in which to swap all data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="author"><para>: Carl Timmer, 7/28/2020 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioSwap.h" line="394" column="21" bodyfile="src/libsrc/EvioSwap.h" bodystart="394" bodyend="448"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a4ba6cdff823495b629ad3283c18e5cff" compoundref="dd/d95/_byte_order_8cpp" startline="86" endline="97">evio::ByteOrder::byteSwap16</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1a60983271868534fd949d944087e32db3" compoundref="dd/d95/_byte_order_8cpp" startline="109" endline="120">evio::ByteOrder::byteSwap32</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ab57f0490234e6d17fedb0c39cf5093c1" compoundref="dd/d95/_byte_order_8cpp" startline="132" endline="143">evio::ByteOrder::byteSwap64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+        <references refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">swapData</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to hold static methods used to swap evio data. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>7/17/2020 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/EvioSwap.h" line="35" column="5" bodyfile="src/libsrc/EvioSwap.h" bodystart="35" bodyend="451"/>
+    <listofallmembers>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1ad6ffbe34e5acec4a4a34277a4db200a7" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapBank</name></member>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapData</name></member>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1a012a366e3bc1f9eee1972e655856c833" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapData</name></member>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1aefb920407520e2ac716e8cd1daf51656" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapEvent</name></member>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1ad55272ce6a50fdd74211ff235d083189" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapLeafData</name></member>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapLeafData</name></member>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1aa73f2fbf22342d37418a28a8b67db4f9" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapSegment</name></member>
+      <member refid="df/d7a/classevio_1_1_evio_swap_1abb4f489ac9d0af245aa08b6844b5bbcb" prot="public" virt="non-virtual"><scope>evio::EvioSwap</scope><name>swapTagsegment</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

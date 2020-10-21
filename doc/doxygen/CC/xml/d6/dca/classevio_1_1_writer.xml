@@ -1,0 +1,2280 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d6/dca/classevio_1_1_writer" kind="class" language="C++" prot="public">
+    <compoundname>evio::Writer</compoundname>
+    <includes local="no">Writer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1af81bef0ce2506c369a44eeaa1df0bdb2" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::toFile</definition>
+        <argsstring></argsstring>
+        <name>toFile</name>
+        <initializer>= true</initializer>
+        <briefdescription>
+<para>Do we write to a file or a buffer? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="52" column="14" bodyfile="src/libsrc/Writer.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a75816d405d8c1b4981bd8c5e86187886" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::Writer::fileName</definition>
+        <argsstring></argsstring>
+        <name>fileName</name>
+        <initializer>= &quot;&quot;</initializer>
+        <briefdescription>
+<para>File name. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="57" column="21" bodyfile="src/libsrc/Writer.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a4241863df13c801689e29d43e1005772" prot="private" static="no" mutable="no">
+        <type>std::ofstream</type>
+        <definition>std::ofstream evio::Writer::outFile</definition>
+        <argsstring></argsstring>
+        <name>outFile</name>
+        <briefdescription>
+<para>Object for writing file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="59" column="23" bodyfile="src/libsrc/Writer.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a3d1834b81fa4aeba43da904c12e7c315" prot="private" static="no" mutable="no">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref></type>
+        <definition>FileHeader evio::Writer::fileHeader</definition>
+        <argsstring></argsstring>
+        <name>fileHeader</name>
+        <briefdescription>
+<para>Header to write to file, created in constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="61" column="20" bodyfile="src/libsrc/Writer.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a358ff47f6d3a20e24fdde52cb360cb9a" prot="private" static="no" mutable="no">
+        <type>std::future&lt; void &gt;</type>
+        <definition>std::future&lt;void&gt; evio::Writer::future</definition>
+        <argsstring></argsstring>
+        <name>future</name>
+        <briefdescription>
+<para>Used to write file asynchronously. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Allow 1 write with 1 simultaneous record filling. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="63" column="21" bodyfile="src/libsrc/Writer.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ab6cb0476190c7aa5c7834a332753e37b" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d2/d7a/classevio_1_1_record_output" kindref="compound">RecordOutput</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordOutput&gt; evio::Writer::unusedRecord</definition>
+        <argsstring></argsstring>
+        <name>unusedRecord</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Temp storage for next record to be written to. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="65" column="25" bodyfile="src/libsrc/Writer.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a3d794f832297141a768b9e49fbf44666" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ByteBuffer&gt; evio::Writer::buffer</definition>
+        <argsstring></argsstring>
+        <name>buffer</name>
+        <briefdescription>
+<para>Buffer being written to. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="70" column="25" bodyfile="src/libsrc/Writer.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a840620d1a04ba5cc9b7458483e6c3d71" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ByteBuffer&gt; evio::Writer::userHeaderBuffer</definition>
+        <argsstring></argsstring>
+        <name>userHeaderBuffer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Buffer containing user Header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="75" column="25" bodyfile="src/libsrc/Writer.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ab2a15f38f93452b97fc8754c16aeafb0" prot="private" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* evio::Writer::userHeader</definition>
+        <argsstring></argsstring>
+        <name>userHeader</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Byte array containing user Header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="77" column="17" bodyfile="src/libsrc/Writer.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a2908c4b6c0e72f3b940859931e09c37b" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Writer::userHeaderLength</definition>
+        <argsstring></argsstring>
+        <name>userHeaderLength</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Size in bytes of userHeader array. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="79" column="18" bodyfile="src/libsrc/Writer.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ac64c83a450920cba5509a296590f8512" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::Writer::dictionary</definition>
+        <argsstring></argsstring>
+        <name>dictionary</name>
+        <briefdescription>
+<para>Evio format &quot;first&quot; event to store in file header&apos;s user header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>String containing evio-format XML dictionary to store in file header&apos;s user header. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="83" column="21" bodyfile="src/libsrc/Writer.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a3d6974a9fb15d7c1a52cbb09c82f0b67" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ByteBuffer&gt; evio::Writer::dictionaryFirstEventBuffer</definition>
+        <argsstring></argsstring>
+        <name>dictionaryFirstEventBuffer</name>
+        <briefdescription>
+<para>If dictionary and or firstEvent exist, this buffer contains them both as a record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="85" column="25" bodyfile="src/libsrc/Writer.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ae2f2ecd4c8e30593302000b4a79213cf" prot="private" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* evio::Writer::firstEvent</definition>
+        <argsstring></argsstring>
+        <name>firstEvent</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Evio format &quot;first&quot; event to store in file header&apos;s user header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="87" column="17" bodyfile="src/libsrc/Writer.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a5ad3330812a7d4998f8277cf62b4898c" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Writer::firstEventLength</definition>
+        <argsstring></argsstring>
+        <name>firstEventLength</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Length in bytes of firstEvent. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="89" column="18" bodyfile="src/libsrc/Writer.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ac5461e9f3cdb57ee6fc27b52006d91c9" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::Writer::byteOrder</definition>
+        <argsstring></argsstring>
+        <name>byteOrder</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order of data to write to file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="92" column="19" bodyfile="src/libsrc/Writer.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ac3cb64a6846c4aa63cf133d679510fb7" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d2/d7a/classevio_1_1_record_output" kindref="compound">RecordOutput</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordOutput&gt; evio::Writer::outputRecord</definition>
+        <argsstring></argsstring>
+        <name>outputRecord</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Record currently being filled. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="94" column="25" bodyfile="src/libsrc/Writer.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a8719c19b3a89c9e11221b6773ba65f95" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d2/d7a/classevio_1_1_record_output" kindref="compound">RecordOutput</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordOutput&gt; evio::Writer::beingWrittenRecord</definition>
+        <argsstring></argsstring>
+        <name>beingWrittenRecord</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Record currently being written to file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="96" column="25" bodyfile="src/libsrc/Writer.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a39ae63b094a5608bd1a4d47f3e6f362e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; uint8_t &gt;</type>
+        <definition>std::vector&lt;uint8_t&gt; evio::Writer::headerArray</definition>
+        <argsstring></argsstring>
+        <name>headerArray</name>
+        <briefdescription>
+<para>Byte array large enough to hold a header/trailer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This array may increase. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="98" column="21" bodyfile="src/libsrc/Writer.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a60b4922365ca7102140a8d9660cafc42" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref></type>
+        <definition>Compressor::CompressionType evio::Writer::compressionType</definition>
+        <argsstring></argsstring>
+        <name>compressionType</name>
+        <initializer>{<ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" kindref="member">Compressor::UNCOMPRESSED</ref>}</initializer>
+        <briefdescription>
+<para>Type of compression to use on file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default is none. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="101" column="37" bodyfile="src/libsrc/Writer.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1af6aab7be093dc892be4941d01be02ea3" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; std::vector&lt; uint32_t &gt; &gt;</type>
+        <definition>std::shared_ptr&lt;std::vector&lt;uint32_t&gt; &gt; evio::Writer::recordLengths</definition>
+        <argsstring></argsstring>
+        <name>recordLengths</name>
+        <briefdescription>
+<para>List of record lengths interspersed with record event counts to be optionally written in trailer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="105" column="25" bodyfile="src/libsrc/Writer.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1aac9480cc1be75d955adf43b89217bddd" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::Writer::writerBytesWritten</definition>
+        <argsstring></argsstring>
+        <name>writerBytesWritten</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Number of bytes written to file/buffer at current moment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="108" column="16" bodyfile="src/libsrc/Writer.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a0acb848e39554fac6473a2ec17f4278b" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Writer::recordNumber</definition>
+        <argsstring></argsstring>
+        <name>recordNumber</name>
+        <initializer>= 1</initializer>
+        <briefdescription>
+<para>Number which is incremented and stored with each successive written record starting at 1. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="110" column="18" bodyfile="src/libsrc/Writer.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a27512e050acce07e1fefacfa8aea1096" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::addingTrailer</definition>
+        <argsstring></argsstring>
+        <name>addingTrailer</name>
+        <initializer>= true</initializer>
+        <briefdescription>
+<para>Do we add a last header or trailer to file/buffer? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="113" column="14" bodyfile="src/libsrc/Writer.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1af3c7f66113f880ba7f4c89f99fd4e059" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::addTrailerIndex</definition>
+        <argsstring></argsstring>
+        <name>addTrailerIndex</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Do we add a record index to the trailer? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="115" column="14" bodyfile="src/libsrc/Writer.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a600493576ecf04c1e84da9c371db128c" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::closed</definition>
+        <argsstring></argsstring>
+        <name>closed</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Has <ref refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" kindref="member">close()</ref> been called? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="117" column="14" bodyfile="src/libsrc/Writer.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1aa2bcb0123f72bb568d73a828e092a2b7" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::opened</definition>
+        <argsstring></argsstring>
+        <name>opened</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Has <ref refid="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" kindref="member">open()</ref> been called? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="119" column="14" bodyfile="src/libsrc/Writer.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1aeaa6de4d39d7ecd2bde85a42c496faa2" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::firstRecordWritten</definition>
+        <argsstring></argsstring>
+        <name>firstRecordWritten</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Has the first record been written already? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="121" column="14" bodyfile="src/libsrc/Writer.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ae900a5c7faeeff9aeaa465c01ec8c271" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::haveDictionary</definition>
+        <argsstring></argsstring>
+        <name>haveDictionary</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Has a dictionary been defined? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="123" column="14" bodyfile="src/libsrc/Writer.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1ac2dfa12623449716d63b2e02f414382a" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::haveFirstEvent</definition>
+        <argsstring></argsstring>
+        <name>haveFirstEvent</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Has a first event been defined? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="125" column="14" bodyfile="src/libsrc/Writer.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d6/dca/classevio_1_1_writer_1a1980ae53643b5ee5bc47c4f4ef1de33d" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Writer::haveUserHeader</definition>
+        <argsstring></argsstring>
+        <name>haveUserHeader</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Has caller defined a file header&apos;s user-header which is not dictionary/first-event? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="127" column="14" bodyfile="src/libsrc/Writer.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1ad828f46b2331b87aab0574c78c082a91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::Writer</definition>
+        <argsstring>()</argsstring>
+        <name>Writer</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><bold>No</bold> file is opened. Any file will have little endian byte order. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="133" column="9" bodyfile="src/libsrc/Writer.cpp" bodystart="21" bodyend="23"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a2c367e6ba0f85d3af97248bdc1073d17" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::Writer</definition>
+        <argsstring>(const ByteOrder &amp;order, uint32_t maxEventCount=0, uint32_t maxBufferSize=0)</argsstring>
+        <name>Writer</name>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxEventCount</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxBufferSize</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><bold>No</bold> file is opened. File header type is evio file (<ref refid="df/dd8/classevio_1_1_header_type_1a3d8831bdc7439f38987e017528f87462" kindref="member">HeaderType#EVIO_FILE</ref>).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of written file. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxEventCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of events a record can hold. Value of O means use default (1M). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBufferSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of uncompressed data bytes a record can hold. Value of &lt; 8MB results in default of 8MB. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="135" column="18" bodyfile="src/libsrc/Writer.cpp" bodystart="36" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a534f719986ce36c188092faec39c2c27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::Writer</definition>
+        <argsstring>(const std::string &amp;filename, const ByteOrder &amp;order, uint32_t maxEventCount=0, uint32_t maxBufferSize=0)</argsstring>
+        <name>Writer</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxEventCount</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxBufferSize</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with filename &amp; byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The output file will be created with no user header. No compression.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output file name </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of written file; </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxEventCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of events a record can hold. Value of O means use default (1M). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBufferSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of uncompressed data bytes a record can hold. Value of &lt; 8MB results in default of 8MB. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file cannot be found or IO error writing to file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="139" column="9" bodyfile="src/libsrc/Writer.cpp" bodystart="54" bodyend="59"/>
+        <references refid="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" compoundref="dc/d0e/_writer_8cpp" startline="448" endline="450">open</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a314152ebeaa8d198bfc59206a73b457e" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::Writer</definition>
+        <argsstring>(const HeaderType &amp;hType, const ByteOrder &amp;order=ByteOrder::ENDIAN_LOCAL, uint32_t maxEventCount=0, uint32_t maxBufferSize=0, const std::string &amp;dictionary=std::string(&quot;&quot;), uint8_t *firstEvent=nullptr, uint32_t firstEventLength=0, const Compressor::CompressionType &amp;compressionType=Compressor::UNCOMPRESSED, bool addTrailerIndex=false)</argsstring>
+        <name>Writer</name>
+        <param>
+          <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> &amp;</type>
+          <declname>hType</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+          <defval><ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref></defval>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxEventCount</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxBufferSize</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>dictionary</declname>
+          <defval>std::string(&quot;&quot;)</defval>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>firstEvent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>firstEventLength</declname>
+          <defname>firstEventLen</defname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const <ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref> &amp;</type>
+          <declname>compressionType</declname>
+          <defname>compType</defname>
+          <defval><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" kindref="member">Compressor::UNCOMPRESSED</ref></defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>addTrailerIndex</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The given file is opened so any subsequent call to open will fail. This method places the dictionary and first event into the file header&apos;s user header.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the type of the file. If set to <ref refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" kindref="member">HeaderType#HIPO_FILE</ref>, the header will be written with the first 4 bytes set to HIPO. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of written file. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxEventCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of events a record can hold. Value of O means use default (1M). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBufferSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of uncompressed data bytes a record can hold. Value of &lt; 8MB results in default of 8MB. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>string holding an evio format dictionary to be placed in userHeader. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstEvent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte array containing an evio event to be included in userHeader. It must be in the same byte order as the order argument. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstEventLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes in firstEvent. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>compType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data compression to do (one, lz4 fast, lz4 best, gzip) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addTrailerIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, we add a record index to the trailer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="144" column="18" bodyfile="src/libsrc/Writer.cpp" bodystart="80" bodyend="118"/>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" compoundref="d6/dea/_record_header_8h" startline="127">evio::RecordHeader::HEADER_SIZE_BYTES</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" compoundref="d5/d98/_header_type_8h" startline="41">evio::HeaderType::HIPO_FILE</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a27adfed8319c149db4b3449e63388dc4" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::Writer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf)</argsstring>
+        <name>Writer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for writing to a <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Byte order is taken from the buffer. No compression. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in to which to write events and/or records. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="156" column="18" bodyfile="src/libsrc/Writer.cpp" bodystart="129" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a6fb308f6970fdf9a68bf3fd5141e3e9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::Writer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, uint8_t *userHdr, uint32_t len)</argsstring>
+        <name>Writer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>userHdr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with user header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>No compression.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in to which to write events and/or records. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte array representing the optional user&apos;s header. <bold>Warning: this will not be used until first record is written! So don&apos;t go changing it in the meantime!</bold> </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of valid data (bytes) in userHdr (starting at off). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="157" column="9" bodyfile="src/libsrc/Writer.cpp" bodystart="143" bodyend="146"/>
+        <references refid="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" compoundref="dc/d0e/_writer_8cpp" startline="448" endline="450">open</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1ae083beacbd2abb831e6a5503d9aaaf6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::Writer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, uint32_t maxEventCount, uint32_t maxBufferSize, const std::string &amp;dictionary, uint8_t *firstEvent, uint32_t firstEventLength)</argsstring>
+        <name>Writer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxEventCount</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxBufferSize</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>dictionary</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>firstEvent</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>firstEventLength</declname>
+          <defname>firstEventLen</defname>
+        </param>
+        <briefdescription>
+<para>Constructor with byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This method places the dictionary and first event into the file header&apos;s user header. No compression.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in to which to write events and/or records. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxEventCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of events a record can hold. Value of O means use default (1M). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBufferSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of uncompressed data bytes a record can hold. Value of &lt; 8MB results in default of 8MB. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>string holding an evio format dictionary to be placed in userHeader. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstEvent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte array containing an evio event to be included in userHeader. It must be in the same byte order as the order argument. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstEventLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes in firstEvent. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="158" column="9" bodyfile="src/libsrc/Writer.cpp" bodystart="164" bodyend="194"/>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" compoundref="d6/dea/_record_header_8h" startline="127">evio::RecordHeader::HEADER_SIZE_BYTES</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">evio::Compressor::UNCOMPRESSED</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a1e500bdfd12a357a6f443def5187b675" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Writer::~Writer</definition>
+        <argsstring>()=default</argsstring>
+        <name>~Writer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="161" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1aa08c22b469bb85b6065876ad2f9482a3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+        <definition>const ByteOrder &amp; evio::Writer::getByteOrder</definition>
+        <argsstring>() const</argsstring>
+        <name>getByteOrder</name>
+        <briefdescription>
+<para>Get the file&apos;s byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file&apos;s byte order. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="180" column="26" bodyfile="src/libsrc/Writer.cpp" bodystart="350" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a7584e8ce135dbed869f4e247e371ee75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Writer::getBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>getBuffer</name>
+        <briefdescription>
+<para>Get the buffer being written to. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should only be called after calling <ref refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" kindref="member">close()</ref> so data is complete. <simplesect kind="return"><para>buffer being written to. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="181" column="25" bodyfile="src/libsrc/Writer.cpp" bodystart="343" bodyend="343"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a8675f4a700a8b0a65fad0c2b7a192940" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::Writer::getFileHeader</definition>
+        <argsstring>()</argsstring>
+        <name>getFileHeader</name>
+        <briefdescription>
+<para>Get the file header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file header. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="182" column="22" bodyfile="src/libsrc/Writer.cpp" bodystart="357" bodyend="357"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a4b693782520a223345fcafead7b4b5c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref></type>
+        <definition>Compressor::CompressionType evio::Writer::getCompressionType</definition>
+        <argsstring>()</argsstring>
+        <name>getCompressionType</name>
+        <briefdescription>
+<para><zwj/>** </para>
+        </briefdescription>
+        <detaileddescription>
+<para><zwj/>** Convenience method that gets compression type for the file being written. <simplesect kind="return"><para>compression type for the file being written. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="185" column="37" bodyfile="src/libsrc/Writer.cpp" bodystart="377" bodyend="377"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a278331c3a1a91c7a7584fea9f4910d5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::setCompressionType</definition>
+        <argsstring>(Compressor::CompressionType compression)</argsstring>
+        <name>setCompressionType</name>
+        <param>
+          <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref></type>
+          <declname>compression</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method that sets compression type for the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The compression type is also set for internal record. When writing to the file, record data will be compressed according to the given type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>compression</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>compression type </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="186" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="387" bodyend="392"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1ab328948eb2cb9e6297ef750977696073" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Writer::addTrailer</definition>
+        <argsstring>() const</argsstring>
+        <name>addTrailer</name>
+        <briefdescription>
+<para>Does this writer add a trailer to the end of the file/buffer? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if this writer adds a trailer to the end of the file/buffer, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="188" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="399" bodyend="399"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a43ebda27c326a58279d963f609112299" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addTrailer</definition>
+        <argsstring>(bool add)</argsstring>
+        <name>addTrailer</name>
+        <param>
+          <type>bool</type>
+          <declname>add</declname>
+        </param>
+        <briefdescription>
+<para>Set whether this writer adds a trailer to the end of the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>add</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, at the end of file/buffer, add an ending header (trailer) with no index of records and no following data. Update the file header to contain a file offset to the trailer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="189" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="408" bodyend="408"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1af5c8c23225cf435c9f78f58f8149c4b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Writer::addTrailerWithIndex</definition>
+        <argsstring>()</argsstring>
+        <name>addTrailerWithIndex</name>
+        <briefdescription>
+<para>Does this writer add a trailer with a record index to the end of the file? Or, if writing to a buffer, is a trailer added with no index? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>if writing to a file: true if this writer adds a trailer with a record index to the end of the file, else false. If writing to a buffer, true if this writer adds a traile to the end of the buffer, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="190" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="418" bodyend="418"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1afe5ad142e4aa10f4cbdd3b0191a964db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addTrailerWithIndex</definition>
+        <argsstring>(bool addTrailingIndex)</argsstring>
+        <name>addTrailerWithIndex</name>
+        <param>
+          <type>bool</type>
+          <declname>addTrailingIndex</declname>
+        </param>
+        <briefdescription>
+<para>Set whether this writer adds a trailer with a record index to the end of the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Or, if writing to a buffer, set whether a trailer is added with no index. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>addTrailingIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, at the end of file, add an ending header (trailer) with an index of all records but with no following data. Update the file header to contain a file offset to the trailer. If true, and writing to a buffer, add a trailer with no index to the end of the buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="191" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="430" bodyend="439"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::open</definition>
+        <argsstring>(const std::string &amp;filename)</argsstring>
+        <name>open</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+<para>Open a new file and write file header with no user header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output file name </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if open already called without being followed by calling close. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file cannot be found or IO error writing to file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="193" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="448" bodyend="450"/>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a534f719986ce36c188092faec39c2c27" compoundref="dc/d0e/_writer_8cpp" startline="54" endline="59">Writer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1aec66f6f92fa30daa2f9546d2920dbbfe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::open</definition>
+        <argsstring>(const std::string &amp;filename, uint8_t *userHdr, uint32_t len)</argsstring>
+        <name>open</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>userHdr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+          <defname>userLen</defname>
+        </param>
+        <briefdescription>
+<para>Open a file and write file header with given user header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>User header is automatically padded when written. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of file to write to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte array representing the optional user&apos;s header. If this is null AND dictionary and/or first event are given, the dictionary and/or first event will be placed in its own record and written as the user header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of valid data (bytes) in userHdr (starting at off). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>filename arg is null, if constructor specified writing to a buffer, if <ref refid="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" kindref="member">open()</ref> was already called without being followed by <ref refid="d6/dca/classevio_1_1_writer_1a17cd4aa42143d1f6578422f6ef36151a" kindref="member">reset()</ref>, if file cannot be found, if IO error writing to file, or if filename is empty. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="194" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="467" bodyend="523"/>
+        <references refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" compoundref="dc/d0e/_writer_8cpp" startline="682" endline="719">createHeader</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" compoundref="de/d46/_file_header_8cpp" startline="218" endline="218">evio::FileHeader::getLength</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a04ed6382f82d976aef36ac78d6a001fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::open</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, uint8_t *userHdr, uint32_t len)</argsstring>
+        <name>open</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>userHdr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Specify a buffer and write first record header with given user header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>User header is automatically padded when written. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to writer to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte array representing the optional user&apos;s header. <bold>Warning: this data will be copied!</bold> If this is null AND dictionary and/or first event are given, the dictionary and/or first event will be placed in its own record and written as the user header of the first record&apos;s header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of valid data (bytes) in userHdr. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if constructor specified writing to a file, or if <ref refid="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" kindref="member">open()</ref> was already called without being followed by <ref refid="d6/dca/classevio_1_1_writer_1a17cd4aa42143d1f6578422f6ef36151a" kindref="member">reset()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="195" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="540" bodyend="587"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Writer::createHeader</definition>
+        <argsstring>(uint8_t *userHdr, uint32_t userLen)</argsstring>
+        <name>createHeader</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>userHdr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>userLen</declname>
+        </param>
+        <briefdescription>
+<para>Create and return a buffer containing a general file header followed by the user header given in the argument. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If user header is not padded to 4-byte boundary, it&apos;s done here.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>userHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte array containing a user-defined header, may be null. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>buffer (same as buf arg). </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if writing to buffer, not file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="203" column="25" bodyfile="src/libsrc/Writer.cpp" bodystart="682" bodyend="719"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" compoundref="de/d46/_file_header_8cpp" startline="218" endline="218">evio::FileHeader::getLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">evio::FileHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">evio::FileHeader::reset</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">evio::FileHeader::setBitInfo</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">evio::FileHeader::setUserHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" compoundref="de/d46/_file_header_8cpp" startline="589" endline="608">evio::FileHeader::writeHeader</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1aec66f6f92fa30daa2f9546d2920dbbfe" compoundref="dc/d0e/_writer_8cpp" startline="467" endline="523">open</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a26490309dbaa26d08de3c2151f9d0391" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Writer::createHeader</definition>
+        <argsstring>(ByteBuffer &amp;userHdr)</argsstring>
+        <name>createHeader</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>userHdr</declname>
+        </param>
+        <briefdescription>
+<para>Create and return a buffer containing a general file header followed by the user header given in the argument. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If user header is not padded to 4-byte boundary, it&apos;s done here. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>userHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing a user-defined header which must be READY-TO-READ! </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>buffer containing a file header followed by the user-defined header. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if writing to buffer, not file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="204" column="25" bodyfile="src/libsrc/Writer.cpp" bodystart="785" bodyend="818"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1abf7abf99aa7544601997f40eba298648" compoundref="d4/d6c/_byte_buffer_8cpp" startline="490" endline="490">evio::ByteBuffer::arrayOffset</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" compoundref="de/d46/_file_header_8cpp" startline="218" endline="218">evio::FileHeader::getLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">evio::FileHeader::HEADER_SIZE_BYTES</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">evio::FileHeader::reset</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">evio::FileHeader::setBitInfo</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">evio::FileHeader::setUserHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" compoundref="de/d46/_file_header_8cpp" startline="589" endline="608">evio::FileHeader::writeHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1ade85d05f573c665b7221bc62e56b1524" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::createHeader</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint8_t *userHdr, uint32_t userLen)</argsstring>
+        <name>createHeader</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>userHdr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>userLen</declname>
+        </param>
+        <briefdescription>
+<para>Fill given buffer with a general file header followed by the given user header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The buffer is cleared and set to desired byte order prior to writing. If user header is not padded to 4-byte boundary, it&apos;s done here.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to contain the file header followed by the user-defined header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte array containing a user-defined header, may be null. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if writing to buffer, or buf too small (needs to be userLen + <ref refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" kindref="member">FileHeader::HEADER_SIZE_BYTES</ref> bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="205" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="733" bodyend="774"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1abf7abf99aa7544601997f40eba298648" compoundref="d4/d6c/_byte_buffer_8cpp" startline="490" endline="490">evio::ByteBuffer::arrayOffset</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a6496a99b06b5ed67b8c93b148fd87323" compoundref="d4/d6c/_byte_buffer_8cpp" startline="504" endline="504">evio::ByteBuffer::capacity</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a11a85b28fd30c969f567c8c7f5848275" compoundref="d4/d6c/_byte_buffer_8cpp" startline="536" endline="541">evio::ByteBuffer::clear</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" compoundref="de/d46/_file_header_8cpp" startline="218" endline="218">evio::FileHeader::getLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">evio::FileHeader::HEADER_SIZE_BYTES</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">evio::FileHeader::reset</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">evio::FileHeader::setBitInfo</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">evio::FileHeader::setUserHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" compoundref="de/d46/_file_header_8cpp" startline="589" endline="608">evio::FileHeader::writeHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a84b3407887a26d5c2d78d3e3cdfbad55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::createHeader</definition>
+        <argsstring>(ByteBuffer &amp;buf, ByteBuffer &amp;userHdr)</argsstring>
+        <name>createHeader</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>userHdr</declname>
+        </param>
+        <briefdescription>
+<para>Fill given buffer (buf) with a general file header followed by the given user header (userHdr). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The buffer is cleared and set to desired byte order prior to writing. If user header is not padded to 4-byte boundary, it&apos;s done here.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to contain the file header followed by the user-defined header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>userHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing a user-defined header which must be READY-TO-READ! </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if writing to buffer, or buf too small (needs to be userHdr.remaining() + <ref refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" kindref="member">FileHeader::HEADER_SIZE_BYTES</ref> bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="206" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="831" bodyend="871"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1abf7abf99aa7544601997f40eba298648" compoundref="d4/d6c/_byte_buffer_8cpp" startline="490" endline="490">evio::ByteBuffer::arrayOffset</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a6496a99b06b5ed67b8c93b148fd87323" compoundref="d4/d6c/_byte_buffer_8cpp" startline="504" endline="504">evio::ByteBuffer::capacity</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a11a85b28fd30c969f567c8c7f5848275" compoundref="d4/d6c/_byte_buffer_8cpp" startline="536" endline="541">evio::ByteBuffer::clear</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" compoundref="de/d46/_file_header_8cpp" startline="218" endline="218">evio::FileHeader::getLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">evio::FileHeader::HEADER_SIZE_BYTES</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">evio::FileHeader::reset</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">evio::FileHeader::setBitInfo</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">evio::FileHeader::setUserHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" compoundref="de/d46/_file_header_8cpp" startline="589" endline="608">evio::FileHeader::writeHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::writeRecord</definition>
+        <argsstring>(RecordOutput &amp;record)</argsstring>
+        <name>writeRecord</name>
+        <param>
+          <type><ref refid="d2/d7a/classevio_1_1_record_output" kindref="compound">RecordOutput</ref> &amp;</type>
+          <declname>record</declname>
+          <defname>rec</defname>
+        </param>
+        <briefdescription>
+<para>Appends the record to the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When writing to a file, using this method in conjunction with <ref refid="d6/dca/classevio_1_1_writer_1a3f4737e1b27c07329fbb869fbead1f56" kindref="member">addEvent()</ref> is <bold>NOT</bold> thread-safe. For that reason, this write is done synchronously, to avoid interference with the normal, asynchronous file writes. Thus, writing using this method will not be quite as efficient.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>record object </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error writing to file or record&apos;s byte order is opposite to output endian. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="208" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="953" bodyend="997"/>
+        <references refid="d2/d7a/classevio_1_1_record_output_1a7c7cbf0f2bcc362662eea1fc4ff5d7ad" compoundref="d4/df6/_record_output_8cpp" startline="841" endline="999">evio::RecordOutput::build</references>
+        <references refid="d2/d7a/classevio_1_1_record_output_1a95a914b8d9c2e5dce9764be14002d8b6" compoundref="d4/df6/_record_output_8cpp" startline="378" endline="378">evio::RecordOutput::getBinaryBuffer</references>
+        <references refid="d2/d7a/classevio_1_1_record_output_1a7d31fb593c433d6c5be6961a5b43d1da" compoundref="d4/df6/_record_output_8cpp" startline="414" endline="414">evio::RecordOutput::getByteOrder</references>
+        <references refid="d2/d7a/classevio_1_1_record_output_1a3644f5817bd565b0b6a07617da013f27" compoundref="d4/df6/_record_output_8cpp" startline="364" endline="364">evio::RecordOutput::getHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a3f4737e1b27c07329fbb869fbead1f56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addEvent</definition>
+        <argsstring>(uint8_t *buffer, uint32_t length)</argsstring>
+        <name>addEvent</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buffer</declname>
+          <defname>buf</defname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Add a byte array to the internal record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the length of the buffer exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <ref refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" kindref="member">writeRecord()</ref> is not thread-safe. <bold>The byte order of event&apos;s byte array must match the byte order given in constructor!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to add to the file. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to write from buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if cannot write to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="212" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1014" bodyend="1020"/>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a49b5464a56d40798b28ac0781e82f8e2" compoundref="dc/d0e/_writer_8cpp" startline="1035" endline="1037">addEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a49b5464a56d40798b28ac0781e82f8e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addEvent</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buffer)</argsstring>
+        <name>addEvent</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buffer</declname>
+          <defname>buf</defname>
+        </param>
+        <briefdescription>
+<para>Add a <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> to the internal record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the length of the buffer exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <ref refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" kindref="member">writeRecord()</ref> is not thread-safe. <bold>The byte order of event&apos;s data must match the byte order given in constructor!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to add to the file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if cannot write to file or buf arg&apos;s byte order is wrong. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="213" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1035" bodyend="1037"/>
+        <references refid="d6/dca/classevio_1_1_writer_1a3f4737e1b27c07329fbb869fbead1f56" compoundref="dc/d0e/_writer_8cpp" startline="1014" endline="1020">addEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1ad0ffba4ec1fb3578d67bf23ebeeabff3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addEvent</definition>
+        <argsstring>(ByteBuffer &amp;buffer)</argsstring>
+        <name>addEvent</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buffer</declname>
+          <defname>buf</defname>
+        </param>
+        <briefdescription>
+<para>Add a <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> to the internal record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the length of the buffer exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <ref refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" kindref="member">writeRecord()</ref> is not thread-safe. <bold>The byte order of event&apos;s data must match the byte order given in constructor!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to add to the file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if cannot write to file or buf arg&apos;s byte order is wrong. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="214" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1052" bodyend="1062"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a0e58e3e003459f38dbaafb3cbf82238b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addEvent</definition>
+        <argsstring>(std::shared_ptr&lt; EvioBank &gt; &amp;bank)</argsstring>
+        <name>addEvent</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> &gt; &amp;</type>
+          <declname>bank</declname>
+        </param>
+        <briefdescription>
+<para>Add an <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref> to the internal record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the length of the bank exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <ref refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" kindref="member">writeRecord()</ref> is not thread-safe.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>event to add to the file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if cannot write to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="215" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1075" bodyend="1081"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a1ad1f6131e62b255f7aac6873087740e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addEvent</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)</argsstring>
+        <name>addEvent</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Add an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> to the internal record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the length of the data exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <ref refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" kindref="member">writeRecord()</ref> is not thread-safe. <bold>The byte order of node&apos;s data must match the byte order given in constructor!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node to add to the file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if node does not correspond to a bank. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if cannot write to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="216" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1097" bodyend="1099"/>
+        <references refid="d6/dca/classevio_1_1_writer_1a3f4737e1b27c07329fbb869fbead1f56" compoundref="dc/d0e/_writer_8cpp" startline="1014" endline="1020">addEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a39d7e291d85d61a6343ac6a40e7902cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::addEvent</definition>
+        <argsstring>(EvioNode &amp;node)</argsstring>
+        <name>addEvent</name>
+        <param>
+          <type><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Add an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> to the internal record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the length of the data exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <ref refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" kindref="member">writeRecord()</ref> is not thread-safe. <bold>The byte order of node&apos;s data must match the byte order given in constructor!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node to add to the file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if node does not correspond to a bank. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if cannot write to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="217" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1115" bodyend="1121"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a17cd4aa42143d1f6578422f6ef36151a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::reset</definition>
+        <argsstring>()</argsstring>
+        <name>reset</name>
+        <briefdescription>
+<para>Get this object ready for re-use. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Follow calling this with call to <ref refid="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" kindref="member">open(const std::string &amp;)</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="219" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1228" bodyend="1238"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">evio::FileHeader::reset</references>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::close</definition>
+        <argsstring>()</argsstring>
+        <name>close</name>
+        <briefdescription>
+<para>Close opened file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the output record contains events, they will be flushed to file/buffer. Trailer and its optional index written if requested. <parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error writing to file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="220" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1247" bodyend="1321"/>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac420593fe475899308138f3bd98e5f38" compoundref="d6/dea/_record_header_8h" startline="144">evio::RecordHeader::BIT_INFO_OFFSET</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" compoundref="d1/d02/_byte_order_8h" startline="61">evio::ByteOrder::ENDIAN_LOCAL</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a893b59302d5f0b77733da2deb85e15b8" compoundref="de/d46/_file_header_8cpp" startline="402" endline="413">evio::FileHeader::hasTrailerWithIndex</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a13a655d1b16e70688ec555e1f6cd7f5b" compoundref="d2/d66/_file_header_8h" startline="118">evio::FileHeader::RECORD_COUNT_OFFSET</references>
+        <references refid="d1/d02/_byte_order_8h_1a700fb30611761c46a674a45cc28ff561" compoundref="d1/d02/_byte_order_8h" startline="28">SWAP_32</references>
+        <references refid="d1/d02/_byte_order_8h_1a8021644ad809413f98b4093a341b2041" compoundref="d1/d02/_byte_order_8h" startline="35">SWAP_64</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ac89e616aa3a757d6f32bee153048983f" compoundref="d2/d66/_file_header_8h" startline="130">evio::FileHeader::TRAILER_POSITION_OFFSET</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1ae782a2deb5995a0a29578cae10555537" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d6/dca/classevio_1_1_writer" kindref="compound">Writer</ref> &amp;</type>
+        <definition>Writer &amp; evio::Writer::operator=</definition>
+        <argsstring>(const Writer &amp;other)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="d6/dca/classevio_1_1_writer" kindref="compound">Writer</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+<para><zwj/>** </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Copy assignment operator. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>other</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>right side object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>left side object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="170" column="17" bodyfile="src/libsrc/Writer.cpp" bodystart="263" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a9b1c2c7eb583173b1c7ab35856fdeabf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Writer::createDictionaryRecord</definition>
+        <argsstring>()</argsstring>
+        <name>createDictionaryRecord</name>
+        <briefdescription>
+<para>Create a buffer representation of a record containing the dictionary and/or the first event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>No compression. <simplesect kind="return"><para>buffer representation of record containing dictionary and/or first event, Null pointer if first event and dictionary don&apos;t exist. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="172" column="25" bodyfile="src/libsrc/Writer.cpp" bodystart="597" bodyend="600"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a6fea17ad6a4045c326b751a34d487a55" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::writeOutput</definition>
+        <argsstring>()</argsstring>
+        <name>writeOutput</name>
+        <briefdescription>
+<para>Write internal record with incremented record # to file or buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Not thread safe with <ref refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" kindref="member">writeRecord</ref>. <parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if cannot write to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="173" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1129" bodyend="1184"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a8be3de19b98a014d0c22297fc2cba7e5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::writeOutputToBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>writeOutputToBuffer</name>
+        <briefdescription>
+<para>Write internal record with incremented record # to buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="174" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="1188" bodyend="1222"/>
+      </memberdef>
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a013dea8df0e279121c92295efd41e931" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::writeTrailer</definition>
+        <argsstring>(bool writeIndex, uint32_t recordNum, uint64_t trailerPos)</argsstring>
+        <name>writeTrailer</name>
+        <param>
+          <type>bool</type>
+          <declname>writeIndex</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>recordNum</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>trailerPos</declname>
+        </param>
+        <briefdescription>
+<para>Write a general header as the last &quot;header&quot; or trailer optionally followed by an index of all record lengths. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It&apos;s best <bold>NOT</bold> to call this directly. The way to write a trailer to file or buffer is to call <ref refid="d6/dca/classevio_1_1_writer_1a43ebda27c326a58279d963f609112299" kindref="member">addTrailer(bool)</ref> or <ref refid="d6/dca/classevio_1_1_writer_1afe5ad142e4aa10f4cbdd3b0191a964db" kindref="member">addTrailerWithIndex(bool)</ref>. Then when <ref refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" kindref="member">close()</ref> is called, the trailer will be written. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>writeIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, write an index of all record lengths in trailer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>record number for trailing record. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>trailerPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in buffer to write trailer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error writing to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="224" column="14" bodyfile="src/libsrc/Writer.cpp" bodystart="886" bodyend="939"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1a3d7db5489199fd248e0ad0a829fcd4e3" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Writer::staticWriteFunction</definition>
+        <argsstring>(Writer *pWriter, const char *data, size_t len)</argsstring>
+        <name>staticWriteFunction</name>
+        <param>
+          <type><ref refid="d6/dca/classevio_1_1_writer" kindref="compound">Writer</ref> *</type>
+          <declname>pWriter</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Static wrapper function used to asynchronously run threads to write to file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Necesssary because std::async cannot run member functions (i.e. outFile.write) directly.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pWriter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to this object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="176" column="21" bodyfile="src/libsrc/Writer.cpp" bodystart="333" bodyend="335"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="d6/dca/classevio_1_1_writer_1acaf968c34f10e8004994a91175e5a829" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Writer::createRecord</definition>
+        <argsstring>(const std::string &amp;dictionary, uint8_t *firstEvent, uint32_t firstEventLen, const ByteOrder &amp;byteOrder, FileHeader *fileHeader, RecordHeader *recordHeader)</argsstring>
+        <name>createRecord</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>dictionary</declname>
+          <defname>dict</defname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>firstEvent</declname>
+          <defname>firstEv</defname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>firstEventLen</declname>
+          <defname>firstEvLen</defname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+          <defname>order</defname>
+        </param>
+        <param>
+          <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> *</type>
+          <declname>fileHeader</declname>
+          <defname>fileHdr</defname>
+        </param>
+        <param>
+          <type><ref refid="d8/d64/classevio_1_1_record_header" kindref="compound">RecordHeader</ref> *</type>
+          <declname>recordHeader</declname>
+          <defname>recordHdr</defname>
+        </param>
+        <briefdescription>
+<para>STATIC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a buffer representation of a record containing dictionary and/or first event. No compression.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dict</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary xml string </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstEv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bytes representing evio event </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstEvLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes in firstEv </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of returned byte array </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fileHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file header to update with dictionary/first-event info (may be null). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordHdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>record header to update with dictionary/first-event info (may be null). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>buffer representation of record containing dictionary and/or first event. Null pointer if both are empty/null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Writer.h" line="197" column="32" bodyfile="src/libsrc/Writer.cpp" bodystart="618" bodyend="669"/>
+        <references refid="d2/d7a/classevio_1_1_record_output_1a5430397efd27db0815892cd7c61c08a2" compoundref="d4/df6/_record_output_8cpp" startline="482" endline="515">evio::RecordOutput::addEvent</references>
+        <references refid="d2/d7a/classevio_1_1_record_output_1a7c7cbf0f2bcc362662eea1fc4ff5d7ad" compoundref="d4/df6/_record_output_8cpp" startline="841" endline="999">evio::RecordOutput::build</references>
+        <references refid="d2/d7a/classevio_1_1_record_output_1a95a914b8d9c2e5dce9764be14002d8b6" compoundref="d4/df6/_record_output_8cpp" startline="378" endline="378">evio::RecordOutput::getBinaryBuffer</references>
+        <references refid="d2/d7a/classevio_1_1_record_output_1acbb92327f0cf806b7b87b0b20336b05f" compoundref="d4/df6/_record_output_8cpp" startline="357" endline="357">evio::RecordOutput::getInternalBufferCapacity</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a9267f205919e107f08d268e4ffc92e1e" compoundref="de/d46/_file_header_8cpp" startline="368" endline="379">evio::FileHeader::hasDictionary</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1aeb2283945519b97d1f33b32cf7fcdaa7" compoundref="dd/d2d/_record_header_8cpp" startline="613" endline="624">evio::RecordHeader::hasDictionary</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a55417ae68a5f938e25bac2673c88e36c" compoundref="de/d46/_file_header_8cpp" startline="334" endline="345">evio::FileHeader::hasFirstEvent</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a13c64348c2dd2f25aed34ead5c9ca74b" compoundref="dd/d2d/_record_header_8cpp" startline="587" endline="598">evio::RecordHeader::hasFirstEvent</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">evio::Compressor::UNCOMPRESSED</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to write Evio-6.0/HIPO files. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 8/10/17 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/Writer.h" line="47" column="5" bodyfile="src/libsrc/Writer.h" bodystart="47" bodyend="226"/>
+    <listofallmembers>
+      <member refid="d6/dca/classevio_1_1_writer_1a3f4737e1b27c07329fbb869fbead1f56" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a49b5464a56d40798b28ac0781e82f8e2" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ad0ffba4ec1fb3578d67bf23ebeeabff3" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a0e58e3e003459f38dbaafb3cbf82238b" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a1ad1f6131e62b255f7aac6873087740e" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a39d7e291d85d61a6343ac6a40e7902cf" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a27512e050acce07e1fefacfa8aea1096" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>addingTrailer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ab328948eb2cb9e6297ef750977696073" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addTrailer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a43ebda27c326a58279d963f609112299" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addTrailer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1af3c7f66113f880ba7f4c89f99fd4e059" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>addTrailerIndex</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1af5c8c23225cf435c9f78f58f8149c4b7" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addTrailerWithIndex</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1afe5ad142e4aa10f4cbdd3b0191a964db" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>addTrailerWithIndex</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a8719c19b3a89c9e11221b6773ba65f95" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>beingWrittenRecord</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a3d794f832297141a768b9e49fbf44666" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>buffer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ac5461e9f3cdb57ee6fc27b52006d91c9" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>byteOrder</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>close</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a600493576ecf04c1e84da9c371db128c" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>closed</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a60b4922365ca7102140a8d9660cafc42" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>compressionType</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a9b1c2c7eb583173b1c7ab35856fdeabf" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>createDictionaryRecord</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>createHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a26490309dbaa26d08de3c2151f9d0391" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>createHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ade85d05f573c665b7221bc62e56b1524" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>createHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a84b3407887a26d5c2d78d3e3cdfbad55" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>createHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1acaf968c34f10e8004994a91175e5a829" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>createRecord</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ac64c83a450920cba5509a296590f8512" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>dictionary</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a3d6974a9fb15d7c1a52cbb09c82f0b67" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>dictionaryFirstEventBuffer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a3d1834b81fa4aeba43da904c12e7c315" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>fileHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a75816d405d8c1b4981bd8c5e86187886" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>fileName</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ae2f2ecd4c8e30593302000b4a79213cf" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>firstEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a5ad3330812a7d4998f8277cf62b4898c" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>firstEventLength</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1aeaa6de4d39d7ecd2bde85a42c496faa2" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>firstRecordWritten</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a358ff47f6d3a20e24fdde52cb360cb9a" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>future</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a7584e8ce135dbed869f4e247e371ee75" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>getBuffer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1aa08c22b469bb85b6065876ad2f9482a3" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>getByteOrder</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a4b693782520a223345fcafead7b4b5c0" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>getCompressionType</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a8675f4a700a8b0a65fad0c2b7a192940" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>getFileHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ae900a5c7faeeff9aeaa465c01ec8c271" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>haveDictionary</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ac2dfa12623449716d63b2e02f414382a" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>haveFirstEvent</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a1980ae53643b5ee5bc47c4f4ef1de33d" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>haveUserHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a39ae63b094a5608bd1a4d47f3e6f362e" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>headerArray</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a1f64043951e4d8ff7f186fced75052fb" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>open</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1aec66f6f92fa30daa2f9546d2920dbbfe" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>open</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a04ed6382f82d976aef36ac78d6a001fc" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>open</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1aa2bcb0123f72bb568d73a828e092a2b7" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>opened</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ae782a2deb5995a0a29578cae10555537" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>operator=</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a4241863df13c801689e29d43e1005772" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>outFile</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ac3cb64a6846c4aa63cf133d679510fb7" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>outputRecord</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1af6aab7be093dc892be4941d01be02ea3" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>recordLengths</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a0acb848e39554fac6473a2ec17f4278b" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>recordNumber</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a17cd4aa42143d1f6578422f6ef36151a" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>reset</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a278331c3a1a91c7a7584fea9f4910d5d" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>setCompressionType</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a3d7db5489199fd248e0ad0a829fcd4e3" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>staticWriteFunction</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1af81bef0ce2506c369a44eeaa1df0bdb2" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>toFile</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ab6cb0476190c7aa5c7834a332753e37b" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>unusedRecord</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ab2a15f38f93452b97fc8754c16aeafb0" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>userHeader</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a840620d1a04ba5cc9b7458483e6c3d71" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>userHeaderBuffer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a2908c4b6c0e72f3b940859931e09c37b" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>userHeaderLength</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a6fea17ad6a4045c326b751a34d487a55" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>writeOutput</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a8be3de19b98a014d0c22297fc2cba7e5" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>writeOutputToBuffer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ad828f46b2331b87aab0574c78c082a91" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>Writer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a2c367e6ba0f85d3af97248bdc1073d17" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>Writer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a534f719986ce36c188092faec39c2c27" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>Writer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a314152ebeaa8d198bfc59206a73b457e" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>Writer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a27adfed8319c149db4b3449e63388dc4" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>Writer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a6fb308f6970fdf9a68bf3fd5141e3e9d" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>Writer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1ae083beacbd2abb831e6a5503d9aaaf6e" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>Writer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1aac9480cc1be75d955adf43b89217bddd" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>writerBytesWritten</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a0d0f549a6ceaae794eca73130957a23d" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>writeRecord</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a013dea8df0e279121c92295efd41e931" prot="private" virt="non-virtual"><scope>evio::Writer</scope><name>writeTrailer</name></member>
+      <member refid="d6/dca/classevio_1_1_writer_1a1e500bdfd12a357a6f443def5187b675" prot="public" virt="non-virtual"><scope>evio::Writer</scope><name>~Writer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

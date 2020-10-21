@@ -1,0 +1,564 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="df/dd8/classevio_1_1_header_type" kind="class" language="C++" prot="public">
+    <compoundname>evio::HeaderType</compoundname>
+    <includes local="no">HeaderType.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a2b01085c1ea7b23010e4cb4447f2d04a" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::EVIO_RECORD</definition>
+        <argsstring></argsstring>
+        <name>EVIO_RECORD</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(0, &quot;EVIO_RECORD&quot;)</initializer>
+        <briefdescription>
+<para>Header for a general evio record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="36" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="36" bodyend="-1"/>
+        <referencedby refid="d9/dcd/classevio_1_1_event_writer_1a5271d9b38e1e974be98f3ff98d5ed602" compoundref="db/dc8/_event_writer_8cpp" startline="155" endline="417">evio::EventWriter::EventWriter</referencedby>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a232e28211cd5630b6bb43c8944ffe60e" compoundref="d4/df6/_record_output_8cpp" startline="34" endline="65">evio::RecordOutput::RecordOutput</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">evio::Reader::scanBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a3d8831bdc7439f38987e017528f87462" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::EVIO_FILE</definition>
+        <argsstring></argsstring>
+        <name>EVIO_FILE</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(1, &quot;EVIO_FILE&quot;)</initializer>
+        <briefdescription>
+<para>Header for an evio file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="37" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="37" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a2d07793331e59b7845c2a330009e4bec" compoundref="de/d46/_file_header_8cpp" startline="25" endline="35">evio::FileHeader::FileHeader</referencedby>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1a4cadc344afbb1083c81b026e4b54d7d8" compoundref="d5/d98/_header_type_8h" startline="88" endline="88">isEvioFileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a0aafb03de32e1a096ac40e45286f4cc9" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::EVIO_FILE_EXTENDED</definition>
+        <argsstring></argsstring>
+        <name>EVIO_FILE_EXTENDED</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(2, &quot;EVIO_FILE_EXTENDED&quot;)</initializer>
+        <briefdescription>
+<para>Header for an extended evio file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Currently not used. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="38" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="38" bodyend="-1"/>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1a4cadc344afbb1083c81b026e4b54d7d8" compoundref="d5/d98/_header_type_8h" startline="88" endline="88">isEvioFileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a52318a195f72f967b67e24a45ca8358b" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::EVIO_TRAILER</definition>
+        <argsstring></argsstring>
+        <name>EVIO_TRAILER</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(3, &quot;EVIO_TRAILER&quot;)</initializer>
+        <briefdescription>
+<para>Header for an evio trailer record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="39" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="39" bodyend="-1"/>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a232e28211cd5630b6bb43c8944ffe60e" compoundref="d4/df6/_record_output_8cpp" startline="34" endline="65">evio::RecordOutput::RecordOutput</referencedby>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1a1585003729525bd84dc5a1787b04fc82" compoundref="d5/d98/_header_type_8h" startline="106" endline="106">isTrailer</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a5b2643dccfbe51c3f437423ebaf3ebfd" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::HIPO_RECORD</definition>
+        <argsstring></argsstring>
+        <name>HIPO_RECORD</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(4, &quot;HIPO_RECORD&quot;)</initializer>
+        <briefdescription>
+<para>Header for a general hipo record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="40" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="40" bodyend="-1"/>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a232e28211cd5630b6bb43c8944ffe60e" compoundref="d4/df6/_record_output_8cpp" startline="34" endline="65">evio::RecordOutput::RecordOutput</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::HIPO_FILE</definition>
+        <argsstring></argsstring>
+        <name>HIPO_FILE</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(5, &quot;HIPO_FILE&quot;)</initializer>
+        <briefdescription>
+<para>Header for an hipo file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="41" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="41" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a2d07793331e59b7845c2a330009e4bec" compoundref="de/d46/_file_header_8cpp" startline="25" endline="35">evio::FileHeader::FileHeader</referencedby>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a314152ebeaa8d198bfc59206a73b457e" compoundref="dc/d0e/_writer_8cpp" startline="80" endline="118">evio::Writer::Writer</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1a756450758e08def3dcc61fb7a2e085b3" compoundref="d9/d77/_writer_m_t_8cpp" startline="70" endline="133">evio::WriterMT::WriterMT</referencedby>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1a09398c15ab070c47fd4b9963d668fab6" compoundref="d5/d98/_header_type_8h" startline="94" endline="94">isHipoFileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a7b50be5e663b9d98097cc2c1aa299225" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::HIPO_FILE_EXTENDED</definition>
+        <argsstring></argsstring>
+        <name>HIPO_FILE_EXTENDED</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(6, &quot;HIPO_FILE_EXTENDED&quot;)</initializer>
+        <briefdescription>
+<para>Header for an extended hipo file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Currently not used. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="42" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="42" bodyend="-1"/>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1a09398c15ab070c47fd4b9963d668fab6" compoundref="d5/d98/_header_type_8h" startline="94" endline="94">isHipoFileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a5949c8d28f54527e8616666c03aa0ff7" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::HIPO_TRAILER</definition>
+        <argsstring></argsstring>
+        <name>HIPO_TRAILER</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(7, &quot;HIPO_TRAILER&quot;)</initializer>
+        <briefdescription>
+<para>Header for an hipo trailer record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="43" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="43" bodyend="-1"/>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a232e28211cd5630b6bb43c8944ffe60e" compoundref="d4/df6/_record_output_8cpp" startline="34" endline="65">evio::RecordOutput::RecordOutput</referencedby>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1a1585003729525bd84dc5a1787b04fc82" compoundref="d5/d98/_header_type_8h" startline="106" endline="106">isTrailer</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>const HeaderType evio::HeaderType::UNKNOWN</definition>
+        <argsstring></argsstring>
+        <name>UNKNOWN</name>
+        <initializer>= <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref>(15, &quot;UNKNOWN&quot;)</initializer>
+        <briefdescription>
+<para>Unknown header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="44" column="33" bodyfile="src/libsrc/HeaderType.h" bodystart="44" bodyend="-1"/>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1abba48adfa308fa89696a55e6f4402020" compoundref="d5/d98/_header_type_8h" startline="113" endline="116">getHeaderType</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a6bab8074fa4ab394fc90d5233f3dd97d" prot="private" static="yes" mutable="no">
+        <type><ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>HeaderType evio::HeaderType::intToType</definition>
+        <argsstring>[16]</argsstring>
+        <name>intToType</name>
+        <initializer>=
+            {<ref refid="df/dd8/classevio_1_1_header_type_1a2b01085c1ea7b23010e4cb4447f2d04a" kindref="member">HeaderType::EVIO_RECORD</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1a3d8831bdc7439f38987e017528f87462" kindref="member">HeaderType::EVIO_FILE</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1a0aafb03de32e1a096ac40e45286f4cc9" kindref="member">HeaderType::EVIO_FILE_EXTENDED</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1a52318a195f72f967b67e24a45ca8358b" kindref="member">HeaderType::EVIO_TRAILER</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1a5b2643dccfbe51c3f437423ebaf3ebfd" kindref="member">HeaderType::HIPO_RECORD</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" kindref="member">HeaderType::HIPO_FILE</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1a7b50be5e663b9d98097cc2c1aa299225" kindref="member">HeaderType::HIPO_FILE_EXTENDED</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1a5949c8d28f54527e8616666c03aa0ff7" kindref="member">HeaderType::HIPO_TRAILER</ref>,
+                    
+             <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>, <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>, <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>, <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>, <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>, <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>,
+             <ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">HeaderType::UNKNOWN</ref>}</initializer>
+        <briefdescription>
+<para>Fast way to convert integer values into <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> objects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="49" column="27" bodyfile="src/libsrc/HeaderType.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a8e116dc1f11f727479033d7eec4c3e90" prot="private" static="yes" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::HeaderType::names</definition>
+        <argsstring>[16]</argsstring>
+        <name>names</name>
+        <initializer>=
+            {&quot;EVIO_RECORD&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1a3d8831bdc7439f38987e017528f87462" kindref="member">EVIO_FILE</ref>&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1a0aafb03de32e1a096ac40e45286f4cc9" kindref="member">EVIO_FILE_EXTENDED</ref>&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1a52318a195f72f967b67e24a45ca8358b" kindref="member">EVIO_TRAILER</ref>&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1a5b2643dccfbe51c3f437423ebaf3ebfd" kindref="member">HIPO_RECORD</ref>&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" kindref="member">HIPO_FILE</ref>&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1a7b50be5e663b9d98097cc2c1aa299225" kindref="member">HIPO_FILE_EXTENDED</ref>&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1a5949c8d28f54527e8616666c03aa0ff7" kindref="member">HIPO_TRAILER</ref>&quot;,
+                    
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;, &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;, &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;, &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;, &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;, &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;, &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;,
+             &quot;<ref refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" kindref="member">UNKNOWN</ref>&quot;}</initializer>
+        <briefdescription>
+<para>Store a name for each <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="52" column="28" bodyfile="src/libsrc/HeaderType.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a95bced636d805fc41ae72d090ac6b3d9" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::HeaderType::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+<para>Value of this header type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="55" column="18" bodyfile="src/libsrc/HeaderType.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="df/dd8/classevio_1_1_header_type_1a5ea4cbad9a7fd9b6f712514294e8dd91" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::HeaderType::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Store a name for each <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="58" column="21" bodyfile="src/libsrc/HeaderType.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1a3f8622b6f6df001b7ce7c7d8e69bc4a7" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::HeaderType::HeaderType</definition>
+        <argsstring>(uint32_t val, std::string name)</argsstring>
+        <name>HeaderType</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>int value of this <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of this <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="68" column="9" bodyfile="src/libsrc/HeaderType.h" bodystart="68" bodyend="68"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1a439196ef7d581511f766318a41d2c1a1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::HeaderType::getName</definition>
+        <argsstring>() const</argsstring>
+        <name>getName</name>
+        <briefdescription>
+<para>Get the object name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the object name. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="76" column="21" bodyfile="src/libsrc/HeaderType.h" bodystart="76" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1a0788a70e8ebc44dd451025a6dc17290d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::HeaderType::getValue</definition>
+        <argsstring>() const</argsstring>
+        <name>getValue</name>
+        <briefdescription>
+<para>Get the integer value associated with this header type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>integer value associated with this header type. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="82" column="18" bodyfile="src/libsrc/HeaderType.h" bodystart="82" bodyend="82"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">evio::FileHeader::setBitInfo</referencedby>
+        <referencedby refid="d8/d64/classevio_1_1_record_header_1a0f835c88afb20af5c792e80c6700b4a6" compoundref="dd/d2d/_record_header_8cpp" startline="818" endline="830">evio::RecordHeader::setHeaderType</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1a4cadc344afbb1083c81b026e4b54d7d8" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::HeaderType::isEvioFileHeader</definition>
+        <argsstring>() const</argsstring>
+        <name>isEvioFileHeader</name>
+        <briefdescription>
+<para>Is this an evio file header? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if is an evio file header, else <computeroutput>false</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="88" column="14" bodyfile="src/libsrc/HeaderType.h" bodystart="88" bodyend="88"/>
+        <references refid="df/dd8/classevio_1_1_header_type_1a3d8831bdc7439f38987e017528f87462" compoundref="d5/d98/_header_type_8h" startline="37">EVIO_FILE</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a0aafb03de32e1a096ac40e45286f4cc9" compoundref="d5/d98/_header_type_8h" startline="38">EVIO_FILE_EXTENDED</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a232e28211cd5630b6bb43c8944ffe60e" compoundref="d4/df6/_record_output_8cpp" startline="34" endline="65">evio::RecordOutput::RecordOutput</referencedby>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1afbd3ea50ebb7d51d1b8b09fe0dcadfaa" compoundref="d5/d98/_header_type_8h" startline="100" endline="100">isFileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1a09398c15ab070c47fd4b9963d668fab6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::HeaderType::isHipoFileHeader</definition>
+        <argsstring>() const</argsstring>
+        <name>isHipoFileHeader</name>
+        <briefdescription>
+<para>Is this a HIPO file header? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if is an HIPO file header, else <computeroutput>false</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="94" column="14" bodyfile="src/libsrc/HeaderType.h" bodystart="94" bodyend="94"/>
+        <references refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" compoundref="d5/d98/_header_type_8h" startline="41">HIPO_FILE</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a7b50be5e663b9d98097cc2c1aa299225" compoundref="d5/d98/_header_type_8h" startline="42">HIPO_FILE_EXTENDED</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a232e28211cd5630b6bb43c8944ffe60e" compoundref="d4/df6/_record_output_8cpp" startline="34" endline="65">evio::RecordOutput::RecordOutput</referencedby>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1afbd3ea50ebb7d51d1b8b09fe0dcadfaa" compoundref="d5/d98/_header_type_8h" startline="100" endline="100">isFileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1afbd3ea50ebb7d51d1b8b09fe0dcadfaa" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::HeaderType::isFileHeader</definition>
+        <argsstring>() const</argsstring>
+        <name>isFileHeader</name>
+        <briefdescription>
+<para>Is this a file header? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if is a file header, else <computeroutput>false</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="100" column="14" bodyfile="src/libsrc/HeaderType.h" bodystart="100" bodyend="100"/>
+        <references refid="df/dd8/classevio_1_1_header_type_1a4cadc344afbb1083c81b026e4b54d7d8" compoundref="d5/d98/_header_type_8h" startline="88" endline="88">isEvioFileHeader</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a09398c15ab070c47fd4b9963d668fab6" compoundref="d5/d98/_header_type_8h" startline="94" endline="94">isHipoFileHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1a1585003729525bd84dc5a1787b04fc82" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::HeaderType::isTrailer</definition>
+        <argsstring>() const</argsstring>
+        <name>isTrailer</name>
+        <briefdescription>
+<para>Is this a trailer? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if is a trailer, else <computeroutput>false</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="106" column="14" bodyfile="src/libsrc/HeaderType.h" bodystart="106" bodyend="106"/>
+        <references refid="df/dd8/classevio_1_1_header_type_1a52318a195f72f967b67e24a45ca8358b" compoundref="d5/d98/_header_type_8h" startline="39">EVIO_TRAILER</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a5949c8d28f54527e8616666c03aa0ff7" compoundref="d5/d98/_header_type_8h" startline="43">HIPO_TRAILER</references>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1ae02cd84502d4ddba0f6214084c7e7b76" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::HeaderType::operator==</definition>
+        <argsstring>(const HeaderType &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="128" column="14" bodyfile="src/libsrc/HeaderType.cpp" bodystart="17" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1a6a0b10d59892778776cbdba5fc64f2c9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::HeaderType::operator!=</definition>
+        <argsstring>(const HeaderType &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="130" column="14" bodyfile="src/libsrc/HeaderType.cpp" bodystart="21" bodyend="23"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1abba48adfa308fa89696a55e6f4402020" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> &amp;</type>
+        <definition>static const HeaderType&amp; evio::HeaderType::getHeaderType</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>getHeaderType</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Get the object from the integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the matching enum, or <computeroutput>null</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="113" column="34" bodyfile="src/libsrc/HeaderType.h" bodystart="113" bodyend="116"/>
+        <references refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" compoundref="d5/d98/_header_type_8h" startline="44">UNKNOWN</references>
+        <referencedby refid="df/dd8/classevio_1_1_header_type_1ab5b2b665d01d211d9e7be5101129ecba" compoundref="d5/d98/_header_type_8h" startline="123" endline="126">getName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dd8/classevio_1_1_header_type_1ab5b2b665d01d211d9e7be5101129ecba" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string evio::HeaderType::getName</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>getName</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Get the name from the integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the name, or <computeroutput>null</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/HeaderType.h" line="123" column="28" bodyfile="src/libsrc/HeaderType.h" bodystart="123" bodyend="126"/>
+        <references refid="df/dd8/classevio_1_1_header_type_1abba48adfa308fa89696a55e6f4402020" compoundref="d5/d98/_header_type_8h" startline="113" endline="116">getHeaderType</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Numerical values associated with types of a file or record header. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The value associated with each member is stored in the header&apos;s bit-info word in the top 4 bits. Thus the lowest value is 0 and the highest (UNKNOWN) is 15. This class approximates the Java enum it was copied from.</para>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 4/10/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>evio::HeaderType</label>
+        <link refid="df/dd8/classevio_1_1_header_type"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>EVIO_FILE</edgelabel>
+          <edgelabel>EVIO_FILE_EXTENDED</edgelabel>
+          <edgelabel>EVIO_RECORD</edgelabel>
+          <edgelabel>EVIO_TRAILER</edgelabel>
+          <edgelabel>HIPO_FILE</edgelabel>
+          <edgelabel>HIPO_FILE_EXTENDED</edgelabel>
+          <edgelabel>HIPO_RECORD</edgelabel>
+          <edgelabel>HIPO_TRAILER</edgelabel>
+          <edgelabel>UNKNOWN</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/HeaderType.h" line="32" column="5" bodyfile="src/libsrc/HeaderType.h" bodystart="32" bodyend="131"/>
+    <listofallmembers>
+      <member refid="df/dd8/classevio_1_1_header_type_1a3d8831bdc7439f38987e017528f87462" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>EVIO_FILE</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a0aafb03de32e1a096ac40e45286f4cc9" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>EVIO_FILE_EXTENDED</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a2b01085c1ea7b23010e4cb4447f2d04a" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>EVIO_RECORD</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a52318a195f72f967b67e24a45ca8358b" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>EVIO_TRAILER</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1abba48adfa308fa89696a55e6f4402020" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>getHeaderType</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a439196ef7d581511f766318a41d2c1a1" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>getName</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1ab5b2b665d01d211d9e7be5101129ecba" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>getName</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a0788a70e8ebc44dd451025a6dc17290d" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>getValue</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a3f8622b6f6df001b7ce7c7d8e69bc4a7" prot="private" virt="non-virtual"><scope>evio::HeaderType</scope><name>HeaderType</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>HIPO_FILE</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a7b50be5e663b9d98097cc2c1aa299225" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>HIPO_FILE_EXTENDED</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a5b2643dccfbe51c3f437423ebaf3ebfd" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>HIPO_RECORD</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a5949c8d28f54527e8616666c03aa0ff7" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>HIPO_TRAILER</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a6bab8074fa4ab394fc90d5233f3dd97d" prot="private" virt="non-virtual"><scope>evio::HeaderType</scope><name>intToType</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a4cadc344afbb1083c81b026e4b54d7d8" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>isEvioFileHeader</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1afbd3ea50ebb7d51d1b8b09fe0dcadfaa" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>isFileHeader</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a09398c15ab070c47fd4b9963d668fab6" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>isHipoFileHeader</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a1585003729525bd84dc5a1787b04fc82" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>isTrailer</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a5ea4cbad9a7fd9b6f712514294e8dd91" prot="private" virt="non-virtual"><scope>evio::HeaderType</scope><name>name</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a8e116dc1f11f727479033d7eec4c3e90" prot="private" virt="non-virtual"><scope>evio::HeaderType</scope><name>names</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a6a0b10d59892778776cbdba5fc64f2c9" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>operator!=</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1ae02cd84502d4ddba0f6214084c7e7b76" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>operator==</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1ad7d96aad23dc3ddd31790d767927cb7f" prot="public" virt="non-virtual"><scope>evio::HeaderType</scope><name>UNKNOWN</name></member>
+      <member refid="df/dd8/classevio_1_1_header_type_1a95bced636d805fc41ae72d090ac6b3d9" prot="private" virt="non-virtual"><scope>evio::HeaderType</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

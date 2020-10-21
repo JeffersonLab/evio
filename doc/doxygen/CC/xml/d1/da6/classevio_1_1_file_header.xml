@@ -1,0 +1,2432 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d1/da6/classevio_1_1_file_header" kind="class" language="C++" prot="public">
+    <compoundname>evio::FileHeader</compoundname>
+    <includes local="no">FileHeader.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a7b7f161246d3784e4dca17430541c528" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::HIPO_FILE_UNIQUE_WORD</definition>
+        <argsstring></argsstring>
+        <name>HIPO_FILE_UNIQUE_WORD</name>
+        <initializer>= 0x4F504948</initializer>
+        <briefdescription>
+<para>First word in every HIPO file for identification purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="99" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="99" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a2d07793331e59b7845c2a330009e4bec" compoundref="de/d46/_file_header_8cpp" startline="25" endline="35">FileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a37f94e6875b3d3eb9aaf672f91d3302b" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::EVIO_FILE_UNIQUE_WORD</definition>
+        <argsstring></argsstring>
+        <name>EVIO_FILE_UNIQUE_WORD</name>
+        <initializer>= 0x4556494F</initializer>
+        <briefdescription>
+<para>First word in every Evio file for identification purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="101" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="101" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a2d07793331e59b7845c2a330009e4bec" compoundref="de/d46/_file_header_8cpp" startline="25" endline="35">FileHeader</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9042fd06e8d738ef387684b6df3c765f" compoundref="da/d47/_compact_event_builder_8cpp" startline="1189" endline="1287">evio::CompactEventBuilder::toFile</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a6b90c0054a0107a84dcf67abc0d0f34e" compoundref="de/d46/_file_header_8cpp" startline="713" endline="747">toString</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::HEADER_SIZE_WORDS</definition>
+        <argsstring></argsstring>
+        <name>HEADER_SIZE_WORDS</name>
+        <initializer>= 14</initializer>
+        <briefdescription>
+<para>Number of 32-bit words in a normal sized header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="103" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="103" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">reset</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9042fd06e8d738ef387684b6df3c765f" compoundref="da/d47/_compact_event_builder_8cpp" startline="1189" endline="1287">evio::CompactEventBuilder::toFile</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::HEADER_SIZE_BYTES</definition>
+        <argsstring></argsstring>
+        <name>HEADER_SIZE_BYTES</name>
+        <initializer>= 56</initializer>
+        <briefdescription>
+<para>Number of bytes in a normal sized header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="105" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="105" bodyend="-1"/>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" compoundref="dc/d0e/_writer_8cpp" startline="682" endline="719">evio::Writer::createHeader</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1abe4a6ab09bc138dbd08057262b87d77b" compoundref="d9/d77/_writer_m_t_8cpp" startline="359" endline="396">evio::WriterMT::createHeader</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">reset</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9042fd06e8d738ef387684b6df3c765f" compoundref="da/d47/_compact_event_builder_8cpp" startline="1189" endline="1287">evio::CompactEventBuilder::toFile</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" compoundref="de/d46/_file_header_8cpp" startline="589" endline="608">writeHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::HEADER_MAGIC</definition>
+        <argsstring></argsstring>
+        <name>HEADER_MAGIC</name>
+        <initializer>= 0xc0da0100</initializer>
+        <briefdescription>
+<para>Magic number used to track endianness. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="107" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="107" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" compoundref="de/d46/_file_header_8cpp" startline="78" endline="99">reset</referencedby>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9042fd06e8d738ef387684b6df3c765f" compoundref="da/d47/_compact_event_builder_8cpp" startline="1189" endline="1287">evio::CompactEventBuilder::toFile</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a31b0469dbd7e4a887ca40b7ce1fb1ed1" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::FILE_ID_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>FILE_ID_OFFSET</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the file id. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="112" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="112" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1acb454bfc58f06d87bc0fcecbd26228a8" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::FILE_NUMBER_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>FILE_NUMBER_OFFSET</name>
+        <initializer>= 4</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the file number. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="114" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="114" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a3e8ee4b12e47b0c2121331645a5b3770" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::HEADER_LENGTH_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>HEADER_LENGTH_OFFSET</name>
+        <initializer>= 8</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the header length. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="116" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="116" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a13a655d1b16e70688ec555e1f6cd7f5b" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::RECORD_COUNT_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>RECORD_COUNT_OFFSET</name>
+        <initializer>= 12</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the record count. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="118" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="118" bodyend="-1"/>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" compoundref="dc/d0e/_writer_8cpp" startline="1247" endline="1321">evio::Writer::close</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1a0647993716e981fbedd6040f80114048" compoundref="d9/d77/_writer_m_t_8cpp" startline="684" endline="731">evio::WriterMT::close</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a8ecbef932bf1750f05e8b188cf9e3135" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::INDEX_ARRAY_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>INDEX_ARRAY_OFFSET</name>
+        <initializer>= 16</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the index array length. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="120" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="120" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1abc05c2a44b4eeb3ee2abbd6cbd7c019e" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::BIT_INFO_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>BIT_INFO_OFFSET</name>
+        <initializer>= 20</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to bit info word. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="122" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="122" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a6b4bdb1effb403d471e26dbb08fefe64" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::USER_LENGTH_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>USER_LENGTH_OFFSET</name>
+        <initializer>= 24</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the user header length. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="124" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="124" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a823c07d8a612ed83e8e94f278a08694c" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::MAGIC_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>MAGIC_OFFSET</name>
+        <initializer>= 28</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the record length. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="126" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="126" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1ab7d74ac60cc226c6901a1596409d4064" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::REGISTER1_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>REGISTER1_OFFSET</name>
+        <initializer>= 32</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the user register #1. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="128" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="128" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1ac89e616aa3a757d6f32bee153048983f" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::TRAILER_POSITION_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>TRAILER_POSITION_OFFSET</name>
+        <initializer>= 40</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to write trailer position. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="130" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="130" bodyend="-1"/>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" compoundref="dc/d0e/_writer_8cpp" startline="1247" endline="1321">evio::Writer::close</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1ae00e22d5a8e89be307e94f2de486651d" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::INT1_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>INT1_OFFSET</name>
+        <initializer>= 48</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the user integer #1. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="132" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="132" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a11ff2ba925ceb78d4b0d60ea8a420e17" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::INT2_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>INT2_OFFSET</name>
+        <initializer>= 52</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the user integer #2. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="134" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="134" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::DICTIONARY_BIT</definition>
+        <argsstring></argsstring>
+        <name>DICTIONARY_BIT</name>
+        <initializer>= 0x100</initializer>
+        <briefdescription>
+<para>8th bit set in bitInfo word in record/file header means contains dictionary. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="139" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="139" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a9267f205919e107f08d268e4ffc92e1e" compoundref="de/d46/_file_header_8cpp" startline="368" endline="379">hasDictionary</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">setBitInfo</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::FIRST_EVENT_BIT</definition>
+        <argsstring></argsstring>
+        <name>FIRST_EVENT_BIT</name>
+        <initializer>= 0x200</initializer>
+        <briefdescription>
+<para>9th bit set in bitInfo word in file header means every split file has same first event. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="141" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="141" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a55417ae68a5f938e25bac2673c88e36c" compoundref="de/d46/_file_header_8cpp" startline="334" endline="345">hasFirstEvent</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">setBitInfo</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::FileHeader::TRAILER_WITH_INDEX_BIT</definition>
+        <argsstring></argsstring>
+        <name>TRAILER_WITH_INDEX_BIT</name>
+        <initializer>= 0x400</initializer>
+        <briefdescription>
+<para>10th bit set in bitInfo word in file header means file trailer with index array exists. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="143" column="33" bodyfile="src/libsrc/FileHeader.h" bodystart="143" bodyend="-1"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a893b59302d5f0b77733da2deb85e15b8" compoundref="de/d46/_file_header_8cpp" startline="402" endline="413">hasTrailerWithIndex</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" compoundref="de/d46/_file_header_8cpp" startline="284" endline="297">setBitInfo</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a05f2f8b1a64a58d1599b1589de402006" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::fileId</definition>
+        <argsstring></argsstring>
+        <name>fileId</name>
+        <initializer>= <ref refid="d1/da6/classevio_1_1_file_header_1a7b7f161246d3784e4dca17430541c528" kindref="member">HIPO_FILE_UNIQUE_WORD</ref></initializer>
+        <briefdescription>
+<para>File id for file identification purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defaults to HIPO file. 1st word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="148" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a0017cf31b354af83483549fc4a9bf46c" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::fileNumber</definition>
+        <argsstring></argsstring>
+        <name>fileNumber</name>
+        <initializer>= 1</initializer>
+        <briefdescription>
+<para>File number or split file number, starting at 1. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>2nd word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="150" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1af4018e9c76e9735639e0959ce5063598" prot="private" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::FileHeader::userRegister</definition>
+        <argsstring></argsstring>
+        <name>userRegister</name>
+        <initializer>= 0L</initializer>
+        <briefdescription>
+<para>User-defined 64-bit register. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>9th and 10th words. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="152" column="18" bodyfile="src/libsrc/FileHeader.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1ac980a28b36512f6a9537529212d11d57" prot="private" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::FileHeader::trailerPosition</definition>
+        <argsstring></argsstring>
+        <name>trailerPosition</name>
+        <initializer>= 0L</initializer>
+        <briefdescription>
+<para>Position of trailing header from start of file in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>11th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="154" column="18" bodyfile="src/libsrc/FileHeader.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a4870835b251fa5c6184f58deb138e9d1" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::userIntFirst</definition>
+        <argsstring></argsstring>
+        <name>userIntFirst</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>First user-defined integer in file header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>13th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="156" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a712e501fc0999a11588c65863833c008" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::userIntSecond</definition>
+        <argsstring></argsstring>
+        <name>userIntSecond</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Second user-defined integer in file header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>14th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="158" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a7450dcf3a3e0d341679e5d251ea62cbc" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::FileHeader::position</definition>
+        <argsstring></argsstring>
+        <name>position</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Position of this header in a file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="160" column="16" bodyfile="src/libsrc/FileHeader.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a5e25901e2ec76fd14e3ca578292d9b52" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::entries</definition>
+        <argsstring></argsstring>
+        <name>entries</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Event or record count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>4th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="163" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a3d7cfe7a18ac34c28ee22f089e915b50" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::bitInfo</definition>
+        <argsstring></argsstring>
+        <name>bitInfo</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>BitInfo &amp; version. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>6th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="165" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a37c1985c43efe0f62fab785cbc05ea1b" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::headerLength</definition>
+        <argsstring></argsstring>
+        <name>headerLength</name>
+        <initializer>= <ref refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" kindref="member">HEADER_SIZE_BYTES</ref></initializer>
+        <briefdescription>
+<para>Length of this header (bytes). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="167" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1af68b3a2d0d9a7abecb775265e61b4d21" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::headerLengthWords</definition>
+        <argsstring></argsstring>
+        <name>headerLengthWords</name>
+        <initializer>= <ref refid="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" kindref="member">HEADER_SIZE_WORDS</ref></initializer>
+        <briefdescription>
+<para>Length of this header (words). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>3rd word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="169" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1ad214a8c0d8af4c3d6e154d8a23f0383a" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::userHeaderLength</definition>
+        <argsstring></argsstring>
+        <name>userHeaderLength</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Length of user-defined header (bytes). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>7th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="171" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a575c3483448e2fbd95814cf1bbdffe94" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::userHeaderLengthWords</definition>
+        <argsstring></argsstring>
+        <name>userHeaderLengthWords</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Length of user-defined header when padded (words). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="173" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a1184530671dfc9772f53b536c6a470bd" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::indexLength</definition>
+        <argsstring></argsstring>
+        <name>indexLength</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Length of index array (bytes). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>5th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="175" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a5c028a47af2f4dd45aaed75c5b57e75a" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::totalLength</definition>
+        <argsstring></argsstring>
+        <name>totalLength</name>
+        <initializer>= <ref refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" kindref="member">HEADER_SIZE_BYTES</ref></initializer>
+        <briefdescription>
+<para>Final, total length of header + index + user header (bytes) + padding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Not stored in any word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="179" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1ab174db0847784999c70dc997c30ac8d2" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::headerVersion</definition>
+        <argsstring></argsstring>
+        <name>headerVersion</name>
+        <initializer>= 6</initializer>
+        <briefdescription>
+<para>Evio format version number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It is 6 when being written, else the version of file/buffer being read. Lowest byte of 6th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="183" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a51c338f285170baf29d7e5d133b55957" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::headerMagicWord</definition>
+        <argsstring></argsstring>
+        <name>headerMagicWord</name>
+        <initializer>= <ref refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" kindref="member">HEADER_MAGIC</ref></initializer>
+        <briefdescription>
+<para>Magic number for tracking endianness. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>8th word. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="185" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1aa9772698d50689d7ee247563393b40b9" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::userHeaderLengthPadding</definition>
+        <argsstring></argsstring>
+        <name>userHeaderLengthPadding</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Number of bytes required to bring uncompressed user header to 4-byte boundary. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Stored in 6th word. Updated automatically when lengths are set. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="190" column="19" bodyfile="src/libsrc/FileHeader.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a7e061d1131563fe5f6c9f28d2aa91e90" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::FileHeader::byteOrder</definition>
+        <argsstring></argsstring>
+        <name>byteOrder</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order of file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="193" column="20" bodyfile="src/libsrc/FileHeader.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da6/classevio_1_1_file_header_1a05b326802f6b60f975e03cf628aa8096" prot="private" static="no" mutable="no">
+        <type><ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref></type>
+        <definition>HeaderType evio::FileHeader::headerType</definition>
+        <argsstring></argsstring>
+        <name>headerType</name>
+        <initializer>{<ref refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" kindref="member">HeaderType::HIPO_FILE</ref>}</initializer>
+        <briefdescription>
+<para>Type of header this is. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Normal HIPO record by default. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="196" column="20" bodyfile="src/libsrc/FileHeader.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a5b82a7db3af9c84ddcc518e00e6bbaa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::FileHeader::FileHeader</definition>
+        <argsstring>()</argsstring>
+        <name>FileHeader</name>
+        <briefdescription>
+<para>Default, no-arg constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="200" column="9" bodyfile="src/libsrc/FileHeader.cpp" bodystart="18" bodyend="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a7319497669b727263f926c852f2a01a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::FileHeader::FileHeader</definition>
+        <argsstring>(const FileHeader &amp;header)</argsstring>
+        <name>FileHeader</name>
+        <param>
+          <type>const <ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+          <declname>header</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>header</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file header to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="201" column="9" bodyfile="src/libsrc/FileHeader.cpp" bodystart="42" bodyend="44"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a796a6c2a786dbd81dd57aecdafc41e92" compoundref="de/d46/_file_header_8cpp" startline="51" endline="74">copy</references>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a2d07793331e59b7845c2a330009e4bec" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::FileHeader::FileHeader</definition>
+        <argsstring>(bool isEvio)</argsstring>
+        <name>FileHeader</name>
+        <param>
+          <type>bool</type>
+          <declname>isEvio</declname>
+        </param>
+        <briefdescription>
+<para>Constructor which sets the type of header this is and file id. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>isEvio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, file has EVIO file id and header type, else is HIPO. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="202" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="25" bodyend="35"/>
+        <references refid="df/dd8/classevio_1_1_header_type_1a3d8831bdc7439f38987e017528f87462" compoundref="d5/d98/_header_type_8h" startline="37">evio::HeaderType::EVIO_FILE</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a37f94e6875b3d3eb9aaf672f91d3302b" compoundref="d2/d66/_file_header_8h" startline="101">EVIO_FILE_UNIQUE_WORD</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a7f4853d824b7a00c226afb9146fa9927" compoundref="d5/d98/_header_type_8h" startline="41">evio::HeaderType::HIPO_FILE</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a7b7f161246d3784e4dca17430541c528" compoundref="d2/d66/_file_header_8h" startline="99">HIPO_FILE_UNIQUE_WORD</references>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a99e268ec843ca9ab953b00bca1e2a7f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::FileHeader::~FileHeader</definition>
+        <argsstring>()=default</argsstring>
+        <name>~FileHeader</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="203" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a796a6c2a786dbd81dd57aecdafc41e92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::copy</definition>
+        <argsstring>(const FileHeader &amp;head)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>const <ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+<para>Copy the contents of the arg into this object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>head</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object to copy </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="205" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="51" bodyend="74"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a7319497669b727263f926c852f2a01a4" compoundref="de/d46/_file_header_8cpp" startline="42" endline="44">FileHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::reset</definition>
+        <argsstring>()</argsstring>
+        <name>reset</name>
+        <briefdescription>
+<para>Reset most internal variables (not file id &amp; header type). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="206" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="78" bodyend="99"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" compoundref="d2/d66/_file_header_8h" startline="107">HEADER_MAGIC</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">HEADER_SIZE_BYTES</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" compoundref="d2/d66/_file_header_8h" startline="103">HEADER_SIZE_WORDS</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" compoundref="dc/d0e/_writer_8cpp" startline="682" endline="719">evio::Writer::createHeader</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1abe4a6ab09bc138dbd08057262b87d77b" compoundref="d9/d77/_writer_m_t_8cpp" startline="359" endline="396">evio::WriterMT::createHeader</referencedby>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a17cd4aa42143d1f6578422f6ef36151a" compoundref="dc/d0e/_writer_8cpp" startline="1228" endline="1238">evio::Writer::reset</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1adebafad3524a67dae57ff4a50c991229" compoundref="d9/d77/_writer_m_t_8cpp" startline="665" endline="675">evio::WriterMT::reset</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a3dcda5bb2237da5621027d3cc3f079ef" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+        <definition>const ByteOrder &amp; evio::FileHeader::getByteOrder</definition>
+        <argsstring>() const</argsstring>
+        <name>getByteOrder</name>
+        <briefdescription>
+<para>Get the byte order of the file this header was read from. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defaults to little endian. <simplesect kind="return"><para>byte order of the file this header was read from. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="218" column="27" bodyfile="src/libsrc/FileHeader.cpp" bodystart="112" bodyend="112"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" compoundref="d8/d15/_reader_8cpp" startline="818" endline="872">evio::Reader::extractDictionaryFromFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a31e48758d1652e9104bcea1c6b95c2d5" compoundref="d8/d15/_reader_8cpp" startline="519" endline="550">evio::Reader::readUserHeader</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ad64222bc95c84bc4ce607d84d73565ba" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> &amp;</type>
+        <definition>const HeaderType &amp; evio::FileHeader::getHeaderType</definition>
+        <argsstring>() const</argsstring>
+        <name>getHeaderType</name>
+        <briefdescription>
+<para>Get the type of header this is. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>type of header this is. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="219" column="27" bodyfile="src/libsrc/FileHeader.cpp" bodystart="119" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ac64095f58c4e35abcbdc15a4f2fdb3e5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getFileNumber</definition>
+        <argsstring>() const</argsstring>
+        <name>getFileNumber</name>
+        <briefdescription>
+<para>Get the file number or split number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file number. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="221" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="126" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a1b9d2016df005cadf3a57a25bfd1f275" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getFileId</definition>
+        <argsstring>() const</argsstring>
+        <name>getFileId</name>
+        <briefdescription>
+<para>Get the file id. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file id. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="222" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="133" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ac7d8b3b526c36a94f32c584129084d26" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getVersion</definition>
+        <argsstring>() const</argsstring>
+        <name>getVersion</name>
+        <briefdescription>
+<para>Get the Evio format version number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Evio format version number. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="223" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="196" bodyend="196"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a82a13947f54e1c4a93fd66231fd66f3a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getEntries</definition>
+        <argsstring>() const</argsstring>
+        <name>getEntries</name>
+        <briefdescription>
+<para>Get the number of events or entries in index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>number of events or entries in index. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="224" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="175" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getLength</name>
+        <briefdescription>
+<para>Get the total length of header + index + user header (including padding) in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Never compressed. <simplesect kind="return"><para>total length of header + index + user header (including padding) in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="226" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="218" bodyend="218"/>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" compoundref="dc/d0e/_writer_8cpp" startline="682" endline="719">evio::Writer::createHeader</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1abe4a6ab09bc138dbd08057262b87d77b" compoundref="d9/d77/_writer_m_t_8cpp" startline="359" endline="396">evio::WriterMT::createHeader</referencedby>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1aec66f6f92fa30daa2f9546d2920dbbfe" compoundref="dc/d0e/_writer_8cpp" startline="467" endline="523">evio::Writer::open</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1a3974c139f38b0a73bf8f7dc51367a2d1" compoundref="d9/d77/_writer_m_t_8cpp" startline="274" endline="334">evio::WriterMT::open</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a5c09903e37568563ecd71b92fae94188" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getIndexLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getIndexLength</name>
+        <briefdescription>
+<para>Get the length of the index array in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>length of the index array in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="227" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="203" bodyend="203"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" compoundref="d8/d15/_reader_8cpp" startline="818" endline="872">evio::Reader::extractDictionaryFromFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a31e48758d1652e9104bcea1c6b95c2d5" compoundref="d8/d15/_reader_8cpp" startline="519" endline="550">evio::Reader::readUserHeader</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ab307d9483f8651a997a1848caf0ee3a3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getHeaderLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getHeaderLength</name>
+        <briefdescription>
+<para>Get the length of this header data in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>length of this header data in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="228" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="210" bodyend="210"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" compoundref="d8/d15/_reader_8cpp" startline="818" endline="872">evio::Reader::extractDictionaryFromFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a31e48758d1652e9104bcea1c6b95c2d5" compoundref="d8/d15/_reader_8cpp" startline="519" endline="550">evio::Reader::readUserHeader</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a2d17cf7044ec110cbfb8ef440f4cd42a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getUserHeaderLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getUserHeaderLength</name>
+        <briefdescription>
+<para>Get the length of the user-defined header in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>length of the user-defined header in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="230" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="182" bodyend="182"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" compoundref="d8/d15/_reader_8cpp" startline="818" endline="872">evio::Reader::extractDictionaryFromFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a31e48758d1652e9104bcea1c6b95c2d5" compoundref="d8/d15/_reader_8cpp" startline="519" endline="550">evio::Reader::readUserHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a5a3a98dba3ec79a95ea878df40b3ecf6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getUserHeaderLengthWords</definition>
+        <argsstring>() const</argsstring>
+        <name>getUserHeaderLengthWords</name>
+        <briefdescription>
+<para>Get the length of the user-defined header in words. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>length of the user-defined header in words. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="231" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="189" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ac3b2d21a621f65578bf76c61e9fd0816" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getUserHeaderLengthPadding</definition>
+        <argsstring>() const</argsstring>
+        <name>getUserHeaderLengthPadding</name>
+        <briefdescription>
+<para>Get the user header&apos;s padding - the number of bytes required to bring uncompressed user header to 4-byte boundary. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>user header&apos;s padding </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="232" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="226" bodyend="226"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ad3b1e42dc05e16254b0d643a1cb6ac3e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getUserIntFirst</definition>
+        <argsstring>() const</argsstring>
+        <name>getUserIntFirst</name>
+        <briefdescription>
+<para>Get the first user integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>first user integer value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="234" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="154" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a523d8675d0807cc0cd8ae8722f389186" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getUserIntSecond</definition>
+        <argsstring>() const</argsstring>
+        <name>getUserIntSecond</name>
+        <briefdescription>
+<para>Get the second user integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>second user integer value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="235" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="161" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a767473f82217f96c9fe7a1f15df4a7de" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::FileHeader::getUserRegister</definition>
+        <argsstring>() const</argsstring>
+        <name>getUserRegister</name>
+        <briefdescription>
+<para>Get the user register value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>user register value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="236" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="140" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a5f2a9e64261566a21780a3db2e5e752a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::FileHeader::getPosition</definition>
+        <argsstring>() const</argsstring>
+        <name>getPosition</name>
+        <briefdescription>
+<para>Get the position of this record in a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>position of this record in a file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="238" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="168" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ae74a6ac13dcc45024e5db04491d96841" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::FileHeader::getTrailerPosition</definition>
+        <argsstring>() const</argsstring>
+        <name>getTrailerPosition</name>
+        <briefdescription>
+<para>Get the trailer&apos;s (trailing header&apos;s) file position in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>trailer&apos;s (trailing header&apos;s) file position in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="239" column="19" bodyfile="src/libsrc/FileHeader.cpp" bodystart="147" bodyend="147"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1aa014ecda139fbd1c6c0e8240d7e20aaa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::getBitInfoWord</definition>
+        <argsstring>() const</argsstring>
+        <name>getBitInfoWord</name>
+        <briefdescription>
+<para>Get the bit info word. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>bit info word. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="245" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="263" bodyend="263"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" compoundref="de/d46/_file_header_8cpp" startline="589" endline="608">writeHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a40390f1e268ded506169c3e347c443b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::setBitInfoWord</definition>
+        <argsstring>(uint32_t word)</argsstring>
+        <name>setBitInfoWord</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>word</declname>
+        </param>
+        <briefdescription>
+<para>Set the bit info word and related values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>word</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bit info word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="246" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="270" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::setBitInfo</definition>
+        <argsstring>(bool haveFirst, bool haveDictionary, bool haveTrailerWithIndex)</argsstring>
+        <name>setBitInfo</name>
+        <param>
+          <type>bool</type>
+          <declname>haveFirst</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>haveDictionary</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>haveTrailerWithIndex</declname>
+        </param>
+        <briefdescription>
+<para>Set the bit info word for a file header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retains current header type, user header length padding, and version. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>haveFirst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if file has first event. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>haveDictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if file has dictionary in user header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>haveTrailerWithIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if file has trailer with record length index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>new bit info word. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="247" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="284" bodyend="297"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" compoundref="d2/d66/_file_header_8h" startline="139">DICTIONARY_BIT</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" compoundref="d2/d66/_file_header_8h" startline="141">FIRST_EVENT_BIT</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a0788a70e8ebc44dd451025a6dc17290d" compoundref="d5/d98/_header_type_8h" startline="82" endline="82">evio::HeaderType::getValue</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" compoundref="d2/d66/_file_header_8h" startline="143">TRAILER_WITH_INDEX_BIT</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" compoundref="dc/d0e/_writer_8cpp" startline="682" endline="719">evio::Writer::createHeader</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1abe4a6ab09bc138dbd08057262b87d77b" compoundref="d9/d77/_writer_m_t_8cpp" startline="359" endline="396">evio::WriterMT::createHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a55417ae68a5f938e25bac2673c88e36c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::hasFirstEvent</definition>
+        <argsstring>(bool hasFirst)</argsstring>
+        <name>hasFirstEvent</name>
+        <param>
+          <type>bool</type>
+          <declname>hasFirst</declname>
+        </param>
+        <briefdescription>
+<para>Set the bit which says file has a first event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hasFirst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if file has a first event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>new bitInfo word. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="252" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="334" bodyend="345"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" compoundref="d2/d66/_file_header_8h" startline="141">FIRST_EVENT_BIT</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1acaf968c34f10e8004994a91175e5a829" compoundref="dc/d0e/_writer_8cpp" startline="618" endline="669">evio::Writer::createRecord</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" compoundref="d8/d15/_reader_8cpp" startline="818" endline="872">evio::Reader::extractDictionaryFromFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a86b7f7c0191d12cca51496984a87451d" compoundref="d8/d15/_reader_8cpp" startline="348" endline="353">evio::Reader::hasFirstEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1ab78a268c9c37ba4c9688b4c39a98c417" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasFirstEvent</definition>
+        <argsstring>() const</argsstring>
+        <name>hasFirstEvent</name>
+        <briefdescription>
+<para>Does this header have a first event in the file header? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if header has a first event in the file header, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="253" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="352" bodyend="352"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" compoundref="d2/d66/_file_header_8h" startline="141">FIRST_EVENT_BIT</references>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a6b90c0054a0107a84dcf67abc0d0f34e" compoundref="de/d46/_file_header_8cpp" startline="713" endline="747">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a9267f205919e107f08d268e4ffc92e1e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::hasDictionary</definition>
+        <argsstring>(bool hasDictionary)</argsstring>
+        <name>hasDictionary</name>
+        <param>
+          <type>bool</type>
+          <declname>hasDictionary</declname>
+        </param>
+        <briefdescription>
+<para>Set the bit in the file header which says there is a dictionary. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hasDictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if file has a dictionary. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>new bitInfo word. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="255" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="368" bodyend="379"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" compoundref="d2/d66/_file_header_8h" startline="139">DICTIONARY_BIT</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" compoundref="de/d46/_file_header_8cpp" startline="386" endline="386">hasDictionary</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1acaf968c34f10e8004994a91175e5a829" compoundref="dc/d0e/_writer_8cpp" startline="618" endline="669">evio::Writer::createRecord</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" compoundref="d8/d15/_reader_8cpp" startline="818" endline="872">evio::Reader::extractDictionaryFromFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a670e815e202c81fdce1948181346a533" compoundref="d8/d15/_reader_8cpp" startline="308" endline="313">evio::Reader::hasDictionary</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasDictionary</definition>
+        <argsstring>() const</argsstring>
+        <name>hasDictionary</name>
+        <briefdescription>
+<para>Does this header have a dictionary in the file header? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if header has a dictionary in the file header, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="256" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="386" bodyend="386"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" compoundref="d2/d66/_file_header_8h" startline="139">DICTIONARY_BIT</references>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1acd0cfbbe33c75999f56823156fd6334f" compoundref="de/d46/_file_header_8cpp" startline="315" endline="325">generateBitInfoWord</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a9267f205919e107f08d268e4ffc92e1e" compoundref="de/d46/_file_header_8cpp" startline="368" endline="379">hasDictionary</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a6b90c0054a0107a84dcf67abc0d0f34e" compoundref="de/d46/_file_header_8cpp" startline="713" endline="747">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a893b59302d5f0b77733da2deb85e15b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::hasTrailerWithIndex</definition>
+        <argsstring>(bool hasTrailerWithIndex)</argsstring>
+        <name>hasTrailerWithIndex</name>
+        <param>
+          <type>bool</type>
+          <declname>hasTrailerWithIndex</declname>
+        </param>
+        <briefdescription>
+<para>Set the bit in the file header which says there is a trailer with a record length index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hasTrailerWithIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if file has a trailer with a record length index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>new bitInfo word. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="258" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="402" bodyend="413"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" compoundref="de/d46/_file_header_8cpp" startline="420" endline="420">hasTrailerWithIndex</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" compoundref="d2/d66/_file_header_8h" startline="143">TRAILER_WITH_INDEX_BIT</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a8f01bf28c0d2910947fca9a841a1fc7b" compoundref="dc/d0e/_writer_8cpp" startline="1247" endline="1321">evio::Writer::close</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasTrailerWithIndex</definition>
+        <argsstring>() const</argsstring>
+        <name>hasTrailerWithIndex</name>
+        <briefdescription>
+<para>Does this file have a trailer with a record length index? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if file has a trailer with a record length index, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="259" column="18" bodyfile="src/libsrc/FileHeader.cpp" bodystart="420" bodyend="420"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" compoundref="d2/d66/_file_header_8h" startline="143">TRAILER_WITH_INDEX_BIT</references>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a893b59302d5f0b77733da2deb85e15b8" compoundref="de/d46/_file_header_8cpp" startline="402" endline="413">hasTrailerWithIndex</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a6b90c0054a0107a84dcf67abc0d0f34e" compoundref="de/d46/_file_header_8cpp" startline="713" endline="747">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a9c36a0485434443345d559e90757f545" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasUserHeader</definition>
+        <argsstring>() const</argsstring>
+        <name>hasUserHeader</name>
+        <briefdescription>
+<para>Is this header followed by a user header? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if header followed by a user header, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="261" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="437" bodyend="437"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a34cb81cab9f49ec663cd083c4133747f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasIndex</definition>
+        <argsstring>() const</argsstring>
+        <name>hasIndex</name>
+        <briefdescription>
+<para>Does this file have a valid index of record lengths immediately following header? There should be at least one integer for valid index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Must have integral number of entries. <simplesect kind="return"><para>true if file has a valid index, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="262" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="446" bodyend="446"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1afe18d8611bb342b36466efee2a816447" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setFileNumber</definition>
+        <argsstring>(uint32_t num)</argsstring>
+        <name>setFileNumber</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Set the file number which is the split number starting at 1. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file number starting at 1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="270" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="459" bodyend="459"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1aa45b1890092b8907f34889c8c6ae6681" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setUserRegister</definition>
+        <argsstring>(uint64_t val)</argsstring>
+        <name>setUserRegister</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Set the first user register. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>first user register. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="271" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="467" bodyend="467"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a570e8146d40c8860d719008910753b1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setUserIntFirst</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>setUserIntFirst</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Set the first user integer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>first user integer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="272" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="475" bodyend="475"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1acead3cce271d51a95bc463af375be4ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setUserIntSecond</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>setUserIntSecond</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Set the second user integer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>second user integer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="273" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="483" bodyend="483"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a7d262d376a66843384782bed0e383010" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setHeaderType</definition>
+        <argsstring>(HeaderType &amp;type)</argsstring>
+        <name>setHeaderType</name>
+        <param>
+          <type><ref refid="df/dd8/classevio_1_1_header_type" kindref="compound">HeaderType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Set this header&apos;s type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Normally done in constructor. Limited access. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of header. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="274" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="491" bodyend="491"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a8894cad0f3ed3da8623665ef8bb48898" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setPosition</definition>
+        <argsstring>(size_t pos)</argsstring>
+        <name>setPosition</name>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Set the position of this record in a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of this record in a file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="275" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="499" bodyend="499"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a439865e7f0419180fff09aa45649a809" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setIndexLength</definition>
+        <argsstring>(uint32_t length)</argsstring>
+        <name>setIndexLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Set the length of the index array in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Length is forced to be a multiple of 4! Sets the total length too. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of index array in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="276" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="509" bodyend="513"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a444289e3ebf9356c411112a67e493a55" compoundref="de/d46/_file_header_8cpp" startline="574" endline="577">setLength</references>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a458e829ff1871d048480de8a03d8727e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setEntries</definition>
+        <argsstring>(uint32_t n)</argsstring>
+        <name>setEntries</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Set the number of record entries. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>No compression for other values. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of record entries. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="277" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="522" bodyend="522"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setUserHeaderLength</definition>
+        <argsstring>(uint32_t length)</argsstring>
+        <name>setUserHeaderLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Set the user-defined header&apos;s length in bytes &amp; words and the padding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the total length too. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>user-defined header&apos;s length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="278" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="531" bodyend="538"/>
+        <references refid="d3/d87/classevio_1_1_util_1af174f6cb1faa20acb06238db0ce353ed" compoundref="dd/d90/_util_8h" startline="68" endline="68">evio::Util::getPadding</references>
+        <references refid="d3/d87/classevio_1_1_util_1a0d84a3a050a9c03869fa3c7dd7287737" compoundref="dd/d90/_util_8h" startline="56" endline="60">evio::Util::getWords</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a444289e3ebf9356c411112a67e493a55" compoundref="de/d46/_file_header_8cpp" startline="574" endline="577">setLength</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" compoundref="dc/d0e/_writer_8cpp" startline="682" endline="719">evio::Writer::createHeader</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1abe4a6ab09bc138dbd08057262b87d77b" compoundref="d9/d77/_writer_m_t_8cpp" startline="359" endline="396">evio::WriterMT::createHeader</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a5505b98f12f97aacb13592178185f3a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setHeaderLength</definition>
+        <argsstring>(uint32_t length)</argsstring>
+        <name>setHeaderLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Set the this header&apos;s length in bytes &amp; words. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If length is not a multiple of 4, you&apos;re on your own! Sets the total length too. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>this header&apos;s length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="279" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="559" bodyend="564"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a444289e3ebf9356c411112a67e493a55" compoundref="de/d46/_file_header_8cpp" startline="574" endline="577">setLength</references>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a444289e3ebf9356c411112a67e493a55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::FileHeader::setLength</definition>
+        <argsstring>(uint32_t length)</argsstring>
+        <name>setLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Set the total length in bytes, header + index + user header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This includes padding and is on a 4-byte boundary. Never compressed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>total length in bytes, header + index + user header. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="280" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="574" bodyend="577"/>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a5505b98f12f97aacb13592178185f3a1" compoundref="de/d46/_file_header_8cpp" startline="559" endline="564">setHeaderLength</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a439865e7f0419180fff09aa45649a809" compoundref="de/d46/_file_header_8cpp" startline="509" endline="513">setIndexLength</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">setUserHeaderLength</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::writeHeader</definition>
+        <argsstring>(ByteBuffer &amp;buf, size_t off)</argsstring>
+        <name>writeHeader</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>off</declname>
+        </param>
+        <briefdescription>
+<para>Writes the file (not record!) header into the given byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte buffer to write file header into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in buffer to begin writing. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if remaining buffer space (limit - off) is too small. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="284" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="589" bodyend="608"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1aa014ecda139fbd1c6c0e8240d7e20aaa" compoundref="de/d46/_file_header_8cpp" startline="263" endline="263">getBitInfoWord</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">HEADER_SIZE_BYTES</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a0f3ae4b0b792506bb6ea752edb028dc3" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1615" endline="1624">evio::ByteBuffer::putLong</references>
+        <referencedby refid="d6/dca/classevio_1_1_writer_1a32f50661587a8f13e7729183b2203299" compoundref="dc/d0e/_writer_8cpp" startline="682" endline="719">evio::Writer::createHeader</referencedby>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1abe4a6ab09bc138dbd08057262b87d77b" compoundref="d9/d77/_writer_m_t_8cpp" startline="359" endline="396">evio::WriterMT::createHeader</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1aba8fbd68e6d24c93c6c406cca16ecd32" compoundref="de/d46/_file_header_8cpp" startline="617" endline="619">writeHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1aba8fbd68e6d24c93c6c406cca16ecd32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::writeHeader</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, size_t off=0)</argsstring>
+        <name>writeHeader</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>off</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Writes the file (not record!) header into the given byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte buffer to write file header into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in buffer to begin writing. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if remaining buffer space (limit - off) is too small. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="285" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="617" bodyend="619"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" compoundref="de/d46/_file_header_8cpp" startline="589" endline="608">writeHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::readHeader</definition>
+        <argsstring>(ByteBuffer &amp;buffer, size_t offset=0)</argsstring>
+        <name>readHeader</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>offset</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Reads the file header information from a byte buffer and validates it by checking the magic word (8th word). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This magic word also determines the byte order. The given buffer&apos;s position does NOT change.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to read from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of first word to be read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if remaining buffer space (limit - off) is too small, data is not in proper format, or version earlier than 6. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="286" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="633" bodyend="690"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1abc05c2a44b4eeb3ee2abbd6cbd7c019e" compoundref="d2/d66/_file_header_8h" startline="122">BIT_INFO_OFFSET</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" compoundref="d1/d02/_byte_order_8h" startline="57">evio::ByteOrder::ENDIAN_LITTLE</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a31b0469dbd7e4a887ca40b7ce1fb1ed1" compoundref="d2/d66/_file_header_8h" startline="112">FILE_ID_OFFSET</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1acb454bfc58f06d87bc0fcecbd26228a8" compoundref="d2/d66/_file_header_8h" startline="114">FILE_NUMBER_OFFSET</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a085757efaf22f29f6383d391498408a9" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1156" endline="1164">evio::ByteBuffer::getLong</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a3e8ee4b12e47b0c2121331645a5b3770" compoundref="d2/d66/_file_header_8h" startline="116">HEADER_LENGTH_OFFSET</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" compoundref="d2/d66/_file_header_8h" startline="107">HEADER_MAGIC</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">HEADER_SIZE_BYTES</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a8ecbef932bf1750f05e8b188cf9e3135" compoundref="d2/d66/_file_header_8h" startline="120">INDEX_ARRAY_OFFSET</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ae00e22d5a8e89be307e94f2de486651d" compoundref="d2/d66/_file_header_8h" startline="132">INT1_OFFSET</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a11ff2ba925ceb78d4b0d60ea8a420e17" compoundref="d2/d66/_file_header_8h" startline="134">INT2_OFFSET</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a823c07d8a612ed83e8e94f278a08694c" compoundref="d2/d66/_file_header_8h" startline="126">MAGIC_OFFSET</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a080cb49cb33238fe74d54b0fc33f9990" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1753" endline="1770">evio::ByteBuffer::printBytes</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a13a655d1b16e70688ec555e1f6cd7f5b" compoundref="d2/d66/_file_header_8h" startline="118">RECORD_COUNT_OFFSET</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ab7d74ac60cc226c6901a1596409d4064" compoundref="d2/d66/_file_header_8h" startline="128">REGISTER1_OFFSET</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5505b98f12f97aacb13592178185f3a1" compoundref="de/d46/_file_header_8cpp" startline="559" endline="564">setHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a439865e7f0419180fff09aa45649a809" compoundref="de/d46/_file_header_8cpp" startline="509" endline="513">setIndexLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">setUserHeaderLength</references>
+        <references refid="d1/d02/_byte_order_8h_1a700fb30611761c46a674a45cc28ff561" compoundref="d1/d02/_byte_order_8h" startline="28">SWAP_32</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ac89e616aa3a757d6f32bee153048983f" compoundref="d2/d66/_file_header_8h" startline="130">TRAILER_POSITION_OFFSET</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a6b4bdb1effb403d471e26dbb08fefe64" compoundref="d2/d66/_file_header_8h" startline="124">USER_LENGTH_OFFSET</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a1940b5774f74d4c3539548991446fa9f" compoundref="de/d46/_file_header_8cpp" startline="704" endline="706">readHeader</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a1940b5774f74d4c3539548991446fa9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::readHeader</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buffer, size_t offset=0)</argsstring>
+        <name>readHeader</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>offset</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Reads the file header information from a byte buffer and validates it by checking the magic word (8th word). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This magic word also determines the byte order. The given buffer&apos;s position does NOT change.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to read from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of first word to be read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if remaining buffer space (limit - off) is too small, data is not in proper format, or version earlier than 6. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="287" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="704" bodyend="706"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">readHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a6b90c0054a0107a84dcf67abc0d0f34e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::FileHeader::toString</definition>
+        <argsstring>() const</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Returns a string representation of the record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a string representation of the record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="289" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="713" bodyend="747"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a37f94e6875b3d3eb9aaf672f91d3302b" compoundref="d2/d66/_file_header_8h" startline="101">EVIO_FILE_UNIQUE_WORD</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" compoundref="de/d46/_file_header_8cpp" startline="386" endline="386">hasDictionary</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ab78a268c9c37ba4c9688b4c39a98c417" compoundref="de/d46/_file_header_8cpp" startline="352" endline="352">hasFirstEvent</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" compoundref="de/d46/_file_header_8cpp" startline="420" endline="420">hasTrailerWithIndex</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a2344917a96f0e743c15152a87a0efa2e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::bitInfoInit</definition>
+        <argsstring>()</argsstring>
+        <name>bitInfoInit</name>
+        <briefdescription>
+<para>Initialize bitInfo word to proper value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="210" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="254" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1aa065e9121b40a4653c91523f370951ef" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::decodeBitInfoWord</definition>
+        <argsstring>(uint32_t word)</argsstring>
+        <name>decodeBitInfoWord</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>word</declname>
+        </param>
+        <briefdescription>
+<para>Decodes the bit-info word into version, padding and header type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>word</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bit-info word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="211" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="238" bodyend="250"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a82dab779231b1614727264ad4191e96c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileHeader::setUserHeaderLengthPadding</definition>
+        <argsstring>(uint32_t padding)</argsstring>
+        <name>setUserHeaderLengthPadding</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>padding</declname>
+        </param>
+        <briefdescription>
+<para>Set the user header&apos;s padding - the number of bytes required to bring uncompressed user header to 4-byte boundary. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the associated value in bitInfo word. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>padding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>user header&apos;s padding. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="212" column="14" bodyfile="src/libsrc/FileHeader.cpp" bodystart="546" bodyend="549"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1acd0cfbbe33c75999f56823156fd6334f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileHeader::generateBitInfoWord</definition>
+        <argsstring>(uint32_t version, bool hasDictionary, bool hasFirst, bool trailerWithIndex, uint32_t headerType=1)</argsstring>
+        <name>generateBitInfoWord</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>version</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hasDictionary</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hasFirst</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>trailerWithIndex</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>headerType</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+<para>Calculates the bit info (6th) word of this header which has the version number in the lowest 8 bits (0-7). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The arg hasDictionary is set in the 8th bit, hasFirst is set in the 9th bit, and trailerWithIndex is set in the 10th bit. Four bits of this header type are set in bits 28-31 (defaults to 1 which is an evio file header).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>version</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio version number </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hasDictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>does this file include an evio xml dictionary? </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hasFirst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>does this file include a first event in every file split? </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>trailerWithIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>does this file have a trailer with an event index? </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>headerType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>4 bit type of this header (defaults to 1 which is an evio file header). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>generated bit-info (6th) word of a file header. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="248" column="25" bodyfile="src/libsrc/FileHeader.cpp" bodystart="315" bodyend="325"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" compoundref="de/d46/_file_header_8cpp" startline="386" endline="386">hasDictionary</references>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9042fd06e8d738ef387684b6df3c765f" compoundref="da/d47/_compact_event_builder_8cpp" startline="1189" endline="1287">evio::CompactEventBuilder::toFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1af119e95dbf50d7de14f8db244c8cf833" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasFirstEvent</definition>
+        <argsstring>(uint32_t bitInfo)</argsstring>
+        <name>hasFirstEvent</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>bitInfo</declname>
+        </param>
+        <briefdescription>
+<para>Does this bitInfo arg indicate the existence of a first event in the file header? Static. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bitInfo</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitInfo word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if header has a first event in the file header, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="264" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="360" bodyend="360"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" compoundref="d2/d66/_file_header_8h" startline="141">FIRST_EVENT_BIT</references>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1af78c6798c29d6ff4605832eeedf7e600" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasDictionary</definition>
+        <argsstring>(uint32_t bitInfo)</argsstring>
+        <name>hasDictionary</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>bitInfo</declname>
+        </param>
+        <briefdescription>
+<para>Does this bitInfo arg indicate the existence of a dictionary in the file header? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bitInfo</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitInfo word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if header has a dictionary in the file header, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="265" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="394" bodyend="394"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" compoundref="d2/d66/_file_header_8h" startline="139">DICTIONARY_BIT</references>
+      </memberdef>
+      <memberdef kind="function" id="d1/da6/classevio_1_1_file_header_1a0910244053fca62c71173965c3553b92" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileHeader::hasTrailerWithIndex</definition>
+        <argsstring>(uint32_t bitInfo)</argsstring>
+        <name>hasTrailerWithIndex</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>bitInfo</declname>
+        </param>
+        <briefdescription>
+<para>Does this bitInfo arg indicate the existence of a trailer with a record length index? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bitInfo</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitInfo word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if file has a trailer with a record length index, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileHeader.h" line="266" column="21" bodyfile="src/libsrc/FileHeader.cpp" bodystart="428" bodyend="430"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" compoundref="d2/d66/_file_header_8h" startline="143">TRAILER_WITH_INDEX_BIT</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><preformatted></preformatted></para>
+<para><preformatted>FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )</preformatted></para>
+<para><preformatted>   +----------------------------------+
+ 1 |              ID                  | // HIPO: 0x43455248, Evio: 0x4556494F
+   +----------------------------------+
+ 2 +          File Number             | // split file #
+   +----------------------------------+
+ 3 +         Header Length            | // 14 (words)
+   +----------------------------------+
+ 4 +      Record (Index) Count        |
+   +----------------------------------+
+ 5 +      Index Array Length          | // bytes
+   +-----------------------+----------+
+ 6 +       Bit Info        | Version  | // version (8 bits)
+   +-----------------------+----------+
+ 7 +      User Header Length          | // bytes
+   +----------------------------------+
+ 8 +          Magic Number            | // 0xc0da0100
+   +----------------------------------+
+ 9 +          User Register           |
+   +--                              --+
+10 +                                  |
+   +----------------------------------+
+11 +         Trailer Position         | // File offset to trailer head (64 bits).
+   +--                              --+ // 0 = no offset available or no trailer exists.
+12 +                                  |
+   +----------------------------------+
+13 +          User Integer 1          |
+   +----------------------------------+
+14 +          User Integer 2          |
+   +----------------------------------+</preformatted></para>
+<para><preformatted>-------------------
+  Bit Info Word
+-------------------
+    0-7  = version
+    8    = true if dictionary is included (relevant for first record only)
+    9    = true if this file has &quot;first&quot; event (in every split file)
+   10    = File trailer with index array of record lengths exists
+   11-19 = reserved
+   20-21 = pad 1
+   22-23 = pad 2
+   24-25 = pad 3 (always 0)
+   26-27 = reserved
+   28-31 = general header type: 1 = Evio file
+                                2 = Evio extended file
+                                5 = HIPO file
+                                6 = HIPO extended file</preformatted></para>
+<para><preformatted></preformatted></para>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 10/16/19 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/FileHeader.h" line="91" column="5" bodyfile="src/libsrc/FileHeader.h" bodystart="91" bodyend="290"/>
+    <listofallmembers>
+      <member refid="d1/da6/classevio_1_1_file_header_1abc05c2a44b4eeb3ee2abbd6cbd7c019e" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>BIT_INFO_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a3d7cfe7a18ac34c28ee22f089e915b50" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>bitInfo</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a2344917a96f0e743c15152a87a0efa2e" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>bitInfoInit</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a7e061d1131563fe5f6c9f28d2aa91e90" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>byteOrder</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a796a6c2a786dbd81dd57aecdafc41e92" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>copy</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1aa065e9121b40a4653c91523f370951ef" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>decodeBitInfoWord</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a1a268f67ad00710c9d815e25aff4c12c" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>DICTIONARY_BIT</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5e25901e2ec76fd14e3ca578292d9b52" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>entries</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a37f94e6875b3d3eb9aaf672f91d3302b" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>EVIO_FILE_UNIQUE_WORD</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a31b0469dbd7e4a887ca40b7ce1fb1ed1" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>FILE_ID_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1acb454bfc58f06d87bc0fcecbd26228a8" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>FILE_NUMBER_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5b82a7db3af9c84ddcc518e00e6bbaa0" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>FileHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a7319497669b727263f926c852f2a01a4" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>FileHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a2d07793331e59b7845c2a330009e4bec" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>FileHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a05f2f8b1a64a58d1599b1589de402006" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>fileId</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a0017cf31b354af83483549fc4a9bf46c" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>fileNumber</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1acf3529be07cf72f11707e3ea17d6ca0b" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>FIRST_EVENT_BIT</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1acd0cfbbe33c75999f56823156fd6334f" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>generateBitInfoWord</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1aa014ecda139fbd1c6c0e8240d7e20aaa" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getBitInfoWord</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a3dcda5bb2237da5621027d3cc3f079ef" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getByteOrder</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a82a13947f54e1c4a93fd66231fd66f3a" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getEntries</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a1b9d2016df005cadf3a57a25bfd1f275" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getFileId</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ac64095f58c4e35abcbdc15a4f2fdb3e5" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getFileNumber</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ab307d9483f8651a997a1848caf0ee3a3" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getHeaderLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ad64222bc95c84bc4ce607d84d73565ba" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getHeaderType</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5c09903e37568563ecd71b92fae94188" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getIndexLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5f2a9e64261566a21780a3db2e5e752a" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getPosition</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ae74a6ac13dcc45024e5db04491d96841" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getTrailerPosition</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a2d17cf7044ec110cbfb8ef440f4cd42a" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getUserHeaderLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ac3b2d21a621f65578bf76c61e9fd0816" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getUserHeaderLengthPadding</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5a3a98dba3ec79a95ea878df40b3ecf6" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getUserHeaderLengthWords</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ad3b1e42dc05e16254b0d643a1cb6ac3e" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getUserIntFirst</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a523d8675d0807cc0cd8ae8722f389186" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getUserIntSecond</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a767473f82217f96c9fe7a1f15df4a7de" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getUserRegister</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ac7d8b3b526c36a94f32c584129084d26" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>getVersion</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a9267f205919e107f08d268e4ffc92e1e" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasDictionary</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a376758c3a2aa5d7d7cb8443a39b67ec7" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasDictionary</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1af78c6798c29d6ff4605832eeedf7e600" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasDictionary</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a55417ae68a5f938e25bac2673c88e36c" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasFirstEvent</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ab78a268c9c37ba4c9688b4c39a98c417" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasFirstEvent</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1af119e95dbf50d7de14f8db244c8cf833" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasFirstEvent</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a34cb81cab9f49ec663cd083c4133747f" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasIndex</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a893b59302d5f0b77733da2deb85e15b8" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasTrailerWithIndex</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a1cbc7adc3a4b771652465445f48dfc19" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasTrailerWithIndex</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a0910244053fca62c71173965c3553b92" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasTrailerWithIndex</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a9c36a0485434443345d559e90757f545" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>hasUserHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a3e8ee4b12e47b0c2121331645a5b3770" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>HEADER_LENGTH_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>HEADER_MAGIC</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>HEADER_SIZE_BYTES</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>HEADER_SIZE_WORDS</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a37c1985c43efe0f62fab785cbc05ea1b" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>headerLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1af68b3a2d0d9a7abecb775265e61b4d21" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>headerLengthWords</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a51c338f285170baf29d7e5d133b55957" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>headerMagicWord</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a05b326802f6b60f975e03cf628aa8096" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>headerType</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ab174db0847784999c70dc997c30ac8d2" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>headerVersion</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a7b7f161246d3784e4dca17430541c528" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>HIPO_FILE_UNIQUE_WORD</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a8ecbef932bf1750f05e8b188cf9e3135" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>INDEX_ARRAY_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a1184530671dfc9772f53b536c6a470bd" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>indexLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ae00e22d5a8e89be307e94f2de486651d" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>INT1_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a11ff2ba925ceb78d4b0d60ea8a420e17" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>INT2_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a823c07d8a612ed83e8e94f278a08694c" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>MAGIC_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a7450dcf3a3e0d341679e5d251ea62cbc" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>position</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>readHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a1940b5774f74d4c3539548991446fa9f" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>readHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a13a655d1b16e70688ec555e1f6cd7f5b" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>RECORD_COUNT_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ab7d74ac60cc226c6901a1596409d4064" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>REGISTER1_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1af318676a4ffce0023d1bf669bb44cf31" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>reset</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ade550a2cc97d77fe89f81941a3e92fcc" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setBitInfo</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a40390f1e268ded506169c3e347c443b2" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setBitInfoWord</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a458e829ff1871d048480de8a03d8727e" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setEntries</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1afe18d8611bb342b36466efee2a816447" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setFileNumber</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5505b98f12f97aacb13592178185f3a1" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setHeaderLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a7d262d376a66843384782bed0e383010" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setHeaderType</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a439865e7f0419180fff09aa45649a809" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setIndexLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a444289e3ebf9356c411112a67e493a55" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a8894cad0f3ed3da8623665ef8bb48898" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setPosition</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setUserHeaderLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a82dab779231b1614727264ad4191e96c" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>setUserHeaderLengthPadding</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a570e8146d40c8860d719008910753b1b" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setUserIntFirst</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1acead3cce271d51a95bc463af375be4ae" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setUserIntSecond</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1aa45b1890092b8907f34889c8c6ae6681" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>setUserRegister</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a6b90c0054a0107a84dcf67abc0d0f34e" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>toString</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a5c028a47af2f4dd45aaed75c5b57e75a" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>totalLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ac89e616aa3a757d6f32bee153048983f" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>TRAILER_POSITION_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a6fe26b423bc7d0286d25f9996efa6093" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>TRAILER_WITH_INDEX_BIT</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ac980a28b36512f6a9537529212d11d57" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>trailerPosition</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a6b4bdb1effb403d471e26dbb08fefe64" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>USER_LENGTH_OFFSET</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1ad214a8c0d8af4c3d6e154d8a23f0383a" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>userHeaderLength</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1aa9772698d50689d7ee247563393b40b9" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>userHeaderLengthPadding</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a575c3483448e2fbd95814cf1bbdffe94" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>userHeaderLengthWords</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a4870835b251fa5c6184f58deb138e9d1" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>userIntFirst</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a712e501fc0999a11588c65863833c008" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>userIntSecond</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1af4018e9c76e9735639e0959ce5063598" prot="private" virt="non-virtual"><scope>evio::FileHeader</scope><name>userRegister</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1aabd952c177a47ed7875b6c9d988bff8e" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>writeHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1aba8fbd68e6d24c93c6c406cca16ecd32" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>writeHeader</name></member>
+      <member refid="d1/da6/classevio_1_1_file_header_1a99e268ec843ca9ab953b00bca1e2a7f4" prot="public" virt="non-virtual"><scope>evio::FileHeader</scope><name>~FileHeader</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

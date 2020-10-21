@@ -1,0 +1,27 @@
+var classevio_1_1_byte_order =
+[
+    [ "byteNoSwap32", "da/d7d/classevio_1_1_byte_order.html#a5fcee1f9ff458a9b14595551c1b3a77c", null ],
+    [ "byteSwap", "da/d7d/classevio_1_1_byte_order.html#a28ffcd414e51f592c5416aba4562a07c", null ],
+    [ "byteSwap", "da/d7d/classevio_1_1_byte_order.html#a1c12dcf8b5905395e4eb51afd501e546", null ],
+    [ "byteSwap16", "da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff", null ],
+    [ "byteSwap32", "da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3", null ],
+    [ "byteSwap64", "da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1", null ],
+    [ "byteSwapInPlace", "da/d7d/classevio_1_1_byte_order.html#ab97d37587bd1206f03294e5b88545520", null ],
+    [ "byteSwapInPlace", "da/d7d/classevio_1_1_byte_order.html#a90661733191471ae77ecf2f0e6082734", null ],
+    [ "byteSwapInPlace", "da/d7d/classevio_1_1_byte_order.html#a6bd357cb8be004145c7011c19c745391", null ],
+    [ "getLocalByteOrder", "da/d7d/classevio_1_1_byte_order.html#ad075e3d7351c6c4742b2c61df8b2e113", null ],
+    [ "getName", "da/d7d/classevio_1_1_byte_order.html#a23e150c194163000f504efa9b1e53d82", null ],
+    [ "getOppositeEndian", "da/d7d/classevio_1_1_byte_order.html#a5240c7673d80d6e03e890b3472ac00d4", null ],
+    [ "isBigEndian", "da/d7d/classevio_1_1_byte_order.html#aec4e6ef11064473104685009fede4e64", null ],
+    [ "isLittleEndian", "da/d7d/classevio_1_1_byte_order.html#ae4919bf2379c770b75c2d5d7ca87ff7c", null ],
+    [ "isLocalEndian", "da/d7d/classevio_1_1_byte_order.html#ab0a29204d87f503b7e96f1b855914137", null ],
+    [ "isLocalHostBigEndian", "da/d7d/classevio_1_1_byte_order.html#a15e39247b5d253ff34366e2830cea06a", null ],
+    [ "nativeOrder", "da/d7d/classevio_1_1_byte_order.html#aa96046df3a55b85a31f2c33e4d903cf1", null ],
+    [ "needToSwap", "da/d7d/classevio_1_1_byte_order.html#a53f173621aa4ecf3bda24b74fdcb28b2", null ],
+    [ "operator!=", "da/d7d/classevio_1_1_byte_order.html#a4d9e544de3c2343e2ebd418589b7d841", null ],
+    [ "operator==", "da/d7d/classevio_1_1_byte_order.html#a89f850323e9475063a28fd791d6d1754", null ],
+    [ "ENDIAN_BIG", "da/d7d/classevio_1_1_byte_order.html#aa11600b2ff36c44d7f2f8e345cfc937d", null ],
+    [ "ENDIAN_LITTLE", "da/d7d/classevio_1_1_byte_order.html#ae70d8b2df728e3776bb6bb843260bb71", null ],
+    [ "ENDIAN_LOCAL", "da/d7d/classevio_1_1_byte_order.html#ae4055f708921d4e6540ab4662d27147c", null ],
+    [ "ENDIAN_UNKNOWN", "da/d7d/classevio_1_1_byte_order.html#a69586e13940d338c707da1d17d2e85a1", null ]
+];

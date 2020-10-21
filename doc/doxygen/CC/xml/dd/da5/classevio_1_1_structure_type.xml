@@ -1,0 +1,605 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="dd/da5/classevio_1_1_structure_type" kind="class" language="C++" prot="public">
+    <compoundname>evio::StructureType</compoundname>
+    <includes local="no">StructureType.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref></type>
+        <definition>const StructureType evio::StructureType::STRUCT_UNKNOWN32</definition>
+        <argsstring></argsstring>
+        <name>STRUCT_UNKNOWN32</name>
+        <initializer>= <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref>(&quot;UNKNOWN32&quot;, 0)</initializer>
+        <briefdescription>
+<para>Unknown data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="38" column="36" bodyfile="src/libsrc/StructureType.h" bodystart="38" bodyend="-1"/>
+        <referencedby refid="dd/da5/classevio_1_1_structure_type_1a80e2580d4e5fbb60a52c4a468e06885e" compoundref="d3/d58/_structure_type_8h" startline="75" endline="78">getStructureType</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref></type>
+        <definition>const StructureType evio::StructureType::STRUCT_TAGSEGMENT</definition>
+        <argsstring></argsstring>
+        <name>STRUCT_TAGSEGMENT</name>
+        <initializer>= <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref>(&quot;TAGSEGMENT&quot;, 0xc)</initializer>
+        <briefdescription>
+<para>Tag segment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="39" column="36" bodyfile="src/libsrc/StructureType.h" bodystart="39" bodyend="-1"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d7/d91/classevio_1_1_evio_tag_segment_1ab8897c9eb1b05f2a2911e2e8ee8d9a75" compoundref="df/d0d/_evio_tag_segment_8h" startline="77" endline="79">evio::EvioTagSegment::getStructureType</referencedby>
+        <referencedby refid="dd/da5/classevio_1_1_structure_type_1a4968815b45dec692eadda6a14a2fa748" compoundref="d3/d58/_structure_type_8h" startline="109" endline="109">isTagSegment</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref></type>
+        <definition>const StructureType evio::StructureType::STRUCT_SEGMENT</definition>
+        <argsstring></argsstring>
+        <name>STRUCT_SEGMENT</name>
+        <initializer>= <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref>(&quot;SEGMENT&quot;, 0x20, 0xd)</initializer>
+        <briefdescription>
+<para>Segment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="40" column="36" bodyfile="src/libsrc/StructureType.h" bodystart="40" bodyend="-1"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="d5/d29/classevio_1_1_evio_segment_1a694e1e66e48d0af609763123e5100a40" compoundref="d3/d37/_evio_segment_8h" startline="78" endline="80">evio::EvioSegment::getStructureType</referencedby>
+        <referencedby refid="dd/da5/classevio_1_1_structure_type_1a2edc2702ee13ffc308588b9397caca7a" compoundref="d3/d58/_structure_type_8h" startline="102" endline="102">isSegment</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref></type>
+        <definition>const StructureType evio::StructureType::STRUCT_BANK</definition>
+        <argsstring></argsstring>
+        <name>STRUCT_BANK</name>
+        <initializer>= <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref>(&quot;BANK&quot;, 0x10, 0xe)</initializer>
+        <briefdescription>
+<para>Bank. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="41" column="36" bodyfile="src/libsrc/StructureType.h" bodystart="41" bodyend="-1"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">evio::EventBuilder::addChild</referencedby>
+        <referencedby refid="db/d35/classevio_1_1_structure_finder_1aaadc6f318f54bc23cad2785b035de2b4" compoundref="d5/d4b/_structure_finder_8h" startline="68" endline="85">evio::StructureFinder::getMatchingBanks</referencedby>
+        <referencedby refid="db/d35/classevio_1_1_structure_finder_1ad33c620ac52182ed5f999203d9dd5e59" compoundref="d5/d4b/_structure_finder_8h" startline="116" endline="131">evio::StructureFinder::getMatchingNonBanks</referencedby>
+        <referencedby refid="de/de3/classevio_1_1_evio_bank_1a23d61d8225836903678c94b36761ea85" compoundref="dd/d6f/_evio_bank_8h" startline="92" endline="94">evio::EvioBank::getStructureType</referencedby>
+        <referencedby refid="dd/da5/classevio_1_1_structure_type_1a14892efe1f55e607f255ac6963a92143" compoundref="d3/d58/_structure_type_8h" startline="95" endline="95">isBank</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7f33ccd6c19c44b142215c835c0aa192" compoundref="dc/de3/_base_structure_8cpp" startline="1524" endline="1562">evio::BaseStructure::toString</referencedby>
+        <referencedby refid="d4/d12/classevio_1_1_evio_event_1a96cc08b2bd2a9eef2c97afd7db36e7d9" compoundref="df/d94/_evio_event_8h" startline="140" endline="178">evio::EvioEvent::toString</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1a5de87750e8a8dd6f25ef279ab414bd02" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::StructureType::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+<para>Value of this structure type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="46" column="18" bodyfile="src/libsrc/StructureType.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1a4b52975e27d4dcc823bb549754c2c8e7" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::StructureType::value2</definition>
+        <argsstring></argsstring>
+        <name>value2</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The bank and segment have 2 values associated with them. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="49" column="18" bodyfile="src/libsrc/StructureType.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1a0d33ea7e0cd87135aee0310882ccef37" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::StructureType::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Name of this structure type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="52" column="21" bodyfile="src/libsrc/StructureType.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1af4cff3d57737e6f7b7b5aa49eaac4ce3" prot="private" static="yes" mutable="no">
+        <type><ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref></type>
+        <definition>StructureType evio::StructureType::intToType</definition>
+        <argsstring>[33]</argsstring>
+        <name>intToType</name>
+        <initializer>= {
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+
+            <ref refid="dd/da5/classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" kindref="member">StructureType::STRUCT_TAGSEGMENT</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" kindref="member">StructureType::STRUCT_SEGMENT</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" kindref="member">StructureType::STRUCT_BANK</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" kindref="member">StructureType::STRUCT_BANK</ref>,
+
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>, <ref refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">StructureType::STRUCT_UNKNOWN32</ref>,
+
+            <ref refid="dd/da5/classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" kindref="member">StructureType::STRUCT_SEGMENT</ref>
+    }</initializer>
+        <briefdescription>
+<para>Fast way to convert integer values into <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> objects. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="55" column="30" bodyfile="src/libsrc/StructureType.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/da5/classevio_1_1_structure_type_1af704f94e14e3b31e2bdabc5dd4ee0715" prot="private" static="yes" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::StructureType::names</definition>
+        <argsstring>[33]</argsstring>
+        <name>names</name>
+        <initializer>= {
+            &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;,
+
+            
+            &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;,
+            &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;,
+
+            &quot;TAGSEGMENT&quot;,
+            &quot;SEGMENT&quot;,
+            &quot;BANK&quot;,
+            &quot;UNKNOWN32&quot;,
+            &quot;BANK&quot;,
+
+            &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;,
+            &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;,
+            &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;, &quot;UNKNOWN32&quot;,
+
+            &quot;SEGMENT&quot;
+    }</initializer>
+        <briefdescription>
+<para>Store a name for each <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="58" column="28" bodyfile="src/libsrc/StructureType.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a64264960a688080662615589293f929f" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::StructureType::StructureType</definition>
+        <argsstring>(std::string name, uint32_t val, uint32_t val2=0)</argsstring>
+        <name>StructureType</name>
+        <param>
+          <type>std::string</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>val2</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name (string representation) of this <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>int value of this <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>possible second int value of this <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="66" column="9" bodyfile="src/libsrc/StructureType.h" bodystart="66" bodyend="66"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a80e2580d4e5fbb60a52c4a468e06885e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> &amp;</type>
+        <definition>static const StructureType&amp; evio::StructureType::getStructureType</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>getStructureType</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Get the object from the integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the matching <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="75" column="37" bodyfile="src/libsrc/StructureType.h" bodystart="75" bodyend="78"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" compoundref="d3/d58/_structure_type_8h" startline="38">STRUCT_UNKNOWN32</references>
+        <referencedby refid="dd/da5/classevio_1_1_structure_type_1a75dce92038d74f50a11f369fa8c1e807" compoundref="d3/d58/_structure_type_8h" startline="85" endline="88">getName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a75dce92038d74f50a11f369fa8c1e807" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string evio::StructureType::getName</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>getName</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Get the name from the integer value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the name, or <computeroutput>null</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="85" column="28" bodyfile="src/libsrc/StructureType.h" bodystart="85" bodyend="88"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a80e2580d4e5fbb60a52c4a468e06885e" compoundref="d3/d58/_structure_type_8h" startline="75" endline="78">getStructureType</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a14892efe1f55e607f255ac6963a92143" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::StructureType::isBank</definition>
+        <argsstring>(uint32_t type)</argsstring>
+        <name>isBank</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to see if the given integer arg represents a BANK. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the structure type corresponds to a BANK. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="95" column="21" bodyfile="src/libsrc/StructureType.h" bodystart="95" bodyend="95"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" compoundref="d3/d58/_structure_type_8h" startline="41">STRUCT_BANK</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a2edc2702ee13ffc308588b9397caca7a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::StructureType::isSegment</definition>
+        <argsstring>(uint32_t type)</argsstring>
+        <name>isSegment</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to see if the given integer arg represents a SEGMENT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the structure type corresponds to a SEGMENT. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="102" column="21" bodyfile="src/libsrc/StructureType.h" bodystart="102" bodyend="102"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" compoundref="d3/d58/_structure_type_8h" startline="40">STRUCT_SEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a4968815b45dec692eadda6a14a2fa748" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::StructureType::isTagSegment</definition>
+        <argsstring>(uint32_t type)</argsstring>
+        <name>isTagSegment</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Convenience method to see if the given integer arg represents a TAGSEGMENT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int value to match. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the structure type corresponds to a TAGSEGMENT. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="109" column="21" bodyfile="src/libsrc/StructureType.h" bodystart="109" bodyend="109"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" compoundref="d3/d58/_structure_type_8h" startline="39">STRUCT_TAGSEGMENT</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1adae28266d2bc64008d6fb2574024fabb" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const std::string &amp;</type>
+        <definition>const std::string&amp; evio::StructureType::getName</definition>
+        <argsstring>() const</argsstring>
+        <name>getName</name>
+        <briefdescription>
+<para>Get the name associated with this structure type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>name associated with this structure type. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="117" column="28" bodyfile="src/libsrc/StructureType.h" bodystart="117" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1aa50ee70a872824f14029c2f50680d057" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::StructureType::getValue</definition>
+        <argsstring>() const</argsstring>
+        <name>getValue</name>
+        <briefdescription>
+<para>Get the integer value associated with this structure type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>integer value associated with this structure type. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="123" column="18" bodyfile="src/libsrc/StructureType.h" bodystart="123" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a62c2632202f73efcc85641acf7c392b7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::StructureType::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Return a string which is usually the same as the name of the enumerated value, except in the cases of ALSOSEGMENT and ALSOBANK which return SEGMENT and BANK respectively. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>name of the enumerated type </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="132" column="21" bodyfile="src/libsrc/StructureType.h" bodystart="132" bodyend="132"/>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a7f33ccd6c19c44b142215c835c0aa192" compoundref="dc/de3/_base_structure_8cpp" startline="1524" endline="1562">evio::BaseStructure::toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a2cbebb245cd585a4f3bd29daea4a2982" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::StructureType::isBank</definition>
+        <argsstring>()</argsstring>
+        <name>isBank</name>
+        <briefdescription>
+<para>Convenience routine to see if &quot;this&quot; structure type is a bank structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this structure type corresponds to a bank structure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="138" column="14" bodyfile="src/libsrc/StructureType.h" bodystart="138" bodyend="138"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" compoundref="d3/d58/_structure_type_8h" startline="41">STRUCT_BANK</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a186f6b98aa019e7da6a1d9fa97208d7f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::StructureType::isSegment</definition>
+        <argsstring>()</argsstring>
+        <name>isSegment</name>
+        <briefdescription>
+<para>Convenience routine to see if &quot;this&quot; structure type is a segment structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this structure type corresponds to a segment structure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="144" column="14" bodyfile="src/libsrc/StructureType.h" bodystart="144" bodyend="144"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" compoundref="d3/d58/_structure_type_8h" startline="40">STRUCT_SEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a5804636f8f4257e5031ebec9d1c4291b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::StructureType::isTagSegment</definition>
+        <argsstring>()</argsstring>
+        <name>isTagSegment</name>
+        <briefdescription>
+<para>Convenience routine to see if &quot;this&quot; structure type is a tagsegment structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this structure type corresponds to a tagsegment structure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="150" column="14" bodyfile="src/libsrc/StructureType.h" bodystart="150" bodyend="150"/>
+        <references refid="dd/da5/classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" compoundref="d3/d58/_structure_type_8h" startline="39">STRUCT_TAGSEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1a48755783325532ff202f9d31cf3e22fd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::StructureType::operator==</definition>
+        <argsstring>(const StructureType &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="153" column="14" bodyfile="src/libsrc/StructureType.cpp" bodystart="17" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/da5/classevio_1_1_structure_type_1aa057ce67ee99d5873b868bda31655eb2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::StructureType::operator!=</definition>
+        <argsstring>(const StructureType &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureType.h" line="155" column="14" bodyfile="src/libsrc/StructureType.cpp" bodystart="21" bodyend="23"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Numerical values associated with evio structure types. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class approximates the Java enum it was copied from. This class converts structure type numerical values to a more meaningful name. For example, the structure type with value 0xe corresponds to a BANK. This is mostly used for printing.</para>
+<para><simplesect kind="author"><para>heddle </para>
+</simplesect>
+<simplesect kind="author"><para>timmer</para>
+</simplesect>
+<simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 4/13/2020 </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>evio::StructureType</label>
+        <link refid="dd/da5/classevio_1_1_structure_type"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>STRUCT_BANK</edgelabel>
+          <edgelabel>STRUCT_SEGMENT</edgelabel>
+          <edgelabel>STRUCT_TAGSEGMENT</edgelabel>
+          <edgelabel>STRUCT_UNKNOWN32</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/StructureType.h" line="34" column="5" bodyfile="src/libsrc/StructureType.h" bodystart="34" bodyend="156"/>
+    <listofallmembers>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a75dce92038d74f50a11f369fa8c1e807" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>getName</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1adae28266d2bc64008d6fb2574024fabb" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>getName</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a80e2580d4e5fbb60a52c4a468e06885e" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>getStructureType</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1aa50ee70a872824f14029c2f50680d057" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>getValue</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1af4cff3d57737e6f7b7b5aa49eaac4ce3" prot="private" virt="non-virtual"><scope>evio::StructureType</scope><name>intToType</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a14892efe1f55e607f255ac6963a92143" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>isBank</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a2cbebb245cd585a4f3bd29daea4a2982" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>isBank</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a2edc2702ee13ffc308588b9397caca7a" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>isSegment</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a186f6b98aa019e7da6a1d9fa97208d7f" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>isSegment</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a4968815b45dec692eadda6a14a2fa748" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>isTagSegment</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a5804636f8f4257e5031ebec9d1c4291b" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>isTagSegment</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a0d33ea7e0cd87135aee0310882ccef37" prot="private" virt="non-virtual"><scope>evio::StructureType</scope><name>name</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1af704f94e14e3b31e2bdabc5dd4ee0715" prot="private" virt="non-virtual"><scope>evio::StructureType</scope><name>names</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1aa057ce67ee99d5873b868bda31655eb2" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>operator!=</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a48755783325532ff202f9d31cf3e22fd" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>operator==</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>STRUCT_BANK</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>STRUCT_SEGMENT</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>STRUCT_TAGSEGMENT</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>STRUCT_UNKNOWN32</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a64264960a688080662615589293f929f" prot="private" virt="non-virtual"><scope>evio::StructureType</scope><name>StructureType</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a62c2632202f73efcc85641acf7c392b7" prot="public" virt="non-virtual"><scope>evio::StructureType</scope><name>toString</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a5de87750e8a8dd6f25ef279ab414bd02" prot="private" virt="non-virtual"><scope>evio::StructureType</scope><name>value</name></member>
+      <member refid="dd/da5/classevio_1_1_structure_type_1a4b52975e27d4dcc823bb549754c2c8e7" prot="private" virt="non-virtual"><scope>evio::StructureType</scope><name>value2</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

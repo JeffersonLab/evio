@@ -1,0 +1,658 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d9/df7/_i_evio_compact_reader_8h" kind="file" language="C++">
+    <compoundname>IEvioCompactReader.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes local="no">vector</includes>
+    <includes refid="d6/d6c/_byte_buffer_8h" local="yes">ByteBuffer.h</includes>
+    <includes refid="d1/d02/_byte_order_8h" local="yes">ByteOrder.h</includes>
+    <includes refid="d8/d26/_evio_exception_8h" local="yes">EvioException.h</includes>
+    <includes refid="d1/d31/_evio_node_8h" local="yes">EvioNode.h</includes>
+    <includes refid="d6/dc6/_evio_x_m_l_dictionary_8h" local="yes">EvioXMLDictionary.h</includes>
+    <includes refid="de/d42/_i_block_header_8h" local="yes">IBlockHeader.h</includes>
+    <includedby refid="d2/df7/_evio_compact_reader_8h" local="yes">EvioCompactReader.h</includedby>
+    <includedby refid="d2/d74/_evio_compact_reader_v4_8h" local="yes">EvioCompactReaderV4.h</includedby>
+    <includedby refid="d1/de7/_evio_compact_reader_v6_8h" local="yes">EvioCompactReaderV6.h</includedby>
+    <incdepgraph>
+      <node id="21">
+        <label>EvioXMLDictionary.h</label>
+        <link refid="d6/dc6/_evio_x_m_l_dictionary_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>iomanip</label>
+      </node>
+      <node id="34">
+        <label>queue</label>
+      </node>
+      <node id="31">
+        <label>limits</label>
+      </node>
+      <node id="20">
+        <label>RecordNode.h</label>
+        <link refid="d8/d7d/_record_node_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>EvioNode.h</label>
+        <link refid="d1/d31/_evio_node_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>iterator</label>
+      </node>
+      <node id="37">
+        <label>BaseStructureHeader.h</label>
+        <link refid="dd/de1/_base_structure_header_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>cstdint</label>
+      </node>
+      <node id="36">
+        <label>StructureType.h</label>
+        <link refid="d3/d58/_structure_type_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>sys/mman.h</label>
+      </node>
+      <node id="46">
+        <label>pugixml.hpp</label>
+      </node>
+      <node id="10">
+        <label>stdexcept</label>
+      </node>
+      <node id="29">
+        <label>IBlockHeader.h</label>
+        <link refid="de/d42/_i_block_header_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>string</label>
+      </node>
+      <node id="30">
+        <label>BaseStructure.h</label>
+        <link refid="da/d80/_base_structure_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>regex</label>
+      </node>
+      <node id="16">
+        <label>exception</label>
+      </node>
+      <node id="28">
+        <label>fstream</label>
+      </node>
+      <node id="41">
+        <label>SegmentHeader.h</label>
+        <link refid="de/df0/_segment_header_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>ios</label>
+      </node>
+      <node id="9">
+        <label>cstdio</label>
+      </node>
+      <node id="38">
+        <label>CompositeData.h</label>
+        <link refid="d6/d36/_composite_data_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>ByteBuffer.h</label>
+        <link refid="d6/d6c/_byte_buffer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>EventHeaderParser.h</label>
+        <link refid="d7/dfc/_event_header_parser_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>Util.h</label>
+        <link refid="dd/d90/_util_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>stack</label>
+      </node>
+      <node id="3">
+        <label>vector</label>
+      </node>
+      <node id="40">
+        <label>BankHeader.h</label>
+        <link refid="da/da8/_bank_header_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>TagSegmentHeader.h</label>
+        <link refid="d7/d3a/_tag_segment_header_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>utility</label>
+      </node>
+      <node id="15">
+        <label>sstream</label>
+      </node>
+      <node id="5">
+        <label>cstdlib</label>
+      </node>
+      <node id="8">
+        <label>iostream</label>
+      </node>
+      <node id="45">
+        <label>IEvioFilter.h</label>
+        <link refid="dd/d08/_i_evio_filter_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>unordered_map</label>
+      </node>
+      <node id="1">
+        <label>IEvioCompactReader.h</label>
+        <link refid="d9/df7/_i_evio_compact_reader_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>DataType.h</label>
+        <link refid="db/da7/_data_type_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>ByteOrder.h</label>
+        <link refid="d1/d02/_byte_order_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>IEvioListener.h</label>
+        <link refid="d3/d89/_i_evio_listener_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>EvioException.h</label>
+        <link refid="d8/d26/_evio_exception_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>type_traits</label>
+      </node>
+      <node id="25">
+        <label>EvioDictionaryEntry.h</label>
+        <link refid="db/db0/_evio_dictionary_entry_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>algorithm</label>
+      </node>
+      <node id="7">
+        <label>cstring</label>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="6">
+        <label>EvioCompactReaderV4.cpp</label>
+        <link refid="d6/d16/_evio_compact_reader_v4_8cpp"/>
+      </node>
+      <node id="7">
+        <label>EvioCompactReaderV6.h</label>
+        <link refid="d1/de7/_evio_compact_reader_v6_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>EvioCompactReaderV4.h</label>
+        <link refid="d2/d74/_evio_compact_reader_v4_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>EvioCompactReader.cpp</label>
+        <link refid="dd/d6b/_evio_compact_reader_8cpp"/>
+      </node>
+      <node id="8">
+        <label>EvioCompactReaderV6.cpp</label>
+        <link refid="d4/d08/_evio_compact_reader_v6_8cpp"/>
+      </node>
+      <node id="2">
+        <label>EvioCompactReader.h</label>
+        <link refid="d2/df7/_evio_compact_reader_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>IEvioCompactReader.h</label>
+        <link refid="d9/df7/_i_evio_compact_reader_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>evio.h</label>
+        <link refid="d9/df8/evio_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="d3/d03/classevio_1_1_i_evio_compact_reader" prot="public">evio::IEvioCompactReader</innerclass>
+    <innernamespace refid="d9/deb/namespaceevio">evio</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Copyright<sp/>2020,<sp/>Jefferson<sp/>Science<sp/>Associates,<sp/>LLC.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Subject<sp/>to<sp/>the<sp/>terms<sp/>in<sp/>the<sp/>LICENSE<sp/>file<sp/>found<sp/>in<sp/>the<sp/>top-level<sp/>directory.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/>EPSCI<sp/>Group</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Thomas<sp/>Jefferson<sp/>National<sp/>Accelerator<sp/>Facility</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/>12000,<sp/>Jefferson<sp/>Ave,<sp/>Newport<sp/>News,<sp/>VA<sp/>23606</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(757)-269-7100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EVIO_6_0_IEVIOCOMPACTREADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EVIO_6_0_IEVIOCOMPACTREADER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d6/d6c/_byte_buffer_8h" kindref="compound">ByteBuffer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d1/d02/_byte_order_8h" kindref="compound">ByteOrder.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d8/d26/_evio_exception_8h" kindref="compound">EvioException.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d1/d31/_evio_node_8h" kindref="compound">EvioNode.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d6/dc6/_evio_x_m_l_dictionary_8h" kindref="compound">EvioXMLDictionary.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="de/d42/_i_block_header_8h" kindref="compound">IBlockHeader.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="d9/deb/namespaceevio" kindref="compound">evio</ref><sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="d3/d03/classevio_1_1_i_evio_compact_reader" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader" kindref="compound">IEvioCompactReader</ref><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a20657a1fd110ebffd7670cdc2ba21ea8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a20657a1fd110ebffd7670cdc2ba21ea8" kindref="member">isFile</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1afad5f4dc3abb3c142b3a98a7231b8a84" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1afad5f4dc3abb3c142b3a98a7231b8a84" kindref="member">isCompressed</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a93be1a5223b60c7e4413e66cf1bd9837" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a93be1a5223b60c7e4413e66cf1bd9837" kindref="member">setBuffer</ref>(std::shared_ptr&lt;ByteBuffer&gt;<sp/>&amp;<sp/>buf)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4e08c82db3d24f1739639a14830523f5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4e08c82db3d24f1739639a14830523f5" kindref="member">isClosed</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a194040a2e72cc8fb06f269aa440edce7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a194040a2e72cc8fb06f269aa440edce7" kindref="member">getByteOrder</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a7f5c1563863f80d671e7ac252de6d6e4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a7f5c1563863f80d671e7ac252de6d6e4" kindref="member">getEvioVersion</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4c758296fef0e54d595533f65a19c339" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::string<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4c758296fef0e54d595533f65a19c339" kindref="member">getPath</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1af8d77afa972e34db6942983aecc6bfb6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1af8d77afa972e34db6942983aecc6bfb6" kindref="member">getFileByteOrder</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a68be13630cedd701fb9c7d6ad9df8f45" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::string<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a68be13630cedd701fb9c7d6ad9df8f45" kindref="member">getDictionaryXML</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4b5621adc5a73d9e95669a66e7fd568f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;EvioXMLDictionary&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4b5621adc5a73d9e95669a66e7fd568f" kindref="member">getDictionary</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1af4f2ba53d1a2acc4c1b271ca263eb4b2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1af4f2ba53d1a2acc4c1b271ca263eb4b2" kindref="member">hasDictionary</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a650a31173dcf00b233e3860f6ae38691" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a650a31173dcf00b233e3860f6ae38691" kindref="member">getByteBuffer</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a6ce1b005ee8d710ec49dac455d5e62b6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a6ce1b005ee8d710ec49dac455d5e62b6" kindref="member">fileSize</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a275f888fdfa6ffae8a24696d49fa96a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;EvioNode&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a275f888fdfa6ffae8a24696d49fa96a3" kindref="member">getEvent</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1aee479affa5921daabf9769ec88d88852" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;EvioNode&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1aee479affa5921daabf9769ec88d88852" kindref="member">getScannedEvent</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1abc76f897b29265246fdf503cb7cfebad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;IBlockHeader&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1abc76f897b29265246fdf503cb7cfebad" kindref="member">getFirstBlockHeader</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0bd9faf7bf9f574612909b9abbb31771" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0bd9faf7bf9f574612909b9abbb31771" kindref="member">searchEvent</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber,<sp/>uint16_t<sp/>tag,<sp/>uint8_t<sp/>num,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;std::shared_ptr&lt;EvioNode&gt;&gt;<sp/>&amp;<sp/>vec)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a61124f790273357aac43763f3e60a89e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a61124f790273357aac43763f3e60a89e" kindref="member">searchEvent</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber,<sp/>std::string<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>&amp;<sp/>dictName,</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;EvioXMLDictionary&gt;<sp/>&amp;<sp/>dictionary,</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;std::shared_ptr&lt;EvioNode&gt;&gt;<sp/>&amp;<sp/>vec)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0fbb129ba2568e7388eb208b4e8325b5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0fbb129ba2568e7388eb208b4e8325b5" kindref="member">removeEvent</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1aa61e6cbf099dfdfebdd1a0be0fe5a064" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1aa61e6cbf099dfdfebdd1a0be0fe5a064" kindref="member">removeStructure</ref>(std::shared_ptr&lt;EvioNode&gt;<sp/>&amp;<sp/>removeNode)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a49d8b525d59f387184d76f93adcc327f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a49d8b525d59f387184d76f93adcc327f" kindref="member">addStructure</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber,<sp/><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref><sp/>&amp;<sp/>addBuffer)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a270cdcdf01daf0e150cc8e6798e062ae" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a270cdcdf01daf0e150cc8e6798e062ae" kindref="member">getData</ref>(std::shared_ptr&lt;EvioNode&gt;<sp/>&amp;<sp/>node)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1ab9833f1f62df245e24c7c762312f0053" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1ab9833f1f62df245e24c7c762312f0053" kindref="member">getData</ref>(std::shared_ptr&lt;EvioNode&gt;<sp/>&amp;<sp/>node,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>copy)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a6d6c9115914bde1523dd56ab2d5b4d36" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a6d6c9115914bde1523dd56ab2d5b4d36" kindref="member">getData</ref>(std::shared_ptr&lt;EvioNode&gt;<sp/>&amp;<sp/>node,</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/>&amp;<sp/>buf)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0da6a4eaf9e0e4a2fbf900d659eb9aed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0da6a4eaf9e0e4a2fbf900d659eb9aed" kindref="member">getData</ref>(std::shared_ptr&lt;EvioNode&gt;<sp/>&amp;<sp/>node,</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/>&amp;<sp/>buf,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>copy)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a138ea5c9638cf6bdae3d58013af3a28e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a138ea5c9638cf6bdae3d58013af3a28e" kindref="member">getEventBuffer</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0c856969c2d97cd2fe5d3562dee68fb0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0c856969c2d97cd2fe5d3562dee68fb0" kindref="member">getEventBuffer</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>eventNumber,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>copy)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"></highlight></codeline>
+<codeline lineno="367" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a652ff446ccefb149d1f623ebff3d9ad1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a652ff446ccefb149d1f623ebff3d9ad1" kindref="member">getStructureBuffer</ref>(std::shared_ptr&lt;EvioNode&gt;<sp/>&amp;<sp/>node)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="382" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a29fde743bb82f0d2930a41a46714cca1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;ByteBuffer&gt;<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a29fde743bb82f0d2930a41a46714cca1" kindref="member">getStructureBuffer</ref>(std::shared_ptr&lt;EvioNode&gt;<sp/>&amp;<sp/>node,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>copy)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="385" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a635056466c0cc68675733107dd09f68f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a635056466c0cc68675733107dd09f68f" kindref="member">close</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a2b5309c8cb15f69816bbf73c166c0544" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a2b5309c8cb15f69816bbf73c166c0544" kindref="member">getEventCount</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"></highlight></codeline>
+<codeline lineno="402" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1ab1db30deb957c42e4c06acc0db4390df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1ab1db30deb957c42e4c06acc0db4390df" kindref="member">getBlockCount</ref>()<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="413" refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a71a5ab4dbef5da04dcb2de4a7552dbaa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a71a5ab4dbef5da04dcb2de4a7552dbaa" kindref="member">toFile</ref>(std::string<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>&amp;<sp/>fileName)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416"><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"></highlight></codeline>
+<codeline lineno="419"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//EVIO_6_0_IEVIOCOMPACTREADER_H</highlight></codeline>
+    </programlisting>
+    <location file="src/libsrc/IEvioCompactReader.h"/>
+  </compounddef>
+</doxygen>

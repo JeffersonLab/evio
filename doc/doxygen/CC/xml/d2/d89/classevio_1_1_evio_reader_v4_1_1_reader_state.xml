@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state" kind="class" language="C++" prot="private">
+    <compoundname>evio::EvioReaderV4::ReaderState</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a6fdbee99f9363a42c03be4724f2a0ede" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::EvioReaderV4::ReaderState::lastBlock</definition>
+        <argsstring></argsstring>
+        <name>lastBlock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="200" column="18" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a1c5d3f200681d3c188e511f02d46fa77" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioReaderV4::ReaderState::eventNumber</definition>
+        <argsstring></argsstring>
+        <name>eventNumber</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="201" column="22" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="201" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1af579a66c0ba036c74cf3803bbe0adb73" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::EvioReaderV4::ReaderState::filePosition</definition>
+        <argsstring></argsstring>
+        <name>filePosition</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="202" column="20" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a3b1da7bbfad35388a50fc67b0174ac06" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::EvioReaderV4::ReaderState::byteBufferLimit</definition>
+        <argsstring></argsstring>
+        <name>byteBufferLimit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="203" column="20" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1ae16744f7f6b4711e9bb1463401085c26" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::EvioReaderV4::ReaderState::byteBufferPosition</definition>
+        <argsstring></argsstring>
+        <name>byteBufferPosition</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="204" column="20" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a29f57503339d363064aa936e727bcb8c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioReaderV4::ReaderState::blockNumberExpected</definition>
+        <argsstring></argsstring>
+        <name>blockNumberExpected</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="205" column="22" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="205" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a0f37fb6668372dd4973ee0018e3cbe47" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d7/d9e/classevio_1_1_block_header_v2" kindref="compound">BlockHeaderV2</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;BlockHeaderV2&gt; evio::EvioReaderV4::ReaderState::blockHeader2</definition>
+        <argsstring></argsstring>
+        <name>blockHeader2</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="206" column="29" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1acb61d815dfb0aef2655b028c51b2d486" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="da/de6/classevio_1_1_block_header_v4" kindref="compound">BlockHeaderV4</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;BlockHeaderV4&gt; evio::EvioReaderV4::ReaderState::blockHeader4</definition>
+        <argsstring></argsstring>
+        <name>blockHeader4</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioReaderV4.h" line="207" column="29" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class stores the state of this reader so it can be recovered after a state-changing method has been called <ndash/> like <ref refid="dd/db3/classevio_1_1_evio_reader_v4_1ab299451c3cb8fa93da0f4eca0666887c" kindref="member">rewind()</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/EvioReaderV4.h" line="198" column="9" bodyfile="src/libsrc/EvioReaderV4.h" bodystart="198" bodyend="208"/>
+    <listofallmembers>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a0f37fb6668372dd4973ee0018e3cbe47" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>blockHeader2</name></member>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1acb61d815dfb0aef2655b028c51b2d486" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>blockHeader4</name></member>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a29f57503339d363064aa936e727bcb8c" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>blockNumberExpected</name></member>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a3b1da7bbfad35388a50fc67b0174ac06" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>byteBufferLimit</name></member>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1ae16744f7f6b4711e9bb1463401085c26" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>byteBufferPosition</name></member>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a1c5d3f200681d3c188e511f02d46fa77" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>eventNumber</name></member>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1af579a66c0ba036c74cf3803bbe0adb73" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>filePosition</name></member>
+      <member refid="d2/d89/classevio_1_1_evio_reader_v4_1_1_reader_state_1a6fdbee99f9363a42c03be4724f2a0ede" prot="public" virt="non-virtual"><scope>evio::EvioReaderV4::ReaderState</scope><name>lastBlock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

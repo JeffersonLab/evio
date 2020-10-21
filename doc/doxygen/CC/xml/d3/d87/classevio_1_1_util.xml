@@ -1,0 +1,2041 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d3/d87/classevio_1_1_util" kind="class" language="C++" prot="public">
+    <compoundname>evio::Util</compoundname>
+    <includes local="no">Util.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="d3/d87/classevio_1_1_util_1a7e3cdb039ddd0f026a735b458ac64f4a" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr uint32_t</type>
+        <definition>constexpr uint32_t evio::Util::padValue[4]</definition>
+        <argsstring>[4]</argsstring>
+        <name>padValue</name>
+        <initializer>= {0,3,2,1}</initializer>
+        <briefdescription>
+<para>Array to help find number of bytes to pad data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="48" column="35" bodyfile="src/libsrc/Util.h" bodystart="48" bodyend="-1"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1af174f6cb1faa20acb06238db0ce353ed" compoundref="dd/d90/_util_8h" startline="68" endline="68">getPadding</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a0d84a3a050a9c03869fa3c7dd7287737" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::getWords</definition>
+        <argsstring>(uint32_t length)</argsstring>
+        <name>getWords</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Returns length padded to 4-byte boundary for given length in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length in bytes padded to 4-byte boundary. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="56" column="25" bodyfile="src/libsrc/Util.h" bodystart="56" bodyend="60"/>
+        <references refid="d3/d87/classevio_1_1_util_1af174f6cb1faa20acb06238db0ce353ed" compoundref="dd/d90/_util_8h" startline="68" endline="68">getPadding</references>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">evio::FileHeader::setUserHeaderLength</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1af174f6cb1faa20acb06238db0ce353ed" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::getPadding</definition>
+        <argsstring>(uint32_t length)</argsstring>
+        <name>getPadding</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Returns number of bytes needed to pad to 4-byte boundary for the given length. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>number of bytes needed to pad to 4-byte boundary. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="68" column="25" bodyfile="src/libsrc/Util.h" bodystart="68" bodyend="68"/>
+        <references refid="d3/d87/classevio_1_1_util_1a7e3cdb039ddd0f026a735b458ac64f4a" compoundref="dd/d90/_util_8h" startline="48">padValue</references>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a0d84a3a050a9c03869fa3c7dd7287737" compoundref="dd/d90/_util_8h" startline="56" endline="60">getWords</referencedby>
+        <referencedby refid="d1/da6/classevio_1_1_file_header_1a5d19dfdbc256c2bf9025795442cb59ff" compoundref="de/d46/_file_header_8cpp" startline="531" endline="538">evio::FileHeader::setUserHeaderLength</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a4cc29d65753be764d27f4851efdb3846" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio::Util::iStrEquals</definition>
+        <argsstring>(const std::string &amp;a, const std::string &amp;b)</argsstring>
+        <name>iStrEquals</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Case insensitive compare for 2 strings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>first string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>second string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if equal, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="80" column="21" bodyfile="src/libsrc/Util.h" bodystart="80" bodyend="88"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" compoundref="dd/d90/_util_8h" startline="96" endline="119">getDataType</referencedby>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1a522c4afb7b3601a7bf5c2469dff2397d" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="114" endline="428">evio::EvioXMLDictionary::parseXML</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> &amp;</type>
+        <definition>static const DataType&amp; evio::Util::getDataType</definition>
+        <argsstring>(const std::string &amp;type)</argsstring>
+        <name>getDataType</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>This method returns an XML element name given an evio data type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio data type </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>XML element name used in evio event xml output </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="96" column="32" bodyfile="src/libsrc/Util.h" bodystart="96" bodyend="119"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">evio::DataType::CHAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" compoundref="db/da7/_data_type_8h" startline="51">evio::DataType::COMPOSITE</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="d3/d87/classevio_1_1_util_1a4cc29d65753be764d27f4851efdb3846" compoundref="dd/d90/_util_8h" startline="80" endline="88">iStrEquals</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a64b4f4f0ccc080ba2d28040f49cfef3c" compoundref="db/da7/_data_type_8h" startline="63">evio::DataType::NOT_A_VALID_TYPE</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">evio::DataType::TAGSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" compoundref="db/da7/_data_type_8h" startline="36">evio::DataType::UNKNOWN32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1a522c4afb7b3601a7bf5c2469dff2397d" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="114" endline="428">evio::EvioXMLDictionary::parseXML</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a61734ea9adbf63b8497fe36864c46a00" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::toIntArray</definition>
+        <argsstring>(char const *data, uint32_t dataLen, const ByteOrder &amp;byteOrder, uint32_t *dest)</argsstring>
+        <name>toIntArray</name>
+        <param>
+          <type>char const *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dataLen</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Turn byte array into an int array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of int array elements = number of bytes / 4.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>char array to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of supplied bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array in which to write converted bytes.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data or dest is null </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="133" column="21" bodyfile="src/libsrc/Util.h" bodystart="133" bodyend="143"/>
+        <references refid="d3/d87/classevio_1_1_util_1a107bf333efeb2bb3d65104ce9d2edbf9" compoundref="dd/d90/_util_8h" startline="156" endline="174">toInt</references>
+        <referencedby refid="dd/d62/classevio_1_1_event_header_parser_1a27b67f99e484aeece2a45d052607d99b" compoundref="d7/dfc/_event_header_parser_8h" startline="53" endline="77">evio::EventHeaderParser::createBankHeader</referencedby>
+        <referencedby refid="dd/d62/classevio_1_1_event_header_parser_1adb2fa91855279219b9ae49184314310b" compoundref="d7/dfc/_event_header_parser_8h" startline="89" endline="108">evio::EventHeaderParser::createSegmentHeader</referencedby>
+        <referencedby refid="dd/d62/classevio_1_1_event_header_parser_1a7326819543761ef2a1962ef16d73359e" compoundref="d7/dfc/_event_header_parser_8h" startline="120" endline="134">evio::EventHeaderParser::createTagSegmentHeader</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a107bf333efeb2bb3d65104ce9d2edbf9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::toInt</definition>
+        <argsstring>(char b1, char b2, char b3, char b4, const ByteOrder &amp;byteOrder)</argsstring>
+        <name>toInt</name>
+        <param>
+          <type>char</type>
+          <declname>b1</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>b2</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>b3</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>b4</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <briefdescription>
+<para>Turn 4 bytes into an unsigned 32 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>1st byte </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>2nd byte </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>3rd byte </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b4</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>4th byte </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if big endian, 1st byte is most significant &amp; 4th is least </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>int converted from byte array </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="156" column="25" bodyfile="src/libsrc/Util.h" bodystart="156" bodyend="174"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <referencedby refid="df/dbd/classevio_1_1_evio_reader_1adc4c3dce642cc01d8f46cecffcc93296" compoundref="dc/d9c/_evio_reader_8cpp" startline="201" endline="233">evio::EvioReader::getEvent</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a61734ea9adbf63b8497fe36864c46a00" compoundref="dd/d90/_util_8h" startline="133" endline="143">toIntArray</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a5e37f2e2bb42b2f052ebfec4f0ff25c8" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::toInt</definition>
+        <argsstring>(uint8_t const *data, ByteOrder const &amp;byteOrder)</argsstring>
+        <name>toInt</name>
+        <param>
+          <type>uint8_t const *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <briefdescription>
+<para>Turn 4 bytes into an unsigned 32 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to bytes to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>int converted from byte array. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="185" column="25" bodyfile="src/libsrc/Util.h" bodystart="185" bodyend="206"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a48601a712a5622c5b8cab2415e0d9ffe" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>static uint64_t evio::Util::toLong</definition>
+        <argsstring>(uint8_t const *data, ByteOrder const &amp;byteOrder)</argsstring>
+        <name>toLong</name>
+        <param>
+          <type>uint8_t const *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <briefdescription>
+<para>Turn 4 bytes into an unsigned 32 bit int. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to bytes to convert </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>int converted from byte array. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="217" column="25" bodyfile="src/libsrc/Util.h" bodystart="217" bodyend="246"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1ab69d28ab3f58cc5457f5b39439937b10" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::toBytes</definition>
+        <argsstring>(uint32_t data, const ByteOrder &amp;byteOrder, uint8_t *dest)</argsstring>
+        <name>toBytes</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Write int into byte array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>int to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of written bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array in which to write int. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if dest is null or too small. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="257" column="21" bodyfile="src/libsrc/Util.h" bodystart="257" bodyend="275"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af17d69932a1d6ebd14bcdfe7b9022db5" compoundref="d9/d83/_bank_header_8cpp" startline="51" endline="58">evio::BankHeader::write</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8431fe65ab32bc72f25ae5584f07eb95" compoundref="df/d8a/_segment_header_8cpp" startline="50" endline="56">evio::SegmentHeader::write</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1aa792a400774c62abced5d451affb49e0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="61" endline="65">evio::TagSegmentHeader::write</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1af7fc7ea971b35381db2d15f0769bbf43" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::toBytes</definition>
+        <argsstring>(uint64_t data, const ByteOrder &amp;byteOrder, uint8_t *dest)</argsstring>
+        <name>toBytes</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Turn long into byte array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>long to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of written bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array in which to write long. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if dest is null or too small </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="286" column="21" bodyfile="src/libsrc/Util.h" bodystart="286" bodyend="312"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a4bdb1845ea7d246a088e156ff810c924" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::toBytes</definition>
+        <argsstring>(uint32_t data, const ByteOrder &amp;byteOrder, std::vector&lt; uint8_t &gt; &amp;dest, size_t off)</argsstring>
+        <name>toBytes</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>off</declname>
+        </param>
+        <briefdescription>
+<para>Write int into byte vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>int to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to write int. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>offset into vector where int is to be written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="323" column="21" bodyfile="src/libsrc/Util.h" bodystart="323" bodyend="338"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1ad930d1a274b50b4a1fe53dd7d81b95ee" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::toBytes</definition>
+        <argsstring>(uint16_t data, const ByteOrder &amp;byteOrder, uint8_t *dest)</argsstring>
+        <name>toBytes</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Write short into byte array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>short to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array in which to write short. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if dest is null or too small. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="349" column="21" bodyfile="src/libsrc/Util.h" bodystart="349" bodyend="363"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1aa61875b5df6961b5c8398d0156389d35" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::toBytes</definition>
+        <argsstring>(uint16_t data, const ByteOrder &amp;byteOrder, std::vector&lt; uint8_t &gt; &amp;dest, size_t off)</argsstring>
+        <name>toBytes</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const <ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>off</declname>
+        </param>
+        <briefdescription>
+<para>Write short into byte vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>short to convert. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to write short. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>offset into vector where short is to be written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="374" column="21" bodyfile="src/libsrc/Util.h" bodystart="374" bodyend="385"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a431fdeccf76259fb59d1faee497745de" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const std::string &amp;</type>
+        <definition>static const std::string&amp; evio::Util::NO_NAME_STRING</definition>
+        <argsstring>()</argsstring>
+        <name>NO_NAME_STRING</name>
+        <briefdescription>
+<para>Get a string used to indicate that no name can be determined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>string used to indicate that no name can be determined. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="392" column="34" bodyfile="src/libsrc/Util.h" bodystart="392" bodyend="396"/>
+        <referencedby refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1a4bce21db121f872b2144333677a9e2c4" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="61" endline="63">evio::EvioXMLDictionary::NO_NAME_STRING</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::findEvioVersion</definition>
+        <argsstring>(ByteBuffer &amp;bb, size_t initialPos)</argsstring>
+        <name>findEvioVersion</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>bb</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>initialPos</declname>
+        </param>
+        <briefdescription>
+<para>Reads a couple things in a block/record header in order to determine the evio version and endianness of a buffer/file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The endianness can be read from the given <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> by calling, bb.order(). This does <bold>not</bold> change any parameters of the given buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> to read from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in bb to start reading. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>evio version. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bad magic number in header. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="412" column="25" bodyfile="src/libsrc/Util.h" bodystart="412" bodyend="446"/>
+        <references refid="d5/d6e/classevio_1_1_i_block_header_1a4e8ce12915b48acab0739a56cc1d641d" compoundref="de/d42/_i_block_header_8h" startline="47">evio::IBlockHeader::BIT_INFO_OFFSET</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" compoundref="d1/d02/_byte_order_8h" startline="57">evio::ByteOrder::ENDIAN_LITTLE</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a586571da6b6789902ecb5a67c319b34a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1115" endline="1123">evio::ByteBuffer::getUInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" compoundref="de/d42/_i_block_header_8h" startline="41">evio::IBlockHeader::MAGIC_NUMBER</references>
+        <references refid="d5/d6e/classevio_1_1_i_block_header_1a55aa26334a5f90f245dd5f3bd688ff07" compoundref="de/d42/_i_block_header_8h" startline="44">evio::IBlockHeader::MAGIC_OFFSET</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="d5/d6e/classevio_1_1_i_block_header_1af24d4ac1e9d1e2a23529b3e4e367ac95" compoundref="de/d42/_i_block_header_8h" startline="50">evio::IBlockHeader::VERSION_MASK</references>
+        <referencedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a1c0f4061dd974ee2053b795afc57c177" compoundref="dd/d6b/_evio_compact_reader_8cpp" startline="27" endline="61">evio::EvioCompactReader::EvioCompactReader</referencedby>
+        <referencedby refid="df/dbd/classevio_1_1_evio_reader_1a0214facdecc8bc06896ba03d026d58e6" compoundref="dc/d9c/_evio_reader_8cpp" startline="38" endline="77">evio::EvioReader::EvioReader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a6051f0bb6642d74ea674e5361b6994f8" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::printBytes</definition>
+        <argsstring>(const std::shared_ptr&lt; ByteBuffer &gt; buf, uint32_t position, uint32_t bytes, const std::string &amp;label)</argsstring>
+        <name>printBytes</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>position</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+<para>This method takes a byte buffer and prints out the desired number of bytes from the given position, in hex. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Prints all bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to print out </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of data (bytes) in buffer to start printing </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to print in hex </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a label to print as header </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="458" column="21" bodyfile="src/libsrc/Util.h" bodystart="458" bodyend="461"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1af69bace572e57dd144399015a87bcaef" compoundref="dd/d90/_util_8h" startline="545" endline="575">printBytes</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a66847f39ab5cf153f005866eb5332fce" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::printBytes</definition>
+        <argsstring>(const ByteBuffer &amp;buf, uint32_t position, uint32_t bytes, const std::string &amp;label)</argsstring>
+        <name>printBytes</name>
+        <param>
+          <type>const <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>position</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+<para>This method takes a byte buffer and prints out the desired number of bytes from the given position, in hex. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Prints all bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to print out </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of data (bytes) in buffer to start printing </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to print in hex </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a label to print as header </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="472" column="21" bodyfile="src/libsrc/Util.h" bodystart="472" bodyend="499"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a6496a99b06b5ed67b8c93b148fd87323" compoundref="d4/d6c/_byte_buffer_8cpp" startline="504" endline="504">evio::ByteBuffer::capacity</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1ab164e1302d6850315d45c0be6f1a8df0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::printBytes</definition>
+        <argsstring>(uint8_t const *data, uint32_t bytes, const std::string &amp;label)</argsstring>
+        <name>printBytes</name>
+        <param>
+          <type>uint8_t const *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+<para>This method takes a pointer and prints out the desired number of bytes from the given position, in hex. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data to print out </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to print in hex </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a label to print as header </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="510" column="21" bodyfile="src/libsrc/Util.h" bodystart="510" bodyend="533"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1af69bace572e57dd144399015a87bcaef" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::printBytes</definition>
+        <argsstring>(const std::string &amp;fileName, uint64_t offset, uint32_t bytes, const std::string &amp;label)</argsstring>
+        <name>printBytes</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+<para>This method takes a file and prints out the desired number of bytes from the given offset, in hex. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file to print out </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>offset into file to start printing </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to print in hex </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a label to print as header </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="545" column="21" bodyfile="src/libsrc/Util.h" bodystart="545" bodyend="575"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="d3/d87/classevio_1_1_util_1a6051f0bb6642d74ea674e5361b6994f8" compoundref="dd/d90/_util_8h" startline="458" endline="461">printBytes</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1ad24c479c35a111fa7b43c9a05a409336" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::writeBytes</definition>
+        <argsstring>(const std::string &amp;fileName, ByteBuffer &amp;buf)</argsstring>
+        <name>writeBytes</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>This method takes a <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> and writes its data to a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This will overwrite any existing file of the same name. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file to write to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to write into the file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bad file name or unable to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="585" column="21" bodyfile="src/libsrc/Util.h" bodystart="585" bodyend="608"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1abf7abf99aa7544601997f40eba298648" compoundref="d4/d6c/_byte_buffer_8cpp" startline="490" endline="490">evio::ByteBuffer::arrayOffset</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a8a0fcfe01a261f79b571a12dba7faee4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::readBytes</definition>
+        <argsstring>(const std::string &amp;fileName, ByteBuffer &amp;buf)</argsstring>
+        <name>readBytes</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>This method reads part of a file into a <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The buffer&apos;s position will be at the end of the data that is read. The caller will have to flip the buffer to read it.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file to read from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to write into. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bad file name or unable to do I/O. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="620" column="21" bodyfile="src/libsrc/Util.h" bodystart="620" bodyend="644"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1abf7abf99aa7544601997f40eba298648" compoundref="d4/d6c/_byte_buffer_8cpp" startline="490" endline="490">evio::ByteBuffer::arrayOffset</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1aecf01b40cf83fcdd27115f66b67e848c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int evio::Util::powerOfTwo</definition>
+        <argsstring>(int x, bool roundUp)</argsstring>
+        <name>powerOfTwo</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>roundUp</declname>
+        </param>
+        <briefdescription>
+<para>Return the power of 2 closest to the given argument. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>value to get the power of 2 closest to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>roundUp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, round up, else down </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>-1 if x is negative or the closest power of 2 to value </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="654" column="20" bodyfile="src/libsrc/Util.h" bodystart="654" bodyend="676"/>
+        <referencedby refid="d9/dcd/classevio_1_1_event_writer_1a5271d9b38e1e974be98f3ff98d5ed602" compoundref="db/dc8/_event_writer_8cpp" startline="155" endline="417">evio::EventWriter::EventWriter</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a8ceb7a53b91600618abe70e56290a17f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::stringToASCII</definition>
+        <argsstring>(const std::string &amp;input, std::vector&lt; uint8_t &gt; &amp;array)</argsstring>
+        <name>stringToASCII</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; &amp;</type>
+          <declname>array</declname>
+        </param>
+        <briefdescription>
+<para>Return an input string as ASCII in which each character is one byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>array</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to place ASCII. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="684" column="21" bodyfile="src/libsrc/Util.h" bodystart="684" bodyend="692"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1ac66a3b2b14b36d08d9b9fac4555e15fe" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::stringToASCII</definition>
+        <argsstring>(const std::string &amp;input, ByteBuffer &amp;buf)</argsstring>
+        <name>stringToASCII</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Return an input string as ASCII in which each character is one byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> in which to place ASCII. Clears existing data and may expand internal storage. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="701" column="21" bodyfile="src/libsrc/Util.h" bodystart="701" bodyend="709"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a11a85b28fd30c969f567c8c7f5848275" compoundref="d4/d6c/_byte_buffer_8cpp" startline="536" endline="541">evio::ByteBuffer::clear</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1ac07ae24bab386451176df095a376d330" compoundref="d4/d6c/_byte_buffer_8cpp" startline="386" endline="400">evio::ByteBuffer::expand</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1ab864753c79b9a896ae8ff2e09ebfc44f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1325" endline="1340">evio::ByteBuffer::put</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1ad5fb04e9424d2289798ce4fa72a0427a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::stringsToRawSize</definition>
+        <argsstring>(std::vector&lt; std::string &gt; const &amp;strings)</argsstring>
+        <name>stringsToRawSize</name>
+        <param>
+          <type>std::vector&lt; std::string &gt; const &amp;</type>
+          <declname>strings</declname>
+        </param>
+        <briefdescription>
+<para>This method returns the number of bytes in a raw evio format of the given string array, not including header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of strings to size </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of bytes in a raw evio format of the given strings </para>
+</simplesect>
+<simplesect kind="return"><para>0 if vector empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="729" column="25" bodyfile="src/libsrc/Util.h" bodystart="729" bodyend="748"/>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3fc56698abe1c67bbd9c244c427090dd" compoundref="d6/d36/_composite_data_8h" startline="618" endline="626">evio::CompositeData::Data::addString</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1adc7c9d3969d7e561016ba76dded03058" compoundref="dc/de3/_base_structure_8cpp" startline="2159" endline="2206">evio::BaseStructure::stringsToRawBytes</referencedby>
+        <referencedby refid="d3/d87/classevio_1_1_util_1aa190851d3b2fe20f4c0d02bae9713f10" compoundref="dd/d90/_util_8h" startline="784" endline="828">stringsToRawBytes</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a29a1f64bd5ff18c187625eb2d7c684a0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::stringToRawSize</definition>
+        <argsstring>(const std::string &amp;str)</argsstring>
+        <name>stringToRawSize</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+<para>This method returns the number of bytes in a raw evio format of the given string array (with a single string), not including header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>single string to size </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of bytes in a raw evio format of the given strings or 0 if vector empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="758" column="25" bodyfile="src/libsrc/Util.h" bodystart="758" bodyend="774"/>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1a2a8a8430edafaf5858b86ea6f6e9815d" compoundref="d0/d36/_tag_segment_header_8cpp" startline="30" endline="35">evio::TagSegmentHeader::TagSegmentHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1aa190851d3b2fe20f4c0d02bae9713f10" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::stringsToRawBytes</definition>
+        <argsstring>(std::vector&lt; std::string &gt; &amp;strings, std::vector&lt; uint8_t &gt; &amp;bytes)</argsstring>
+        <name>stringsToRawBytes</name>
+        <param>
+          <type>std::vector&lt; std::string &gt; &amp;</type>
+          <declname>strings</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+<para>This method transforms an array/vector of strings into raw evio format data, not including header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of strings to transform. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of bytes to contain evio formatted strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="784" column="21" bodyfile="src/libsrc/Util.h" bodystart="784" bodyend="828"/>
+        <references refid="d3/d87/classevio_1_1_util_1ad5fb04e9424d2289798ce4fa72a0427a" compoundref="dd/d90/_util_8h" startline="729" endline="748">stringsToRawSize</references>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a9835683a45cb69bbaec9f8f41c691ce0" compoundref="da/d47/_compact_event_builder_8cpp" startline="1093" endline="1125">evio::CompactEventBuilder::addStringData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a5917af0b5e13bce0d20a07d2a014c55c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::unpackRawBytesToStrings</definition>
+        <argsstring>(std::vector&lt; uint8_t &gt; &amp;bytes, size_t offset, std::vector&lt; std::string &gt; &amp;strData)</argsstring>
+        <name>unpackRawBytesToStrings</name>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::string &gt; &amp;</type>
+          <declname>strData</declname>
+        </param>
+        <briefdescription>
+<para>This method extracts an array of strings from byte array of raw evio string data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>raw evio string data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>offset into raw data array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>strData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to place extracted strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="838" column="21" bodyfile="src/libsrc/Util.h" bodystart="838" bodyend="841"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a685d924c620feaf4093cadfa4ab2e5a2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::unpackRawBytesToStrings</definition>
+        <argsstring>(std::vector&lt; uint8_t &gt; &amp;bytes, size_t offset, size_t maxLength, std::vector&lt; std::string &gt; &amp;strData)</argsstring>
+        <name>unpackRawBytesToStrings</name>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>maxLength</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::string &gt; &amp;</type>
+          <declname>strData</declname>
+        </param>
+        <briefdescription>
+<para>This method extracts an array of strings from byte array of raw evio string data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Don&apos;t go beyond the specified max character limit and stop at the first non-character value.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>raw evio string data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>offset into raw data vector </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max length in bytes of valid data in bytes vector </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>strData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to place extracted strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="854" column="21" bodyfile="src/libsrc/Util.h" bodystart="854" bodyend="865"/>
+        <references refid="d3/d87/classevio_1_1_util_1a3533bfa3ba79b476ba13485657fb89e6" compoundref="dd/d90/_util_8h" startline="920" endline="1028">stringBuilderToStrings</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a0dabe5e1409c9f9791b74442901715da" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::unpackRawBytesToStrings</definition>
+        <argsstring>(uint8_t *bytes, size_t length, std::vector&lt; std::string &gt; &amp;strData)</argsstring>
+        <name>unpackRawBytesToStrings</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>length</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::string &gt; &amp;</type>
+          <declname>strData</declname>
+        </param>
+        <briefdescription>
+<para>This method extracts an array of strings from byte array of raw evio string data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Don&apos;t go beyond the specified max character limit and stop at the first non-character value.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>raw evio string data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length in bytes of valid data in bytes vector </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>strData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to place extracted strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="877" column="21" bodyfile="src/libsrc/Util.h" bodystart="877" bodyend="884"/>
+        <references refid="d3/d87/classevio_1_1_util_1a3533bfa3ba79b476ba13485657fb89e6" compoundref="dd/d90/_util_8h" startline="920" endline="1028">stringBuilderToStrings</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a46f369d12866c60689c6f381a2b87f64" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::unpackRawBytesToStrings</definition>
+        <argsstring>(ByteBuffer &amp;buffer, size_t pos, size_t length, std::vector&lt; std::string &gt; &amp;strData)</argsstring>
+        <name>unpackRawBytesToStrings</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>length</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::string &gt; &amp;</type>
+          <declname>strData</declname>
+        </param>
+        <briefdescription>
+<para>This method extracts an array of strings from buffer containing raw evio string data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing evio string data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of string data in buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of string data in buffer in bytes </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>strData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to place extracted strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="895" column="21" bodyfile="src/libsrc/Util.h" bodystart="895" bodyend="903"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1abf7abf99aa7544601997f40eba298648" compoundref="d4/d6c/_byte_buffer_8cpp" startline="490" endline="490">evio::ByteBuffer::arrayOffset</references>
+        <references refid="d3/d87/classevio_1_1_util_1a3533bfa3ba79b476ba13485657fb89e6" compoundref="dd/d90/_util_8h" startline="920" endline="1028">stringBuilderToStrings</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a3533bfa3ba79b476ba13485657fb89e6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::stringBuilderToStrings</definition>
+        <argsstring>(std::string const &amp;strData, bool onlyGoodChars, std::vector&lt; std::string &gt; &amp;strings)</argsstring>
+        <name>stringBuilderToStrings</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>strData</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>onlyGoodChars</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::string &gt; &amp;</type>
+          <declname>strings</declname>
+        </param>
+        <briefdescription>
+<para>This method extracts an array of strings from a string containing evio string data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If non-printable chars are found (besides those used to terminate strings), then 1 string with all characters will be returned. However, if the &quot;onlyGoodChars&quot; flag is true, 1 string is returned in truncated form without the bad characters at the end.</para>
+<para>The name of this method is taken from the java and has little to do with C++. That&apos;s done for ease of code maintenance.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>containing string data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>onlyGoodChars</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true and non-printable chars found, only 1 string with printable ASCII chars will be returned. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>strings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to place extracted strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="920" column="21" bodyfile="src/libsrc/Util.h" bodystart="920" bodyend="1028"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a685d924c620feaf4093cadfa4ab2e5a2" compoundref="dd/d90/_util_8h" startline="854" endline="865">unpackRawBytesToStrings</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a9efb23b17ee1beafd27b3633e032bd07" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::Util::expandEnvironmentalVariables</definition>
+        <argsstring>(std::string &amp;text)</argsstring>
+        <name>expandEnvironmentalVariables</name>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>text</declname>
+        </param>
+        <briefdescription>
+<para>Substitute environmental variables in a given string when they come in the form, . </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>text</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>string to analyze. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="1040" column="21" bodyfile="src/libsrc/Util.h" bodystart="1040" bodyend="1048"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a542fb63b5849885087ac24795604b4b6" compoundref="dd/d90/_util_8h" startline="1118" endline="1152">generateBaseFileName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a7533e223ab3a55e4a23552fe61c2c2ac" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Util::countAndFixIntSpecifiers</definition>
+        <argsstring>(std::string &amp;text)</argsstring>
+        <name>countAndFixIntSpecifiers</name>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>text</declname>
+        </param>
+        <briefdescription>
+<para>Count the number of integer specifiers (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>%34d, %07x) in the given string, making sure any number preceding &quot;x&quot; or &quot;d&quot; starts with a 0. This is done so there will be no empty spaces in the resulting string (i.e. file name) when final substitutions are made for these specifiers.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>text</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>string to analyze. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>number of integer specifiers. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="1060" column="25" bodyfile="src/libsrc/Util.h" bodystart="1060" bodyend="1088"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a542fb63b5849885087ac24795604b4b6" compoundref="dd/d90/_util_8h" startline="1118" endline="1152">generateBaseFileName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a542fb63b5849885087ac24795604b4b6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int evio::Util::generateBaseFileName</definition>
+        <argsstring>(const std::string &amp;baseName, const std::string &amp;runType, std::string &amp;modifiedBaseName)</argsstring>
+        <name>generateBaseFileName</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>baseName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>runType</declname>
+        </param>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>modifiedBaseName</declname>
+        </param>
+        <briefdescription>
+<para>This method generates part of a file name given a base file name as an argument. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The base file name may contain up to 3, C-style integer format specifiers (such as <bold>%03d</bold>, or <bold>x</bold>). If more than 3 are found, an exception will be thrown. If no &quot;0&quot; precedes any integer between the &quot;%&quot; and the &quot;d&quot; or &quot;x&quot; of the format specifier, it will be added automatically in order to avoid spaces in the returned string. In the <ref refid="d3/d87/classevio_1_1_util_1a76482198f230e3afadbb65d1e6feedd9" kindref="member">generateFileName(std::string, uint32_t, uint32_t, uint64_t, uint32_t, uint32_t, uint32_t)</ref> method, the first occurrence will be substituted with the given runNumber value. If the file is being split, the second will be substituted with the split number. If there are multiple streams, the third will be substituted with the stream id.</para>
+<para>The base file name may contain characters of the form <bold></bold> which will be substituted with the value of the associated environmental variable or a blank string if none is found.</para>
+<para>Finally, the base file name may contain occurrences of the string &quot;%s&quot; which will be substituted with the value of the runType arg or nothing if the runType is null.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>baseName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file name to start with </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>runType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>run type/configuration name </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>modifiedBaseName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>final generated base file name </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>number of C-style int format specifiers found in baseName arg. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if baseName arg is improperly formatted or blank </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="1118" column="20" bodyfile="src/libsrc/Util.h" bodystart="1118" bodyend="1152"/>
+        <references refid="d3/d87/classevio_1_1_util_1a7533e223ab3a55e4a23552fe61c2c2ac" compoundref="dd/d90/_util_8h" startline="1060" endline="1088">countAndFixIntSpecifiers</references>
+        <references refid="d3/d87/classevio_1_1_util_1a9efb23b17ee1beafd27b3633e032bd07" compoundref="dd/d90/_util_8h" startline="1040" endline="1048">expandEnvironmentalVariables</references>
+        <referencedby refid="d9/dcd/classevio_1_1_event_writer_1a5271d9b38e1e974be98f3ff98d5ed602" compoundref="db/dc8/_event_writer_8cpp" startline="155" endline="417">evio::EventWriter::EventWriter</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d87/classevio_1_1_util_1a76482198f230e3afadbb65d1e6feedd9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string evio::Util::generateFileName</definition>
+        <argsstring>(std::string fileName, uint32_t specifierCount, uint32_t runNumber, uint64_t split, uint32_t splitNumber, uint32_t streamId, uint32_t streamCount)</argsstring>
+        <name>generateFileName</name>
+        <param>
+          <type>std::string</type>
+          <declname>fileName</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>specifierCount</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>runNumber</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>split</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>splitNumber</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>streamId</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>streamCount</declname>
+        </param>
+        <briefdescription>
+<para>This method does NOT work on its own. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It generates a complete file name from the previously determined baseFileName obtained from calling <ref refid="d3/d87/classevio_1_1_util_1a542fb63b5849885087ac24795604b4b6" kindref="member">generateBaseFileName</ref>. If evio data is to be split up into multiple files (split &gt; 0), numbers are used to distinguish between the split files with splitNumber. If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then the first occurrence will be substituted with the given runNumber value. If the file is being split, the second will be substituted with the splitNumber. If there are multiple streams, the third will be substituted with the stream id.</para>
+<para>If no specifier for the splitNumber exists, it is tacked onto the end of the file name. If no specifier for the stream id exists, it is tacked onto the end of the file name, after the splitNumber. No run numbers are ever tacked on without a specifier.</para>
+<para>For splitting: if there is only 1 stream, no stream ids are used and any third specifier is removed. For non-splitting: if there is only 1 stream, no stream ids are used and any second and third specifiers are removed. For multiple streams, the second specifier is removed and the 3rd substituted with the stream id. For all cases: if there are more than 3 specifiers, <bold>NO SUBSTITUTIONS ARE DONE.</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file name to use as a basis for the generated file name </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specifierCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of C-style int format specifiers in baseFileName arg </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>runNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CODA run number </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>split</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes at which to split off evio file </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>splitNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of the split file </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>streamId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of the stream id </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>streamCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>total number of streams</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>generated file name</para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the baseFileName arg contains printing format specifiers which are not compatible with integers and interfere with formatting. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Util.h" line="1191" column="28" bodyfile="src/libsrc/Util.h" bodystart="1191" bodyend="1338"/>
+        <referencedby refid="d9/dcd/classevio_1_1_event_writer_1a5271d9b38e1e974be98f3ff98d5ed602" compoundref="db/dc8/_event_writer_8cpp" startline="155" endline="417">evio::EventWriter::EventWriter</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class containing static methods of general purpose. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 11/2/19 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/Util.h" line="41" column="5" bodyfile="src/libsrc/Util.h" bodystart="41" bodyend="1340"/>
+    <listofallmembers>
+      <member refid="d3/d87/classevio_1_1_util_1a7533e223ab3a55e4a23552fe61c2c2ac" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>countAndFixIntSpecifiers</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a9efb23b17ee1beafd27b3633e032bd07" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>expandEnvironmentalVariables</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>findEvioVersion</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a542fb63b5849885087ac24795604b4b6" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>generateBaseFileName</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a76482198f230e3afadbb65d1e6feedd9" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>generateFileName</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a2e0841939d9ccc701e4b69c58c148355" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>getDataType</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1af174f6cb1faa20acb06238db0ce353ed" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>getPadding</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a0d84a3a050a9c03869fa3c7dd7287737" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>getWords</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a4cc29d65753be764d27f4851efdb3846" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>iStrEquals</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a431fdeccf76259fb59d1faee497745de" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>NO_NAME_STRING</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a7e3cdb039ddd0f026a735b458ac64f4a" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>padValue</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1aecf01b40cf83fcdd27115f66b67e848c" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>powerOfTwo</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a6051f0bb6642d74ea674e5361b6994f8" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>printBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a66847f39ab5cf153f005866eb5332fce" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>printBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1ab164e1302d6850315d45c0be6f1a8df0" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>printBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1af69bace572e57dd144399015a87bcaef" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>printBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a8a0fcfe01a261f79b571a12dba7faee4" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>readBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a3533bfa3ba79b476ba13485657fb89e6" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>stringBuilderToStrings</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1aa190851d3b2fe20f4c0d02bae9713f10" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>stringsToRawBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1ad5fb04e9424d2289798ce4fa72a0427a" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>stringsToRawSize</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a8ceb7a53b91600618abe70e56290a17f" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>stringToASCII</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1ac66a3b2b14b36d08d9b9fac4555e15fe" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>stringToASCII</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a29a1f64bd5ff18c187625eb2d7c684a0" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>stringToRawSize</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1ab69d28ab3f58cc5457f5b39439937b10" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1af7fc7ea971b35381db2d15f0769bbf43" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a4bdb1845ea7d246a088e156ff810c924" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1ad930d1a274b50b4a1fe53dd7d81b95ee" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1aa61875b5df6961b5c8398d0156389d35" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toBytes</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a107bf333efeb2bb3d65104ce9d2edbf9" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toInt</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a5e37f2e2bb42b2f052ebfec4f0ff25c8" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toInt</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a61734ea9adbf63b8497fe36864c46a00" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toIntArray</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a48601a712a5622c5b8cab2415e0d9ffe" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>toLong</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a5917af0b5e13bce0d20a07d2a014c55c" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>unpackRawBytesToStrings</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a685d924c620feaf4093cadfa4ab2e5a2" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>unpackRawBytesToStrings</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a0dabe5e1409c9f9791b74442901715da" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>unpackRawBytesToStrings</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1a46f369d12866c60689c6f381a2b87f64" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>unpackRawBytesToStrings</name></member>
+      <member refid="d3/d87/classevio_1_1_util_1ad24c479c35a111fa7b43c9a05a409336" prot="public" virt="non-virtual"><scope>evio::Util</scope><name>writeBytes</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

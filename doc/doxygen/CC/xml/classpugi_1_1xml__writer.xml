@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xml__writer" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>pugi::xml_writer</compoundname>
+    <derivedcompoundref refid="classpugi_1_1xml__writer__file" prot="public" virt="non-virtual">pugi::xml_writer_file</derivedcompoundref>
+    <derivedcompoundref refid="classpugi_1_1xml__writer__stream" prot="public" virt="non-virtual">pugi::xml_writer_stream</derivedcompoundref>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xml__writer_1a5c9b1bd029ed10862ffa4c61d24c351f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual pugi::xml_writer::~xml_writer</definition>
+        <argsstring>()</argsstring>
+        <name>~xml_writer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="323" column="9" bodyfile="src/libsrc/pugixml.hpp" bodystart="323" bodyend="323"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__writer_1ab7d3b6a8499ceef7799158370e1c2617" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void pugi::xml_writer::write</definition>
+        <argsstring>(const void *data, size_t size)=0</argsstring>
+        <name>write</name>
+        <reimplementedby refid="classpugi_1_1xml__writer__file_1ab543c261aca615b01245249f620729a6">write</reimplementedby>
+        <reimplementedby refid="classpugi_1_1xml__writer__stream_1a02e9a5c400c7c5e549d2c84390f508db">write</reimplementedby>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="326" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>pugi::xml_writer_file</label>
+        <link refid="classpugi_1_1xml__writer__file"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>pugi::xml_writer</label>
+        <link refid="classpugi_1_1xml__writer"/>
+      </node>
+      <node id="3">
+        <label>pugi::xml_writer_stream</label>
+        <link refid="classpugi_1_1xml__writer__stream"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="src/libsrc/pugixml.hpp" line="320" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="321" bodyend="327"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xml__writer_1ab7d3b6a8499ceef7799158370e1c2617" prot="public" virt="pure-virtual"><scope>pugi::xml_writer</scope><name>write</name></member>
+      <member refid="classpugi_1_1xml__writer_1a5c9b1bd029ed10862ffa4c61d24c351f" prot="public" virt="virtual"><scope>pugi::xml_writer</scope><name>~xml_writer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,2096 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="db/d06/classevio_1_1_event_builder" kind="class" language="C++" prot="public">
+    <compoundname>evio::EventBuilder</compoundname>
+    <includes local="no">EventBuilder.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="db/d06/classevio_1_1_event_builder_1aa2a3ede5f5843ef5a0742608572de2bf" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;EvioEvent&gt; evio::EventBuilder::event</definition>
+        <argsstring></argsstring>
+        <name>event</name>
+        <briefdescription>
+<para>The event being built. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="48" column="25" bodyfile="src/libsrc/EventBuilder.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a0b55038172cf9d9036eb9a6d7a25df6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EventBuilder::EventBuilder</definition>
+        <argsstring>(uint16_t tag, DataType const dataType, uint8_t num)</argsstring>
+        <name>EventBuilder</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const</type>
+          <declname>dataType</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>This is the constructor to use for an <ref refid="db/d06/classevio_1_1_event_builder" kindref="compound">EventBuilder</ref> object that will operate on a new, empty event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tag for the event header (which is just a bank header). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the data type for the event object<ndash/>which again is just the type for the outer most bank. Often an event is a bank of banks, so typically this will be <ref refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" kindref="member">DataType.BANK</ref>, or 0xe (14). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>often an ordinal enumeration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="52" column="9" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="24" bodyend="27"/>
+        <references refid="d4/d12/classevio_1_1_evio_event_1a3baa3d9bbaabf8f826ca02fb656e776d" compoundref="df/d94/_evio_event_8h" startline="59" endline="62">evio::EvioEvent::getInstance</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a3de3486becd4f5e2e477a17708c41e00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EventBuilder::EventBuilder</definition>
+        <argsstring>(std::shared_ptr&lt; EvioEvent &gt; &amp;event)</argsstring>
+        <name>EventBuilder</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref> &gt; &amp;</type>
+          <declname>event</declname>
+          <defname>ev</defname>
+        </param>
+        <briefdescription>
+<para>This is the constructor to use when you want to manipulate an existing event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event to manipulate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="53" column="9" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="34" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setAllHeaderLengths</definition>
+        <argsstring>()</argsstring>
+        <name>setAllHeaderLengths</name>
+        <briefdescription>
+<para>This goes through the event recursively, and makes sure all the length fields in the headers are properly set. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="55" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="41" bodyend="48"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">addChild</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a8d314a968d19a7152c2c57b1798aafce" compoundref="d4/dfa/_event_builder_8cpp" startline="619" endline="634">appendCharData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a12a1e136528c944ae60635b50401266d" compoundref="d4/dfa/_event_builder_8cpp" startline="749" endline="766">appendCompositeData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ac73f59b736d316cd45862fd24af4d274" compoundref="d4/dfa/_event_builder_8cpp" startline="697" endline="712">appendDoubleData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a7c41fc5b670046f2d7012691cb9c6d46" compoundref="d4/dfa/_event_builder_8cpp" startline="671" endline="686">appendFloatData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a5aa89256839e6af453f36188ff9f0496" compoundref="d4/dfa/_event_builder_8cpp" startline="462" endline="478">appendIntData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a2f91c162d2cf83510372796b8dff7a84" compoundref="d4/dfa/_event_builder_8cpp" startline="567" endline="582">appendLongData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a89bbfc9f297917f66d397e13f00dd1a2" compoundref="d4/dfa/_event_builder_8cpp" startline="515" endline="530">appendShortData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a9cd39d1509c902d8a6a98ccac659e54b" compoundref="d4/dfa/_event_builder_8cpp" startline="723" endline="738">appendStringData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad35b3a27fbc4e7734f0c0d55e91c1085" compoundref="d4/dfa/_event_builder_8cpp" startline="645" endline="660">appendUCharData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a3c341ca987848a19579c3f4d099f9fdc" compoundref="d4/dfa/_event_builder_8cpp" startline="489" endline="504">appendUIntData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a2cafd71632f3855397135fefe7fa3a7d" compoundref="d4/dfa/_event_builder_8cpp" startline="593" endline="608">appendULongData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a15ab74ffb262076255317db1d201e943" compoundref="d4/dfa/_event_builder_8cpp" startline="541" endline="556">appendUShortData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a24a8d3fa71a75d2dc53ceb0277719870" compoundref="d4/dfa/_event_builder_8cpp" startline="132" endline="147">remove</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a3dcbd8ae3c255b2e29198289e4bc3426" compoundref="d4/dfa/_event_builder_8cpp" startline="308" endline="322">setCharData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ae94057017b57044ff884cbe53b2dd79b" compoundref="d4/dfa/_event_builder_8cpp" startline="433" endline="448">setCompositeData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1add5d4f0b4d35f9fcab3e7093b6fcc2fd" compoundref="d4/dfa/_event_builder_8cpp" startline="383" endline="397">setDoubleData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a94c380a5efed46e884de4a89a61d9d27" compoundref="d4/dfa/_event_builder_8cpp" startline="358" endline="372">setFloatData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6b550b0b63ed484643820c007c7275ab" compoundref="d4/dfa/_event_builder_8cpp" startline="158" endline="172">setIntData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ac28e6dbf5d5fdf40ab8ca2f8706dcbd5" compoundref="d4/dfa/_event_builder_8cpp" startline="258" endline="272">setLongData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a50e695828cbfbee4429616dcf6dcf41c" compoundref="d4/dfa/_event_builder_8cpp" startline="208" endline="222">setShortData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6018aa25e1bfcf309722d2aca2ad2b71" compoundref="d4/dfa/_event_builder_8cpp" startline="408" endline="422">setStringData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a6dbfd214e717489d3d3c15dfadd9038a" compoundref="d4/dfa/_event_builder_8cpp" startline="333" endline="347">setUCharData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a5dbc92ac983758e2a149a932f01af188" compoundref="d4/dfa/_event_builder_8cpp" startline="183" endline="197">setUIntData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1a40078fa4ecd339fc032f35fd8c864747" compoundref="d4/dfa/_event_builder_8cpp" startline="283" endline="297">setULongData</referencedby>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ab3ce4c0d9b3ec33a3da13e9610bf4503" compoundref="d4/dfa/_event_builder_8cpp" startline="233" endline="247">setUShortData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a2e23cfaef7f681c05c08d24ff4a4bf9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::clearData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure)</argsstring>
+        <name>clearData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <briefdescription>
+<para>This clears all the data fields in a structure, but not the parent or the children. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This keeps the existing tree structure intact. To remove a structure (and, consequently, all its descendants) from the tree, use <computeroutput>remove</computeroutput> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the segment to clear. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="56" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="57" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::addChild</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; parent, std::shared_ptr&lt; BaseStructure &gt; child)</argsstring>
+        <name>addChild</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+<para>Add a child to a parent structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the parent structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>child</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the child structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if parent or child is null, child has wrong byte order, is wrong structure type, or parent is not a container </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="57" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="72" bodyend="124"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a65d3f882e19a958e2ad6a05aacb4e67b" compoundref="db/da7/_data_type_8h" startline="110" endline="113">evio::DataType::getName</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1add9555ba07e3b576ff8c395d7687425c" compoundref="db/da7/_data_type_8h" startline="139" endline="143">evio::DataType::isStructure</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" compoundref="d3/d58/_structure_type_8h" startline="41">evio::StructureType::STRUCT_BANK</references>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" compoundref="d3/d58/_structure_type_8h" startline="40">evio::StructureType::STRUCT_SEGMENT</references>
+        <references refid="dd/da5/classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" compoundref="d3/d58/_structure_type_8h" startline="39">evio::StructureType::STRUCT_TAGSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">evio::DataType::TAGSEGMENT</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a24a8d3fa71a75d2dc53ceb0277719870" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::remove</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; child)</argsstring>
+        <name>remove</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+<para>This removes a structure (and all its descendants) from the tree. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>child</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the child structure to remove. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if arg is null or its parent is null </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="58" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="132" bodyend="147"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a6b550b0b63ed484643820c007c7275ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setIntData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, int32_t *data, size_t count)</argsstring>
+        <name>setIntData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set int data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of ints) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of ints to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="60" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="158" bodyend="172"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a5dbc92ac983758e2a149a932f01af188" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setUIntData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint32_t *data, size_t count)</argsstring>
+        <name>setUIntData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set unsigned int data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of uints) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of ints to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="61" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="183" bodyend="197"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a50e695828cbfbee4429616dcf6dcf41c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setShortData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, int16_t *data, size_t count)</argsstring>
+        <name>setShortData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>int16_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set short data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of shorts) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of shorts to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="62" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="208" bodyend="222"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ab3ce4c0d9b3ec33a3da13e9610bf4503" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setUShortData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint16_t *data, size_t count)</argsstring>
+        <name>setUShortData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set unsigned short data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of ushorts) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of shorts to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="63" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="233" bodyend="247"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ac28e6dbf5d5fdf40ab8ca2f8706dcbd5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setLongData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, int64_t *data, size_t count)</argsstring>
+        <name>setLongData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set long data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of longs) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of longs to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="64" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="258" bodyend="272"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a40078fa4ecd339fc032f35fd8c864747" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setULongData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint64_t *data, size_t count)</argsstring>
+        <name>setULongData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set unsigned long data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of ulongs) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of longs to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="65" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="283" bodyend="297"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a3dcbd8ae3c255b2e29198289e4bc3426" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setCharData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, char *data, size_t count)</argsstring>
+        <name>setCharData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set char data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of chars) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="66" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="308" bodyend="322"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">evio::DataType::CHAR8</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a6dbfd214e717489d3d3c15dfadd9038a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setUCharData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, unsigned char *data, size_t count)</argsstring>
+        <name>setUCharData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>unsigned char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set unsigned char data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of uchars) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="67" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="333" bodyend="347"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a94c380a5efed46e884de4a89a61d9d27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setFloatData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, float *data, size_t count)</argsstring>
+        <name>setFloatData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set float data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of floats) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of floats to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="68" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="358" bodyend="372"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1add5d4f0b4d35f9fcab3e7093b6fcc2fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setDoubleData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, double *data, size_t count)</argsstring>
+        <name>setDoubleData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set double data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of doubles) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of doubles to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="69" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="383" bodyend="397"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a6018aa25e1bfcf309722d2aca2ad2b71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setStringData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::string *data, size_t count)</argsstring>
+        <name>setStringData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::string *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set string data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of strings) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of strings to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="72" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="408" bodyend="422"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ae94057017b57044ff884cbe53b2dd79b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setCompositeData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::shared_ptr&lt; CompositeData &gt; *data, size_t count)</argsstring>
+        <name>setCompositeData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt; *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Set composite data in the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has data, it is overwritten even if the existing data is of a different type. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of shared pointers of composite type) to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of (shared pointer of) composites to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="73" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="433" bodyend="448"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" compoundref="db/da7/_data_type_8h" startline="51">evio::DataType::COMPOSITE</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a5aa89256839e6af453f36188ff9f0496" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendIntData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, int32_t *data, size_t count)</argsstring>
+        <name>appendIntData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append int data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of ints) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of ints to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not int. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="76" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="462" bodyend="478"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a3c341ca987848a19579c3f4d099f9fdc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendUIntData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint32_t *data, size_t count)</argsstring>
+        <name>appendUIntData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append unsigned int data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of uints) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of ints to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not unsigned int. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="77" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="489" bodyend="504"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a89bbfc9f297917f66d397e13f00dd1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendShortData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, int16_t *data, size_t count)</argsstring>
+        <name>appendShortData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>int16_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append short data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of shorts) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of shorts to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not short. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="78" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="515" bodyend="530"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a15ab74ffb262076255317db1d201e943" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendUShortData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint16_t *data, size_t count)</argsstring>
+        <name>appendUShortData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append unsigned short data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of ushorts) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of shorts to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not unsigned short. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="79" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="541" bodyend="556"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a2f91c162d2cf83510372796b8dff7a84" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendLongData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, int64_t *data, size_t count)</argsstring>
+        <name>appendLongData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append long data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of longs) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of longs to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not long. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="80" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="567" bodyend="582"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a2cafd71632f3855397135fefe7fa3a7d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendULongData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint64_t *data, size_t count)</argsstring>
+        <name>appendULongData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append unsigned long data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of ulongs) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of longs to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not unsigned long. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="81" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="593" bodyend="608"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a8d314a968d19a7152c2c57b1798aafce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendCharData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, char *data, size_t count)</argsstring>
+        <name>appendCharData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append char data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of chars) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of chars to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not char. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="82" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="619" bodyend="634"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">evio::DataType::CHAR8</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ad35b3a27fbc4e7734f0c0d55e91c1085" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendUCharData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, unsigned char *data, size_t count)</argsstring>
+        <name>appendUCharData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>unsigned char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append unsigned char data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of uchars) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of chars to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not unsigned char. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="83" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="645" bodyend="660"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a7c41fc5b670046f2d7012691cb9c6d46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendFloatData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, float *data, size_t count)</argsstring>
+        <name>appendFloatData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append float data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of floats) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of floats to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not float. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="84" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="671" bodyend="686"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ac73f59b736d316cd45862fd24af4d274" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendDoubleData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, double *data, size_t count)</argsstring>
+        <name>appendDoubleData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append double data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of doubles) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of doubles to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not double. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="85" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="697" bodyend="712"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a9cd39d1509c902d8a6a98ccac659e54b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendStringData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::string *data, size_t count)</argsstring>
+        <name>appendStringData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::string *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append string data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of string) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of strings to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="86" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="723" bodyend="738"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a12a1e136528c944ae60635b50401266d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::appendCompositeData</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::shared_ptr&lt; CompositeData &gt; *data, size_t count)</argsstring>
+        <name>appendCompositeData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt; *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Append string data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure to receive the data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data (array of string) to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of strings to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if structure or data arg(s) is null, data type is not string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="87" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="749" bodyend="766"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" compoundref="db/da7/_data_type_8h" startline="51">evio::DataType::COMPOSITE</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" compoundref="d4/dfa/_event_builder_8cpp" startline="41" endline="48">setAllHeaderLengths</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a9408291cfca3cabbaae55885900439a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioEvent &gt; evio::EventBuilder::getEvent</definition>
+        <argsstring>()</argsstring>
+        <name>getEvent</name>
+        <briefdescription>
+<para>Get the underlying event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the underlying event. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="90" column="25" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="773" bodyend="773"/>
+        <referencedby refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" compoundref="d4/dfa/_event_builder_8cpp" startline="792" endline="896">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a8d99ac14b19b7b609d8e3bd5013029f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::setEvent</definition>
+        <argsstring>(std::shared_ptr&lt; EvioEvent &gt; &amp;ev)</argsstring>
+        <name>setEvent</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref> &gt; &amp;</type>
+          <declname>ev</declname>
+        </param>
+        <briefdescription>
+<para>Set the underlying event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>As far as this event builder is concerned, the previous underlying event is lost, and all subsequent calls will affect the newly supplied event. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new underlying event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="91" column="14" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="781" bodyend="781"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::EventBuilder::main</definition>
+        <argsstring>(int argc, char **argv)</argsstring>
+        <name>main</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char **</type>
+          <declname>argv</declname>
+        </param>
+        <briefdescription>
+<para>Main program for testing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>argc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ignored command line count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>argv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ignored command line arguments. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="93" column="20" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="792" bodyend="896"/>
+        <references refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" compoundref="d4/dfa/_event_builder_8cpp" startline="72" endline="124">addChild</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1ac73f59b736d316cd45862fd24af4d274" compoundref="d4/dfa/_event_builder_8cpp" startline="697" endline="712">appendDoubleData</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a9cd39d1509c902d8a6a98ccac659e54b" compoundref="d4/dfa/_event_builder_8cpp" startline="723" endline="738">appendStringData</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a3c341ca987848a19579c3f4d099f9fdc" compoundref="d4/dfa/_event_builder_8cpp" startline="489" endline="504">appendUIntData</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a15ab74ffb262076255317db1d201e943" compoundref="d4/dfa/_event_builder_8cpp" startline="541" endline="556">appendUShortData</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="d9/dcd/classevio_1_1_event_writer_1a1f2687708de5933b1b9aecb2930706ed" compoundref="db/dc8/_event_writer_8cpp" startline="1224" endline="1321">evio::EventWriter::close</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="db/d06/classevio_1_1_event_builder_1a9408291cfca3cabbaae55885900439a0" compoundref="d4/dfa/_event_builder_8cpp" startline="773" endline="773">getEvent</references>
+        <references refid="de/de3/classevio_1_1_evio_bank_1a7a7ff84cf9b0a3f659663483c8081e73" compoundref="dd/d6f/_evio_bank_8h" startline="57" endline="60">evio::EvioBank::getInstance</references>
+        <references refid="d5/d29/classevio_1_1_evio_segment_1a69247a8a943d8a1240843643bc606ca1" compoundref="d3/d37/_evio_segment_8h" startline="54" endline="57">evio::EvioSegment::getInstance</references>
+        <references refid="d7/d91/classevio_1_1_evio_tag_segment_1a70327d9a4b433b55aeb3d78fef704af3" compoundref="df/d0d/_evio_tag_segment_8h" startline="53" endline="56">evio::EvioTagSegment::getInstance</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">evio::DataType::TAGSEGMENT</references>
+        <references refid="d9/dcd/classevio_1_1_event_writer_1a34bf54cb6551a7e6d151741bcc798d3a" compoundref="db/dc8/_event_writer_8cpp" startline="1671" endline="1674">evio::EventWriter::writeEvent</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a2fb9e0599665c8d5d45e80f3c26c67f6" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::fakeIntArray</definition>
+        <argsstring>(uint32_t *array, uint32_t size)</argsstring>
+        <name>fakeIntArray</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>array</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Fill array of ints, sequential, 1..size, for test purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>array</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to int array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the size of the array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="97" column="21" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="904" bodyend="908"/>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1a6b8ae922ec72942d8e9d8f971931551c" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::fakeShortArray</definition>
+        <argsstring>(uint16_t *array, uint32_t size)</argsstring>
+        <name>fakeShortArray</name>
+        <param>
+          <type>uint16_t *</type>
+          <declname>array</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Fill array of shorts, sequential, 1..size, for test purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>array</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to short array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the size of the array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="98" column="21" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="916" bodyend="920"/>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ad5de3c839cba02c4106fc001ece227c0" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string *</type>
+        <definition>std::string * evio::EventBuilder::fakeStringArray</definition>
+        <argsstring>()</argsstring>
+        <name>fakeStringArray</name>
+        <briefdescription>
+<para>Return array of strings for test purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Size is 7 strings. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>the</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>static string array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="99" column="28" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="927" bodyend="930"/>
+      </memberdef>
+      <memberdef kind="function" id="db/d06/classevio_1_1_event_builder_1ad2ae7857799069bdd67c759501dd3f50" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventBuilder::fakeDoubleArray</definition>
+        <argsstring>(double *array, uint32_t size)</argsstring>
+        <name>fakeDoubleArray</name>
+        <param>
+          <type>double *</type>
+          <declname>array</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Fill array of doubles, sequential, 1..size, for test purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>array</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to double array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the size of the array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventBuilder.h" line="100" column="21" bodyfile="src/libsrc/EventBuilder.cpp" bodystart="938" bodyend="942"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class is used for creating and manipulating events. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>One constructor is convenient for creating new events while another is useful for manipulating existing events. You can create a new <ref refid="db/d06/classevio_1_1_event_builder" kindref="compound">EventBuilder</ref> for each event being handled; however, in many cases one can use the same <ref refid="db/d06/classevio_1_1_event_builder" kindref="compound">EventBuilder</ref> for all events by calling the setEvent method. The only reason a singleton pattern was not used was to allow for the possibility that events will be built or manipulated on multiple threads. <simplesect kind="author"><para>heddle (original java version) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/EventBuilder.h" line="43" column="5" bodyfile="src/libsrc/EventBuilder.h" bodystart="43" bodyend="102"/>
+    <listofallmembers>
+      <member refid="db/d06/classevio_1_1_event_builder_1a6ff12a984286547c674032a532f844cf" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>addChild</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a8d314a968d19a7152c2c57b1798aafce" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendCharData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a12a1e136528c944ae60635b50401266d" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendCompositeData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ac73f59b736d316cd45862fd24af4d274" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendDoubleData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a7c41fc5b670046f2d7012691cb9c6d46" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendFloatData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a5aa89256839e6af453f36188ff9f0496" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendIntData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a2f91c162d2cf83510372796b8dff7a84" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendLongData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a89bbfc9f297917f66d397e13f00dd1a2" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendShortData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a9cd39d1509c902d8a6a98ccac659e54b" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendStringData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ad35b3a27fbc4e7734f0c0d55e91c1085" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendUCharData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a3c341ca987848a19579c3f4d099f9fdc" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendUIntData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a2cafd71632f3855397135fefe7fa3a7d" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendULongData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a15ab74ffb262076255317db1d201e943" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>appendUShortData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a2e23cfaef7f681c05c08d24ff4a4bf9d" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>clearData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1aa2a3ede5f5843ef5a0742608572de2bf" prot="private" virt="non-virtual"><scope>evio::EventBuilder</scope><name>event</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a0b55038172cf9d9036eb9a6d7a25df6f" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>EventBuilder</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a3de3486becd4f5e2e477a17708c41e00" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>EventBuilder</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ad2ae7857799069bdd67c759501dd3f50" prot="private" virt="non-virtual"><scope>evio::EventBuilder</scope><name>fakeDoubleArray</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a2fb9e0599665c8d5d45e80f3c26c67f6" prot="private" virt="non-virtual"><scope>evio::EventBuilder</scope><name>fakeIntArray</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a6b8ae922ec72942d8e9d8f971931551c" prot="private" virt="non-virtual"><scope>evio::EventBuilder</scope><name>fakeShortArray</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ad5de3c839cba02c4106fc001ece227c0" prot="private" virt="non-virtual"><scope>evio::EventBuilder</scope><name>fakeStringArray</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a9408291cfca3cabbaae55885900439a0" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>getEvent</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ad11bd244d4bc1fef7cc84e0de74af323" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>main</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a24a8d3fa71a75d2dc53ceb0277719870" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>remove</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a1921c43b5cb88b2f07dfa54bc1d5f04a" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setAllHeaderLengths</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a3dcbd8ae3c255b2e29198289e4bc3426" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setCharData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ae94057017b57044ff884cbe53b2dd79b" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setCompositeData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1add5d4f0b4d35f9fcab3e7093b6fcc2fd" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setDoubleData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a8d99ac14b19b7b609d8e3bd5013029f7" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setEvent</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a94c380a5efed46e884de4a89a61d9d27" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setFloatData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a6b550b0b63ed484643820c007c7275ab" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setIntData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ac28e6dbf5d5fdf40ab8ca2f8706dcbd5" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setLongData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a50e695828cbfbee4429616dcf6dcf41c" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setShortData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a6018aa25e1bfcf309722d2aca2ad2b71" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setStringData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a6dbfd214e717489d3d3c15dfadd9038a" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setUCharData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a5dbc92ac983758e2a149a932f01af188" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setUIntData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1a40078fa4ecd339fc032f35fd8c864747" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setULongData</name></member>
+      <member refid="db/d06/classevio_1_1_event_builder_1ab3ce4c0d9b3ec33a3da13e9610bf4503" prot="public" virt="non-virtual"><scope>evio::EventBuilder</scope><name>setUShortData</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

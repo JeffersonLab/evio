@@ -1,0 +1,327 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d0/d02/classevio_1_1_event_writer_1_1_record_writer" kind="class" language="C++" prot="private">
+    <compoundname>evio::EventWriter::RecordWriter</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a91a3baec517dd64b9eab9c2654521733" prot="private" static="no" mutable="no">
+        <type><ref refid="d9/dcd/classevio_1_1_event_writer" kindref="compound">EventWriter</ref> *</type>
+        <definition>EventWriter* evio::EventWriter::RecordWriter::writer</definition>
+        <argsstring></argsstring>
+        <name>writer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Object which owns this thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="160" column="26" bodyfile="src/libsrc/EventWriter.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a327357309cae64ded16d39808c78be70" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordSupply&gt; evio::EventWriter::RecordWriter::supply</definition>
+        <argsstring></argsstring>
+        <name>supply</name>
+        <briefdescription>
+<para>Supply of RecordRingItems. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="162" column="29" bodyfile="src/libsrc/EventWriter.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1abe5d88a664d5b11c8ca0059646e7db3a" prot="private" static="no" mutable="no">
+        <type>boost::thread</type>
+        <definition>boost::thread evio::EventWriter::RecordWriter::thd</definition>
+        <argsstring></argsstring>
+        <name>thd</name>
+        <briefdescription>
+<para>Thread which does the file writing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="164" column="27" bodyfile="src/libsrc/EventWriter.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a2c30810f400beb859099cbbb8bd2b1f7" prot="private" static="no" mutable="no">
+        <type>std::atomic_long</type>
+        <definition>std::atomic_long evio::EventWriter::RecordWriter::lastSeqProcessed</definition>
+        <argsstring></argsstring>
+        <name>lastSeqProcessed</name>
+        <initializer>{-1}</initializer>
+        <briefdescription>
+<para>The highest sequence to have been currently processed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="166" column="30" bodyfile="src/libsrc/EventWriter.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1aaa69c1f2dae934733be95257c45f41d8" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordRingItem&gt; evio::EventWriter::RecordWriter::storedItem</definition>
+        <argsstring></argsstring>
+        <name>storedItem</name>
+        <briefdescription>
+<para>Place to store event when disk is full. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="169" column="29" bodyfile="src/libsrc/EventWriter.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1ae77f64ddd09c66d277eac311393dfb85" prot="private" static="no" mutable="no">
+        <type>std::atomic_bool</type>
+        <definition>std::atomic_bool evio::EventWriter::RecordWriter::forceToDisk</definition>
+        <argsstring></argsstring>
+        <name>forceToDisk</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+<para>Force write to disk. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="171" column="30" bodyfile="src/libsrc/EventWriter.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a610fa6ef9372708134f089537b153c97" prot="private" static="no" mutable="no">
+        <type>std::atomic_uint64_t</type>
+        <definition>std::atomic_uint64_t evio::EventWriter::RecordWriter::forcedRecordId</definition>
+        <argsstring></argsstring>
+        <name>forcedRecordId</name>
+        <initializer>{0}</initializer>
+        <briefdescription>
+<para>Id of <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> that initiated the forced write. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="173" column="34" bodyfile="src/libsrc/EventWriter.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a720d36da1ed28b5a7e428e594cb29b93" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EventWriter::RecordWriter::RecordWriter</definition>
+        <argsstring>(EventWriter *pwriter, std::shared_ptr&lt; RecordSupply &gt; &amp;recordSupply)</argsstring>
+        <name>RecordWriter</name>
+        <param>
+          <type><ref refid="d9/dcd/classevio_1_1_event_writer" kindref="compound">EventWriter</ref> *</type>
+          <declname>pwriter</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt; &amp;</type>
+          <declname>recordSupply</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwriter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to <ref refid="d1/d17/classevio_1_1_writer_m_t" kindref="compound">WriterMT</ref> object which owns this thread. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordSupply</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>shared pointer to an object supplying compressed records that need to be written to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="182" column="13" bodyfile="src/libsrc/EventWriter.h" bodystart="182" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a9066be0f797b9ae4d01612f40805e0d8" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EventWriter::RecordWriter::RecordWriter</definition>
+        <argsstring>(RecordWriter &amp;&amp;obj) noexcept</argsstring>
+        <name>RecordWriter</name>
+        <param>
+          <type>RecordWriter &amp;&amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="186" column="13" bodyfile="src/libsrc/EventWriter.h" bodystart="186" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1aafc599a9a65904faa997b6c127e3e8ca" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>RecordWriter &amp;</type>
+        <definition>RecordWriter&amp; evio::EventWriter::RecordWriter::operator=</definition>
+        <argsstring>(RecordWriter &amp;&amp;obj) noexcept</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>RecordWriter &amp;&amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="194" column="27" bodyfile="src/libsrc/EventWriter.h" bodystart="194" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a09609fdfde63ef34c2bfae95324ecd2f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EventWriter::RecordWriter::~RecordWriter</definition>
+        <argsstring>()</argsstring>
+        <name>~RecordWriter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="205" column="13" bodyfile="src/libsrc/EventWriter.h" bodystart="205" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a92bd20ffa33d0a516994bc36cdb9ffd0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::RecordWriter::startThread</definition>
+        <argsstring>()</argsstring>
+        <name>startThread</name>
+        <briefdescription>
+<para>Create and start a thread to execute the run() method of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="213" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="213" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a6298d57a50e238a8dcf0a10ed54524e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::RecordWriter::stopThread</definition>
+        <argsstring>()</argsstring>
+        <name>stopThread</name>
+        <briefdescription>
+<para>Stop the thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="218" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="218" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a34f1d0deb29553d4be301da12768c02e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::RecordWriter::waitForLastItem</definition>
+        <argsstring>()</argsstring>
+        <name>waitForLastItem</name>
+        <briefdescription>
+<para>Wait for the last item to be processed, then exit thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="226" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="226" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a1ec2257f6a4b14af095119735ed7bf73" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::RecordWriter::setForcedRecordId</definition>
+        <argsstring>(uint64_t id)</argsstring>
+        <name>setForcedRecordId</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Store the id of the record which is forcing a write to disk, even if disk is &quot;full&quot;. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The idea is that we look for this record and once it has been written, then we don&apos;t force any following records to disk (unless we&apos;re told to again by the calling of this function). Generally, for an emu, this method gets called when control events arrive. In particular, when the END event comes, it must be written to disk with all the events that preceded it.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>id of record causing the forced write to disk. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="249" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="249" bodyend="252"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1ad579ab4ede65009ec5e6ba133633d476" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordRingItem&gt; evio::EventWriter::RecordWriter::storeRecordCopy</definition>
+        <argsstring>(std::shared_ptr&lt; RecordRingItem &gt; &amp;rec)</argsstring>
+        <name>storeRecordCopy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &amp;</type>
+          <declname>rec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="254" column="29" bodyfile="src/libsrc/EventWriter.h" bodystart="254" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a76dddfb46d74161304427b485c1edf56" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::RecordWriter::run</definition>
+        <argsstring>()</argsstring>
+        <name>run</name>
+        <briefdescription>
+<para>Run this method in thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="261" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="261" bodyend="358"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to take data-filled records from a RingBuffer-backed <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref>, and writes them to file. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>It is an interruptible thread from the boost library, and only 1 exists. </para>
+    </detaileddescription>
+    <location file="src/libsrc/EventWriter.h" line="155" column="9" bodyfile="src/libsrc/EventWriter.h" bodystart="155" bodyend="359"/>
+    <listofallmembers>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a610fa6ef9372708134f089537b153c97" prot="private" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>forcedRecordId</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1ae77f64ddd09c66d277eac311393dfb85" prot="private" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>forceToDisk</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a2c30810f400beb859099cbbb8bd2b1f7" prot="private" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>lastSeqProcessed</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1aafc599a9a65904faa997b6c127e3e8ca" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>operator=</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a720d36da1ed28b5a7e428e594cb29b93" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>RecordWriter</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a9066be0f797b9ae4d01612f40805e0d8" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>RecordWriter</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a76dddfb46d74161304427b485c1edf56" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>run</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a1ec2257f6a4b14af095119735ed7bf73" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>setForcedRecordId</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a92bd20ffa33d0a516994bc36cdb9ffd0" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>startThread</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a6298d57a50e238a8dcf0a10ed54524e0" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>stopThread</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1aaa69c1f2dae934733be95257c45f41d8" prot="private" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>storedItem</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1ad579ab4ede65009ec5e6ba133633d476" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>storeRecordCopy</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a327357309cae64ded16d39808c78be70" prot="private" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>supply</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1abe5d88a664d5b11c8ca0059646e7db3a" prot="private" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>thd</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a34f1d0deb29553d4be301da12768c02e" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>waitForLastItem</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a91a3baec517dd64b9eab9c2654521733" prot="private" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>writer</name></member>
+      <member refid="d0/d02/classevio_1_1_event_writer_1_1_record_writer_1a09609fdfde63ef34c2bfae95324ecd2f" prot="public" virt="non-virtual"><scope>evio::EventWriter::RecordWriter</scope><name>~RecordWriter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

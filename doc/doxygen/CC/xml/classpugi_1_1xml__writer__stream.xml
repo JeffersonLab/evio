@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xml__writer__stream" kind="class" language="C++" prot="public">
+    <compoundname>pugi::xml_writer_stream</compoundname>
+    <basecompoundref refid="classpugi_1_1xml__writer" prot="public" virt="non-virtual">pugi::xml_writer</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpugi_1_1xml__writer__stream_1adb73530fd7dbe3909829e8b21207c073" prot="private" static="no" mutable="no">
+        <type>std::basic_ostream&lt; char, std::char_traits&lt; char &gt; &gt; *</type>
+        <definition>std::basic_ostream&lt;char, std::char_traits&lt;char&gt; &gt;* pugi::xml_writer_stream::narrow_stream</definition>
+        <argsstring></argsstring>
+        <name>narrow_stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="354" column="20" bodyfile="src/libsrc/pugixml.hpp" bodystart="354" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classpugi_1_1xml__writer__stream_1a2a2d6d877beda21263dc36e37a40ac71" prot="private" static="no" mutable="no">
+        <type>std::basic_ostream&lt; wchar_t, std::char_traits&lt; wchar_t &gt; &gt; *</type>
+        <definition>std::basic_ostream&lt;wchar_t, std::char_traits&lt;wchar_t&gt; &gt;* pugi::xml_writer_stream::wide_stream</definition>
+        <argsstring></argsstring>
+        <name>wide_stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="355" column="20" bodyfile="src/libsrc/pugixml.hpp" bodystart="355" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xml__writer__stream_1a44e45dc3a5270d1422d8c9813d140e85" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_writer_stream::xml_writer_stream</definition>
+        <argsstring>(std::basic_ostream&lt; char, std::char_traits&lt; char &gt; &gt; &amp;stream)</argsstring>
+        <name>xml_writer_stream</name>
+        <param>
+          <type>std::basic_ostream&lt; char, std::char_traits&lt; char &gt; &gt; &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="348" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="5068" bodyend="5070"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__writer__stream_1a20981f236e2d0696cb1400d8e4262089" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_writer_stream::xml_writer_stream</definition>
+        <argsstring>(std::basic_ostream&lt; wchar_t, std::char_traits&lt; wchar_t &gt; &gt; &amp;stream)</argsstring>
+        <name>xml_writer_stream</name>
+        <param>
+          <type>std::basic_ostream&lt; wchar_t, std::char_traits&lt; wchar_t &gt; &gt; &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="349" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="5072" bodyend="5074"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__writer__stream_1a02e9a5c400c7c5e549d2c84390f508db" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void pugi::xml_writer_stream::write</definition>
+        <argsstring>(const void *data, size_t size)</argsstring>
+        <name>write</name>
+        <reimplements refid="classpugi_1_1xml__writer_1ab7d3b6a8499ceef7799158370e1c2617">write</reimplements>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="351" column="14" bodyfile="src/libsrc/pugixml.cpp" bodystart="5076" bodyend="5090"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>pugi::xml_writer</label>
+        <link refid="classpugi_1_1xml__writer"/>
+      </node>
+      <node id="1">
+        <label>pugi::xml_writer_stream</label>
+        <link refid="classpugi_1_1xml__writer__stream"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>pugi::xml_writer</label>
+        <link refid="classpugi_1_1xml__writer"/>
+      </node>
+      <node id="1">
+        <label>pugi::xml_writer_stream</label>
+        <link refid="classpugi_1_1xml__writer__stream"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/pugixml.hpp" line="344" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="345" bodyend="356"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xml__writer__stream_1adb73530fd7dbe3909829e8b21207c073" prot="private" virt="non-virtual"><scope>pugi::xml_writer_stream</scope><name>narrow_stream</name></member>
+      <member refid="classpugi_1_1xml__writer__stream_1a2a2d6d877beda21263dc36e37a40ac71" prot="private" virt="non-virtual"><scope>pugi::xml_writer_stream</scope><name>wide_stream</name></member>
+      <member refid="classpugi_1_1xml__writer__stream_1a02e9a5c400c7c5e549d2c84390f508db" prot="public" virt="virtual"><scope>pugi::xml_writer_stream</scope><name>write</name></member>
+      <member refid="classpugi_1_1xml__writer__stream_1a44e45dc3a5270d1422d8c9813d140e85" prot="public" virt="non-virtual"><scope>pugi::xml_writer_stream</scope><name>xml_writer_stream</name></member>
+      <member refid="classpugi_1_1xml__writer__stream_1a20981f236e2d0696cb1400d8e4262089" prot="public" virt="non-virtual"><scope>pugi::xml_writer_stream</scope><name>xml_writer_stream</name></member>
+      <member refid="classpugi_1_1xml__writer_1a5c9b1bd029ed10862ffa4c61d24c351f" prot="public" virt="virtual"><scope>pugi::xml_writer_stream</scope><name>~xml_writer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

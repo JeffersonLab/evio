@@ -1,0 +1,441 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="df/dbf/classevio_1_1_file_event_index" kind="class" language="C++" prot="public">
+    <compoundname>evio::FileEventIndex</compoundname>
+    <includes local="no">FileEventIndex.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="df/dbf/classevio_1_1_file_event_index_1a4be32ec8ddaf2449120ea359a8a967f5" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileEventIndex::currentEvent</definition>
+        <argsstring></argsstring>
+        <name>currentEvent</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Index number of the current event in the file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="38" column="18" bodyfile="src/libsrc/FileEventIndex.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="df/dbf/classevio_1_1_file_event_index_1a2266652ba563f572aba067fd40ac1f9a" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileEventIndex::currentRecord</definition>
+        <argsstring></argsstring>
+        <name>currentRecord</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Index number of the current record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>First record has value of 0. Add one to use with recordIndex. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="42" column="18" bodyfile="src/libsrc/FileEventIndex.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="df/dbf/classevio_1_1_file_event_index_1afc09ffbd7debdace0807c3cb73f0dd57" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileEventIndex::currentRecordEvent</definition>
+        <argsstring></argsstring>
+        <name>currentRecordEvent</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Index number of the current event in the current record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="45" column="18" bodyfile="src/libsrc/FileEventIndex.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="df/dbf/classevio_1_1_file_event_index_1add4dce36b1a0ce691097b825309bac68" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; uint32_t &gt;</type>
+        <definition>std::vector&lt;uint32_t&gt; evio::FileEventIndex::recordIndex</definition>
+        <argsstring></argsstring>
+        <name>recordIndex</name>
+        <briefdescription>
+<para>Each entry corresponds to a record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The value of each entry is the total number of events in the file up to and including the record of that entry. The only exception is the first entry which corresponds to no record and its value is always 0. Thus, an index of 1 in this vector corresponds to the first record. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="55" column="21" bodyfile="src/libsrc/FileEventIndex.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a6573403878cc0c61bdb2260f7d4a0abf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::FileEventIndex::FileEventIndex</definition>
+        <argsstring>()=default</argsstring>
+        <name>FileEventIndex</name>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="60" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a8ef8d2866a105a8b4973aa208f5162b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileEventIndex::clear</definition>
+        <argsstring>()</argsstring>
+        <name>clear</name>
+        <briefdescription>
+<para>Clear the entire object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="62" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="18" bodyend="21"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">evio::Reader::scanBuffer</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a703075aab48cc798dbccc8cb14d74725" compoundref="d8/d15/_reader_8cpp" startline="1259" endline="1394">evio::Reader::scanUncompressedBuffer</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a1bacb79593e55b32cd9749d14fea8b59" compoundref="d8/d15/_reader_8cpp" startline="170" endline="210">evio::Reader::setBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1ad88a1947d2da050e530643d2d6669fb9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileEventIndex::resetIndex</definition>
+        <argsstring>()</argsstring>
+        <name>resetIndex</name>
+        <briefdescription>
+<para>Resets the current index to 0. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The corresponding record number is recalculated by calling the <ref refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" kindref="member">setEvent(uint32_t)</ref> method. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="63" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="28" bodyend="31"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" compoundref="d4/d07/_file_event_index_8cpp" startline="184" endline="214">setEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a858934da251904a158d4fc5e1d11f3c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileEventIndex::show</definition>
+        <argsstring>()</argsstring>
+        <name>show</name>
+        <briefdescription>
+<para>Prints the content of the event index array on the screen. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="64" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="164" bodyend="175"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">getMaxEvents</references>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" compoundref="d4/d07/_file_event_index_8cpp" startline="234" endline="265">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a57e4929eec1b82fccce0a34a163fa11e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::FileEventIndex::addEventSize</definition>
+        <argsstring>(uint32_t size)</argsstring>
+        <name>addEventSize</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Adds the number of events in the next record to the index of records. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Internally, what is stored is the total number of events in the file up to and including the record of this entry. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of events in the next record. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="65" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="40" bodyend="49"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">evio::Reader::forceScanFile</referencedby>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" compoundref="d4/d07/_file_event_index_8cpp" startline="234" endline="265">main</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">evio::Reader::scanBuffer</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">evio::Reader::scanFile</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a703075aab48cc798dbccc8cb14d74725" compoundref="d8/d15/_reader_8cpp" startline="1259" endline="1394">evio::Reader::scanUncompressedBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a3f5152c168b4367e8da76fed2068585e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileEventIndex::getEventNumber</definition>
+        <argsstring>() const</argsstring>
+        <name>getEventNumber</name>
+        <briefdescription>
+<para>Gets the current event number which is set by <ref refid="df/dbf/classevio_1_1_file_event_index_1a78dd06a83812476f60915b688759e026" kindref="member">advance()</ref>, <ref refid="df/dbf/classevio_1_1_file_event_index_1aa0a4090938a59a99ed37370dbc90b94d" kindref="member">retreat()</ref> or <ref refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" kindref="member">setEvent(uint32_t)</ref> (which also sets the record number that the event belongs to). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>current event number. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="67" column="18" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a3ca3ecb9bc534dbd09fc3cd199291cfd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileEventIndex::getRecordNumber</definition>
+        <argsstring>() const</argsstring>
+        <name>getRecordNumber</name>
+        <briefdescription>
+<para>Gets the current record number which is set by <ref refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" kindref="member">setEvent(uint32_t)</ref>, or by using <ref refid="df/dbf/classevio_1_1_file_event_index_1a78dd06a83812476f60915b688759e026" kindref="member">advance()</ref> or <ref refid="df/dbf/classevio_1_1_file_event_index_1aa0a4090938a59a99ed37370dbc90b94d" kindref="member">retreat()</ref> (which set the event number to the next available or previous available respectively). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>current record number. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="68" column="18" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="67" bodyend="67"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">evio::Reader::getEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a5cac5c4702dec37c7ba7807421583da8" compoundref="d8/d15/_reader_8cpp" startline="645" endline="663">evio::Reader::getEventLength</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a45985f2f0ac14cba859effb75ad72fe9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileEventIndex::getRecordEventNumber</definition>
+        <argsstring>() const</argsstring>
+        <name>getRecordEventNumber</name>
+        <briefdescription>
+<para>Gets the event number inside the record that corresponds to the current global event number from the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>event offset in the record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="69" column="18" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="75" bodyend="75"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">evio::Reader::getEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a5cac5c4702dec37c7ba7807421583da8" compoundref="d8/d15/_reader_8cpp" startline="645" endline="663">evio::Reader::getEventLength</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::FileEventIndex::getMaxEvents</definition>
+        <argsstring>() const</argsstring>
+        <name>getMaxEvents</name>
+        <briefdescription>
+<para>Gets the total number of events in file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>returns the number of events corresponding to the all records. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="70" column="18" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="82" bodyend="84"/>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a17b9ddcffc2fac25bbe7acd08b8fba14" compoundref="d4/d07/_file_event_index_8cpp" startline="91" endline="94">canAdvance</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">evio::Reader::getEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a8f81445d73ac7fd45acb9fb42ac4c19e" compoundref="d8/d15/_reader_8cpp" startline="360" endline="360">evio::Reader::getEventCount</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a5cac5c4702dec37c7ba7807421583da8" compoundref="d8/d15/_reader_8cpp" startline="645" endline="663">evio::Reader::getEventLength</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a3a9cb8a3d521076ba625233e60924fa6" compoundref="d8/d15/_reader_8cpp" startline="675" endline="683">evio::Reader::getEventNode</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a0bf674124c4ad45cf97a4fb96bdcf44d" compoundref="d8/d15/_reader_8cpp" startline="495" endline="510">evio::Reader::getNextEventNode</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a9c0e3949e458d596c1ef80a14715edf4" compoundref="d8/d15/_reader_8cpp" startline="398" endline="398">evio::Reader::getNumEventsRemaining</referencedby>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" compoundref="d4/d07/_file_event_index_8cpp" startline="184" endline="214">setEvent</referencedby>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a858934da251904a158d4fc5e1d11f3c7" compoundref="d4/d07/_file_event_index_8cpp" startline="164" endline="175">show</referencedby>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1ae1a7a05f00685e17161c8cb8ef29d1fb" compoundref="d4/d07/_file_event_index_8cpp" startline="221" endline="231">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a17b9ddcffc2fac25bbe7acd08b8fba14" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileEventIndex::canAdvance</definition>
+        <argsstring>() const</argsstring>
+        <name>canAdvance</name>
+        <briefdescription>
+<para>Checks to see if the event counter reached the end. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if there are more events to advance to, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="72" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="91" bodyend="94"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">getMaxEvents</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a5c5dc5c459a924ac7a9f5b7568416553" compoundref="d8/d15/_reader_8cpp" startline="690" endline="690">evio::Reader::hasNext</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a1493f1dc0dc3a0786597f7c10bf73826" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileEventIndex::canRetreat</definition>
+        <argsstring>() const</argsstring>
+        <name>canRetreat</name>
+        <briefdescription>
+<para>Checks if the event index can retreat (decrease). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convenience function. <simplesect kind="return"><para>true if the event index can be lowered by one. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="73" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="136" bodyend="136"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a80a9286f898d8377ca8147f65e1c9ba6" compoundref="d8/d15/_reader_8cpp" startline="697" endline="697">evio::Reader::hasPrev</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a78dd06a83812476f60915b688759e026" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileEventIndex::advance</definition>
+        <argsstring>()</argsstring>
+        <name>advance</name>
+        <briefdescription>
+<para>Advances the current event number by one. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the event is not from current record, the record number will also be changed. If calling this would advance the current event number beyond its maximum limit, nothing is done. <simplesect kind="return"><para>false if the record number is the same, and true if the record number has changed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="74" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="105" bodyend="129"/>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" compoundref="d4/d07/_file_event_index_8cpp" startline="234" endline="265">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1aa0a4090938a59a99ed37370dbc90b94d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileEventIndex::retreat</definition>
+        <argsstring>()</argsstring>
+        <name>retreat</name>
+        <briefdescription>
+<para>Reduces current event number by one. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the record number changes, it returns true. <simplesect kind="return"><para>false if the record number is the same, and true is the record number has changed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="75" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="145" bodyend="160"/>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" compoundref="d4/d07/_file_event_index_8cpp" startline="234" endline="265">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::FileEventIndex::setEvent</definition>
+        <argsstring>(uint32_t event)</argsstring>
+        <name>setEvent</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Set the current event to the desired position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The current record and event offset inside of the record are updated as well. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>event number in the stream, must be 0 to <ref refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" kindref="member">getMaxEvents()</ref>-1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if record is different from previous one, false if it is the same. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="76" column="14" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="184" bodyend="214"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">getMaxEvents</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">evio::Reader::getEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a5cac5c4702dec37c7ba7807421583da8" compoundref="d8/d15/_reader_8cpp" startline="645" endline="663">evio::Reader::getEventLength</referencedby>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" compoundref="d4/d07/_file_event_index_8cpp" startline="234" endline="265">main</referencedby>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1ad88a1947d2da050e530643d2d6669fb9" compoundref="d4/d07/_file_event_index_8cpp" startline="28" endline="31">resetIndex</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1ae1a7a05f00685e17161c8cb8ef29d1fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::FileEventIndex::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Get a string representation of this object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a string representation of this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="78" column="21" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="221" bodyend="231"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">getMaxEvents</references>
+        <referencedby refid="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" compoundref="d4/d07/_file_event_index_8cpp" startline="234" endline="265">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::FileEventIndex::main</definition>
+        <argsstring>(int argc, char **argv)</argsstring>
+        <name>main</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char **</type>
+          <declname>argv</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/FileEventIndex.h" line="80" column="13" bodyfile="src/libsrc/FileEventIndex.cpp" bodystart="234" bodyend="265"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a57e4929eec1b82fccce0a34a163fa11e" compoundref="d4/d07/_file_event_index_8cpp" startline="40" endline="49">addEventSize</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a78dd06a83812476f60915b688759e026" compoundref="d4/d07/_file_event_index_8cpp" startline="105" endline="129">advance</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1aa0a4090938a59a99ed37370dbc90b94d" compoundref="d4/d07/_file_event_index_8cpp" startline="145" endline="160">retreat</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" compoundref="d4/d07/_file_event_index_8cpp" startline="184" endline="214">setEvent</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a858934da251904a158d4fc5e1d11f3c7" compoundref="d4/d07/_file_event_index_8cpp" startline="164" endline="175">show</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1ae1a7a05f00685e17161c8cb8ef29d1fb" compoundref="d4/d07/_file_event_index_8cpp" startline="221" endline="231">toString</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to handle event indexes in the context of a file (or buffer) and having to change records. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>09/25/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>gavalian (original java) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/FileEventIndex.h" line="33" column="5" bodyfile="src/libsrc/FileEventIndex.h" bodystart="33" bodyend="84"/>
+    <listofallmembers>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a57e4929eec1b82fccce0a34a163fa11e" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>addEventSize</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a78dd06a83812476f60915b688759e026" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>advance</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a17b9ddcffc2fac25bbe7acd08b8fba14" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>canAdvance</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a1493f1dc0dc3a0786597f7c10bf73826" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>canRetreat</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a8ef8d2866a105a8b4973aa208f5162b8" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>clear</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a4be32ec8ddaf2449120ea359a8a967f5" prot="private" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>currentEvent</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a2266652ba563f572aba067fd40ac1f9a" prot="private" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>currentRecord</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1afc09ffbd7debdace0807c3cb73f0dd57" prot="private" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>currentRecordEvent</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a6573403878cc0c61bdb2260f7d4a0abf" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>FileEventIndex</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a3f5152c168b4367e8da76fed2068585e" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>getEventNumber</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>getMaxEvents</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a45985f2f0ac14cba859effb75ad72fe9" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>getRecordEventNumber</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a3ca3ecb9bc534dbd09fc3cd199291cfd" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>getRecordNumber</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a885f7f4b861eaf18b6272bb010d760f5" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>main</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1add4dce36b1a0ce691097b825309bac68" prot="private" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>recordIndex</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1ad88a1947d2da050e530643d2d6669fb9" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>resetIndex</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1aa0a4090938a59a99ed37370dbc90b94d" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>retreat</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>setEvent</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1a858934da251904a158d4fc5e1d11f3c7" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>show</name></member>
+      <member refid="df/dbf/classevio_1_1_file_event_index_1ae1a7a05f00685e17161c8cb8ef29d1fb" prot="public" virt="non-virtual"><scope>evio::FileEventIndex</scope><name>toString</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

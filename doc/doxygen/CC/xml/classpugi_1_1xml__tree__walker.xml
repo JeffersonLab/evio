@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xml__tree__walker" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>pugi::xml_tree_walker</compoundname>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classpugi_1_1xml__tree__walker_1a156d917a92815c7b593bd5ef19f6d5fb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class xml_node</definition>
+        <argsstring></argsstring>
+        <name>xml_node</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="949" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="949" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpugi_1_1xml__tree__walker_1a6726785913628e9388553961bd5feb32" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int pugi::xml_tree_walker::_depth</definition>
+        <argsstring></argsstring>
+        <name>_depth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="952" column="5" bodyfile="src/libsrc/pugixml.hpp" bodystart="952" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classpugi_1_1xml__tree__walker_1a8a5490167e3da360f23c02a54f3f7cb6" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int pugi::xml_tree_walker::depth</definition>
+        <argsstring>() const</argsstring>
+        <name>depth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="956" column="5" bodyfile="src/libsrc/pugixml.cpp" bodystart="5101" bodyend="5104"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xml__tree__walker_1a93c03157cff8f8a0ead30c2d256d061b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_tree_walker::xml_tree_walker</definition>
+        <argsstring>()</argsstring>
+        <name>xml_tree_walker</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="959" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="5093" bodyend="5095"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__tree__walker_1a23232b3cb1216f3e2edcce4288b0b24b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>pugi::xml_tree_walker::~xml_tree_walker</definition>
+        <argsstring>()</argsstring>
+        <name>~xml_tree_walker</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="960" column="9" bodyfile="src/libsrc/pugixml.cpp" bodystart="5097" bodyend="5099"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__tree__walker_1a9265d91734ad25b1fe1c9057b5856960" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_tree_walker::begin</definition>
+        <argsstring>(xml_node &amp;node)</argsstring>
+        <name>begin</name>
+        <param>
+          <type><ref refid="classpugi_1_1xml__node" kindref="compound">xml_node</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="963" column="14" bodyfile="src/libsrc/pugixml.cpp" bodystart="5106" bodyend="5109"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__tree__walker_1a309363c9d17ef3fc8cacc6f71fcbea88" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool pugi::xml_tree_walker::for_each</definition>
+        <argsstring>(xml_node &amp;node)=0</argsstring>
+        <name>for_each</name>
+        <param>
+          <type><ref refid="classpugi_1_1xml__node" kindref="compound">xml_node</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="966" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__tree__walker_1a76e1f338b03f7e76b74b669ca8988004" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_tree_walker::end</definition>
+        <argsstring>(xml_node &amp;node)</argsstring>
+        <name>end</name>
+        <param>
+          <type><ref refid="classpugi_1_1xml__node" kindref="compound">xml_node</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="969" column="14" bodyfile="src/libsrc/pugixml.cpp" bodystart="5111" bodyend="5114"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/pugixml.hpp" line="947" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="948" bodyend="970"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xml__tree__walker_1a6726785913628e9388553961bd5feb32" prot="private" virt="non-virtual"><scope>pugi::xml_tree_walker</scope><name>_depth</name></member>
+      <member refid="classpugi_1_1xml__tree__walker_1a9265d91734ad25b1fe1c9057b5856960" prot="public" virt="virtual"><scope>pugi::xml_tree_walker</scope><name>begin</name></member>
+      <member refid="classpugi_1_1xml__tree__walker_1a8a5490167e3da360f23c02a54f3f7cb6" prot="protected" virt="non-virtual"><scope>pugi::xml_tree_walker</scope><name>depth</name></member>
+      <member refid="classpugi_1_1xml__tree__walker_1a76e1f338b03f7e76b74b669ca8988004" prot="public" virt="virtual"><scope>pugi::xml_tree_walker</scope><name>end</name></member>
+      <member refid="classpugi_1_1xml__tree__walker_1a309363c9d17ef3fc8cacc6f71fcbea88" prot="public" virt="pure-virtual"><scope>pugi::xml_tree_walker</scope><name>for_each</name></member>
+      <member refid="classpugi_1_1xml__tree__walker_1a156d917a92815c7b593bd5ef19f6d5fb" prot="private" virt="non-virtual"><scope>pugi::xml_tree_walker</scope><name>xml_node</name></member>
+      <member refid="classpugi_1_1xml__tree__walker_1a93c03157cff8f8a0ead30c2d256d061b" prot="public" virt="non-virtual"><scope>pugi::xml_tree_walker</scope><name>xml_tree_walker</name></member>
+      <member refid="classpugi_1_1xml__tree__walker_1a23232b3cb1216f3e2edcce4288b0b24b" prot="public" virt="virtual"><scope>pugi::xml_tree_walker</scope><name>~xml_tree_walker</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

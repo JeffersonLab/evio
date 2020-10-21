@@ -1,0 +1,458 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="db/d35/classevio_1_1_structure_finder" kind="class" language="C++" prot="public">
+    <compoundname>evio::StructureFinder</compoundname>
+    <includes local="no">StructureFinder.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureFinder::getMatchingStructures</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::shared_ptr&lt; IEvioFilter &gt; filter, std::vector&lt; std::shared_ptr&lt; BaseStructure &gt;&gt; &amp;vec)</argsstring>
+        <name>getMatchingStructures</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d78/classevio_1_1_i_evio_filter" kindref="compound">IEvioFilter</ref> &gt;</type>
+          <declname>filter</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>Collect all the structures in an event that pass a filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event/bank/seg/tagseg being queried. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>filter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the filter that must be passed. If <computeroutput>null</computeroutput>, this will return all the structures. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector provided to contain all structures that are accepted by the filter for the provided event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureFinder.h" line="49" column="21" bodyfile="src/libsrc/StructureFinder.h" bodystart="49" bodyend="58"/>
+        <referencedby refid="db/d35/classevio_1_1_structure_finder_1aaadc6f318f54bc23cad2785b035de2b4" compoundref="d5/d4b/_structure_finder_8h" startline="68" endline="85">getMatchingBanks</referencedby>
+        <referencedby refid="db/d35/classevio_1_1_structure_finder_1a9e4f0f3b021f2c479743d732d6fffaee" compoundref="d5/d4b/_structure_finder_8h" startline="217" endline="251">getMatchingChild</referencedby>
+        <referencedby refid="db/d35/classevio_1_1_structure_finder_1ad33c620ac52182ed5f999203d9dd5e59" compoundref="d5/d4b/_structure_finder_8h" startline="116" endline="131">getMatchingNonBanks</referencedby>
+        <referencedby refid="db/d35/classevio_1_1_structure_finder_1af24b436a41eed64b8712bdfc9f19d291" compoundref="d5/d4b/_structure_finder_8h" startline="177" endline="205">getMatchingParent</referencedby>
+        <referencedby refid="db/d35/classevio_1_1_structure_finder_1a01708c1e0cf466acd5f81256e18cd01f" compoundref="d5/d4b/_structure_finder_8h" startline="93" endline="107">getMatchingStructures</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/d35/classevio_1_1_structure_finder_1aaadc6f318f54bc23cad2785b035de2b4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureFinder::getMatchingBanks</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint16_t tag, uint8_t num, std::vector&lt; std::shared_ptr&lt; BaseStructure &gt;&gt; &amp;vec)</argsstring>
+        <name>getMatchingBanks</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>Collect all the banks in an event that match a provided tag and number in their header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Only Banks are returned, because only Banks have a number field. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event/bank/seg/tagseg being queried. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tag to match. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number to match. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector provided to contain all Banks that are accepted by the filter for the provided event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureFinder.h" line="68" column="21" bodyfile="src/libsrc/StructureFinder.h" bodystart="68" bodyend="85"/>
+        <references refid="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" compoundref="d5/d4b/_structure_finder_8h" startline="49" endline="58">getMatchingStructures</references>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" compoundref="d3/d58/_structure_type_8h" startline="41">evio::StructureType::STRUCT_BANK</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d35/classevio_1_1_structure_finder_1a01708c1e0cf466acd5f81256e18cd01f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureFinder::getMatchingStructures</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint16_t tag, std::vector&lt; std::shared_ptr&lt; BaseStructure &gt;&gt; &amp;vec)</argsstring>
+        <name>getMatchingStructures</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>Collect all the structures in an event that match a provided tag in their header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event/bank/seg/tagseg being queried. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tag to match. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector provided to contain all structures that are accepted by the filter for the provided event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureFinder.h" line="93" column="21" bodyfile="src/libsrc/StructureFinder.h" bodystart="93" bodyend="107"/>
+        <references refid="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" compoundref="d5/d4b/_structure_finder_8h" startline="49" endline="58">getMatchingStructures</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d35/classevio_1_1_structure_finder_1ad33c620ac52182ed5f999203d9dd5e59" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureFinder::getMatchingNonBanks</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, uint16_t tag, std::vector&lt; std::shared_ptr&lt; BaseStructure &gt;&gt; &amp;vec)</argsstring>
+        <name>getMatchingNonBanks</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>Collect all the non-banks (i.e., Segments and TagSegments) in an event that match a provided tag in their header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>No Banks are returned. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event/bank/seg/tagseg being queried. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tag to match. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector provided to contain all non-bank structures that are accepted by the filter for the provided event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureFinder.h" line="116" column="21" bodyfile="src/libsrc/StructureFinder.h" bodystart="116" bodyend="131"/>
+        <references refid="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" compoundref="d5/d4b/_structure_finder_8h" startline="49" endline="58">getMatchingStructures</references>
+        <references refid="dd/da5/classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" compoundref="d3/d58/_structure_type_8h" startline="41">evio::StructureType::STRUCT_BANK</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d35/classevio_1_1_structure_finder_1a48530ba93596a6cd177d2bb6dcf401be" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureFinder::getMatchingStructures</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::string name, EvioXMLDictionary &amp;dictionary, std::vector&lt; std::shared_ptr&lt; BaseStructure &gt;&gt; &amp;vec)</argsstring>
+        <name>getMatchingStructures</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary" kindref="compound">EvioXMLDictionary</ref> &amp;</type>
+          <declname>dictionary</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>Collect all structures in an event that match the given dictionary name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event/bank/seg/tagseg being queried. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary name of structures to be returned. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary to be used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector provided to contain BaseStructures that have the given name in the given dictionary. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureFinder.h" line="143" column="21" bodyfile="src/libsrc/StructureFinder.h" bodystart="143" bodyend="165"/>
+        <references refid="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" compoundref="d5/d4b/_structure_finder_8h" startline="49" endline="58">getMatchingStructures</references>
+        <references refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1ae392ba10f52aa3798aae5b50fcfc75ad" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="796" endline="812">evio::EvioXMLDictionary::getName</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d35/classevio_1_1_structure_finder_1af24b436a41eed64b8712bdfc9f19d291" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureFinder::getMatchingParent</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::string parentName, EvioXMLDictionary &amp;dictionary, std::vector&lt; std::shared_ptr&lt; BaseStructure &gt;&gt; &amp;vec)</argsstring>
+        <name>getMatchingParent</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>parentName</declname>
+        </param>
+        <param>
+          <type><ref refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary" kindref="compound">EvioXMLDictionary</ref> &amp;</type>
+          <declname>dictionary</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>Collect all structures in an event whose <bold>parent</bold> has the given dictionary name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event/bank/seg/tagseg being queried. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parentName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary name of parent of structures to be returned. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary to be used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector provided to contain BaseStructures whose parent has the given name in the given dictionary. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureFinder.h" line="177" column="21" bodyfile="src/libsrc/StructureFinder.h" bodystart="177" bodyend="205"/>
+        <references refid="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" compoundref="d5/d4b/_structure_finder_8h" startline="49" endline="58">getMatchingStructures</references>
+        <references refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1ae392ba10f52aa3798aae5b50fcfc75ad" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="796" endline="812">evio::EvioXMLDictionary::getName</references>
+      </memberdef>
+      <memberdef kind="function" id="db/d35/classevio_1_1_structure_finder_1a9e4f0f3b021f2c479743d732d6fffaee" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::StructureFinder::getMatchingChild</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure, std::string childName, EvioXMLDictionary &amp;dictionary, std::vector&lt; std::shared_ptr&lt; BaseStructure &gt;&gt; &amp;vec)</argsstring>
+        <name>getMatchingChild</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>childName</declname>
+        </param>
+        <param>
+          <type><ref refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary" kindref="compound">EvioXMLDictionary</ref> &amp;</type>
+          <declname>dictionary</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>Collect all structures in an event who has a <bold>child</bold> with the given dictionary name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the event/bank/seg/tagseg being queried. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>childName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary name of a child of structures to be returned. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary to be used; if null, an existing global dictionary will be used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector provided to contain BaseStructures who have a child with the given name in the given dictionary. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/StructureFinder.h" line="217" column="21" bodyfile="src/libsrc/StructureFinder.h" bodystart="217" bodyend="251"/>
+        <references refid="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" compoundref="d5/d4b/_structure_finder_8h" startline="49" endline="58">getMatchingStructures</references>
+        <references refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary_1ae392ba10f52aa3798aae5b50fcfc75ad" compoundref="d7/d90/_evio_x_m_l_dictionary_8cpp" startline="796" endline="812">evio::EvioXMLDictionary::getName</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This is a set of convenient static methods used to find lists of structures within an event, bank, segment, or tagsegment that match certain criteria. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>For the most part it uses the <computeroutput><ref refid="d9/ddd/classevio_1_1_base_structure_1a7f61b0849a7f260192bfc77f8fd74a7d" kindref="member">BaseStructure#getMatchingStructures()</ref></computeroutput> method on the provided <computeroutput><ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref></computeroutput> object by constructing the appropriate filter.</para>
+<para><simplesect kind="author"><para>heddle </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/StructureFinder.h" line="39" column="5" bodyfile="src/libsrc/StructureFinder.h" bodystart="39" bodyend="253"/>
+    <listofallmembers>
+      <member refid="db/d35/classevio_1_1_structure_finder_1aaadc6f318f54bc23cad2785b035de2b4" prot="public" virt="non-virtual"><scope>evio::StructureFinder</scope><name>getMatchingBanks</name></member>
+      <member refid="db/d35/classevio_1_1_structure_finder_1a9e4f0f3b021f2c479743d732d6fffaee" prot="public" virt="non-virtual"><scope>evio::StructureFinder</scope><name>getMatchingChild</name></member>
+      <member refid="db/d35/classevio_1_1_structure_finder_1ad33c620ac52182ed5f999203d9dd5e59" prot="public" virt="non-virtual"><scope>evio::StructureFinder</scope><name>getMatchingNonBanks</name></member>
+      <member refid="db/d35/classevio_1_1_structure_finder_1af24b436a41eed64b8712bdfc9f19d291" prot="public" virt="non-virtual"><scope>evio::StructureFinder</scope><name>getMatchingParent</name></member>
+      <member refid="db/d35/classevio_1_1_structure_finder_1afb589fca863aab39739af2d4e8ac9e48" prot="public" virt="non-virtual"><scope>evio::StructureFinder</scope><name>getMatchingStructures</name></member>
+      <member refid="db/d35/classevio_1_1_structure_finder_1a01708c1e0cf466acd5f81256e18cd01f" prot="public" virt="non-virtual"><scope>evio::StructureFinder</scope><name>getMatchingStructures</name></member>
+      <member refid="db/d35/classevio_1_1_structure_finder_1a48530ba93596a6cd177d2bb6dcf401be" prot="public" virt="non-virtual"><scope>evio::StructureFinder</scope><name>getMatchingStructures</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="dc/d78/classevio_1_1_i_evio_filter" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>evio::IEvioFilter</compoundname>
+    <includes local="no">IEvioFilter.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="dc/d78/classevio_1_1_i_evio_filter_1aaffbf24d739eb5897a4c26af7ef3846a" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool evio::IEvioFilter::accept</definition>
+        <argsstring>(StructureType const &amp;structureType, std::shared_ptr&lt; BaseStructure &gt; structure)=0</argsstring>
+        <name>accept</name>
+        <param>
+          <type><ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> const &amp;</type>
+          <declname>structureType</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <briefdescription>
+<para>Accept or reject the given structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structureType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure type, a <computeroutput><ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref></computeroutput> enum, of the structure that was just found, e.g., <computeroutput>StructureType.BANK</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure that was just found. From its header the tag, num, length, and data type are available. The application can filter based on those quantities or on the data itself. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the structure passes the filter and should be given to the listeners. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="dd/da5/classevio_1_1_structure_type" kindref="compound">StructureType</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioFilter.h" line="54" column="22"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This interface allows applications to create filters so that they only receive certain structures when events are being processed. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Below is a filter that accepts any structure that has tag = 400. <preformatted>
+class MyFilter : <ref refid="dc/d78/classevio_1_1_i_evio_filter" kindref="compound">IEvioFilter</ref> {
+    public bool accept(StructureType &amp; structureType, std::shared_ptr&lt;BaseStructure&gt; structure) {
+        return (structure-&gt;getHeader()-&gt;getTag() == 400);
+    }
+};
+MyFilter myfilter();
+EventParser.getInstance().setEvioFilter(myFilter);
+</preformatted> <simplesect kind="author"><para>heddle (Original java class) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/IEvioFilter.h" line="40" column="5" bodyfile="src/libsrc/IEvioFilter.h" bodystart="40" bodyend="55"/>
+    <listofallmembers>
+      <member refid="dc/d78/classevio_1_1_i_evio_filter_1aaffbf24d739eb5897a4c26af7ef3846a" prot="public" virt="pure-virtual"><scope>evio::IEvioFilter</scope><name>accept</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

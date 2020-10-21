@@ -1,0 +1,391 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="_structure_type_8h" kind="file" language="C++">
+    <compoundname>StructureType.h</compoundname>
+    <includes local="no">string</includes>
+    <includedby refid="_base_structure_8h" local="yes">src/libsrc/BaseStructure.h</includedby>
+    <includedby refid="_event_builder_8h" local="yes">src/libsrc/EventBuilder.h</includedby>
+    <includedby refid="_evio_bank_8h" local="yes">src/libsrc/EvioBank.h</includedby>
+    <includedby refid="_evio_event_8h" local="yes">src/libsrc/EvioEvent.h</includedby>
+    <includedby refid="_evio_segment_8h" local="yes">src/libsrc/EvioSegment.h</includedby>
+    <includedby refid="_evio_tag_segment_8h" local="yes">src/libsrc/EvioTagSegment.h</includedby>
+    <includedby refid="_i_evio_filter_8h" local="yes">src/libsrc/IEvioFilter.h</includedby>
+    <includedby refid="_structure_finder_8h" local="yes">src/libsrc/StructureFinder.h</includedby>
+    <includedby refid="_structure_type_8cpp" local="yes">src/libsrc/StructureType.cpp</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/libsrc/StructureType.h</label>
+        <link refid="_structure_type_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>string</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="27">
+        <label>src/libsrc/EvioXMLDictionary.h</label>
+        <link refid="_evio_x_m_l_dictionary_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/libsrc/EventBuilder.h</label>
+        <link refid="_event_builder_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/libsrc/EventParser.h</label>
+        <link refid="_event_parser_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>src/libsrc/EvioReaderV6.h</label>
+        <link refid="_evio_reader_v6_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>src/libsrc/EvioCompactReaderV6.h</label>
+        <link refid="_evio_compact_reader_v6_8h_source"/>
+      </node>
+      <node id="1">
+        <label>src/libsrc/StructureType.h</label>
+        <link refid="_structure_type_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>src/libsrc/StructureTransformer.h</label>
+        <link refid="_structure_transformer_8h_source"/>
+      </node>
+      <node id="13">
+        <label>src/libsrc/EvioBank.h</label>
+        <link refid="_evio_bank_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>src/libsrc/RecordRingItem.h</label>
+        <link refid="_record_ring_item_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/libsrc/BaseStructure.h</label>
+        <link refid="_base_structure_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>src/libsrc/RecordOutput.h</label>
+        <link refid="_record_output_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>src/libsrc/IEvioReader.h</label>
+        <link refid="_i_evio_reader_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>src/libsrc/RecordSupply.h</label>
+        <link refid="_record_supply_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>src/libsrc/WriterMT.h</label>
+        <link refid="_writer_m_t_8h_source"/>
+      </node>
+      <node id="7">
+        <label>src/libsrc/EvioCompactReaderV4.h</label>
+        <link refid="_evio_compact_reader_v4_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>src/libsrc/EvioSegment.h</label>
+        <link refid="_evio_segment_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/libsrc/EvioReaderV4.h</label>
+        <link refid="_evio_reader_v4_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>src/libsrc/RecordCompressor.h</label>
+        <link refid="_record_compressor_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>src/libsrc/Writer.h</label>
+        <link refid="_writer_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>src/libsrc/EvioCompactReader.h</label>
+        <link refid="_evio_compact_reader_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>src/libsrc/IEvioFilter.h</label>
+        <link refid="_i_evio_filter_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>src/libsrc/IEvioCompactReader.h</label>
+        <link refid="_i_evio_compact_reader_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>src/libsrc/EventWriter.h</label>
+        <link refid="_event_writer_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>src/libsrc/CompactEventBuilder.h</label>
+        <link refid="_compact_event_builder_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/libsrc/evio.h</label>
+        <link refid="evio_8h_source"/>
+      </node>
+      <node id="26">
+        <label>src/libsrc/EvioTagSegment.h</label>
+        <link refid="_evio_tag_segment_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>src/libsrc/StructureFinder.h</label>
+        <link refid="_structure_finder_8h_source"/>
+      </node>
+      <node id="9">
+        <label>src/libsrc/EvioReader.h</label>
+        <link refid="_evio_reader_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>src/libsrc/EvioSwap.h</label>
+        <link refid="_evio_swap_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>src/libsrc/EvioEvent.h</label>
+        <link refid="_evio_event_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classevio_1_1_structure_type" prot="public">evio::StructureType</innerclass>
+    <innernamespace refid="namespaceevio">evio</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Copyright<sp/>2020,<sp/>Jefferson<sp/>Science<sp/>Associates,<sp/>LLC.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Subject<sp/>to<sp/>the<sp/>terms<sp/>in<sp/>the<sp/>LICENSE<sp/>file<sp/>found<sp/>in<sp/>the<sp/>top-level<sp/>directory.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/>EPSCI<sp/>Group</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Thomas<sp/>Jefferson<sp/>National<sp/>Accelerator<sp/>Facility</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/>12000,<sp/>Jefferson<sp/>Ave,<sp/>Newport<sp/>News,<sp/>VA<sp/>23606</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(757)-269-7100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EVIO_6_0_STRUCTUREYPE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EVIO_6_0_STRUCTUREYPE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceevio" kindref="compound">evio</ref><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="classevio_1_1_structure_type" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/><ref refid="classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">STRUCT_UNKNOWN32</ref>;</highlight></codeline>
+<codeline lineno="39" refid="classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/><ref refid="classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" kindref="member">STRUCT_TAGSEGMENT</ref>;</highlight></codeline>
+<codeline lineno="40" refid="classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/><ref refid="classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" kindref="member">STRUCT_SEGMENT</ref>;</highlight></codeline>
+<codeline lineno="41" refid="classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/><ref refid="classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" kindref="member">STRUCT_BANK</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>value;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>value2<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/>name;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/>intToType[33];<sp/></highlight><highlight class="comment">//<sp/>0x20<sp/>+<sp/>1<sp/>=<sp/>33</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>std::string<sp/>names[33];</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref>(std::string<sp/>name,<sp/>uint32_t<sp/>val,<sp/>uint32_t<sp/>val2=0)<sp/>:<sp/>name(std::move(name)),<sp/>value(val),<sp/>value2(val2)<sp/>{}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="classevio_1_1_structure_type_1a80e2580d4e5fbb60a52c4a468e06885e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/>&amp;<sp/><ref refid="classevio_1_1_structure_type_1a80e2580d4e5fbb60a52c4a468e06885e" kindref="member">getStructureType</ref>(uint32_t<sp/>val)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&gt;<sp/>0x20)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a8d5167c43853c6aa6046c4849986e95f" kindref="member">STRUCT_UNKNOWN32</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>intToType[val];</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="classevio_1_1_structure_type_1a75dce92038d74f50a11f369fa8c1e807" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>std::string<sp/><ref refid="classevio_1_1_structure_type_1a75dce92038d74f50a11f369fa8c1e807" kindref="member">getName</ref>(uint32_t<sp/>val)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&gt;<sp/>0x20)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;UNKNOWN32&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a80e2580d4e5fbb60a52c4a468e06885e" kindref="member">getStructureType</ref>(val).names[val];</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="classevio_1_1_structure_type_1a14892efe1f55e607f255ac6963a92143" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a14892efe1f55e607f255ac6963a92143" kindref="member">isBank</ref>(uint32_t<sp/>type)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" kindref="member">STRUCT_BANK</ref>.value<sp/>==<sp/>type<sp/>||<sp/><ref refid="classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" kindref="member">STRUCT_BANK</ref>.value2<sp/>==<sp/>type);}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="classevio_1_1_structure_type_1a2edc2702ee13ffc308588b9397caca7a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a2edc2702ee13ffc308588b9397caca7a" kindref="member">isSegment</ref>(uint32_t<sp/>type)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" kindref="member">STRUCT_SEGMENT</ref>.value<sp/>==<sp/>type<sp/>||<sp/><ref refid="classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" kindref="member">STRUCT_SEGMENT</ref>.value2<sp/>==<sp/>type);}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="classevio_1_1_structure_type_1a4968815b45dec692eadda6a14a2fa748" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a4968815b45dec692eadda6a14a2fa748" kindref="member">isTagSegment</ref>(uint32_t<sp/>type)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" kindref="member">STRUCT_TAGSEGMENT</ref>.value<sp/>==<sp/>type);}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="classevio_1_1_structure_type_1adae28266d2bc64008d6fb2574024fabb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string<sp/>&amp;<sp/><ref refid="classevio_1_1_structure_type_1adae28266d2bc64008d6fb2574024fabb" kindref="member">getName</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>name;}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="classevio_1_1_structure_type_1aa50ee70a872824f14029c2f50680d057" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="classevio_1_1_structure_type_1aa50ee70a872824f14029c2f50680d057" kindref="member">getValue</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>value;}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132" refid="classevio_1_1_structure_type_1a62c2632202f73efcc85641acf7c392b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classevio_1_1_structure_type_1a62c2632202f73efcc85641acf7c392b7" kindref="member">toString</ref>()<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>name;}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="classevio_1_1_structure_type_1a2cbebb245cd585a4f3bd29daea4a2982" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a2cbebb245cd585a4f3bd29daea4a2982" kindref="member">isBank</ref>()<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal"><sp/>==<sp/><ref refid="classevio_1_1_structure_type_1a85e655b6310348b780c6e63f903422cb" kindref="member">STRUCT_BANK</ref>);}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="classevio_1_1_structure_type_1a186f6b98aa019e7da6a1d9fa97208d7f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a186f6b98aa019e7da6a1d9fa97208d7f" kindref="member">isSegment</ref>()<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal"><sp/>==<sp/><ref refid="classevio_1_1_structure_type_1a69e393d0f8b2f78f188cc8caabde8ff2" kindref="member">STRUCT_SEGMENT</ref>);}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150" refid="classevio_1_1_structure_type_1a5804636f8f4257e5031ebec9d1c4291b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type_1a5804636f8f4257e5031ebec9d1c4291b" kindref="member">isTagSegment</ref>()<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal"><sp/>==<sp/><ref refid="classevio_1_1_structure_type_1ae925fc09a425a266787b3aab512df591" kindref="member">STRUCT_TAGSEGMENT</ref>);}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>operator==(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/>&amp;rhs)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>operator!=(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classevio_1_1_structure_type" kindref="compound">StructureType</ref><sp/>&amp;rhs)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//EVIO_6_0_STRUCTUREYPE_H</highlight></codeline>
+    </programlisting>
+    <location file="src/libsrc/StructureType.h"/>
+  </compounddef>
+</doxygen>

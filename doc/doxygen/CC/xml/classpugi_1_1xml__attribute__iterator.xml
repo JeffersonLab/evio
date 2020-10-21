@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xml__attribute__iterator" kind="class" language="C++" prot="public">
+    <compoundname>pugi::xml_attribute_iterator</compoundname>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classpugi_1_1xml__attribute__iterator_1a00b3eecf2aba886a673ad2319be88618" prot="public" static="no">
+        <type>ptrdiff_t</type>
+        <definition>typedef ptrdiff_t pugi::xml_attribute_iterator::difference_type</definition>
+        <argsstring></argsstring>
+        <name>difference_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="874" column="19" bodyfile="src/libsrc/pugixml.hpp" bodystart="874" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classpugi_1_1xml__attribute__iterator_1a2b0e779f12de813d7a806056ebed8907" prot="public" static="no">
+        <type><ref refid="classpugi_1_1xml__attribute" kindref="compound">xml_attribute</ref></type>
+        <definition>typedef xml_attribute pugi::xml_attribute_iterator::value_type</definition>
+        <argsstring></argsstring>
+        <name>value_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="875" column="23" bodyfile="src/libsrc/pugixml.hpp" bodystart="875" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classpugi_1_1xml__attribute__iterator_1a6ed6fb3197abb02ffa848ad6b9b7a1be" prot="public" static="no">
+        <type><ref refid="classpugi_1_1xml__attribute" kindref="compound">xml_attribute</ref> *</type>
+        <definition>typedef xml_attribute* pugi::xml_attribute_iterator::pointer</definition>
+        <argsstring></argsstring>
+        <name>pointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="876" column="23" bodyfile="src/libsrc/pugixml.hpp" bodystart="876" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classpugi_1_1xml__attribute__iterator_1ade97045a1217d0a7897e5f5873297117" prot="public" static="no">
+        <type><ref refid="classpugi_1_1xml__attribute" kindref="compound">xml_attribute</ref> &amp;</type>
+        <definition>typedef xml_attribute&amp; pugi::xml_attribute_iterator::reference</definition>
+        <argsstring></argsstring>
+        <name>reference</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="877" column="23" bodyfile="src/libsrc/pugixml.hpp" bodystart="877" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classpugi_1_1xml__attribute__iterator_1aad988273a3e4cdc5fa3eb879dbdc8d35" prot="public" static="no">
+        <type>std::bidirectional_iterator_tag</type>
+        <definition>typedef std::bidirectional_iterator_tag pugi::xml_attribute_iterator::iterator_category</definition>
+        <argsstring></argsstring>
+        <name>iterator_category</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="880" column="41" bodyfile="src/libsrc/pugixml.hpp" bodystart="880" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classpugi_1_1xml__attribute__iterator_1a156d917a92815c7b593bd5ef19f6d5fb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class xml_node</definition>
+        <argsstring></argsstring>
+        <name>xml_node</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="864" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="864" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpugi_1_1xml__attribute__iterator_1a3985d6107023a7eae2ec4acdcd710809" prot="private" static="no" mutable="yes">
+        <type><ref refid="classpugi_1_1xml__attribute" kindref="compound">xml_attribute</ref></type>
+        <definition>xml_attribute pugi::xml_attribute_iterator::_wrap</definition>
+        <argsstring></argsstring>
+        <name>_wrap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="867" column="23" bodyfile="src/libsrc/pugixml.hpp" bodystart="867" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classpugi_1_1xml__attribute__iterator_1a2cc75b518f6533d7b97d820613b8a3be" prot="private" static="no" mutable="no">
+        <type><ref refid="classpugi_1_1xml__node" kindref="compound">xml_node</ref></type>
+        <definition>xml_node pugi::xml_attribute_iterator::_parent</definition>
+        <argsstring></argsstring>
+        <name>_parent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="868" column="10" bodyfile="src/libsrc/pugixml.hpp" bodystart="868" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1a75939576679d96243e8a699ffbbf761c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_attribute_iterator::xml_attribute_iterator</definition>
+        <argsstring>(xml_attribute_struct *ref, xml_node_struct *parent)</argsstring>
+        <name>xml_attribute_iterator</name>
+        <param>
+          <type><ref refid="structpugi_1_1xml__attribute__struct" kindref="compound">xml_attribute_struct</ref> *</type>
+          <declname>ref</declname>
+        </param>
+        <param>
+          <type><ref refid="structpugi_1_1xml__node__struct" kindref="compound">xml_node_struct</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="870" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="6758" bodyend="6760"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1abdc6df1b586551706b124eed1badaafd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_attribute_iterator::xml_attribute_iterator</definition>
+        <argsstring>()</argsstring>
+        <name>xml_attribute_iterator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="884" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="6750" bodyend="6752"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1ac2e6cf800de67b97a611854261caa687" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_attribute_iterator::xml_attribute_iterator</definition>
+        <argsstring>(const xml_attribute &amp;attr, const xml_node &amp;parent)</argsstring>
+        <name>xml_attribute_iterator</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xml__attribute" kindref="compound">xml_attribute</ref> &amp;</type>
+          <declname>attr</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classpugi_1_1xml__node" kindref="compound">xml_node</ref> &amp;</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="887" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="6754" bodyend="6756"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1ada16a86994b768fa5b8d39ffe799186a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_attribute_iterator::operator==</definition>
+        <argsstring>(const xml_attribute_iterator &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xml__attribute__iterator" kindref="compound">xml_attribute_iterator</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="890" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6762" bodyend="6765"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1ae22b5394d6111e04891903debc2e635b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_attribute_iterator::operator!=</definition>
+        <argsstring>(const xml_attribute_iterator &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xml__attribute__iterator" kindref="compound">xml_attribute_iterator</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="891" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6767" bodyend="6770"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1af97ccf73f402e9bbbe5f869a9f6c8510" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__attribute" kindref="compound">xml_attribute</ref> &amp;</type>
+        <definition>xml_attribute &amp; pugi::xml_attribute_iterator::operator*</definition>
+        <argsstring>() const</argsstring>
+        <name>operator*</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="893" column="15" bodyfile="src/libsrc/pugixml.cpp" bodystart="6772" bodyend="6776"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1a2f0f8a2d1ac7475101834a9691100e27" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__attribute" kindref="compound">xml_attribute</ref> *</type>
+        <definition>xml_attribute * pugi::xml_attribute_iterator::operator-&gt;</definition>
+        <argsstring>() const</argsstring>
+        <name>operator-&gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="894" column="15" bodyfile="src/libsrc/pugixml.cpp" bodystart="6778" bodyend="6782"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1ab1fd42bac51e5daa63d282d650b68f8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classpugi_1_1xml__attribute__iterator" kindref="compound">xml_attribute_iterator</ref> &amp;</type>
+        <definition>const xml_attribute_iterator &amp; pugi::xml_attribute_iterator::operator++</definition>
+        <argsstring>()</argsstring>
+        <name>operator++</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="896" column="30" bodyfile="src/libsrc/pugixml.cpp" bodystart="6784" bodyend="6789"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1a6b97c3b1a278c668240d7ab0b20d77ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__attribute__iterator" kindref="compound">xml_attribute_iterator</ref></type>
+        <definition>xml_attribute_iterator pugi::xml_attribute_iterator::operator++</definition>
+        <argsstring>(int)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="897" column="24" bodyfile="src/libsrc/pugixml.cpp" bodystart="6791" bodyend="6796"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1a47f97fffa7c6d7948172bd52dc0e506a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classpugi_1_1xml__attribute__iterator" kindref="compound">xml_attribute_iterator</ref> &amp;</type>
+        <definition>const xml_attribute_iterator &amp; pugi::xml_attribute_iterator::operator--</definition>
+        <argsstring>()</argsstring>
+        <name>operator--</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="899" column="30" bodyfile="src/libsrc/pugixml.cpp" bodystart="6798" bodyend="6802"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__attribute__iterator_1a4b172ad267089d166221967c3b3a05ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__attribute__iterator" kindref="compound">xml_attribute_iterator</ref></type>
+        <definition>xml_attribute_iterator pugi::xml_attribute_iterator::operator--</definition>
+        <argsstring>(int)</argsstring>
+        <name>operator--</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="900" column="24" bodyfile="src/libsrc/pugixml.cpp" bodystart="6804" bodyend="6809"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/pugixml.hpp" line="862" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="863" bodyend="901"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a2cc75b518f6533d7b97d820613b8a3be" prot="private" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>_parent</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a3985d6107023a7eae2ec4acdcd710809" prot="private" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>_wrap</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a00b3eecf2aba886a673ad2319be88618" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>difference_type</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1aad988273a3e4cdc5fa3eb879dbdc8d35" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>iterator_category</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1ae22b5394d6111e04891903debc2e635b" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator!=</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1af97ccf73f402e9bbbe5f869a9f6c8510" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator*</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1ab1fd42bac51e5daa63d282d650b68f8f" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator++</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a6b97c3b1a278c668240d7ab0b20d77ae" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator++</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a47f97fffa7c6d7948172bd52dc0e506a" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator--</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a4b172ad267089d166221967c3b3a05ae" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator--</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a2f0f8a2d1ac7475101834a9691100e27" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator-&gt;</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1ada16a86994b768fa5b8d39ffe799186a" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>operator==</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a6ed6fb3197abb02ffa848ad6b9b7a1be" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>pointer</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1ade97045a1217d0a7897e5f5873297117" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>reference</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a2b0e779f12de813d7a806056ebed8907" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>value_type</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a75939576679d96243e8a699ffbbf761c" prot="private" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>xml_attribute_iterator</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1abdc6df1b586551706b124eed1badaafd" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>xml_attribute_iterator</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1ac2e6cf800de67b97a611854261caa687" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>xml_attribute_iterator</name></member>
+      <member refid="classpugi_1_1xml__attribute__iterator_1a156d917a92815c7b593bd5ef19f6d5fb" prot="private" virt="non-virtual"><scope>pugi::xml_attribute_iterator</scope><name>xml_node</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

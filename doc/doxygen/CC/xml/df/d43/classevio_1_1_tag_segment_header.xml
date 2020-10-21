@@ -1,0 +1,853 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="df/d43/classevio_1_1_tag_segment_header" kind="class" language="C++" prot="public">
+    <compoundname>evio::TagSegmentHeader</compoundname>
+    <basecompoundref refid="db/dfb/classevio_1_1_base_structure_header" prot="public" virt="non-virtual">evio::BaseStructureHeader</basecompoundref>
+    <includes local="no">TagSegmentHeader.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1ab03614af48a56c3f9269b0c798c69840" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::TagSegmentHeader::TagSegmentHeader</definition>
+        <argsstring>()=default</argsstring>
+        <name>TagSegmentHeader</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="40" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1a0c24096f3323c9df2d88acdce0ecec49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::TagSegmentHeader::TagSegmentHeader</definition>
+        <argsstring>(uint16_t tag, DataType const &amp;dataType)</argsstring>
+        <name>TagSegmentHeader</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tag for the tagsegment header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the data type for the content of the tagsegment. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="41" column="9" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="21" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1a2a8a8430edafaf5858b86ea6f6e9815d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::TagSegmentHeader::TagSegmentHeader</definition>
+        <argsstring>(uint16_t tag, std::string const &amp;format)</argsstring>
+        <name>TagSegmentHeader</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>format</declname>
+          <defname>str</defname>
+        </param>
+        <briefdescription>
+<para>Constructor for a string data type holding the single string given. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used in <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tag for the tagsegment header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data type for the content of the tagsegment. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="42" column="9" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="30" bodyend="35"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+        <references refid="d3/d87/classevio_1_1_util_1a29a1f64bd5ff18c187625eb2d7c684a0" compoundref="dd/d90/_util_8h" startline="758" endline="774">evio::Util::stringToRawSize</references>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1a051d8b1070adc5662e610234d5cd9f15" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::TagSegmentHeader::getDataLength</definition>
+        <argsstring>() override</argsstring>
+        <name>getDataLength</name>
+        <reimplements refid="db/dfb/classevio_1_1_base_structure_header_1a59dfbf2e4dea4a32bc63e4025304d626">getDataLength</reimplements>
+        <briefdescription>
+<para>Get the length of the structure&apos;s data in 32 bit ints (not counting the header words). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Get the length of the structure&apos;s data in 32 bit ints (not counting the header words). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="44" column="18" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="42" bodyend="42"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1a6c47ba93744755a57729b6980bd7fd4e" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::TagSegmentHeader::getHeaderLength</definition>
+        <argsstring>() override</argsstring>
+        <name>getHeaderLength</name>
+        <reimplements refid="db/dfb/classevio_1_1_base_structure_header_1a11c3bab4b4b99bbc3103b3ae038f0c4c">getHeaderLength</reimplements>
+        <briefdescription>
+<para>Get the length of the structure&apos;s header in ints. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This includes the first header word itself (which contains the length) and in the case of banks, it also includes the second header word. <simplesect kind="return"><para>Get the length of the structure&apos;s header in ints. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="45" column="18" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1a22a99b547180f3c9aca1a8a5b39130b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string evio::TagSegmentHeader::toString</definition>
+        <argsstring>() override</argsstring>
+        <name>toString</name>
+        <reimplements refid="db/dfb/classevio_1_1_base_structure_header_1a24fb7da871e684ba89885339cb671cdb">toString</reimplements>
+        <briefdescription>
+<para>Obtain a string representation of the tagsegment header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a string representation of the tagsegment header. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="46" column="23" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="97" bodyend="105"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a20ecfb1490d3928289ce7e90717d797c" compoundref="d1/d82/_base_structure_header_8cpp" startline="82" endline="82">evio::BaseStructureHeader::getDataTypeName</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" compoundref="dd/de1/_base_structure_header_8h" startline="57">evio::BaseStructureHeader::tag</references>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1a3f90ca5280e86a180c36d7f80faa764f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::TagSegmentHeader::write</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;dest) override</argsstring>
+        <name>write</name>
+        <reimplements refid="db/dfb/classevio_1_1_base_structure_header_1a6bbf5d5ec94c160022abfc6fb0cc4dbb">write</reimplements>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>dest</declname>
+          <defname>byteBuffer</defname>
+        </param>
+        <briefdescription>
+<para>Write myself out a byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This write is relative - i.e., it uses the current position of the buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byteBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byteBuffer to write to. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of bytes written, which for a <ref refid="df/d43/classevio_1_1_tag_segment_header" kindref="compound">TagSegmentHeader</ref> is 4. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="48" column="16" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="75" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1a568da7b8bcb84a881663712e46ceb682" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::TagSegmentHeader::write</definition>
+        <argsstring>(ByteBuffer &amp;dest) override</argsstring>
+        <name>write</name>
+        <reimplements refid="db/dfb/classevio_1_1_base_structure_header_1ae045706ed8b20dcb5619a7e4e273de95">write</reimplements>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dest</declname>
+          <defname>byteBuffer</defname>
+        </param>
+        <briefdescription>
+<para>Write myself out a byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This write is relative - i.e., it uses the current position of the buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byteBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byteBuffer to write to. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of bytes written, which for a <ref refid="df/d43/classevio_1_1_tag_segment_header" kindref="compound">TagSegmentHeader</ref> is 4. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="49" column="16" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="87" bodyend="91"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" compoundref="dd/de1/_base_structure_header_8h" startline="57">evio::BaseStructureHeader::tag</references>
+      </memberdef>
+      <memberdef kind="function" id="df/d43/classevio_1_1_tag_segment_header_1aa792a400774c62abced5d451affb49e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::TagSegmentHeader::write</definition>
+        <argsstring>(uint8_t *dest, ByteOrder const &amp;order) override</argsstring>
+        <name>write</name>
+        <reimplements refid="db/dfb/classevio_1_1_base_structure_header_1a6da9aafb8616bf9e2ff26334ee2f9c32">write</reimplements>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Write myself out as evio format data into the given byte array in the specified byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array into which evio data is written (destination). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order in which to write the data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of bytes written, which for a <ref refid="df/d43/classevio_1_1_tag_segment_header" kindref="compound">TagSegmentHeader</ref> is 4. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if destination array too small to hold data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/TagSegmentHeader.h" line="50" column="16" bodyfile="src/libsrc/TagSegmentHeader.cpp" bodystart="61" bodyend="65"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" compoundref="dd/de1/_base_structure_header_8h" startline="57">evio::BaseStructureHeader::tag</references>
+        <references refid="d3/d87/classevio_1_1_util_1ab69d28ab3f58cc5457f5b39439937b10" compoundref="dd/d90/_util_8h" startline="257" endline="275">evio::Util::toBytes</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1abf390e156e46d3a8d69201daadc0e7ba" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::BaseStructureHeader::getNumber</definition>
+        <argsstring>() const</argsstring>
+        <name>getNumber</name>
+        <briefdescription>
+<para>Get the number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Only Banks have a number field in their header, so this is only relevant for Banks. <simplesect kind="return"><para>the number. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="85" column="17" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="45" bodyend="45"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a770f7ab1ceaacffe9eace5ef54405df5" compoundref="dd/de1/_base_structure_header_8h" startline="73">evio::BaseStructureHeader::number</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a191413db85fdf73b284fbf9c36392b20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BaseStructureHeader::setNumber</definition>
+        <argsstring>(uint8_t number)</argsstring>
+        <name>setNumber</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>number</declname>
+          <defname>num</defname>
+        </param>
+        <briefdescription>
+<para>Set the number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Only Banks have a number field in their header, so this is only relevant for Banks. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="86" column="14" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="51" bodyend="51"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a770f7ab1ceaacffe9eace5ef54405df5" compoundref="dd/de1/_base_structure_header_8h" startline="73">evio::BaseStructureHeader::number</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a3b1e6ad65be46d90def73436ee2111db" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BaseStructureHeader::getDataTypeValue</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataTypeValue</name>
+        <briefdescription>
+<para>Get the data type for the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the data type for the structure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="88" column="18" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="57" bodyend="57"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1ae745d3d6f9ab46be096ac75c33bf0cc8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BaseStructureHeader::setDataType</definition>
+        <argsstring>(uint32_t type)</argsstring>
+        <name>setDataType</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Set the numeric data type for the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the numeric data type for the structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="89" column="14" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="63" bodyend="63"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1ab3ceb3c0ca87a8bf063d7b6974606378" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BaseStructureHeader::setDataType</definition>
+        <argsstring>(DataType const &amp;type)</argsstring>
+        <name>setDataType</name>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Set the numeric data type for the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the numeric data type for the structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="91" column="14" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="69" bodyend="69"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1aecc8cfa082206c87607c3e4df64f940d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::BaseStructureHeader::getDataType</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataType</name>
+        <briefdescription>
+<para>Returns the data type for data stored in this structure as a <computeroutput><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></computeroutput> enum. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the data type for data stored in this structure as a <computeroutput><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></computeroutput> enum. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="92" column="18" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="76" bodyend="76"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a20ecfb1490d3928289ce7e90717d797c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::BaseStructureHeader::getDataTypeName</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataTypeName</name>
+        <briefdescription>
+<para>Returns the data type as a string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the data type as a string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="94" column="21" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="82" bodyend="82"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a65d3f882e19a958e2ad6a05aacb4e67b" compoundref="db/da7/_data_type_8h" startline="110" endline="113">evio::DataType::getName</references>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af941007bb8c0153b1d680dafe9b922e8" compoundref="d9/d83/_bank_header_8cpp" startline="93" endline="103">evio::BankHeader::toString</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8858e2caef08e6ab1116de4f25155f2d" compoundref="df/d8a/_segment_header_8cpp" startline="91" endline="100">evio::SegmentHeader::toString</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1a22a99b547180f3c9aca1a8a5b39130b0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="97" endline="105">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a6e9817cc47554c10326c65332801dc94" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::BaseStructureHeader::getPadding</definition>
+        <argsstring>() const</argsstring>
+        <name>getPadding</name>
+        <briefdescription>
+<para>Get the amount of padding bytes when storing short or byte data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Value is 0, 1, 2, or 3 for bytes and 0 or 2 for shorts. <simplesect kind="return"><para>number of padding bytes </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="95" column="17" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="89" bodyend="89"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2b3d1f2e583a41bc6c0ab63e4357e71d" compoundref="dd/de1/_base_structure_header_8h" startline="67">evio::BaseStructureHeader::padding</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a9f5007540f2915806443bd854024af6c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BaseStructureHeader::getLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getLength</name>
+        <briefdescription>
+<para>Get the length of the structure in 32 bit ints, not counting the length word. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Get the length of the structure in 32 bit ints (not counting the length word). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="97" column="18" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="102" bodyend="102"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a20e880aa4230fe086a828d289a4b7f81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BaseStructureHeader::setLength</definition>
+        <argsstring>(uint32_t len)</argsstring>
+        <name>setLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Set the length of the structure in 32 bit ints, not counting the length word. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the length of the structure in 32 bit ints, not counting the length word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="98" column="14" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="108" bodyend="108"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a8010a90a31dac30294919cdaa51597b7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::BaseStructureHeader::getTag</definition>
+        <argsstring>() const</argsstring>
+        <name>getTag</name>
+        <briefdescription>
+<para>Get the structure tag. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the structure tag. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="100" column="18" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="114" bodyend="114"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" compoundref="dd/de1/_base_structure_header_8h" startline="57">evio::BaseStructureHeader::tag</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a0fd8e371d474551b449786da20b65df5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BaseStructureHeader::setTag</definition>
+        <argsstring>(uint16_t tag)</argsstring>
+        <name>setTag</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+          <defname>t</defname>
+        </param>
+        <briefdescription>
+<para>Set the structure tag. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the structure tag. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="101" column="14" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="120" bodyend="120"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" compoundref="dd/de1/_base_structure_header_8h" startline="57">evio::BaseStructureHeader::tag</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BaseStructureHeader::length</definition>
+        <argsstring></argsstring>
+        <name>length</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The length of the structure in 32-bit words. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This never includes the first header word itself (which contains the length). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="54" column="18" bodyfile="src/libsrc/BaseStructureHeader.h" bodystart="54" bodyend="-1"/>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1ac493605397f9247e192d9376caa23dcb" compoundref="d9/d83/_bank_header_8cpp" startline="23" endline="24">evio::BankHeader::BankHeader</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1a2a8a8430edafaf5858b86ea6f6e9815d" compoundref="d0/d36/_tag_segment_header_8cpp" startline="30" endline="35">TagSegmentHeader</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1ab77654de79c4807d70223adfdfcd8ee2" compoundref="d1/d82/_base_structure_header_8cpp" startline="33" endline="39">evio::BaseStructureHeader::copy</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1a44439f36d2f08b0760e6d9dbe1546403" compoundref="d9/d83/_bank_header_8cpp" startline="31" endline="31">evio::BankHeader::getDataLength</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a087ac057344b157c2e46a460f1f12189" compoundref="df/d8a/_segment_header_8cpp" startline="30" endline="30">evio::SegmentHeader::getDataLength</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1a051d8b1070adc5662e610234d5cd9f15" compoundref="d0/d36/_tag_segment_header_8cpp" startline="42" endline="42">getDataLength</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a9f5007540f2915806443bd854024af6c" compoundref="d1/d82/_base_structure_header_8cpp" startline="102" endline="102">evio::BaseStructureHeader::getLength</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a20e880aa4230fe086a828d289a4b7f81" compoundref="d1/d82/_base_structure_header_8cpp" startline="108" endline="108">evio::BaseStructureHeader::setLength</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af941007bb8c0153b1d680dafe9b922e8" compoundref="d9/d83/_bank_header_8cpp" startline="93" endline="103">evio::BankHeader::toString</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8858e2caef08e6ab1116de4f25155f2d" compoundref="df/d8a/_segment_header_8cpp" startline="91" endline="100">evio::SegmentHeader::toString</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1a22a99b547180f3c9aca1a8a5b39130b0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="97" endline="105">toString</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af17d69932a1d6ebd14bcdfe7b9022db5" compoundref="d9/d83/_bank_header_8cpp" startline="51" endline="58">evio::BankHeader::write</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8431fe65ab32bc72f25ae5584f07eb95" compoundref="df/d8a/_segment_header_8cpp" startline="50" endline="56">evio::SegmentHeader::write</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1aa792a400774c62abced5d451affb49e0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="61" endline="65">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BaseStructureHeader::tag</definition>
+        <argsstring></argsstring>
+        <name>tag</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The structure tag. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="57" column="18" bodyfile="src/libsrc/BaseStructureHeader.h" bodystart="57" bodyend="-1"/>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a1cc878d3cbdb0c41912fd8976adab3c7" compoundref="d1/d82/_base_structure_header_8cpp" startline="23" endline="27">evio::BaseStructureHeader::BaseStructureHeader</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1ab77654de79c4807d70223adfdfcd8ee2" compoundref="d1/d82/_base_structure_header_8cpp" startline="33" endline="39">evio::BaseStructureHeader::copy</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a8010a90a31dac30294919cdaa51597b7" compoundref="d1/d82/_base_structure_header_8cpp" startline="114" endline="114">evio::BaseStructureHeader::getTag</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a0fd8e371d474551b449786da20b65df5" compoundref="d1/d82/_base_structure_header_8cpp" startline="120" endline="120">evio::BaseStructureHeader::setTag</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af941007bb8c0153b1d680dafe9b922e8" compoundref="d9/d83/_bank_header_8cpp" startline="93" endline="103">evio::BankHeader::toString</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8858e2caef08e6ab1116de4f25155f2d" compoundref="df/d8a/_segment_header_8cpp" startline="91" endline="100">evio::SegmentHeader::toString</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1a22a99b547180f3c9aca1a8a5b39130b0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="97" endline="105">toString</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af17d69932a1d6ebd14bcdfe7b9022db5" compoundref="d9/d83/_bank_header_8cpp" startline="51" endline="58">evio::BankHeader::write</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8431fe65ab32bc72f25ae5584f07eb95" compoundref="df/d8a/_segment_header_8cpp" startline="50" endline="56">evio::SegmentHeader::write</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1aa792a400774c62abced5d451affb49e0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="61" endline="65">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" prot="protected" static="no" mutable="no">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::BaseStructureHeader::dataType</definition>
+        <argsstring></argsstring>
+        <name>dataType</name>
+        <initializer>{<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>}</initializer>
+        <briefdescription>
+<para>The data type of the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="60" column="18" bodyfile="src/libsrc/BaseStructureHeader.h" bodystart="60" bodyend="-1"/>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a1cc878d3cbdb0c41912fd8976adab3c7" compoundref="d1/d82/_base_structure_header_8cpp" startline="23" endline="27">evio::BaseStructureHeader::BaseStructureHeader</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1ab77654de79c4807d70223adfdfcd8ee2" compoundref="d1/d82/_base_structure_header_8cpp" startline="33" endline="39">evio::BaseStructureHeader::copy</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1aecc8cfa082206c87607c3e4df64f940d" compoundref="d1/d82/_base_structure_header_8cpp" startline="76" endline="76">evio::BaseStructureHeader::getDataType</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a20ecfb1490d3928289ce7e90717d797c" compoundref="d1/d82/_base_structure_header_8cpp" startline="82" endline="82">evio::BaseStructureHeader::getDataTypeName</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a3b1e6ad65be46d90def73436ee2111db" compoundref="d1/d82/_base_structure_header_8cpp" startline="57" endline="57">evio::BaseStructureHeader::getDataTypeValue</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1ae745d3d6f9ab46be096ac75c33bf0cc8" compoundref="d1/d82/_base_structure_header_8cpp" startline="63" endline="63">evio::BaseStructureHeader::setDataType</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af17d69932a1d6ebd14bcdfe7b9022db5" compoundref="d9/d83/_bank_header_8cpp" startline="51" endline="58">evio::BankHeader::write</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8431fe65ab32bc72f25ae5584f07eb95" compoundref="df/d8a/_segment_header_8cpp" startline="50" endline="56">evio::SegmentHeader::write</referencedby>
+        <referencedby refid="df/d43/classevio_1_1_tag_segment_header_1aa792a400774c62abced5d451affb49e0" compoundref="d0/d36/_tag_segment_header_8cpp" startline="61" endline="65">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="db/dfb/classevio_1_1_base_structure_header_1a2b3d1f2e583a41bc6c0ab63e4357e71d" prot="protected" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::BaseStructureHeader::padding</definition>
+        <argsstring></argsstring>
+        <name>padding</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The amount of padding bytes when storing short or byte data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Allowed value is 0, 1, 2, or 3 (0,2 for shorts and 0-3 for bytes) and is stored in the upper 2 bits of the dataType when written out. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="67" column="17" bodyfile="src/libsrc/BaseStructureHeader.h" bodystart="67" bodyend="-1"/>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1ab77654de79c4807d70223adfdfcd8ee2" compoundref="d1/d82/_base_structure_header_8cpp" startline="33" endline="39">evio::BaseStructureHeader::copy</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a6e9817cc47554c10326c65332801dc94" compoundref="d1/d82/_base_structure_header_8cpp" startline="89" endline="89">evio::BaseStructureHeader::getPadding</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a269b50c10f9736aab6fd8849f308457a" compoundref="d1/d82/_base_structure_header_8cpp" startline="96" endline="96">evio::BaseStructureHeader::setPadding</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af941007bb8c0153b1d680dafe9b922e8" compoundref="d9/d83/_bank_header_8cpp" startline="93" endline="103">evio::BankHeader::toString</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8858e2caef08e6ab1116de4f25155f2d" compoundref="df/d8a/_segment_header_8cpp" startline="91" endline="100">evio::SegmentHeader::toString</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af17d69932a1d6ebd14bcdfe7b9022db5" compoundref="d9/d83/_bank_header_8cpp" startline="51" endline="58">evio::BankHeader::write</referencedby>
+        <referencedby refid="d1/d89/classevio_1_1_segment_header_1a8431fe65ab32bc72f25ae5584f07eb95" compoundref="df/d8a/_segment_header_8cpp" startline="50" endline="56">evio::SegmentHeader::write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="db/dfb/classevio_1_1_base_structure_header_1a770f7ab1ceaacffe9eace5ef54405df5" prot="protected" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::BaseStructureHeader::number</definition>
+        <argsstring></argsstring>
+        <name>number</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The number represents an unsigned byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Only Banks have a number field in their header, so this is only relevant for Banks. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="73" column="17" bodyfile="src/libsrc/BaseStructureHeader.h" bodystart="73" bodyend="-1"/>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a1cc878d3cbdb0c41912fd8976adab3c7" compoundref="d1/d82/_base_structure_header_8cpp" startline="23" endline="27">evio::BaseStructureHeader::BaseStructureHeader</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1ab77654de79c4807d70223adfdfcd8ee2" compoundref="d1/d82/_base_structure_header_8cpp" startline="33" endline="39">evio::BaseStructureHeader::copy</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1abf390e156e46d3a8d69201daadc0e7ba" compoundref="d1/d82/_base_structure_header_8cpp" startline="45" endline="45">evio::BaseStructureHeader::getNumber</referencedby>
+        <referencedby refid="db/dfb/classevio_1_1_base_structure_header_1a191413db85fdf73b284fbf9c36392b20" compoundref="d1/d82/_base_structure_header_8cpp" startline="51" endline="51">evio::BaseStructureHeader::setNumber</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af941007bb8c0153b1d680dafe9b922e8" compoundref="d9/d83/_bank_header_8cpp" startline="93" endline="103">evio::BankHeader::toString</referencedby>
+        <referencedby refid="dc/d90/classevio_1_1_bank_header_1af17d69932a1d6ebd14bcdfe7b9022db5" compoundref="d9/d83/_bank_header_8cpp" startline="51" endline="58">evio::BankHeader::write</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1a269b50c10f9736aab6fd8849f308457a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BaseStructureHeader::setPadding</definition>
+        <argsstring>(uint8_t pad)</argsstring>
+        <name>setPadding</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>pad</declname>
+        </param>
+        <briefdescription>
+<para>Set the amount of padding bytes when storing short or byte data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Allowed value is 0, 1, 2, or 3 for bytes and 0 or 2 for shorts. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>amount of padding bytes when storing short or byte data (0-3). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="77" column="14" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="96" bodyend="96"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2b3d1f2e583a41bc6c0ab63e4357e71d" compoundref="dd/de1/_base_structure_header_8h" startline="67">evio::BaseStructureHeader::padding</references>
+      </memberdef>
+      <memberdef kind="function" id="db/dfb/classevio_1_1_base_structure_header_1ab77654de79c4807d70223adfdfcd8ee2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BaseStructureHeader::copy</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructureHeader &gt; const &amp;head)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dfb/classevio_1_1_base_structure_header" kindref="compound">BaseStructureHeader</ref> &gt; const &amp;</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+<para>Method to copy data from the fiven header to this one. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>head</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>header to copy data from (source). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructureHeader.h" line="78" column="14" bodyfile="src/libsrc/BaseStructureHeader.cpp" bodystart="33" bodyend="39"/>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" compoundref="dd/de1/_base_structure_header_8h" startline="60">evio::BaseStructureHeader::dataType</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" compoundref="dd/de1/_base_structure_header_8h" startline="54">evio::BaseStructureHeader::length</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a770f7ab1ceaacffe9eace5ef54405df5" compoundref="dd/de1/_base_structure_header_8h" startline="73">evio::BaseStructureHeader::number</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1a2b3d1f2e583a41bc6c0ab63e4357e71d" compoundref="dd/de1/_base_structure_header_8h" startline="67">evio::BaseStructureHeader::padding</references>
+        <references refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" compoundref="dd/de1/_base_structure_header_8h" startline="57">evio::BaseStructureHeader::tag</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This the header for an evio tagsegment structure (<computeroutput><ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref></computeroutput>). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>It does not contain the raw data, just the header. Copied from the java class of identical name.</para>
+<para><simplesect kind="author"><para>heddle (original Java version) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="date"><para>4/27/2020 </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>evio::TagSegmentHeader</label>
+        <link refid="df/d43/classevio_1_1_tag_segment_header"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>evio::BaseStructureHeader</label>
+        <link refid="db/dfb/classevio_1_1_base_structure_header"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>evio::TagSegmentHeader</label>
+        <link refid="df/d43/classevio_1_1_tag_segment_header"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>evio::DataType</label>
+        <link refid="d5/d23/classevio_1_1_data_type"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>ALSOBANK</edgelabel>
+          <edgelabel>ALSOSEGMENT</edgelabel>
+          <edgelabel>BANK</edgelabel>
+          <edgelabel>CHAR8</edgelabel>
+          <edgelabel>CHARSTAR8</edgelabel>
+          <edgelabel>COMPOSITE</edgelabel>
+          <edgelabel>DOUBLE64</edgelabel>
+          <edgelabel>FLOAT32</edgelabel>
+          <edgelabel>HOLLERIT</edgelabel>
+          <edgelabel>INT32</edgelabel>
+          <edgelabel>...</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>evio::BaseStructureHeader</label>
+        <link refid="db/dfb/classevio_1_1_base_structure_header"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>dataType</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/TagSegmentHeader.h" line="36" column="5" bodyfile="src/libsrc/TagSegmentHeader.h" bodystart="36" bodyend="51"/>
+    <listofallmembers>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1aa68eb8fdec4bbee85623a01f59762029" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>BaseStructureHeader</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a1cc878d3cbdb0c41912fd8976adab3c7" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>BaseStructureHeader</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1ab77654de79c4807d70223adfdfcd8ee2" prot="protected" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>copy</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a6ef44d65bf94ac971d3af915180cec87" prot="protected" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>dataType</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1a051d8b1070adc5662e610234d5cd9f15" prot="public" virt="virtual"><scope>evio::TagSegmentHeader</scope><name>getDataLength</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1aecc8cfa082206c87607c3e4df64f940d" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>getDataType</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a20ecfb1490d3928289ce7e90717d797c" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>getDataTypeName</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a3b1e6ad65be46d90def73436ee2111db" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>getDataTypeValue</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1a6c47ba93744755a57729b6980bd7fd4e" prot="public" virt="virtual"><scope>evio::TagSegmentHeader</scope><name>getHeaderLength</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a9f5007540f2915806443bd854024af6c" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>getLength</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1abf390e156e46d3a8d69201daadc0e7ba" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>getNumber</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a6e9817cc47554c10326c65332801dc94" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>getPadding</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a8010a90a31dac30294919cdaa51597b7" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>getTag</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a2fe8b4dabff88791e9363b53e094eff6" prot="protected" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>length</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a770f7ab1ceaacffe9eace5ef54405df5" prot="protected" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>number</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a2b3d1f2e583a41bc6c0ab63e4357e71d" prot="protected" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>padding</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1ae745d3d6f9ab46be096ac75c33bf0cc8" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>setDataType</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1ab3ceb3c0ca87a8bf063d7b6974606378" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>setDataType</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a20e880aa4230fe086a828d289a4b7f81" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>setLength</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a191413db85fdf73b284fbf9c36392b20" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>setNumber</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a269b50c10f9736aab6fd8849f308457a" prot="protected" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>setPadding</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1a0fd8e371d474551b449786da20b65df5" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>setTag</name></member>
+      <member refid="db/dfb/classevio_1_1_base_structure_header_1ab36376130d64dd1d8d5c39cf18670c9d" prot="protected" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>tag</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1ab03614af48a56c3f9269b0c798c69840" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>TagSegmentHeader</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1a0c24096f3323c9df2d88acdce0ecec49" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>TagSegmentHeader</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1a2a8a8430edafaf5858b86ea6f6e9815d" prot="public" virt="non-virtual"><scope>evio::TagSegmentHeader</scope><name>TagSegmentHeader</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1a22a99b547180f3c9aca1a8a5b39130b0" prot="public" virt="virtual"><scope>evio::TagSegmentHeader</scope><name>toString</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1a3f90ca5280e86a180c36d7f80faa764f" prot="public" virt="virtual"><scope>evio::TagSegmentHeader</scope><name>write</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1a568da7b8bcb84a881663712e46ceb682" prot="public" virt="virtual"><scope>evio::TagSegmentHeader</scope><name>write</name></member>
+      <member refid="df/d43/classevio_1_1_tag_segment_header_1aa792a400774c62abced5d451affb49e0" prot="public" virt="virtual"><scope>evio::TagSegmentHeader</scope><name>write</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

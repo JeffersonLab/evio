@@ -1,0 +1,254 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d7/d52/classevio_1_1_event_writer_1_1_file_closer" kind="class" language="C++" prot="private">
+    <compoundname>evio::EventWriter::FileCloser</compoundname>
+    <innerclass refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan" prot="private">evio::EventWriter::FileCloser::CloseAsyncFChan</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1aaef8fdc6a968766fed13d830b0c3205c" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; CloseAsyncFChan &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;CloseAsyncFChan&gt; &gt; evio::EventWriter::FileCloser::threads</definition>
+        <argsstring></argsstring>
+        <name>threads</name>
+        <briefdescription>
+<para>Store all currently active closing threads. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="600" column="25" bodyfile="src/libsrc/EventWriter.h" bodystart="600" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1a807abd0c4b69232c6f3f3d1664726a26" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::close</definition>
+        <argsstring>()</argsstring>
+        <name>close</name>
+        <briefdescription>
+<para>Stop &amp; delete every thread that was started. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="607" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="607" bodyend="612"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1af1593e69b76c485e0a7de9bb4ee6a412" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::removeThread</definition>
+        <argsstring>(std::shared_ptr&lt; CloseAsyncFChan &gt; &amp;thread)</argsstring>
+        <name>removeThread</name>
+        <param>
+          <type>std::shared_ptr&lt; CloseAsyncFChan &gt; &amp;</type>
+          <declname>thread</declname>
+        </param>
+        <briefdescription>
+<para>Remove thread from vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thread</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>thread object to remove. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="619" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="619" bodyend="622"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1a0d2c2285f760a8bbd8012f3274e5f366" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::closeAsyncFile</definition>
+        <argsstring>(std::shared_ptr&lt; std::fstream &gt; &amp;afc, std::shared_ptr&lt; std::future&lt; void &gt;&gt; &amp;future1, std::shared_ptr&lt; RecordSupply &gt; &amp;supply, std::shared_ptr&lt; RecordRingItem &gt; &amp;ringItem, FileHeader &amp;fileHeader, std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; &amp;recordLengths, uint64_t bytesWritten, uint32_t recordNumber, bool addingTrailer, bool writeIndex, bool noFileWriting, ByteOrder &amp;order)</argsstring>
+        <name>closeAsyncFile</name>
+        <param>
+          <type>std::shared_ptr&lt; std::fstream &gt; &amp;</type>
+          <declname>afc</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; std::future&lt; void &gt;&gt; &amp;</type>
+          <declname>future1</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt; &amp;</type>
+          <declname>supply</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &amp;</type>
+          <declname>ringItem</declname>
+        </param>
+        <param>
+          <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+          <declname>fileHeader</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; &amp;</type>
+          <declname>recordLengths</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>bytesWritten</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>recordNumber</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>addingTrailer</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>writeIndex</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>noFileWriting</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Close the given file, in the order received, in a separate thread. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>afc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file channel to close </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>future1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>supply</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ringItem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fileHeader</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordLengths</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytesWritten</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addingTrailer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>writeIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>noFileWriting</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="640" column="18" bodyfile="src/libsrc/EventWriter.h" bodystart="640" bodyend="657"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1a02220ee2bdfb883ce4f82b1c268c275b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EventWriter::FileCloser::~FileCloser</definition>
+        <argsstring>()</argsstring>
+        <name>~FileCloser</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="659" column="13" bodyfile="src/libsrc/EventWriter.h" bodystart="659" bodyend="661"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to close files, each in its own thread, to avoid slowing down while file splitting. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Unlike Java, C++ has no built-in thread pools so just create threads as needed. </para>
+    </detaileddescription>
+    <location file="src/libsrc/EventWriter.h" line="368" column="9" bodyfile="src/libsrc/EventWriter.h" bodystart="368" bodyend="662"/>
+    <listofallmembers>
+      <member refid="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1a807abd0c4b69232c6f3f3d1664726a26" prot="public" virt="non-virtual"><scope>evio::EventWriter::FileCloser</scope><name>close</name></member>
+      <member refid="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1a0d2c2285f760a8bbd8012f3274e5f366" prot="public" virt="non-virtual"><scope>evio::EventWriter::FileCloser</scope><name>closeAsyncFile</name></member>
+      <member refid="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1af1593e69b76c485e0a7de9bb4ee6a412" prot="public" virt="non-virtual"><scope>evio::EventWriter::FileCloser</scope><name>removeThread</name></member>
+      <member refid="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1aaef8fdc6a968766fed13d830b0c3205c" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser</scope><name>threads</name></member>
+      <member refid="d7/d52/classevio_1_1_event_writer_1_1_file_closer_1a02220ee2bdfb883ce4f82b1c268c275b" prot="public" virt="non-virtual"><scope>evio::EventWriter::FileCloser</scope><name>~FileCloser</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

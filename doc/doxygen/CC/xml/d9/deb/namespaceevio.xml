@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d9/deb/namespaceevio" kind="namespace" language="C++">
+    <compoundname>evio</compoundname>
+    <innerclass refid="dc/d90/classevio_1_1_bank_header" prot="public">evio::BankHeader</innerclass>
+    <innerclass refid="d9/ddd/classevio_1_1_base_structure" prot="public">evio::BaseStructure</innerclass>
+    <innerclass refid="db/dfb/classevio_1_1_base_structure_header" prot="public">evio::BaseStructureHeader</innerclass>
+    <innerclass refid="d7/d9e/classevio_1_1_block_header_v2" prot="public">evio::BlockHeaderV2</innerclass>
+    <innerclass refid="da/de6/classevio_1_1_block_header_v4" prot="public">evio::BlockHeaderV4</innerclass>
+    <innerclass refid="dc/d30/classevio_1_1_byte_buffer" prot="public">evio::ByteBuffer</innerclass>
+    <innerclass refid="da/d7d/classevio_1_1_byte_order" prot="public">evio::ByteOrder</innerclass>
+    <innerclass refid="de/dce/classevio_1_1_compact_event_builder" prot="public">evio::CompactEventBuilder</innerclass>
+    <innerclass refid="d5/d4b/classevio_1_1_composite_data" prot="public">evio::CompositeData</innerclass>
+    <innerclass refid="da/d08/classevio_1_1_compressor" prot="public">evio::Compressor</innerclass>
+    <innerclass refid="d5/d23/classevio_1_1_data_type" prot="public">evio::DataType</innerclass>
+    <innerclass refid="db/d06/classevio_1_1_event_builder" prot="public">evio::EventBuilder</innerclass>
+    <innerclass refid="dd/d62/classevio_1_1_event_header_parser" prot="public">evio::EventHeaderParser</innerclass>
+    <innerclass refid="d7/d5d/classevio_1_1_event_parser" prot="public">evio::EventParser</innerclass>
+    <innerclass refid="d9/dcd/classevio_1_1_event_writer" prot="public">evio::EventWriter</innerclass>
+    <innerclass refid="de/de3/classevio_1_1_evio_bank" prot="public">evio::EvioBank</innerclass>
+    <innerclass refid="d6/d5f/classevio_1_1_evio_compact_reader" prot="public">evio::EvioCompactReader</innerclass>
+    <innerclass refid="d9/d0a/classevio_1_1_evio_compact_reader_v4" prot="public">evio::EvioCompactReaderV4</innerclass>
+    <innerclass refid="dd/d94/classevio_1_1_evio_compact_reader_v6" prot="public">evio::EvioCompactReaderV6</innerclass>
+    <innerclass refid="d2/d4a/classevio_1_1_evio_dictionary_entry" prot="public">evio::EvioDictionaryEntry</innerclass>
+    <innerclass refid="d4/d12/classevio_1_1_evio_event" prot="public">evio::EvioEvent</innerclass>
+    <innerclass refid="d0/d0b/classevio_1_1_evio_exception" prot="public">evio::EvioException</innerclass>
+    <innerclass refid="de/dd0/classevio_1_1_evio_node" prot="public">evio::EvioNode</innerclass>
+    <innerclass refid="df/dbd/classevio_1_1_evio_reader" prot="public">evio::EvioReader</innerclass>
+    <innerclass refid="dd/db3/classevio_1_1_evio_reader_v4" prot="public">evio::EvioReaderV4</innerclass>
+    <innerclass refid="db/d34/classevio_1_1_evio_reader_v6" prot="public">evio::EvioReaderV6</innerclass>
+    <innerclass refid="d5/d29/classevio_1_1_evio_segment" prot="public">evio::EvioSegment</innerclass>
+    <innerclass refid="df/d7a/classevio_1_1_evio_swap" prot="public">evio::EvioSwap</innerclass>
+    <innerclass refid="d7/d91/classevio_1_1_evio_tag_segment" prot="public">evio::EvioTagSegment</innerclass>
+    <innerclass refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary" prot="public">evio::EvioXMLDictionary</innerclass>
+    <innerclass refid="df/dbf/classevio_1_1_file_event_index" prot="public">evio::FileEventIndex</innerclass>
+    <innerclass refid="d1/da6/classevio_1_1_file_header" prot="public">evio::FileHeader</innerclass>
+    <innerclass refid="df/dd8/classevio_1_1_header_type" prot="public">evio::HeaderType</innerclass>
+    <innerclass refid="d5/d6e/classevio_1_1_i_block_header" prot="public">evio::IBlockHeader</innerclass>
+    <innerclass refid="d3/d03/classevio_1_1_i_evio_compact_reader" prot="public">evio::IEvioCompactReader</innerclass>
+    <innerclass refid="dc/d78/classevio_1_1_i_evio_filter" prot="public">evio::IEvioFilter</innerclass>
+    <innerclass refid="d9/d71/classevio_1_1_i_evio_listener" prot="public">evio::IEvioListener</innerclass>
+    <innerclass refid="de/d97/classevio_1_1_i_evio_reader" prot="public">evio::IEvioReader</innerclass>
+    <innerclass refid="d8/d2b/classevio_1_1node_breadth_iterator" prot="public">evio::nodeBreadthIterator</innerclass>
+    <innerclass refid="d5/d6b/classevio_1_1node_iterator" prot="public">evio::nodeIterator</innerclass>
+    <innerclass refid="d3/d56/classevio_1_1_reader" prot="public">evio::Reader</innerclass>
+    <innerclass refid="d4/d65/classevio_1_1_record_compressor" prot="public">evio::RecordCompressor</innerclass>
+    <innerclass refid="d8/d64/classevio_1_1_record_header" prot="public">evio::RecordHeader</innerclass>
+    <innerclass refid="de/da2/classevio_1_1_record_input" prot="public">evio::RecordInput</innerclass>
+    <innerclass refid="d4/d87/classevio_1_1_record_node" prot="public">evio::RecordNode</innerclass>
+    <innerclass refid="d2/d7a/classevio_1_1_record_output" prot="public">evio::RecordOutput</innerclass>
+    <innerclass refid="db/dc8/classevio_1_1_record_ring_item" prot="public">evio::RecordRingItem</innerclass>
+    <innerclass refid="dc/de8/classevio_1_1_record_supply" prot="public">evio::RecordSupply</innerclass>
+    <innerclass refid="d1/d89/classevio_1_1_segment_header" prot="public">evio::SegmentHeader</innerclass>
+    <innerclass refid="db/d35/classevio_1_1_structure_finder" prot="public">evio::StructureFinder</innerclass>
+    <innerclass refid="d2/da4/classevio_1_1_structure_transformer" prot="public">evio::StructureTransformer</innerclass>
+    <innerclass refid="dd/da5/classevio_1_1_structure_type" prot="public">evio::StructureType</innerclass>
+    <innerclass refid="df/d43/classevio_1_1_tag_segment_header" prot="public">evio::TagSegmentHeader</innerclass>
+    <innerclass refid="d3/d87/classevio_1_1_util" prot="public">evio::Util</innerclass>
+    <innerclass refid="d6/dca/classevio_1_1_writer" prot="public">evio::Writer</innerclass>
+    <innerclass refid="d1/d17/classevio_1_1_writer_m_t" prot="public">evio::WriterMT</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="d9/deb/namespaceevio_1a7cbb35fc00e6b99839c986314900dc06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::null_deleter</definition>
+        <argsstring>(uint8_t *)</argsstring>
+        <name>null_deleter</name>
+        <param>
+          <type>uint8_t *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/ByteBuffer.cpp" line="18" column="10" bodyfile="src/libsrc/ByteBuffer.cpp" bodystart="18" bodyend="18"/>
+        <referencedby refid="dc/d30/classevio_1_1_byte_buffer_1a8c574342930aa9f1538ac075e6c9c290" compoundref="d4/d6c/_byte_buffer_8cpp" startline="89" endline="104">evio::ByteBuffer::ByteBuffer</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Copyright (c) 2019, Jefferson Science Associates. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Thomas Jefferson National Accelerator Facility Data Acquisition Group</para>
+<para>12000, Jefferson Ave, Newport News, VA 23606 Phone : (757)-269-7100</para>
+<para><simplesect kind="date"><para>04/29/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer</para>
+</simplesect>
+Thomas Jefferson National Accelerator Facility Data Acquisition Group</para>
+<para>12000, Jefferson Ave, Newport News, VA 23606 Phone : (757)-269-7100</para>
+<para><simplesect kind="date"><para>04/09/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/BankHeader.cpp" line="14" column="1"/>
+  </compounddef>
+</doxygen>

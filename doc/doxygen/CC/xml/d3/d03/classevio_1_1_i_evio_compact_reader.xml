@@ -1,0 +1,1292 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d3/d03/classevio_1_1_i_evio_compact_reader" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>evio::IEvioCompactReader</compoundname>
+    <derivedcompoundref refid="d6/d5f/classevio_1_1_evio_compact_reader" prot="public" virt="non-virtual">evio::EvioCompactReader</derivedcompoundref>
+    <derivedcompoundref refid="d9/d0a/classevio_1_1_evio_compact_reader_v4" prot="public" virt="non-virtual">evio::EvioCompactReaderV4</derivedcompoundref>
+    <derivedcompoundref refid="dd/d94/classevio_1_1_evio_compact_reader_v6" prot="public" virt="non-virtual">evio::EvioCompactReaderV6</derivedcompoundref>
+    <includes local="no">IEvioCompactReader.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a20657a1fd110ebffd7670cdc2ba21ea8" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool evio::IEvioCompactReader::isFile</definition>
+        <argsstring>()=0</argsstring>
+        <name>isFile</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a2cdf3b28482436cb849f90fa877635c4">isFile</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a36de859ba017d3fc5306f2225ffd7db8">isFile</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1adf515c1131fef9c6f1164dea6fe984f5">isFile</reimplementedby>
+        <briefdescription>
+<para>Is this reader reading a file? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if reading file, false if reading buffer </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="49" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1afad5f4dc3abb3c142b3a98a7231b8a84" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool evio::IEvioCompactReader::isCompressed</definition>
+        <argsstring>()=0</argsstring>
+        <name>isCompressed</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a0710c7fb3d2ffac3daa3136709e9d257">isCompressed</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ae00b0ea0b5fb1eb067c31f9ebbd998da">isCompressed</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a2d7817a9492ced7b19f19246a6240fd2">isCompressed</reimplementedby>
+        <briefdescription>
+<para>Is the data in the file/buffer compressed? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if data is compressed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="55" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a93be1a5223b60c7e4413e66cf1bd9837" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioCompactReader::setBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf)=0</argsstring>
+        <name>setBuffer</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a535e5cb94d4ef53def1a9bc5c3d0d92d">setBuffer</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1afcb2b08bf604bf6d5307ca391fc782f7">setBuffer</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a27e5b1de45af6d22ca73c173335b6ebc">setBuffer</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>This method can be used to avoid creating additional <ref refid="d6/d5f/classevio_1_1_evio_compact_reader" kindref="compound">EvioCompactReader</ref> objects by reusing this one with another buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The method <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a635056466c0cc68675733107dd09f68f" kindref="member">close()</ref> should be called before calling this.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> to be read </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if arg is null; if failure to read first block header; if buffer not in evio format. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="67" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a4e08c82db3d24f1739639a14830523f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool evio::IEvioCompactReader::isClosed</definition>
+        <argsstring>()=0</argsstring>
+        <name>isClosed</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a98b001c27102f2f80862825640a9a068">isClosed</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ac4d3caba43c13ec00c0314dbbbfb62b2">isClosed</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a49872bbe8ed67017c74e126a515ac65f">isClosed</reimplementedby>
+        <briefdescription>
+<para>Has <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a635056466c0cc68675733107dd09f68f" kindref="member">close()</ref> been called (without reopening by calling <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a93be1a5223b60c7e4413e66cf1bd9837" kindref="member">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</ref>)? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> if this object closed, else<programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> . </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="75" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a194040a2e72cc8fb06f269aa440edce7" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>virtual ByteOrder evio::IEvioCompactReader::getByteOrder</definition>
+        <argsstring>()=0</argsstring>
+        <name>getByteOrder</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a8047b172f1103aa0745bb996304195b0">getByteOrder</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1af3def41e76feae624f35e76bf0001b57">getByteOrder</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ae465a857603f5eeb4afb1d10e1b12477">getByteOrder</reimplementedby>
+        <briefdescription>
+<para>Get the byte order of the file/buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>byte order of the file/buffer being read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="81" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a7f5c1563863f80d671e7ac252de6d6e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>uint32_t</type>
+        <definition>virtual uint32_t evio::IEvioCompactReader::getEvioVersion</definition>
+        <argsstring>()=0</argsstring>
+        <name>getEvioVersion</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1ad39a07d26aa72dff26baeade0e5908e1">getEvioVersion</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a570aba10dcee290be951539578e99702">getEvioVersion</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a7649fc2ff23dc473169c420970ffa3c3">getEvioVersion</reimplementedby>
+        <briefdescription>
+<para>Get the evio version number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>evio version number. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="87" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a4c758296fef0e54d595533f65a19c339" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::string</type>
+        <definition>virtual std::string evio::IEvioCompactReader::getPath</definition>
+        <argsstring>()=0</argsstring>
+        <name>getPath</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1af574e654dcb0699b7620a81a2b7328fc">getPath</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1af4e185c1ac992363859ef7820000042f">getPath</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a6286e2d8388c3825dd5254357244f917">getPath</reimplementedby>
+        <briefdescription>
+<para>Get the path to the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>path to the file </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="93" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1af8d77afa972e34db6942983aecc6bfb6" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>virtual ByteOrder evio::IEvioCompactReader::getFileByteOrder</definition>
+        <argsstring>()=0</argsstring>
+        <name>getFileByteOrder</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a62fb972c951be4536f12555ba935b0db">getFileByteOrder</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a8e58303d55bce7f72638bb4ea1c9aeca">getFileByteOrder</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a77e4fd561288419aed99b62ed7120b5f">getFileByteOrder</reimplementedby>
+        <briefdescription>
+<para>When reading a file, this method&apos;s return value is the byte order of the evio data in the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>byte order of the evio data in the file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="100" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a68be13630cedd701fb9c7d6ad9df8f45" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::string</type>
+        <definition>virtual std::string evio::IEvioCompactReader::getDictionaryXML</definition>
+        <argsstring>()=0</argsstring>
+        <name>getDictionaryXML</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a563c4c36f3c8b556d9765dfc6c3af0e2">getDictionaryXML</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ad74552b7178810f011b6ea4bc38950f0">getDictionaryXML</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1aa120d697ac0367adea97fb21268c2098">getDictionaryXML</reimplementedby>
+        <briefdescription>
+<para>Get the XML format dictionary is there is one. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed and dictionary still unread </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>XML format dictionary, else null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="107" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a4b5621adc5a73d9e95669a66e7fd568f" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary" kindref="compound">EvioXMLDictionary</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;EvioXMLDictionary&gt; evio::IEvioCompactReader::getDictionary</definition>
+        <argsstring>()=0</argsstring>
+        <name>getDictionary</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a18d3bbaff50f67a45dd8b7e795cbac08">getDictionary</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a942b3a7e252fa156874be6256b4da942">getDictionary</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a69c2500d72dbf660d62e3e4962ebd6fe">getDictionary</reimplementedby>
+        <briefdescription>
+<para>Get the evio dictionary if is there is one. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed and dictionary still unread </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>evio dictionary if exists, else null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="114" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1af4f2ba53d1a2acc4c1b271ca263eb4b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool evio::IEvioCompactReader::hasDictionary</definition>
+        <argsstring>()=0</argsstring>
+        <name>hasDictionary</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1aaa65b3021f5309a522f1917e720d20d2">hasDictionary</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a599be30ca604d05124540b87bc6310d9">hasDictionary</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1af18113b678a7720413235246cb80cc66">hasDictionary</reimplementedby>
+        <briefdescription>
+<para>Does this evio file have an associated XML dictionary? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this evio file has an associated XML dictionary, else <computeroutput>false</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="122" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a650a31173dcf00b233e3860f6ae38691" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getByteBuffer</definition>
+        <argsstring>()=0</argsstring>
+        <name>getByteBuffer</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a8e6e57e6c4680d5ce7cdbbe3c80f7521">getByteBuffer</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a5be7f78e35672f0660795ee91509ec43">getByteBuffer</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ab420fa4d7dd2165e5b8747665cbc8a45">getByteBuffer</reimplementedby>
+        <briefdescription>
+<para>Get the byte buffer being read directly or corresponding to the event file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the byte buffer being read directly or corresponding to the event file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="128" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a6ce1b005ee8d710ec49dac455d5e62b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>size_t</type>
+        <definition>virtual size_t evio::IEvioCompactReader::fileSize</definition>
+        <argsstring>()=0</argsstring>
+        <name>fileSize</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a919c14ef18be0012f176c5994c67f2ee">fileSize</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1abfd43d1ca28802ba9a11e2a511ab4441">fileSize</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ac357dcb878677ccb7167ddbf012c88a3">fileSize</reimplementedby>
+        <briefdescription>
+<para>Get the size of the file being read, in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For small files, obtain the file size using the memory mapped buffer&apos;s capacity. <simplesect kind="return"><para>the file size in bytes </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="135" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a275f888fdfa6ffae8a24696d49fa96a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;EvioNode&gt; evio::IEvioCompactReader::getEvent</definition>
+        <argsstring>(size_t eventNumber)=0</argsstring>
+        <name>getEvent</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a7b4f74b9463aceb70e693c611dbfee4f">getEvent</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a036485b1e01dfcee36961023e7f95e45">getEvent</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a696dbddadc545a386faf9e2b1a97c323">getEvent</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <briefdescription>
+<para>Get the <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object associated with a particular event number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of event (place in file/buffer) starting at 1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object associated with a particular event number, or null if there is none. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="143" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1aee479affa5921daabf9769ec88d88852" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;EvioNode&gt; evio::IEvioCompactReader::getScannedEvent</definition>
+        <argsstring>(size_t eventNumber)=0</argsstring>
+        <name>getScannedEvent</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a4e96c5b8093359ff1f39151dc7e98462">getScannedEvent</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ab22b48c7413382c6174b1588c95820b7">getScannedEvent</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ab159a1aa5403249597c808f4979fd0ab">getScannedEvent</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <briefdescription>
+<para>Get the <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of event (place in file/buffer) starting at 1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object associated with a particular event number, or null if there is none. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="153" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1abc76f897b29265246fdf503cb7cfebad" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d6e/classevio_1_1_i_block_header" kindref="compound">IBlockHeader</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;IBlockHeader&gt; evio::IEvioCompactReader::getFirstBlockHeader</definition>
+        <argsstring>()=0</argsstring>
+        <name>getFirstBlockHeader</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a8b456350aa6825903348fef6b7d993e5">getFirstBlockHeader</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a0d2a001150888ef5993e9b75feec8fe0">getFirstBlockHeader</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a9f3a5b5c982c7525efafc24c97efffca">getFirstBlockHeader</reimplementedby>
+        <briefdescription>
+<para>This returns the FIRST block (or record) header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>(Not the file header of evio version 6+ files). <simplesect kind="return"><para>the first block header. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="160" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a0bd9faf7bf9f574612909b9abbb31771" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioCompactReader::searchEvent</definition>
+        <argsstring>(size_t eventNumber, uint16_t tag, uint8_t num, std::vector&lt; std::shared_ptr&lt; EvioNode &gt;&gt; &amp;vec)=0</argsstring>
+        <name>searchEvent</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a1434c49d5c787ea3e78fc475c0491a90">searchEvent</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a5cb6e56c94115e120f41c1cac47280d4">searchEvent</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ada40ca9faba8685e5a5b7f1295991a09">searchEvent</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>This method searches the specified event in a file/buffer and returns a vector of objects each of which contain information about a single evio structure which matches the given tag and num. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of event in buffer (starting with 1) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag to match. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num to match. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector to be filled with matching evio structures (empty if none found). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if bad arg value(s); if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="174" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a61124f790273357aac43763f3e60a89e" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioCompactReader::searchEvent</definition>
+        <argsstring>(size_t eventNumber, std::string const &amp;dictName, std::shared_ptr&lt; EvioXMLDictionary &gt; &amp;dictionary, std::vector&lt; std::shared_ptr&lt; EvioNode &gt;&gt; &amp;vec)=0</argsstring>
+        <name>searchEvent</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a6112806f3b0fb07444607312cbf4a1e3">searchEvent</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1ffa8ea0806f91e530a6ea89b9e8750a">searchEvent</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a670895a03f758eba50f2f49db2f08b09">searchEvent</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>dictName</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d0/d00/classevio_1_1_evio_x_m_l_dictionary" kindref="compound">EvioXMLDictionary</ref> &gt; &amp;</type>
+          <declname>dictionary</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;&gt; &amp;</type>
+          <declname>vec</declname>
+        </param>
+        <briefdescription>
+<para>This method searches the specified event in a file/buffer and returns a vector of objects each of which contain information about a single evio structure which matches the given dictionary entry name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of event in buffer (starting with 1) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of dictionary entry to search for </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary to use; if null, use dictionary with file/buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector to be filled with matching evio structures (empty if none found). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if dictName is null; if dictName is an invalid dictionary entry; if dictionary is null and none provided in file/buffer being read; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="192" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a0fbb129ba2568e7388eb208b4e8325b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::removeEvent</definition>
+        <argsstring>(size_t eventNumber)=0</argsstring>
+        <name>removeEvent</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1ad9a40c2790765fe7eccc73a57a4cd8f5">removeEvent</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ac5b87af69e6b4f9afb6881079aa88ce4">removeEvent</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ae8f3f4ced78563fea3e3be533f7c0486">removeEvent</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <briefdescription>
+<para>This method removes the data of the given event from the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It also marks any existing EvioNodes representing the event and its descendants as obsolete. They must not be used anymore.</para>
+<para>If the constructor of this reader read in data from a file, it will now switch to using a new, internal buffer which is returned by this method or can be retrieved by calling <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a650a31173dcf00b233e3860f6ae38691" kindref="member">getByteBuffer()</ref>. It will <bold>not</bold> change the file originally used. A new file can be created by calling either the <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a71a5ab4dbef5da04dcb2de4a7552dbaa" kindref="member">toFile(std::string const &amp;)</ref> method.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of event to remove from buffer </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>new <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> created and updated to reflect the event removal </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if evNumber &lt; 1; if event number does not correspond to existing event; if object closed; if node was not found in any event; if internal programming error </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="215" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1aa61e6cbf099dfdfebdd1a0be0fe5a064" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::removeStructure</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;removeNode)=0</argsstring>
+        <name>removeStructure</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1aa8edc5bf18aafa15d67f06998f6e647c">removeStructure</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1516862f728d4f8b3795d377a68f644d">removeStructure</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1aed6b963403e2b393a3b1a2979e004525">removeStructure</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>removeNode</declname>
+        </param>
+        <briefdescription>
+<para>This method removes the data, represented by the given node, from the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It also marks the node and its descendants as obsolete. They must not be used anymore.</para>
+<para>If the constructor of this reader read in data from a file, it will now switch to using a new, internal buffer which is returned by this method or can be retrieved by calling <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a650a31173dcf00b233e3860f6ae38691" kindref="member">getByteBuffer()</ref>. It will <bold>not</bold> change the file originally used. A new file can be created by calling either the <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a71a5ab4dbef5da04dcb2de4a7552dbaa" kindref="member">toFile(std::string const &amp;)</ref> method.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>removeNode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio structure to remove from buffer </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>new <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> (perhaps created) and updated to reflect the node removal </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed; if node was not found in any event; if internal programming error </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="234" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a49d8b525d59f387184d76f93adcc327f" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::addStructure</definition>
+        <argsstring>(size_t eventNumber, ByteBuffer &amp;addBuffer)=0</argsstring>
+        <name>addStructure</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a0f14a17353707ea352dde6b3bd4ac69e">addStructure</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3">addStructure</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a1f3c9c9126189dedf2380861a9bd21b9">addStructure</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>addBuffer</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an evio container (bank, segment, or tag segment) as the last structure contained in an event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It is the responsibility of the caller to make sure that the buffer argument contains valid evio data (only data representing the structure to be added - not in file format with block header and the like) which is compatible with the type of data stored in the given event.</para>
+<para>To produce such evio data use <ref refid="d9/ddd/classevio_1_1_base_structure_1a216a3d4858d6280df0f42d397b2759dc" kindref="member">EvioBank#write(ByteBuffer &amp;)</ref>, <ref refid="d9/ddd/classevio_1_1_base_structure_1a216a3d4858d6280df0f42d397b2759dc" kindref="member">EvioSegment#write(ByteBuffer &amp;)</ref> or <ref refid="d9/ddd/classevio_1_1_base_structure_1a216a3d4858d6280df0f42d397b2759dc" kindref="member">EvioTagSegment#write(ByteBuffer &amp;)</ref> depending on whether a bank, seg, or tagseg is being added.</para>
+<para>A note about files here. If the constructor of this reader read in data from a file, it will now switch to using a new, internal buffer which is returned by this method or can be retrieved by calling <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a650a31173dcf00b233e3860f6ae38691" kindref="member">getByteBuffer()</ref>. It will <bold>not</bold> expand the file originally used. A new file can be created by calling either the <ref refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a71a5ab4dbef5da04dcb2de4a7552dbaa" kindref="member">toFile(std::string const &amp;)</ref> method.</para>
+<para>The given buffer argument must be ready to read with its position and limit defining the limits of the data to copy. This method is synchronized due to the bulk, relative puts.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of event to which addBuffer is to be added </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing evio data to add (<bold>not</bold> evio file format, i.e. no block headers) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a new <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> object which is created and filled with all the data including what was just added. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if evNumber &lt; 1; if addBuffer is null; if addBuffer arg is empty or has non-evio format; if addBuffer is opposite endian to current event buffer; if added data is not the proper length (i.e. multiple of 4 bytes); if the event number does not correspond to an existing event; if there is an internal programming error; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="272" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a270cdcdf01daf0e150cc8e6798e062ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getData</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)=0</argsstring>
+        <name>getData</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1ac8f9fcd180d76a0dd41f8e6ec197a581">getData</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a477e6a3df719c2ce535695b8a593f0b0">getData</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1af76f289bf2b5c9ba699a65a80b16b12b">getData</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with an evio structure in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The returned buffer is a view into this reader&apos;s buffer (no copy done). Changes in one will affect the other.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio structure whose data is to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed or node arg is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> filled with data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="283" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1ab9833f1f62df245e24c7c762312f0053" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getData</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, bool copy)=0</argsstring>
+        <name>getData</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1af63a84bee6eb3f5210aa4b8fc8610397">getData</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ad48131a0dccfc16c0806728284a1fe1d">getData</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a64de766a1ee0a3d633abd85297102b98">getData</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with an evio structure in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the given/returned buffer will either be a copy of or a view into the data of this reader&apos;s buffer.</para>
+<para>This method is synchronized due to the bulk, relative gets &amp; puts.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio structure whose data is to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then return a copy as opposed to a view into this reader object&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> filled with data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="297" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a6d6c9115914bde1523dd56ab2d5b4d36" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getData</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, std::shared_ptr&lt; ByteBuffer &gt; &amp;buf)=0</argsstring>
+        <name>getData</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1aaa057d7c4fe9f5e3ec2a5380c3de0260">getData</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a0b2ae65c3b82d96eccb746e98ce41002">getData</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a26c4d76b1eb5db14430e00342b8754ed">getData</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with an evio structure in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The returned buffer is a view into this reader&apos;s buffer (no copy done). Changes in one will affect the other.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio structure whose data is to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>user-supplied <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> to be filled with data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed or node arg is null. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>buf arg. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="309" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a0da6a4eaf9e0e4a2fbf900d659eb9aed" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getData</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, bool copy)=0</argsstring>
+        <name>getData</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a2b20d23858a62d24a92373dcebc335b1">getData</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1afb78ce6964461cd4afa7dd784c7576f4">getData</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a03948b8f6b6438db69aa0d2b0bbfc127">getData</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with an evio structure in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the given/returned buffer will either be a copy of or a view into the data of this reader&apos;s buffer.</para>
+<para>This method is synchronized due to the bulk, relative gets &amp; puts.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio structure whose data is to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>user-supplied <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> to be filled with data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then return a copy as opposed to a view into this reader object&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>buf arg. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="325" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a138ea5c9638cf6bdae3d58013af3a28e" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getEventBuffer</definition>
+        <argsstring>(size_t eventNumber)=0</argsstring>
+        <name>getEventBuffer</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1aeeec162137e033d966b6a47392839b97">getEventBuffer</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa745c77ceba1dd661e5b0107430b6857">getEventBuffer</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ab370372b15880ecde7be05af2f32600d">getEventBuffer</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <briefdescription>
+<para>Get an evio bank or event in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The returned buffer is a view into the data of this reader&apos;s buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of event of interest </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> object containing bank&apos;s/event&apos;s bytes. Position and limit are set for reading. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if evNumber &lt; 1; if the event number does not correspond to an existing event; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="339" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a0c856969c2d97cd2fe5d3562dee68fb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getEventBuffer</definition>
+        <argsstring>(size_t eventNumber, bool copy)=0</argsstring>
+        <name>getEventBuffer</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1ad379606af50a53e713278233ca38edb4">getEventBuffer</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ad0829a2cc4864a173ab995f40c963938">getEventBuffer</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ab71ba09770614343d962c9c55cad24a5">getEventBuffer</reimplementedby>
+        <param>
+          <type>size_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get an evio bank or event in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the returned buffer will either be a copy of or a view into the data of this reader&apos;s buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of event of interest </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then return a copy as opposed to a view into this reader object&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> object containing bank&apos;s/event&apos;s bytes. Position and limit are set for reading. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if evNumber &lt; 1; if the event number does not correspond to an existing event; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="355" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a652ff446ccefb149d1f623ebff3d9ad1" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getStructureBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)=0</argsstring>
+        <name>getStructureBuffer</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1adc7e19833cc4677ac5b1c24c6ad2d3f9">getStructureBuffer</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ab7ad2bd41d742e6f2388a94a86194de3">getStructureBuffer</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a07fe04043c978342411567ee13f3e1e1">getStructureBuffer</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Get an evio structure (bank, seg, or tagseg) in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The returned buffer is a view into the data of this reader&apos;s buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node object representing evio structure of interest </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> object containing bank&apos;s/event&apos;s bytes. Position and limit are set for reading. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if node is null; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="367" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a29fde743bb82f0d2930a41a46714cca1" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>virtual std::shared_ptr&lt;ByteBuffer&gt; evio::IEvioCompactReader::getStructureBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, bool copy)=0</argsstring>
+        <name>getStructureBuffer</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a080813acf5f192748f8981b75409bfa0">getStructureBuffer</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a7c50a05f6909da61c6384fe00166b5d1">getStructureBuffer</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ab094ae8847d2b7d8112036e92687b875">getStructureBuffer</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get an evio structure (bank, seg, or tagseg) in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the returned buffer will either be a copy of or a view into the data of this reader&apos;s buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node object representing evio structure of interest </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then return a copy as opposed to a view into this reader object&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> object containing structure&apos;s bytes. Position and limit are set for reading. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if node is null; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="382" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a635056466c0cc68675733107dd09f68f" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioCompactReader::close</definition>
+        <argsstring>()=0</argsstring>
+        <name>close</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a4c4ca98c20d0a49f21fab7b4191f699a">close</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1ac25fa411bf9513a23332893116275c08">close</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a3d7fe439c3b1c77da15c6cf5c62045da">close</reimplementedby>
+        <briefdescription>
+<para>This sets the position to its initial value and marks reader as closed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="385" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a2b5309c8cb15f69816bbf73c166c0544" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>uint32_t</type>
+        <definition>virtual uint32_t evio::IEvioCompactReader::getEventCount</definition>
+        <argsstring>()=0</argsstring>
+        <name>getEventCount</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1aef5e83eb5a12b7b1e0cacd1187ab6c33">getEventCount</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a3cf3822827137c56639dcccac02a912f">getEventCount</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1afc46bc1edb5e81976671fd276e8996d1">getEventCount</reimplementedby>
+        <briefdescription>
+<para>This is the number of events in the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Any dictionary event is <bold>not</bold> included in the count. In versions 3 and earlier, it is not computed unless asked for, and if asked for it is computed and cached.</para>
+<para><simplesect kind="return"><para>the number of events in the file/buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="394" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1ab1db30deb957c42e4c06acc0db4390df" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>uint32_t</type>
+        <definition>virtual uint32_t evio::IEvioCompactReader::getBlockCount</definition>
+        <argsstring>()=0</argsstring>
+        <name>getBlockCount</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1ab3c7fa1c3f8af9fcd9a895c95bd3476a">getBlockCount</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a1e5d52c88e9131d95862d424cedf8ea9">getBlockCount</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a00b3f3e0d56465d5f24046505d1d7899">getBlockCount</reimplementedby>
+        <briefdescription>
+<para>This is the number of blocks in the file/buffer including the empty block at the end. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the number of blocks in the file/buffer (estimate for version 3 files) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="402" column="26"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d03/classevio_1_1_i_evio_compact_reader_1a71a5ab4dbef5da04dcb2de4a7552dbaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioCompactReader::toFile</definition>
+        <argsstring>(std::string const &amp;fileName)=0</argsstring>
+        <name>toFile</name>
+        <reimplementedby refid="d6/d5f/classevio_1_1_evio_compact_reader_1a888183da959056759ed7a297810aed54">toFile</reimplementedby>
+        <reimplementedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1a5d709600ecba4ef76e196e064811e53f">toFile</reimplementedby>
+        <reimplementedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a5d853972ed19b80b62c6a30ab45ccc40">toFile</reimplementedby>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Save the internal byte buffer to the given file (overwrites existing file). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of file to write </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error writing to file </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if fileName arg is null; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioCompactReader.h" line="413" column="22"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This is an interface for a compact reader of evio format files and buffers. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The word &quot;compact&quot; refers to using the <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> class as a compact or lightweight means to refer to an evio event or structure in a buffer. Compact readers do not use <ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref>, <ref refid="de/de3/classevio_1_1_evio_bank" kindref="compound">EvioBank</ref>, <ref refid="d5/d29/classevio_1_1_evio_segment" kindref="compound">EvioSegment</ref> or <ref refid="d7/d91/classevio_1_1_evio_tag_segment" kindref="compound">EvioTagSegment</ref> classes which require a full parsing of each event and the creation of a large number of objects.</para>
+<para><simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="date"><para>6/18/2020. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>evio::EvioCompactReaderV4</label>
+        <link refid="d9/d0a/classevio_1_1_evio_compact_reader_v4"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>evio::EvioCompactReaderV6</label>
+        <link refid="dd/d94/classevio_1_1_evio_compact_reader_v6"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>evio::EvioCompactReader</label>
+        <link refid="d6/d5f/classevio_1_1_evio_compact_reader"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>evio::IEvioCompactReader</label>
+        <link refid="d3/d03/classevio_1_1_i_evio_compact_reader"/>
+      </node>
+    </inheritancegraph>
+    <location file="src/libsrc/IEvioCompactReader.h" line="41" column="5" bodyfile="src/libsrc/IEvioCompactReader.h" bodystart="41" bodyend="414"/>
+    <listofallmembers>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a49d8b525d59f387184d76f93adcc327f" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>addStructure</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a635056466c0cc68675733107dd09f68f" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>close</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a6ce1b005ee8d710ec49dac455d5e62b6" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>fileSize</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1ab1db30deb957c42e4c06acc0db4390df" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getBlockCount</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a650a31173dcf00b233e3860f6ae38691" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getByteBuffer</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a194040a2e72cc8fb06f269aa440edce7" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getByteOrder</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a270cdcdf01daf0e150cc8e6798e062ae" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getData</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1ab9833f1f62df245e24c7c762312f0053" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getData</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a6d6c9115914bde1523dd56ab2d5b4d36" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getData</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0da6a4eaf9e0e4a2fbf900d659eb9aed" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getData</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4b5621adc5a73d9e95669a66e7fd568f" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getDictionary</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a68be13630cedd701fb9c7d6ad9df8f45" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getDictionaryXML</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a275f888fdfa6ffae8a24696d49fa96a3" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getEvent</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a138ea5c9638cf6bdae3d58013af3a28e" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getEventBuffer</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0c856969c2d97cd2fe5d3562dee68fb0" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getEventBuffer</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a2b5309c8cb15f69816bbf73c166c0544" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getEventCount</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a7f5c1563863f80d671e7ac252de6d6e4" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getEvioVersion</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1af8d77afa972e34db6942983aecc6bfb6" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getFileByteOrder</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1abc76f897b29265246fdf503cb7cfebad" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getFirstBlockHeader</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4c758296fef0e54d595533f65a19c339" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getPath</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1aee479affa5921daabf9769ec88d88852" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getScannedEvent</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a652ff446ccefb149d1f623ebff3d9ad1" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getStructureBuffer</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a29fde743bb82f0d2930a41a46714cca1" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>getStructureBuffer</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1af4f2ba53d1a2acc4c1b271ca263eb4b2" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>hasDictionary</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a4e08c82db3d24f1739639a14830523f5" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>isClosed</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1afad5f4dc3abb3c142b3a98a7231b8a84" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>isCompressed</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a20657a1fd110ebffd7670cdc2ba21ea8" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>isFile</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0fbb129ba2568e7388eb208b4e8325b5" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>removeEvent</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1aa61e6cbf099dfdfebdd1a0be0fe5a064" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>removeStructure</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a0bd9faf7bf9f574612909b9abbb31771" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>searchEvent</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a61124f790273357aac43763f3e60a89e" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>searchEvent</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a93be1a5223b60c7e4413e66cf1bd9837" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>setBuffer</name></member>
+      <member refid="d3/d03/classevio_1_1_i_evio_compact_reader_1a71a5ab4dbef5da04dcb2de4a7552dbaa" prot="public" virt="pure-virtual"><scope>evio::IEvioCompactReader</scope><name>toFile</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

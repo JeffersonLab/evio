@@ -1,0 +1,665 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d8/da4/_block_header_v4_8h" kind="file" language="C++">
+    <compoundname>BlockHeaderV4.h</compoundname>
+    <includes local="no">bitset</includes>
+    <includes local="no">sstream</includes>
+    <includes refid="de/d42/_i_block_header_8h" local="yes">IBlockHeader.h</includes>
+    <includes refid="d1/d02/_byte_order_8h" local="yes">ByteOrder.h</includes>
+    <includes refid="d6/d6c/_byte_buffer_8h" local="yes">ByteBuffer.h</includes>
+    <includes refid="d8/d26/_evio_exception_8h" local="yes">EvioException.h</includes>
+    <includedby refid="d5/d63/_evio_reader_8h" local="yes">EvioReader.h</includedby>
+    <includedby refid="d3/d9e/_evio_reader_v4_8h" local="yes">EvioReaderV4.h</includedby>
+    <includedby refid="de/d10/_evio_reader_v6_8h" local="yes">EvioReaderV6.h</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>cstdint</label>
+      </node>
+      <node id="16">
+        <label>sys/mman.h</label>
+      </node>
+      <node id="9">
+        <label>stdexcept</label>
+      </node>
+      <node id="4">
+        <label>IBlockHeader.h</label>
+        <link refid="de/d42/_i_block_header_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>string</label>
+      </node>
+      <node id="18">
+        <label>exception</label>
+      </node>
+      <node id="15">
+        <label>cstdio</label>
+      </node>
+      <node id="12">
+        <label>ByteBuffer.h</label>
+        <link refid="d6/d6c/_byte_buffer_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>bitset</label>
+      </node>
+      <node id="8">
+        <label>vector</label>
+      </node>
+      <node id="3">
+        <label>sstream</label>
+      </node>
+      <node id="13">
+        <label>cstdlib</label>
+      </node>
+      <node id="11">
+        <label>iostream</label>
+      </node>
+      <node id="10">
+        <label>ByteOrder.h</label>
+        <link refid="d1/d02/_byte_order_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>BlockHeaderV4.h</label>
+        <link refid="d8/da4/_block_header_v4_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>EvioException.h</label>
+        <link refid="d8/d26/_evio_exception_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>cstring</label>
+      </node>
+      <node id="14">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="11">
+        <label>EvioCompactReaderV4.cpp</label>
+        <link refid="d6/d16/_evio_compact_reader_v4_8cpp"/>
+      </node>
+      <node id="4">
+        <label>EvioReaderV6.h</label>
+        <link refid="de/d10/_evio_reader_v6_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>EvioReader.cpp</label>
+        <link refid="dc/d9c/_evio_reader_8cpp"/>
+      </node>
+      <node id="5">
+        <label>EvioReaderV6.cpp</label>
+        <link refid="db/de9/_evio_reader_v6_8cpp"/>
+      </node>
+      <node id="7">
+        <label>EvioCompactReaderV4.h</label>
+        <link refid="d2/d74/_evio_compact_reader_v4_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>EvioCompactReader.cpp</label>
+        <link refid="dd/d6b/_evio_compact_reader_8cpp"/>
+      </node>
+      <node id="6">
+        <label>EvioReaderV4.h</label>
+        <link refid="d3/d9e/_evio_reader_v4_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>EvioCompactReader.h</label>
+        <link refid="d2/df7/_evio_compact_reader_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>EvioReaderV4.cpp</label>
+        <link refid="de/da5/_evio_reader_v4_8cpp"/>
+      </node>
+      <node id="9">
+        <label>evio.h</label>
+        <link refid="d9/df8/evio_8h"/>
+      </node>
+      <node id="1">
+        <label>BlockHeaderV4.h</label>
+        <link refid="d8/da4/_block_header_v4_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>EvioReader.h</label>
+        <link refid="d5/d63/_evio_reader_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="da/de6/classevio_1_1_block_header_v4" prot="public">evio::BlockHeaderV4</innerclass>
+    <innernamespace refid="d9/deb/namespaceevio">evio</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Copyright<sp/>2020,<sp/>Jefferson<sp/>Science<sp/>Associates,<sp/>LLC.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Subject<sp/>to<sp/>the<sp/>terms<sp/>in<sp/>the<sp/>LICENSE<sp/>file<sp/>found<sp/>in<sp/>the<sp/>top-level<sp/>directory.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/>EPSCI<sp/>Group</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Thomas<sp/>Jefferson<sp/>National<sp/>Accelerator<sp/>Facility</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/>12000,<sp/>Jefferson<sp/>Ave,<sp/>Newport<sp/>News,<sp/>VA<sp/>23606</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(757)-269-7100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>EVIO_6_0_BLOCKHEADERV4_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>EVIO_6_0_BLOCKHEADERV4_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;bitset&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="de/d42/_i_block_header_8h" kindref="compound">IBlockHeader.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d1/d02/_byte_order_8h" kindref="compound">ByteOrder.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d6/d6c/_byte_buffer_8h" kindref="compound">ByteBuffer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="d8/d26/_evio_exception_8h" kindref="compound">EvioException.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="d9/deb/namespaceevio" kindref="compound">evio</ref><sp/>{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="da/de6/classevio_1_1_block_header_v4" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="da/de6/classevio_1_1_block_header_v4" kindref="compound">BlockHeaderV4</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="d5/d6e/classevio_1_1_i_block_header" kindref="compound">IBlockHeader</ref><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="da/de6/classevio_1_1_block_header_v4_1a76120f781b57819705f163ada7103517" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a76120f781b57819705f163ada7103517" kindref="member">HEADER_SIZE</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="da/de6/classevio_1_1_block_header_v4_1ad1e91a6945d367d5a608084012333cfd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad1e91a6945d367d5a608084012333cfd" kindref="member">EV_DICTIONARY_MASK</ref><sp/>=<sp/>0x100;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="da/de6/classevio_1_1_block_header_v4_1a07f10e8835e4d898080e5da7f95fe9c5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a07f10e8835e4d898080e5da7f95fe9c5" kindref="member">EV_LASTBLOCK_MASK</ref><sp/><sp/>=<sp/>0x200;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="da/de6/classevio_1_1_block_header_v4_1a7e058b635a97e19c070420357208cf05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a7e058b635a97e19c070420357208cf05" kindref="member">EV_EVENTTYPE_MASK</ref><sp/><sp/>=<sp/>0x3C00;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="da/de6/classevio_1_1_block_header_v4_1aa19db7b0e43a1bf40be32f7de01d79d1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa19db7b0e43a1bf40be32f7de01d79d1" kindref="member">EV_FIRSTEVENT_MASK</ref><sp/><sp/>=<sp/>0x4000;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="da/de6/classevio_1_1_block_header_v4_1a163fa9c447169bb235647897f8fa6ad5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a163fa9c447169bb235647897f8fa6ad5" kindref="member">EV_BLOCKSIZE</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="126" refid="da/de6/classevio_1_1_block_header_v4_1aed78634c44de465ce5d78ec5a25a7340" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aed78634c44de465ce5d78ec5a25a7340" kindref="member">EV_BLOCKNUM</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="128" refid="da/de6/classevio_1_1_block_header_v4_1a0946efdf5194de8d5ce309becb81918c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0946efdf5194de8d5ce309becb81918c" kindref="member">EV_HEADERSIZE</ref><sp/>=<sp/>2;</highlight></codeline>
+<codeline lineno="130" refid="da/de6/classevio_1_1_block_header_v4_1acf34c21e886d2b20a33b1c3afc6466d6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1acf34c21e886d2b20a33b1c3afc6466d6" kindref="member">EV_COUNT</ref><sp/>=<sp/>3;</highlight></codeline>
+<codeline lineno="132" refid="da/de6/classevio_1_1_block_header_v4_1a215baf23715ed7a7f39413fc2a9d80db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a215baf23715ed7a7f39413fc2a9d80db" kindref="member">EV_RESERVED1</ref><sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="134" refid="da/de6/classevio_1_1_block_header_v4_1aac1e0766bcbded65f404ad3b5cd06a90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aac1e0766bcbded65f404ad3b5cd06a90" kindref="member">EV_VERSION</ref><sp/>=<sp/>5;</highlight></codeline>
+<codeline lineno="136" refid="da/de6/classevio_1_1_block_header_v4_1ac3f972db4030935fc94f3ed6d8815614" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ac3f972db4030935fc94f3ed6d8815614" kindref="member">EV_RESERVED2</ref><sp/>=<sp/>6;</highlight></codeline>
+<codeline lineno="138" refid="da/de6/classevio_1_1_block_header_v4_1a7bb9c34c86bd52afe7b74f06fb67fc4c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a7bb9c34c86bd52afe7b74f06fb67fc4c" kindref="member">EV_MAGIC</ref><sp/>=<sp/>7;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"></codeline>
+<codeline lineno="143" refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" kindref="member">number</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149" refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="da/de6/classevio_1_1_block_header_v4_1a0484200c8cd2773baca179db836f61e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0484200c8cd2773baca179db836f61e3" kindref="member">eventCount</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158" refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref><sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161" refid="da/de6/classevio_1_1_block_header_v4_1ad294e137630fbb176ad706b83260516c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad294e137630fbb176ad706b83260516c" kindref="member">reserved1</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="da/de6/classevio_1_1_block_header_v4_1ad47135d9f4704582b6d726d5ac21f9c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad47135d9f4704582b6d726d5ac21f9c6" kindref="member">reserved2</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167" refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::bitset&lt;24&gt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="da/de6/classevio_1_1_block_header_v4_1a83b3048e21e27010f24bb3977226eaa8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a83b3048e21e27010f24bb3977226eaa8" kindref="member">magicNumber</ref><sp/>=<sp/><ref refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" kindref="member">MAGIC_NUMBER</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173" refid="da/de6/classevio_1_1_block_header_v4_1a03909187e1872cfdd4ce3a70f371a5b4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a03909187e1872cfdd4ce3a70f371a5b4" kindref="member">byteOrder</ref><sp/>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>};</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179" refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" kindref="member">bufferStartingPosition</ref><sp/>=<sp/>0L;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="da/de6/classevio_1_1_block_header_v4_1a0efcf032fe71cba6b07ee85e59a8ca99" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0efcf032fe71cba6b07ee85e59a8ca99" kindref="member">BlockHeaderV4</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201" refid="da/de6/classevio_1_1_block_header_v4_1ab4c53d99789ec5a6543c59fa5214013f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ab4c53d99789ec5a6543c59fa5214013f" kindref="member">BlockHeaderV4</ref>(uint32_t<sp/>sz,<sp/>uint32_t<sp/>num)<sp/>{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref><sp/>=<sp/>sz;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" kindref="member">number</ref><sp/>=<sp/>num;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212" refid="da/de6/classevio_1_1_block_header_v4_1a10466c7aab162f117379326f21fc3d8b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a10466c7aab162f117379326f21fc3d8b" kindref="member">BlockHeaderV4</ref>(std::shared_ptr&lt;BlockHeaderV4&gt;<sp/>&amp;<sp/>blkHeader)<sp/>{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a94cba4a2d72ec0764f1e90bc194a6c6a" kindref="member">copy</ref>(blkHeader);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="da/de6/classevio_1_1_block_header_v4_1a94cba4a2d72ec0764f1e90bc194a6c6a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a94cba4a2d72ec0764f1e90bc194a6c6a" kindref="member">copy</ref>(std::shared_ptr&lt;BlockHeaderV4&gt;<sp/>&amp;<sp/>blkHeader)<sp/>{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>blkHeader-&gt;size;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" kindref="member">number</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>blkHeader-&gt;number;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref><sp/>=<sp/>blkHeader-&gt;headerLength;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>blkHeader-&gt;version;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0484200c8cd2773baca179db836f61e3" kindref="member">eventCount</ref><sp/><sp/><sp/>=<sp/>blkHeader-&gt;eventCount;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad294e137630fbb176ad706b83260516c" kindref="member">reserved1</ref><sp/><sp/><sp/><sp/>=<sp/>blkHeader-&gt;reserved1;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad47135d9f4704582b6d726d5ac21f9c6" kindref="member">reserved2</ref><sp/><sp/><sp/><sp/>=<sp/>blkHeader-&gt;reserved2;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a03909187e1872cfdd4ce3a70f371a5b4" kindref="member">byteOrder</ref><sp/><sp/><sp/><sp/>=<sp/>blkHeader-&gt;byteOrder;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a83b3048e21e27010f24bb3977226eaa8" kindref="member">magicNumber</ref><sp/><sp/>=<sp/>blkHeader-&gt;magicNumber;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>blkHeader-&gt;bitInfo;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" kindref="member">bufferStartingPosition</ref><sp/>=<sp/>blkHeader-&gt;bufferStartingPosition;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237" refid="da/de6/classevio_1_1_block_header_v4_1a34b00ef7525b71b4339c2c2bac956c77" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a34b00ef7525b71b4339c2c2bac956c77" kindref="member">getSize</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref>;}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245" refid="da/de6/classevio_1_1_block_header_v4_1ad71feae777d828d0cb16db4081e62851" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad71feae777d828d0cb16db4081e62851" kindref="member">setSize</ref>(uint32_t<sp/>sz)<sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sz<sp/>&lt;<sp/>8)<sp/>{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref>(</highlight><highlight class="stringliteral">&quot;Bad<sp/>value<sp/>for<sp/>size<sp/>in<sp/>block<sp/>(physical<sp/>record)<sp/>header:<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>std::to_string(sz));</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref><sp/>=<sp/>sz;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259" refid="da/de6/classevio_1_1_block_header_v4_1a56bbabcb1e6f365b96e64de43dc49cbd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a56bbabcb1e6f365b96e64de43dc49cbd" kindref="member">getEventCount</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0484200c8cd2773baca179db836f61e3" kindref="member">eventCount</ref>;}</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="269" refid="da/de6/classevio_1_1_block_header_v4_1a4bb7b52e4b2fd5e4a93a5516b304b293" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a4bb7b52e4b2fd5e4a93a5516b304b293" kindref="member">setEventCount</ref>(uint32_t<sp/>count)<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(count<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref>(</highlight><highlight class="stringliteral">&quot;Bad<sp/>value<sp/>for<sp/>event<sp/>count<sp/>in<sp/>block<sp/>(physical<sp/>record)<sp/>header:<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::to_string(count));</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0484200c8cd2773baca179db836f61e3" kindref="member">eventCount</ref><sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279" refid="da/de6/classevio_1_1_block_header_v4_1aa0f9220bc73f72827e60ed2baabd3f5a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa0f9220bc73f72827e60ed2baabd3f5a" kindref="member">getNumber</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" kindref="member">number</ref>;}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288" refid="da/de6/classevio_1_1_block_header_v4_1a75d7189c7f19e142543d893bb0a46210" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a75d7189c7f19e142543d893bb0a46210" kindref="member">setNumber</ref>(uint32_t<sp/>num)<sp/>{<ref refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" kindref="member">number</ref><sp/>=<sp/>num;}</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295" refid="da/de6/classevio_1_1_block_header_v4_1aedb126f531b14b696ba9e39386e5df8f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aedb126f531b14b696ba9e39386e5df8f" kindref="member">getHeaderLength</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref>;}</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299" refid="da/de6/classevio_1_1_block_header_v4_1a229150b346682e1f5f1f7cd49394349e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a229150b346682e1f5f1f7cd49394349e" kindref="member">getHeaderWords</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref>;}</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309" refid="da/de6/classevio_1_1_block_header_v4_1a90bf371a96af416eaccf6ff230a92c64" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a90bf371a96af416eaccf6ff230a92c64" kindref="member">setHeaderLength</ref>(uint32_t<sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>!=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a76120f781b57819705f163ada7103517" kindref="member">HEADER_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Warning:<sp/>Block<sp/>Header<sp/>Length<sp/>=<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref><sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318" refid="da/de6/classevio_1_1_block_header_v4_1aa30e0b631cd16e10b8363101cd10b1fc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa30e0b631cd16e10b8363101cd10b1fc" kindref="member">getVersion</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref>;}</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325" refid="da/de6/classevio_1_1_block_header_v4_1ad8549b54b994d164d7560455cd0f5fb0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad8549b54b994d164d7560455cd0f5fb0" kindref="member">setVersion</ref>(uint32_t<sp/>ver)<sp/>{<ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref><sp/>=<sp/>ver;}</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329" refid="da/de6/classevio_1_1_block_header_v4_1a604e2a5f6b138d30dcc7510455d752cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a604e2a5f6b138d30dcc7510455d752cd" kindref="member">hasFirstEvent</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[6];}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338" refid="da/de6/classevio_1_1_block_header_v4_1a3eac678cb0bef51557c366e0e8226687" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3eac678cb0bef51557c366e0e8226687" kindref="member">hasDictionary</ref>(uint32_t<sp/>i)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((i<sp/>&amp;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad1e91a6945d367d5a608084012333cfd" kindref="member">EV_DICTIONARY_MASK</ref>)<sp/>&gt;<sp/>0);}</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342" refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[0];}</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="346" refid="da/de6/classevio_1_1_block_header_v4_1a4763ef1fc27750a6e207c0ee0da02c89" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a4763ef1fc27750a6e207c0ee0da02c89" kindref="member">isLastBlock</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[1];}</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="354" refid="da/de6/classevio_1_1_block_header_v4_1a9d2307c327fb115488f47fd72fa29dbb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a9d2307c327fb115488f47fd72fa29dbb" kindref="member">hasFirstEvent</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[6];}</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="356"><highlight class="normal"></highlight></codeline>
+<codeline lineno="363" refid="da/de6/classevio_1_1_block_header_v4_1ae70ff568f621ba95e5a6055fde7cb249" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ae70ff568f621ba95e5a6055fde7cb249" kindref="member">isLastBlock</ref>(uint32_t<sp/>i)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((i<sp/>&amp;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a07f10e8835e4d898080e5da7f95fe9c5" kindref="member">EV_LASTBLOCK_MASK</ref>)<sp/>&gt;<sp/>0);}</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371" refid="da/de6/classevio_1_1_block_header_v4_1aad80710f808b0826b453796f6f0ab2b4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aad80710f808b0826b453796f6f0ab2b4" kindref="member">setLastBlockBit</ref>(uint32_t<sp/>i)<sp/><sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>|=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a07f10e8835e4d898080e5da7f95fe9c5" kindref="member">EV_LASTBLOCK_MASK</ref>);}</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"></highlight></codeline>
+<codeline lineno="373"><highlight class="normal"></highlight></codeline>
+<codeline lineno="379" refid="da/de6/classevio_1_1_block_header_v4_1aea4ab5a6e6e04aae085247e29a56c826" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aea4ab5a6e6e04aae085247e29a56c826" kindref="member">clearLastBlockBit</ref>(uint32_t<sp/>i)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>&amp;=<sp/>~<ref refid="da/de6/classevio_1_1_block_header_v4_1a07f10e8835e4d898080e5da7f95fe9c5" kindref="member">EV_LASTBLOCK_MASK</ref>);}</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight></codeline>
+<codeline lineno="391" refid="da/de6/classevio_1_1_block_header_v4_1a3ac5bd3553bf95b843b27dc505053cee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3ac5bd3553bf95b843b27dc505053cee" kindref="member">hasFirstEvent</ref>(uint32_t<sp/>i)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((i<sp/>&amp;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa19db7b0e43a1bf40be32f7de01d79d1" kindref="member">EV_FIRSTEVENT_MASK</ref>)<sp/>&gt;<sp/>0);}</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight></codeline>
+<codeline lineno="393"><highlight class="normal"></highlight></codeline>
+<codeline lineno="399" refid="da/de6/classevio_1_1_block_header_v4_1aa2928c9d55125836ff42c9d47f2562ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa2928c9d55125836ff42c9d47f2562ca" kindref="member">setFirstEventBit</ref>(uint32_t<sp/>i)<sp/><sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>|=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa19db7b0e43a1bf40be32f7de01d79d1" kindref="member">EV_FIRSTEVENT_MASK</ref>);}</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"></highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight></codeline>
+<codeline lineno="407" refid="da/de6/classevio_1_1_block_header_v4_1ab29c8838c57859396a46708ddc8808bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ab29c8838c57859396a46708ddc8808bb" kindref="member">clearFirstEventBit</ref>(uint32_t<sp/>i)<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>&amp;=<sp/>~<ref refid="da/de6/classevio_1_1_block_header_v4_1aa19db7b0e43a1bf40be32f7de01d79d1" kindref="member">EV_FIRSTEVENT_MASK</ref>);}</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal"></highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//-//////////////////////////////////////////////////////////////////</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>BitInfo<sp/>methods</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//-//////////////////////////////////////////////////////////////////</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="413"><highlight class="normal"></highlight></codeline>
+<codeline lineno="414"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416" refid="da/de6/classevio_1_1_block_header_v4_1a01b8e1254f998e49d866542fcffda94f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a01b8e1254f998e49d866542fcffda94f" kindref="member">getEventType</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>type=0;</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>bitisSet;</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i=0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bitisSet<sp/>=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[i+2];</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bitisSet)<sp/>type<sp/>|=<sp/>(uint32_t)1<sp/>&lt;&lt;<sp/>i;</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>type;</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"></highlight></codeline>
+<codeline lineno="426"><highlight class="normal"></highlight></codeline>
+<codeline lineno="432" refid="da/de6/classevio_1_1_block_header_v4_1a963c8344623965297a3f41de70cafe1d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a963c8344623965297a3f41de70cafe1d" kindref="member">setFirstEvent</ref>(std::bitset&lt;24&gt;<sp/>&amp;<sp/>bSet)<sp/>{</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Encoding<sp/>bit<sp/>#15<sp/>(#6<sp/>since<sp/>first<sp/>is<sp/>bit<sp/>#9)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="434"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bSet[6]<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"></highlight></codeline>
+<codeline lineno="437"><highlight class="normal"></highlight></codeline>
+<codeline lineno="444" refid="da/de6/classevio_1_1_block_header_v4_1ae48bbf9b755a8256555f0fdc737e9989" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ae48bbf9b755a8256555f0fdc737e9989" kindref="member">unsetFirstEvent</ref>(std::bitset&lt;24&gt;<sp/>&amp;<sp/>bSet)<sp/>{</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Encoding<sp/>bit<sp/>#15<sp/>(#6<sp/>since<sp/>first<sp/>is<sp/>bit<sp/>#9)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bSet[6]<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"></highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="454" refid="da/de6/classevio_1_1_block_header_v4_1a0f433dba0a841fe2a34241c3774e732e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::bitset&lt;24&gt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0f433dba0a841fe2a34241c3774e732e" kindref="member">getBitInfo</ref>()<sp/>{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>;}</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"></highlight></codeline>
+<codeline lineno="456"><highlight class="normal"></highlight></codeline>
+<codeline lineno="462" refid="da/de6/classevio_1_1_block_header_v4_1a5f10087744772b20a1471c7af5f80a47" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a5f10087744772b20a1471c7af5f80a47" kindref="member">getBitInfo</ref>(uint32_t<sp/>bitIndex)<sp/>{</highlight></codeline>
+<codeline lineno="463"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bitIndex<sp/>&gt;<sp/>23)<sp/>{</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[bitIndex];</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="468"><highlight class="normal"></highlight></codeline>
+<codeline lineno="469"><highlight class="normal"></highlight></codeline>
+<codeline lineno="475" refid="da/de6/classevio_1_1_block_header_v4_1a8bba14e2d206b5b133e4cbcaa2add9b6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a8bba14e2d206b5b133e4cbcaa2add9b6" kindref="member">setBit</ref>(uint32_t<sp/>bitIndex,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>value)<sp/>{</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bitIndex<sp/>&gt;<sp/>23)<sp/>{</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[bitIndex]<sp/>=<sp/>value;</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="481"><highlight class="normal"></highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="492" refid="da/de6/classevio_1_1_block_header_v4_1a5d84409efa062ab076d91101cb5c309a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a5d84409efa062ab076d91101cb5c309a" kindref="member">setEventType</ref>(std::bitset&lt;24&gt;<sp/>&amp;<sp/>bSet,<sp/>uint32_t<sp/>type)<sp/>{</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>&lt;<sp/>0)<sp/>type<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>&gt;<sp/>15)<sp/>type<sp/>=<sp/>15;</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"></highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i=2;<sp/>i<sp/>&lt;<sp/>6;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="497"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bSet[i]<sp/>=<sp/>((type<sp/>&gt;&gt;<sp/>(i-2))<sp/>&amp;<sp/>0x1)<sp/>&gt;<sp/>0;</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="500"><highlight class="normal"></highlight></codeline>
+<codeline lineno="501"><highlight class="normal"></highlight></codeline>
+<codeline lineno="508" refid="da/de6/classevio_1_1_block_header_v4_1a7ad77eac1c10bd2ceef4c7d3bc7e1fa8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a7ad77eac1c10bd2ceef4c7d3bc7e1fa8" kindref="member">getSixthWord</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="509"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>v<sp/>=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref><sp/>&amp;<sp/>0xff;</highlight></codeline>
+<codeline lineno="510"><highlight class="normal"></highlight></codeline>
+<codeline lineno="511"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i=0;<sp/>i<sp/>&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>.size();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="512"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[i])<sp/>{</highlight></codeline>
+<codeline lineno="513"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>|=<sp/>(0x1<sp/>&lt;&lt;<sp/>(8+i));</highlight></codeline>
+<codeline lineno="514"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="515"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="516"><highlight class="normal"></highlight></codeline>
+<codeline lineno="517"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v;</highlight></codeline>
+<codeline lineno="518"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="519"><highlight class="normal"></highlight></codeline>
+<codeline lineno="520"><highlight class="normal"></highlight></codeline>
+<codeline lineno="528" refid="da/de6/classevio_1_1_block_header_v4_1a08de309f7e31a3a465d40efbc45f1f2e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a08de309f7e31a3a465d40efbc45f1f2e" kindref="member">generateSixthWord</ref>(std::bitset&lt;24&gt;<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>&amp;<sp/>set)<sp/>{</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>v<sp/>=<sp/>4;<sp/></highlight><highlight class="comment">//<sp/>version</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="530"><highlight class="normal"></highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i=0;<sp/>i<sp/>&lt;<sp/>set.size();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>&gt;<sp/>23)<sp/>{</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="534"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(set[i])<sp/>{</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>|=<sp/>(0x1<sp/>&lt;&lt;<sp/>(8+i));</highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="539"><highlight class="normal"></highlight></codeline>
+<codeline lineno="540"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v;</highlight></codeline>
+<codeline lineno="541"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"></highlight></codeline>
+<codeline lineno="543"><highlight class="normal"></highlight></codeline>
+<codeline lineno="554" refid="da/de6/classevio_1_1_block_header_v4_1ada14ded5c83f123a6ef653aea706b268" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ada14ded5c83f123a6ef653aea706b268" kindref="member">generateSixthWord</ref>(std::bitset&lt;24&gt;<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>&amp;<sp/>bSet,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref>,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isEnd)<sp/>{</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>v<sp/>=<sp/>4;<sp/></highlight><highlight class="comment">//<sp/>version</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="556"><highlight class="normal"></highlight></codeline>
+<codeline lineno="557"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i=0;<sp/>i<sp/>&lt;<sp/>bSet.size();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>&gt;<sp/>23)<sp/>{</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bSet[i])<sp/>{</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>|=<sp/>(0x1<sp/>&lt;&lt;<sp/>(8+i));</highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"></highlight></codeline>
+<codeline lineno="566"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>=<sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref><sp/>?<sp/>(v<sp/>|<sp/>0x100)<sp/>:<sp/>v;</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>=<sp/><sp/>isEnd<sp/>?<sp/>(v<sp/>|<sp/>0x200)<sp/>:<sp/>v;</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"></highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v;</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"></highlight></codeline>
+<codeline lineno="572"><highlight class="normal"></highlight></codeline>
+<codeline lineno="585" refid="da/de6/classevio_1_1_block_header_v4_1ace409c4bafec61f4126398116da9ef31" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ace409c4bafec61f4126398116da9ef31" kindref="member">generateSixthWord</ref>(uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref>,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref>,</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isEnd,<sp/>uint32_t<sp/>eventType)<sp/>{</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>v<sp/>=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref>;</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>=<sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref><sp/>?<sp/>(v<sp/>|<sp/>0x100)<sp/>:<sp/>v;</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>=<sp/><sp/>isEnd<sp/>?<sp/>(v<sp/>|<sp/>0x200)<sp/>:<sp/>v;</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>|=<sp/>((eventType<sp/>&amp;<sp/>0xf)<sp/>&lt;&lt;<sp/>10);</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v;</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"></highlight></codeline>
+<codeline lineno="594"><highlight class="normal"></highlight></codeline>
+<codeline lineno="608" refid="da/de6/classevio_1_1_block_header_v4_1a7665443fe50d6b0c914790bd31b6a1ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a7665443fe50d6b0c914790bd31b6a1ba" kindref="member">generateSixthWord</ref>(std::bitset&lt;24&gt;<sp/>bSet,<sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref>,</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref>,</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isEnd,<sp/>uint32_t<sp/>eventType)<sp/>{</highlight></codeline>
+<codeline lineno="611"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>v<sp/>=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref>;<sp/></highlight><highlight class="comment">//<sp/>version</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="612"><highlight class="normal"></highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;<sp/>i<sp/>&lt;<sp/>bSet.size();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>&gt;<sp/>23)<sp/>{</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bSet[i])<sp/>{</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>|=<sp/>(0x1<sp/>&lt;&lt;<sp/>(8+i));</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"></highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>=<sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref><sp/>?<sp/>(v<sp/>|<sp/>0x100)<sp/>:<sp/>v;</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>=<sp/><sp/>isEnd<sp/>?<sp/>(v<sp/>|<sp/>0x200)<sp/>:<sp/>v;</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>|=<sp/>((eventType<sp/>&amp;<sp/>0xf)<sp/>&lt;&lt;<sp/>10);</highlight></codeline>
+<codeline lineno="625"><highlight class="normal"></highlight></codeline>
+<codeline lineno="626"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v;</highlight></codeline>
+<codeline lineno="627"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="628"><highlight class="normal"></highlight></codeline>
+<codeline lineno="629"><highlight class="normal"></highlight></codeline>
+<codeline lineno="635" refid="da/de6/classevio_1_1_block_header_v4_1ab21fae9f60eeb5791a1396c4204e11ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ab21fae9f60eeb5791a1396c4204e11ba" kindref="member">parseToBitInfo</ref>(uint32_t<sp/>word)<sp/>{</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;<sp/>i<sp/>&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>.size();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>[i]<sp/>=<sp/>((word<sp/>&gt;&gt;<sp/>(8+i))<sp/>&amp;<sp/>0x1)<sp/>&gt;<sp/>0;</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"></highlight></codeline>
+<codeline lineno="641"><highlight class="normal"></highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//-//////////////////////////////////////////////////////////////////</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="643"><highlight class="normal"></highlight></codeline>
+<codeline lineno="644"><highlight class="normal"></highlight></codeline>
+<codeline lineno="646" refid="da/de6/classevio_1_1_block_header_v4_1aa8cb3b646937dd2290e256b29362ce81" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa8cb3b646937dd2290e256b29362ce81" kindref="member">getSourceId</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad294e137630fbb176ad706b83260516c" kindref="member">reserved1</ref>;}</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"></highlight></codeline>
+<codeline lineno="648"><highlight class="normal"></highlight></codeline>
+<codeline lineno="653" refid="da/de6/classevio_1_1_block_header_v4_1aa8a7ecf8f8c9d11acfa89ba9e77fcf63" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa8a7ecf8f8c9d11acfa89ba9e77fcf63" kindref="member">getReserved1</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad294e137630fbb176ad706b83260516c" kindref="member">reserved1</ref>;}</highlight></codeline>
+<codeline lineno="654"><highlight class="normal"></highlight></codeline>
+<codeline lineno="655"><highlight class="normal"></highlight></codeline>
+<codeline lineno="660" refid="da/de6/classevio_1_1_block_header_v4_1a6ceed161b231cf68da6fb4e692d26827" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a6ceed161b231cf68da6fb4e692d26827" kindref="member">setReserved1</ref>(uint32_t<sp/>r1)<sp/>{<ref refid="da/de6/classevio_1_1_block_header_v4_1ad294e137630fbb176ad706b83260516c" kindref="member">reserved1</ref><sp/>=<sp/>r1;}</highlight></codeline>
+<codeline lineno="661"><highlight class="normal"></highlight></codeline>
+<codeline lineno="662"><highlight class="normal"></highlight></codeline>
+<codeline lineno="667" refid="da/de6/classevio_1_1_block_header_v4_1a18c0e3addbd70d0a0971e5bcfb2e5778" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a18c0e3addbd70d0a0971e5bcfb2e5778" kindref="member">getReserved2</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad47135d9f4704582b6d726d5ac21f9c6" kindref="member">reserved2</ref>;}</highlight></codeline>
+<codeline lineno="668"><highlight class="normal"></highlight></codeline>
+<codeline lineno="669"><highlight class="normal"></highlight></codeline>
+<codeline lineno="674" refid="da/de6/classevio_1_1_block_header_v4_1a93b87e1cd6f360d62826ddc676b897f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a93b87e1cd6f360d62826ddc676b897f8" kindref="member">setReserved2</ref>(uint32_t<sp/>r2)<sp/>{<ref refid="da/de6/classevio_1_1_block_header_v4_1ad47135d9f4704582b6d726d5ac21f9c6" kindref="member">reserved2</ref><sp/>=<sp/>r2;}</highlight></codeline>
+<codeline lineno="675"><highlight class="normal"></highlight></codeline>
+<codeline lineno="676"><highlight class="normal"></highlight></codeline>
+<codeline lineno="678" refid="da/de6/classevio_1_1_block_header_v4_1a29a9b2dcd818d3aa043688942822a611" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a29a9b2dcd818d3aa043688942822a611" kindref="member">getMagicNumber</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a83b3048e21e27010f24bb3977226eaa8" kindref="member">magicNumber</ref>;}</highlight></codeline>
+<codeline lineno="679"><highlight class="normal"></highlight></codeline>
+<codeline lineno="680"><highlight class="normal"></highlight></codeline>
+<codeline lineno="691" refid="da/de6/classevio_1_1_block_header_v4_1aea332a5d6321b9fdd23958356f49ffff" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aea332a5d6321b9fdd23958356f49ffff" kindref="member">setMagicNumber</ref>(uint32_t<sp/>magicNum)<sp/>{</highlight></codeline>
+<codeline lineno="692"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(magicNum<sp/>!=<sp/><ref refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" kindref="member">MAGIC_NUMBER</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="693"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref>(</highlight><highlight class="stringliteral">&quot;Value<sp/>for<sp/>magicNumber,<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>std::to_string(magicNum)<sp/>+</highlight></codeline>
+<codeline lineno="694"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/>does<sp/>not<sp/>match<sp/>MAGIC_NUMBER<sp/>0xc0da0100&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="695"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="696"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a83b3048e21e27010f24bb3977226eaa8" kindref="member">magicNumber</ref><sp/>=<sp/><ref refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" kindref="member">MAGIC_NUMBER</ref>;</highlight></codeline>
+<codeline lineno="697"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="698"><highlight class="normal"></highlight></codeline>
+<codeline lineno="699"><highlight class="normal"></highlight></codeline>
+<codeline lineno="701" refid="da/de6/classevio_1_1_block_header_v4_1a615f6fd923fd2d361a0f83e7594cc03d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/>&amp;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a615f6fd923fd2d361a0f83e7594cc03d" kindref="member">getByteOrder</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a03909187e1872cfdd4ce3a70f371a5b4" kindref="member">byteOrder</ref>;}</highlight></codeline>
+<codeline lineno="702"><highlight class="normal"></highlight></codeline>
+<codeline lineno="703"><highlight class="normal"></highlight></codeline>
+<codeline lineno="708" refid="da/de6/classevio_1_1_block_header_v4_1a6b029698a891f989c24f7b8abf9aa71d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a6b029698a891f989c24f7b8abf9aa71d" kindref="member">setByteOrder</ref>(<ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref><sp/>&amp;<sp/>order)<sp/>{<ref refid="da/de6/classevio_1_1_block_header_v4_1a03909187e1872cfdd4ce3a70f371a5b4" kindref="member">byteOrder</ref><sp/>=<sp/>order;}</highlight></codeline>
+<codeline lineno="709"><highlight class="normal"></highlight></codeline>
+<codeline lineno="710"><highlight class="normal"></highlight></codeline>
+<codeline lineno="712" refid="da/de6/classevio_1_1_block_header_v4_1ab50eacb16950ff1a82689d2070667d03" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ab50eacb16950ff1a82689d2070667d03" kindref="member">toString</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::stringstream<sp/>ss;</highlight></codeline>
+<codeline lineno="714"><highlight class="normal"></highlight></codeline>
+<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;block<sp/>size:<sp/><sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;number:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" kindref="member">number</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="717"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;headerLen:<sp/><sp/><sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="718"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;event<sp/>count:<sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a0484200c8cd2773baca179db836f61e3" kindref="member">eventCount</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="719"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;reserved1:<sp/><sp/><sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ad294e137630fbb176ad706b83260516c" kindref="member">reserved1</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="720"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;bitInfo<sp/><sp/>bits:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aa7ae35ad07d52b54d35e879075fa401b" kindref="member">bitInfo</ref>.to_string()<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="721"><highlight class="normal"></highlight></codeline>
+<codeline lineno="722"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;bitInfo/ver:<sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a7ad77eac1c10bd2ceef4c7d3bc7e1fa8" kindref="member">getSixthWord</ref>()<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="723"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;has<sp/>dict:<sp/><sp/><sp/><sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1abc0c1d6d1a27c74236526107da15d131" kindref="member">hasDictionary</ref>()<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="724"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;is<sp/>last<sp/>blk:<sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a4763ef1fc27750a6e207c0ee0da02c89" kindref="member">isLastBlock</ref>()<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="725"><highlight class="normal"></highlight></codeline>
+<codeline lineno="726"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;version:<sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a2308090f61291575a2715e4b8bb53e6d" kindref="member">version</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="727"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;magicNumber:<sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a83b3048e21e27010f24bb3977226eaa8" kindref="member">magicNumber</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="728"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>*buffer<sp/>start:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a21c22f0275d07b52f64e7f6684af229b" kindref="member">getBufferStartingPosition</ref>()<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="729"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>*next<sp/><sp/><sp/>start:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aadee7970d205159c14d5d112ed313dbe" kindref="member">nextBufferStartingPosition</ref>()<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="730"><highlight class="normal"></highlight></codeline>
+<codeline lineno="731"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ss.str();</highlight></codeline>
+<codeline lineno="732"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="733"><highlight class="normal"></highlight></codeline>
+<codeline lineno="734"><highlight class="normal"></highlight></codeline>
+<codeline lineno="736" refid="da/de6/classevio_1_1_block_header_v4_1a590b223a04aa3ede3475ac3df727d1d1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a590b223a04aa3ede3475ac3df727d1d1" kindref="member">getBufferEndingPosition</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" kindref="member">bufferStartingPosition</ref><sp/>+<sp/>4*<ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref>;}</highlight></codeline>
+<codeline lineno="737"><highlight class="normal"></highlight></codeline>
+<codeline lineno="738"><highlight class="normal"></highlight></codeline>
+<codeline lineno="740" refid="da/de6/classevio_1_1_block_header_v4_1a21c22f0275d07b52f64e7f6684af229b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a21c22f0275d07b52f64e7f6684af229b" kindref="member">getBufferStartingPosition</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" kindref="member">bufferStartingPosition</ref>;}</highlight></codeline>
+<codeline lineno="741"><highlight class="normal"></highlight></codeline>
+<codeline lineno="742"><highlight class="normal"></highlight></codeline>
+<codeline lineno="744" refid="da/de6/classevio_1_1_block_header_v4_1a57365b831c065ca9dc2bf6fa74a153ef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a57365b831c065ca9dc2bf6fa74a153ef" kindref="member">setBufferStartingPosition</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos)</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{<ref refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" kindref="member">bufferStartingPosition</ref><sp/>=<sp/>pos;}</highlight></codeline>
+<codeline lineno="745"><highlight class="normal"></highlight></codeline>
+<codeline lineno="746"><highlight class="normal"></highlight></codeline>
+<codeline lineno="748" refid="da/de6/classevio_1_1_block_header_v4_1aadee7970d205159c14d5d112ed313dbe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aadee7970d205159c14d5d112ed313dbe" kindref="member">nextBufferStartingPosition</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a590b223a04aa3ede3475ac3df727d1d1" kindref="member">getBufferEndingPosition</ref>();}</highlight></codeline>
+<codeline lineno="749"><highlight class="normal"></highlight></codeline>
+<codeline lineno="750"><highlight class="normal"></highlight></codeline>
+<codeline lineno="752" refid="da/de6/classevio_1_1_block_header_v4_1a9266b5dd5bd9a2c54dbac5ad66544016" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a9266b5dd5bd9a2c54dbac5ad66544016" kindref="member">firstEventStartingPosition</ref>()</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" kindref="member">bufferStartingPosition</ref><sp/>+<sp/>4*<ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref>;}</highlight></codeline>
+<codeline lineno="753"><highlight class="normal"></highlight></codeline>
+<codeline lineno="754"><highlight class="normal"></highlight></codeline>
+<codeline lineno="756" refid="da/de6/classevio_1_1_block_header_v4_1a03ad2993606e2cf26b773810880a2e0f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a03ad2993606e2cf26b773810880a2e0f" kindref="member">bytesRemaining</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>position)</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(position<sp/>&lt;<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1a3e85cd54af6e7d374f416b09f8f6b069" kindref="member">bufferStartingPosition</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="758"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref>(</highlight><highlight class="stringliteral">&quot;Provided<sp/>position<sp/>is<sp/>less<sp/>than<sp/>buffer<sp/>starting<sp/>position.&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="759"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="760"><highlight class="normal"></highlight></codeline>
+<codeline lineno="761"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>nextBufferStart<sp/>=<sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1aadee7970d205159c14d5d112ed313dbe" kindref="member">nextBufferStartingPosition</ref>();</highlight></codeline>
+<codeline lineno="762"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(position<sp/>&gt;<sp/>nextBufferStart)<sp/>{</highlight></codeline>
+<codeline lineno="763"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref>(</highlight><highlight class="stringliteral">&quot;Provided<sp/>position<sp/>beyond<sp/>buffer<sp/>end<sp/>position.&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="764"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="765"><highlight class="normal"></highlight></codeline>
+<codeline lineno="766"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>nextBufferStart<sp/>-<sp/>position;</highlight></codeline>
+<codeline lineno="767"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="768"><highlight class="normal"></highlight></codeline>
+<codeline lineno="769"><highlight class="normal"></highlight></codeline>
+<codeline lineno="771" refid="da/de6/classevio_1_1_block_header_v4_1ac161a2e8f0cdaedfe42db8f5baeb1ea4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="da/de6/classevio_1_1_block_header_v4_1ac161a2e8f0cdaedfe42db8f5baeb1ea4" kindref="member">write</ref>(<ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref><sp/>&amp;<sp/>byteBuffer)</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="772"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" kindref="member">remaining</ref>()<sp/>&lt;<sp/>32)<sp/>{</highlight></codeline>
+<codeline lineno="773"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::overflow_error(</highlight><highlight class="stringliteral">&quot;not<sp/>enough<sp/>room<sp/>in<sp/>buffer<sp/>to<sp/>write&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="774"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="775"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(<ref refid="da/de6/classevio_1_1_block_header_v4_1a17c0e89793268b0d802580f704cb465f" kindref="member">size</ref>);</highlight></codeline>
+<codeline lineno="776"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(<ref refid="da/de6/classevio_1_1_block_header_v4_1af74f05d4dd1a7c87c45c570471994a44" kindref="member">number</ref>);</highlight></codeline>
+<codeline lineno="777"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(<ref refid="da/de6/classevio_1_1_block_header_v4_1abae871c3b8dd79a64d2eb5f9c06ca8eb" kindref="member">headerLength</ref>);<sp/></highlight><highlight class="comment">//<sp/>should<sp/>always<sp/>be<sp/>8</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="778"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(<ref refid="da/de6/classevio_1_1_block_header_v4_1a0484200c8cd2773baca179db836f61e3" kindref="member">eventCount</ref>);</highlight></codeline>
+<codeline lineno="779"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(0);<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>unused</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="780"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(<ref refid="da/de6/classevio_1_1_block_header_v4_1a7ad77eac1c10bd2ceef4c7d3bc7e1fa8" kindref="member">getSixthWord</ref>());</highlight></codeline>
+<codeline lineno="781"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(0);<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>unused</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="782"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>byteBuffer.<ref refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" kindref="member">putInt</ref>(<ref refid="da/de6/classevio_1_1_block_header_v4_1a83b3048e21e27010f24bb3977226eaa8" kindref="member">magicNumber</ref>);</highlight></codeline>
+<codeline lineno="783"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>32;</highlight></codeline>
+<codeline lineno="784"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="785"><highlight class="normal"></highlight></codeline>
+<codeline lineno="786"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="787"><highlight class="normal"></highlight></codeline>
+<codeline lineno="788"><highlight class="normal"></highlight></codeline>
+<codeline lineno="789"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="790"><highlight class="normal"></highlight></codeline>
+<codeline lineno="791"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//EVIO_6_0_BLOCKHEADERV4_H</highlight></codeline>
+    </programlisting>
+    <location file="src/libsrc/BlockHeaderV4.h"/>
+  </compounddef>
+</doxygen>

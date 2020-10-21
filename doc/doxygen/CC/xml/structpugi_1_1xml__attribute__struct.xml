@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="structpugi_1_1xml__attribute__struct" kind="struct" language="C++" prot="public">
+    <compoundname>pugi::xml_attribute_struct</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structpugi_1_1xml__attribute__struct_1a0dca6ca6c129bbf87a7ebaf87f3e12de" prot="public" static="no" mutable="no">
+        <type>uintptr_t</type>
+        <definition>uintptr_t pugi::xml_attribute_struct::header</definition>
+        <argsstring></argsstring>
+        <name>header</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.cpp" line="1101" column="11" bodyfile="src/libsrc/pugixml.cpp" bodystart="1101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structpugi_1_1xml__attribute__struct_1aa886c4aae23a132e1704717721ee2c19" prot="public" static="no" mutable="no">
+        <type>char_t *</type>
+        <definition>char_t* pugi::xml_attribute_struct::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.cpp" line="1103" column="7" bodyfile="src/libsrc/pugixml.cpp" bodystart="1103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structpugi_1_1xml__attribute__struct_1ae652627d56cb9dcc0afdd1fbf6570364" prot="public" static="no" mutable="no">
+        <type>char_t *</type>
+        <definition>char_t* pugi::xml_attribute_struct::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.cpp" line="1104" column="7" bodyfile="src/libsrc/pugixml.cpp" bodystart="1104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structpugi_1_1xml__attribute__struct_1a0e3a022235b316e4cfc1034ceb7d7862" prot="public" static="no" mutable="no">
+        <type><ref refid="structpugi_1_1xml__attribute__struct" kindref="compound">xml_attribute_struct</ref> *</type>
+        <definition>xml_attribute_struct* pugi::xml_attribute_struct::prev_attribute_c</definition>
+        <argsstring></argsstring>
+        <name>prev_attribute_c</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.cpp" line="1106" column="22" bodyfile="src/libsrc/pugixml.cpp" bodystart="1106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structpugi_1_1xml__attribute__struct_1a9860c0eb7fa72dc9b69ee9b0575f9efc" prot="public" static="no" mutable="no">
+        <type><ref refid="structpugi_1_1xml__attribute__struct" kindref="compound">xml_attribute_struct</ref> *</type>
+        <definition>xml_attribute_struct* pugi::xml_attribute_struct::next_attribute</definition>
+        <argsstring></argsstring>
+        <name>next_attribute</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.cpp" line="1107" column="22" bodyfile="src/libsrc/pugixml.cpp" bodystart="1107" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structpugi_1_1xml__attribute__struct_1a57bb21cb72613e746a659efdd6425b94" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_attribute_struct::xml_attribute_struct</definition>
+        <argsstring>(impl::xml_memory_page *page)</argsstring>
+        <name>xml_attribute_struct</name>
+        <param>
+          <type>impl::xml_memory_page *</type>
+          <declname>page</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.cpp" line="1096" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="1096" bodyend="1099"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>pugi::xml_attribute_struct</label>
+        <link refid="structpugi_1_1xml__attribute__struct"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>next_attribute</edgelabel>
+          <edgelabel>prev_attribute_c</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/pugixml.cpp" line="1094" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="1095" bodyend="1108"/>
+    <listofallmembers>
+      <member refid="structpugi_1_1xml__attribute__struct_1a0dca6ca6c129bbf87a7ebaf87f3e12de" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_struct</scope><name>header</name></member>
+      <member refid="structpugi_1_1xml__attribute__struct_1aa886c4aae23a132e1704717721ee2c19" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_struct</scope><name>name</name></member>
+      <member refid="structpugi_1_1xml__attribute__struct_1a9860c0eb7fa72dc9b69ee9b0575f9efc" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_struct</scope><name>next_attribute</name></member>
+      <member refid="structpugi_1_1xml__attribute__struct_1a0e3a022235b316e4cfc1034ceb7d7862" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_struct</scope><name>prev_attribute_c</name></member>
+      <member refid="structpugi_1_1xml__attribute__struct_1ae652627d56cb9dcc0afdd1fbf6570364" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_struct</scope><name>value</name></member>
+      <member refid="structpugi_1_1xml__attribute__struct_1a57bb21cb72613e746a659efdd6425b94" prot="public" virt="non-virtual"><scope>pugi::xml_attribute_struct</scope><name>xml_attribute_struct</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

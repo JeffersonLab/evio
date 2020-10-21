@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d8/d2b/classevio_1_1node_breadth_iterator" kind="class" language="C++" prot="public">
+    <compoundname>evio::nodeBreadthIterator</compoundname>
+    <includes local="no">BaseStructure.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename R</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-type">
+      <memberdef kind="typedef" id="d8/d2b/classevio_1_1node_breadth_iterator_1ab699bac3ea7d3decb2cf6c99f8806ab6" prot="protected" static="no">
+        <type>std::vector&lt; R &gt;::iterator</type>
+        <definition>typedef std::vector&lt;R&gt;::iterator evio::nodeBreadthIterator&lt; R &gt;::KidIter</definition>
+        <argsstring></argsstring>
+        <name>KidIter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="195" column="49" bodyfile="src/libsrc/BaseStructure.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="d8/d2b/classevio_1_1node_breadth_iterator_1abee7945b625f2aa1ccd647496eba9452" prot="protected" static="no" mutable="no">
+        <type>std::queue&lt; std::pair&lt; <ref refid="d8/d2b/classevio_1_1node_breadth_iterator_1ab699bac3ea7d3decb2cf6c99f8806ab6" kindref="member">KidIter</ref>, <ref refid="d8/d2b/classevio_1_1node_breadth_iterator_1ab699bac3ea7d3decb2cf6c99f8806ab6" kindref="member">KidIter</ref> &gt; &gt;</type>
+        <definition>std::queue&lt;std::pair&lt;KidIter, KidIter&gt; &gt; evio::nodeBreadthIterator&lt; R &gt;::que</definition>
+        <argsstring></argsstring>
+        <name>que</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="203" column="20" bodyfile="src/libsrc/BaseStructure.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d8/d2b/classevio_1_1node_breadth_iterator_1a8dec949246fb9c0e93c0d9942b126c66" prot="protected" static="no" mutable="no">
+        <type>R</type>
+        <definition>R evio::nodeBreadthIterator&lt; R &gt;::currentNode</definition>
+        <argsstring></argsstring>
+        <name>currentNode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="206" column="11" bodyfile="src/libsrc/BaseStructure.h" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d8/d2b/classevio_1_1node_breadth_iterator_1ac8a0aa9ce915b92fb9a6e67bcc69e1c2" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::nodeBreadthIterator&lt; R &gt;::isEnd</definition>
+        <argsstring></argsstring>
+        <name>isEnd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="209" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="209" bodyend="-1"/>
+        <referencedby refid="d8/d2b/classevio_1_1node_breadth_iterator_1af239748afeddb89f0943f0dd37194d02" compoundref="da/d80/_base_structure_8h" startline="231" endline="236">evio::nodeBreadthIterator&lt; R &gt;::operator!=</referencedby>
+        <referencedby refid="d8/d2b/classevio_1_1node_breadth_iterator_1a96ef32f84d864d5e6d0d248753c24195" compoundref="da/d80/_base_structure_8h" startline="224" endline="229">evio::nodeBreadthIterator&lt; R &gt;::operator==</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d8/d2b/classevio_1_1node_breadth_iterator_1a76482a44bdb0ede9a5e10e617290ed99" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::nodeBreadthIterator&lt; R &gt;::nodeBreadthIterator</definition>
+        <argsstring>(R &amp;node, bool isEnd)</argsstring>
+        <name>nodeBreadthIterator</name>
+        <param>
+          <type>R &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isEnd</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="214" column="9" bodyfile="src/libsrc/BaseStructure.h" bodystart="214" bodyend="220"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d2b/classevio_1_1node_breadth_iterator_1a511848e474a385c2c5a99d08774b5b26" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>R</type>
+        <definition>R evio::nodeBreadthIterator&lt; R &gt;::operator*</definition>
+        <argsstring>() const</argsstring>
+        <name>operator*</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="222" column="11" bodyfile="src/libsrc/BaseStructure.h" bodystart="222" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d2b/classevio_1_1node_breadth_iterator_1a96ef32f84d864d5e6d0d248753c24195" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::nodeBreadthIterator&lt; R &gt;::operator==</definition>
+        <argsstring>(const nodeBreadthIterator &amp;other) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="d8/d2b/classevio_1_1node_breadth_iterator" kindref="compound">nodeBreadthIterator</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="224" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="224" bodyend="229"/>
+        <references refid="d8/d2b/classevio_1_1node_breadth_iterator_1ac8a0aa9ce915b92fb9a6e67bcc69e1c2" compoundref="da/d80/_base_structure_8h" startline="209">evio::nodeBreadthIterator&lt; R &gt;::isEnd</references>
+      </memberdef>
+      <memberdef kind="function" id="d8/d2b/classevio_1_1node_breadth_iterator_1af239748afeddb89f0943f0dd37194d02" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::nodeBreadthIterator&lt; R &gt;::operator!=</definition>
+        <argsstring>(const nodeBreadthIterator &amp;other) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="d8/d2b/classevio_1_1node_breadth_iterator" kindref="compound">nodeBreadthIterator</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="231" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="231" bodyend="236"/>
+        <references refid="d8/d2b/classevio_1_1node_breadth_iterator_1ac8a0aa9ce915b92fb9a6e67bcc69e1c2" compoundref="da/d80/_base_structure_8h" startline="209">evio::nodeBreadthIterator&lt; R &gt;::isEnd</references>
+      </memberdef>
+      <memberdef kind="function" id="d8/d2b/classevio_1_1node_breadth_iterator_1a5739e44724caaa76c1dde596ba12aaa0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::nodeBreadthIterator&lt; R &gt;::isEndIter</definition>
+        <argsstring>()</argsstring>
+        <name>isEndIter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="238" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="238" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d2b/classevio_1_1node_breadth_iterator_1a5b4ee01ca96a0e2ea67b04c0be930bc8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="d8/d2b/classevio_1_1node_breadth_iterator" kindref="compound">nodeBreadthIterator</ref></type>
+        <definition>nodeBreadthIterator evio::nodeBreadthIterator&lt; R &gt;::operator++</definition>
+        <argsstring>(int)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="243" column="29" bodyfile="src/libsrc/BaseStructure.h" bodystart="243" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d2b/classevio_1_1node_breadth_iterator_1abcd9bd39ead953281b4e8f58bc687f82" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="d8/d2b/classevio_1_1node_breadth_iterator" kindref="compound">nodeBreadthIterator</ref></type>
+        <definition>nodeBreadthIterator evio::nodeBreadthIterator&lt; R &gt;::operator++</definition>
+        <argsstring>()</argsstring>
+        <name>operator++</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="289" column="29" bodyfile="src/libsrc/BaseStructure.h" bodystart="289" bodyend="327"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/BaseStructure.h" line="190" column="5" bodyfile="src/libsrc/BaseStructure.h" bodystart="190" bodyend="328"/>
+    <listofallmembers>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1a8dec949246fb9c0e93c0d9942b126c66" prot="protected" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>currentNode</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1ac8a0aa9ce915b92fb9a6e67bcc69e1c2" prot="protected" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>isEnd</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1a5739e44724caaa76c1dde596ba12aaa0" prot="public" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>isEndIter</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1ab699bac3ea7d3decb2cf6c99f8806ab6" prot="protected" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>KidIter</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1a76482a44bdb0ede9a5e10e617290ed99" prot="public" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>nodeBreadthIterator</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1af239748afeddb89f0943f0dd37194d02" prot="public" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>operator!=</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1a511848e474a385c2c5a99d08774b5b26" prot="public" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>operator*</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1a5b4ee01ca96a0e2ea67b04c0be930bc8" prot="public" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>operator++</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1abcd9bd39ead953281b4e8f58bc687f82" prot="public" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>operator++</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1a96ef32f84d864d5e6d0d248753c24195" prot="public" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>operator==</name></member>
+      <member refid="d8/d2b/classevio_1_1node_breadth_iterator_1abee7945b625f2aa1ccd647496eba9452" prot="protected" virt="non-virtual"><scope>evio::nodeBreadthIterator</scope><name>que</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

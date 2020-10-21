@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d9/d71/classevio_1_1_i_evio_listener" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>evio::IEvioListener</compoundname>
+    <includes local="no">IEvioListener.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d9/d71/classevio_1_1_i_evio_listener_1add47d7af688d2fd4930d744c73613925" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioListener::gotStructure</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; topStructure, std::shared_ptr&lt; BaseStructure &gt; structure)=0</argsstring>
+        <name>gotStructure</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>topStructure</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <briefdescription>
+<para>Called when a structure is read while parsing or searching an event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>NOTE: the user should NOT modify the arguments.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>topStructure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the evio structure at the top of the search/parse </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the full structure, including header </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioListener.h" line="41" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d9/d71/classevio_1_1_i_evio_listener_1a8b17ebef273d361149f17039e01ed62e" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioListener::startEventParse</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure)=0</argsstring>
+        <name>startEventParse</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <briefdescription>
+<para>Starting to parse a new evio structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the evio structure in question. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioListener.h" line="48" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d9/d71/classevio_1_1_i_evio_listener_1ab1ecc9f5e070a7a5281bf1c610371498" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void evio::IEvioListener::endEventParse</definition>
+        <argsstring>(std::shared_ptr&lt; BaseStructure &gt; structure)=0</argsstring>
+        <name>endEventParse</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref> &gt;</type>
+          <declname>structure</declname>
+        </param>
+        <briefdescription>
+<para>Done parsing a new evio structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>structure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the evio structure in question. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IEvioListener.h" line="54" column="22"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>In SAX like behavior, implementors will listen for structures encountered when an event is parsed. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="author"><para>heddle (Original Java class) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/IEvioListener.h" line="29" column="5" bodyfile="src/libsrc/IEvioListener.h" bodystart="29" bodyend="56"/>
+    <listofallmembers>
+      <member refid="d9/d71/classevio_1_1_i_evio_listener_1ab1ecc9f5e070a7a5281bf1c610371498" prot="public" virt="pure-virtual"><scope>evio::IEvioListener</scope><name>endEventParse</name></member>
+      <member refid="d9/d71/classevio_1_1_i_evio_listener_1add47d7af688d2fd4930d744c73613925" prot="public" virt="pure-virtual"><scope>evio::IEvioListener</scope><name>gotStructure</name></member>
+      <member refid="d9/d71/classevio_1_1_i_evio_listener_1a8b17ebef273d361149f17039e01ed62e" prot="public" virt="pure-virtual"><scope>evio::IEvioListener</scope><name>startEventParse</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

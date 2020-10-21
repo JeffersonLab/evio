@@ -1,0 +1,721 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="dd/d62/classevio_1_1_event_header_parser" kind="class" language="C++" prot="public">
+    <compoundname>evio::EventHeaderParser</compoundname>
+    <includes local="no">EventHeaderParser.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1a27b67f99e484aeece2a45d052607d99b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d90/classevio_1_1_bank_header" kindref="compound">BankHeader</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;BankHeader&gt; evio::EventHeaderParser::createBankHeader</definition>
+        <argsstring>(uint8_t *bytes, ByteOrder const &amp;byteOrder)</argsstring>
+        <name>createBankHeader</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <briefdescription>
+<para>Create a bank header from the first eight bytes of the data array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byte array, probably from a bank that encloses this new bank. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of array, <ref refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" kindref="member">ByteOrder#ENDIAN_BIG</ref> or <ref refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" kindref="member">ByteOrder#ENDIAN_LITTLE</ref>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data not in evio format. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the new bank header. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="53" column="32" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="53" bodyend="77"/>
+        <references refid="d3/d87/classevio_1_1_util_1a61734ea9adbf63b8497fe36864c46a00" compoundref="dd/d90/_util_8h" startline="133" endline="143">evio::Util::toIntArray</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1adb2fa91855279219b9ae49184314310b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d1/d89/classevio_1_1_segment_header" kindref="compound">SegmentHeader</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;SegmentHeader&gt; evio::EventHeaderParser::createSegmentHeader</definition>
+        <argsstring>(uint8_t *bytes, ByteOrder const &amp;byteOrder)</argsstring>
+        <name>createSegmentHeader</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <briefdescription>
+<para>Create a segment header from the first four bytes of the data array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byte array, probably from a bank that encloses this new segment. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of array, <ref refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" kindref="member">ByteOrder#ENDIAN_BIG</ref> or <ref refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" kindref="member">ByteOrder#ENDIAN_LITTLE</ref>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data not in evio format. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the new segment header. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="89" column="32" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="89" bodyend="108"/>
+        <references refid="d3/d87/classevio_1_1_util_1a61734ea9adbf63b8497fe36864c46a00" compoundref="dd/d90/_util_8h" startline="133" endline="143">evio::Util::toIntArray</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1a7326819543761ef2a1962ef16d73359e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="df/d43/classevio_1_1_tag_segment_header" kindref="compound">TagSegmentHeader</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;TagSegmentHeader&gt; evio::EventHeaderParser::createTagSegmentHeader</definition>
+        <argsstring>(uint8_t *bytes, ByteOrder const &amp;byteOrder)</argsstring>
+        <name>createTagSegmentHeader</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <briefdescription>
+<para>Create a tag segment header from the first four bytes of the data array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byte array, probably from a bank that encloses this new tag segment. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of array, <ref refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" kindref="member">ByteOrder#ENDIAN_BIG</ref> or <ref refid="da/d7d/classevio_1_1_byte_order_1ae70d8b2df728e3776bb6bb843260bb71" kindref="member">ByteOrder#ENDIAN_LITTLE</ref>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data not in evio format. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the new tagsegment header. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="120" column="32" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="120" bodyend="134"/>
+        <references refid="d3/d87/classevio_1_1_util_1a61734ea9adbf63b8497fe36864c46a00" compoundref="dd/d90/_util_8h" startline="133" endline="143">evio::Util::toIntArray</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1a816c35d5237f49d59e45869690cecbe6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EventHeaderParser::swapBankHeader</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, std::shared_ptr&lt; ByteBuffer &gt; &amp;srcBuffer, std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuffer, uint32_t srcPos, uint32_t destPos)</argsstring>
+        <name>swapBankHeader</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>srcBuffer</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>destBuffer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <briefdescription>
+<para>This method reads and swaps an evio bank header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It can also return information about the bank. Position and limit of neither buffer argument is changed.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object in which to store data about the bank in destBuffer after swap. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing bank header to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped bank header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading bank header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped bank header.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer data underflow; if destBuffer is too small to contain swapped data; srcBuffer and destBuffer have same byte order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="154" column="21" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="154" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1a2fb28ee3eae942558c19bdeda599ad30" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EventHeaderParser::swapBankHeader</definition>
+        <argsstring>(EvioNode &amp;node, ByteBuffer &amp;srcBuffer, ByteBuffer &amp;destBuffer, uint32_t srcPos, uint32_t destPos)</argsstring>
+        <name>swapBankHeader</name>
+        <param>
+          <type><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>srcBuffer</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>destBuffer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <briefdescription>
+<para>This method reads and swaps an evio bank header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It can also return information about the bank. Position and limit of neither buffer argument is changed.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object in which to store data about the bank in destBuffer after swap. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing bank header to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped bank header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading bank header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped bank header.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer data underflow; if destBuffer is too small to contain swapped data; srcBuffer and destBuffer have same byte order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="179" column="21" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="179" bodyend="207"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1abead180be553b591dfcaf064fd9b412f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EventHeaderParser::swapSegmentHeader</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, std::shared_ptr&lt; ByteBuffer &gt; &amp;srcBuffer, std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuffer, uint32_t srcPos, uint32_t destPos)</argsstring>
+        <name>swapSegmentHeader</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>srcBuffer</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>destBuffer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <briefdescription>
+<para>This method reads and swaps an evio segment header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It can also return information about the segment. Position and limit of neither buffer argument is changed.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object in which to store data about the segment in destBuffer after swap; may be null </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing segment header to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped segment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading segment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped segment header</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer data underflow; if destBuffer is too small to contain swapped data; srcBuffer and destBuffer have same byte order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="227" column="21" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="227" bodyend="232"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1a37678ddb85ad5ddfb7645497b449df76" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EventHeaderParser::swapSegmentHeader</definition>
+        <argsstring>(EvioNode &amp;node, ByteBuffer &amp;srcBuffer, ByteBuffer &amp;destBuffer, uint32_t srcPos, uint32_t destPos)</argsstring>
+        <name>swapSegmentHeader</name>
+        <param>
+          <type><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>srcBuffer</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>destBuffer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <briefdescription>
+<para>This method reads and swaps an evio segment header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It can also return information about the segment. Position and limit of neither buffer argument is changed.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object in which to store data about the segment in destBuffer after swap; may be null </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing segment header to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped segment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading segment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped segment header</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer data underflow; if destBuffer is too small to contain swapped data; srcBuffer and destBuffer have same byte order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="252" column="21" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="252" bodyend="272"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1a1b49d2aef63f1a23e31223e3865df911" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EventHeaderParser::swapTagSegmentHeader</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, std::shared_ptr&lt; ByteBuffer &gt; &amp;srcBuffer, std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuffer, uint32_t srcPos, uint32_t destPos)</argsstring>
+        <name>swapTagSegmentHeader</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>srcBuffer</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>destBuffer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <briefdescription>
+<para>This method reads and swaps an evio tagsegment header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It can also return information about the tagsegment. Position and limit of neither buffer argument is changed.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object in which to store data about the tagsegment in destBuffer after swap; may be null </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing tagsegment header to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped tagsegment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading tagsegment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped tagsegment header</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer is not properly formatted; if destBuffer is too small to contain swapped data </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="291" column="21" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="291" bodyend="296"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d62/classevio_1_1_event_header_parser_1a02d25869bee791d4136274317c9614e2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::EventHeaderParser::swapTagSegmentHeader</definition>
+        <argsstring>(EvioNode &amp;node, ByteBuffer &amp;srcBuffer, ByteBuffer &amp;destBuffer, uint32_t srcPos, uint32_t destPos)</argsstring>
+        <name>swapTagSegmentHeader</name>
+        <param>
+          <type><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>srcBuffer</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>destBuffer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <briefdescription>
+<para>This method reads and swaps an evio tagsegment header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It can also return information about the tagsegment. Position and limit of neither buffer argument is changed.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object in which to store data about the tagsegment in destBuffer after swap; may be null </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing tagsegment header to be swapped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place swapped tagsegment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to start reading tagsegment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to start writing swapped tagsegment header</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer is not properly formatted; if destBuffer is too small to contain swapped data </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventHeaderParser.h" line="315" column="21" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="315" bodyend="334"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The createXXX methods exist is in the <ref refid="d7/d5d/classevio_1_1_event_parser" kindref="compound">EventParser</ref> class in the original Java, but must be moved in C++ to avoid a circular reference to <ref refid="d9/ddd/classevio_1_1_base_structure" kindref="compound">BaseStructure</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Also methods for swapping headers was moved here from Java&apos;s ByteDataTransformer class. Although they would fit in the <ref refid="d3/d87/classevio_1_1_util" kindref="compound">Util</ref> class, it seems more appropriate to put them here.</para>
+<para><simplesect kind="author"><para>heddle (original java in <ref refid="d7/d5d/classevio_1_1_event_parser" kindref="compound">EventParser</ref> &amp; ByteDataTransformer classes) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="date"><para>5/27/2020 </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/EventHeaderParser.h" line="40" column="5" bodyfile="src/libsrc/EventHeaderParser.h" bodystart="40" bodyend="337"/>
+    <listofallmembers>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1a27b67f99e484aeece2a45d052607d99b" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>createBankHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1adb2fa91855279219b9ae49184314310b" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>createSegmentHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1a7326819543761ef2a1962ef16d73359e" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>createTagSegmentHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1a816c35d5237f49d59e45869690cecbe6" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>swapBankHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1a2fb28ee3eae942558c19bdeda599ad30" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>swapBankHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1abead180be553b591dfcaf064fd9b412f" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>swapSegmentHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1a37678ddb85ad5ddfb7645497b449df76" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>swapSegmentHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1a1b49d2aef63f1a23e31223e3865df911" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>swapTagSegmentHeader</name></member>
+      <member refid="dd/d62/classevio_1_1_event_header_parser_1a02d25869bee791d4136274317c9614e2" prot="public" virt="non-virtual"><scope>evio::EventHeaderParser</scope><name>swapTagSegmentHeader</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

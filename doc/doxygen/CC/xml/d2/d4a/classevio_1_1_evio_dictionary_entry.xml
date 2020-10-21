@@ -1,0 +1,893 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d2/d4a/classevio_1_1_evio_dictionary_entry" kind="class" language="C++" prot="public">
+    <compoundname>evio::EvioDictionaryEntry</compoundname>
+    <includes local="no">EvioDictionaryEntry.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>EvioDictionaryEntryType</name>
+        <enumvalue id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69ca702c7232389342584eb7b99b17ff1c9f" prot="public">
+          <name>TAG_NUM</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>Valid tag &amp; num, with or without a tagEnd. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69cae1a5ea0c9d95df862ac43a0127279501" prot="public">
+          <name>TAG_ONLY</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>Valid tag, but no num or tagEnd. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69ca4af483abd1d9fbeb69d57ac077fbf46c" prot="public">
+          <name>TAG_RANGE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>Valid tag and tagEnd, but no num. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Type of dictionary entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Is it just a tag? a tag and tag range but no num? or a tag &amp; num with a possible tag range? </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="40" column="9" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="40" bodyend="47"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1aae6390e244c53ac504fc15ca1fdcf9b3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class EvioXMLDictionary</definition>
+        <argsstring></argsstring>
+        <name>EvioXMLDictionary</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="32" column="9" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a2e6d861fd3edce05264f09fa42c879bf" prot="private" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::EvioDictionaryEntry::tag</definition>
+        <argsstring></argsstring>
+        <name>tag</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Tag value or low end of a tag range of an evio container. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="52" column="18" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8a8df8e524bb46e9945d17ff15ad72de" prot="private" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::EvioDictionaryEntry::tagEnd</definition>
+        <argsstring></argsstring>
+        <name>tagEnd</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>If &gt; 0 &amp;&amp; != tag, this is the high end of a tag range. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Never null, always &gt;= 0. <simplesect kind="since"><para>5.2 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="56" column="18" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a004df9c21002bbb2a36a64391d3f25bb" prot="private" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::EvioDictionaryEntry::num</definition>
+        <argsstring></argsstring>
+        <name>num</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Num value of evio container which may be null if not given in xml entry. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="59" column="17" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1ad6c4933646f8470127e64fda3b0db3fc" prot="private" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::EvioDictionaryEntry::numValid</definition>
+        <argsstring></argsstring>
+        <name>numValid</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Is the num value of evio container being used? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="62" column="17" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a975ecaaef5e1deb76d4fcb2fee08a36a" prot="private" static="no" mutable="no">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::EvioDictionaryEntry::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <initializer>{<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>}</initializer>
+        <briefdescription>
+<para>Type of data in evio container. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="65" column="18" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a541ef25b083a395c587fa14791ee70a3" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::EvioDictionaryEntry::format</definition>
+        <argsstring></argsstring>
+        <name>format</name>
+        <initializer>= &quot;&quot;</initializer>
+        <briefdescription>
+<para>String used to identify format of data if <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="68" column="21" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a1357170669d4eacd00b62405a84b9eff" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::EvioDictionaryEntry::description</definition>
+        <argsstring></argsstring>
+        <name>description</name>
+        <initializer>= &quot;&quot;</initializer>
+        <briefdescription>
+<para>String used to describe data if <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="71" column="21" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1ae95192950dbc6cb8ad8c063e45f2f3a5" prot="private" static="no" mutable="no">
+        <type><ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69c" kindref="member">EvioDictionaryEntryType</ref></type>
+        <definition>EvioDictionaryEntryType evio::EvioDictionaryEntry::entryType</definition>
+        <argsstring></argsstring>
+        <name>entryType</name>
+        <initializer>= <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69ca702c7232389342584eb7b99b17ff1c9f" kindref="member">TAG_NUM</ref></initializer>
+        <briefdescription>
+<para>Does this entry specify a tag &amp; num, only a tag, or a tag range? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="74" column="33" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8161153b0962c6381d94e2083766a4dd" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;EvioDictionaryEntry&gt; evio::EvioDictionaryEntry::parentEntry</definition>
+        <argsstring></argsstring>
+        <name>parentEntry</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Track parent so identical tag/num/tagEnd can be used in another entry if and only if the parent tag/num/tagEnd is different. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For simplicity limit this to one parent and not the stack/tree. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="79" column="25" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a5ce3ecaea5b5db6e1eaa5371af563810" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioDictionaryEntry::EvioDictionaryEntry</definition>
+        <argsstring>()=default</argsstring>
+        <name>EvioDictionaryEntry</name>
+        <briefdescription>
+<para>Zero-arg constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="85" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a19fe1713ce7c3d5e44b802b9df6c4f13" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioDictionaryEntry::EvioDictionaryEntry</definition>
+        <argsstring>(uint16_t tag, uint8_t num, uint16_t tagEnd, bool numValid, DataType const &amp;type, std::string const &amp;description, std::string const &amp;format, std::shared_ptr&lt; EvioDictionaryEntry &gt; parent)</argsstring>
+        <name>EvioDictionaryEntry</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>tagEnd</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>numValid</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>description</declname>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &gt;</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para>Constructor containing actual implementation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Caller assumes responsibility of supplying correct arg values. If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag value or low end of a tag range of an evio container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num value of evio container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tagEnd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if &gt; 0, this is the high end of a tag range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numValid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true, if num value is to be used, else false. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data in evio container which may be: <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType#UNKNOWN32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" kindref="member">DataType#INT32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" kindref="member">DataType#UINT32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" kindref="member">DataType#FLOAT32</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" kindref="member">DataType#DOUBLE64</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" kindref="member">DataType#CHARSTAR8</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" kindref="member">DataType#CHAR8</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" kindref="member">DataType#UCHAR8</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" kindref="member">DataType#SHORT16</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" kindref="member">DataType#USHORT16</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" kindref="member">DataType#LONG64</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" kindref="member">DataType#ULONG64</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" kindref="member">DataType#TAGSEGMENT</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" kindref="member">DataType#SEGMENT</ref>. <ref refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" kindref="member">DataType#ALSOSEGMENT</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" kindref="member">DataType#BANK</ref>, <ref refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" kindref="member">DataType#ALSOBANK</ref>, or <ref refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" kindref="member">DataType#COMPOSITE</ref>, </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>description</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>description of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>parent dictionary entry object </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="120" column="9" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="120" bodyend="161"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a96d2ccf08e21668b3cf9302e533b7dba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioDictionaryEntry::EvioDictionaryEntry</definition>
+        <argsstring>(uint16_t tag, uint8_t num, DataType const &amp;type)</argsstring>
+        <name>EvioDictionaryEntry</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag value of evio container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num value of evio container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data in evio container which may be (case-independent): <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType#UNKNOWN32</ref> ... <ref refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" kindref="member">DataType#COMPOSITE</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="175" column="9" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="175" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1ac55e1749eae9e6d8f4fa406a3054821b" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioDictionaryEntry::EvioDictionaryEntry</definition>
+        <argsstring>(uint16_t tag, uint16_t tagEnd=0, DataType const &amp;type=DataType::UNKNOWN32, std::string const &amp;description=&quot;&quot;, std::string const &amp;format=&quot;&quot;, std::shared_ptr&lt; EvioDictionaryEntry &gt; parent=nullptr)</argsstring>
+        <name>EvioDictionaryEntry</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>tagEnd</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+          <defval><ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref></defval>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>description</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>format</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &gt;</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor containing actual implementation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Caller assumes responsibility of supplying correct arg values. If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd. Num is ignored.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag value or low end of a tag range of an evio container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tagEnd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if &gt; 0, this is the high end of a tag range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data in evio container which may be: <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType#UNKNOWN32</ref> ... <ref refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" kindref="member">DataType#COMPOSITE</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>description</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>description of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>parent dictionary entry object </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="196" column="18" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="196" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1ae69b7a7f84b6a8fcb6a7221bcd998566" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioDictionaryEntry::EvioDictionaryEntry</definition>
+        <argsstring>(uint16_t tag, uint8_t num, uint16_t tagEnd=0, DataType const &amp;type=DataType::UNKNOWN32, std::string const &amp;description=&quot;&quot;, std::string const &amp;format=&quot;&quot;, std::shared_ptr&lt; EvioDictionaryEntry &gt; parent=nullptr)</argsstring>
+        <name>EvioDictionaryEntry</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>tagEnd</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+          <defval><ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref></defval>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>description</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>format</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &gt;</type>
+          <declname>parent</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor containing actual implementation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Caller assumes responsibility of supplying correct arg values. If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag value or low end of a tag range of an evio container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num value of evio container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tagEnd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if &gt; 0, this is the high end of a tag range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data in evio container which may be: <ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType#UNKNOWN32</ref> ... <ref refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" kindref="member">DataType#COMPOSITE</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>description</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>description of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>parent dictionary entry object </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="219" column="18" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="219" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1af9be1543a3c7ab83b87365fe7edefa61" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioDictionaryEntry::inRange</definition>
+        <argsstring>(uint16_t tagArg) const</argsstring>
+        <name>inRange</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tagArg</declname>
+        </param>
+        <briefdescription>
+<para>Is the given tag within the specified range (inclusive) of this dictionary entry? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="since"><para>5.2 </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tagArg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag to compare with range </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> if tag not in range, else<programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> . </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="234" column="14" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="234" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a869ea6caead058cc341e65d523233741" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioDictionaryEntry::inRange</definition>
+        <argsstring>(EvioDictionaryEntry &amp;entry) const</argsstring>
+        <name>inRange</name>
+        <param>
+          <type><ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &amp;</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Is the given dictionary entry&apos;s tag within the specified range (inclusive) of this dictionary entry? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="since"><para>5.2 </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>entry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dictionary entry to compare with range </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> if tag not in range, else<programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> . </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="246" column="14" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="246" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8af2204b4ddaed13558fc24e08d998cf" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioDictionaryEntry::operator==</definition>
+        <argsstring>(const EvioDictionaryEntry &amp;other) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="251" column="14" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="251" bodyend="282"/>
+        <references refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1abef9012873716b8044cdf5c174e557a0" compoundref="db/db0/_evio_dictionary_entry_8h" startline="360" endline="360">getParentEntry</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a0589d885899865aa0a5f2437cdbe6c8f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioDictionaryEntry::operator!=</definition>
+        <argsstring>(const EvioDictionaryEntry &amp;rhs) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="285" column="14" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="285" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a4258c5369ed11020a0bf29c3bf0ab551" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::EvioDictionaryEntry::toString</definition>
+        <argsstring>() const</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Get a string representation of this object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a string representation of this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="294" column="21" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="294" bodyend="309"/>
+        <references refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69ca702c7232389342584eb7b99b17ff1c9f" compoundref="db/db0/_evio_dictionary_entry_8h" startline="42">TAG_NUM</references>
+        <references refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69cae1a5ea0c9d95df862ac43a0127279501" compoundref="db/db0/_evio_dictionary_entry_8h" startline="44">TAG_ONLY</references>
+        <references refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69ca4af483abd1d9fbeb69d57ac077fbf46c" compoundref="db/db0/_evio_dictionary_entry_8h" startline="46">TAG_RANGE</references>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8eb98ba2c1199410d1005063b6c611a7" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::EvioDictionaryEntry::getTag</definition>
+        <argsstring>() const</argsstring>
+        <name>getTag</name>
+        <briefdescription>
+<para>Get the tag value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is the low end of a tag range if tagEnd &gt; 0. <simplesect kind="return"><para>tag value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="317" column="18" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="317" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a3d25660d285a58198d2d122f2978d08a" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::EvioDictionaryEntry::getTagEnd</definition>
+        <argsstring>() const</argsstring>
+        <name>getTagEnd</name>
+        <briefdescription>
+<para>Get the tagEnd value (upper end of a tag range). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A value of 0 means there is no range. <simplesect kind="return"><para>tagEnd value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="324" column="18" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="324" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a5c6d1a8650b5bca3bab5f5cd3ce49795" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::EvioDictionaryEntry::getNum</definition>
+        <argsstring>() const</argsstring>
+        <name>getNum</name>
+        <briefdescription>
+<para>Get the num value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>num value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="330" column="17" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="330" bodyend="330"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1adcd8735e6c5bc1d326aba1e51b60f1f9" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::EvioDictionaryEntry::getType</definition>
+        <argsstring>() const</argsstring>
+        <name>getType</name>
+        <briefdescription>
+<para>Get the data&apos;s type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data type object, null if nonexistent. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="336" column="19" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="336" bodyend="336"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a69e31a5d44a8618a187a3b4fbfadca64" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::EvioDictionaryEntry::getFormat</definition>
+        <argsstring>() const</argsstring>
+        <name>getFormat</name>
+        <briefdescription>
+<para>Get the <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref>&apos;s format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref>&apos;s format, empty if nonexistent. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="342" column="21" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="342" bodyend="342"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1a2b690c48160a6a5a3e69eecc46146dc7" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::EvioDictionaryEntry::getDescription</definition>
+        <argsstring>() const</argsstring>
+        <name>getDescription</name>
+        <briefdescription>
+<para>Get the <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref>&apos;s description. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref>&apos;s description, empty if nonexistent. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="348" column="22" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="348" bodyend="348"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1adeefb94835e5555e5408e9cbe9ef5b20" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69c" kindref="member">EvioDictionaryEntryType</ref></type>
+        <definition>EvioDictionaryEntryType evio::EvioDictionaryEntry::getEntryType</definition>
+        <argsstring>() const</argsstring>
+        <name>getEntryType</name>
+        <briefdescription>
+<para>Get this entry&apos;s type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>this entry&apos;s type. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="354" column="33" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="354" bodyend="354"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d4a/classevio_1_1_evio_dictionary_entry_1abef9012873716b8044cdf5c174e557a0" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d2/d4a/classevio_1_1_evio_dictionary_entry" kindref="compound">EvioDictionaryEntry</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;EvioDictionaryEntry&gt; evio::EvioDictionaryEntry::getParentEntry</definition>
+        <argsstring>() const</argsstring>
+        <name>getParentEntry</name>
+        <briefdescription>
+<para>Get the parent container&apos;s dictionary entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the parent container&apos;s dictionary entry, null if nonexistent. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioDictionaryEntry.h" line="360" column="25" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="360" bodyend="360"/>
+        <referencedby refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8af2204b4ddaed13558fc24e08d998cf" compoundref="db/db0/_evio_dictionary_entry_8h" startline="251" endline="282">operator==</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to facilitate use of Evio XML dictionary entry data as a key or value in a hash table. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>(8/17/15). <simplesect kind="author"><para>timmer. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/EvioDictionaryEntry.h" line="30" column="5" bodyfile="src/libsrc/EvioDictionaryEntry.h" bodystart="30" bodyend="362"/>
+    <listofallmembers>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a1357170669d4eacd00b62405a84b9eff" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>description</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1ae95192950dbc6cb8ad8c063e45f2f3a5" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>entryType</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a5ce3ecaea5b5db6e1eaa5371af563810" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>EvioDictionaryEntry</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a19fe1713ce7c3d5e44b802b9df6c4f13" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>EvioDictionaryEntry</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a96d2ccf08e21668b3cf9302e533b7dba" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>EvioDictionaryEntry</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1ac55e1749eae9e6d8f4fa406a3054821b" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>EvioDictionaryEntry</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1ae69b7a7f84b6a8fcb6a7221bcd998566" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>EvioDictionaryEntry</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69c" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>EvioDictionaryEntryType</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1aae6390e244c53ac504fc15ca1fdcf9b3" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>EvioXMLDictionary</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a541ef25b083a395c587fa14791ee70a3" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>format</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a2b690c48160a6a5a3e69eecc46146dc7" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getDescription</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1adeefb94835e5555e5408e9cbe9ef5b20" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getEntryType</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a69e31a5d44a8618a187a3b4fbfadca64" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getFormat</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a5c6d1a8650b5bca3bab5f5cd3ce49795" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getNum</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1abef9012873716b8044cdf5c174e557a0" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getParentEntry</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8eb98ba2c1199410d1005063b6c611a7" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getTag</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a3d25660d285a58198d2d122f2978d08a" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getTagEnd</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1adcd8735e6c5bc1d326aba1e51b60f1f9" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>getType</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1af9be1543a3c7ab83b87365fe7edefa61" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>inRange</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a869ea6caead058cc341e65d523233741" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>inRange</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a004df9c21002bbb2a36a64391d3f25bb" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>num</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1ad6c4933646f8470127e64fda3b0db3fc" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>numValid</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a0589d885899865aa0a5f2437cdbe6c8f" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>operator!=</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8af2204b4ddaed13558fc24e08d998cf" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>operator==</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8161153b0962c6381d94e2083766a4dd" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>parentEntry</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a2e6d861fd3edce05264f09fa42c879bf" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>tag</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69ca702c7232389342584eb7b99b17ff1c9f" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>TAG_NUM</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69cae1a5ea0c9d95df862ac43a0127279501" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>TAG_ONLY</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a34b08a3a4c15fb032178abfca297c69ca4af483abd1d9fbeb69d57ac077fbf46c" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>TAG_RANGE</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a8a8df8e524bb46e9945d17ff15ad72de" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>tagEnd</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a4258c5369ed11020a0bf29c3bf0ab551" prot="public" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>toString</name></member>
+      <member refid="d2/d4a/classevio_1_1_evio_dictionary_entry_1a975ecaaef5e1deb76d4fcb2fee08a36a" prot="private" virt="non-virtual"><scope>evio::EvioDictionaryEntry</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

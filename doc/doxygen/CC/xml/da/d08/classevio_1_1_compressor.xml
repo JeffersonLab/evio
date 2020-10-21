@@ -1,0 +1,1297 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="da/d08/classevio_1_1_compressor" kind="class" language="C++" prot="public">
+    <compoundname>evio::Compressor</compoundname>
+    <includes local="no">Compressor.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CompressionType</name>
+        <enumvalue id="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" prot="public">
+          <name>UNCOMPRESSED</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747ae7be56dd20228ef22b2c4f79d0a491ae" prot="public">
+          <name>LZ4</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4e6c89e2c89beb57840a5b0bdb2c539d" prot="public">
+          <name>LZ4_BEST</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4fd632e8126f17acee8a305f25885bb1" prot="public">
+          <name>GZIP</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum of supported data compression types. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="65" column="9" bodyfile="src/libsrc/Compressor.h" bodystart="65" bodyend="70"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="da/d08/classevio_1_1_compressor_1aa86fc0ed874f61686584e341d222d78d" prot="private" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::Compressor::MTU</definition>
+        <argsstring></argsstring>
+        <name>MTU</name>
+        <initializer>= 1024*1024</initializer>
+        <briefdescription>
+<para>Number of bytes to read in a single call while doing gzip decompression. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="82" column="31" bodyfile="src/libsrc/Compressor.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="da/d08/classevio_1_1_compressor_1a494eaddc25c3bc3c6ae27f4e90b56a01" prot="private" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int evio::Compressor::lz4Acceleration</definition>
+        <argsstring></argsstring>
+        <name>lz4Acceleration</name>
+        <initializer>= 1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="85" column="26" bodyfile="src/libsrc/Compressor.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1abab453336d92bc8e693825ac143ff101" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="da/d08/classevio_1_1_compressor" kindref="compound">Compressor</ref> &amp;</type>
+        <definition>static Compressor&amp; evio::Compressor::getInstance</definition>
+        <argsstring>()</argsstring>
+        <name>getInstance</name>
+        <briefdescription>
+<para>Get an instance of this singleton class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>an instance of this singleton class. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="50" column="27" bodyfile="src/libsrc/Compressor.h" bodystart="50" bodyend="53"/>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a7c7cbf0f2bcc362662eea1fc4ff5d7ad" compoundref="d4/df6/_record_output_8cpp" startline="841" endline="999">evio::RecordOutput::build</referencedby>
+        <referencedby refid="de/da2/classevio_1_1_record_input_1a8bfee12a45ae1f40be0048c1a9044a07" compoundref="d6/d35/_record_input_8cpp" startline="419" endline="505">evio::RecordInput::readRecord</referencedby>
+        <referencedby refid="de/da2/classevio_1_1_record_input_1a13b22f107be73ebb28d7ffc907ba81fc" compoundref="d6/d35/_record_input_8cpp" startline="638" endline="742">evio::RecordInput::uncompressRecord</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a96a1456ea23f365af2ff3847fdbd1139" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">CompressionType</ref></type>
+        <definition>Compressor::CompressionType evio::Compressor::toCompressionType</definition>
+        <argsstring>(uint32_t type)</argsstring>
+        <name>toCompressionType</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Method to convert an integer to a CompressionType object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>integer to convert. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>corresponding CompressionType object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="72" column="32" bodyfile="src/libsrc/Compressor.cpp" bodystart="79" bodyend="91"/>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4fd632e8126f17acee8a305f25885bb1" compoundref="dc/d17/_compressor_8h" startline="69">GZIP</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747ae7be56dd20228ef22b2c4f79d0a491ae" compoundref="dc/d17/_compressor_8h" startline="67">LZ4</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4e6c89e2c89beb57840a5b0bdb2c539d" compoundref="dc/d17/_compressor_8h" startline="68">LZ4_BEST</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">UNCOMPRESSED</references>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1ab8a9e408edbfdc17091311d431cdb52c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::getMaxCompressedLength</definition>
+        <argsstring>(CompressionType compressionType, uint32_t uncompressedLength)</argsstring>
+        <name>getMaxCompressedLength</name>
+        <param>
+          <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">CompressionType</ref></type>
+          <declname>compressionType</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>uncompressedLength</declname>
+        </param>
+        <briefdescription>
+<para>Returns the maximum number of bytes needed to compress the given length of uncompressed data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depends on compression type. Unknown for gzip.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>compressionType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip). Default to none. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>uncompressedLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>uncompressed data length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>maximum compressed length in bytes or -1 if unknown. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="97" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="231" bodyend="246"/>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4fd632e8126f17acee8a305f25885bb1" compoundref="dc/d17/_compressor_8h" startline="69">GZIP</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747ae7be56dd20228ef22b2c4f79d0a491ae" compoundref="dc/d17/_compressor_8h" startline="67">LZ4</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4e6c89e2c89beb57840a5b0bdb2c539d" compoundref="dc/d17/_compressor_8h" startline="68">LZ4_BEST</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">UNCOMPRESSED</references>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a980dd68d0561413488f9fa4290f2f55b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::compressLZ4</definition>
+        <argsstring>(ByteBuffer &amp;src, int srcSize, ByteBuffer &amp;dst, int maxSize)</argsstring>
+        <name>compressLZ4</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxSize</declname>
+        </param>
+        <briefdescription>
+<para>Fastest LZ4 compression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns length of compressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of uncompressed data from position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination buffer from position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum number of bytes to write in dst. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length of compressed data in bytes. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if maxSize &lt; max # of compressed bytes or compression failed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="122" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="497" bodyend="513"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a7c7cbf0f2bcc362662eea1fc4ff5d7ad" compoundref="d4/df6/_record_output_8cpp" startline="841" endline="999">evio::RecordOutput::build</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a78ddb29f87f9459911ee3549241f3aca" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::compressLZ4</definition>
+        <argsstring>(uint8_t *src, int srcOff, int srcSize, uint8_t *dst, int dstOff, int maxSize)</argsstring>
+        <name>compressLZ4</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dstOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxSize</declname>
+        </param>
+        <briefdescription>
+<para>Fastest LZ4 compression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns length of compressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of uncompressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dstOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in dst. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum number of bytes to write in dst. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length of compressed data in bytes. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if maxSize &lt; max # of compressed bytes or compression failed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="123" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="528" bodyend="544"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a624abe765755bb106dc2c81f5ba96aac" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::compressLZ4</definition>
+        <argsstring>(ByteBuffer &amp;src, int srcOff, int srcSize, ByteBuffer &amp;dst, int dstOff, int maxSize)</argsstring>
+        <name>compressLZ4</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dstOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxSize</declname>
+        </param>
+        <briefdescription>
+<para>Fastest LZ4 compression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns length of compressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of uncompressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in src regardless of position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dstOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in dst regardless of position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum number of bytes to write in dst. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length of compressed data in bytes. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if maxSize &lt; max # of compressed bytes or compression failed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="125" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="559" bodyend="576"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a442afd61a93ee8271e70bfe56de6aab2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::compressLZ4Best</definition>
+        <argsstring>(ByteBuffer &amp;src, int srcSize, ByteBuffer &amp;dst, int maxSize)</argsstring>
+        <name>compressLZ4Best</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxSize</declname>
+        </param>
+        <briefdescription>
+<para>Highest LZ4 compression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns length of compressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of uncompressed data starting at position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination buffer starting at position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum number of bytes to write in dst. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length of compressed data in bytes. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if maxSize &lt; max # of compressed bytes or compression failed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="127" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="594" bodyend="610"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a7c7cbf0f2bcc362662eea1fc4ff5d7ad" compoundref="d4/df6/_record_output_8cpp" startline="841" endline="999">evio::RecordOutput::build</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a91a83fcc76edcfb03a3851441bbfadc3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::compressLZ4Best</definition>
+        <argsstring>(uint8_t *src, int srcOff, int srcSize, uint8_t *dst, int dstOff, int maxSize)</argsstring>
+        <name>compressLZ4Best</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dstOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxSize</declname>
+        </param>
+        <briefdescription>
+<para>Highest LZ4 compression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns length of compressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of uncompressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dstOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in dst. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum number of bytes to write in dst. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length of compressed data in bytes. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if maxSize &lt; max # of compressed bytes or compression failed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="128" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="625" bodyend="640"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a79adefe8df7af183b482cd8a0b0746a5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::compressLZ4Best</definition>
+        <argsstring>(ByteBuffer &amp;src, int srcOff, int srcSize, ByteBuffer &amp;dst, int dstOff, int maxSize)</argsstring>
+        <name>compressLZ4Best</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dstOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxSize</declname>
+        </param>
+        <briefdescription>
+<para>Highest LZ4 compression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns length of compressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of uncompressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dstOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in dst. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum number of bytes to write in dst. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length of compressed data in bytes. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if maxSize &lt; max # of compressed bytes or compression failed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="130" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="655" bodyend="671"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a7c536c78b588c8d70b51e28d0eab1dd8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::uncompressLZ4</definition>
+        <argsstring>(ByteBuffer &amp;src, int srcSize, ByteBuffer &amp;dst)</argsstring>
+        <name>uncompressLZ4</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>LZ4 decompression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns original length of decompressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of compressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of compressed bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>original (uncompressed) input size. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if destination buffer is too small to hold uncompressed data or source data is malformed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="133" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="689" bodyend="691"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <referencedby refid="de/da2/classevio_1_1_record_input_1a8bfee12a45ae1f40be0048c1a9044a07" compoundref="d6/d35/_record_input_8cpp" startline="419" endline="505">evio::RecordInput::readRecord</referencedby>
+        <referencedby refid="de/da2/classevio_1_1_record_input_1a13b22f107be73ebb28d7ffc907ba81fc" compoundref="d6/d35/_record_input_8cpp" startline="638" endline="742">evio::RecordInput::uncompressRecord</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a62d770f63e5a5ab58ea155789eac2304" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::uncompressLZ4</definition>
+        <argsstring>(ByteBuffer &amp;src, int srcOff, int srcSize, ByteBuffer &amp;dst)</argsstring>
+        <name>uncompressLZ4</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>LZ4 decompression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns original length of decompressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of compressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of compressed bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>original (uncompressed) input size. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if destination buffer is too small to hold uncompressed data or source data is malformed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="134" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="705" bodyend="720"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1af0c632e3c1533dff563f6cd2bb1eed9d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::uncompressLZ4</definition>
+        <argsstring>(ByteBuffer &amp;src, int srcOff, int srcSize, ByteBuffer &amp;dst, int dstOff)</argsstring>
+        <name>uncompressLZ4</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dstOff</declname>
+        </param>
+        <briefdescription>
+<para>LZ4 decompression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns original length of decompressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of compressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of compressed bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dstOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in dst. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>original (uncompressed) input size. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if destination buffer is too small to hold uncompressed data or source data is malformed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="135" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="735" bodyend="748"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1ac38e3fc0fe60764d7d4be1985458e311" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio::Compressor::uncompressLZ4</definition>
+        <argsstring>(uint8_t *src, int srcOff, int srcSize, uint8_t *dst, int dstOff, int dstCapacity)</argsstring>
+        <name>uncompressLZ4</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>srcSize</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dstOff</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dstCapacity</declname>
+        </param>
+        <briefdescription>
+<para>LZ4 decompression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns original length of decompressed data in bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source of compressed data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of compressed bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dstOff</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>start offset in dst. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dstCapacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of destination buffer in bytes, which must be already allocated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>original (uncompressed) input size. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if uncompressed data bytes &gt; dstCapacity or source data is malformed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="136" column="20" bodyfile="src/libsrc/Compressor.cpp" bodystart="764" bodyend="775"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1ac5c127f8b4a218df2a72a554b331a367" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Compressor::Compressor</definition>
+        <argsstring>()</argsstring>
+        <name>Compressor</name>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="57" column="9" bodyfile="src/libsrc/Compressor.cpp" bodystart="27" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1ab6eda2eed4b3dc704bfeee8292ad5f70" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Compressor::Compressor</definition>
+        <argsstring>(const Compressor &amp;)</argsstring>
+        <name>Compressor</name>
+        <param>
+          <type>const <ref refid="da/d08/classevio_1_1_compressor" kindref="compound">Compressor</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="58" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1ac6e17834e9620a0ed50983b80ca6c2fd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="da/d08/classevio_1_1_compressor" kindref="compound">Compressor</ref> &amp;</type>
+        <definition>Compressor&amp; evio::Compressor::operator=</definition>
+        <argsstring>(Compressor const &amp;)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type><ref refid="da/d08/classevio_1_1_compressor" kindref="compound">Compressor</ref> const &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="59" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1abad568d80a154c942151108ae5693b04" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Compressor::~Compressor</definition>
+        <argsstring>()=default</argsstring>
+        <name>~Compressor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="60" column="9"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1aa7a129a765f8be892342c59ccf8749e0" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Compressor::getYear</definition>
+        <argsstring>(ByteBuffer &amp;buf)</argsstring>
+        <name>getYear</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="87" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1ac4cc5dcbbb11c4cac557a6b45aa92123" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Compressor::getRevisionId</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint32_t board_id)</argsstring>
+        <name>getRevisionId</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>board_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="88" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1af570d70d882b4fa1dfb6b8882d2e2a75" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Compressor::getSubsystemId</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint32_t board_id)</argsstring>
+        <name>getSubsystemId</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>board_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="89" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1a2b075ec73afa315b84d1967feb87b90f" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t evio::Compressor::getDeviceId</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint32_t board_id)</argsstring>
+        <name>getDeviceId</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>board_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="90" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1afd3b34418bce1d12d4c550b087f6b031" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Compressor::setUpCompressionHardware</definition>
+        <argsstring>()</argsstring>
+        <name>setUpCompressionHardware</name>
+        <briefdescription>
+<para>Check for existence of AHA3641/2 board for gzip hardware compression. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This will most likely not be used so comment it out. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="92" column="21" bodyfile="src/libsrc/Compressor.cpp" bodystart="136" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="da/d08/classevio_1_1_compressor_1ad0065801359f92cc514172d6565fa478" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Compressor::setUpZlib</definition>
+        <argsstring>()</argsstring>
+        <name>setUpZlib</name>
+        <briefdescription>
+<para>Method to setup use of z library for gzip compression. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Compressor.h" line="93" column="21" bodyfile="src/libsrc/Compressor.cpp" bodystart="97" bodyend="130"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Singleton class used to provide data compression and decompression in a variety of formats. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class in NOT thread safe when using the gzip deflating and inflating routines. <simplesect kind="date"><para>04/29/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/Compressor.h" line="41" column="5" bodyfile="src/libsrc/Compressor.h" bodystart="41" bodyend="140"/>
+    <listofallmembers>
+      <member refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>CompressionType</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a980dd68d0561413488f9fa4290f2f55b" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>compressLZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a78ddb29f87f9459911ee3549241f3aca" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>compressLZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a624abe765755bb106dc2c81f5ba96aac" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>compressLZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a442afd61a93ee8271e70bfe56de6aab2" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>compressLZ4Best</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a91a83fcc76edcfb03a3851441bbfadc3" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>compressLZ4Best</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a79adefe8df7af183b482cd8a0b0746a5" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>compressLZ4Best</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1ac5c127f8b4a218df2a72a554b331a367" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>Compressor</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1ab6eda2eed4b3dc704bfeee8292ad5f70" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>Compressor</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a2b075ec73afa315b84d1967feb87b90f" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>getDeviceId</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1abab453336d92bc8e693825ac143ff101" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>getInstance</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1ab8a9e408edbfdc17091311d431cdb52c" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>getMaxCompressedLength</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1ac4cc5dcbbb11c4cac557a6b45aa92123" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>getRevisionId</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1af570d70d882b4fa1dfb6b8882d2e2a75" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>getSubsystemId</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1aa7a129a765f8be892342c59ccf8749e0" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>getYear</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4fd632e8126f17acee8a305f25885bb1" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>GZIP</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747ae7be56dd20228ef22b2c4f79d0a491ae" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>LZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a4e6c89e2c89beb57840a5b0bdb2c539d" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>LZ4_BEST</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a494eaddc25c3bc3c6ae27f4e90b56a01" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>lz4Acceleration</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1aa86fc0ed874f61686584e341d222d78d" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>MTU</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1ac6e17834e9620a0ed50983b80ca6c2fd" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>operator=</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1afd3b34418bce1d12d4c550b087f6b031" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>setUpCompressionHardware</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1ad0065801359f92cc514172d6565fa478" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>setUpZlib</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a96a1456ea23f365af2ff3847fdbd1139" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>toCompressionType</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>UNCOMPRESSED</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a7c536c78b588c8d70b51e28d0eab1dd8" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>uncompressLZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1a62d770f63e5a5ab58ea155789eac2304" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>uncompressLZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1af0c632e3c1533dff563f6cd2bb1eed9d" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>uncompressLZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1ac38e3fc0fe60764d7d4be1985458e311" prot="public" virt="non-virtual"><scope>evio::Compressor</scope><name>uncompressLZ4</name></member>
+      <member refid="da/d08/classevio_1_1_compressor_1abad568d80a154c942151108ae5693b04" prot="private" virt="non-virtual"><scope>evio::Compressor</scope><name>~Compressor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

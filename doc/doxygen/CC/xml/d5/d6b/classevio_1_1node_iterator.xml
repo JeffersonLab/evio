@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d5/d6b/classevio_1_1node_iterator" kind="class" language="C++" prot="public">
+    <compoundname>evio::nodeIterator</compoundname>
+    <includes local="no">BaseStructure.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename R</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="d5/d6b/classevio_1_1node_iterator_1a48489366d11a89f54c781d1d3f764806" prot="private" static="no">
+        <type>std::vector&lt; R &gt;::iterator</type>
+        <definition>typedef std::vector&lt;R&gt;::iterator evio::nodeIterator&lt; R &gt;::KidIter</definition>
+        <argsstring></argsstring>
+        <name>KidIter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="56" column="49" bodyfile="src/libsrc/BaseStructure.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="d5/d6b/classevio_1_1node_iterator_1afe9142e3c36411cd80ba3ba9bb1e1627" prot="protected" static="no" mutable="no">
+        <type>std::stack&lt; std::pair&lt; KidIter, KidIter &gt; &gt;</type>
+        <definition>std::stack&lt;std::pair&lt;KidIter, KidIter&gt; &gt; evio::nodeIterator&lt; R &gt;::stack</definition>
+        <argsstring></argsstring>
+        <name>stack</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="63" column="20" bodyfile="src/libsrc/BaseStructure.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d6b/classevio_1_1node_iterator_1af8642db0d0583ca743cc78b30e1c742f" prot="protected" static="no" mutable="no">
+        <type>R</type>
+        <definition>R evio::nodeIterator&lt; R &gt;::currentNode</definition>
+        <argsstring></argsstring>
+        <name>currentNode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="66" column="11" bodyfile="src/libsrc/BaseStructure.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d6b/classevio_1_1node_iterator_1a2ff74acf5756a805d613634fa2ddba83" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::nodeIterator&lt; R &gt;::isEnd</definition>
+        <argsstring></argsstring>
+        <name>isEnd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="69" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="69" bodyend="-1"/>
+        <referencedby refid="d5/d6b/classevio_1_1node_iterator_1a8383b517d087473d60702899a40397f7" compoundref="da/d80/_base_structure_8h" startline="92" endline="98">evio::nodeIterator&lt; R &gt;::operator!=</referencedby>
+        <referencedby refid="d5/d6b/classevio_1_1node_iterator_1a0c429959296454dbdbace7001141cb00" compoundref="da/d80/_base_structure_8h" startline="84" endline="90">evio::nodeIterator&lt; R &gt;::operator==</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d5/d6b/classevio_1_1node_iterator_1a10ef12e7402b7a25da0230d13ed15a43" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::nodeIterator&lt; R &gt;::nodeIterator</definition>
+        <argsstring>(R &amp;node, bool isEnd)</argsstring>
+        <name>nodeIterator</name>
+        <param>
+          <type>R &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isEnd</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="74" column="18" bodyfile="src/libsrc/BaseStructure.h" bodystart="74" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d6b/classevio_1_1node_iterator_1ad38d1c7e1bd1b17a52a7c147adba70d2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>R</type>
+        <definition>R evio::nodeIterator&lt; R &gt;::operator*</definition>
+        <argsstring>() const</argsstring>
+        <name>operator*</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="82" column="11" bodyfile="src/libsrc/BaseStructure.h" bodystart="82" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d6b/classevio_1_1node_iterator_1a0c429959296454dbdbace7001141cb00" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::nodeIterator&lt; R &gt;::operator==</definition>
+        <argsstring>(const nodeIterator &amp;other) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="d5/d6b/classevio_1_1node_iterator" kindref="compound">nodeIterator</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="84" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="84" bodyend="90"/>
+        <references refid="d5/d6b/classevio_1_1node_iterator_1a2ff74acf5756a805d613634fa2ddba83" compoundref="da/d80/_base_structure_8h" startline="69">evio::nodeIterator&lt; R &gt;::isEnd</references>
+      </memberdef>
+      <memberdef kind="function" id="d5/d6b/classevio_1_1node_iterator_1a8383b517d087473d60702899a40397f7" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::nodeIterator&lt; R &gt;::operator!=</definition>
+        <argsstring>(const nodeIterator &amp;other) const</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="d5/d6b/classevio_1_1node_iterator" kindref="compound">nodeIterator</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="92" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="92" bodyend="98"/>
+        <references refid="d5/d6b/classevio_1_1node_iterator_1a2ff74acf5756a805d613634fa2ddba83" compoundref="da/d80/_base_structure_8h" startline="69">evio::nodeIterator&lt; R &gt;::isEnd</references>
+      </memberdef>
+      <memberdef kind="function" id="d5/d6b/classevio_1_1node_iterator_1a8ddc2c132fd93f31e1637a0708f5eb6c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::nodeIterator&lt; R &gt;::isEndIter</definition>
+        <argsstring>()</argsstring>
+        <name>isEndIter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="100" column="14" bodyfile="src/libsrc/BaseStructure.h" bodystart="100" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d6b/classevio_1_1node_iterator_1ad5d3b49dc1278b8b1f016e4da8121d1f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="d5/d6b/classevio_1_1node_iterator" kindref="compound">nodeIterator</ref></type>
+        <definition>const nodeIterator evio::nodeIterator&lt; R &gt;::operator++</definition>
+        <argsstring>(int)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="103" column="28" bodyfile="src/libsrc/BaseStructure.h" bodystart="103" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d6b/classevio_1_1node_iterator_1a65469c3254f61a4c6eb48279256915af" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="d5/d6b/classevio_1_1node_iterator" kindref="compound">nodeIterator</ref> &amp;</type>
+        <definition>const nodeIterator&amp; evio::nodeIterator&lt; R &gt;::operator++</definition>
+        <argsstring>()</argsstring>
+        <name>operator++</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BaseStructure.h" line="147" column="28" bodyfile="src/libsrc/BaseStructure.h" bodystart="147" bodyend="183"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/BaseStructure.h" line="53" column="5" bodyfile="src/libsrc/BaseStructure.h" bodystart="53" bodyend="184"/>
+    <listofallmembers>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1af8642db0d0583ca743cc78b30e1c742f" prot="protected" virt="non-virtual"><scope>evio::nodeIterator</scope><name>currentNode</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1a2ff74acf5756a805d613634fa2ddba83" prot="protected" virt="non-virtual"><scope>evio::nodeIterator</scope><name>isEnd</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1a8ddc2c132fd93f31e1637a0708f5eb6c" prot="public" virt="non-virtual"><scope>evio::nodeIterator</scope><name>isEndIter</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1a48489366d11a89f54c781d1d3f764806" prot="private" virt="non-virtual"><scope>evio::nodeIterator</scope><name>KidIter</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1a10ef12e7402b7a25da0230d13ed15a43" prot="public" virt="non-virtual"><scope>evio::nodeIterator</scope><name>nodeIterator</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1a8383b517d087473d60702899a40397f7" prot="public" virt="non-virtual"><scope>evio::nodeIterator</scope><name>operator!=</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1ad38d1c7e1bd1b17a52a7c147adba70d2" prot="public" virt="non-virtual"><scope>evio::nodeIterator</scope><name>operator*</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1ad5d3b49dc1278b8b1f016e4da8121d1f" prot="public" virt="non-virtual"><scope>evio::nodeIterator</scope><name>operator++</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1a65469c3254f61a4c6eb48279256915af" prot="public" virt="non-virtual"><scope>evio::nodeIterator</scope><name>operator++</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1a0c429959296454dbdbace7001141cb00" prot="public" virt="non-virtual"><scope>evio::nodeIterator</scope><name>operator==</name></member>
+      <member refid="d5/d6b/classevio_1_1node_iterator_1afe9142e3c36411cd80ba3ba9bb1e1627" prot="protected" virt="non-virtual"><scope>evio::nodeIterator</scope><name>stack</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

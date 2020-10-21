@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d2/d1c/classevio_1_1_composite_data_1_1_data_item" kind="class" language="C++" prot="public">
+    <compoundname>evio::CompositeData::DataItem</compoundname>
+    <includes local="no">CompositeData.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" prot="public" static="no" mutable="no">
+        <type><ref refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member" kindref="compound">SingleMember</ref></type>
+        <definition>SingleMember evio::CompositeData::DataItem::item</definition>
+        <argsstring></argsstring>
+        <name>item</name>
+        <initializer>= {0}</initializer>
+        <briefdescription>
+<para>Place for holding a primitive type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="157" column="26" bodyfile="src/libsrc/CompositeData.h" bodystart="157" bodyend="-1"/>
+        <referencedby refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a3ace39c4d4f5df96e4ba483da398b1f4" compoundref="d6/d36/_composite_data_8h" startline="168" endline="171">DataItem</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a0aff24b88bb1bb497dc5dbc58996d8a2" compoundref="d6/d36/_composite_data_8h" startline="509" endline="515">evio::CompositeData::Data::addChar</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a87e1e55c2270d80079f9962e5703ea7c" compoundref="d6/d36/_composite_data_8h" startline="590" endline="596">evio::CompositeData::Data::addDouble</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a8b2c41ee22dc35b7b59f3b7aa7d9ef4f" compoundref="d6/d36/_composite_data_8h" startline="564" endline="570">evio::CompositeData::Data::addFloat</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a5cfab11bb482df01f2c51f8d21ed8211" compoundref="d6/d36/_composite_data_8h" startline="347" endline="353">evio::CompositeData::Data::addInt</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1acc3a86943d35b60da13c3e593c882b23" compoundref="d6/d36/_composite_data_8h" startline="455" endline="461">evio::CompositeData::Data::addLong</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a6bcde6f4b5585cf2686d0fb6a6f4835b" compoundref="d6/d36/_composite_data_8h" startline="332" endline="339">evio::CompositeData::Data::addm</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a7bbcbb7357ebba6955183fca48582c78" compoundref="d6/d36/_composite_data_8h" startline="318" endline="325">evio::CompositeData::Data::addn</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a859c1963dd27ee0ea8dd11bdd125f0b3" compoundref="d6/d36/_composite_data_8h" startline="304" endline="311">evio::CompositeData::Data::addN</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1aff22deec947ee7528a768e4ae85d96a7" compoundref="d6/d36/_composite_data_8h" startline="401" endline="407">evio::CompositeData::Data::addShort</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3fc56698abe1c67bbd9c244c427090dd" compoundref="d6/d36/_composite_data_8h" startline="618" endline="626">evio::CompositeData::Data::addString</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a0b2de91f48c9114fb4e37edde90e6e98" compoundref="d6/d36/_composite_data_8h" startline="536" endline="542">evio::CompositeData::Data::addUChar</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1abe2e8e36a014dcf82ef925375ebf4061" compoundref="d6/d36/_composite_data_8h" startline="373" endline="379">evio::CompositeData::Data::addUint</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a02d778e9b3758affc79cc9bfdfd58dcb" compoundref="d6/d36/_composite_data_8h" startline="481" endline="487">evio::CompositeData::Data::addULong</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a72acfda240c05c1e3f605e0b85c30bd6" compoundref="d6/d36/_composite_data_8h" startline="427" endline="433">evio::CompositeData::Data::addUShort</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a7b5bd903d5a71806f9982261cb61ea5d" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt;std::string&gt; evio::CompositeData::DataItem::strVec</definition>
+        <argsstring></argsstring>
+        <name>strVec</name>
+        <initializer>{}</initializer>
+        <briefdescription>
+<para>Place for holding strings, NOT a primitive type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="159" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="159" bodyend="-1"/>
+        <referencedby refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a3ace39c4d4f5df96e4ba483da398b1f4" compoundref="d6/d36/_composite_data_8h" startline="168" endline="171">DataItem</referencedby>
+        <referencedby refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a3fc56698abe1c67bbd9c244c427090dd" compoundref="d6/d36/_composite_data_8h" startline="618" endline="626">evio::CompositeData::Data::addString</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a807cb4cc5c933adc0cb43d4983d1a33f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::DataItem::DataItem</definition>
+        <argsstring>()=default</argsstring>
+        <name>DataItem</name>
+        <briefdescription>
+<para>No arg constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="162" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a3ace39c4d4f5df96e4ba483da398b1f4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::DataItem::DataItem</definition>
+        <argsstring>(DataItem const &amp;other)</argsstring>
+        <name>DataItem</name>
+        <param>
+          <type><ref refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item" kindref="compound">DataItem</ref> const &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>other</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="168" column="13" bodyfile="src/libsrc/CompositeData.h" bodystart="168" bodyend="171"/>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" compoundref="d6/d36/_composite_data_8h" startline="157">item</references>
+        <references refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a7b5bd903d5a71806f9982261cb61ea5d" compoundref="d6/d36/_composite_data_8h" startline="159">strVec</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class defines an individual data item. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The class, <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">CompositeData#Data</ref>, which defines all data in a composite data object, contains a vector of these, individual data items. There is a separation between members of primitive types which are stored as <ref refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member" kindref="compound">CompositeData#SingleMember</ref> objects, from those of strings which are stored in a vector of strings. This is done since it doesn&apos;t make sense to include a vector in the union with primitives. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>evio::CompositeData::SingleMember</label>
+        <link refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member"/>
+      </node>
+      <node id="1">
+        <label>evio::CompositeData::DataItem</label>
+        <link refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>item</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/CompositeData.h" line="152" column="9" bodyfile="src/libsrc/CompositeData.h" bodystart="152" bodyend="173"/>
+    <listofallmembers>
+      <member refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a807cb4cc5c933adc0cb43d4983d1a33f" prot="public" virt="non-virtual"><scope>evio::CompositeData::DataItem</scope><name>DataItem</name></member>
+      <member refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a3ace39c4d4f5df96e4ba483da398b1f4" prot="public" virt="non-virtual"><scope>evio::CompositeData::DataItem</scope><name>DataItem</name></member>
+      <member refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1ac99a87ecc62be4e69d0d3f7370d858ea" prot="public" virt="non-virtual"><scope>evio::CompositeData::DataItem</scope><name>item</name></member>
+      <member refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item_1a7b5bd903d5a71806f9982261cb61ea5d" prot="public" virt="non-virtual"><scope>evio::CompositeData::DataItem</scope><name>strVec</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

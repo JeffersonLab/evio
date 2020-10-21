@@ -1,0 +1,443 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan" kind="class" language="C++" prot="private">
+    <compoundname>evio::EventWriter::FileCloser::CloseAsyncFChan</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a1ff5a0acd8f2f88741ffd4422f8ef113" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; std::fstream &gt;</type>
+        <definition>std::shared_ptr&lt;std::fstream&gt; evio::EventWriter::FileCloser::CloseAsyncFChan::afChannel</definition>
+        <argsstring></argsstring>
+        <name>afChannel</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="375" column="33" bodyfile="src/libsrc/EventWriter.h" bodystart="375" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a46cea7a8a8745fc4618438aff5c8378d" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; std::future&lt; void &gt; &gt;</type>
+        <definition>std::shared_ptr&lt;std::future&lt;void&gt; &gt; evio::EventWriter::FileCloser::CloseAsyncFChan::future</definition>
+        <argsstring></argsstring>
+        <name>future</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="376" column="33" bodyfile="src/libsrc/EventWriter.h" bodystart="376" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a2c2401eedf41e3ce458b6269879f793d" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordSupply&gt; evio::EventWriter::FileCloser::CloseAsyncFChan::supply</definition>
+        <argsstring></argsstring>
+        <name>supply</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="377" column="33" bodyfile="src/libsrc/EventWriter.h" bodystart="377" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a5b008648152c05595647a4e36b234d7c" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordRingItem&gt; evio::EventWriter::FileCloser::CloseAsyncFChan::item</definition>
+        <argsstring></argsstring>
+        <name>item</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="378" column="33" bodyfile="src/libsrc/EventWriter.h" bodystart="378" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a6c771bf7f42533155854b44fd6f9d25f" prot="private" static="no" mutable="no">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref></type>
+        <definition>FileHeader evio::EventWriter::FileCloser::CloseAsyncFChan::fHeader</definition>
+        <argsstring></argsstring>
+        <name>fHeader</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="379" column="28" bodyfile="src/libsrc/EventWriter.h" bodystart="379" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1afd33fdf14d52018c97378ca26fc25aad" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; std::vector&lt; uint32_t &gt; &gt;</type>
+        <definition>std::shared_ptr&lt;std::vector&lt;uint32_t&gt; &gt; evio::EventWriter::FileCloser::CloseAsyncFChan::recLengths</definition>
+        <argsstring></argsstring>
+        <name>recLengths</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="380" column="33" bodyfile="src/libsrc/EventWriter.h" bodystart="380" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a15ed19f001574e3e4a6d89d2a8524a89" prot="private" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::EventWriter::FileCloser::CloseAsyncFChan::bytesWrittenToFile</definition>
+        <argsstring></argsstring>
+        <name>bytesWrittenToFile</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="381" column="26" bodyfile="src/libsrc/EventWriter.h" bodystart="381" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a546cbe75623d8de575ad095af25bb913" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EventWriter::FileCloser::CloseAsyncFChan::recordNum</definition>
+        <argsstring></argsstring>
+        <name>recordNum</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="382" column="26" bodyfile="src/libsrc/EventWriter.h" bodystart="382" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1ad74df747124c77d38eff8b2e64cd9459" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::EventWriter::FileCloser::CloseAsyncFChan::addTrailer</definition>
+        <argsstring></argsstring>
+        <name>addTrailer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="383" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="383" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1aabe0a29a289a9f94ad54406cf5f866df" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::EventWriter::FileCloser::CloseAsyncFChan::writeIndx</definition>
+        <argsstring></argsstring>
+        <name>writeIndx</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="384" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="384" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1aa85277fa63295536b4e8276a293bbb49" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::EventWriter::FileCloser::CloseAsyncFChan::noFileWriting</definition>
+        <argsstring></argsstring>
+        <name>noFileWriting</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="385" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="385" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a2003d27861a016c5ce745bea439be33b" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::EventWriter::FileCloser::CloseAsyncFChan::byteOrder</definition>
+        <argsstring></argsstring>
+        <name>byteOrder</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="386" column="27" bodyfile="src/libsrc/EventWriter.h" bodystart="386" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a8576695c633816bd9ff748428dad69c3" prot="private" static="no" mutable="no">
+        <type>FileCloser *</type>
+        <definition>FileCloser* evio::EventWriter::FileCloser::CloseAsyncFChan::closer</definition>
+        <argsstring></argsstring>
+        <name>closer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="389" column="28" bodyfile="src/libsrc/EventWriter.h" bodystart="389" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a8ed5d19090cd523e002fa1b6cf7ce1a3" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; CloseAsyncFChan &gt;</type>
+        <definition>std::shared_ptr&lt;CloseAsyncFChan&gt; evio::EventWriter::FileCloser::CloseAsyncFChan::sharedPtrOfMe</definition>
+        <argsstring></argsstring>
+        <name>sharedPtrOfMe</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="390" column="33" bodyfile="src/libsrc/EventWriter.h" bodystart="390" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a7a0d0b3adc8e528ab097d8a517bbfb15" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EventWriter::FileCloser::CloseAsyncFChan::hdrBufferBytes</definition>
+        <argsstring></argsstring>
+        <name>hdrBufferBytes</name>
+        <initializer>= <ref refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" kindref="member">RecordHeader::HEADER_SIZE_BYTES</ref> + 2048</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="393" column="26" bodyfile="src/libsrc/EventWriter.h" bodystart="393" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1af71c76ef40d463b57601efdac95140ff" prot="private" static="no" mutable="no">
+        <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref></type>
+        <definition>ByteBuffer evio::EventWriter::FileCloser::CloseAsyncFChan::hdrBuffer</definition>
+        <argsstring></argsstring>
+        <name>hdrBuffer</name>
+        <initializer>{hdrBufferBytes}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="394" column="28" bodyfile="src/libsrc/EventWriter.h" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a1c8f472c92b93cba55cee0fe159f4844" prot="private" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* evio::EventWriter::FileCloser::CloseAsyncFChan::hdrArray</definition>
+        <argsstring></argsstring>
+        <name>hdrArray</name>
+        <initializer>= hdrBuffer.array()</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="395" column="25" bodyfile="src/libsrc/EventWriter.h" bodystart="395" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a4ecc245043b57f849514f918d644cc4a" prot="private" static="no" mutable="no">
+        <type>boost::thread</type>
+        <definition>boost::thread evio::EventWriter::FileCloser::CloseAsyncFChan::thd</definition>
+        <argsstring></argsstring>
+        <name>thd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="398" column="31" bodyfile="src/libsrc/EventWriter.h" bodystart="398" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1aecc73ddb4208b2a4074f39809a34ffaf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EventWriter::FileCloser::CloseAsyncFChan::CloseAsyncFChan</definition>
+        <argsstring>(std::shared_ptr&lt; std::fstream &gt; &amp;afc, std::shared_ptr&lt; std::future&lt; void &gt;&gt; &amp;future1, std::shared_ptr&lt; RecordSupply &gt; &amp;supply, std::shared_ptr&lt; RecordRingItem &gt; &amp;ringItem, FileHeader &amp;fileHeader, std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths, uint64_t bytesWritten, uint32_t recordNumber, bool addingTrailer, bool writeIndex, bool noWriting, ByteOrder &amp;order, FileCloser *fc)</argsstring>
+        <name>CloseAsyncFChan</name>
+        <param>
+          <type>std::shared_ptr&lt; std::fstream &gt; &amp;</type>
+          <declname>afc</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; std::future&lt; void &gt;&gt; &amp;</type>
+          <declname>future1</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt; &amp;</type>
+          <declname>supply</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt; &amp;</type>
+          <declname>ringItem</declname>
+        </param>
+        <param>
+          <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+          <declname>fileHeader</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;</type>
+          <declname>recordLengths</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>bytesWritten</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>recordNumber</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>addingTrailer</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>writeIndex</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>noWriting</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>FileCloser *</type>
+          <declname>fc</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="403" column="17" bodyfile="src/libsrc/EventWriter.h" bodystart="403" bodyend="427"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1affda2b982a58fa4ef39215752e609dc6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::CloseAsyncFChan::setSharedPointerOfThis</definition>
+        <argsstring>(std::shared_ptr&lt; CloseAsyncFChan &gt; &amp;mySharedPtr)</argsstring>
+        <name>setSharedPointerOfThis</name>
+        <param>
+          <type>std::shared_ptr&lt; CloseAsyncFChan &gt; &amp;</type>
+          <declname>mySharedPtr</declname>
+        </param>
+        <briefdescription>
+<para>Set the shared pointer to this object for later used in removing from FileCloser&apos;s vector of these pointers (threads). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mySharedPtr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>shared pointer to this object </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="435" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="435" bodyend="437"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a14b3512a2eb19d8d871bfb76bd1350d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::CloseAsyncFChan::stopThread</definition>
+        <argsstring>()</argsstring>
+        <name>stopThread</name>
+        <briefdescription>
+<para>Stop the thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="441" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="441" bodyend="455"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1ac7ec0648c6be8956d0eb309b9274d1c4" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::CloseAsyncFChan::startThread</definition>
+        <argsstring>()</argsstring>
+        <name>startThread</name>
+        <briefdescription>
+<para>Create and start a thread to execute the run() method of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="462" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="462" bodyend="464"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a4d3b658c16f1b3121f92ef2487857d05" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::CloseAsyncFChan::run</definition>
+        <argsstring>()</argsstring>
+        <name>run</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="466" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="466" bodyend="499"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a57a5eed6cc23a3d24edbcda4bac4c724" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EventWriter::FileCloser::CloseAsyncFChan::writeTrailerToFile</definition>
+        <argsstring>()</argsstring>
+        <name>writeTrailerToFile</name>
+        <briefdescription>
+<para>Write a general header as the last &quot;header&quot; or trailer in the file optionally followed by an index of all record lengths. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This writes synchronously. This is a modified version of <ref refid="" kindref="compound">writeTrailerToFile()</ref> that allows writing the trailer to the file being closed without affecting the file currently being written.</para>
+<para><parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if problems writing to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EventWriter.h" line="512" column="22" bodyfile="src/libsrc/EventWriter.h" bodystart="512" bodyend="592"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to start thread to do closing. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/EventWriter.h" line="371" column="13" bodyfile="src/libsrc/EventWriter.h" bodystart="371" bodyend="593"/>
+    <listofallmembers>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1ad74df747124c77d38eff8b2e64cd9459" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>addTrailer</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a1ff5a0acd8f2f88741ffd4422f8ef113" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>afChannel</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a2003d27861a016c5ce745bea439be33b" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>byteOrder</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a15ed19f001574e3e4a6d89d2a8524a89" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>bytesWrittenToFile</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1aecc73ddb4208b2a4074f39809a34ffaf" prot="public" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>CloseAsyncFChan</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a8576695c633816bd9ff748428dad69c3" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>closer</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a6c771bf7f42533155854b44fd6f9d25f" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>fHeader</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a46cea7a8a8745fc4618438aff5c8378d" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>future</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a1c8f472c92b93cba55cee0fe159f4844" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>hdrArray</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1af71c76ef40d463b57601efdac95140ff" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>hdrBuffer</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a7a0d0b3adc8e528ab097d8a517bbfb15" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>hdrBufferBytes</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a5b008648152c05595647a4e36b234d7c" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>item</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1aa85277fa63295536b4e8276a293bbb49" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>noFileWriting</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1afd33fdf14d52018c97378ca26fc25aad" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>recLengths</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a546cbe75623d8de575ad095af25bb913" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>recordNum</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a4d3b658c16f1b3121f92ef2487857d05" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>run</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1affda2b982a58fa4ef39215752e609dc6" prot="public" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>setSharedPointerOfThis</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a8ed5d19090cd523e002fa1b6cf7ce1a3" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>sharedPtrOfMe</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1ac7ec0648c6be8956d0eb309b9274d1c4" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>startThread</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a14b3512a2eb19d8d871bfb76bd1350d8" prot="public" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>stopThread</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a2c2401eedf41e3ce458b6269879f793d" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>supply</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a4ecc245043b57f849514f918d644cc4a" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>thd</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1aabe0a29a289a9f94ad54406cf5f866df" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>writeIndx</name></member>
+      <member refid="dd/d83/classevio_1_1_event_writer_1_1_file_closer_1_1_close_async_f_chan_1a57a5eed6cc23a3d24edbcda4bac4c724" prot="private" virt="non-virtual"><scope>evio::EventWriter::FileCloser::CloseAsyncFChan</scope><name>writeTrailerToFile</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

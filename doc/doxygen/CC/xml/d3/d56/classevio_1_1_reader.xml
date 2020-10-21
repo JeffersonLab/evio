@@ -1,0 +1,2657 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d3/d56/classevio_1_1_reader" kind="class" language="C++" prot="public">
+    <compoundname>evio::Reader</compoundname>
+    <includes local="no">Reader.h</includes>
+    <innerclass refid="de/d1a/classevio_1_1_reader_1_1_record_position" prot="private">evio::Reader::RecordPosition</innerclass>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="d3/d56/classevio_1_1_reader_1a32f95a8849a0400219cb3f9d977dd9b9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class EvioCompactReaderV6</definition>
+        <argsstring></argsstring>
+        <name>EvioCompactReaderV6</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="119" column="9" bodyfile="src/libsrc/Reader.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1ac933d4c25d306d5610d7853a6dcd0f82" prot="private" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::Reader::headerInfoLen</definition>
+        <argsstring></argsstring>
+        <name>headerInfoLen</name>
+        <initializer>= 8</initializer>
+        <briefdescription>
+<para>Size of array in which to store record header info. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="186" column="31" bodyfile="src/libsrc/Reader.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a016c4e3537ba1464b6d7510fdec678c9" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; RecordPosition &gt;</type>
+        <definition>std::vector&lt;RecordPosition&gt; evio::Reader::recordPositions</definition>
+        <argsstring></argsstring>
+        <name>recordPositions</name>
+        <briefdescription>
+<para>Vector of records in the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The vector is initialized when the entire file is scanned to read out positions of each record in the file (in constructor). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="194" column="21" bodyfile="src/libsrc/Reader.h" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1aeb21ec7f2c314aceb553979451ee1700" prot="private" static="no" mutable="no">
+        <type>std::ifstream</type>
+        <definition>std::ifstream evio::Reader::inStreamRandom</definition>
+        <argsstring></argsstring>
+        <name>inStreamRandom</name>
+        <briefdescription>
+<para>Object for reading file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="196" column="23" bodyfile="src/libsrc/Reader.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a9e36cfed2aeff5ad4dd95811bbdc80c6" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::Reader::fileName</definition>
+        <argsstring></argsstring>
+        <name>fileName</name>
+        <initializer>{&quot;&quot;}</initializer>
+        <briefdescription>
+<para>File name. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="198" column="21" bodyfile="src/libsrc/Reader.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a9153b0030be4841ae1f1b7f309ff41a1" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::Reader::fileSize</definition>
+        <argsstring></argsstring>
+        <name>fileSize</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>File size in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="200" column="16" bodyfile="src/libsrc/Reader.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a0bf16c2e0760c33ef05298d2ca1f7c58" prot="private" static="no" mutable="no">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref></type>
+        <definition>FileHeader evio::Reader::fileHeader</definition>
+        <argsstring></argsstring>
+        <name>fileHeader</name>
+        <briefdescription>
+<para>File header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="202" column="20" bodyfile="src/libsrc/Reader.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a8b2ce62bf302a600fa67c405a4d068cf" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Reader::fromFile</definition>
+        <argsstring></argsstring>
+        <name>fromFile</name>
+        <initializer>= true</initializer>
+        <briefdescription>
+<para>Are we reading from file (true) or buffer? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="204" column="14" bodyfile="src/libsrc/Reader.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1adba293be1d67b02476a0a9cb9c1798d0" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ByteBuffer&gt; evio::Reader::buffer</definition>
+        <argsstring></argsstring>
+        <name>buffer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="208" column="25" bodyfile="src/libsrc/Reader.h" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1af52801d9812f03dec9d09cb9d55bd0a0" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::Reader::bufferOffset</definition>
+        <argsstring></argsstring>
+        <name>bufferOffset</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Initial position of buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="210" column="16" bodyfile="src/libsrc/Reader.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1aa55146aabfccd0810492cce3a568c4d2" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::Reader::bufferLimit</definition>
+        <argsstring></argsstring>
+        <name>bufferLimit</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Limit of buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="212" column="16" bodyfile="src/libsrc/Reader.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a806a50eef655ecc7ae12227d91fdc416" prot="private" static="no" mutable="no">
+        <type><ref refid="de/da2/classevio_1_1_record_input" kindref="compound">RecordInput</ref></type>
+        <definition>RecordInput evio::Reader::inputRecordStream</definition>
+        <argsstring></argsstring>
+        <name>inputRecordStream</name>
+        <briefdescription>
+<para>Keep one record for reading in data record-by-record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="216" column="21" bodyfile="src/libsrc/Reader.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1ab3519d09f2ad77aabe385a6f9788e996" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::currentRecordLoaded</definition>
+        <argsstring></argsstring>
+        <name>currentRecordLoaded</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Number or position of last record to be read. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="218" column="18" bodyfile="src/libsrc/Reader.h" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1ac0d6ca5729e4ffd7618f6245de7a7ecc" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d8/d64/classevio_1_1_record_header" kindref="compound">RecordHeader</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordHeader&gt; evio::Reader::firstRecordHeader</definition>
+        <argsstring></argsstring>
+        <name>firstRecordHeader</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>First record&apos;s header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="221" column="25" bodyfile="src/libsrc/Reader.h" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a92f86ca32f24ef0d9697b48587e4e1ba" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::recordNumberExpected</definition>
+        <argsstring></argsstring>
+        <name>recordNumberExpected</name>
+        <initializer>= 1</initializer>
+        <briefdescription>
+<para>Record number expected when reading. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used to check sequence of records. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="223" column="18" bodyfile="src/libsrc/Reader.h" bodystart="223" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a592411a22102f11045033699cdc48878" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Reader::checkRecordNumberSequence</definition>
+        <argsstring></argsstring>
+        <name>checkRecordNumberSequence</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>If true, throw an exception if record numbers are out of sequence. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="225" column="14" bodyfile="src/libsrc/Reader.h" bodystart="225" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a02d632d85f65900c0f944d444a8baac2" prot="private" static="no" mutable="no">
+        <type><ref refid="df/dbf/classevio_1_1_file_event_index" kindref="compound">FileEventIndex</ref></type>
+        <definition>FileEventIndex evio::Reader::eventIndex</definition>
+        <argsstring></argsstring>
+        <name>eventIndex</name>
+        <briefdescription>
+<para>Object to handle event indexes in context of file and having to change records. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="227" column="24" bodyfile="src/libsrc/Reader.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a277472b153c8fe1b6d4de68fb42f0854" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::Reader::dictionaryXML</definition>
+        <argsstring></argsstring>
+        <name>dictionaryXML</name>
+        <initializer>{&quot;&quot;}</initializer>
+        <briefdescription>
+<para>Files may have an xml format dictionary in the user header of the file header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="231" column="21" bodyfile="src/libsrc/Reader.h" bodystart="231" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a8d383a10eb8effd27f42e4699cff9595" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; uint8_t &gt;</type>
+        <definition>std::shared_ptr&lt;uint8_t&gt; evio::Reader::firstEvent</definition>
+        <argsstring></argsstring>
+        <name>firstEvent</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Each file of a set of split CODA files may have a &quot;first&quot; event common to all. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="233" column="25" bodyfile="src/libsrc/Reader.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a0f7cc027967ec9ae0b20262f810ec709" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::firstEventSize</definition>
+        <argsstring></argsstring>
+        <name>firstEventSize</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>First event size in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="235" column="18" bodyfile="src/libsrc/Reader.h" bodystart="235" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a021a0f406fda6b66acad8cf17eaf68d5" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;EvioNode&gt; &gt; evio::Reader::eventNodes</definition>
+        <argsstring></argsstring>
+        <name>eventNodes</name>
+        <briefdescription>
+<para>Stores info of all the (top-level) events in a scanned buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="240" column="21" bodyfile="src/libsrc/Reader.h" bodystart="240" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a221fd1d32910b9a40435ffbd5249c38a" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Reader::closed</definition>
+        <argsstring></argsstring>
+        <name>closed</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Is this object currently closed? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="244" column="14" bodyfile="src/libsrc/Reader.h" bodystart="244" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a210732e5e18a83a993101e656f47e1c5" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Reader::compressed</definition>
+        <argsstring></argsstring>
+        <name>compressed</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Is this data in file/buffer compressed? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="246" column="14" bodyfile="src/libsrc/Reader.h" bodystart="246" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1abd4490538d89f866a685a5e0fa33b523" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::Reader::byteOrder</definition>
+        <argsstring></argsstring>
+        <name>byteOrder</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order of file/buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="248" column="19" bodyfile="src/libsrc/Reader.h" bodystart="248" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a7c4df5d432bb71ca24ae8665734009b0" prot="private" static="no" mutable="no">
+        <type>int32_t</type>
+        <definition>int32_t evio::Reader::sequentialIndex</definition>
+        <argsstring></argsstring>
+        <name>sequentialIndex</name>
+        <initializer>= -1</initializer>
+        <briefdescription>
+<para>Keep track of next <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> when calling <ref refid="d3/d56/classevio_1_1_reader_1a0bf674124c4ad45cf97a4fb96bdcf44d" kindref="member">getNextEventNode()</ref>, <ref refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" kindref="member">getEvent(uint32_t, uint32_t *)</ref>, or <ref refid="d3/d56/classevio_1_1_reader_1a75374b81e59321dc8ac75f22a552b890" kindref="member">getPrevEvent(uint32_t *)</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="251" column="17" bodyfile="src/libsrc/Reader.h" bodystart="251" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1ae3a86f30ca8fd2d56bc694b8796a4085" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Reader::evioFormat</definition>
+        <argsstring></argsstring>
+        <name>evioFormat</name>
+        <initializer>= true</initializer>
+        <briefdescription>
+<para>If this buf/file contains non-evio events (permissible to read in this class), set this flag to false, which helps <ref refid="d6/d5f/classevio_1_1_evio_compact_reader" kindref="compound">EvioCompactReader</ref> and <ref refid="df/dbd/classevio_1_1_evio_reader" kindref="compound">EvioReader</ref> to avoid choking while trying to parse them. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="258" column="14" bodyfile="src/libsrc/Reader.h" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a94ca00a723eafb6c6f2ebce98de0c002" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::Reader::lastCalledSeqNext</definition>
+        <argsstring></argsstring>
+        <name>lastCalledSeqNext</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>If true, the last sequential call was to getNextEvent or getNextEventNode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If false, the last sequential call was to getPrevEvent. Used to determine which event is prev or next. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="263" column="14" bodyfile="src/libsrc/Reader.h" bodystart="263" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d3/d56/classevio_1_1_reader_1a89917cd2693549dfea6762375a291d30" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::evioVersion</definition>
+        <argsstring></argsstring>
+        <name>evioVersion</name>
+        <initializer>= 6</initializer>
+        <briefdescription>
+<para>Evio version of file/buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="265" column="18" bodyfile="src/libsrc/Reader.h" bodystart="265" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a8cdb2fb30ab1426bf9baed4767b4e535" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::setByteOrder</definition>
+        <argsstring>(ByteOrder &amp;order)</argsstring>
+        <name>setByteOrder</name>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Set the byte order of the file/buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of the file/buffer being read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="269" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="268" bodyend="268"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a2248c397c049277773fc0877befd001b" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getTotalByteCounts</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint32_t *info, uint32_t infoLen)</argsstring>
+        <name>getTotalByteCounts</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>infoLen</declname>
+        </param>
+        <briefdescription>
+<para>This method gets the total number of evio/hipo format bytes in the given buffer, both compressed and uncompressed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Results are stored in the given int array. First element is compressed length, second is uncompressed length.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing evio/hipo data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>integer array containing evio/hipo data. Elements are: <orderedlist>
+<listitem>
+<para>compressed length in bytes (padded)  </para>
+</listitem>
+<listitem>
+<para>uncompressed length in bytes (padded)  </para>
+</listitem>
+</orderedlist>
+</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>infoLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of elements in info array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>total uncompressed hipo/evio data in bytes (padded). </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>null info arg or infoLen &lt; 7. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="270" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="975" bodyend="1009"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a06f1b4440ef7067b7029cc56ff60fba8" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getTotalByteCounts</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, uint32_t *info, uint32_t infoLen)</argsstring>
+        <name>getTotalByteCounts</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>infoLen</declname>
+        </param>
+        <briefdescription>
+<para>This method gets the total number of evio/hipo format bytes in the given buffer, both compressed and uncompressed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Results are stored in the given int array. First element is compressed length, second is uncompressed length.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing evio/hipo data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>integer array containing evio/hipo data. Elements are: <orderedlist>
+<listitem>
+<para>compressed length in bytes (padded)  </para>
+</listitem>
+<listitem>
+<para>uncompressed length in bytes (padded)  </para>
+</listitem>
+</orderedlist>
+</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>infoLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of elements in info array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>total uncompressed hipo/evio data in bytes (padded). </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>null info arg or infoLen &lt; 7. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="271" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="1029" bodyend="1031"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a26384beac93f62f7747109055817c7be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Reader::Reader</definition>
+        <argsstring>()</argsstring>
+        <name>Reader</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Does nothing. The <ref refid="d3/d56/classevio_1_1_reader_1a783002c7c34ba467b9880ec4bd66158d" kindref="member">open(std::string const &amp;, bool)</ref> method has to be called to open the input stream. Also <ref refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" kindref="member">forceScanFile()</ref> needs to be called to find records. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="277" column="9" bodyfile="src/libsrc/Reader.cpp" bodystart="22" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ac4ad5aaa65657201f8e3165b6cf07a8b" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Reader::Reader</definition>
+        <argsstring>(std::string const &amp;filename)</argsstring>
+        <name>Reader</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with filename. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates instance and opens the input stream with given name. Uses existing indexes in file before scanning. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input file name. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error reading file </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file is not in the proper format or earlier than version 6 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="278" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="33" bodyend="35"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a783002c7c34ba467b9880ec4bd66158d" compoundref="d8/d15/_reader_8cpp" startline="92" endline="125">open</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a0df29efd8d9ef6c8e41ab8c12c642da8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Reader::Reader</definition>
+        <argsstring>(std::string const &amp;filename, bool forceScan)</argsstring>
+        <name>Reader</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>forceScan</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with filename. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates instance and opens the input stream with given name. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input file name. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>forceScan</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, force a scan of file, else use existing indexes first. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error reading file </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file is not in the proper format or earlier than version 6 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="279" column="9" bodyfile="src/libsrc/Reader.cpp" bodystart="46" bodyend="49"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a783002c7c34ba467b9880ec4bd66158d" compoundref="d8/d15/_reader_8cpp" startline="92" endline="125">open</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">scanFile</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a4a03589aaecd0cb9c819dec50ccbc132" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Reader::Reader</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buffer, bool checkRecordNumSeq=false)</argsstring>
+        <name>Reader</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>checkRecordNumSeq</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for reading buffer with evio data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Buffer must be ready to read with position and limit set properly. If the given buffer contains compressed data, it is uncompressed into another buffer. The buffer containing the newly uncompressed data then becomes the internal buffer of this object. It can be obtained by calling <ref refid="d3/d56/classevio_1_1_reader_1af9578b8e07c84e052426e3726f81b48d" kindref="member">getBuffer</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer with evio data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>checkRecordNumSeq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, check to see if all record numbers are in order, if not throw exception. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if buffer too small, not in the proper format, or earlier than version 6; if checkRecordNumSeq is true and records are out of sequence. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="280" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="65" bodyend="81"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">scanBuffer</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a3a75ad257fe61c79c1ebb2a079aa9ab0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::Reader::~Reader</definition>
+        <argsstring>()=default</argsstring>
+        <name>~Reader</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="282" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a783002c7c34ba467b9880ec4bd66158d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::open</definition>
+        <argsstring>(std::string const &amp;filename, bool scan=true)</argsstring>
+        <name>open</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>scan</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Opens an input stream in binary mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Scans for records in the file and stores record information in internal array. Each record can be read from the file. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input file name </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scan</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, call scanFile(false). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error handling file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="284" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="92" bodyend="125"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">scanFile</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a2113fbe908c3e873169afea53265a750" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="23" endline="29">evio::EvioCompactReaderV6::EvioCompactReaderV6</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1ac4ad5aaa65657201f8e3165b6cf07a8b" compoundref="d8/d15/_reader_8cpp" startline="33" endline="35">Reader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1afb6253fb80cafdffe93063710dc68f89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::close</definition>
+        <argsstring>()</argsstring>
+        <name>close</name>
+        <briefdescription>
+<para>This closes the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="285" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="129" bodyend="139"/>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a1bacb79593e55b32cd9749d14fea8b59" compoundref="d8/d15/_reader_8cpp" startline="170" endline="210">setBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1af4cc2b0b225780ff29a42509a6963bd0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::isClosed</definition>
+        <argsstring>() const</argsstring>
+        <name>isClosed</name>
+        <briefdescription>
+<para>Has <ref refid="d3/d56/classevio_1_1_reader_1afb6253fb80cafdffe93063710dc68f89" kindref="member">close()</ref> been called (without reopening by calling <ref refid="d3/d56/classevio_1_1_reader_1a1bacb79593e55b32cd9749d14fea8b59" kindref="member">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</ref>)? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> if this object closed, else<programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> . </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="287" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="148" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a3c79ae478e1f977a14cd766778054419" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::isFile</definition>
+        <argsstring>() const</argsstring>
+        <name>isFile</name>
+        <briefdescription>
+<para>Is a file being read? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> if a file is being read,<programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> if it&apos;s a buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="288" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="155" bodyend="155"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1adf515c1131fef9c6f1164dea6fe984f5" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="68" endline="68">evio::EvioCompactReaderV6::isFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a43f2552cf046588eddb5c521eb8058ef" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::Reader::getFileName</definition>
+        <argsstring>() const</argsstring>
+        <name>getFileName</name>
+        <briefdescription>
+<para>Get the name of the file being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>name of the file being read or null if none. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="290" column="21" bodyfile="src/libsrc/Reader.cpp" bodystart="217" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ac0adfb972556ea299cb59a9a514307e2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::Reader::getFileSize</definition>
+        <argsstring>() const</argsstring>
+        <name>getFileSize</name>
+        <briefdescription>
+<para>Get the size of the file being read, in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>size of the file being read, in bytes, or 0 if none. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="291" column="16" bodyfile="src/libsrc/Reader.cpp" bodystart="224" bodyend="224"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ac357dcb878677ccb7167ddbf012c88a3" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="125" endline="125">evio::EvioCompactReaderV6::fileSize</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a1bacb79593e55b32cd9749d14fea8b59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::setBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf)</argsstring>
+        <name>setBuffer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>This method can be used to avoid creating additional <ref refid="d3/d56/classevio_1_1_reader" kindref="compound">Reader</ref> objects by reusing this one with another buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the given buffer contains compressed data, it is uncompressed into another buffer. The buffer containing the newly uncompressed data then becomes the internal buffer of this object. It can be obtained by calling <ref refid="d3/d56/classevio_1_1_reader_1af9578b8e07c84e052426e3726f81b48d" kindref="member">getBuffer</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> to be read </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if buf arg is null, not in the proper format, or earlier than version 6 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="293" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="170" bodyend="210"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a8ef8d2866a105a8b4973aa208f5162b8" compoundref="d4/d07/_file_event_index_8cpp" startline="18" endline="21">evio::FileEventIndex::clear</references>
+        <references refid="d3/d56/classevio_1_1_reader_1afb6253fb80cafdffe93063710dc68f89" compoundref="d8/d15/_reader_8cpp" startline="129" endline="139">close</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">scanBuffer</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ac3251410f333f38134578eb449a84b07" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="40" endline="51">evio::EvioCompactReaderV6::EvioCompactReaderV6</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a27e5b1de45af6d22ca73c173335b6ebc" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="55" endline="64">evio::EvioCompactReaderV6::setBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1af9578b8e07c84e052426e3726f81b48d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Reader::getBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>getBuffer</name>
+        <briefdescription>
+<para>Get the buffer being read, if any. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This may not be the buffer given in the constructor or in <ref refid="d3/d56/classevio_1_1_reader_1a1bacb79593e55b32cd9749d14fea8b59" kindref="member">setBuffer</ref> if the original data was compressed. All data in the returned buffer is uncompressed. <simplesect kind="return"><para>buffer being read, if any. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="294" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="233" bodyend="233"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a3d7fe439c3b1c77da15c6cf5c62045da" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="382" endline="385">evio::EvioCompactReaderV6::close</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ab420fa4d7dd2165e5b8747665cbc8a45" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="121" endline="121">evio::EvioCompactReaderV6::getByteBuffer</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a5d853972ed19b80b62c6a30ab45ccc40" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="397" endline="417">evio::EvioCompactReaderV6::toFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a19a502d28bf5b95c174c748893402cc7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::Reader::getBufferOffset</definition>
+        <argsstring>() const</argsstring>
+        <name>getBufferOffset</name>
+        <briefdescription>
+<para>Get the beginning position of the buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the beginning position of the buffer being read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="295" column="16" bodyfile="src/libsrc/Reader.cpp" bodystart="240" bodyend="240"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a3d7fe439c3b1c77da15c6cf5c62045da" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="382" endline="385">evio::EvioCompactReaderV6::close</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a8845c561180e09fee8da6b0edc17fd0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> &amp;</type>
+        <definition>FileHeader &amp; evio::Reader::getFileHeader</definition>
+        <argsstring>()</argsstring>
+        <name>getFileHeader</name>
+        <briefdescription>
+<para>Get the file header from reading a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file header from reading a file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="297" column="21" bodyfile="src/libsrc/Reader.cpp" bodystart="247" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1aff65c3cf0199dafdb3a3624c5989790b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d8/d64/classevio_1_1_record_header" kindref="compound">RecordHeader</ref> &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; RecordHeader &gt; &amp; evio::Reader::getFirstRecordHeader</definition>
+        <argsstring>()</argsstring>
+        <name>getFirstRecordHeader</name>
+        <briefdescription>
+<para>Get the first record header from reading a file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>first record header from reading a file/buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="298" column="26" bodyfile="src/libsrc/Reader.cpp" bodystart="254" bodyend="254"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a9f3a5b5c982c7525efafc24c97efffca" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="150" endline="152">evio::EvioCompactReaderV6::getFirstBlockHeader</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a50b31893d43ec1ac9711446da39641f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+        <definition>ByteOrder &amp; evio::Reader::getByteOrder</definition>
+        <argsstring>()</argsstring>
+        <name>getByteOrder</name>
+        <briefdescription>
+<para>Get the byte order of the file/buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>byte order of the file/buffer being read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="300" column="20" bodyfile="src/libsrc/Reader.cpp" bodystart="261" bodyend="261"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ae465a857603f5eeb4afb1d10e1b12477" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="80" endline="80">evio::EvioCompactReaderV6::getByteOrder</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a77e4fd561288419aed99b62ed7120b5f" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="92" endline="92">evio::EvioCompactReaderV6::getFileByteOrder</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a599c40fe3023c1f7eba42d697dc9e7ae" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getVersion</definition>
+        <argsstring>() const</argsstring>
+        <name>getVersion</name>
+        <briefdescription>
+<para>Get the Evio format version number of the file/buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Evio format version number of the file/buffer being read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="301" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="275" bodyend="275"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a7649fc2ff23dc473169c420970ffa3c3" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="84" endline="84">evio::EvioCompactReaderV6::getEvioVersion</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a61126c219647016814078a04da66c998" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::isCompressed</definition>
+        <argsstring>() const</argsstring>
+        <name>isCompressed</name>
+        <briefdescription>
+<para>Is the data in the file/buffer compressed? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if data is compressed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="302" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="282" bodyend="282"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a2d7817a9492ced7b19f19246a6240fd2" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="72" endline="72">evio::EvioCompactReaderV6::isCompressed</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a1601c387a3516a2c63e46bb413307366" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::isEvioFormat</definition>
+        <argsstring>() const</argsstring>
+        <name>isEvioFormat</name>
+        <briefdescription>
+<para>Does this file/buffer contain non-evio format events? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if all events are in evio format, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="303" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="289" bodyend="289"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ac3251410f333f38134578eb449a84b07" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="40" endline="51">evio::EvioCompactReaderV6::EvioCompactReaderV6</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a27e5b1de45af6d22ca73c173335b6ebc" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="55" endline="64">evio::EvioCompactReaderV6::setBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ae935304efa5fa7fbb733f840ebd8638f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::Reader::getDictionary</definition>
+        <argsstring>()</argsstring>
+        <name>getDictionary</name>
+        <briefdescription>
+<para>Get the XML format dictionary if there is one. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>XML format dictionary, else null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="304" column="21" bodyfile="src/libsrc/Reader.cpp" bodystart="296" bodyend="300"/>
+        <references refid="d3/d56/classevio_1_1_reader_1ae81ead1409e411a9445d18a32c633156" compoundref="d8/d15/_reader_8cpp" startline="747" endline="758">extractDictionaryAndFirstEvent</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a69c2500d72dbf660d62e3e4962ebd6fe" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="100" endline="113">evio::EvioCompactReaderV6::getDictionary</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1aa120d697ac0367adea97fb21268c2098" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="96" endline="96">evio::EvioCompactReaderV6::getDictionaryXML</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a670e815e202c81fdce1948181346a533" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::hasDictionary</definition>
+        <argsstring>() const</argsstring>
+        <name>hasDictionary</name>
+        <briefdescription>
+<para>Does this evio file/buffer have an associated XML dictionary? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this evio file/buffer has an associated XML dictionary, else <computeroutput>false</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="305" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="308" bodyend="313"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a9267f205919e107f08d268e4ffc92e1e" compoundref="de/d46/_file_header_8cpp" startline="368" endline="379">evio::FileHeader::hasDictionary</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1af18113b678a7720413235246cb80cc66" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="117" endline="117">evio::EvioCompactReaderV6::hasDictionary</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ad8e3f6d09dfcb8dfa3f0b826840d661b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; uint8_t &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; uint8_t &gt; &amp; evio::Reader::getFirstEvent</definition>
+        <argsstring>(uint32_t *size)</argsstring>
+        <name>getFirstEvent</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Get a byte array representing the first event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer filled with the size, in bytes, of the first event (0 if none). If null, this is ignored. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>byte array representing the first event. Null if none. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="307" column="26" bodyfile="src/libsrc/Reader.cpp" bodystart="322" bodyend="329"/>
+        <references refid="d3/d56/classevio_1_1_reader_1ae81ead1409e411a9445d18a32c633156" compoundref="d8/d15/_reader_8cpp" startline="747" endline="758">extractDictionaryAndFirstEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ada7e085359156352c43eafd1a9dca017" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getFirstEventSize</definition>
+        <argsstring>()</argsstring>
+        <name>getFirstEventSize</name>
+        <briefdescription>
+<para>Get size, in bytes, of byte array representing the first event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>size, in bytes, of byte array representing the first event. 0 if none. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="308" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="336" bodyend="340"/>
+        <references refid="d3/d56/classevio_1_1_reader_1ae81ead1409e411a9445d18a32c633156" compoundref="d8/d15/_reader_8cpp" startline="747" endline="758">extractDictionaryAndFirstEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a86b7f7c0191d12cca51496984a87451d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::hasFirstEvent</definition>
+        <argsstring>() const</argsstring>
+        <name>hasFirstEvent</name>
+        <briefdescription>
+<para>Does this evio file/buffer have an associated first event? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this evio file/buffer has an associated first event, else <computeroutput>false</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="309" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="348" bodyend="353"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a55417ae68a5f938e25bac2673c88e36c" compoundref="de/d46/_file_header_8cpp" startline="334" endline="345">evio::FileHeader::hasFirstEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a8f81445d73ac7fd45acb9fb42ac4c19e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getEventCount</definition>
+        <argsstring>() const</argsstring>
+        <name>getEventCount</name>
+        <briefdescription>
+<para>Get the number of events in file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>number of events in file/buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="311" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="360" bodyend="360"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">evio::FileEventIndex::getMaxEvents</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1afc46bc1edb5e81976671fd276e8996d1" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="389" endline="389">evio::EvioCompactReaderV6::getEventCount</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ada40ca9faba8685e5a5b7f1295991a09" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="187" endline="219">evio::EvioCompactReaderV6::searchEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a2a95a2f9f75aae81032d4c2cb1878272" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getRecordCount</definition>
+        <argsstring>() const</argsstring>
+        <name>getRecordCount</name>
+        <briefdescription>
+<para>Get the number of records read from the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>number of records read from the file/buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="312" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="367" bodyend="367"/>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a00b3f3e0d56465d5f24046505d1d7899" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="393" endline="393">evio::EvioCompactReaderV6::getBlockCount</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ab3190f8f8f70e1b308129126862163bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; RecordPosition &gt; &amp;</type>
+        <definition>std::vector&lt; Reader::RecordPosition &gt; &amp; evio::Reader::getRecordPositions</definition>
+        <argsstring>()</argsstring>
+        <name>getRecordPositions</name>
+        <briefdescription>
+<para>Returns a reference to the list of record positions in the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para></para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="314" column="22" bodyfile="src/libsrc/Reader.cpp" bodystart="374" bodyend="374"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1af507fdb30b317aee5ab110c82d938a60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &gt; &amp;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; EvioNode &gt; &gt; &amp; evio::Reader::getEventNodes</definition>
+        <argsstring>()</argsstring>
+        <name>getEventNodes</name>
+        <briefdescription>
+<para>Get a reference to the list of <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> objects contained in the buffer being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>To be used internally to evio. <simplesect kind="return"><para>list of <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> objects contained in the buffer being read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="315" column="22" bodyfile="src/libsrc/Reader.cpp" bodystart="382" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a3505be0c73b68da9f624e6a99583d2f6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::getCheckRecordNumberSequence</definition>
+        <argsstring>() const</argsstring>
+        <name>getCheckRecordNumberSequence</name>
+        <briefdescription>
+<para>Get whether or not record numbers are enforced to be sequential. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> if record numbers are enforced to be sequential. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="317" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="389" bodyend="389"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a9c0e3949e458d596c1ef80a14715edf4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getNumEventsRemaining</definition>
+        <argsstring>() const</argsstring>
+        <name>getNumEventsRemaining</name>
+        <briefdescription>
+<para>Get the number of events remaining in the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Useful only if doing a sequential read.</para>
+<para><simplesect kind="return"><para>number of events remaining in the file/buffer </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="319" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="398" bodyend="398"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">evio::FileEventIndex::getMaxEvents</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a6ad43feecd285a8d86284332a15c7dad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; uint8_t &gt;</type>
+        <definition>std::shared_ptr&lt; uint8_t &gt; evio::Reader::getNextEvent</definition>
+        <argsstring>(uint32_t *len)</argsstring>
+        <name>getNextEvent</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Get a byte array representing the next event from the file/buffer while sequentially reading. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the previous call was to <ref refid="d3/d56/classevio_1_1_reader_1a75374b81e59321dc8ac75f22a552b890" kindref="member">getPrevEvent</ref>, this will get the event past what that returned. Once the last event is returned, this will return null. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to int that gets filled with the returned event&apos;s len in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>byte array representing the next event or null if there is none. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file/buffer not in hipo format </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="321" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="412" bodyend="441"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">getEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a75374b81e59321dc8ac75f22a552b890" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; uint8_t &gt;</type>
+        <definition>std::shared_ptr&lt; uint8_t &gt; evio::Reader::getPrevEvent</definition>
+        <argsstring>(uint32_t *len)</argsstring>
+        <name>getPrevEvent</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Get a byte array representing the previous event from the sequential queue. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the previous call was to <ref refid="d3/d56/classevio_1_1_reader_1a6ad43feecd285a8d86284332a15c7dad" kindref="member">getNextEvent</ref>, this will get the event previous to what that returned. If this is called before getNextEvent, it will always return null. Once the first event is returned, this will return null. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to int that gets filled with the returned event&apos;s len in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>byte array representing the previous event or null if there is none. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the file/buffer is not in HIPO format </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="322" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="454" bodyend="482"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">getEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a0bf674124c4ad45cf97a4fb96bdcf44d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::Reader::getNextEventNode</definition>
+        <argsstring>()</argsstring>
+        <name>getNextEventNode</name>
+        <briefdescription>
+<para>Get an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> representing the next event from the buffer while sequentially reading. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calling this and calling <ref refid="d3/d56/classevio_1_1_reader_1a6ad43feecd285a8d86284332a15c7dad" kindref="member">getNextEvent()</ref> have the same effect in terms of advancing the same internal counter. If the previous call was to <ref refid="d3/d56/classevio_1_1_reader_1a75374b81e59321dc8ac75f22a552b890" kindref="member">getPrevEvent</ref>, this will get the event past what that returned. Once the last event is returned, this will return null.</para>
+<para><simplesect kind="return"><para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> representing the next event or null if no more events, reading a file or data is compressed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="324" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="495" bodyend="510"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">evio::FileEventIndex::getMaxEvents</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a31e48758d1652e9104bcea1c6b95c2d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Reader::readUserHeader</definition>
+        <argsstring>()</argsstring>
+        <name>readUserHeader</name>
+        <briefdescription>
+<para>Reads user header of the file header/first record header of buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The returned <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> also contains endianness of the file/buffer. <simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing the user header of the file/buffer. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error reading file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="325" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="519" bodyend="550"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a3dcda5bb2237da5621027d3cc3f079ef" compoundref="de/d46/_file_header_8cpp" startline="112" endline="112">evio::FileHeader::getByteOrder</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ab307d9483f8651a997a1848caf0ee3a3" compoundref="de/d46/_file_header_8cpp" startline="210" endline="210">evio::FileHeader::getHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5c09903e37568563ecd71b92fae94188" compoundref="de/d46/_file_header_8cpp" startline="203" endline="203">evio::FileHeader::getIndexLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a2d17cf7044ec110cbfb8ef440f4cd42a" compoundref="de/d46/_file_header_8cpp" startline="182" endline="182">evio::FileHeader::getUserHeaderLength</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; uint8_t &gt;</type>
+        <definition>std::shared_ptr&lt; uint8_t &gt; evio::Reader::getEvent</definition>
+        <argsstring>(uint32_t index, uint32_t *len)</argsstring>
+        <name>getEvent</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Get a byte array representing the specified event from the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If index is out of bounds, null is returned. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of specified event within the entire file/buffer, contiguous starting at 0. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to int that gets filled with the returned event&apos;s len in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>byte array representing the specified event or null if index is out of bounds. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file/buffer not in hipo format </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="327" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="563" bodyend="583"/>
+        <references refid="de/da2/classevio_1_1_record_input_1a7840a207a13cb1bbe312f35fcc0eca2c" compoundref="d6/d35/_record_input_8cpp" startline="749" endline="749">evio::RecordInput::getEntries</references>
+        <references refid="de/da2/classevio_1_1_record_input_1a3fc47d4d9e244aa4aa89d9a1006484ef" compoundref="d6/d35/_record_input_8cpp" startline="254" endline="258">evio::RecordInput::getEvent</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">evio::FileEventIndex::getMaxEvents</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a45985f2f0ac14cba859effb75ad72fe9" compoundref="d4/d07/_file_event_index_8cpp" startline="75" endline="75">evio::FileEventIndex::getRecordEventNumber</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a3ca3ecb9bc534dbd09fc3cd199291cfd" compoundref="d4/d07/_file_event_index_8cpp" startline="67" endline="67">evio::FileEventIndex::getRecordNumber</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a8396556b577deaa8cc017fb69324da92" compoundref="d8/d15/_reader_8cpp" startline="727" endline="743">readRecord</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" compoundref="d4/d07/_file_event_index_8cpp" startline="184" endline="214">evio::FileEventIndex::setEvent</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1ae085af5e0fc6fcfb6a845c00619a83cd" compoundref="d8/d15/_reader_8cpp" startline="632" endline="636">getEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a6ad43feecd285a8d86284332a15c7dad" compoundref="d8/d15/_reader_8cpp" startline="412" endline="441">getNextEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a75374b81e59321dc8ac75f22a552b890" compoundref="d8/d15/_reader_8cpp" startline="454" endline="482">getPrevEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ae2f1d79b0af42a813ced54c2309f9015" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+        <definition>ByteBuffer &amp; evio::Reader::getEvent</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint32_t index)</argsstring>
+        <name>getEvent</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get a byte array representing the specified event from the file/buffer and place it in the given buf. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If no buf is given (arg is null), create a buffer internally and return it. If index is out of bounds, null is returned. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place event data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of specified event within the entire file/buffer, contiguous starting at 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>buf. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file/buffer not in hipo format, if buf has insufficient space to contain event (buf.capacity() &lt; event size), or index too large. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="328" column="21" bodyfile="src/libsrc/Reader.cpp" bodystart="600" bodyend="615"/>
+        <references refid="de/da2/classevio_1_1_record_input_1a7840a207a13cb1bbe312f35fcc0eca2c" compoundref="d6/d35/_record_input_8cpp" startline="749" endline="749">evio::RecordInput::getEntries</references>
+        <references refid="de/da2/classevio_1_1_record_input_1a3fc47d4d9e244aa4aa89d9a1006484ef" compoundref="d6/d35/_record_input_8cpp" startline="254" endline="258">evio::RecordInput::getEvent</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">evio::FileEventIndex::getMaxEvents</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a45985f2f0ac14cba859effb75ad72fe9" compoundref="d4/d07/_file_event_index_8cpp" startline="75" endline="75">evio::FileEventIndex::getRecordEventNumber</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a3ca3ecb9bc534dbd09fc3cd199291cfd" compoundref="d4/d07/_file_event_index_8cpp" startline="67" endline="67">evio::FileEventIndex::getRecordNumber</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a8396556b577deaa8cc017fb69324da92" compoundref="d8/d15/_reader_8cpp" startline="727" endline="743">readRecord</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" compoundref="d4/d07/_file_event_index_8cpp" startline="184" endline="214">evio::FileEventIndex::setEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ae085af5e0fc6fcfb6a845c00619a83cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Reader::getEvent</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, uint32_t index)</argsstring>
+        <name>getEvent</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get a byte array representing the specified event from the file/buffer and place it in the given buf. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If no buf is given (arg is null), create a buffer internally and return it. If index is out of bounds, null is returned. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place event data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of specified event within the entire file/buffer, contiguous starting at 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>buf or null if buf is null. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file/buffer not in hipo format, if buf has insufficient space to contain event (buf.capacity() &lt; event size), or index too large. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="329" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="632" bodyend="636"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">getEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a5cac5c4702dec37c7ba7807421583da8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getEventLength</definition>
+        <argsstring>(uint32_t index)</argsstring>
+        <name>getEventLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Returns the length of the event with given index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of the event </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>length of the data in bytes or zero if index does not correspond to a valid event. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="330" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="645" bodyend="663"/>
+        <references refid="de/da2/classevio_1_1_record_input_1a7840a207a13cb1bbe312f35fcc0eca2c" compoundref="d6/d35/_record_input_8cpp" startline="749" endline="749">evio::RecordInput::getEntries</references>
+        <references refid="de/da2/classevio_1_1_record_input_1aa00b2a5e045dcb0dda304b658d97ed26" compoundref="d6/d35/_record_input_8cpp" startline="224" endline="238">evio::RecordInput::getEventLength</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">evio::FileEventIndex::getMaxEvents</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a45985f2f0ac14cba859effb75ad72fe9" compoundref="d4/d07/_file_event_index_8cpp" startline="75" endline="75">evio::FileEventIndex::getRecordEventNumber</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a3ca3ecb9bc534dbd09fc3cd199291cfd" compoundref="d4/d07/_file_event_index_8cpp" startline="67" endline="67">evio::FileEventIndex::getRecordNumber</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a8396556b577deaa8cc017fb69324da92" compoundref="d8/d15/_reader_8cpp" startline="727" endline="743">readRecord</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1aee78f211f79c1ed181019e65e1e55485" compoundref="d4/d07/_file_event_index_8cpp" startline="184" endline="214">evio::FileEventIndex::setEvent</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a3a9cb8a3d521076ba625233e60924fa6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::Reader::getEventNode</definition>
+        <argsstring>(uint32_t index)</argsstring>
+        <name>getEventNode</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> representing the specified event from the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If index is out of bounds, nullptr is returned. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of specified event within the entire buffer, starting at 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> representing the specified event or null if index is out of bounds, reading a file or data is compressed. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index too large or reading from file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="331" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="675" bodyend="683"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a61558272861e209f8a3603777a6b10ec" compoundref="d4/d07/_file_event_index_8cpp" startline="82" endline="84">evio::FileEventIndex::getMaxEvents</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a696dbddadc545a386faf9e2b1a97c323" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="129" endline="136">evio::EvioCompactReaderV6::getEvent</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ab71ba09770614343d962c9c55cad24a5" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="335" endline="355">evio::EvioCompactReaderV6::getEventBuffer</referencedby>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1ae8f3f4ced78563fea3e3be533f7c0486" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="259" endline="278">evio::EvioCompactReaderV6::removeEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a5c5dc5c459a924ac7a9f5b7568416553" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::hasNext</definition>
+        <argsstring>() const</argsstring>
+        <name>hasNext</name>
+        <briefdescription>
+<para>Checks if the file has an event to read next. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if the next event is available, false otherwise </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="333" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="690" bodyend="690"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a17b9ddcffc2fac25bbe7acd08b8fba14" compoundref="d4/d07/_file_event_index_8cpp" startline="91" endline="94">evio::FileEventIndex::canAdvance</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a80a9286f898d8377ca8147f65e1c9ba6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::hasPrev</definition>
+        <argsstring>() const</argsstring>
+        <name>hasPrev</name>
+        <briefdescription>
+<para>Checks if the stream has previous event to be accessed through, <ref refid="d3/d56/classevio_1_1_reader_1a75374b81e59321dc8ac75f22a552b890" kindref="member">getPrevEvent()</ref> </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if previous event is accessible, false otherwise </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="334" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="697" bodyend="697"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a1493f1dc0dc3a0786597f7c10bf73826" compoundref="d4/d07/_file_event_index_8cpp" startline="136" endline="136">evio::FileEventIndex::canRetreat</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ac96bfa4922dce74d379ca204abb2001b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getRecordEventCount</definition>
+        <argsstring>() const</argsstring>
+        <name>getRecordEventCount</name>
+        <briefdescription>
+<para>Get the number of events in current record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>number of events in current record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="336" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="704" bodyend="704"/>
+        <references refid="de/da2/classevio_1_1_record_input_1a7840a207a13cb1bbe312f35fcc0eca2c" compoundref="d6/d35/_record_input_8cpp" startline="749" endline="749">evio::RecordInput::getEntries</references>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a33564511c3eca188b121c6da3ecf34ee" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::Reader::getCurrentRecord</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentRecord</name>
+        <briefdescription>
+<para>Get the index of the current record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>index of the current record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="337" column="18" bodyfile="src/libsrc/Reader.cpp" bodystart="711" bodyend="711"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a686feebf1b15f63bdc008c8892904d3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="de/da2/classevio_1_1_record_input" kindref="compound">RecordInput</ref> &amp;</type>
+        <definition>RecordInput &amp; evio::Reader::getCurrentRecordStream</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRecordStream</name>
+        <briefdescription>
+<para>Get the current record stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>current record stream. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="338" column="22" bodyfile="src/libsrc/Reader.cpp" bodystart="718" bodyend="718"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a8396556b577deaa8cc017fb69324da92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::Reader::readRecord</definition>
+        <argsstring>(uint32_t index)</argsstring>
+        <name>readRecord</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Reads record from the file/buffer at the given record index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>record index (starting at 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid index and successful reading record, else false. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file/buffer not in hipo format </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="339" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="727" bodyend="743"/>
+        <references refid="de/da2/classevio_1_1_record_input_1a8bfee12a45ae1f40be0048c1a9044a07" compoundref="d6/d35/_record_input_8cpp" startline="419" endline="505">evio::RecordInput::readRecord</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" compoundref="d8/d15/_reader_8cpp" startline="563" endline="583">getEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a5cac5c4702dec37c7ba7807421583da8" compoundref="d8/d15/_reader_8cpp" startline="645" endline="663">getEventLength</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ae81ead1409e411a9445d18a32c633156" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::extractDictionaryAndFirstEvent</definition>
+        <argsstring>()</argsstring>
+        <name>extractDictionaryAndFirstEvent</name>
+        <briefdescription>
+<para>Extract dictionary and first event from file/buffer if possible, else do nothing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="344" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="747" bodyend="758"/>
+        <references refid="d3/d56/classevio_1_1_reader_1a9be6c85f5fc872e5e47e13d5c34555a3" compoundref="d8/d15/_reader_8cpp" startline="762" endline="814">extractDictionaryFromBuffer</references>
+        <references refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" compoundref="d8/d15/_reader_8cpp" startline="818" endline="872">extractDictionaryFromFile</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1ae935304efa5fa7fbb733f840ebd8638f" compoundref="d8/d15/_reader_8cpp" startline="296" endline="300">getDictionary</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1ad8e3f6d09dfcb8dfa3f0b826840d661b" compoundref="d8/d15/_reader_8cpp" startline="322" endline="329">getFirstEvent</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1ada7e085359156352c43eafd1a9dca017" compoundref="d8/d15/_reader_8cpp" startline="336" endline="340">getFirstEventSize</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a9be6c85f5fc872e5e47e13d5c34555a3" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::extractDictionaryFromBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>extractDictionaryFromBuffer</name>
+        <briefdescription>
+<para>Extract dictionary and first event from buffer if possible, else do nothing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="345" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="762" bodyend="814"/>
+        <references refid="de/da2/classevio_1_1_record_input_1a3fc47d4d9e244aa4aa89d9a1006484ef" compoundref="d6/d35/_record_input_8cpp" startline="254" endline="258">evio::RecordInput::getEvent</references>
+        <references refid="de/da2/classevio_1_1_record_input_1a8bfee12a45ae1f40be0048c1a9044a07" compoundref="d6/d35/_record_input_8cpp" startline="419" endline="505">evio::RecordInput::readRecord</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1ae81ead1409e411a9445d18a32c633156" compoundref="d8/d15/_reader_8cpp" startline="747" endline="758">extractDictionaryAndFirstEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::extractDictionaryFromFile</definition>
+        <argsstring>()</argsstring>
+        <name>extractDictionaryFromFile</name>
+        <briefdescription>
+<para>Extract dictionary and first event from file if possible, else do nothing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="346" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="818" bodyend="872"/>
+        <references refid="d1/da6/classevio_1_1_file_header_1a3dcda5bb2237da5621027d3cc3f079ef" compoundref="de/d46/_file_header_8cpp" startline="112" endline="112">evio::FileHeader::getByteOrder</references>
+        <references refid="de/da2/classevio_1_1_record_input_1a3fc47d4d9e244aa4aa89d9a1006484ef" compoundref="d6/d35/_record_input_8cpp" startline="254" endline="258">evio::RecordInput::getEvent</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ab307d9483f8651a997a1848caf0ee3a3" compoundref="de/d46/_file_header_8cpp" startline="210" endline="210">evio::FileHeader::getHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5c09903e37568563ecd71b92fae94188" compoundref="de/d46/_file_header_8cpp" startline="203" endline="203">evio::FileHeader::getIndexLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a2d17cf7044ec110cbfb8ef440f4cd42a" compoundref="de/d46/_file_header_8cpp" startline="182" endline="182">evio::FileHeader::getUserHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a9267f205919e107f08d268e4ffc92e1e" compoundref="de/d46/_file_header_8cpp" startline="368" endline="379">evio::FileHeader::hasDictionary</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a55417ae68a5f938e25bac2673c88e36c" compoundref="de/d46/_file_header_8cpp" startline="334" endline="345">evio::FileHeader::hasFirstEvent</references>
+        <references refid="de/da2/classevio_1_1_record_input_1a8bfee12a45ae1f40be0048c1a9044a07" compoundref="d6/d35/_record_input_8cpp" startline="419" endline="505">evio::RecordInput::readRecord</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1ae81ead1409e411a9445d18a32c633156" compoundref="d8/d15/_reader_8cpp" startline="747" endline="758">extractDictionaryAndFirstEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::Reader::scanBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>scanBuffer</name>
+        <briefdescription>
+<para>This method scans a buffer to find all records and store their position, length, and event count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It also finds all events and creates &amp; stores their associated <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> objects. The difficulty with doing this is that the buffer may contain compressed data. It must then be uncompressed into a different buffer.</para>
+<para><simplesect kind="return"><para>buffer containing uncompressed data. This buffer is different than the internal buffer. Ready to read. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if buffer not in the proper format or earlier than version 6; if checkRecordNumberSequence is true and records are out of sequence. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="355" column="25" bodyfile="src/libsrc/Reader.cpp" bodystart="1049" bodyend="1249"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a57e4929eec1b82fccce0a34a163fa11e" compoundref="d4/d07/_file_event_index_8cpp" startline="40" endline="49">evio::FileEventIndex::addEventSize</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1abf7abf99aa7544601997f40eba298648" compoundref="d4/d6c/_byte_buffer_8cpp" startline="490" endline="490">evio::ByteBuffer::arrayOffset</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a8ef8d2866a105a8b4973aa208f5162b8" compoundref="d4/d07/_file_event_index_8cpp" startline="18" endline="21">evio::FileEventIndex::clear</references>
+        <references refid="df/dd8/classevio_1_1_header_type_1a2b01085c1ea7b23010e4cb4447f2d04a" compoundref="d5/d98/_header_type_8h" startline="36">evio::HeaderType::EVIO_RECORD</references>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a4729f50cfe20a7e7672fdd1bbe4a366c" compoundref="d9/d45/_evio_node_8cpp" startline="394" endline="407">evio::EvioNode::extractEventNode</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac0fff5d178b4f360080891fb9079d469" compoundref="dd/d2d/_record_header_8cpp" startline="264" endline="264">evio::RecordHeader::getByteOrder</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a850be1f267c82ff109e5db4ac59522a3" compoundref="dd/d2d/_record_header_8cpp" startline="292" endline="292">evio::RecordHeader::getEntries</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0221831e904860de343cfa2fcbe05f2c" compoundref="dd/d2d/_record_header_8cpp" startline="369" endline="369">evio::RecordHeader::getHeaderLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac33a0f8082aa36f0e8fd2562d82e647a" compoundref="dd/d2d/_record_header_8cpp" startline="278" endline="278">evio::RecordHeader::getLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a622ecbac309d428a1e9a916827e1b112" compoundref="dd/d2d/_record_header_8cpp" startline="383" endline="383">evio::RecordHeader::getRecordNumber</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ace2be836d16a4e4b58df6a6059d378b2" compoundref="dd/d2d/_record_header_8cpp" startline="240" endline="243">evio::RecordHeader::getUncompressedRecordLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac6ce4d8a602fe70693a80435ed6f1361" compoundref="dd/d2d/_record_header_8cpp" startline="320" endline="320">evio::RecordHeader::getVersion</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" compoundref="d6/dea/_record_header_8h" startline="127">evio::RecordHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1af29b64992fcd30c456db80719c56a60f" compoundref="dd/d2d/_record_header_8cpp" startline="688" endline="688">evio::RecordHeader::isCompressed</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1adb2fa395660e3d9656ef5ae91e12b4be" compoundref="dd/d2d/_record_header_8cpp" startline="647" endline="658">evio::RecordHeader::isLastRecord</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a88f84e6b1757db70542eac13294fc80e" compoundref="d4/d6c/_byte_buffer_8cpp" startline="518" endline="518">evio::ByteBuffer::position</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a703075aab48cc798dbccc8cb14d74725" compoundref="d8/d15/_reader_8cpp" startline="1259" endline="1394">scanUncompressedBuffer</references>
+        <references refid="de/da2/classevio_1_1_record_input_1a1a9f105120b8118fedd4ab43d502f1fa" compoundref="d6/d35/_record_input_8cpp" startline="616" endline="620">evio::RecordInput::uncompressRecord</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a4a03589aaecd0cb9c819dec50ccbc132" compoundref="d8/d15/_reader_8cpp" startline="65" endline="81">Reader</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a74ecfb216487866c7a3ddd6e5c8b153b" compoundref="d8/d15/_reader_8cpp" startline="1758" endline="1837">addStructure</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a20dccea3833e50fdeebbae49ab787fde" compoundref="d8/d15/_reader_8cpp" startline="1634" endline="1727">removeStructure</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a1bacb79593e55b32cd9749d14fea8b59" compoundref="d8/d15/_reader_8cpp" startline="170" endline="210">setBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a703075aab48cc798dbccc8cb14d74725" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::scanUncompressedBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>scanUncompressedBuffer</name>
+        <briefdescription>
+<para>Scan buffer containing uncompressed data to find all records and store their position, length, and event count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Also finds all events and creates &amp; stores their associated <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> objects. <parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if buffer too small, not in the proper format, or earlier than version 6; if checkRecordNumberSequence is true and records are out of sequence. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="356" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="1259" bodyend="1394"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a57e4929eec1b82fccce0a34a163fa11e" compoundref="d4/d07/_file_event_index_8cpp" startline="40" endline="49">evio::FileEventIndex::addEventSize</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a8ef8d2866a105a8b4973aa208f5162b8" compoundref="d4/d07/_file_event_index_8cpp" startline="18" endline="21">evio::FileEventIndex::clear</references>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a4729f50cfe20a7e7672fdd1bbe4a366c" compoundref="d9/d45/_evio_node_8cpp" startline="394" endline="407">evio::EvioNode::extractEventNode</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac0fff5d178b4f360080891fb9079d469" compoundref="dd/d2d/_record_header_8cpp" startline="264" endline="264">evio::RecordHeader::getByteOrder</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1aba16ed1ed865333327bf64ad53d09e76" compoundref="dd/d2d/_record_header_8cpp" startline="299" endline="299">evio::RecordHeader::getCompressionType</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a850be1f267c82ff109e5db4ac59522a3" compoundref="dd/d2d/_record_header_8cpp" startline="292" endline="292">evio::RecordHeader::getEntries</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0221831e904860de343cfa2fcbe05f2c" compoundref="dd/d2d/_record_header_8cpp" startline="369" endline="369">evio::RecordHeader::getHeaderLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1af943f7595eb02bbbb769a27ccc8f5aa4" compoundref="dd/d2d/_record_header_8cpp" startline="341" endline="341">evio::RecordHeader::getIndexLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac33a0f8082aa36f0e8fd2562d82e647a" compoundref="dd/d2d/_record_header_8cpp" startline="278" endline="278">evio::RecordHeader::getLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a622ecbac309d428a1e9a916827e1b112" compoundref="dd/d2d/_record_header_8cpp" startline="383" endline="383">evio::RecordHeader::getRecordNumber</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a84ab13deb24469bc81dba390eeb72577" compoundref="dd/d2d/_record_header_8cpp" startline="313" endline="313">evio::RecordHeader::getUserHeaderLengthWords</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac6ce4d8a602fe70693a80435ed6f1361" compoundref="dd/d2d/_record_header_8cpp" startline="320" endline="320">evio::RecordHeader::getVersion</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" compoundref="d6/dea/_record_header_8h" startline="127">evio::RecordHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac212a9e36880e2bdcb107cbe5101b50a" compoundref="dd/d2d/_record_header_8cpp" startline="1330" endline="1399">evio::RecordHeader::readHeader</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">evio::Compressor::UNCOMPRESSED</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">scanBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::forceScanFile</definition>
+        <argsstring>()</argsstring>
+        <name>forceScanFile</name>
+        <briefdescription>
+<para>Scan file to find all records and store their position, length, and event count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Safe to call this method successively. <parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error reading file </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file is not in the proper format or earlier than version 6; if checkRecordNumberSequence is true and records are out of sequence. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="357" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="1404" bodyend="1480"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a57e4929eec1b82fccce0a34a163fa11e" compoundref="d4/d07/_file_event_index_8cpp" startline="40" endline="49">evio::FileEventIndex::addEventSize</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a8ef8d2866a105a8b4973aa208f5162b8" compoundref="d4/d07/_file_event_index_8cpp" startline="18" endline="21">evio::FileEventIndex::clear</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a3dcda5bb2237da5621027d3cc3f079ef" compoundref="de/d46/_file_header_8cpp" startline="112" endline="112">evio::FileHeader::getByteOrder</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a850be1f267c82ff109e5db4ac59522a3" compoundref="dd/d2d/_record_header_8cpp" startline="292" endline="292">evio::RecordHeader::getEntries</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ab307d9483f8651a997a1848caf0ee3a3" compoundref="de/d46/_file_header_8cpp" startline="210" endline="210">evio::FileHeader::getHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5c09903e37568563ecd71b92fae94188" compoundref="de/d46/_file_header_8cpp" startline="203" endline="203">evio::FileHeader::getIndexLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac33a0f8082aa36f0e8fd2562d82e647a" compoundref="dd/d2d/_record_header_8cpp" startline="278" endline="278">evio::RecordHeader::getLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a622ecbac309d428a1e9a916827e1b112" compoundref="dd/d2d/_record_header_8cpp" startline="383" endline="383">evio::RecordHeader::getRecordNumber</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a2d17cf7044ec110cbfb8ef440f4cd42a" compoundref="de/d46/_file_header_8cpp" startline="182" endline="182">evio::FileHeader::getUserHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ac3b2d21a621f65578bf76c61e9fd0816" compoundref="de/d46/_file_header_8cpp" startline="226" endline="226">evio::FileHeader::getUserHeaderLengthPadding</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ac7d8b3b526c36a94f32c584129084d26" compoundref="de/d46/_file_header_8cpp" startline="196" endline="196">evio::FileHeader::getVersion</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" compoundref="d6/dea/_record_header_8h" startline="127">evio::RecordHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">evio::FileHeader::readHeader</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac212a9e36880e2bdcb107cbe5101b50a" compoundref="dd/d2d/_record_header_8cpp" startline="1330" endline="1399">evio::RecordHeader::readHeader</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">evio::Compressor::UNCOMPRESSED</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" compoundref="d8/d15/_reader_8cpp" startline="1491" endline="1619">scanFile</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::scanFile</definition>
+        <argsstring>(bool force)</argsstring>
+        <name>scanFile</name>
+        <param>
+          <type>bool</type>
+          <declname>force</declname>
+        </param>
+        <briefdescription>
+<para>Scans the file to index all the record positions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It takes advantage of any existing indexes in file. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>force</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, force a file scan even if header or trailer have index info. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>IOException</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error reading file </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if file is not in the proper format or earlier than version 6 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="358" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="1491" bodyend="1619"/>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a57e4929eec1b82fccce0a34a163fa11e" compoundref="d4/d07/_file_event_index_8cpp" startline="40" endline="49">evio::FileEventIndex::addEventSize</references>
+        <references refid="df/dbf/classevio_1_1_file_event_index_1a8ef8d2866a105a8b4973aa208f5162b8" compoundref="d4/d07/_file_event_index_8cpp" startline="18" endline="21">evio::FileEventIndex::clear</references>
+        <references refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" compoundref="d8/d15/_reader_8cpp" startline="1404" endline="1480">forceScanFile</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a3dcda5bb2237da5621027d3cc3f079ef" compoundref="de/d46/_file_header_8cpp" startline="112" endline="112">evio::FileHeader::getByteOrder</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ab307d9483f8651a997a1848caf0ee3a3" compoundref="de/d46/_file_header_8cpp" startline="210" endline="210">evio::FileHeader::getHeaderLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a5c09903e37568563ecd71b92fae94188" compoundref="de/d46/_file_header_8cpp" startline="203" endline="203">evio::FileHeader::getIndexLength</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1af943f7595eb02bbbb769a27ccc8f5aa4" compoundref="dd/d2d/_record_header_8cpp" startline="341" endline="341">evio::RecordHeader::getIndexLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a01c1f92000c5a0f3b2f11b0c0e5e3a74" compoundref="de/d46/_file_header_8cpp" startline="218" endline="218">evio::FileHeader::getLength</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ae74a6ac13dcc45024e5db04491d96841" compoundref="de/d46/_file_header_8cpp" startline="147" endline="147">evio::FileHeader::getTrailerPosition</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ac7d8b3b526c36a94f32c584129084d26" compoundref="de/d46/_file_header_8cpp" startline="196" endline="196">evio::FileHeader::getVersion</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a34cb81cab9f49ec663cd083c4133747f" compoundref="de/d46/_file_header_8cpp" startline="446" endline="446">evio::FileHeader::hasIndex</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a893b59302d5f0b77733da2deb85e15b8" compoundref="de/d46/_file_header_8cpp" startline="402" endline="413">evio::FileHeader::hasTrailerWithIndex</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">evio::FileHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" compoundref="d6/dea/_record_header_8h" startline="127">evio::RecordHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a14eee9e0d70573180ed3556216969a07" compoundref="de/d46/_file_header_8cpp" startline="633" endline="690">evio::FileHeader::readHeader</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac212a9e36880e2bdcb107cbe5101b50a" compoundref="dd/d2d/_record_header_8cpp" startline="1330" endline="1399">evio::RecordHeader::readHeader</references>
+        <references refid="d3/d87/classevio_1_1_util_1a61734ea9adbf63b8497fe36864c46a00" compoundref="dd/d90/_util_8h" startline="133" endline="143">evio::Util::toIntArray</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">evio::Compressor::UNCOMPRESSED</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a0df29efd8d9ef6c8e41ab8c12c642da8" compoundref="d8/d15/_reader_8cpp" startline="46" endline="49">Reader</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a783002c7c34ba467b9880ec4bd66158d" compoundref="d8/d15/_reader_8cpp" startline="92" endline="125">open</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a74ecfb216487866c7a3ddd6e5c8b153b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; &amp; evio::Reader::addStructure</definition>
+        <argsstring>(uint32_t eventNumber, ByteBuffer &amp;addBuffer)</argsstring>
+        <name>addStructure</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>eventNumber</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>addBuffer</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an evio container (bank, segment, or tag segment) as the last structure contained in an event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It is the responsibility of the caller to make sure that the buffer argument contains valid evio data (only data representing the structure to be added - not in file format with record header and the like) which is compatible with the type of data stored in the given event.</para>
+<para>To produce such evio data use <ref refid="d9/ddd/classevio_1_1_base_structure_1a216a3d4858d6280df0f42d397b2759dc" kindref="member">EvioBank#write(ByteBuffer &amp;)</ref>, <ref refid="d9/ddd/classevio_1_1_base_structure_1a216a3d4858d6280df0f42d397b2759dc" kindref="member">EvioSegment#write(ByteBuffer &amp;)</ref> or <ref refid="d9/ddd/classevio_1_1_base_structure_1a216a3d4858d6280df0f42d397b2759dc" kindref="member">EvioTagSegment#write(ByteBuffer &amp;)</ref> depending on whether a bank, seg, or tagseg is being added.</para>
+<para>The given buffer argument must be ready to read with its position and limit defining the limits of the data to copy.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eventNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of event to which addBuffer is to be added </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing evio data to add (<bold>not</bold> evio file format, i.e. no record headers) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a new <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> object which is created and filled with all the data including what was just added. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if eventNumber out of bounds; if addBuffer arg is empty or has non-evio format; if addBuffer is opposite endian to current event buffer; if added data is not the proper length (i.e. multiple of 4 bytes); if the event number does not correspond to an existing event; if there is an internal programming error; if object closed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="365" column="26" bodyfile="src/libsrc/Reader.cpp" bodystart="1758" bodyend="1837"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">scanBuffer</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1aa8e92627a8294434d3e4762fd42e4dff" compoundref="d6/dea/_record_header_8h" startline="150">evio::RecordHeader::UNCOMPRESSED_LENGTH_OFFSET</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1a1f3c9c9126189dedf2380861a9bd21b9" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="288" endline="290">evio::EvioCompactReaderV6::addStructure</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a20dccea3833e50fdeebbae49ab787fde" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; &amp; evio::Reader::removeStructure</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;removeNode)</argsstring>
+        <name>removeStructure</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>removeNode</declname>
+        </param>
+        <briefdescription>
+<para>This method removes the data, represented by the given node, from the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It also marks all nodes taken from that buffer as obsolete. They must not be used anymore.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>removeNode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>evio structure to remove from buffer </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> updated to reflect the node removal </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if object closed; if node was not found in any event; if internal programming error; if buffer has compressed data; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="366" column="26" bodyfile="src/libsrc/Reader.cpp" bodystart="1634" bodyend="1727"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">scanBuffer</references>
+        <references refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" compoundref="dc/d17/_compressor_8h" startline="66">evio::Compressor::UNCOMPRESSED</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1aa8e92627a8294434d3e4762fd42e4dff" compoundref="d6/dea/_record_header_8h" startline="150">evio::RecordHeader::UNCOMPRESSED_LENGTH_OFFSET</references>
+        <referencedby refid="dd/d94/classevio_1_1_evio_compact_reader_v6_1aed6b963403e2b393a3b1a2979e004525" compoundref="d4/d08/_evio_compact_reader_v6_8cpp" startline="282" endline="284">evio::EvioCompactReaderV6::removeStructure</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1af41649b4f4ede403e3bf180e21e1f213" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::show</definition>
+        <argsstring>() const</argsstring>
+        <name>show</name>
+        <briefdescription>
+<para>Print out all record position information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="368" column="14" bodyfile="src/libsrc/Reader.cpp" bodystart="1841" bodyend="1846"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-static-func">
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1a4f2b8719299dfbe6baa2e5e5c23f558d" prot="protected" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::findRecordInfo</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, uint32_t offset, uint32_t *info, uint32_t infoLen)</argsstring>
+        <name>findRecordInfo</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>infoLen</declname>
+        </param>
+        <briefdescription>
+<para>Reads data from a record header in order to determine things like the bitInfo word, various lengths, etc. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Does <bold>not</bold> change the position or limit of buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing evio header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte offset into buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array in which to store header info. Elements are: <orderedlist>
+<listitem>
+<para>bit info word </para>
+</listitem>
+<listitem>
+<para>record length in bytes (inclusive) </para>
+</listitem>
+<listitem>
+<para>compression type </para>
+</listitem>
+<listitem>
+<para>header length in bytes </para>
+</listitem>
+<listitem>
+<para>index array length in bytes </para>
+</listitem>
+<listitem>
+<para>user header length in bytes (no padding included)  </para>
+</listitem>
+<listitem>
+<para>uncompressed data length in bytes (no padding, w/o record header) </para>
+</listitem>
+</orderedlist>
+</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>infoLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>len in 32-bit words of array at info. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>null info arg or info.length &lt; 7. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="349" column="21" bodyfile="src/libsrc/Reader.cpp" bodystart="899" bodyend="902"/>
+      </memberdef>
+      <memberdef kind="function" id="d3/d56/classevio_1_1_reader_1ab9934d70bae0210536661c0a478dee03" prot="protected" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::Reader::findRecordInfo</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint32_t offset, uint32_t *info, uint32_t infoLen)</argsstring>
+        <name>findRecordInfo</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>infoLen</declname>
+        </param>
+        <briefdescription>
+<para>Reads data from a record header in order to determine things like the bitInfo word, various lengths, etc. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Does <bold>not</bold> change the position or limit of buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing evio header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte offset into buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array in which to store header info. Elements are: <orderedlist>
+<listitem>
+<para>bit info word </para>
+</listitem>
+<listitem>
+<para>record length in bytes (inclusive) </para>
+</listitem>
+<listitem>
+<para>compression type </para>
+</listitem>
+<listitem>
+<para>header length in bytes </para>
+</listitem>
+<listitem>
+<para>index array length in bytes </para>
+</listitem>
+<listitem>
+<para>user header length in bytes (no padding included)  </para>
+</listitem>
+<listitem>
+<para>uncompressed data length in bytes (no padding, w/o record header) </para>
+</listitem>
+</orderedlist>
+</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>infoLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>len in 32-bit words of array at info. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>null info arg or info.length &lt; 7. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/Reader.h" line="351" column="21" bodyfile="src/libsrc/Reader.cpp" bodystart="926" bodyend="955"/>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac420593fe475899308138f3bd98e5f38" compoundref="d6/dea/_record_header_8h" startline="144">evio::RecordHeader::BIT_INFO_OFFSET</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a6496a99b06b5ed67b8c93b148fd87323" compoundref="d4/d6c/_byte_buffer_8cpp" startline="504" endline="504">evio::ByteBuffer::capacity</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a588247cf4b37ae9e2f35912cd2b7aae5" compoundref="d6/dea/_record_header_8h" startline="152">evio::RecordHeader::COMPRESSION_TYPE_OFFSET</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ae5d68743951ae65bd72a1477a728993c" compoundref="d6/dea/_record_header_8h" startline="140">evio::RecordHeader::EVENT_COUNT_OFFSET</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1aed99e247427969d1e27670edea24f0e2" compoundref="d6/dea/_record_header_8h" startline="138">evio::RecordHeader::HEADER_LENGTH_OFFSET</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a1b0ce8aa63d88b861fca36a5561c7122" compoundref="d6/dea/_record_header_8h" startline="142">evio::RecordHeader::INDEX_ARRAY_OFFSET</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a58e2767d98597e040d5640e4c288b90c" compoundref="d6/dea/_record_header_8h" startline="134">evio::RecordHeader::RECORD_LENGTH_OFFSET</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1aa8e92627a8294434d3e4762fd42e4dff" compoundref="d6/dea/_record_header_8h" startline="150">evio::RecordHeader::UNCOMPRESSED_LENGTH_OFFSET</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a37f1b0d0b94e58f9015204f675bbd3f8" compoundref="d6/dea/_record_header_8h" startline="146">evio::RecordHeader::USER_LENGTH_OFFSET</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="d3/d56/classevio_1_1_reader" kindref="compound">Reader</ref> class that reads files stored in the HIPO format. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><preformatted>
+File has this structure:</preformatted></para>
+<para><preformatted>   +----------------------------------+
+   |      General File Header         |
+   +----------------------------------+
+   +----------------------------------+
+   |         Index (optional)         |
+   +----------------------------------+
+   +----------------------------------+
+   |     User Header (optional)       |
+   +----------------------------------+
+   +----------------------------------+
+   |                                  |
+   |            Record 1              |
+   |                                  |
+   |                                  |
+   |                                  |
+   +----------------------------------+
+                  ...
+   +----------------------------------+
+   |                                  |
+   |            Record N              |
+   |                                  |
+   |                                  |
+   |                                  |
+   +----------------------------------+
+   +----------------------------------+
+   |       Trailer (optional)         |
+   +----------------------------------+
+   +----------------------------------+
+   |    Trailer&apos;s Index (optional)    |
+   +----------------------------------+</preformatted></para>
+<para><preformatted>Buffer or streamed data has this structure:</preformatted></para>
+<para><preformatted>   +----------------------------------+
+   |                                  |
+   |            Record 1              |
+   |                                  |
+   |                                  |
+   |                                  |
+   +----------------------------------+
+                  ...
+   +----------------------------------+
+   |                                  |
+   |            Record N              |
+   |                                  |
+   |                                  |
+   |                                  |
+   +----------------------------------+
+   +----------------------------------+
+   |       Trailer (optional)         |
+   +----------------------------------+</preformatted></para>
+<para><preformatted>The important thing with a buffer or streaming is for the last header or
+trailer to set the &quot;last record&quot; bit.</preformatted></para>
+<para><preformatted></preformatted></para>
+<para>Something to keep in mind is one can intersperse sequential calls (getNextEvent, getPrevEvent, or getNextEventNode) with random access calls (getEvent or getEventNode), and the sequence remains unchanged after the random access.</para>
+<para><simplesect kind="version"><para>6.0 </para>
+</simplesect>
+<simplesect kind="since"><para>6.0 08/10/2017 </para>
+</simplesect>
+<simplesect kind="author"><para>gavalian (original Java) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="d1/da6/classevio_1_1_file_header" kindref="compound">FileHeader</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="de/da2/classevio_1_1_record_input" kindref="compound">RecordInput</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/Reader.h" line="117" column="5" bodyfile="src/libsrc/Reader.h" bodystart="117" bodyend="372"/>
+    <listofallmembers>
+      <member refid="d3/d56/classevio_1_1_reader_1a74ecfb216487866c7a3ddd6e5c8b153b" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>addStructure</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1adba293be1d67b02476a0a9cb9c1798d0" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>buffer</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1aa55146aabfccd0810492cce3a568c4d2" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>bufferLimit</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1af52801d9812f03dec9d09cb9d55bd0a0" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>bufferOffset</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1abd4490538d89f866a685a5e0fa33b523" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>byteOrder</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a592411a22102f11045033699cdc48878" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>checkRecordNumberSequence</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1afb6253fb80cafdffe93063710dc68f89" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>close</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a221fd1d32910b9a40435ffbd5249c38a" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>closed</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a210732e5e18a83a993101e656f47e1c5" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>compressed</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ab3519d09f2ad77aabe385a6f9788e996" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>currentRecordLoaded</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a277472b153c8fe1b6d4de68fb42f0854" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>dictionaryXML</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a02d632d85f65900c0f944d444a8baac2" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>eventIndex</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a021a0f406fda6b66acad8cf17eaf68d5" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>eventNodes</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a32f95a8849a0400219cb3f9d977dd9b9" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>EvioCompactReaderV6</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ae3a86f30ca8fd2d56bc694b8796a4085" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>evioFormat</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a89917cd2693549dfea6762375a291d30" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>evioVersion</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ae81ead1409e411a9445d18a32c633156" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>extractDictionaryAndFirstEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a9be6c85f5fc872e5e47e13d5c34555a3" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>extractDictionaryFromBuffer</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1afaa4a188742e9090fe9be391ce5f3731" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>extractDictionaryFromFile</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a0bf16c2e0760c33ef05298d2ca1f7c58" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>fileHeader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a9e36cfed2aeff5ad4dd95811bbdc80c6" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>fileName</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a9153b0030be4841ae1f1b7f309ff41a1" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>fileSize</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a4f2b8719299dfbe6baa2e5e5c23f558d" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>findRecordInfo</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ab9934d70bae0210536661c0a478dee03" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>findRecordInfo</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a8d383a10eb8effd27f42e4699cff9595" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>firstEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a0f7cc027967ec9ae0b20262f810ec709" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>firstEventSize</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ac0d6ca5729e4ffd7618f6245de7a7ecc" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>firstRecordHeader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1aa9102d8facfed74bd17872cb452be8e8" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>forceScanFile</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a8b2ce62bf302a600fa67c405a4d068cf" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>fromFile</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1af9578b8e07c84e052426e3726f81b48d" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getBuffer</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a19a502d28bf5b95c174c748893402cc7" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getBufferOffset</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a50b31893d43ec1ac9711446da39641f4" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getByteOrder</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a3505be0c73b68da9f624e6a99583d2f6" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getCheckRecordNumberSequence</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a33564511c3eca188b121c6da3ecf34ee" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getCurrentRecord</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a686feebf1b15f63bdc008c8892904d3f" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getCurrentRecordStream</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ae935304efa5fa7fbb733f840ebd8638f" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getDictionary</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a124946e794a7b252fc41b6edd7f3f982" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ae2f1d79b0af42a813ced54c2309f9015" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ae085af5e0fc6fcfb6a845c00619a83cd" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a8f81445d73ac7fd45acb9fb42ac4c19e" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getEventCount</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a5cac5c4702dec37c7ba7807421583da8" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getEventLength</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a3a9cb8a3d521076ba625233e60924fa6" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getEventNode</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1af507fdb30b317aee5ab110c82d938a60" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getEventNodes</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a8845c561180e09fee8da6b0edc17fd0a" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getFileHeader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a43f2552cf046588eddb5c521eb8058ef" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getFileName</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ac0adfb972556ea299cb59a9a514307e2" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getFileSize</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ad8e3f6d09dfcb8dfa3f0b826840d661b" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getFirstEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ada7e085359156352c43eafd1a9dca017" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getFirstEventSize</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1aff65c3cf0199dafdb3a3624c5989790b" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getFirstRecordHeader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a6ad43feecd285a8d86284332a15c7dad" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getNextEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a0bf674124c4ad45cf97a4fb96bdcf44d" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getNextEventNode</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a9c0e3949e458d596c1ef80a14715edf4" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getNumEventsRemaining</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a75374b81e59321dc8ac75f22a552b890" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getPrevEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a2a95a2f9f75aae81032d4c2cb1878272" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getRecordCount</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ac96bfa4922dce74d379ca204abb2001b" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getRecordEventCount</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ab3190f8f8f70e1b308129126862163bc" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getRecordPositions</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a2248c397c049277773fc0877befd001b" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>getTotalByteCounts</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a06f1b4440ef7067b7029cc56ff60fba8" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>getTotalByteCounts</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a599c40fe3023c1f7eba42d697dc9e7ae" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>getVersion</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a670e815e202c81fdce1948181346a533" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>hasDictionary</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a86b7f7c0191d12cca51496984a87451d" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>hasFirstEvent</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a5c5dc5c459a924ac7a9f5b7568416553" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>hasNext</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a80a9286f898d8377ca8147f65e1c9ba6" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>hasPrev</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ac933d4c25d306d5610d7853a6dcd0f82" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>headerInfoLen</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a806a50eef655ecc7ae12227d91fdc416" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>inputRecordStream</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1aeb21ec7f2c314aceb553979451ee1700" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>inStreamRandom</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1af4cc2b0b225780ff29a42509a6963bd0" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>isClosed</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a61126c219647016814078a04da66c998" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>isCompressed</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a1601c387a3516a2c63e46bb413307366" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>isEvioFormat</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a3c79ae478e1f977a14cd766778054419" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>isFile</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a94ca00a723eafb6c6f2ebce98de0c002" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>lastCalledSeqNext</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a783002c7c34ba467b9880ec4bd66158d" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>open</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a26384beac93f62f7747109055817c7be" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>Reader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1ac4ad5aaa65657201f8e3165b6cf07a8b" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>Reader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a0df29efd8d9ef6c8e41ab8c12c642da8" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>Reader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a4a03589aaecd0cb9c819dec50ccbc132" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>Reader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a8396556b577deaa8cc017fb69324da92" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>readRecord</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a31e48758d1652e9104bcea1c6b95c2d5" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>readUserHeader</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a92f86ca32f24ef0d9697b48587e4e1ba" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>recordNumberExpected</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a016c4e3537ba1464b6d7510fdec678c9" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>recordPositions</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a20dccea3833e50fdeebbae49ab787fde" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>removeStructure</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>scanBuffer</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a7a3c02dd9c1c87a57f4b73076071bced" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>scanFile</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a703075aab48cc798dbccc8cb14d74725" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>scanUncompressedBuffer</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a7c4df5d432bb71ca24ae8665734009b0" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>sequentialIndex</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a1bacb79593e55b32cd9749d14fea8b59" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>setBuffer</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a8cdb2fb30ab1426bf9baed4767b4e535" prot="private" virt="non-virtual"><scope>evio::Reader</scope><name>setByteOrder</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1af41649b4f4ede403e3bf180e21e1f213" prot="protected" virt="non-virtual"><scope>evio::Reader</scope><name>show</name></member>
+      <member refid="d3/d56/classevio_1_1_reader_1a3a75ad257fe61c79c1ebb2a079aa9ab0" prot="public" virt="non-virtual"><scope>evio::Reader</scope><name>~Reader</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

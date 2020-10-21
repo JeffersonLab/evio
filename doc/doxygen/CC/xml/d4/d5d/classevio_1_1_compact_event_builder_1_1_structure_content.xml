@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content" kind="class" language="C++" prot="private">
+    <compoundname>evio::CompactEventBuilder::StructureContent</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1aad6eb4a31b382e67ec659efa996c58cf" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::CompactEventBuilder::StructureContent::pos</definition>
+        <argsstring></argsstring>
+        <name>pos</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Starting position of this structure in the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="93" column="20" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1a7fc6791bb379dab82079d5b960ac1623" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompactEventBuilder::StructureContent::dataLen</definition>
+        <argsstring></argsstring>
+        <name>dataLen</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Keep track of amount of primitive data written for finding padding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Can be either bytes or shorts. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="96" column="22" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1ad87e7aebaaa558186b819350c4185eb9" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompactEventBuilder::StructureContent::padding</definition>
+        <argsstring></argsstring>
+        <name>padding</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Padding for byte and short data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="98" column="22" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1ab6660b1feb5f1aabbdd535be2dc22732" prot="public" static="no" mutable="no">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::CompactEventBuilder::StructureContent::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <initializer>{<ref refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" kindref="member">DataType::BANK</ref>}</initializer>
+        <briefdescription>
+<para>Type of evio structure this is. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="100" column="22" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1adcd16369ba88c1ddf3b922bb096b0895" prot="public" static="no" mutable="no">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::CompactEventBuilder::StructureContent::dataType</definition>
+        <argsstring></argsstring>
+        <name>dataType</name>
+        <initializer>{<ref refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" kindref="member">DataType::UNKNOWN32</ref>}</initializer>
+        <briefdescription>
+<para>Type of evio structures or data contained. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="102" column="22" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1afd709b5200844036903353e13f1e910b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompactEventBuilder::StructureContent::StructureContent</definition>
+        <argsstring>()=default</argsstring>
+        <name>StructureContent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="104" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1a16bd868e3acac79784f49a95e12fe933" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::StructureContent::setData</definition>
+        <argsstring>(size_t pos, DataType const &amp;type, DataType const &amp;dataType)</argsstring>
+        <name>setData</name>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="106" column="18" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="106" bodyend="111"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class stores information about an evio structure (bank, segment, or tagsegment) which allows us to write a length or padding in that structure in the buffer. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>evio::DataType</label>
+        <link refid="d5/d23/classevio_1_1_data_type"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>ALSOBANK</edgelabel>
+          <edgelabel>ALSOSEGMENT</edgelabel>
+          <edgelabel>BANK</edgelabel>
+          <edgelabel>CHAR8</edgelabel>
+          <edgelabel>CHARSTAR8</edgelabel>
+          <edgelabel>COMPOSITE</edgelabel>
+          <edgelabel>DOUBLE64</edgelabel>
+          <edgelabel>FLOAT32</edgelabel>
+          <edgelabel>HOLLERIT</edgelabel>
+          <edgelabel>INT32</edgelabel>
+          <edgelabel>...</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>evio::CompactEventBuilder::StructureContent</label>
+        <childnode refid="2" relation="usage">
+          <edgelabel>dataType</edgelabel>
+          <edgelabel>type</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/CompactEventBuilder.h" line="89" column="9" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="89" bodyend="112"/>
+    <listofallmembers>
+      <member refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1a7fc6791bb379dab82079d5b960ac1623" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder::StructureContent</scope><name>dataLen</name></member>
+      <member refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1adcd16369ba88c1ddf3b922bb096b0895" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder::StructureContent</scope><name>dataType</name></member>
+      <member refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1ad87e7aebaaa558186b819350c4185eb9" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder::StructureContent</scope><name>padding</name></member>
+      <member refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1aad6eb4a31b382e67ec659efa996c58cf" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder::StructureContent</scope><name>pos</name></member>
+      <member refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1a16bd868e3acac79784f49a95e12fe933" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder::StructureContent</scope><name>setData</name></member>
+      <member refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1afd709b5200844036903353e13f1e910b" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder::StructureContent</scope><name>StructureContent</name></member>
+      <member refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content_1ab6660b1feb5f1aabbdd535be2dc22732" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder::StructureContent</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

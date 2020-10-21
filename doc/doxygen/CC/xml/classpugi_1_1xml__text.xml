@@ -1,0 +1,641 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xml__text" kind="class" language="C++" prot="public">
+    <compoundname>pugi::xml_text</compoundname>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classpugi_1_1xml__text_1aed0e5b5e5cbf50284016812ea4d39309" prot="private" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* pugi::xml_text::unspecified_bool_type) (xml_text ***)</definition>
+        <argsstring>)(xml_text ***)</argsstring>
+        <name>unspecified_bool_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="735" column="9" bodyfile="src/libsrc/pugixml.hpp" bodystart="735" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classpugi_1_1xml__text_1a156d917a92815c7b593bd5ef19f6d5fb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class xml_node</definition>
+        <argsstring></argsstring>
+        <name>xml_node</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="731" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="731" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpugi_1_1xml__text_1a4b4bfdd3a3dcf89e6711186b0c035257" prot="private" static="no" mutable="no">
+        <type><ref refid="structpugi_1_1xml__node__struct" kindref="compound">xml_node_struct</ref> *</type>
+        <definition>xml_node_struct* pugi::xml_text::_root</definition>
+        <argsstring></argsstring>
+        <name>_root</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="733" column="17" bodyfile="src/libsrc/pugixml.hpp" bodystart="733" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a0ffdad125d30c252184ca837855047c7" prot="private" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_text::xml_text</definition>
+        <argsstring>(xml_node_struct *root)</argsstring>
+        <name>xml_text</name>
+        <param>
+          <type><ref refid="structpugi_1_1xml__node__struct" kindref="compound">xml_node_struct</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="737" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6409" bodyend="6411"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a96f4270d72d800082ee3936cf9f36b49" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__node__struct" kindref="compound">xml_node_struct</ref> *</type>
+        <definition>xml_node_struct * pugi::xml_text::_data_new</definition>
+        <argsstring>()</argsstring>
+        <name>_data_new</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="739" column="17" bodyfile="src/libsrc/pugixml.cpp" bodystart="6428" bodyend="6434"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a2a6ca829db832c7433c7fbe054840c88" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__node__struct" kindref="compound">xml_node_struct</ref> *</type>
+        <definition>xml_node_struct * pugi::xml_text::_data</definition>
+        <argsstring>() const</argsstring>
+        <name>_data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="740" column="17" bodyfile="src/libsrc/pugixml.cpp" bodystart="6413" bodyend="6426"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xml__text_1ab87979467528efeec9b515a10f1a1df1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_text::xml_text</definition>
+        <argsstring>()</argsstring>
+        <name>xml_text</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="744" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="6436" bodyend="6438"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1ad4b8add4007568e8b74c985f2f40dbf5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_text::operator xml_text::unspecified_bool_type</definition>
+        <argsstring>() const</argsstring>
+        <name>operator unspecified_bool_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="747" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="6444" bodyend="6447"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1acb7021bd2e6421b8ab17d71865909c7e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::operator!</definition>
+        <argsstring>() const</argsstring>
+        <name>operator!</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="750" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6449" bodyend="6452"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a0b294ea4c42d7996a5f919fbb3615753" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::empty</definition>
+        <argsstring>() const</argsstring>
+        <name>empty</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="753" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6454" bodyend="6457"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1af5b7e34adecce1b1a1a76d92c68c4fa0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const char_t *</type>
+        <definition>const char_t * pugi::xml_text::get</definition>
+        <argsstring>() const</argsstring>
+        <name>get</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="756" column="14" bodyfile="src/libsrc/pugixml.cpp" bodystart="6459" bodyend="6464"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1ae262c6d8bc1907e8e04e295414147843" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const char_t *</type>
+        <definition>const char_t * pugi::xml_text::as_string</definition>
+        <argsstring>(const char_t *def=&quot;&quot;) const</argsstring>
+        <name>as_string</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>def</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="759" column="14" bodyfile="src/libsrc/pugixml.cpp" bodystart="6466" bodyend="6471"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a217f18e4ca90ee31935bcf07156051f9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int pugi::xml_text::as_int</definition>
+        <argsstring>(int def=0) const</argsstring>
+        <name>as_int</name>
+        <param>
+          <type>int</type>
+          <declname>def</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="762" column="5" bodyfile="src/libsrc/pugixml.cpp" bodystart="6473" bodyend="6478"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1aea4142210b6132ff48dac89848aa57e3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>unsigned int pugi::xml_text::as_uint</definition>
+        <argsstring>(unsigned int def=0) const</argsstring>
+        <name>as_uint</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>def</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="763" column="14" bodyfile="src/libsrc/pugixml.cpp" bodystart="6480" bodyend="6485"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a12221c9a3e4b6bd758529ee27601fe17" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double pugi::xml_text::as_double</definition>
+        <argsstring>(double def=0) const</argsstring>
+        <name>as_double</name>
+        <param>
+          <type>double</type>
+          <declname>def</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="764" column="8" bodyfile="src/libsrc/pugixml.cpp" bodystart="6487" bodyend="6492"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a1b7b43bed36e8e23118d5974b06eb3e0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float pugi::xml_text::as_float</definition>
+        <argsstring>(float def=0) const</argsstring>
+        <name>as_float</name>
+        <param>
+          <type>float</type>
+          <declname>def</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="765" column="7" bodyfile="src/libsrc/pugixml.cpp" bodystart="6494" bodyend="6499"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a7a591eda21c4355afb1c641a0fd0b13d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::as_bool</definition>
+        <argsstring>(bool def=false) const</argsstring>
+        <name>as_bool</name>
+        <param>
+          <type>bool</type>
+          <declname>def</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="773" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6501" bodyend="6506"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a7d7433fbbe94f4a4cbb536be7c91b663" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(const char_t *rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="776" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6524" bodyend="6529"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1ac03c61e9e25322c8bba166c563805e06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(int rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>int</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="779" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6531" bodyend="6536"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a3e2aee57cd70e7cc05c88cd19083024a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(unsigned int rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="780" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6538" bodyend="6543"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a4f6a04cf39d7ef0851032f6c764caef0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(long rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>long</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="781" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6545" bodyend="6550"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1add52be7285bd3cb0c76e0c4eed3b9364" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(unsigned long rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>unsigned long</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="782" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6552" bodyend="6557"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a640912bd2f92b8d4efa48aa3e7faf533" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(double rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>double</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="783" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6573" bodyend="6578"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a2c0dcc7ae22424574f0ad19848d6fc3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(double rhs, int precision)</argsstring>
+        <name>set</name>
+        <param>
+          <type>double</type>
+          <declname>rhs</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>precision</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="784" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6580" bodyend="6585"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a390c50a7c367080420bb4b421a44d24a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(float rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>float</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="785" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6559" bodyend="6564"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1acf208cc6adc10ad87e7956859039f754" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(float rhs, int precision)</argsstring>
+        <name>set</name>
+        <param>
+          <type>float</type>
+          <declname>rhs</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>precision</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="786" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6566" bodyend="6571"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1ae81ba4805cad0647a2345dfb8cf522df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_text::set</definition>
+        <argsstring>(bool rhs)</argsstring>
+        <name>set</name>
+        <param>
+          <type>bool</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="787" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6587" bodyend="6592"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1af8805de17172d8de4b5f3c908bcddd27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(const char_t *rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="795" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6610" bodyend="6614"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a3bc4578645cd60eb9b543e40aef9885d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(int rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>int</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="796" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6616" bodyend="6620"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1afffc8f0dbe562261eacb78375aa3cafe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(unsigned int rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="797" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6622" bodyend="6626"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a60ce776984363fbaf8fc2057002fa032" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(long rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>long</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="798" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6628" bodyend="6632"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1afff7fb6a25f37bff4cd7786bc2d0f6d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(unsigned long rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>unsigned long</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="799" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6634" bodyend="6638"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a39a0f305c8838333c42bba169bdcc57b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(double rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>double</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="800" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6640" bodyend="6644"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1ae87dc7c4c6a27ce237ef2b9d43e7e8e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(float rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>float</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="801" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6646" bodyend="6650"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1a784e7463605340b9c59bdfb2c595d784" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__text" kindref="compound">xml_text</ref> &amp;</type>
+        <definition>xml_text &amp; pugi::xml_text::operator=</definition>
+        <argsstring>(bool rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>bool</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="802" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6652" bodyend="6656"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__text_1aecf60f36d4bcc7432b863e68f272508a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__node" kindref="compound">xml_node</ref></type>
+        <definition>xml_node pugi::xml_text::data</definition>
+        <argsstring>() const</argsstring>
+        <name>data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="810" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="6672" bodyend="6675"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/pugixml.hpp" line="729" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="730" bodyend="811"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xml__text_1a2a6ca829db832c7433c7fbe054840c88" prot="private" virt="non-virtual"><scope>pugi::xml_text</scope><name>_data</name></member>
+      <member refid="classpugi_1_1xml__text_1a96f4270d72d800082ee3936cf9f36b49" prot="private" virt="non-virtual"><scope>pugi::xml_text</scope><name>_data_new</name></member>
+      <member refid="classpugi_1_1xml__text_1a4b4bfdd3a3dcf89e6711186b0c035257" prot="private" virt="non-virtual"><scope>pugi::xml_text</scope><name>_root</name></member>
+      <member refid="classpugi_1_1xml__text_1a7a591eda21c4355afb1c641a0fd0b13d" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>as_bool</name></member>
+      <member refid="classpugi_1_1xml__text_1a12221c9a3e4b6bd758529ee27601fe17" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>as_double</name></member>
+      <member refid="classpugi_1_1xml__text_1a1b7b43bed36e8e23118d5974b06eb3e0" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>as_float</name></member>
+      <member refid="classpugi_1_1xml__text_1a217f18e4ca90ee31935bcf07156051f9" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>as_int</name></member>
+      <member refid="classpugi_1_1xml__text_1ae262c6d8bc1907e8e04e295414147843" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>as_string</name></member>
+      <member refid="classpugi_1_1xml__text_1aea4142210b6132ff48dac89848aa57e3" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>as_uint</name></member>
+      <member refid="classpugi_1_1xml__text_1aecf60f36d4bcc7432b863e68f272508a" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>data</name></member>
+      <member refid="classpugi_1_1xml__text_1a0b294ea4c42d7996a5f919fbb3615753" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>empty</name></member>
+      <member refid="classpugi_1_1xml__text_1af5b7e34adecce1b1a1a76d92c68c4fa0" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>get</name></member>
+      <member refid="classpugi_1_1xml__text_1ad4b8add4007568e8b74c985f2f40dbf5" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator unspecified_bool_type</name></member>
+      <member refid="classpugi_1_1xml__text_1acb7021bd2e6421b8ab17d71865909c7e" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator!</name></member>
+      <member refid="classpugi_1_1xml__text_1af8805de17172d8de4b5f3c908bcddd27" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1a3bc4578645cd60eb9b543e40aef9885d" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1afffc8f0dbe562261eacb78375aa3cafe" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1a60ce776984363fbaf8fc2057002fa032" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1afff7fb6a25f37bff4cd7786bc2d0f6d1" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1a39a0f305c8838333c42bba169bdcc57b" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1ae87dc7c4c6a27ce237ef2b9d43e7e8e6" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1a784e7463605340b9c59bdfb2c595d784" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__text_1a7d7433fbbe94f4a4cbb536be7c91b663" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1ac03c61e9e25322c8bba166c563805e06" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1a3e2aee57cd70e7cc05c88cd19083024a" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1a4f6a04cf39d7ef0851032f6c764caef0" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1add52be7285bd3cb0c76e0c4eed3b9364" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1a640912bd2f92b8d4efa48aa3e7faf533" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1a2c0dcc7ae22424574f0ad19848d6fc3e" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1a390c50a7c367080420bb4b421a44d24a" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1acf208cc6adc10ad87e7956859039f754" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1ae81ba4805cad0647a2345dfb8cf522df" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>set</name></member>
+      <member refid="classpugi_1_1xml__text_1aed0e5b5e5cbf50284016812ea4d39309" prot="private" virt="non-virtual"><scope>pugi::xml_text</scope><name>unspecified_bool_type</name></member>
+      <member refid="classpugi_1_1xml__text_1a156d917a92815c7b593bd5ef19f6d5fb" prot="private" virt="non-virtual"><scope>pugi::xml_text</scope><name>xml_node</name></member>
+      <member refid="classpugi_1_1xml__text_1a0ffdad125d30c252184ca837855047c7" prot="private" virt="non-virtual"><scope>pugi::xml_text</scope><name>xml_text</name></member>
+      <member refid="classpugi_1_1xml__text_1ab87979467528efeec9b515a10f1a1df1" prot="public" virt="non-virtual"><scope>pugi::xml_text</scope><name>xml_text</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,342 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d4/d87/classevio_1_1_record_node" kind="class" language="C++" prot="public">
+    <compoundname>evio::RecordNode</compoundname>
+    <includes local="no">RecordNode.h</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="d4/d87/classevio_1_1_record_node_1a1b4390a9a867354d4b1037d6688278f4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class EvioCompactReaderV4</definition>
+        <argsstring></argsstring>
+        <name>EvioCompactReaderV4</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="32" column="9" bodyfile="src/libsrc/RecordNode.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d4/d87/classevio_1_1_record_node_1acd3c8bf8efe05715bd5dec9d605a1a2b" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordNode::len</definition>
+        <argsstring></argsstring>
+        <name>len</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Record&apos;s length value (32-bit words). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="37" column="18" bodyfile="src/libsrc/RecordNode.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d87/classevio_1_1_record_node_1a76503a416e7fcc6230397378230fab0b" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordNode::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Number of events in record. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="39" column="18" bodyfile="src/libsrc/RecordNode.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d87/classevio_1_1_record_node_1a9164fb2561ae3207c4809b366868a42a" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::RecordNode::pos</definition>
+        <argsstring></argsstring>
+        <name>pos</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Position of record in file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="41" column="16" bodyfile="src/libsrc/RecordNode.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d87/classevio_1_1_record_node_1a80eb24169d40efd2367db1401d393406" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordNode::place</definition>
+        <argsstring></argsstring>
+        <name>place</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Place of this record in file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>First record = 0, second = 1, etc. Useful for appending banks to <ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref> object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="46" column="18" bodyfile="src/libsrc/RecordNode.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1a1d2b3b8e09ace6ce900b4afd29829eeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordNode::RecordNode</definition>
+        <argsstring>()=default</argsstring>
+        <name>RecordNode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="50" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1a06b42c48ff116b93450d6eb9d89c17a9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordNode::clear</definition>
+        <argsstring>()</argsstring>
+        <name>clear</name>
+        <briefdescription>
+<para>Set all internal values to 0. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="53" column="14" bodyfile="src/libsrc/RecordNode.h" bodystart="53" bodyend="55"/>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a91c96e04996a828fbd52567dffdeaadb" compoundref="d9/d45/_evio_node_8cpp" startline="305" endline="314">evio::EvioNode::clearObjects</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1a23f8192eb518ec77581ec100ff73c904" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordNode::getLen</definition>
+        <argsstring>() const</argsstring>
+        <name>getLen</name>
+        <briefdescription>
+<para>Get the record&apos;s length in 32-bit words. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>record&apos;s length in 32-bit words. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="61" column="18" bodyfile="src/libsrc/RecordNode.h" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1ab9683bdda8907e13daa91875a43bc063" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordNode::setLen</definition>
+        <argsstring>(uint32_t l)</argsstring>
+        <name>setLen</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Set the record&apos;s length in 32-bit words. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>l</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>record&apos;s length in 32-bit words. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="67" column="14" bodyfile="src/libsrc/RecordNode.h" bodystart="67" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1ac39f1633b9e865f2fd9ff3610335237e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordNode::getCount</definition>
+        <argsstring>() const</argsstring>
+        <name>getCount</name>
+        <briefdescription>
+<para>Get the number of events in this record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>number of events in this record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="74" column="18" bodyfile="src/libsrc/RecordNode.h" bodystart="74" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1aa366ab41f13bf27d828a62788b0d1e25" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordNode::setCount</definition>
+        <argsstring>(uint32_t c)</argsstring>
+        <name>setCount</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Set the number of events in this record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of events in this record. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="80" column="14" bodyfile="src/libsrc/RecordNode.h" bodystart="80" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1a5179849e4c074c18b3cf3f950fcdfe73" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::RecordNode::getPos</definition>
+        <argsstring>() const</argsstring>
+        <name>getPos</name>
+        <briefdescription>
+<para>Get the position of this record in the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>position of this record in the file/buffer.. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="87" column="16" bodyfile="src/libsrc/RecordNode.h" bodystart="87" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1acec5acbb79a08f26cf817de602299bd5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordNode::setPos</definition>
+        <argsstring>(size_t p)</argsstring>
+        <name>setPos</name>
+        <param>
+          <type>size_t</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Set the position of this record in the file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of this record in the file/buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="93" column="14" bodyfile="src/libsrc/RecordNode.h" bodystart="93" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1a0cd65ad9a234eb808fe7783743f1661c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordNode::getPlace</definition>
+        <argsstring>() const</argsstring>
+        <name>getPlace</name>
+        <briefdescription>
+<para>Get the place of this record in file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>First record = 0, second = 1, etc. <simplesect kind="return"><para>place of this record in file/buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="100" column="18" bodyfile="src/libsrc/RecordNode.h" bodystart="100" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1a57db805e4b690dd178c0ae764940e89a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordNode::setPlace</definition>
+        <argsstring>(uint32_t p)</argsstring>
+        <name>setPlace</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Set the place of this record in file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>First record = 0, second = 1, etc. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of this record in file/buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="106" column="14" bodyfile="src/libsrc/RecordNode.h" bodystart="106" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d87/classevio_1_1_record_node_1a36aad4058dfcb41d72bc3b125d7c5df1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::RecordNode::toString</definition>
+        <argsstring>() const</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Get a string representation of this object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>string representation of this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordNode.h" line="113" column="21" bodyfile="src/libsrc/RecordNode.h" bodystart="113" bodyend="122"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class is used to store relevant info about an evio record (or block) along with its position in a buffer. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class was previously called &quot;BlockNode&quot; in java.</para>
+<para><simplesect kind="author"><para>timmer Date: 7/22/2019 </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/RecordNode.h" line="30" column="5" bodyfile="src/libsrc/RecordNode.h" bodystart="30" bodyend="124"/>
+    <listofallmembers>
+      <member refid="d4/d87/classevio_1_1_record_node_1a06b42c48ff116b93450d6eb9d89c17a9" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>clear</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a76503a416e7fcc6230397378230fab0b" prot="private" virt="non-virtual"><scope>evio::RecordNode</scope><name>count</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a1b4390a9a867354d4b1037d6688278f4" prot="private" virt="non-virtual"><scope>evio::RecordNode</scope><name>EvioCompactReaderV4</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1ac39f1633b9e865f2fd9ff3610335237e" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>getCount</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a23f8192eb518ec77581ec100ff73c904" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>getLen</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a0cd65ad9a234eb808fe7783743f1661c" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>getPlace</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a5179849e4c074c18b3cf3f950fcdfe73" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>getPos</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1acd3c8bf8efe05715bd5dec9d605a1a2b" prot="private" virt="non-virtual"><scope>evio::RecordNode</scope><name>len</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a80eb24169d40efd2367db1401d393406" prot="private" virt="non-virtual"><scope>evio::RecordNode</scope><name>place</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a9164fb2561ae3207c4809b366868a42a" prot="private" virt="non-virtual"><scope>evio::RecordNode</scope><name>pos</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a1d2b3b8e09ace6ce900b4afd29829eeb" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>RecordNode</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1aa366ab41f13bf27d828a62788b0d1e25" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>setCount</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1ab9683bdda8907e13daa91875a43bc063" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>setLen</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a57db805e4b690dd178c0ae764940e89a" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>setPlace</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1acec5acbb79a08f26cf817de602299bd5" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>setPos</name></member>
+      <member refid="d4/d87/classevio_1_1_record_node_1a36aad4058dfcb41d72bc3b125d7c5df1" prot="public" virt="non-virtual"><scope>evio::RecordNode</scope><name>toString</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

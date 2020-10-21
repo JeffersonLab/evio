@@ -1,0 +1,1338 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d7/d9e/classevio_1_1_block_header_v2" kind="class" language="C++" prot="public">
+    <compoundname>evio::BlockHeaderV2</compoundname>
+    <basecompoundref refid="d5/d6e/classevio_1_1_i_block_header" prot="public" virt="non-virtual">evio::IBlockHeader</basecompoundref>
+    <includes local="no">BlockHeaderV2.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::BlockHeaderV2::MAX_BLOCK_SIZE</definition>
+        <argsstring></argsstring>
+        <name>MAX_BLOCK_SIZE</name>
+        <initializer>= 32768</initializer>
+        <briefdescription>
+<para>The maximum block size in 32 bit ints in this implementation of evio. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>There is, in actuality, no limit on size; however, the versions 1-3 C library only used 8192 as the block size. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="83" column="31" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="83" bodyend="-1"/>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1a57f4191aa93f14b234473b72e86c2bab" compoundref="da/d19/_block_header_v2_8h" startline="271" endline="276">setEnd</referencedby>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1a7ee59ab1946e3fcf3464646c992438ab" compoundref="da/d19/_block_header_v2_8h" startline="208" endline="213">setSize</referencedby>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1a377ecfe78db76cd68ffed1e4a0b8ffd9" compoundref="da/d19/_block_header_v2_8h" startline="241" endline="246">setStart</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::IBlockHeader::MAGIC_NUMBER</definition>
+        <argsstring></argsstring>
+        <name>MAGIC_NUMBER</name>
+        <initializer>= 0xc0da0100</initializer>
+        <briefdescription>
+<para>The magic number, should be the value of <computeroutput>magicNumber</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IBlockHeader.h" line="41" column="31" bodyfile="src/libsrc/IBlockHeader.h" bodystart="41" bodyend="-1"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" compoundref="dd/d90/_util_8h" startline="412" endline="446">evio::Util::findEvioVersion</referencedby>
+        <referencedby refid="dd/db3/classevio_1_1_evio_reader_v4_1ab851d0a680a06875f14cbeee08c62c62" compoundref="de/da5/_evio_reader_v4_8cpp" startline="455" endline="574">evio::EvioReaderV4::parseFirstHeader</referencedby>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1a0fc718e078e962ca590de71d8a03c308" compoundref="da/d19/_block_header_v2_8h" startline="368" endline="374">setMagicNumber</referencedby>
+        <referencedby refid="da/de6/classevio_1_1_block_header_v4_1aea332a5d6321b9fdd23958356f49ffff" compoundref="d8/da4/_block_header_v4_8h" startline="691" endline="697">evio::BlockHeaderV4::setMagicNumber</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d6e/classevio_1_1_i_block_header_1a55aa26334a5f90f245dd5f3bd688ff07" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::IBlockHeader::MAGIC_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>MAGIC_OFFSET</name>
+        <initializer>= 28</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to the magic number. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IBlockHeader.h" line="44" column="33" bodyfile="src/libsrc/IBlockHeader.h" bodystart="44" bodyend="-1"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" compoundref="dd/d90/_util_8h" startline="412" endline="446">evio::Util::findEvioVersion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d6e/classevio_1_1_i_block_header_1a4e8ce12915b48acab0739a56cc1d641d" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::IBlockHeader::BIT_INFO_OFFSET</definition>
+        <argsstring></argsstring>
+        <name>BIT_INFO_OFFSET</name>
+        <initializer>= 20</initializer>
+        <briefdescription>
+<para>Byte offset from beginning of header to bit info word. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IBlockHeader.h" line="47" column="33" bodyfile="src/libsrc/IBlockHeader.h" bodystart="47" bodyend="-1"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" compoundref="dd/d90/_util_8h" startline="412" endline="446">evio::Util::findEvioVersion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d6e/classevio_1_1_i_block_header_1af24d4ac1e9d1e2a23529b3e4e367ac95" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::IBlockHeader::VERSION_MASK</definition>
+        <argsstring></argsstring>
+        <name>VERSION_MASK</name>
+        <initializer>= 0xff</initializer>
+        <briefdescription>
+<para>Mask to get version number from bitinfo word in header. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/IBlockHeader.h" line="50" column="31" bodyfile="src/libsrc/IBlockHeader.h" bodystart="50" bodyend="-1"/>
+        <referencedby refid="d3/d87/classevio_1_1_util_1a480d33b2eeef523ab4d2109d88d5f323" compoundref="dd/d90/_util_8h" startline="412" endline="446">evio::Util::findEvioVersion</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1a48979cc3e94e5d3ff45c9d27b777b887" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The block (physical record) size in 32 bit ints. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="88" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1a71242dab4f1a1a8c6ee0cb07605b13c7" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::number</definition>
+        <argsstring></argsstring>
+        <name>number</name>
+        <initializer>= 1</initializer>
+        <briefdescription>
+<para>The block number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In a file, this is usually sequential. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="91" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1a273baac53c223869996be47e03f9e4f7" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::headerLength</definition>
+        <argsstring></argsstring>
+        <name>headerLength</name>
+        <initializer>= 8</initializer>
+        <briefdescription>
+<para>The block header length. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Should be 8 in all cases, so getting this correct constitutes a check. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="94" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1ad84b7a9b1cf3a9c919b061be5272f0ac" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::start</definition>
+        <argsstring></argsstring>
+        <name>start</name>
+        <initializer>= 8</initializer>
+        <briefdescription>
+<para>Offset (in ints, relative to start of block) to the start of the first event (logical record) that begins in this block. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For the first event it will just be = 8, the size of the block header. For subsequent physical records it will generally not be 8. Note that a logical record (event) that spans three blocks (physical records) will have <computeroutput>start = 0</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="102" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1abbb7fc866712578d25f9485f67ce146b" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::end</definition>
+        <argsstring></argsstring>
+        <name>end</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>The number of valid words (header + data) in the block (physical record.) This is normally the same as the block size, except for the last block (physical record) in the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ NOTE: for evio files, even if end &lt; size (blocksize) for the last block (physical record), the data behind it will be padded with zeroes so that the file size is an integer multiple of the block size. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="110" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1ae4fc6d75321519acfba13011c78bd02e" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::version</definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <initializer>= 2</initializer>
+        <briefdescription>
+<para>The evio version, always 2. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="113" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1ab855a0382693ee888527ee68bcf8f54e" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::reserved1</definition>
+        <argsstring></argsstring>
+        <name>reserved1</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>First reserved word. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sometimes this is used to indicate the ordinal number of the last event that starts within this block<ndash/>but that is not mandated. In that case, if the previous block had a value of reserved1 = 6 and this block has a value of 9, then this block contains the end of event 6, all of events 7 and 8, and the start of event 9<ndash/>unless it ends exactly on the end of event 8.<linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="121" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1a9c1f0f4a7665d7b907f760475976c7a9" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::magicNumber</definition>
+        <argsstring></argsstring>
+        <name>magicNumber</name>
+        <initializer>= <ref refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" kindref="member">MAGIC_NUMBER</ref></initializer>
+        <briefdescription>
+<para>This is the magic word: 0xc0da0100 (formerly reserved2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used to check endianness. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="124" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1a065fb8e7a7781801db3fbdba8e4f2efd" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::BlockHeaderV2::byteOrder</definition>
+        <argsstring></argsstring>
+        <name>byteOrder</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>This is the byte order of the data being read. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="127" column="19" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d7/d9e/classevio_1_1_block_header_v2_1a4968bfc341dba3a5d761486a6a2bb689" prot="private" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::BlockHeaderV2::bufferStartingPosition</definition>
+        <argsstring></argsstring>
+        <name>bufferStartingPosition</name>
+        <initializer>= 0L</initializer>
+        <briefdescription>
+<para>This is not part of the block header proper. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It is a position in a memory buffer of the start of the block (physical record). It is kept for convenience. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="133" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a4d5d394b7a484f6089fbe0941dcc2c72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::BlockHeaderV2::BlockHeaderV2</definition>
+        <argsstring>()=default</argsstring>
+        <name>BlockHeaderV2</name>
+        <briefdescription>
+<para>Constructor initializes all fields to default values. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="138" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a6509ac161a3c0376154e54d65b7a5114" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::BlockHeaderV2::BlockHeaderV2</definition>
+        <argsstring>(uint32_t sz, uint32_t num)</argsstring>
+        <name>BlockHeaderV2</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Creates a BlockHeader for evio versions 1-3 format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Only the <computeroutput>block size</computeroutput> and <computeroutput>block number</computeroutput> are provided. The other six words, which can be modified by setters, are initialized to these values:<linebreak/>
+ <itemizedlist>
+<listitem>
+<para><computeroutput>headerLength</computeroutput> is initialized to 8<linebreak/>
+ </para>
+</listitem>
+<listitem>
+<para><computeroutput>start</computeroutput> is initialized to 8<linebreak/>
+ </para>
+</listitem>
+<listitem>
+<para><computeroutput>end</computeroutput> is initialized to <computeroutput>size</computeroutput><linebreak/>
+ </para>
+</listitem>
+<listitem>
+<para><computeroutput>version</computeroutput> is initialized to 2<linebreak/>
+ </para>
+</listitem>
+<listitem>
+<para><computeroutput>reserved1</computeroutput> is initialized to 0<linebreak/>
+ </para>
+</listitem>
+<listitem>
+<para><computeroutput>magicNumber</computeroutput> is initialized to <computeroutput><ref refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" kindref="member">MAGIC_NUMBER</ref></computeroutput><linebreak/>
+ </para>
+</listitem>
+</itemizedlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the size of the block in ints. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the block number<ndash/>usually sequential. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="156" column="9" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="156" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a14e65560c068b0f2aacb24d918ba2d59" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::BlockHeaderV2::BlockHeaderV2</definition>
+        <argsstring>(std::shared_ptr&lt; BlockHeaderV2 &gt; &amp;blkHeader)</argsstring>
+        <name>BlockHeaderV2</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/d9e/classevio_1_1_block_header_v2" kindref="compound">BlockHeaderV2</ref> &gt; &amp;</type>
+          <declname>blkHeader</declname>
+        </param>
+        <briefdescription>
+<para>This copy constructor creates an evio version 1-3 BlockHeader from another object of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>blkHeader</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>block header object to copy </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="168" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="168" bodyend="170"/>
+        <references refid="d7/d9e/classevio_1_1_block_header_v2_1affac9f4397f3a5998ce148fa448108d7" compoundref="da/d19/_block_header_v2_8h" startline="177" endline="188">copy</references>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1affac9f4397f3a5998ce148fa448108d7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::copy</definition>
+        <argsstring>(std::shared_ptr&lt; BlockHeaderV2 &gt; &amp;blkHeader)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/d9e/classevio_1_1_block_header_v2" kindref="compound">BlockHeaderV2</ref> &gt; &amp;</type>
+          <declname>blkHeader</declname>
+        </param>
+        <briefdescription>
+<para>This method copies another header&apos;s contents. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>blkHeader</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>block header object to copy </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="177" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="177" bodyend="188"/>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1a14e65560c068b0f2aacb24d918ba2d59" compoundref="da/d19/_block_header_v2_8h" startline="168" endline="170">BlockHeaderV2</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1abd66ed556f01bf971b8bc8b2f13d41ed" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>bool evio::BlockHeaderV2::hasDictionary</definition>
+        <argsstring>() override</argsstring>
+        <name>hasDictionary</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a53aa1de9a52e068cd70bb2e9363b77e1">hasDictionary</reimplements>
+        <briefdescription>
+<para><para>Does this block contain an evio dictionary?</para>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this block contains an evio dictionary, else <computeroutput>false</computeroutput>. Always returns false for versions 1-3 (not implemented).</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="192" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="192" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1ade0d222d1966f7b7d4c40736006bb18a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>bool evio::BlockHeaderV2::isLastBlock</definition>
+        <argsstring>() override</argsstring>
+        <name>isLastBlock</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1ab050cc01445362e75370ee83febb3bdf">isLastBlock</reimplements>
+        <briefdescription>
+<para><para>Is this the last block in the file or being sent over the network?</para>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this is the last block in the file or being sent over the network, else <computeroutput>false</computeroutput>. Always returns false for versions 1-3 (not implemented).</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="196" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="196" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a02e2aa9fc29066811e4ed47ef5abc57f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getSize</definition>
+        <argsstring>() override</argsstring>
+        <name>getSize</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a0fa8834832fdd7a168937066755fe804">getSize</reimplements>
+        <briefdescription>
+<para><para>Get the size of the block (record) in 32 bit words.</para>
+<para><simplesect kind="return"><para>size of the block (record) in 32 bit words.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="200" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="200" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a7ee59ab1946e3fcf3464646c992438ab" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setSize</definition>
+        <argsstring>(uint32_t sz)</argsstring>
+        <name>setSize</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>sz</declname>
+        </param>
+        <briefdescription>
+<para>Set the size of the block (physical record). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Some trivial checking is done. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new value for the size, in ints. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if size &lt; 8 or &gt; <ref refid="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" kindref="member">MAX_BLOCK_SIZE</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="208" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="208" bodyend="213"/>
+        <references refid="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" compoundref="da/d19/_block_header_v2_8h" startline="83">MAX_BLOCK_SIZE</references>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1aa058826391eb7ebd054dd6dd8ece9d76" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getStart</definition>
+        <argsstring>() const</argsstring>
+        <name>getStart</name>
+        <briefdescription>
+<para>Get the starting position of the block (physical record.). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is the offset (in ints, relative to start of block) to the start of the first event (logical record) that begins in this block. For the first event it will just be = 8, the size of the block header. For subsequent blocks it will generally not be 8. Note that a an event that spans three blocks (physical records) will have <computeroutput>start = 0</computeroutput>.</para>
+<para>NOTE: a logical record (event) that spans three blocks (physical records) will have <computeroutput>start = 0</computeroutput>.</para>
+<para><simplesect kind="return"><para>the starting position of the block (physical record.) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="226" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="226" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a377ecfe78db76cd68ffed1e4a0b8ffd9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setStart</definition>
+        <argsstring>(uint32_t strt)</argsstring>
+        <name>setStart</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>strt</declname>
+        </param>
+        <briefdescription>
+<para>Set the starting position of the block (physical record.). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is the offset (in ints, relative to start of block) to the start of the first event (logical record) that begins in this block. For the first event it will just be = 8, the size of the block header. For subsequent blocks it will generally not be 8. Some trivial checking is done. Note that an event that spans three blocks (physical records) will have <computeroutput>start = 0</computeroutput>.</para>
+<para>NOTE: a logical record (event) that spans three blocks (physical records) will have <computeroutput>start = 0</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new value for the start. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if start &lt; 8 or &gt; <ref refid="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" kindref="member">MAX_BLOCK_SIZE</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="241" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="241" bodyend="246"/>
+        <references refid="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" compoundref="da/d19/_block_header_v2_8h" startline="83">MAX_BLOCK_SIZE</references>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a056b61a6db4fe791d584bea6d1534f70" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getEnd</definition>
+        <argsstring>() const</argsstring>
+        <name>getEnd</name>
+        <briefdescription>
+<para>Get the ending position of the block (physical record.) This is the number of valid words (header + data) in the block (physical record.) This is normally the same as the block size, except for the last block (physical record) in the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ NOTE: for evio files, even if end &lt; size (blocksize) for the last block (physical record), the data behind it will be padded with zeroes so that the file size is an integer multiple of the block size.</para>
+<para><simplesect kind="return"><para>the ending position of the block (physical record.) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="258" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="258" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a57f4191aa93f14b234473b72e86c2bab" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setEnd</definition>
+        <argsstring>(uint32_t endd)</argsstring>
+        <name>setEnd</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>endd</declname>
+        </param>
+        <briefdescription>
+<para>Set the ending position of the block (physical record.) This is the number of valid words (header + data) in the block (physical record.) This is normally the same as the block size, except for the last block (physical record) in the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Some trivial checking is done.<linebreak/>
+ NOTE: for evio files, even if end &lt; size (blocksize) for the last block (physical record), the data behind it will be padded with zeroes so that the file size is an integer multiple of the block size.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>endd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new value for the end. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if end &lt; 8 or &gt; <ref refid="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" kindref="member">MAX_BLOCK_SIZE</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="271" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="271" bodyend="276"/>
+        <references refid="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" compoundref="da/d19/_block_header_v2_8h" startline="83">MAX_BLOCK_SIZE</references>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1aa41a17a874b89459727a21d4ba7c4475" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getNumber</definition>
+        <argsstring>() override</argsstring>
+        <name>getNumber</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a2907bba40e8b0293d6072d8eeff36356">getNumber</reimplements>
+        <briefdescription>
+<para><para>Get the block number for this block (record).</para>
+<para>In a file, this is usually sequential, starting at 1. <simplesect kind="return"><para>the block number for this block (record).</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="280" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="280" bodyend="280"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1acc149d85172b82744219625d2b8e3eb9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setNumber</definition>
+        <argsstring>(uint32_t num)</argsstring>
+        <name>setNumber</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Set the block number for this block (physical record). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>In a file, this is usually sequential. This is not checked. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of the block (physical record). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="288" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="288" bodyend="288"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a2099917a379d4ae62f4dbfa79a0914d3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getHeaderLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getHeaderLength</name>
+        <briefdescription>
+<para>Get the block header length in ints. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should be 8. <simplesect kind="return"><para>block header length in ints. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="295" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="295" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a35fd0b7625dcbcb1cef2ab0af587d41f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getHeaderWords</definition>
+        <argsstring>() override</argsstring>
+        <name>getHeaderWords</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a7f406555551224d492355b0a06ef288d">getHeaderWords</reimplements>
+        <briefdescription>
+<para><para>Get the block (record) header length, in 32 bit words.</para>
+<para><simplesect kind="return"><para>block (record) header length, in 32 bit words.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="299" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="299" bodyend="299"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a59af5b05a00267e31f5b966f4738336e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setHeaderLength</definition>
+        <argsstring>(uint32_t len)</argsstring>
+        <name>setHeaderLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Set the block header length, in ints. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should be 8. However, since this is usually read as part of reading the physical record header, it is a good check to have a setter rather than just fix its value at 8.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new block header length. This should be 8. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if headerLength is not 8. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="309" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="309" bodyend="314"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a9996b49ef9bee798b40342a517cde74a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>bool evio::BlockHeaderV2::hasFirstEvent</definition>
+        <argsstring>() override</argsstring>
+        <name>hasFirstEvent</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a953e010d22af7c17885f8411f559f25e">hasFirstEvent</reimplements>
+        <briefdescription>
+<para><para>Does this block/record contain the &quot;first event&quot; (first event to be written to each file split)?</para>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this record has the first event, else <computeroutput>false</computeroutput>. Evio versions 1-3 always return false.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="318" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="318" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1af538ce7722b3ffae6ce9068dab051d40" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getEventType</definition>
+        <argsstring>() override</argsstring>
+        <name>getEventType</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a9d795e9674048b744bfb937ee63d6ffe">getEventType</reimplements>
+        <briefdescription>
+<para><para>Get the type of events in block/record (see values of <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref>.</para>
+<para>This is not supported by versions 1-3 which returns 0. <simplesect kind="return"><para>type of events in block/record, or 0 if evio version 1-3.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="322" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="322" bodyend="322"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1aaccb4a59619b7f03725f831264efaf95" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getVersion</definition>
+        <argsstring>() override</argsstring>
+        <name>getVersion</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1afc9fbda2c8a8c35a1a82a5beb958aeae">getVersion</reimplements>
+        <briefdescription>
+<para><para>Get the evio version of the block (record) header.</para>
+<para><simplesect kind="return"><para>evio version of the block (record) header.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="326" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="326" bodyend="326"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a10f4f09e7b58af43d48700616ea05cac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setVersion</definition>
+        <argsstring>(uint32_t ver)</argsstring>
+        <name>setVersion</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>ver</declname>
+        </param>
+        <briefdescription>
+<para>Sets the evio version. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Should be 1, 2 or 3 but no check is performed here. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ver</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the evio version of evio. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="333" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="333" bodyend="333"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a0b344d6b1083bbcbfa168c0c515e326d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getSourceId</definition>
+        <argsstring>() override</argsstring>
+        <name>getSourceId</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1aee975823b6487d3ef48ed192385a8681">getSourceId</reimplements>
+        <briefdescription>
+<para><para>Get the source ID number if in CODA online context and data is coming from ROC.</para>
+<para><simplesect kind="return"><para>source ID number if in CODA online context and data is coming from ROC.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="337" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="337" bodyend="337"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1ae393fdd1d9574061422fa46176211c38" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getReserved1</definition>
+        <argsstring>() const</argsstring>
+        <name>getReserved1</name>
+        <briefdescription>
+<para>Get the first reserved word in the block (physical record) header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used in evio versions 1-3 only. <simplesect kind="return"><para>the first reserved word in the block (physical record). Used in evio versions 1-3 only. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="344" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="344" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a946bbe03bd5992acadd0b43c66ad26d4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setReserved1</definition>
+        <argsstring>(uint32_t r1)</argsstring>
+        <name>setReserved1</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>r1</declname>
+        </param>
+        <briefdescription>
+<para>Sets the value of reserved1. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value for reserved1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="351" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="351" bodyend="351"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a3ab00dfe358d2abdb4977b3d664478d4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::BlockHeaderV2::getMagicNumber</definition>
+        <argsstring>() override</argsstring>
+        <name>getMagicNumber</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1ab4dabd24ab85878ff2d66dacd56558eb">getMagicNumber</reimplements>
+        <briefdescription>
+<para><para>Get the magic number the block (record) header which should be 0xc0da0100.</para>
+<para><simplesect kind="return"><para>magic number in the block (record).</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="355" column="18" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="355" bodyend="355"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a0fc718e078e962ca590de71d8a03c308" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setMagicNumber</definition>
+        <argsstring>(uint32_t magicNum)</argsstring>
+        <name>setMagicNumber</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>magicNum</declname>
+        </param>
+        <briefdescription>
+<para>Sets the value of magicNumber. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This should match the constant <ref refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" kindref="member">MAGIC_NUMBER</ref> ... If it doesn&apos;t, some obvious possibilities: <linebreak/>
+ 1) The evio data (perhaps from a file) is screwed up.<linebreak/>
+ 2) The reading algorithm is screwed up. <linebreak/>
+ 3) The endianness is not being handled properly.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>magicNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new value for magic number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if magic number not the correct value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="368" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="368" bodyend="374"/>
+        <references refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" compoundref="de/d42/_i_block_header_8h" startline="41">evio::IBlockHeader::MAGIC_NUMBER</references>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a29a14d88cba10ecfb4cb22c8b9879ee7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+        <definition>ByteOrder&amp; evio::BlockHeaderV2::getByteOrder</definition>
+        <argsstring>() override</argsstring>
+        <name>getByteOrder</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a5d6c5594f809fb7e32a8f89a7c2fb1c8">getByteOrder</reimplements>
+        <briefdescription>
+<para><para>Get the byte order of the data being read.</para>
+<para><simplesect kind="return"><para>byte order of the data being read.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="378" column="20" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="378" bodyend="378"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a8a08973331be904e798ebb9af87d8203" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setByteOrder</definition>
+        <argsstring>(ByteOrder &amp;order)</argsstring>
+        <name>setByteOrder</name>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Sets the byte order of data being read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new value for data&apos;s byte order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="385" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="385" bodyend="385"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1ab290e4edca0f67f5844fce5f426379b0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string evio::BlockHeaderV2::toString</definition>
+        <argsstring>() override</argsstring>
+        <name>toString</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1acb7353227cb5c75302ba2541e6639f64">toString</reimplements>
+        <briefdescription>
+<para><para>Get the string representation of the block (record) header.</para>
+<para><simplesect kind="return"><para>string representation of the block (record) header.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="389" column="21" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="389" bodyend="404"/>
+        <references refid="d7/d9e/classevio_1_1_block_header_v2_1a41ae17c851067731b3a04a2256d9efa9" compoundref="da/d19/_block_header_v2_8h" startline="412" endline="412">getBufferStartingPosition</references>
+        <references refid="d7/d9e/classevio_1_1_block_header_v2_1a49914b70191da34a5d975411613a884e" compoundref="da/d19/_block_header_v2_8h" startline="420" endline="420">nextBufferStartingPosition</references>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a0355ad193524a585224324be49544c8d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::BlockHeaderV2::getBufferEndingPosition</definition>
+        <argsstring>() override</argsstring>
+        <name>getBufferEndingPosition</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1ab5fb3e39f3b25cade3d3d1daa203010d">getBufferEndingPosition</reimplements>
+        <briefdescription>
+<para><para>Get the position in the buffer (bytes) of this block&apos;s last data word.</para>
+<para><linebreak/>
+ <simplesect kind="return"><para>position in the buffer (bytes) of this block&apos;s last data word.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="408" column="16" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="408" bodyend="408"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a41ae17c851067731b3a04a2256d9efa9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::BlockHeaderV2::getBufferStartingPosition</definition>
+        <argsstring>() override</argsstring>
+        <name>getBufferStartingPosition</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a55167e524646197063b9d536a934c642">getBufferStartingPosition</reimplements>
+        <briefdescription>
+<para><para>Get the starting position in the buffer (bytes) from which this header was read<ndash/>if that happened.</para>
+<para><linebreak/>
+ This is not part of the block header proper. It is a position in a memory buffer of the start of the block (record). It is kept for convenience. It is up to the reader to set it.</para>
+<para><simplesect kind="return"><para>starting position in buffer (bytes) from which this header was read<ndash/>if that happened.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="412" column="16" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="412" bodyend="412"/>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1ab290e4edca0f67f5844fce5f426379b0" compoundref="da/d19/_block_header_v2_8h" startline="389" endline="404">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1ac2bcabda588d79fc31229326cc080270" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void evio::BlockHeaderV2::setBufferStartingPosition</definition>
+        <argsstring>(size_t pos) override</argsstring>
+        <name>setBufferStartingPosition</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a002a72c5150ebcc37d202271881aba3d">setBufferStartingPosition</reimplements>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para><para>Set the starting position in the buffer (bytes) from which this header was read<ndash/>if that happened.</para>
+<para><linebreak/>
+ This is not part of the block header proper. It is a position in a memory buffer of the start of the block (record). It is kept for convenience. It is up to the reader to set it.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>starting position in buffer from which this header was read<ndash/>if that happened.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="416" column="14" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="416" bodyend="416"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a49914b70191da34a5d975411613a884e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::BlockHeaderV2::nextBufferStartingPosition</definition>
+        <argsstring>() override</argsstring>
+        <name>nextBufferStartingPosition</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1aabc390043eb275ffc75c05a393dbd5f4">nextBufferStartingPosition</reimplements>
+        <briefdescription>
+<para><para>Determines where the start of the next block (record) header in some buffer is located (bytes).</para>
+<para>This assumes the start position has been maintained by the object performing the buffer read.</para>
+<para><simplesect kind="return"><para>the start of the next block (record) header in some buffer is located (bytes).</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="420" column="16" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="420" bodyend="420"/>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1a7b585e2bf6f5bfaec62749c066a5c244" compoundref="da/d19/_block_header_v2_8h" startline="433" endline="444">bytesRemaining</referencedby>
+        <referencedby refid="d7/d9e/classevio_1_1_block_header_v2_1ab290e4edca0f67f5844fce5f426379b0" compoundref="da/d19/_block_header_v2_8h" startline="389" endline="404">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a669596158802c1fa0515614fe8ac4bfb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::BlockHeaderV2::firstEventStartingPosition</definition>
+        <argsstring>() override</argsstring>
+        <name>firstEventStartingPosition</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a912dcd287e30558238b6ad00c2454cde">firstEventStartingPosition</reimplements>
+        <briefdescription>
+<para><para>Determines where the start of the first event in this block (record) is located (bytes).</para>
+<para>This assumes the start position has been maintained by the object performing the buffer read.</para>
+<para><simplesect kind="return"><para>where the start of the first event in this block (record) is located (bytes). In evio format version 2, returns 0 if start is 0, signaling that this entire record is part of a logical record that spans at least three physical records.</para>
+</simplesect>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="424" column="16" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="424" bodyend="429"/>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1a7b585e2bf6f5bfaec62749c066a5c244" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::BlockHeaderV2::bytesRemaining</definition>
+        <argsstring>(size_t position) override</argsstring>
+        <name>bytesRemaining</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a5bbd2488c7847efb83bf2d5e8c81f5c5">bytesRemaining</reimplements>
+        <param>
+          <type>size_t</type>
+          <declname>position</declname>
+        </param>
+        <briefdescription>
+<para><para>Gives the bytes remaining in this block (record) given a buffer position.</para>
+<para>The position is an absolute position in a byte buffer. This assumes that the absolute position in <computeroutput>bufferStartingPosition</computeroutput> is being maintained properly by the reader.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the absolute current position in a byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of bytes remaining in this block (record). </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if position out of bounds</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="433" column="16" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="433" bodyend="444"/>
+        <references refid="d7/d9e/classevio_1_1_block_header_v2_1a49914b70191da34a5d975411613a884e" compoundref="da/d19/_block_header_v2_8h" startline="420" endline="420">nextBufferStartingPosition</references>
+      </memberdef>
+      <memberdef kind="function" id="d7/d9e/classevio_1_1_block_header_v2_1af694b19d13c1d0eb34e19dc2fba3d254" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t evio::BlockHeaderV2::write</definition>
+        <argsstring>(ByteBuffer &amp;byteBuffer) override</argsstring>
+        <name>write</name>
+        <reimplements refid="d5/d6e/classevio_1_1_i_block_header_1a03b840b5f0f886432110748ff677d843">write</reimplements>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>byteBuffer</declname>
+        </param>
+        <briefdescription>
+<para><para>Write myself out into a byte buffer.</para>
+<para>This write is relative<ndash/>i.e., it uses the current position of the buffer. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byteBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byteBuffer to write to. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of bytes written. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>overflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if insufficient room to write header into buffer.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/BlockHeaderV2.h" line="448" column="16" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="448" bodyend="462"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This holds an evio block header, also known as a physical record header. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Unfortunately, in versions 1, 2 &amp; 3, evio files impose an anachronistic block structure. The complication that arises is that logical records (events) will sometimes cross physical record boundaries.</para>
+<para><preformatted>
+####################################
+Evio block header, versions 1,2 &amp; 3:
+####################################</preformatted></para>
+<para><preformatted>MSB(31)                          LSB(0)
+&lt;---  32 bits ------------------------&gt;
+_______________________________________
+|            Block Length             |
+|_____________________________________|
+|            Block Number             |
+|_____________________________________|
+|          Header Length = 8          |
+|_____________________________________|
+|               Start                 |
+|_____________________________________|
+|                End                  |
+|_____________________________________|
+|              Version                |
+|_____________________________________|
+|             Reserved 1              |
+|_____________________________________|
+|            Magic Number             |
+|_____________________________________|</preformatted></para>
+<para><preformatted>     Block Length  = number of ints in block (including this one).
+                     This is fixed for versions 1-3, generally at 8192 (32768 bytes)
+     Block Number  = id number (starting at 0)
+     Header Length = number of ints in this header (always 8)
+     Start         = offset to first event header in block relative to start of block
+     End           = # of valid words (header + data) in block (normally = block size)
+     Version       = evio format version
+     Reserved 1    = reserved
+     Magic #       = magic number (0xc0da0100) used to check endianness</preformatted></para>
+<para><preformatted></preformatted></para>
+<para><simplesect kind="author"><para>heddle (original java version) </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>evio::BlockHeaderV2</label>
+        <link refid="d7/d9e/classevio_1_1_block_header_v2"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>evio::IBlockHeader</label>
+        <link refid="d5/d6e/classevio_1_1_i_block_header"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>evio::BlockHeaderV2</label>
+        <link refid="d7/d9e/classevio_1_1_block_header_v2"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>evio::IBlockHeader</label>
+        <link refid="d5/d6e/classevio_1_1_i_block_header"/>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/BlockHeaderV2.h" line="74" column="5" bodyfile="src/libsrc/BlockHeaderV2.h" bodystart="74" bodyend="463"/>
+    <listofallmembers>
+      <member refid="d5/d6e/classevio_1_1_i_block_header_1a4e8ce12915b48acab0739a56cc1d641d" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>BIT_INFO_OFFSET</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a4d5d394b7a484f6089fbe0941dcc2c72" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>BlockHeaderV2</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a6509ac161a3c0376154e54d65b7a5114" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>BlockHeaderV2</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a14e65560c068b0f2aacb24d918ba2d59" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>BlockHeaderV2</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a4968bfc341dba3a5d761486a6a2bb689" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>bufferStartingPosition</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a065fb8e7a7781801db3fbdba8e4f2efd" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>byteOrder</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a7b585e2bf6f5bfaec62749c066a5c244" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>bytesRemaining</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1affac9f4397f3a5998ce148fa448108d7" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>copy</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1abbb7fc866712578d25f9485f67ce146b" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>end</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a669596158802c1fa0515614fe8ac4bfb" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>firstEventStartingPosition</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a0355ad193524a585224324be49544c8d" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getBufferEndingPosition</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a41ae17c851067731b3a04a2256d9efa9" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getBufferStartingPosition</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a29a14d88cba10ecfb4cb22c8b9879ee7" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getByteOrder</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a056b61a6db4fe791d584bea6d1534f70" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>getEnd</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1af538ce7722b3ffae6ce9068dab051d40" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getEventType</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a2099917a379d4ae62f4dbfa79a0914d3" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>getHeaderLength</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a35fd0b7625dcbcb1cef2ab0af587d41f" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getHeaderWords</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a3ab00dfe358d2abdb4977b3d664478d4" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getMagicNumber</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1aa41a17a874b89459727a21d4ba7c4475" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getNumber</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ae393fdd1d9574061422fa46176211c38" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>getReserved1</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a02e2aa9fc29066811e4ed47ef5abc57f" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getSize</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a0b344d6b1083bbcbfa168c0c515e326d" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getSourceId</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1aa058826391eb7ebd054dd6dd8ece9d76" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>getStart</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1aaccb4a59619b7f03725f831264efaf95" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>getVersion</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1abd66ed556f01bf971b8bc8b2f13d41ed" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>hasDictionary</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a9996b49ef9bee798b40342a517cde74a" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>hasFirstEvent</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a273baac53c223869996be47e03f9e4f7" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>headerLength</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ade0d222d1966f7b7d4c40736006bb18a" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>isLastBlock</name></member>
+      <member refid="d5/d6e/classevio_1_1_i_block_header_1ac5f22d640a8987649db4fd4c8c699cb7" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>MAGIC_NUMBER</name></member>
+      <member refid="d5/d6e/classevio_1_1_i_block_header_1a55aa26334a5f90f245dd5f3bd688ff07" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>MAGIC_OFFSET</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a9c1f0f4a7665d7b907f760475976c7a9" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>magicNumber</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ab57c1039006cda2c61af54d5fe5a205b" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>MAX_BLOCK_SIZE</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a49914b70191da34a5d975411613a884e" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>nextBufferStartingPosition</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a71242dab4f1a1a8c6ee0cb07605b13c7" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>number</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ab855a0382693ee888527ee68bcf8f54e" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>reserved1</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ac2bcabda588d79fc31229326cc080270" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>setBufferStartingPosition</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a8a08973331be904e798ebb9af87d8203" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setByteOrder</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a57f4191aa93f14b234473b72e86c2bab" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setEnd</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a59af5b05a00267e31f5b966f4738336e" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setHeaderLength</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a0fc718e078e962ca590de71d8a03c308" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setMagicNumber</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1acc149d85172b82744219625d2b8e3eb9" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setNumber</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a946bbe03bd5992acadd0b43c66ad26d4" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setReserved1</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a7ee59ab1946e3fcf3464646c992438ab" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setSize</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a377ecfe78db76cd68ffed1e4a0b8ffd9" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setStart</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a10f4f09e7b58af43d48700616ea05cac" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>setVersion</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1a48979cc3e94e5d3ff45c9d27b777b887" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>size</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ad84b7a9b1cf3a9c919b061be5272f0ac" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>start</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ab290e4edca0f67f5844fce5f426379b0" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>toString</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1ae4fc6d75321519acfba13011c78bd02e" prot="private" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>version</name></member>
+      <member refid="d5/d6e/classevio_1_1_i_block_header_1af24d4ac1e9d1e2a23529b3e4e367ac95" prot="public" virt="non-virtual"><scope>evio::BlockHeaderV2</scope><name>VERSION_MASK</name></member>
+      <member refid="d7/d9e/classevio_1_1_block_header_v2_1af694b19d13c1d0eb34e19dc2fba3d254" prot="public" virt="virtual"><scope>evio::BlockHeaderV2</scope><name>write</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

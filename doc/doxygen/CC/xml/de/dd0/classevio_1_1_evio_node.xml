@@ -1,0 +1,2602 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="de/dd0/classevio_1_1_evio_node" kind="class" language="C++" prot="public">
+    <compoundname>evio::EvioNode</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">std::enable_shared_from_this&lt; EvioNode &gt;</basecompoundref>
+    <includes local="no">EvioNode.h</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="de/dd0/classevio_1_1_evio_node_1a9c2751ecdc9d2563d06622f8f100ef88" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Util</definition>
+        <argsstring></argsstring>
+        <name>Util</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="43" column="9" bodyfile="src/libsrc/EvioNode.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="de/dd0/classevio_1_1_evio_node_1a7fb8c9f7d288fa6ccb4dc5ba0dfd5f06" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class EventHeaderParser</definition>
+        <argsstring></argsstring>
+        <name>EventHeaderParser</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="44" column="9" bodyfile="src/libsrc/EvioNode.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="de/dd0/classevio_1_1_evio_node_1a1b4390a9a867354d4b1037d6688278f4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class EvioCompactReaderV4</definition>
+        <argsstring></argsstring>
+        <name>EvioCompactReaderV4</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="45" column="9" bodyfile="src/libsrc/EvioNode.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="de/dd0/classevio_1_1_evio_node_1a32f95a8849a0400219cb3f9d977dd9b9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class EvioCompactReaderV6</definition>
+        <argsstring></argsstring>
+        <name>EvioCompactReaderV6</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="46" column="9" bodyfile="src/libsrc/EvioNode.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a3b7127aa5d345f83ceb2cbf78cae2e55" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::len</definition>
+        <argsstring></argsstring>
+        <name>len</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Header&apos;s length value (32-bit words). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="51" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a750723fa226d010cbc0f2fab4472116f" prot="private" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::EvioNode::tag</definition>
+        <argsstring></argsstring>
+        <name>tag</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Header&apos;s tag value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="53" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a32b30465ff512b90e56592da9978e11e" prot="private" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::EvioNode::num</definition>
+        <argsstring></argsstring>
+        <name>num</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Header&apos;s num value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="55" column="17" bodyfile="src/libsrc/EvioNode.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a0ac4259c0571fcd3b2a8d06a2525e723" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::pad</definition>
+        <argsstring></argsstring>
+        <name>pad</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Header&apos;s padding value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="57" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1ae2c51f96b1cf73f9e3409cf96194a122" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::EvioNode::pos</definition>
+        <argsstring></argsstring>
+        <name>pos</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Position of header in buffer in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="59" column="16" bodyfile="src/libsrc/EvioNode.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a09eb0384d5ba4e2a17b67878c6975519" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>This node&apos;s (evio container&apos;s) type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Must be bank, segment, or tag segment. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="61" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1adbe8e0c9d2bc12ef33f484ed72e0a687" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::dataLen</definition>
+        <argsstring></argsstring>
+        <name>dataLen</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Length of node&apos;s data in 32-bit words. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="64" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a2184a959d0d26fdb4192499962d7ec86" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::EvioNode::dataPos</definition>
+        <argsstring></argsstring>
+        <name>dataPos</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Position of node&apos;s data in buffer in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="66" column="16" bodyfile="src/libsrc/EvioNode.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a9e205a2dae48e51663839a2f2aabd4ca" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::dataType</definition>
+        <argsstring></argsstring>
+        <name>dataType</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Type of data stored in node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="68" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a8829699c96fc64179ce5e7a0ba0f0690" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::EvioNode::recordPos</definition>
+        <argsstring></argsstring>
+        <name>recordPos</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Position of the record in buffer containing this node in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="since"><para>version 6. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="72" column="16" bodyfile="src/libsrc/EvioNode.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a581282a2de4c4f660af80db775a816af" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; uint32_t &gt;</type>
+        <definition>std::vector&lt;uint32_t&gt; evio::EvioNode::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <briefdescription>
+<para>Store data in int array form if calculated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="75" column="21" bodyfile="src/libsrc/EvioNode.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a375efb2058203d1a610b7b615b2df906" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::EvioNode::izEvent</definition>
+        <argsstring></argsstring>
+        <name>izEvent</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Does this node represent an event (top-level bank)? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="78" column="14" bodyfile="src/libsrc/EvioNode.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1ad9045e6823632c920864895f68bbdfd6" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::EvioNode::obsolete</definition>
+        <argsstring></argsstring>
+        <name>obsolete</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>If the data this node represents is removed from the buffer, then this object is obsolete. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="82" column="14" bodyfile="src/libsrc/EvioNode.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1aab42f32f24c0988fe984a15a7f550562" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ByteBuffer&gt; evio::EvioNode::buffer</definition>
+        <argsstring></argsstring>
+        <name>buffer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> that this node is associated with. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="85" column="25" bodyfile="src/libsrc/EvioNode.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a49a57ef1c86b4bc4e02f8ab9315b335a" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;EvioNode&gt; &gt; evio::EvioNode::childNodes</definition>
+        <argsstring></argsstring>
+        <name>childNodes</name>
+        <briefdescription>
+<para>List of child nodes ordered according to placement in buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="88" column="21" bodyfile="src/libsrc/EvioNode.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1ad28e8774684df343f5d8e847d76f024d" prot="private" static="no" mutable="no">
+        <type><ref refid="d4/d87/classevio_1_1_record_node" kindref="compound">RecordNode</ref></type>
+        <definition>RecordNode evio::EvioNode::recordNode</definition>
+        <argsstring></argsstring>
+        <name>recordNode</name>
+        <briefdescription>
+<para>Record containing this node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="91" column="20" bodyfile="src/libsrc/EvioNode.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1af8c3493da58aa2e6be1987e209bd5614" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::place</definition>
+        <argsstring></argsstring>
+        <name>place</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Place of containing event in file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>First event = 0, second = 1, etc. Useful for converting node to <ref refid="d4/d12/classevio_1_1_evio_event" kindref="compound">EvioEvent</ref> object (de-serializing). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="101" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1aa207cd2ac1def019a86c9d7100c1f17e" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::EvioNode::scanned</definition>
+        <argsstring></argsstring>
+        <name>scanned</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>If top-level event node, was I scanned and all my banks already placed into a list? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="107" column="14" bodyfile="src/libsrc/EvioNode.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1af9ad8add359ac25472dab740bdb6e6fe" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;EvioNode&gt; &gt; evio::EvioNode::allNodes</definition>
+        <argsstring></argsstring>
+        <name>allNodes</name>
+        <briefdescription>
+<para>Vector of all nodes in the event including the top-level object ordered according to placement in buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><bold> Only the top-level event&apos;s member is used. Only access this member thru <ref refid="de/dd0/classevio_1_1_evio_node_1a25cafbc2f243c523b39f5f8eefcc604b" kindref="member">getAllNodes</ref> since that enforces using only the top-level&apos;s allNodes member. All nodes reference the top-level allNodes thru the <ref refid="" kindref="compound">eventNode</ref> member which is a pointer to the top-level node. </bold></para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="120" column="21" bodyfile="src/libsrc/EvioNode.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a6fd0f6cd8dffa092eb04b53780b30f92" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;EvioNode&gt; evio::EvioNode::eventNode</definition>
+        <argsstring></argsstring>
+        <name>eventNode</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Node of event containing this node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Is null if this is an event node. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="127" column="25" bodyfile="src/libsrc/EvioNode.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1aa4cc0b99778ee5613f0af0ecc12f8bb6" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;EvioNode&gt; evio::EvioNode::parentNode</definition>
+        <argsstring></argsstring>
+        <name>parentNode</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Node containing this node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Is null if this is an event node. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="130" column="25" bodyfile="src/libsrc/EvioNode.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1ac7931f43990aa967f9e7ddfef18d8002" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>Local id for testing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="139" column="18" bodyfile="src/libsrc/EvioNode.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="de/dd0/classevio_1_1_evio_node_1a1c5e15b8b009b1989bc82f6ebf5f99c6" prot="public" static="yes" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::staticId</definition>
+        <argsstring></argsstring>
+        <name>staticId</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Static id for testing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="142" column="25" bodyfile="src/libsrc/EvioNode.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1afa9a5f844060485b8b5f42aa8e448489" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::copyParentForScan</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;parent)</argsstring>
+        <name>copyParentForScan</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+<para>Copy parameters from a parent node when scanning evio data and placing into <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> obtained from an EvioNodeSource. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>parent of the object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="147" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="265" bodyend="274"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a0b79e698788ac5d0d4a9b6cee1851803" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::addChild</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)</argsstring>
+        <name>addChild</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Add a child node to the end of the child list and to the list of all nodes contained in event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is called internally in sequence so every node ends up in the right place in allNodes. When the user adds a structure by calling <ref refid="d6/d5f/classevio_1_1_evio_compact_reader_1a0f14a17353707ea352dde6b3bd4ac69e" kindref="member">EvioCompactReader#addStructure(size_t, ByteBuffer &amp;)</ref>, the structure or node gets added at the very end - as the last child of the event.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>child node to add to the end of the child list. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="148" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="707" bodyend="723"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a5647d770a1d616da157fd9e03edfecd9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::addToAllNodes</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)</argsstring>
+        <name>addToAllNodes</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Add a node to the end of the list of all nodes contained in event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>child node to add to the list of all nodes </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="149" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="668" bodyend="672"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ac1439c5b0f9a7ad35ebf11fd83ad7317" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::removeFromAllNodes</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)</argsstring>
+        <name>removeFromAllNodes</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Remove a node &amp; all of its descendants from the list of all nodes contained in event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node &amp; descendants to remove from the list of all nodes </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="150" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="680" bodyend="694"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ada67da226694d9b002882125528aa2ef" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::removeChild</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)</argsstring>
+        <name>removeChild</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Remove a node from this child list and, along with its descendants, from the list of all nodes contained in event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If not a child, do nothing. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node to remove from child &amp; allNodes lists. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="151" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="732" bodyend="745"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a0786d48da71ccce75be67228e57aa736" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d4/d87/classevio_1_1_record_node" kindref="compound">RecordNode</ref> &amp;</type>
+        <definition>RecordNode &amp; evio::EvioNode::getRecordNode</definition>
+        <argsstring>()</argsstring>
+        <name>getRecordNode</name>
+        <briefdescription>
+<para>Get the object representing the record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>object representing the record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="152" column="21" bodyfile="src/libsrc/EvioNode.cpp" bodystart="752" bodyend="752"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a3911eaa9c5a4689d52c29b2929ebaad4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::copy</definition>
+        <argsstring>(const EvioNode &amp;src)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>const <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Copy method. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="153" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="157" bodyend="188"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a2b277281e1c86f401ad63cc8f914d38c" prot="protected" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;firstNode, int dummy)</argsstring>
+        <name>EvioNode</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>firstNode</declname>
+          <defname>containingEvent</defname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dummy</declname>
+        </param>
+        <briefdescription>
+<para>Constructor used when swapping data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>containingEvent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>event containing this node. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dummy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>this arg is only here to differentiate it from the other constructor taking a shared pointer of <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref>. Use any value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="157" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="35" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a4ceab2d4691f0b0ac655276054fbf00e" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;EvioNode&gt; evio::EvioNode::getThis</definition>
+        <argsstring>()</argsstring>
+        <name>getThis</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="158" column="25" bodyfile="src/libsrc/EvioNode.h" bodystart="158" bodyend="158"/>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a4fd08a6078a1641a3ffcdc54960ca278" compoundref="d9/d45/_evio_node_8cpp" startline="282" endline="293">clearLists</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1af86dd6383766b1d5fc6c4615945effab" compoundref="d9/d45/_evio_node_8cpp" startline="342" endline="351">setData</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a4e582a94afbc9d302df055aab530fc1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>()</argsstring>
+        <name>EvioNode</name>
+        <briefdescription>
+<para>Constructor when fancy features not needed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="162" column="9" bodyfile="src/libsrc/EvioNode.cpp" bodystart="22" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a968019448116544aabaf3f675abb778d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>(const EvioNode &amp;firstNode)</argsstring>
+        <name>EvioNode</name>
+        <param>
+          <type>const <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>firstNode</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="163" column="9" bodyfile="src/libsrc/EvioNode.cpp" bodystart="42" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a2e15e983b9e70952761e810e9d1551f5" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>(const std::shared_ptr&lt; EvioNode &gt; &amp;src)</argsstring>
+        <name>EvioNode</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="164" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="49" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a098e061b208e2fb64c1fce74221993db" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>(EvioNode &amp;&amp;src) noexcept</argsstring>
+        <name>EvioNode</name>
+        <param>
+          <type><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;&amp;</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Move constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="165" column="9" bodyfile="src/libsrc/EvioNode.cpp" bodystart="56" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a34f7490d31685ed7764dd05832fd9829" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>(size_t pos, uint32_t place, std::shared_ptr&lt; ByteBuffer &gt; &amp;buffer, RecordNode &amp;blockNode)</argsstring>
+        <name>EvioNode</name>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>place</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type><ref refid="d4/d87/classevio_1_1_record_node" kindref="compound">RecordNode</ref> &amp;</type>
+          <declname>blockNode</declname>
+          <defname>recordNode</defname>
+        </param>
+        <briefdescription>
+<para>Constructor which creates an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> associated with an event (top level) evio container when parsing buffers for evio data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of event in buffer (number of bytes) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>place</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>containing event&apos;s place in buffer (starting at 0) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing this event </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordNode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>block containing this event </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="166" column="9" bodyfile="src/libsrc/EvioNode.cpp" bodystart="99" bodyend="108"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1afccb56e6b7f4b49a7cceb8bee7c12d56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr&lt; ByteBuffer &gt; &amp;buffer)</argsstring>
+        <name>EvioNode</name>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>place</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>recordPos</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <briefdescription>
+<para>Constructor which creates an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> associated with an event (top level) evio container when parsing buffers for evio data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of event in buffer (number of bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>place</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>containing event&apos;s place in buffer (starting at 0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of record containing this node. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing this event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="167" column="9" bodyfile="src/libsrc/EvioNode.cpp" bodystart="121" bodyend="128"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a5a3145f6961576e47042765882a04d04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::EvioNode</definition>
+        <argsstring>(uint16_t tag, uint8_t num, size_t pos, size_t dataPos, DataType const &amp;type, DataType const &amp;dataType, std::shared_ptr&lt; ByteBuffer &gt; buffer)</argsstring>
+        <name>EvioNode</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dataPos</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>dataType</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+          <declname>buffer</declname>
+        </param>
+        <briefdescription>
+<para>Constructor which creates an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> in the <ref refid="de/dce/classevio_1_1_compact_event_builder" kindref="compound">CompactEventBuilder</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tag for the event (or bank) header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the num for the event (or bank) header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of event in buffer (bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of event&apos;s data in buffer (bytes.) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the type of this evio structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the data type contained in this evio event. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer containing this event. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="168" column="9" bodyfile="src/libsrc/EvioNode.cpp" bodystart="142" bodyend="153"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a6e1428a24eeb2ee0028574814da08b73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::EvioNode::~EvioNode</definition>
+        <argsstring>()=default</argsstring>
+        <name>~EvioNode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="172" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ac364f90bd5783cdf108dc61841fa7ed7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+        <definition>EvioNode &amp; evio::EvioNode::operator=</definition>
+        <argsstring>(const EvioNode &amp;other)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>other</declname>
+          <defname>src</defname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>right side object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>left side object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="184" column="19" bodyfile="src/libsrc/EvioNode.cpp" bodystart="196" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a2b3605b502de062b100c849c44c61bed" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioNode::operator==</definition>
+        <argsstring>(const EvioNode &amp;src) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>right side object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>left side object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="185" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="207" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1abec1750a53e8b5777a28aaa005077c57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &amp;</type>
+        <definition>EvioNode &amp; evio::EvioNode::shift</definition>
+        <argsstring>(int deltaPos)</argsstring>
+        <name>shift</name>
+        <param>
+          <type>int</type>
+          <declname>deltaPos</declname>
+        </param>
+        <briefdescription>
+<para>Shift the positions (pos, dataPos, and recordPos) of this node and its children by a fixed amount. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Useful, for example, when the contents of one buffer is copied into another.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>deltaPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to add to existing positions. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>reference to this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="187" column="19" bodyfile="src/libsrc/EvioNode.cpp" bodystart="226" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a9bcbd06eaea5dd49b931c7c4a5f701a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::EvioNode::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Get a string representation of this object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a string representation of this object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="188" column="21" bodyfile="src/libsrc/EvioNode.cpp" bodystart="243" bodyend="257"/>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a77f6f98545da43fe65d80ecee8a545a9" compoundref="d9/d45/_evio_node_8cpp" startline="938" endline="938">getDataTypeObj</references>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a8fcdbb769e77c2ceb6127953dc3056ee" compoundref="d9/d45/_evio_node_8cpp" startline="910" endline="910">getTypeObj</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a4b55bfb1a25acc690c9456f0869c4b49" compoundref="db/da7/_data_type_8h" startline="193" endline="197">evio::DataType::toString</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a4fd08a6078a1641a3ffcdc54960ca278" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::clearLists</definition>
+        <argsstring>()</argsstring>
+        <name>clearLists</name>
+        <briefdescription>
+<para>Clear childNodes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Place only this or eventNode object into the allNodes. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="190" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="282" bodyend="293"/>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a4ceab2d4691f0b0ac655276054fbf00e" compoundref="d1/d31/_evio_node_8h" startline="158" endline="158">getThis</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a326e277c1d9b6061f976662029b7051c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::clear</definition>
+        <argsstring>()</argsstring>
+        <name>clear</name>
+        <briefdescription>
+<para>Clear all data in this object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="191" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="297" bodyend="301"/>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a91c96e04996a828fbd52567dffdeaadb" compoundref="d9/d45/_evio_node_8cpp" startline="305" endline="314">clearObjects</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a91c96e04996a828fbd52567dffdeaadb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::clearObjects</definition>
+        <argsstring>()</argsstring>
+        <name>clearObjects</name>
+        <briefdescription>
+<para>Empty all lists and remove all other objects from this object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="192" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="305" bodyend="314"/>
+        <references refid="d4/d87/classevio_1_1_record_node_1a06b42c48ff116b93450d6eb9d89c17a9" compoundref="d8/d7d/_record_node_8h" startline="53" endline="55">evio::RecordNode::clear</references>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a326e277c1d9b6061f976662029b7051c" compoundref="d9/d45/_evio_node_8cpp" startline="297" endline="301">clear</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ac364c9ae28925bb3467f2c9c43b4c02d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::clearIntArray</definition>
+        <argsstring>()</argsstring>
+        <name>clearIntArray</name>
+        <briefdescription>
+<para>Only clear the data vector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="193" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="318" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a341211c0da8ed9a01aef7aec34e68a83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::setBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf)</argsstring>
+        <name>setBuffer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Set the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer associated with this object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="195" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="330" bodyend="330"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1af86dd6383766b1d5fc6c4615945effab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::setData</definition>
+        <argsstring>(size_t position, uint32_t plc, std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, RecordNode &amp;recNode)</argsstring>
+        <name>setData</name>
+        <param>
+          <type>size_t</type>
+          <declname>position</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>plc</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type><ref refid="d4/d87/classevio_1_1_record_node" kindref="compound">RecordNode</ref> &amp;</type>
+          <declname>recNode</declname>
+        </param>
+        <briefdescription>
+<para>Once this node is cleared, it may be reused and then re-initialized with this method. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>plc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of event in buffer (starting at 0) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to examine </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recNode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object holding data about header of block containing event </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="196" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="342" bodyend="351"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a4ceab2d4691f0b0ac655276054fbf00e" compoundref="d1/d31/_evio_node_8h" startline="158" endline="158">getThis</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1abbe4211c96dfaaa4c8aa88e3be6be53e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::setData</definition>
+        <argsstring>(size_t position, uint32_t plc, size_t recPos, std::shared_ptr&lt; ByteBuffer &gt; &amp;buf)</argsstring>
+        <name>setData</name>
+        <param>
+          <type>size_t</type>
+          <declname>position</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>plc</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>recPos</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Once this node is cleared, it may be reused and then re-initialized with this method. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>plc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of event in buffer (starting at 0) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of event in containing record (bytes) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to examine </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="197" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="363" bodyend="371"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a4ceab2d4691f0b0ac655276054fbf00e" compoundref="d1/d31/_evio_node_8h" startline="158" endline="158">getThis</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ad35fcbd6cbfee654f48234ac59a5f2fe" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioNode::isObsolete</definition>
+        <argsstring>() const</argsstring>
+        <name>isObsolete</name>
+        <briefdescription>
+<para>Has the data this node represents in the buffer been removed? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if node no longer represents valid buffer data, else false. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="201" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="759" bodyend="759"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a88b28f2a9a757567b778cfbb4415eabb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::setObsolete</definition>
+        <argsstring>(bool ob)</argsstring>
+        <name>setObsolete</name>
+        <param>
+          <type>bool</type>
+          <declname>ob</declname>
+        </param>
+        <briefdescription>
+<para>Set whether this node &amp; descendants are now obsolete because the data they represent in the buffer has been removed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Only for internal use. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ob</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if node &amp; descendants no longer represent valid buffer data, else false. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="202" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="769" bodyend="776"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a25cafbc2f243c523b39f5f8eefcc604b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &gt; &amp;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; EvioNode &gt; &gt; &amp; evio::EvioNode::getAllNodes</definition>
+        <argsstring>()</argsstring>
+        <name>getAllNodes</name>
+        <briefdescription>
+<para>Get the vector of all nodes that this node contains, always including itself. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is meaningful only if this node has been scanned, otherwise it contains only itself.</para>
+<para><simplesect kind="return"><para>list of all nodes that this node contains. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="203" column="22" bodyfile="src/libsrc/EvioNode.cpp" bodystart="786" bodyend="793"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a92235dbcfd647901ebfa74d40e3bcbf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &gt; &amp;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; EvioNode &gt; &gt; &amp; evio::EvioNode::getChildNodes</definition>
+        <argsstring>()</argsstring>
+        <name>getChildNodes</name>
+        <briefdescription>
+<para>Get the vector of all child nodes that this node contains. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is meaningful only if this node has been scanned, otherwise it is null.</para>
+<para><simplesect kind="return"><para>list of all child nodes that this node contains; null if not scanned or no children </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="204" column="22" bodyfile="src/libsrc/EvioNode.cpp" bodystart="804" bodyend="804"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a99a0f0297c0aa005187ef809d00c3195" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::getAllDescendants</definition>
+        <argsstring>(std::vector&lt; std::shared_ptr&lt; EvioNode &gt;&gt; &amp;descendants)</argsstring>
+        <name>getAllDescendants</name>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;&gt; &amp;</type>
+          <declname>descendants</declname>
+        </param>
+        <briefdescription>
+<para>Get the list of all descendant nodes that this node contains - not only the immediate children. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is meaningful only if this node has been scanned, otherwise nothing is added to the given list.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>descendants</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>list to be filled with EvioNodes of all descendants </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="205" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="815" bodyend="821"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1af7549643fc7d60de1b7f831ef5afc90d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::EvioNode::getChildAt</definition>
+        <argsstring>(uint32_t index)</argsstring>
+        <name>getChildAt</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get the child node at the given index (starts at 0). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is meaningful only if this node has been scanned, otherwise it is null.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of child node </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>child node at the given index; null if not scanned or no child at that index </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="206" column="25" bodyfile="src/libsrc/EvioNode.cpp" bodystart="833" bodyend="836"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1abb073b68f16fb2f8bc8d51a39d5fa74b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getChildCount</definition>
+        <argsstring>() const</argsstring>
+        <name>getChildCount</name>
+        <briefdescription>
+<para>Get the number all children that this node contains. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is meaningful only if this node has been scanned, otherwise it returns 0.</para>
+<para><simplesect kind="return"><para>number of children that this node contains; 0 if not scanned </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="207" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="847" bodyend="847"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a62277033890518669c730a7b41296ec6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::EvioNode::getBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>getBuffer</name>
+        <briefdescription>
+<para>Get the object containing the buffer that this node is associated with. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>object containing the buffer that this node is associated with. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="209" column="25" bodyfile="src/libsrc/EvioNode.cpp" bodystart="854" bodyend="854"/>
+        <referencedby refid="d1/d17/classevio_1_1_writer_m_t_1a329d5fd7ee27378b2d532e715742bd87" compoundref="d9/d77/_writer_m_t_8cpp" startline="635" endline="657">evio::WriterMT::addEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a162a4711d490023998557e5b1363f553" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getLength</name>
+        <briefdescription>
+<para>Get the length of this evio structure (not including length word itself) in 32-bit words. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>length of this evio structure (not including length word itself) in 32-bit words </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="211" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="863" bodyend="863"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a877b920f8610559a3ed7b704f9e82992" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getTotalBytes</definition>
+        <argsstring>() const</argsstring>
+        <name>getTotalBytes</name>
+        <briefdescription>
+<para>Get the length of this evio structure including entire header in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>length of this evio structure including entire header in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="212" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="870" bodyend="870"/>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a82938baf95da3faf5345af0a3a19c781" compoundref="d4/df6/_record_output_8cpp" startline="659" endline="700">evio::RecordOutput::addEvent</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a190f918499a9accb0f9f347dd87834ea" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::EvioNode::getTag</definition>
+        <argsstring>() const</argsstring>
+        <name>getTag</name>
+        <briefdescription>
+<para>Get the tag of this evio structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>tag of this evio structure </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="213" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="876" bodyend="876"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ae6915e63b47b0db3389e2ba78c853bcb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::EvioNode::getNum</definition>
+        <argsstring>() const</argsstring>
+        <name>getNum</name>
+        <briefdescription>
+<para>Get the num of this evio structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Will be zero for tagsegments. <simplesect kind="return"><para>num of this evio structure </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="214" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="883" bodyend="883"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a013ac7d2fc111a278707ff598156af72" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getPad</definition>
+        <argsstring>() const</argsstring>
+        <name>getPad</name>
+        <briefdescription>
+<para>Get the padding of this evio structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Will be zero for segments and tagsegments. <simplesect kind="return"><para>padding of this evio structure </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="215" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="890" bodyend="890"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a58d853be2bbee3b985807047abf7b9a9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::EvioNode::getPosition</definition>
+        <argsstring>() const</argsstring>
+        <name>getPosition</name>
+        <briefdescription>
+<para>Get the file/buffer byte position of this evio structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file/buffer byte position of this evio structure </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="216" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="896" bodyend="896"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a6c2310519752cec64ff6757bd368b407" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getType</definition>
+        <argsstring>() const</argsstring>
+        <name>getType</name>
+        <briefdescription>
+<para>Get the evio type of this evio structure, not what it contains. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call <ref refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" kindref="member">DataType#getDataType(uint32_t)</ref> on the returned value to get the object representation. <simplesect kind="return"><para>evio type of this evio structure, not what it contains </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="217" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="904" bodyend="904"/>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" compoundref="d9/d45/_evio_node_8cpp" startline="991" endline="1014">updateLengths</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a8fcdbb769e77c2ceb6127953dc3056ee" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::EvioNode::getTypeObj</definition>
+        <argsstring>() const</argsstring>
+        <name>getTypeObj</name>
+        <briefdescription>
+<para>Get the evio type of this evio structure as an object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>evio type of this evio structure as an object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="218" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="910" bodyend="910"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a82938baf95da3faf5345af0a3a19c781" compoundref="d4/df6/_record_output_8cpp" startline="659" endline="700">evio::RecordOutput::addEvent</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a9bcbd06eaea5dd49b931c7c4a5f701a7" compoundref="d9/d45/_evio_node_8cpp" startline="243" endline="257">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a414e25a53928b161f60355f6a8001483" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getDataLength</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataLength</name>
+        <briefdescription>
+<para>Get the length of this evio structure&apos;s data only (no header words) in 32-bit words. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>length of this evio structure&apos;s data only (no header words) in 32-bit words. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="219" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="918" bodyend="918"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a674a8858957903872315886e80dc65a1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::EvioNode::getDataPosition</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataPosition</name>
+        <briefdescription>
+<para>Get the file/buffer byte position of this evio structure&apos;s data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file/buffer byte position of this evio structure&apos;s data </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="220" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="924" bodyend="924"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a76a8e09a254f49eedbc2841aacf36575" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getDataType</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataType</name>
+        <briefdescription>
+<para>Get the evio type of the data this evio structure contains. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call <ref refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" kindref="member">DataType#getDataType(uint32_t)</ref> on the returned value to get the object representation. <simplesect kind="return"><para>evio type of the data this evio structure contains </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="221" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="932" bodyend="932"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a77f6f98545da43fe65d80ecee8a545a9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+        <definition>DataType evio::EvioNode::getDataTypeObj</definition>
+        <argsstring>() const</argsstring>
+        <name>getDataTypeObj</name>
+        <briefdescription>
+<para>Get the evio type of the data this evio structure contains as an object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>evio type of the data this evio structure contains as an object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="222" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="938" bodyend="938"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad49c0e00ce28f150c91cad724634c5d0" compoundref="db/da7/_data_type_8h" startline="100" endline="103">evio::DataType::getDataType</references>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a9bcbd06eaea5dd49b931c7c4a5f701a7" compoundref="d9/d45/_evio_node_8cpp" startline="243" endline="257">toString</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a2acd50122df7b8d76ad41b170eabc8ef" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::EvioNode::getRecordPosition</definition>
+        <argsstring>() const</argsstring>
+        <name>getRecordPosition</name>
+        <briefdescription>
+<para>Get the file/buffer byte position of the record containing this node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="since"><para>version 6. </para>
+</simplesect>
+<simplesect kind="return"><para>file/buffer byte position of the record containing this node. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="223" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="945" bodyend="945"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a3385b130a722079119aa3130c2cfafc8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getPlace</definition>
+        <argsstring>() const</argsstring>
+        <name>getPlace</name>
+        <briefdescription>
+<para>Get the place of containing event in file/buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>First event = 0, second = 1, etc. Only for internal use. <simplesect kind="return"><para>place of containing event in file/buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="224" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="952" bodyend="952"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a601d0a8ad0a197da92bb38993c9e92ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::EvioNode::getParentNode</definition>
+        <argsstring>()</argsstring>
+        <name>getParentNode</name>
+        <briefdescription>
+<para>Get this node&apos;s parent node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>this node&apos;s parent node or null if none. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="226" column="25" bodyfile="src/libsrc/EvioNode.cpp" bodystart="958" bodyend="958"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a1a1b3070e9307f55a667fd8289980dc0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::EvioNode::getEventNumber</definition>
+        <argsstring>() const</argsstring>
+        <name>getEventNumber</name>
+        <briefdescription>
+<para>If this object represents an event (top-level, evio bank), then returns its number (place in file or buffer) starting with 1. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If not, return -1. <simplesect kind="return"><para>event number if representing an event, else -1 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="227" column="18" bodyfile="src/libsrc/EvioNode.cpp" bodystart="966" bodyend="966"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a952ca88da0e48dfb019cf37f1d000383" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioNode::isEvent</definition>
+        <argsstring>() const</argsstring>
+        <name>isEvent</name>
+        <briefdescription>
+<para>Does this object represent an event? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> if this object represents an event, else <computeroutput>false</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="228" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="974" bodyend="974"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a17db64917049bbdb3a24be3c56ca4b72" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::EvioNode::getScanned</definition>
+        <argsstring>() const</argsstring>
+        <name>getScanned</name>
+        <briefdescription>
+<para>Has this object been scanned (i.e. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>has all the information about this node&apos;s children been parsed and stored) ? <simplesect kind="return"><para><computeroutput>true</computeroutput> if this object has been scanned, else <computeroutput>false</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="229" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="983" bodyend="983"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::updateLengths</definition>
+        <argsstring>(uint32_t deltaLen)</argsstring>
+        <name>updateLengths</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>deltaLen</declname>
+        </param>
+        <briefdescription>
+<para>Update the length of this node in the buffer and all its parent nodes as well. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For internal use only. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>deltaLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>change in length (words). Negative value reduces lengths. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="231" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="991" bodyend="1014"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a6c2310519752cec64ff6757bd368b407" compoundref="d9/d45/_evio_node_8cpp" startline="904" endline="904">getType</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">evio::DataType::TAGSEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::updateTag</definition>
+        <argsstring>(uint16_t newTag)</argsstring>
+        <name>updateTag</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>newTag</declname>
+        </param>
+        <briefdescription>
+<para>Update, in the buffer, the tag of the structure header this object represents. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sometimes it&apos;s necessary to go back and change the tag of an evio structure that&apos;s already been written. This will do that.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newTag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>new tag value </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="232" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1024" bodyend="1054"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">evio::DataType::TAGSEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a3227a6c38ef2a620c12d3725368793d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::updateNum</definition>
+        <argsstring>(uint8_t newNum)</argsstring>
+        <name>updateNum</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>newNum</declname>
+        </param>
+        <briefdescription>
+<para>Update, in the buffer, the num of the bank header this object represents. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sometimes it&apos;s necessary to go back and change the num of an evio structure that&apos;s already been written. This will do that. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>new num value </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="233" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1063" bodyend="1076"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a2d010a13d6f6b3f35e54df793c32eb88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+        <definition>ByteBuffer &amp; evio::EvioNode::getByteData</definition>
+        <argsstring>(ByteBuffer &amp;dest, bool copy)</argsstring>
+        <name>getByteData</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with this node in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the given buffer will be filled with either a copy of or a view into this node&apos;s buffer. Position and limit are set for reading.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then return a copy as opposed to a view into this node&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>dest arg <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing data. Position and limit are set for reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="235" column="21" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1091" bodyend="1101"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa5e949edce35266d7f5fdbf958c5906c" compoundref="d4/d6c/_byte_buffer_8cpp" startline="283" endline="306">evio::ByteBuffer::copyData</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a6ee5b9b5fd99abf9e72900ef4ef2d1f3" compoundref="d9/d45/_evio_node_8cpp" startline="1116" endline="1120">getByteData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a6ee5b9b5fd99abf9e72900ef4ef2d1f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; &amp; evio::EvioNode::getByteData</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;dest, bool copy)</argsstring>
+        <name>getByteData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with this node in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the given buffer will be filled with either a copy of or a view into this node&apos;s buffer. Position and limit are set for reading.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer in which to place data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then return a copy as opposed to a view into this node&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>dest arg <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing data. Position and limit are set for reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="236" column="26" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1116" bodyend="1120"/>
+        <references refid="de/dd0/classevio_1_1_evio_node_1a2d010a13d6f6b3f35e54df793c32eb88" compoundref="d9/d45/_evio_node_8cpp" startline="1091" endline="1101">getByteData</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a0a9436e54642dc2d5f892f0d5210f799" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::EvioNode::getByteData</definition>
+        <argsstring>(bool copy)</argsstring>
+        <name>getByteData</name>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with this node in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the given buffer will be filled with either a copy of or a view into this node&apos;s buffer. Position and limit are set for reading.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then return a copy as opposed to a view into this node&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>newly created <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing data. Position and limit are set for reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="237" column="25" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1134" bodyend="1155"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a5418a6eaa87e2825c84919a634c41211" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; uint32_t &gt; &amp;</type>
+        <definition>std::vector&lt; uint32_t &gt; &amp; evio::EvioNode::getIntData</definition>
+        <argsstring>()</argsstring>
+        <name>getIntData</name>
+        <briefdescription>
+<para>Get the data associated with this node as an 32-bit integer vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Store it and return it in future calls (like in event builder). If data is of a type less than 32 bits, the last int will be junk.</para>
+<para><simplesect kind="return"><para>integer array containing data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="239" column="22" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1165" bodyend="1172"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ac72898cfe6de920faef701c3b9662bdb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::getIntData</definition>
+        <argsstring>(std::vector&lt; uint32_t &gt; &amp;intData)</argsstring>
+        <name>getIntData</name>
+        <param>
+          <type>std::vector&lt; uint32_t &gt; &amp;</type>
+          <declname>intData</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with this node as an 32-bit integer vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Place data in the given vector. If data is of a type less than 32 bits, the last int will be junk.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>intData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to store data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="240" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1182" bodyend="1190"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a9ad48c0c859e51476225fc8bbfca7520" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::getLongData</definition>
+        <argsstring>(std::vector&lt; uint64_t &gt; &amp;longData)</argsstring>
+        <name>getLongData</name>
+        <param>
+          <type>std::vector&lt; uint64_t &gt; &amp;</type>
+          <declname>longData</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with this node as an 64-bit integer vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Place data in the given vector. If data is of a type less than 64 bits, the last element may be junk.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector in which to store data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="241" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1200" bodyend="1206"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a1712579946748b8ad5b02e79dcbad472" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::getShortData</definition>
+        <argsstring>(std::vector&lt; uint16_t &gt; &amp;shortData)</argsstring>
+        <name>getShortData</name>
+        <param>
+          <type>std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>shortData</declname>
+        </param>
+        <briefdescription>
+<para>Get the data associated with this node as an 16-bit integer vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Place data in the given vector. If data is of a type less than 16 bits, the last element may be junk.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>shortData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vectro in which to store data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="242" column="14" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1216" bodyend="1222"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ae06a088063f64405e6e955952d062264" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+        <definition>ByteBuffer &amp; evio::EvioNode::getStructureBuffer</definition>
+        <argsstring>(ByteBuffer &amp;dest, bool copy)</argsstring>
+        <name>getStructureBuffer</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get this node&apos;s entire evio structure in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the returned buffer will either have a copy of or a view into the data of this node&apos;s buffer. Position and limit are set for reading.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> provided to hold the retrieved evio structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then use a copy of as opposed to a view into this node&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>dest arg <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing evio structure&apos;s bytes. Position and limit are set for reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="243" column="21" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1237" bodyend="1247"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa5e949edce35266d7f5fdbf958c5906c" compoundref="d4/d6c/_byte_buffer_8cpp" startline="283" endline="306">evio::ByteBuffer::copyData</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1afb08d1dbc5fbf780afd27617a67eb750" compoundref="d4/d6c/_byte_buffer_8cpp" startline="511" endline="511">evio::ByteBuffer::limit</references>
+        <referencedby refid="d2/d7a/classevio_1_1_record_output_1a82938baf95da3faf5345af0a3a19c781" compoundref="d4/df6/_record_output_8cpp" startline="659" endline="700">evio::RecordOutput::addEvent</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1abfce2254afb67ad778d9ef83f3806e7c" compoundref="d9/d45/_evio_node_8cpp" startline="1262" endline="1266">getStructureBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1abfce2254afb67ad778d9ef83f3806e7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; &amp; evio::EvioNode::getStructureBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;dest, bool copy)</argsstring>
+        <name>getStructureBuffer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>copy</declname>
+        </param>
+        <briefdescription>
+<para>Get this node&apos;s entire evio structure in <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Depending on the copy argument, the returned buffer will either have a copy of or a view into the data of this node&apos;s buffer. Position and limit are set for reading.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> provided to hold the retrieved evio structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput>, then use a copy of as opposed to a view into this node&apos;s buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>dest arg <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> containing evio structure&apos;s bytes. Position and limit are set for reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="244" column="26" bodyfile="src/libsrc/EvioNode.cpp" bodystart="1262" bodyend="1266"/>
+        <references refid="de/dd0/classevio_1_1_evio_node_1ae06a088063f64405e6e955952d062264" compoundref="d9/d45/_evio_node_8cpp" startline="1237" endline="1247">getStructureBuffer</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::EvioNode::scanStructure</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)</argsstring>
+        <name>scanStructure</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>This method recursively stores, in the given list, all the information about an evio structure&apos;s children found in the given <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It uses absolute gets so buffer&apos;s position does <bold>not</bold> change.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node being scanned </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="174" column="21" bodyfile="src/libsrc/EvioNode.cpp" bodystart="504" bodyend="656"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad7e6fde70cb5eae2530bee8b2394977f" compoundref="db/da7/_data_type_8h" startline="217" endline="217">evio::DataType::isBank</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1afa6b14e9cdc06daf1ad89221cd7c572b" compoundref="db/da7/_data_type_8h" startline="223" endline="223">evio::DataType::isSegment</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ad398e7fb1f5cd94dd7866c0ca2322644" compoundref="db/da7/_data_type_8h" startline="205" endline="211">evio::DataType::isStructure</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">evio::DataType::TAGSEGMENT</references>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1ab6c201b2b277a809d6be58816a107bb2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; &amp; evio::EvioNode::extractNode</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;bankNode, size_t position)</argsstring>
+        <name>extractNode</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>bankNode</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>position</declname>
+        </param>
+        <briefdescription>
+<para>This method populates an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object that will represent an evio bank from that same node containing a reference to the backing buffer and given a position in that buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bankNode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> to represent a bank and containing, at least, a reference to backing buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in backing buffer</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> bankNode arg filled with appropriate data. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer to read evio bank header (8 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="176" column="33" bodyfile="src/libsrc/EvioNode.cpp" bodystart="453" bodyend="494"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a01783f61f04c093b71f58cd1adbde2fa" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1074" endline="1082">evio::ByteBuffer::getInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a586571da6b6789902ecb5a67c319b34a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1115" endline="1123">evio::ByteBuffer::getUInt</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a32b043081cd3a62187f2577ce2966e7d" compoundref="d4/d6c/_byte_buffer_8cpp" startline="497" endline="497">evio::ByteBuffer::remaining</references>
+        <referencedby refid="d9/d0a/classevio_1_1_evio_compact_reader_v4_1aa1739e3c0772961c6a6e4a17d9ad14d3" compoundref="d6/d16/_evio_compact_reader_v4_8cpp" startline="907" endline="1104">evio::EvioCompactReaderV4::addStructure</referencedby>
+        <referencedby refid="de/dd0/classevio_1_1_evio_node_1a4729f50cfe20a7e7672fdd1bbe4a366c" compoundref="d9/d45/_evio_node_8cpp" startline="394" endline="407">extractEventNode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a4729f50cfe20a7e7672fdd1bbe4a366c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::EvioNode::extractEventNode</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buffer, RecordNode &amp;recNode, size_t position, uint32_t place)</argsstring>
+        <name>extractEventNode</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type><ref refid="d4/d87/classevio_1_1_record_node" kindref="compound">RecordNode</ref> &amp;</type>
+          <declname>recNode</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>position</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>place</declname>
+        </param>
+        <briefdescription>
+<para>This method extracts an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object representing an evio event (top level evio bank) from a given buffer, a location in the buffer, and a few other things. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>An <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object represents an evio container - either a bank, segment, or tag segment.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to examine </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recNode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object holding data about block header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>place</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of event in buffer (starting at 0)</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object containing evio event information </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer to read evio bank header (8 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="177" column="32" bodyfile="src/libsrc/EvioNode.cpp" bodystart="394" bodyend="407"/>
+        <references refid="de/dd0/classevio_1_1_evio_node_1ab6c201b2b277a809d6be58816a107bb2" compoundref="d9/d45/_evio_node_8cpp" startline="453" endline="494">extractNode</references>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a2df955f07faf6a4cd92cc8184eaa5d04" compoundref="d8/d15/_reader_8cpp" startline="1049" endline="1249">evio::Reader::scanBuffer</referencedby>
+        <referencedby refid="d3/d56/classevio_1_1_reader_1a703075aab48cc798dbccc8cb14d74725" compoundref="d8/d15/_reader_8cpp" startline="1259" endline="1394">evio::Reader::scanUncompressedBuffer</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dd0/classevio_1_1_evio_node_1a92a7866dc7f63b6988338182f11a1e88" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::EvioNode::extractEventNode</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buffer, size_t recPosition, size_t position, uint32_t place)</argsstring>
+        <name>extractEventNode</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>recPosition</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>position</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>place</declname>
+        </param>
+        <briefdescription>
+<para>This method extracts an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object representing an evio event (top level evio bank) from a given buffer, a location in the buffer, and a few other things. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>An <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object represents an evio container - either a bank, segment, or tag segment.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to examine </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of containing record </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>place</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>place of event in buffer (starting at 0)</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object containing evio event information </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if not enough data in buffer to read evio bank header (8 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/EvioNode.h" line="180" column="32" bodyfile="src/libsrc/EvioNode.cpp" bodystart="425" bodyend="438"/>
+        <references refid="de/dd0/classevio_1_1_evio_node_1ab6c201b2b277a809d6be58816a107bb2" compoundref="d9/d45/_evio_node_8cpp" startline="453" endline="494">extractNode</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class is used to store relevant info about an evio container (bank, segment, or tag segment), without having to de-serialize it into many objects and arrays. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>It is not thread-safe and is designed for speed.</para>
+<para><simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="date"><para>07/22/2019 </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>evio::EvioNode</label>
+        <link refid="de/dd0/classevio_1_1_evio_node"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::enable_shared_from_this&lt; EvioNode &gt;</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>evio::EvioNode</label>
+        <link refid="de/dd0/classevio_1_1_evio_node"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::enable_shared_from_this&lt; EvioNode &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/EvioNode.h" line="41" column="5" bodyfile="src/libsrc/EvioNode.h" bodystart="41" bodyend="245"/>
+    <listofallmembers>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a0b79e698788ac5d0d4a9b6cee1851803" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>addChild</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a5647d770a1d616da157fd9e03edfecd9" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>addToAllNodes</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1af9ad8add359ac25472dab740bdb6e6fe" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>allNodes</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1aab42f32f24c0988fe984a15a7f550562" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>buffer</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a49a57ef1c86b4bc4e02f8ab9315b335a" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>childNodes</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a326e277c1d9b6061f976662029b7051c" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>clear</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ac364c9ae28925bb3467f2c9c43b4c02d" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>clearIntArray</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a4fd08a6078a1641a3ffcdc54960ca278" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>clearLists</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a91c96e04996a828fbd52567dffdeaadb" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>clearObjects</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a3911eaa9c5a4689d52c29b2929ebaad4" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>copy</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1afa9a5f844060485b8b5f42aa8e448489" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>copyParentForScan</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a581282a2de4c4f660af80db775a816af" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>data</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1adbe8e0c9d2bc12ef33f484ed72e0a687" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>dataLen</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a2184a959d0d26fdb4192499962d7ec86" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>dataPos</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a9e205a2dae48e51663839a2f2aabd4ca" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>dataType</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a7fb8c9f7d288fa6ccb4dc5ba0dfd5f06" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>EventHeaderParser</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a6fd0f6cd8dffa092eb04b53780b30f92" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>eventNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a1b4390a9a867354d4b1037d6688278f4" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioCompactReaderV4</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a32f95a8849a0400219cb3f9d977dd9b9" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioCompactReaderV6</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a2b277281e1c86f401ad63cc8f914d38c" prot="protected" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a4e582a94afbc9d302df055aab530fc1d" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a968019448116544aabaf3f675abb778d" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a2e15e983b9e70952761e810e9d1551f5" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a098e061b208e2fb64c1fce74221993db" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a34f7490d31685ed7764dd05832fd9829" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1afccb56e6b7f4b49a7cceb8bee7c12d56" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a5a3145f6961576e47042765882a04d04" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>EvioNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a4729f50cfe20a7e7672fdd1bbe4a366c" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>extractEventNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a92a7866dc7f63b6988338182f11a1e88" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>extractEventNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ab6c201b2b277a809d6be58816a107bb2" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>extractNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a99a0f0297c0aa005187ef809d00c3195" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getAllDescendants</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a25cafbc2f243c523b39f5f8eefcc604b" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getAllNodes</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a62277033890518669c730a7b41296ec6" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getBuffer</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a2d010a13d6f6b3f35e54df793c32eb88" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getByteData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a6ee5b9b5fd99abf9e72900ef4ef2d1f3" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getByteData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a0a9436e54642dc2d5f892f0d5210f799" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getByteData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1af7549643fc7d60de1b7f831ef5afc90d" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getChildAt</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1abb073b68f16fb2f8bc8d51a39d5fa74b" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getChildCount</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a92235dbcfd647901ebfa74d40e3bcbf4" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getChildNodes</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a414e25a53928b161f60355f6a8001483" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getDataLength</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a674a8858957903872315886e80dc65a1" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getDataPosition</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a76a8e09a254f49eedbc2841aacf36575" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getDataType</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a77f6f98545da43fe65d80ecee8a545a9" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getDataTypeObj</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a1a1b3070e9307f55a667fd8289980dc0" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getEventNumber</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a5418a6eaa87e2825c84919a634c41211" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getIntData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ac72898cfe6de920faef701c3b9662bdb" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getIntData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a162a4711d490023998557e5b1363f553" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getLength</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a9ad48c0c859e51476225fc8bbfca7520" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getLongData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ae6915e63b47b0db3389e2ba78c853bcb" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getNum</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a013ac7d2fc111a278707ff598156af72" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getPad</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a601d0a8ad0a197da92bb38993c9e92ee" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getParentNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a3385b130a722079119aa3130c2cfafc8" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getPlace</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a58d853be2bbee3b985807047abf7b9a9" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getPosition</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a0786d48da71ccce75be67228e57aa736" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>getRecordNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a2acd50122df7b8d76ad41b170eabc8ef" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getRecordPosition</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a17db64917049bbdb3a24be3c56ca4b72" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getScanned</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a1712579946748b8ad5b02e79dcbad472" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getShortData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ae06a088063f64405e6e955952d062264" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getStructureBuffer</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1abfce2254afb67ad778d9ef83f3806e7c" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getStructureBuffer</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a190f918499a9accb0f9f347dd87834ea" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getTag</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a4ceab2d4691f0b0ac655276054fbf00e" prot="protected" virt="non-virtual"><scope>evio::EvioNode</scope><name>getThis</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a877b920f8610559a3ed7b704f9e82992" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getTotalBytes</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a6c2310519752cec64ff6757bd368b407" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getType</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a8fcdbb769e77c2ceb6127953dc3056ee" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>getTypeObj</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ac7931f43990aa967f9e7ddfef18d8002" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>id</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a952ca88da0e48dfb019cf37f1d000383" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>isEvent</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ad35fcbd6cbfee654f48234ac59a5f2fe" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>isObsolete</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a375efb2058203d1a610b7b615b2df906" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>izEvent</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a3b7127aa5d345f83ceb2cbf78cae2e55" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>len</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a32b30465ff512b90e56592da9978e11e" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>num</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ad9045e6823632c920864895f68bbdfd6" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>obsolete</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ac364f90bd5783cdf108dc61841fa7ed7" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>operator=</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a2b3605b502de062b100c849c44c61bed" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>operator==</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a0ac4259c0571fcd3b2a8d06a2525e723" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>pad</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1aa4cc0b99778ee5613f0af0ecc12f8bb6" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>parentNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1af8c3493da58aa2e6be1987e209bd5614" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>place</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ae2c51f96b1cf73f9e3409cf96194a122" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>pos</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ad28e8774684df343f5d8e847d76f024d" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>recordNode</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a8829699c96fc64179ce5e7a0ba0f0690" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>recordPos</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ada67da226694d9b002882125528aa2ef" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>removeChild</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1ac1439c5b0f9a7ad35ebf11fd83ad7317" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>removeFromAllNodes</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1aa207cd2ac1def019a86c9d7100c1f17e" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>scanned</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a13984f5cb22828f75d636400064b147e" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>scanStructure</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a341211c0da8ed9a01aef7aec34e68a83" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>setBuffer</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1af86dd6383766b1d5fc6c4615945effab" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>setData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1abbe4211c96dfaaa4c8aa88e3be6be53e" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>setData</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a88b28f2a9a757567b778cfbb4415eabb" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>setObsolete</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1abec1750a53e8b5777a28aaa005077c57" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>shift</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a1c5e15b8b009b1989bc82f6ebf5f99c6" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>staticId</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a750723fa226d010cbc0f2fab4472116f" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>tag</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a9bcbd06eaea5dd49b931c7c4a5f701a7" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>toString</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a09eb0384d5ba4e2a17b67878c6975519" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>type</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a8379e0ae4913e48165ea8f52fc074073" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>updateLengths</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a3227a6c38ef2a620c12d3725368793d1" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>updateNum</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1afb85f915e11e73d860d258e211ded1a8" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>updateTag</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a9c2751ecdc9d2563d06622f8f100ef88" prot="private" virt="non-virtual"><scope>evio::EvioNode</scope><name>Util</name></member>
+      <member refid="de/dd0/classevio_1_1_evio_node_1a6e1428a24eeb2ee0028574814da08b73" prot="public" virt="non-virtual"><scope>evio::EvioNode</scope><name>~EvioNode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

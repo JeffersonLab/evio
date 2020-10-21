@@ -1,0 +1,869 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="db/dc8/classevio_1_1_record_ring_item" kind="class" language="C++" prot="public">
+    <compoundname>evio::RecordRingItem</compoundname>
+    <includes local="no">RecordRingItem.h</includes>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1aa9fb5f3e82ccf629bb55ae624c04cb53" prot="private" static="yes" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::RecordRingItem::factoryByteOrder</definition>
+        <argsstring></argsstring>
+        <name>factoryByteOrder</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order to be used by factory creating these RecordRingItems. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="43" column="26" bodyfile="src/libsrc/RecordRingItem.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1aa68fd6e77aaf0f7ac2dad44387b36700" prot="private" static="yes" mutable="no">
+        <type>int</type>
+        <definition>int evio::RecordRingItem::factoryMaxEventCount</definition>
+        <argsstring></argsstring>
+        <name>factoryMaxEventCount</name>
+        <initializer>{0}</initializer>
+        <briefdescription>
+<para>MaxEventCount to be used by factory creating these RecordRingItems. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="45" column="20" bodyfile="src/libsrc/RecordRingItem.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1ad5f5b82d85faf0badb130b886a5d56da" prot="private" static="yes" mutable="no">
+        <type>int</type>
+        <definition>int evio::RecordRingItem::factoryMaxBufferSize</definition>
+        <argsstring></argsstring>
+        <name>factoryMaxBufferSize</name>
+        <initializer>{0}</initializer>
+        <briefdescription>
+<para>MaxBufferSize to be used by factory creating these RecordRingItems. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="47" column="20" bodyfile="src/libsrc/RecordRingItem.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1aab1aa1f71cb910d76df59b66a0d1c1fd" prot="private" static="yes" mutable="no">
+        <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref></type>
+        <definition>Compressor::CompressionType evio::RecordRingItem::factoryCompressionType</definition>
+        <argsstring></argsstring>
+        <name>factoryCompressionType</name>
+        <initializer>{<ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9" kindref="member">Compressor::UNCOMPRESSED</ref>}</initializer>
+        <briefdescription>
+<para>CompressionType to be used by factory creating these RecordRingItems. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="49" column="44" bodyfile="src/libsrc/RecordRingItem.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1ab832d1f893b997d814a1d93461ce7a82" prot="private" static="yes" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::RecordRingItem::idValue</definition>
+        <argsstring></argsstring>
+        <name>idValue</name>
+        <initializer>= 0ULL</initializer>
+        <briefdescription>
+<para>Assign each record a unique id for debugging purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="52" column="25" bodyfile="src/libsrc/RecordRingItem.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1afa52ab86889f6556a4275bf76d0d0fcb" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d2/d7a/classevio_1_1_record_output" kindref="compound">RecordOutput</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordOutput&gt; evio::RecordRingItem::record</definition>
+        <argsstring></argsstring>
+        <name>record</name>
+        <briefdescription>
+<para>Record object, needs shared outside access. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="56" column="25" bodyfile="src/libsrc/RecordRingItem.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1a02d349d2afc9ba65995c262c4a8f7cab" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::RecordRingItem::order</definition>
+        <argsstring></argsstring>
+        <name>order</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order of record being built. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="59" column="19" bodyfile="src/libsrc/RecordRingItem.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1aff0c301433089318df54d4522fb07100" prot="private" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t evio::RecordRingItem::sequence</definition>
+        <argsstring></argsstring>
+        <name>sequence</name>
+        <initializer>= 0UL</initializer>
+        <briefdescription>
+<para>Sequence at which this object was taken from ring by one of the &quot;get&quot; calls. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="62" column="17" bodyfile="src/libsrc/RecordRingItem.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1acaf445e6675fbbd52df80584d13ef219" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; Disruptor::ISequence &gt;</type>
+        <definition>std::shared_ptr&lt;Disruptor::ISequence&gt; evio::RecordRingItem::sequenceObj</definition>
+        <argsstring></argsstring>
+        <name>sequenceObj</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Sequence object allowing ring consumer to get/release this item. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="65" column="25" bodyfile="src/libsrc/RecordRingItem.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1a03fea7ea252f80478280b8cccf4e0382" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; bool &gt;</type>
+        <definition>std::atomic&lt;bool&gt; evio::RecordRingItem::splitFileAfterWriteBool</definition>
+        <argsstring></argsstring>
+        <name>splitFileAfterWriteBool</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+<para>Do we split a file after writing this record? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="68" column="21" bodyfile="src/libsrc/RecordRingItem.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1a22dfeef55fd454392060201d49ae2052" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; bool &gt;</type>
+        <definition>std::atomic&lt;bool&gt; evio::RecordRingItem::forceToDiskBool</definition>
+        <argsstring></argsstring>
+        <name>forceToDiskBool</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+<para>Do we force the record to be physically written to disk? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="71" column="21" bodyfile="src/libsrc/RecordRingItem.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1a2b205c5e00314f60c253c125ab2b1226" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; bool &gt;</type>
+        <definition>std::atomic&lt;bool&gt; evio::RecordRingItem::checkDisk</definition>
+        <argsstring></argsstring>
+        <name>checkDisk</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+<para>If a new file needs to be created (<ref refid="db/dc8/classevio_1_1_record_ring_item_1ab23f5055e263daf680479a709bcb9770" kindref="member">splitFileAfterWrite</ref> is true), but there is not enough free space on the disk partition for the next, complete file, return without creating or writing to file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If <ref refid="db/dc8/classevio_1_1_record_ring_item_1a74c3ccb837e98b17e9322e8331a48a2a" kindref="member">forceToDisk</ref> is true, write anyway. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="77" column="21" bodyfile="src/libsrc/RecordRingItem.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1a3c7aa28e86ec385efd8489127c09dd71" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; bool &gt;</type>
+        <definition>std::atomic&lt;bool&gt; evio::RecordRingItem::lastItem</definition>
+        <argsstring></argsstring>
+        <name>lastItem</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+<para>Processing thread may need to know if this is the last item to be processed so thread can shutdown. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="81" column="21" bodyfile="src/libsrc/RecordRingItem.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1a2cbe676a52145a5329807e9611139aa6" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::RecordRingItem::alreadyReleased</definition>
+        <argsstring></argsstring>
+        <name>alreadyReleased</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Keep track of whether this item has already been released. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="84" column="14" bodyfile="src/libsrc/RecordRingItem.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="db/dc8/classevio_1_1_record_ring_item_1a97bcb08eeccf1a157b50c8f2c86df347" prot="private" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::RecordRingItem::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>We may want to track a particular record for debugging. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="87" column="18" bodyfile="src/libsrc/RecordRingItem.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a6e3fd33c6c06c95a900a88a261b4590b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const std::function&lt; std::shared_ptr&lt; <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &gt;) &gt; &amp;</type>
+        <definition>const std::function&lt; std::shared_ptr&lt; RecordRingItem &gt;) &gt; &amp; evio::RecordRingItem::eventFactory</definition>
+        <argsstring>()</argsstring>
+        <name>eventFactory</name>
+        <briefdescription>
+<para>Function to create RecordRingItems by RingBuffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="93" column="39" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="32" bodyend="37"/>
+        <referencedby refid="dc/de8/classevio_1_1_record_supply_1a149df78b303a2043f849dd2670dcfff3" compoundref="d7/d33/_record_supply_8cpp" startline="41" endline="111">evio::RecordSupply::RecordSupply</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a2fff048e382fec687bf8f62c1c84ae46" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::setEventFactorySettings</definition>
+        <argsstring>(ByteOrder &amp;order, uint32_t maxEventCount, uint32_t maxBufferSize, Compressor::CompressionType &amp;compressionType)</argsstring>
+        <name>setEventFactorySettings</name>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxEventCount</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>maxBufferSize</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref> &amp;</type>
+          <declname>compressionType</declname>
+        </param>
+        <briefdescription>
+<para>Method to set <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> parameters for objects created by eventFactory. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxEventCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of events each record can hold. Value &lt;= O means use default (1M). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBufferSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of uncompressed data bytes each record can hold. Value of &lt; 8MB results in default of 8MB. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>compressionType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data compression to do. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="95" column="21" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="52" bodyend="59"/>
+        <referencedby refid="dc/de8/classevio_1_1_record_supply_1a149df78b303a2043f849dd2670dcfff3" compoundref="d7/d33/_record_supply_8cpp" startline="41" endline="111">evio::RecordSupply::RecordSupply</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a811a0d063f117e37b9f3cfb975bd8bd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordRingItem::RecordRingItem</definition>
+        <argsstring>()</argsstring>
+        <name>RecordRingItem</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used in <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> by eventFactory to create RecordRingItems for supply. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="99" column="9" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="64" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1af4d21cc389374b5b68b50f386561c2c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordRingItem::RecordRingItem</definition>
+        <argsstring>(const RecordRingItem &amp;item)</argsstring>
+        <name>RecordRingItem</name>
+        <param>
+          <type>const <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &amp;</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor (sort of). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used in <ref refid="d9/dcd/classevio_1_1_event_writer" kindref="compound">EventWriter</ref> for when disk is full and a copy of the item to be written is made for later writing. Original item is released so ring can function. Note, not everything is copied (sequenceObj) since in usage, the original item has already been released. Also, <ref refid="db/dc8/classevio_1_1_record_ring_item_1ad09df9a71f72966e8ea93e6939bef017" kindref="member">isAlreadyReleased()</ref> is true. </para>
+<para><bold>NOT to be used except internally by evio.</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ring item to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="100" column="9" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="83" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a945eeab4f792e6d246ba40152b1b30ea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordRingItem::~RecordRingItem</definition>
+        <argsstring>()=default</argsstring>
+        <name>~RecordRingItem</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="101" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a7d0d9de5209d5a34ebc9906d183c84d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &amp;</type>
+        <definition>RecordRingItem&amp; evio::RecordRingItem::operator=</definition>
+        <argsstring>(const RecordRingItem &amp;other)=delete</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="db/dc8/classevio_1_1_record_ring_item" kindref="compound">RecordRingItem</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="103" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1aa6ec67be24d5b34e8a4efd08054f7760" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::reset</definition>
+        <argsstring>()</argsstring>
+        <name>reset</name>
+        <briefdescription>
+<para><zwj/>** </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Method to reset this item each time it is retrieved from the supply. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="105" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="131" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a8e4ebc043099ee1a5542f564d2edf6c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d2/d7a/classevio_1_1_record_output" kindref="compound">RecordOutput</ref> &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; RecordOutput &gt; &amp; evio::RecordRingItem::getRecord</definition>
+        <argsstring>()</argsstring>
+        <name>getRecord</name>
+        <briefdescription>
+<para>Get the contained record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Record is reset. <simplesect kind="return"><para>contained record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="107" column="26" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="148" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1ad851bb1b5945b63f277c39b0f6550b7d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+        <definition>ByteOrder &amp; evio::RecordRingItem::getOrder</definition>
+        <argsstring>()</argsstring>
+        <name>getOrder</name>
+        <briefdescription>
+<para>Get the byte order used to build record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>byte order used to build record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="108" column="20" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="155" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1aec5bbe565de98fc0ebb5d1dbb18c64ae" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t evio::RecordRingItem::getSequence</definition>
+        <argsstring>() const</argsstring>
+        <name>getSequence</name>
+        <briefdescription>
+<para>Get the sequence at which this object was taken from ring by one of the &quot;get&quot; calls. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>sequence at which this object was taken from ring by one of the &quot;get&quot; calls. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="109" column="17" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="162" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a0d7b33a98baf127b7043982ec8676d63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; Disruptor::ISequence &gt; &amp;</type>
+        <definition>std::shared_ptr&lt; Disruptor::ISequence &gt; &amp; evio::RecordRingItem::getSequenceObj</definition>
+        <argsstring>()</argsstring>
+        <name>getSequenceObj</name>
+        <briefdescription>
+<para>Get the Sequence object allowing ring consumer to get/release this item. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Sequence object allowing ring consumer to get/release this item. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="110" column="26" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="169" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a9b9a42800dd77d9a22793ee9edc8c84b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::fromProducer</definition>
+        <argsstring>(int64_t seq)</argsstring>
+        <name>fromProducer</name>
+        <param>
+          <type>int64_t</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Set the sequence of an item obtained through <ref refid="dc/de8/classevio_1_1_record_supply_1af6ac986bb6d740afcbc0b9f4560e1564" kindref="member">RecordSupply#get()</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sequence used to get item. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="112" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="176" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a7d5d45a3832fc2c1df486f744b012acb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::fromConsumer</definition>
+        <argsstring>(int64_t seq, std::shared_ptr&lt; Disruptor::ISequence &gt; &amp;seqObj)</argsstring>
+        <name>fromConsumer</name>
+        <param>
+          <type>int64_t</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; Disruptor::ISequence &gt; &amp;</type>
+          <declname>seqObj</declname>
+        </param>
+        <briefdescription>
+<para>Set the sequence of an item obtained through <ref refid="dc/de8/classevio_1_1_record_supply_1a63190f0963f537c6fb6b29d8377beaa5" kindref="member">RecordSupply#getToCompress(uint32_t)</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sequence used to get item. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seqObj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sequence object used to get/release item. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="113" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="184" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1ab23f5055e263daf680479a709bcb9770" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordRingItem::splitFileAfterWrite</definition>
+        <argsstring>()</argsstring>
+        <name>splitFileAfterWrite</name>
+        <briefdescription>
+<para>Get whether a file writer splits the file after writing this record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if file writer splits the file after writing this record. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="115" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="194" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1acba066c329513da65d7023a2ff3ad32b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::splitFileAfterWrite</definition>
+        <argsstring>(bool split)</argsstring>
+        <name>splitFileAfterWrite</name>
+        <param>
+          <type>bool</type>
+          <declname>split</declname>
+        </param>
+        <briefdescription>
+<para>Set whether a file writer splits the file after writing this record. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>split</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, file writer splits the file after writing this record, else false. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="116" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="202" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a74c3ccb837e98b17e9322e8331a48a2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordRingItem::forceToDisk</definition>
+        <argsstring>()</argsstring>
+        <name>forceToDisk</name>
+        <briefdescription>
+<para>Get whether a file writer forces this record to be physically written to disk. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if file writer forces this record to be physically written to disk. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="118" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="209" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1aecd9f6376d287426a46f9b491703aa7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::forceToDisk</definition>
+        <argsstring>(bool force)</argsstring>
+        <name>forceToDisk</name>
+        <param>
+          <type>bool</type>
+          <declname>force</declname>
+        </param>
+        <briefdescription>
+<para>Set whether a file writer forces this record to be physically written to disk. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>force</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, file writer forces this record to be physically written to disk, else false. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="119" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="217" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a5b080428edfb8048fa83028d4281d0e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordRingItem::isCheckDisk</definition>
+        <argsstring>()</argsstring>
+        <name>isCheckDisk</name>
+        <briefdescription>
+<para>Get whether there is not enough free space on the disk partition for the next, complete file to be written, resulting in not creating or writing to file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if there is not enough free space on the disk partition for the next, complete file to be written, resulting in not creating or writing to file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="121" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="226" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a90f7d49c56c4b86b0ca8e29cbb1255c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::setCheckDisk</definition>
+        <argsstring>(bool check)</argsstring>
+        <name>setCheckDisk</name>
+        <param>
+          <type>bool</type>
+          <declname>check</declname>
+        </param>
+        <briefdescription>
+<para>Set whether there is not enough free space on the disk partition for the next, complete file to be written, resulting in not creating or writing to file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>check</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, there is not enough free space on the disk partition for the next, complete file to be written, resulting in not creating or writing to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="122" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="235" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a11272f217c2d6323fa56d7afc2ca6ec1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordRingItem::isLastItem</definition>
+        <argsstring>()</argsstring>
+        <name>isLastItem</name>
+        <briefdescription>
+<para>Get whether this is the last item in the supply to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true this is the last item in the supply to be used. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="124" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="242" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1abe597b9bd95d55cb3628be4f33aecc86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::setLastItem</definition>
+        <argsstring>(bool last)</argsstring>
+        <name>setLastItem</name>
+        <param>
+          <type>bool</type>
+          <declname>last</declname>
+        </param>
+        <briefdescription>
+<para>Set whether this is the last item in the supply to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used in <ref refid="d1/d17/classevio_1_1_writer_m_t" kindref="compound">WriterMT</ref> when closing. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>last</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, this is the last item in the supply to be used. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="125" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="250" bodyend="250"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1ad09df9a71f72966e8ea93e6939bef017" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::RecordRingItem::isAlreadyReleased</definition>
+        <argsstring>() const</argsstring>
+        <name>isAlreadyReleased</name>
+        <briefdescription>
+<para>Has this item already been released by the <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref>? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if item already been released by the <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="127" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="257" bodyend="257"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a57a2eb1fd506a8f6b0f48406cc7c59a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::setAlreadyReleased</definition>
+        <argsstring>(bool released)</argsstring>
+        <name>setAlreadyReleased</name>
+        <param>
+          <type>bool</type>
+          <declname>released</declname>
+        </param>
+        <briefdescription>
+<para>Set whether this item has already been released by the <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>released</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if this item has already been released by the <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref>, else false. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="128" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="265" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1ac1332550c410014087768aeee00f8302" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::RecordRingItem::getId</definition>
+        <argsstring>() const</argsstring>
+        <name>getId</name>
+        <briefdescription>
+<para>Get item&apos;s id. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Id is 0 if unused. <simplesect kind="return"><para>id number. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="130" column="18" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="272" bodyend="272"/>
+      </memberdef>
+      <memberdef kind="function" id="db/dc8/classevio_1_1_record_ring_item_1a5d43111f1ed246070d9350f888f23a02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordRingItem::setId</definition>
+        <argsstring>(uint64_t idVal)</argsstring>
+        <name>setId</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>idVal</declname>
+        </param>
+        <briefdescription>
+<para>Set this item&apos;s id number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>idVal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>id number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordRingItem.h" line="131" column="14" bodyfile="src/libsrc/RecordRingItem.cpp" bodystart="279" bodyend="279"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class provides the items which are supplied by the <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>11/05/2019 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/RecordRingItem.h" line="34" column="5" bodyfile="src/libsrc/RecordRingItem.h" bodystart="34" bodyend="133"/>
+    <listofallmembers>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a2cbe676a52145a5329807e9611139aa6" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>alreadyReleased</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a2b205c5e00314f60c253c125ab2b1226" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>checkDisk</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a6e3fd33c6c06c95a900a88a261b4590b" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>eventFactory</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1aa9fb5f3e82ccf629bb55ae624c04cb53" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>factoryByteOrder</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1aab1aa1f71cb910d76df59b66a0d1c1fd" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>factoryCompressionType</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1ad5f5b82d85faf0badb130b886a5d56da" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>factoryMaxBufferSize</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1aa68fd6e77aaf0f7ac2dad44387b36700" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>factoryMaxEventCount</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a74c3ccb837e98b17e9322e8331a48a2a" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>forceToDisk</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1aecd9f6376d287426a46f9b491703aa7e" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>forceToDisk</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a22dfeef55fd454392060201d49ae2052" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>forceToDiskBool</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a7d5d45a3832fc2c1df486f744b012acb" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>fromConsumer</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a9b9a42800dd77d9a22793ee9edc8c84b" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>fromProducer</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1ac1332550c410014087768aeee00f8302" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>getId</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1ad851bb1b5945b63f277c39b0f6550b7d" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>getOrder</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a8e4ebc043099ee1a5542f564d2edf6c8" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>getRecord</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1aec5bbe565de98fc0ebb5d1dbb18c64ae" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>getSequence</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a0d7b33a98baf127b7043982ec8676d63" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>getSequenceObj</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a97bcb08eeccf1a157b50c8f2c86df347" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>id</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1ab832d1f893b997d814a1d93461ce7a82" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>idValue</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1ad09df9a71f72966e8ea93e6939bef017" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>isAlreadyReleased</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a5b080428edfb8048fa83028d4281d0e4" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>isCheckDisk</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a11272f217c2d6323fa56d7afc2ca6ec1" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>isLastItem</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a3c7aa28e86ec385efd8489127c09dd71" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>lastItem</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a7d0d9de5209d5a34ebc9906d183c84d4" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>operator=</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a02d349d2afc9ba65995c262c4a8f7cab" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>order</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1afa52ab86889f6556a4275bf76d0d0fcb" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>record</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a811a0d063f117e37b9f3cfb975bd8bd2" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>RecordRingItem</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1af4d21cc389374b5b68b50f386561c2c0" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>RecordRingItem</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1aa6ec67be24d5b34e8a4efd08054f7760" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>reset</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1aff0c301433089318df54d4522fb07100" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>sequence</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1acaf445e6675fbbd52df80584d13ef219" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>sequenceObj</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a57a2eb1fd506a8f6b0f48406cc7c59a5" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>setAlreadyReleased</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a90f7d49c56c4b86b0ca8e29cbb1255c3" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>setCheckDisk</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a2fff048e382fec687bf8f62c1c84ae46" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>setEventFactorySettings</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a5d43111f1ed246070d9350f888f23a02" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>setId</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1abe597b9bd95d55cb3628be4f33aecc86" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>setLastItem</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1ab23f5055e263daf680479a709bcb9770" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>splitFileAfterWrite</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1acba066c329513da65d7023a2ff3ad32b" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>splitFileAfterWrite</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a03fea7ea252f80478280b8cccf4e0382" prot="private" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>splitFileAfterWriteBool</name></member>
+      <member refid="db/dc8/classevio_1_1_record_ring_item_1a945eeab4f792e6d246ba40152b1b30ea" prot="public" virt="non-virtual"><scope>evio::RecordRingItem</scope><name>~RecordRingItem</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

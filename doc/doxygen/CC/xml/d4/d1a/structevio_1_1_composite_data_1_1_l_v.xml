@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d4/d1a/structevio_1_1_composite_data_1_1_l_v" kind="struct" language="C++" prot="private">
+    <compoundname>evio::CompositeData::LV</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="d4/d1a/structevio_1_1_composite_data_1_1_l_v_1a3fe32070046e657b77f11ef430b92b03" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int evio::CompositeData::LV::left</definition>
+        <argsstring></argsstring>
+        <name>left</name>
+        <briefdescription>
+<para>Index of ifmt[] element containing left parenthesis. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="102" column="17" bodyfile="src/libsrc/CompositeData.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d1a/structevio_1_1_composite_data_1_1_l_v_1aaeb6f192e19174c39edb4ea9de42be9b" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int evio::CompositeData::LV::nrepeat</definition>
+        <argsstring></argsstring>
+        <name>nrepeat</name>
+        <briefdescription>
+<para>How many times format in parenthesis must be repeated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="104" column="17" bodyfile="src/libsrc/CompositeData.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d1a/structevio_1_1_composite_data_1_1_l_v_1a10a3e4f06bd0442ecc47dab2ab25e3f4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int evio::CompositeData::LV::irepeat</definition>
+        <argsstring></argsstring>
+        <name>irepeat</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="106" column="17" bodyfile="src/libsrc/CompositeData.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Structure for internal use only. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/CompositeData.h" line="100" column="9" bodyfile="src/libsrc/CompositeData.h" bodystart="100" bodyend="107"/>
+    <listofallmembers>
+      <member refid="d4/d1a/structevio_1_1_composite_data_1_1_l_v_1a10a3e4f06bd0442ecc47dab2ab25e3f4" prot="public" virt="non-virtual"><scope>evio::CompositeData::LV</scope><name>irepeat</name></member>
+      <member refid="d4/d1a/structevio_1_1_composite_data_1_1_l_v_1a3fe32070046e657b77f11ef430b92b03" prot="public" virt="non-virtual"><scope>evio::CompositeData::LV</scope><name>left</name></member>
+      <member refid="d4/d1a/structevio_1_1_composite_data_1_1_l_v_1aaeb6f192e19174c39edb4ea9de42be9b" prot="public" virt="non-virtual"><scope>evio::CompositeData::LV</scope><name>nrepeat</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

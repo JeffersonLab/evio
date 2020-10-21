@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d4/d65/classevio_1_1_record_compressor" kind="class" language="C++" prot="public">
+    <compoundname>evio::RecordCompressor</compoundname>
+    <includes local="no">RecordCompressor.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d4/d65/classevio_1_1_record_compressor_1a255008f875a0fe6ed36e065bc4926284" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::RecordCompressor::threadNumber</definition>
+        <argsstring></argsstring>
+        <name>threadNumber</name>
+        <briefdescription>
+<para>Keep track of this thread with id number. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="49" column="18" bodyfile="src/libsrc/RecordCompressor.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d65/classevio_1_1_record_compressor_1aa90f5c109ba3a345f54d93025a36052d" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref></type>
+        <definition>Compressor::CompressionType evio::RecordCompressor::compressionType</definition>
+        <argsstring></argsstring>
+        <name>compressionType</name>
+        <briefdescription>
+<para>Type of compression to perform. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="51" column="37" bodyfile="src/libsrc/RecordCompressor.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d65/classevio_1_1_record_compressor_1a01a53b9def24e390de4e6261a4cd1e6a" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordSupply&gt; evio::RecordCompressor::supply</definition>
+        <argsstring></argsstring>
+        <name>supply</name>
+        <briefdescription>
+<para>Supply of RecordRingItems. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="53" column="25" bodyfile="src/libsrc/RecordCompressor.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d4/d65/classevio_1_1_record_compressor_1ac02ae5682827c5056880df3a5b218f3d" prot="private" static="no" mutable="no">
+        <type>boost::thread</type>
+        <definition>boost::thread evio::RecordCompressor::thd</definition>
+        <argsstring></argsstring>
+        <name>thd</name>
+        <briefdescription>
+<para>Thread which does the compression. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="55" column="23" bodyfile="src/libsrc/RecordCompressor.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d4/d65/classevio_1_1_record_compressor_1a5e1209d1141b18c21cf1695572729c7a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordCompressor::RecordCompressor</definition>
+        <argsstring>(uint32_t thdNum, Compressor::CompressionType &amp;type, std::shared_ptr&lt; RecordSupply &gt; &amp;recordSupply)</argsstring>
+        <name>RecordCompressor</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>thdNum</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d08/classevio_1_1_compressor_1aed2330d08ee8c96b2690fec7f9a68747" kindref="member">Compressor::CompressionType</ref> &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt; &amp;</type>
+          <declname>recordSupply</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thdNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>unique thread number starting at 0. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of compression to do. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordSupply</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>supply of records to compress. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="65" column="9" bodyfile="src/libsrc/RecordCompressor.h" bodystart="65" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d65/classevio_1_1_record_compressor_1a729d1f441e7e58058f3cdd53d90dfcbf" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordCompressor::RecordCompressor</definition>
+        <argsstring>(RecordCompressor &amp;&amp;obj) noexcept</argsstring>
+        <name>RecordCompressor</name>
+        <param>
+          <type><ref refid="d4/d65/classevio_1_1_record_compressor" kindref="compound">RecordCompressor</ref> &amp;&amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="72" column="9" bodyfile="src/libsrc/RecordCompressor.h" bodystart="72" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d65/classevio_1_1_record_compressor_1a66cb40f281bee3c42e8af6aa371ffec1" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="d4/d65/classevio_1_1_record_compressor" kindref="compound">RecordCompressor</ref> &amp;</type>
+        <definition>RecordCompressor&amp; evio::RecordCompressor::operator=</definition>
+        <argsstring>(RecordCompressor &amp;&amp;obj) noexcept</argsstring>
+        <name>operator=</name>
+        <param>
+          <type><ref refid="d4/d65/classevio_1_1_record_compressor" kindref="compound">RecordCompressor</ref> &amp;&amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="79" column="27" bodyfile="src/libsrc/RecordCompressor.h" bodystart="79" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d65/classevio_1_1_record_compressor_1a761c504a7ab0777c57c5695d4b841361" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::RecordCompressor::~RecordCompressor</definition>
+        <argsstring>()</argsstring>
+        <name>~RecordCompressor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="89" column="9" bodyfile="src/libsrc/RecordCompressor.h" bodystart="89" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d65/classevio_1_1_record_compressor_1ad284cac5eb0f47769275cf66e73325ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordCompressor::startThread</definition>
+        <argsstring>()</argsstring>
+        <name>startThread</name>
+        <briefdescription>
+<para>Create and start a thread to execute the <ref refid="d4/d65/classevio_1_1_record_compressor_1ab1ac33cadd9ff5a4e1da760e8651dc70" kindref="member">run()</ref> method of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="97" column="14" bodyfile="src/libsrc/RecordCompressor.h" bodystart="97" bodyend="99"/>
+        <references refid="d4/d65/classevio_1_1_record_compressor_1ab1ac33cadd9ff5a4e1da760e8651dc70" compoundref="d7/dd0/_record_compressor_8h" startline="110" endline="149">run</references>
+      </memberdef>
+      <memberdef kind="function" id="d4/d65/classevio_1_1_record_compressor_1ab6d22e0df15b66aed63cefb1e79f84a6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordCompressor::stopThread</definition>
+        <argsstring>()</argsstring>
+        <name>stopThread</name>
+        <briefdescription>
+<para>Stop the thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="102" column="14" bodyfile="src/libsrc/RecordCompressor.h" bodystart="102" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="d4/d65/classevio_1_1_record_compressor_1ab1ac33cadd9ff5a4e1da760e8651dc70" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::RecordCompressor::run</definition>
+        <argsstring>()</argsstring>
+        <name>run</name>
+        <briefdescription>
+<para>Method to run in the thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/RecordCompressor.h" line="110" column="14" bodyfile="src/libsrc/RecordCompressor.h" bodystart="110" bodyend="149"/>
+        <referencedby refid="d4/d65/classevio_1_1_record_compressor_1ad284cac5eb0f47769275cf66e73325ea" compoundref="d7/dd0/_record_compressor_8h" startline="97" endline="99">startThread</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to create a thread which takes data-filled records from a RingBuffer-backed <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref>, compresses them, and places them back into the supply. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>It is an interruptible thread from the boost library. <bold>This of use internally only.</bold></para>
+<para><simplesect kind="date"><para>01/22/2020 </para>
+</simplesect>
+<simplesect kind="author"><para>timmer </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/RecordCompressor.h" line="44" column="5" bodyfile="src/libsrc/RecordCompressor.h" bodystart="44" bodyend="150"/>
+    <listofallmembers>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1aa90f5c109ba3a345f54d93025a36052d" prot="private" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>compressionType</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1a66cb40f281bee3c42e8af6aa371ffec1" prot="public" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>operator=</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1a5e1209d1141b18c21cf1695572729c7a" prot="public" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>RecordCompressor</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1a729d1f441e7e58058f3cdd53d90dfcbf" prot="public" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>RecordCompressor</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1ab1ac33cadd9ff5a4e1da760e8651dc70" prot="public" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>run</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1ad284cac5eb0f47769275cf66e73325ea" prot="public" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>startThread</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1ab6d22e0df15b66aed63cefb1e79f84a6" prot="public" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>stopThread</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1a01a53b9def24e390de4e6261a4cd1e6a" prot="private" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>supply</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1ac02ae5682827c5056880df3a5b218f3d" prot="private" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>thd</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1a255008f875a0fe6ed36e065bc4926284" prot="private" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>threadNumber</name></member>
+      <member refid="d4/d65/classevio_1_1_record_compressor_1a761c504a7ab0777c57c5695d4b841361" prot="public" virt="non-virtual"><scope>evio::RecordCompressor</scope><name>~RecordCompressor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

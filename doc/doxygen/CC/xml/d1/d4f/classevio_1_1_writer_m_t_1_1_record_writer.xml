@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer" kind="class" language="C++" prot="private">
+    <compoundname>evio::WriterMT::RecordWriter</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a5866f924cef7b4fd094aae678863523b" prot="private" static="no" mutable="no">
+        <type><ref refid="d1/d17/classevio_1_1_writer_m_t" kindref="compound">WriterMT</ref> *</type>
+        <definition>WriterMT* evio::WriterMT::RecordWriter::writer</definition>
+        <argsstring></argsstring>
+        <name>writer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Object which owns this thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="71" column="23" bodyfile="src/libsrc/WriterMT.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1ae79b23b77432bd64cdbbbcbd63edf6d1" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;RecordSupply&gt; evio::WriterMT::RecordWriter::supply</definition>
+        <argsstring></argsstring>
+        <name>supply</name>
+        <briefdescription>
+<para>Supply of RecordRingItems. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="73" column="29" bodyfile="src/libsrc/WriterMT.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a56e09454c6f35e4ea48ae81ee7653bfd" prot="private" static="no" mutable="no">
+        <type>boost::thread</type>
+        <definition>boost::thread evio::WriterMT::RecordWriter::thd</definition>
+        <argsstring></argsstring>
+        <name>thd</name>
+        <briefdescription>
+<para>Thread which does the file writing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="75" column="27" bodyfile="src/libsrc/WriterMT.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a5d0d6c21c2e0be4836ce5d156329bd01" prot="private" static="no" mutable="no">
+        <type>std::atomic_long</type>
+        <definition>std::atomic_long evio::WriterMT::RecordWriter::lastSeqProcessed</definition>
+        <argsstring></argsstring>
+        <name>lastSeqProcessed</name>
+        <initializer>{-1}</initializer>
+        <briefdescription>
+<para>The highest sequence to have been currently processed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="77" column="30" bodyfile="src/libsrc/WriterMT.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a35963bad9ce68d9ae3d72838217a5bad" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::WriterMT::RecordWriter::RecordWriter</definition>
+        <argsstring>(WriterMT *pwriter, std::shared_ptr&lt; RecordSupply &gt; &amp;recordSupply)</argsstring>
+        <name>RecordWriter</name>
+        <param>
+          <type><ref refid="d1/d17/classevio_1_1_writer_m_t" kindref="compound">WriterMT</ref> *</type>
+          <declname>pwriter</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref> &gt; &amp;</type>
+          <declname>recordSupply</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwriter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to <ref refid="d1/d17/classevio_1_1_writer_m_t" kindref="compound">WriterMT</ref> object which owns this thread. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>recordSupply</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>shared pointer to an object supplying compressed records that need to be written to file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="86" column="13" bodyfile="src/libsrc/WriterMT.h" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a6c90fa54216d2a00cbcbc1b5a3fc40a2" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::WriterMT::RecordWriter::RecordWriter</definition>
+        <argsstring>(RecordWriter &amp;&amp;obj) noexcept</argsstring>
+        <name>RecordWriter</name>
+        <param>
+          <type>RecordWriter &amp;&amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+<para>Move constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object to move. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="94" column="13" bodyfile="src/libsrc/WriterMT.h" bodystart="94" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a705edf9c1dc5f01fff8f6a4053d27cb6" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>RecordWriter &amp;</type>
+        <definition>RecordWriter&amp; evio::WriterMT::RecordWriter::operator=</definition>
+        <argsstring>(RecordWriter &amp;&amp;obj) noexcept</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>RecordWriter &amp;&amp;</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="102" column="27" bodyfile="src/libsrc/WriterMT.h" bodystart="102" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a924a4e486d4edeecc9045f3c26ae0516" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>evio::WriterMT::RecordWriter::~RecordWriter</definition>
+        <argsstring>()</argsstring>
+        <name>~RecordWriter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="113" column="13" bodyfile="src/libsrc/WriterMT.h" bodystart="113" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a72776479797bf8d954ad1e842db1e476" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::WriterMT::RecordWriter::startThread</definition>
+        <argsstring>()</argsstring>
+        <name>startThread</name>
+        <briefdescription>
+<para>Create and start a thread to execute the run() method of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="121" column="18" bodyfile="src/libsrc/WriterMT.h" bodystart="121" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a337e73b7e50533a654f91830130711ce" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::WriterMT::RecordWriter::stopThread</definition>
+        <argsstring>()</argsstring>
+        <name>stopThread</name>
+        <briefdescription>
+<para>Stop the thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="126" column="18" bodyfile="src/libsrc/WriterMT.h" bodystart="126" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a81c8ffd4c15361baf454589863b9f628" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::WriterMT::RecordWriter::waitForLastItem</definition>
+        <argsstring>()</argsstring>
+        <name>waitForLastItem</name>
+        <briefdescription>
+<para>Wait for the last item to be processed, then exit thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="134" column="18" bodyfile="src/libsrc/WriterMT.h" bodystart="134" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1ac9bad1cf4f7c34ef5cf87a3e2dc8bbc3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::WriterMT::RecordWriter::run</definition>
+        <argsstring>()</argsstring>
+        <name>run</name>
+        <briefdescription>
+<para>Run this method in thread. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/WriterMT.h" line="146" column="18" bodyfile="src/libsrc/WriterMT.h" bodystart="146" bodyend="194"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to take data-filled records from a RingBuffer-backed <ref refid="dc/de8/classevio_1_1_record_supply" kindref="compound">RecordSupply</ref>, and writes them to file. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>It is an interruptible thread from the boost library, and only 1 exists. </para>
+    </detaileddescription>
+    <location file="src/libsrc/WriterMT.h" line="66" column="9" bodyfile="src/libsrc/WriterMT.h" bodystart="66" bodyend="195"/>
+    <listofallmembers>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a5d0d6c21c2e0be4836ce5d156329bd01" prot="private" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>lastSeqProcessed</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a705edf9c1dc5f01fff8f6a4053d27cb6" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>operator=</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a35963bad9ce68d9ae3d72838217a5bad" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>RecordWriter</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a6c90fa54216d2a00cbcbc1b5a3fc40a2" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>RecordWriter</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1ac9bad1cf4f7c34ef5cf87a3e2dc8bbc3" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>run</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a72776479797bf8d954ad1e842db1e476" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>startThread</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a337e73b7e50533a654f91830130711ce" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>stopThread</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1ae79b23b77432bd64cdbbbcbd63edf6d1" prot="private" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>supply</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a56e09454c6f35e4ea48ae81ee7653bfd" prot="private" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>thd</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a81c8ffd4c15361baf454589863b9f628" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>waitForLastItem</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a5866f924cef7b4fd094aae678863523b" prot="private" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>writer</name></member>
+      <member refid="d1/d4f/classevio_1_1_writer_m_t_1_1_record_writer_1a924a4e486d4edeecc9045f3c26ae0516" prot="public" virt="non-virtual"><scope>evio::WriterMT::RecordWriter</scope><name>~RecordWriter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

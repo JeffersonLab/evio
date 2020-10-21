@@ -1,0 +1,2775 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="d5/d4b/classevio_1_1_composite_data" kind="class" language="C++" prot="public">
+    <compoundname>evio::CompositeData</compoundname>
+    <includes local="no">CompositeData.h</includes>
+    <innerclass refid="d0/d19/classevio_1_1_composite_data_1_1_data" prot="public">evio::CompositeData::Data</innerclass>
+    <innerclass refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item" prot="public">evio::CompositeData::DataItem</innerclass>
+    <innerclass refid="d4/d1a/structevio_1_1_composite_data_1_1_l_v" prot="private">evio::CompositeData::LV</innerclass>
+    <innerclass refid="d3/dd7/unionevio_1_1_composite_data_1_1_single_member" prot="public">evio::CompositeData::SingleMember</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1a4b4727deb5cfc705638000c8a3598c10" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string evio::CompositeData::format</definition>
+        <argsstring></argsstring>
+        <name>format</name>
+        <briefdescription>
+<para>String containing data format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="646" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="646" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1aabb81eb94ce7b6e8c31e9eff4b7dcffe" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; uint16_t &gt;</type>
+        <definition>std::vector&lt;uint16_t&gt; evio::CompositeData::formatInts</definition>
+        <argsstring></argsstring>
+        <name>formatInts</name>
+        <briefdescription>
+<para>List of unsigned shorts obtained from transforming format string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="649" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="649" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1aca6be65dd6630d44a0318e43e0e20fdc" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; <ref refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item" kindref="compound">DataItem</ref> &gt;</type>
+        <definition>std::vector&lt;DataItem&gt; evio::CompositeData::items</definition>
+        <argsstring></argsstring>
+        <name>items</name>
+        <briefdescription>
+<para>List of extracted data items from raw bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="652" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="652" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1ae1f9ff9072866ea17b035735acf92a47" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> &gt;</type>
+        <definition>std::vector&lt;DataType&gt; evio::CompositeData::types</definition>
+        <argsstring></argsstring>
+        <name>types</name>
+        <briefdescription>
+<para>List of the types of the extracted data items. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="655" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="655" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1a2dbca0e2089f3f641e8daf7b6312d859" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int32_t &gt;</type>
+        <definition>std::vector&lt;int32_t&gt; evio::CompositeData::NList</definition>
+        <argsstring></argsstring>
+        <name>NList</name>
+        <briefdescription>
+<para>List of the &quot;N&quot; (32 bit) values extracted from the raw data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="658" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="658" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1a4cfb275cf38249f61289910c98ce7367" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int16_t &gt;</type>
+        <definition>std::vector&lt;int16_t&gt; evio::CompositeData::nList</definition>
+        <argsstring></argsstring>
+        <name>nList</name>
+        <briefdescription>
+<para>List of the &quot;n&quot; (16 bit) values extracted from the raw data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="661" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="661" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1aed87b2620e840d67e0aa53aa5e1903be" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; int8_t &gt;</type>
+        <definition>std::vector&lt;int8_t&gt; evio::CompositeData::mList</definition>
+        <argsstring></argsstring>
+        <name>mList</name>
+        <briefdescription>
+<para>List of the &quot;m&quot; (8 bit) values extracted from the raw data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="664" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="664" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1a41e7131a9511cf6511eb96e1a5e3d809" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="df/d43/classevio_1_1_tag_segment_header" kindref="compound">TagSegmentHeader</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;TagSegmentHeader&gt; evio::CompositeData::tsHeader</definition>
+        <argsstring></argsstring>
+        <name>tsHeader</name>
+        <briefdescription>
+<para>Tagsegment header of tagsegment containing format string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="667" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="667" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1af4a284ae3d803ceca23a7a84962696a7" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/d90/classevio_1_1_bank_header" kindref="compound">BankHeader</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;BankHeader&gt; evio::CompositeData::bHeader</definition>
+        <argsstring></argsstring>
+        <name>bHeader</name>
+        <briefdescription>
+<para>Bank header of bank containing data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="670" column="25" bodyfile="src/libsrc/CompositeData.h" bodystart="670" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1a9441a3dcc32eb05e7ced7b4995a60f49" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; uint8_t &gt;</type>
+        <definition>std::vector&lt;uint8_t&gt; evio::CompositeData::rawBytes</definition>
+        <argsstring></argsstring>
+        <name>rawBytes</name>
+        <briefdescription>
+<para>The entire raw data of the composite item - both tagsegment and data bank. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="673" column="21" bodyfile="src/libsrc/CompositeData.h" bodystart="673" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1aa5892c353f243d843ebbd58d5c8b9806" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::dataBytes</definition>
+        <argsstring></argsstring>
+        <name>dataBytes</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Length of only data in bytes (not including padding). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="676" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="676" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1af0911899d40d0e4301b3154009fcbaa4" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::dataPadding</definition>
+        <argsstring></argsstring>
+        <name>dataPadding</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Length of only data padding in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="679" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="679" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1a0e772c477ce33f52d75ae725d57b4cbe" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::dataOffset</definition>
+        <argsstring></argsstring>
+        <name>dataOffset</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Offset (in 32bit words) in rawBytes to place of data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="682" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="682" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1af41957da5c622cb2f80bfc91578173c6" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::CompositeData::byteOrder</definition>
+        <argsstring></argsstring>
+        <name>byteOrder</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order of raw bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="685" column="19" bodyfile="src/libsrc/CompositeData.h" bodystart="685" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d5/d4b/classevio_1_1_composite_data_1a28fad18c2e4498f341380d0038dbcfd3" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::getIndex</definition>
+        <argsstring></argsstring>
+        <name>getIndex</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Index used in getting data items from the <ref refid="" kindref="compound">items</ref> list. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="689" column="18" bodyfile="src/libsrc/CompositeData.h" bodystart="689" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ae16870c24e6c1bbb121817e84e6e9fc8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::CompositeData</definition>
+        <argsstring>()=default</argsstring>
+        <name>CompositeData</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="696" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ad9a973f60dea6e4f3364e70ee11aeb68" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::CompositeData</definition>
+        <argsstring>(std::string const &amp;format, const Data &amp;data)</argsstring>
+        <name>CompositeData</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> &amp;</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para>Constructor used for creating this object from scratch. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format string defining data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data in given format.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if improper format string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="706" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ae2e3a1be3d7f1d1554ccfc2b1c755b14" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::CompositeData</definition>
+        <argsstring>(std::string const &amp;format, const Data &amp;data, uint16_t formatTag, uint16_t dataTag, uint8_t dataNum, ByteOrder const &amp;order=ByteOrder::ENDIAN_LOCAL)</argsstring>
+        <name>CompositeData</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> &amp;</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>formatTag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>dataTag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dataNum</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>order</declname>
+          <defval><ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref></defval>
+        </param>
+        <briefdescription>
+<para>Constructor used for creating this object from scratch. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format string defining data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data in given format. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>formatTag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag used in tagsegment containing format. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataTag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag used in bank containing data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num used in bank containing data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order in which data is stored in internal buffer. Defaults to local endian.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data or format arg = null, if improper format string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="722" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ad4d4d58a1a58206845af9e1579aa97b8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::CompositeData</definition>
+        <argsstring>(uint8_t *bytes, ByteOrder const &amp;byteOrder)</argsstring>
+        <name>CompositeData</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>byteOrder</declname>
+        </param>
+        <briefdescription>
+<para>Constructor used when reading existing data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> is copied in.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>raw data defining this composite type item. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byteOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="734" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ab43a65aa1a414fdca707d9f699c9d989" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompositeData::CompositeData</definition>
+        <argsstring>(ByteBuffer &amp;bytes)</argsstring>
+        <name>CompositeData</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+<para>Constructor used when reading existing data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> is copied in. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> of raw data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="740" column="9"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a012e265c00ad3db8f66e17d63de20697" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;CompositeData&gt; evio::CompositeData::getInstance</definition>
+        <argsstring>()</argsstring>
+        <name>getInstance</name>
+        <briefdescription>
+<para>Method to return a shared pointer to a constructed object of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a shared pointer to a constructed object of this class. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="746" column="32"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a9d5734937d2a68199b9e8094239a69b7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;CompositeData&gt; evio::CompositeData::getInstance</definition>
+        <argsstring>(std::string &amp;format, const Data &amp;data)</argsstring>
+        <name>getInstance</name>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> &amp;</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para>Method to return a shared pointer to a constructed object of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data format string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object containing composite data description. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>shared pointer of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="758" column="32"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a1dc647a4fbfdf51e7865051623bfd53d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;CompositeData&gt; evio::CompositeData::getInstance</definition>
+        <argsstring>(std::string &amp;format, const Data &amp;data, uint16_t formatTag, uint16_t dataTag, uint8_t dataNum, ByteOrder const &amp;order=ByteOrder::ENDIAN_LOCAL)</argsstring>
+        <name>getInstance</name>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> &amp;</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>formatTag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>dataTag</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dataNum</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>order</declname>
+          <defval><ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref></defval>
+        </param>
+        <briefdescription>
+<para>Method to return a shared pointer to a constructed object of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data format string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object containing composite data description. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>formatTag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag of evio segment containing format. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataTag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag of evio bank containing data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataNum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num of evio bank containing data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>desired byteOrder of generated raw data. Defaults to local endian. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>shared pointer of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="770" column="32"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ae8c477eae80930f1b6f1b5a97443b9cd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;CompositeData&gt; evio::CompositeData::getInstance</definition>
+        <argsstring>(uint8_t *bytes, ByteOrder const &amp;order=ByteOrder::ENDIAN_LOCAL)</argsstring>
+        <name>getInstance</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>order</declname>
+          <defval><ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref></defval>
+        </param>
+        <briefdescription>
+<para>Method to return a shared pointer to a constructed object of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to raw data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of raw data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>shared pointer of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="782" column="32"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a8112b46fbe778b67876724ae55459b33" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt;CompositeData&gt; evio::CompositeData::getInstance</definition>
+        <argsstring>(ByteBuffer &amp;bytes)</argsstring>
+        <name>getInstance</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+<para>Method to return a shared pointer to a constructed object of this class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> of raw data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>shared pointer of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="790" column="32"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a9134283cf594778b9e4e925d199e0cc7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::parse</definition>
+        <argsstring>(uint8_t *bytes, size_t bytesSize, ByteOrder const &amp;order, std::vector&lt; std::shared_ptr&lt; CompositeData &gt;&gt; &amp;list)</argsstring>
+        <name>parse</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bytesSize</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;&gt; &amp;</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+<para>This method parses an array of raw bytes into an vector of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> objects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector is initially cleared.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of raw bytes to parse. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytesSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size in bytes of bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of raw bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>list</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector that will hold all parsed <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> objects. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if null args or bad format of raw data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="802" column="21"/>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1ac5e88c4f6a89a59851bf08a613d6ac42" compoundref="dc/de3/_base_structure_8cpp" startline="1942" endline="1952">evio::BaseStructure::getCompositeData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a1c44828a1acbffe083cc5122f8c4c8f1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::generateRawBytes</definition>
+        <argsstring>(std::vector&lt; std::shared_ptr&lt; CompositeData &gt;&gt; &amp;data, std::vector&lt; uint8_t &gt; &amp;rawBytes, ByteOrder &amp;order)</argsstring>
+        <name>generateRawBytes</name>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;&gt; &amp;</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; uint8_t &gt; &amp;</type>
+          <declname>rawBytes</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> &amp;</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>This method generates raw bytes of evio format from a vector of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> objects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The returned vector consists of gluing together all the individual objects&apos; rawByte arrays. All <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> element must be of the same byte order.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> objects to turn into bytes (input). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rawBytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of raw, evio format bytes (output). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of output. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="814" column="21"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1aa9b4794a8a205b1e96fe7226cef3c864" compoundref="da/d47/_compact_event_builder_8cpp" startline="1137" endline="1177">evio::CompactEventBuilder::addCompositeData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a84c0b49e9886b62dae99c8b32bec410a" compoundref="dc/de3/_base_structure_8cpp" startline="3325" endline="3357">evio::BaseStructure::updateCompositeData</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a88fa03576610d49d7a3f33f6945727cd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string evio::CompositeData::stringsToFormat</definition>
+        <argsstring>(std::vector&lt; std::string &gt; strings)</argsstring>
+        <name>stringsToFormat</name>
+        <param>
+          <type>std::vector&lt; std::string &gt;</type>
+          <declname>strings</declname>
+        </param>
+        <briefdescription>
+<para>This method helps the <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object creator by finding the proper format string parameter for putting this array of Strings into its data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The format is in the form &quot;Ma&quot; where M is an actual integer. Warning, in this case, M may not be greater than 15. If you want a longer string or array of strings, use the format &quot;Na&quot; with a literal N. The N value can be added through <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data_1a859c1963dd27ee0ea8dd11bdd125f0b3" kindref="member">CompositeData::Data#addN(uint32_t)</ref></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of strings to eventually put into a <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>string representing its format to be used in the <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object&apos;s format string; empty string if arg has 0 length. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="832" column="28"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1abf415d7d278a0f0bff5945712cb3d258" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int evio::CompositeData::compositeFormatToInt</definition>
+        <argsstring>(const std::string &amp;formatStr, std::vector&lt; uint16_t &gt; &amp;ifmt)</argsstring>
+        <name>compositeFormatToInt</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>formatStr</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>ifmt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><preformatted>
+ This method was originally called called &quot;eviofmt&quot;.
+ It transforms a composite, format-containing
+ ASCII string to a vector of shorts codes. It is to be used
+ in conjunction with <ref refid="d5/d4b/classevio_1_1_composite_data_1a465184e11d0b2902cf44b634e7c8e7f7" kindref="member">swapData</ref> to swap the endianness of
+ composite data.</preformatted></para>
+<para><preformatted>  format code bits &lt;- format in ascii form
+   [15:14] [13:8] [7:0]
+     Nnm      #     0           #&apos;(&apos;
+       0      0     0            &apos;)&apos;
+     Nnm      #     1           #&apos;i&apos;   unsigned int
+     Nnm      #     2           #&apos;F&apos;   floating point
+     Nnm      #     3           #&apos;a&apos;   8-bit char (C++)
+     Nnm      #     4           #&apos;S&apos;   short
+     Nnm      #     5           #&apos;s&apos;   unsigned short
+     Nnm      #     6           #&apos;C&apos;   char
+     Nnm      #     7           #&apos;c&apos;   unsigned char
+     Nnm      #     8           #&apos;D&apos;   double (64-bit float)
+     Nnm      #     9           #&apos;L&apos;   long long (64-bit int)
+     Nnm      #    10           #&apos;l&apos;   unsigned long long (64-bit int)
+     Nnm      #    11           #&apos;I&apos;   int
+     Nnm      #    12           #&apos;A&apos;   hollerit (4-byte char with int endining)</preformatted></para>
+<para><preformatted>  NOTES:
+   1. The number of repeats &apos;#&apos; must be the number between 2 and 63, number 1 assumed by default
+   2. If the number of repeats is symbol &apos;N&apos; instead of the number, it will be taken from data assuming &apos;int32&apos; format;
+      if the number of repeats is symbol &apos;n&apos; instead of the number, it will be taken from data assuming &apos;int16&apos; format;
+      if the number of repeats is symbol &apos;m&apos; instead of the number, it will be taken from data assuming &apos;int8&apos; format;
+      Two bits Nnm [15:14], if not zero, requires to take the number of repeats from data in appropriate format:
+           [01] means that number is integer (N),
+           [10] - short (n),
+           [11] - char (m)
+   3. If format ends but end of data did not reach, format in last parenthesis
+      will be repeated until all data processed; if there are no parenthesis
+      in format, data processing will be started from the beginnig of the format
+      (FORTRAN agreement)
+</preformatted></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>formatStr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>composite data format string </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ifmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>unsigned short vector to hold transformed format</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of shorts in ifmt[] (positive) </para>
+</simplesect>
+<simplesect kind="return"><para>-1 to -8 for improper format string</para>
+</simplesect>
+<simplesect kind="author"><para>Sergey Boiarinov </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="882" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1adf40a2dfe3ba46ef019b16c2abcf9aba" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapAll</definition>
+        <argsstring>(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal)</argsstring>
+        <name>swapAll</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>length</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>srcIsLocal</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) a buffer of EVIO composite type between big &amp; little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It swaps the entire type including the beginning tagsegment header, the following format string it contains, the data&apos;s bank header, and finally the data itself. The src array may contain an array of composite type items and all will be swapped.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source data pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination data pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data array in 32 bit words. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcIsLocal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if the byte order of src data is the same as the node&apos;s.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if src = null; if len is too small </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1097" column="21"/>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1aa32ca389e1efa5f06333ee14126c5352" compoundref="df/d3b/_evio_swap_8h" startline="277" endline="377">evio::EvioSwap::swapData</referencedby>
+        <referencedby refid="df/d7a/classevio_1_1_evio_swap_1a826474578859587bae29394b260142a5" compoundref="df/d3b/_evio_swap_8h" startline="208" endline="256">evio::EvioSwap::swapLeafData</referencedby>
+        <referencedby refid="d9/ddd/classevio_1_1_base_structure_1a165601aa2afb10063c6725a54b80f7b5" compoundref="dc/de3/_base_structure_8cpp" startline="2731" endline="2869">evio::BaseStructure::write</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1af2f5f3b55b2d9202e02b19fd645e5262" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapAll</definition>
+        <argsstring>(ByteBuffer &amp;buf, uint32_t srcPos, uint32_t len)</argsstring>
+        <name>swapAll</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method swaps the data in a buffer, containing EVIO composite type, between big &amp; little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It swaps the entire type including the beginning tagsegment header, the following format string it contains, the data&apos;s bank header, and finally the data itself. The src buffer may contain an array of composite type items and all will be swapped.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source and destination data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to beginning swapping </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data in buf to swap in 32 bit words</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::out_of_range</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcPos or len too large; if len too small. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer not in evio format; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1115" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a6a813a3387240a4bf3f6ad70edbd3c6a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapAll</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;buf, uint32_t srcPos, uint32_t len)</argsstring>
+        <name>swapAll</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method swaps the data in a buffer, containing EVIO composite type, between big &amp; little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It swaps the entire type including the beginning tagsegment header, the following format string it contains, the data&apos;s bank header, and finally the data itself. The src buffer may contain an array of composite type items and all will be swapped.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source and destination data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to beginning swapping </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data in buf to swap in 32 bit words</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::out_of_range</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcPos or len too large; if len too small. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer not in evio format; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1130" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a5785b1537215340b8b4f2551e463f56c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapAll</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;srcBuf, std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuf, uint32_t srcPos, uint32_t destPos, uint32_t len)</argsstring>
+        <name>swapAll</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>srcBuf</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>destBuf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) a buffer, containing EVIO composite type, between big &amp; little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It swaps the entire type including the beginning tagsegment header, the following format string it contains, the data&apos;s bank header, and finally the data itself. The src buffer may contain an array of composite type items and all will be swapped.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srcBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source data buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination data buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to beginning swapping </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to beginning writing swapped data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data in srcBuffer to swap in 32 bit words</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer not in evio format; if destBuffer too small; if bad values for srcPos/destPos/len args; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1153" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a103088fd6ee8b4b9a1edc7f1a204f6c2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapAll</definition>
+        <argsstring>(ByteBuffer &amp;srcBuffer, ByteBuffer &amp;destBuffer, uint32_t srcPos, uint32_t destPos, uint32_t len)</argsstring>
+        <name>swapAll</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>srcBuffer</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>destBuffer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>destPos</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) a buffer, containing EVIO composite type, between big &amp; little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It swaps the entire type including the beginning tagsegment header, the following format string it contains, the data&apos;s bank header, and finally the data itself. The src buffer may contain an array of composite type items and all will be swapped.</para>
+<para><bold>This only swaps data if buffer arguments have opposite byte order!</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srcBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source data buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination data buffer </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuffer to beginning swapping </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuffer to beginning writing swapped data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data in srcBuffer to swap in 32 bit words</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if srcBuffer not in evio format; if destBuffer too small; if bad values for srcPos/destPos/len args; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1174" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a465184e11d0b2902cf44b634e7c8e7f7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapData</definition>
+        <argsstring>(ByteBuffer &amp;srcBuf, ByteBuffer &amp;destBuf, size_t nBytes, const std::vector&lt; uint16_t &gt; &amp;ifmt)</argsstring>
+        <name>swapData</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>srcBuf</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>destBuf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>nBytes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>ifmt</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) EVIO composite type data between Big endian and Little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This data does <bold>NOT</bold> include the composite type&apos;s beginning tagsegment and the format string it contains. It also does <bold>NOT</bold> include the data&apos;s bank header words. Caller must be sure the endian value of the srcBuf is set properly before the call.</para>
+<para>The destBuf can be the same as srcBuf in which case data is swapped in place and the srcBuf byte order is switched in this method. Swap starts at srcBuf&apos;s current position. If data is swapped in place, destBuf pos is set to srcBuf pos.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srcBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nBytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data to swap in bytes </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ifmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format list as produced by <ref refid="d5/d4b/classevio_1_1_composite_data_1abf415d7d278a0f0bff5945712cb3d258" kindref="member">compositeFormatToInt(const std::string &amp;, std::vector&lt;uint16_t&gt; &amp;)</ref></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if ifmt empty or nBytes &lt; 8; srcBuf or destBuf limit/position combo too small; if src &amp; dest not identical but overlap. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1200" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1adaa73ee1c055d2ae17fd0b927c12db9c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapData</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; &amp;srcBuf, std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuf, size_t srcPos, size_t destPos, size_t nBytes, const std::vector&lt; uint16_t &gt; &amp;ifmt)</argsstring>
+        <name>swapData</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>srcBuf</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt; &amp;</type>
+          <declname>destBuf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>destPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>nBytes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>ifmt</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) EVIO composite type data between Big endian and Little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This data does <bold>NOT</bold> include the composite type&apos;s beginning tagsegment and the format string it contains. It also does <bold>NOT</bold> include the data&apos;s bank header words. Caller must be sure the endian value of the srcBuf is set properly before the call.</para>
+<para>The destBuf can be the same as srcBuf in which case data is swapped in place and the srcBuf byte order is switched in this method.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srcBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuf to beginning swapping </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuf to beginning writing swapped data unless data is swapped in place (then set to srcPos). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nBytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data to swap in bytes (be sure to account for padding) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ifmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format list as produced by <ref refid="d5/d4b/classevio_1_1_composite_data_1abf415d7d278a0f0bff5945712cb3d258" kindref="member">compositeFormatToInt(const std::string &amp;, std::vector&lt;uint16_t&gt; &amp;)</ref></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if ifmt empty or nBytes &lt; 8; srcBuf or destBuf limit/position combo too small; if src &amp; dest not identical but overlap. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1224" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a41f9c073bb8eb07f6c5bcb021effffa2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapData</definition>
+        <argsstring>(ByteBuffer &amp;srcBuf, ByteBuffer &amp;destBuf, size_t srcPos, size_t destPos, size_t nBytes, const std::vector&lt; uint16_t &gt; &amp;ifmt)</argsstring>
+        <name>swapData</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>srcBuf</declname>
+        </param>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>destBuf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>srcPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>destPos</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>nBytes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>ifmt</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) EVIO composite type data between Big endian and Little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This data does <bold>NOT</bold> include the composite type&apos;s beginning tagsegment and the format string it contains. It also does <bold>NOT</bold> include the data&apos;s bank header words. Caller must be sure the endian value of the srcBuf is set properly before the call.</para>
+<para>The destBuf can be the same as srcBuf in which case data is swapped in place and the srcBuf byte order is switched in this method.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srcBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in srcBuf to beginning swapping </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>destPos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position in destBuf to beginning writing swapped data unless data is swapped in place (then set to srcPos). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nBytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of data to swap in bytes (be sure to account for padding) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ifmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format list as produced by <ref refid="d5/d4b/classevio_1_1_composite_data_1abf415d7d278a0f0bff5945712cb3d258" kindref="member">compositeFormatToInt(const std::string &amp;, std::vector&lt;uint16_t&gt; &amp;)</ref></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if ifmt empty or nBytes &lt; 8; srcBuf or destBuf limit/position combo too small; if src &amp; dest not identical but overlap. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1250" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ab8471f9f68caf00e713970ef755de2dd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapData</definition>
+        <argsstring>(int32_t *src, int32_t *dest, size_t nwrd, const std::vector&lt; uint16_t &gt; &amp;ifmt, uint32_t padding, bool srcIsLocal)</argsstring>
+        <name>swapData</name>
+        <param>
+          <type>int32_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>nwrd</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>ifmt</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>padding</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>srcIsLocal</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) EVIO composite type data between Big endian and Little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This data does <bold>NOT</bold> include the composite type&apos;s beginning tagsegment and the format string it contains. It also does <bold>NOT</bold> include the data&apos;s bank header words. The dest can be the same as src in which case data is swapped in place.</para>
+<para>Converts the data of array (src[i], i=0...nwrd-1) using the format code (ifmt[j], j=0...nfmt-1) .</para>
+<para>Algorithm description:</para>
+<para><ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> processed inside while (ib &lt; nwrd) loop, where &apos;ib&apos; is src[] index; loop breaks when &apos;ib&apos; reaches the number of elements in src[]</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data source data pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination pointer or can be null if swapping in place. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nwrd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of data words (32-bit ints) to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ifmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format list as produced by <ref refid="d5/d4b/classevio_1_1_composite_data_1abf415d7d278a0f0bff5945712cb3d258" kindref="member">compositeFormatToInt(const std::string &amp;, std::vector&lt;uint16_t&gt; &amp;)</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>padding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to ignore in last data word (starting from data end). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>srcIsLocal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if src is local endian, else false.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if ifmt empty or nwrd &lt; 2; src pointer is null; if src &amp; dest are not identical but overlap. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1279" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a1a7ab62439d624c9951124f3e8cbfbaf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::swapData</definition>
+        <argsstring>(int32_t *iarr, int nwrd, const std::vector&lt; uint16_t &gt; &amp;ifmt, uint32_t padding)</argsstring>
+        <name>swapData</name>
+        <param>
+          <type>int32_t *</type>
+          <declname>iarr</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nwrd</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>ifmt</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>padding</declname>
+        </param>
+        <briefdescription>
+<para>This method converts (swaps) an array of EVIO composite type data between IEEE (big endian) and DECS (little endian) in place. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This data does <bold>NOT</bold> include the composite type&apos;s beginning tagsegment and the format string it contains. It also does <bold>NOT</bold> include the data&apos;s bank header words.</para>
+<para>Converts the data of array (iarr[i], i=0...nwrd-1) using the format code (ifmt[j], j=0...nfmt-1) .</para>
+<para>Algorithm description:</para>
+<para><ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> processed inside while (ib &lt; nwrd) loop, where &apos;ib&apos; is iarr[] index; loop breaks when &apos;ib&apos; reaches the number of elements in iarr[]</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>iarr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to data to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nwrd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of data words (32-bit ints) to be swapped. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ifmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>unsigned short vector holding translated format. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>padding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to ignore in last data word (starting from data end).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if ifmt empty or nwrd &lt; 2. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1309" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1afe504814bd6e02b610280ac2544fa0ee" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio::CompositeData::dataToRawBytes</definition>
+        <argsstring>(ByteBuffer &amp;rawBuf, Data const &amp;data, std::vector&lt; uint16_t &gt; &amp;ifmt)</argsstring>
+        <name>dataToRawBytes</name>
+        <param>
+          <type><ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &amp;</type>
+          <declname>rawBuf</declname>
+        </param>
+        <param>
+          <type><ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> const &amp;</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; uint16_t &gt; &amp;</type>
+          <declname>ifmt</declname>
+        </param>
+        <briefdescription>
+<para>This method takes a <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object and a transformed format string and uses that to write data into a buffer/array in raw form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rawBuf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data buffer in which to put the raw bytes </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data to convert to raw bytes </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ifmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format list as produced by <ref refid="d5/d4b/classevio_1_1_composite_data_1abf415d7d278a0f0bff5945712cb3d258" kindref="member">compositeFormatToInt(const std::string &amp;, std::vector&lt;uint16_t&gt; &amp;)</ref></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if ifmt size &lt;= 0; if srcBuf or destBuf is too small; not enough dataItems for the given format </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1324" column="21"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ab2677724ff9e19b546303c46decde01c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::getPadding</definition>
+        <argsstring>() const</argsstring>
+        <name>getPadding</name>
+        <briefdescription>
+<para>Get the data padding (0, 1, 2, or 3 bytes). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data padding. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="890" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1aaad2a6deede81c1b8d233c4bf04a808a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::CompositeData::getFormat</definition>
+        <argsstring>() const</argsstring>
+        <name>getFormat</name>
+        <briefdescription>
+<para>This method gets the format string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>format string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="895" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a2f7b28094dd581a54f250532a35e3270" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::CompositeData::getByteOrder</definition>
+        <argsstring>() const</argsstring>
+        <name>getByteOrder</name>
+        <briefdescription>
+<para>This method gets the raw data byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>raw data byte order. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="900" column="19"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1af21c4e2a371ea21a74395c12c94fe786" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; uint8_t &gt; &amp;</type>
+        <definition>std::vector&lt;uint8_t&gt;&amp; evio::CompositeData::getRawBytes</definition>
+        <argsstring>()</argsstring>
+        <name>getRawBytes</name>
+        <briefdescription>
+<para>This method gets a vector of the raw byte representation of this object&apos;s data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><bold>Do not change the vector contents.</bold> <simplesect kind="return"><para>reference to vector of raw bytes representing of this object&apos;s data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="908" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a3fc5af5e5da00d80d774a9fe479d8aa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; <ref refid="d2/d1c/classevio_1_1_composite_data_1_1_data_item" kindref="compound">DataItem</ref> &gt; &amp;</type>
+        <definition>std::vector&lt;DataItem&gt;&amp; evio::CompositeData::getItems</definition>
+        <argsstring>()</argsstring>
+        <name>getItems</name>
+        <briefdescription>
+<para>This method gets a vector of all the data items inside the composite. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><bold>Do not change the vector contents.</bold> <simplesect kind="return"><para>reference to vector of all the data items inside the composite. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="914" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a99dfb9bb23c3510e505873be50405c74" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; <ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> &gt; &amp;</type>
+        <definition>std::vector&lt;DataType&gt;&amp; evio::CompositeData::getTypes</definition>
+        <argsstring>()</argsstring>
+        <name>getTypes</name>
+        <briefdescription>
+<para>This method gets a vector of all the types of the data items inside the composite. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>reference to vector of all the types of the data items inside the composite. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="921" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a9a2731962b346699babeadbf33e1ed76" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; int32_t &gt; &amp;</type>
+        <definition>std::vector&lt;int32_t&gt;&amp; evio::CompositeData::getNValues</definition>
+        <argsstring>()</argsstring>
+        <name>getNValues</name>
+        <briefdescription>
+<para>This method gets a vector of all the N values of the data items inside the composite. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>reference to vector of all the N values of the data items inside the composite. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="926" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a041913022da9f5b5706df102754d11d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; int16_t &gt; &amp;</type>
+        <definition>std::vector&lt;int16_t&gt;&amp; evio::CompositeData::getnValues</definition>
+        <argsstring>()</argsstring>
+        <name>getnValues</name>
+        <briefdescription>
+<para>This method gets a vector of all the n values of the data items inside the composite. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>reference to vector of all the n values of the data items inside the composite. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="931" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a8b2fbbddf755a416bebcc937e1b2e049" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; int8_t &gt; &amp;</type>
+        <definition>std::vector&lt;int8_t&gt;&amp; evio::CompositeData::getmValues</definition>
+        <argsstring>()</argsstring>
+        <name>getmValues</name>
+        <briefdescription>
+<para>This method gets a vector of all the m values of the data items inside the composite. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>reference to vector of all the m values of the data items inside the composite. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="936" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1aa6413ad67219bfe853fc4cfeedbc9062" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::index</definition>
+        <argsstring>() const</argsstring>
+        <name>index</name>
+        <briefdescription>
+<para>This methods returns the index of the data item to be returned on the next call to one of the get&lt;Type&gt;() methods (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="d5/d4b/classevio_1_1_composite_data_1a81ad26a95c2d76895804566191685980" kindref="member">getInt()</ref>. <simplesect kind="return"><para>returns the index of the data item to be returned </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="945" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1acd89a9276e8622c455d53fb08fc0f3e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::index</definition>
+        <argsstring>(uint32_t index)</argsstring>
+        <name>index</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>This methods sets the index of the data item to be returned on the next call to one of the get&lt;Type&gt;() methods (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="d5/d4b/classevio_1_1_composite_data_1a81ad26a95c2d76895804566191685980" kindref="member">getInt()</ref>. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the index of the next data item to be returned </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="952" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a831e022b94e5cfa718eae2873b074a7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t evio::CompositeData::getNValue</definition>
+        <argsstring>()</argsstring>
+        <name>getNValue</name>
+        <briefdescription>
+<para>This method gets the next N value data item if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not NValue. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="961" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1aa206e158c862ec8b9fce92144d2248db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t evio::CompositeData::getnValue</definition>
+        <argsstring>()</argsstring>
+        <name>getnValue</name>
+        <briefdescription>
+<para>This method gets the next n value data item if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not nValue. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="968" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ac07a747245b539cebf92a696c1b16aed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int8_t</type>
+        <definition>int8_t evio::CompositeData::getmValue</definition>
+        <argsstring>()</argsstring>
+        <name>getmValue</name>
+        <briefdescription>
+<para>This method gets the next m value data item if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not mValue. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="975" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a8dafd1a151cd30536bf0b1365b5eca36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t evio::CompositeData::getHollerit</definition>
+        <argsstring>()</argsstring>
+        <name>getHollerit</name>
+        <briefdescription>
+<para>This method gets the next HOLLERIT data item if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not HOLLERIT. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="982" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1aae3edbeee22feff7fb0f3e69c6e10c45" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int8_t</type>
+        <definition>int8_t evio::CompositeData::getChar</definition>
+        <argsstring>()</argsstring>
+        <name>getChar</name>
+        <briefdescription>
+<para>This method gets the next data item as a byte/char if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not int8_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="991" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1af7f0186a35212a05ee95cb1cd8b4e134" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t evio::CompositeData::getUChar</definition>
+        <argsstring>()</argsstring>
+        <name>getUChar</name>
+        <briefdescription>
+<para>This method gets the next data item as an unsigned byte/char if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not uint8_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="998" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a6da190d6db4c05c79f910f29c3a5762c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t evio::CompositeData::getShort</definition>
+        <argsstring>()</argsstring>
+        <name>getShort</name>
+        <briefdescription>
+<para>This method gets the next data item as a short if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not int16_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1007" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1acdd9d2a6da5aab24000d320a83dee469" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t evio::CompositeData::getUShort</definition>
+        <argsstring>()</argsstring>
+        <name>getUShort</name>
+        <briefdescription>
+<para>This method gets the next data item as an unsigned short if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not uint16_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1014" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a81ad26a95c2d76895804566191685980" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t evio::CompositeData::getInt</definition>
+        <argsstring>()</argsstring>
+        <name>getInt</name>
+        <briefdescription>
+<para>This method gets the next data item as an int if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not int32_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1021" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1aaedcf9d23b3e771ea685ead0625716a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t evio::CompositeData::getUInt</definition>
+        <argsstring>()</argsstring>
+        <name>getUInt</name>
+        <briefdescription>
+<para>This method gets the next data item as an unsigned int if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not uint32_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1028" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a67fafb79e736650145b63d479d4b5bb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t evio::CompositeData::getLong</definition>
+        <argsstring>()</argsstring>
+        <name>getLong</name>
+        <briefdescription>
+<para>This method gets the next data item as a long if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not int64_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1037" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a1f3d25cbcf25e1acf12c00ad475ea342" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t evio::CompositeData::getULong</definition>
+        <argsstring>()</argsstring>
+        <name>getULong</name>
+        <briefdescription>
+<para>This method gets the next data item as an unsigned long if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not uint64_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1044" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1af3831e073d43eb3391c62bd504d0bc98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float evio::CompositeData::getFloat</definition>
+        <argsstring>()</argsstring>
+        <name>getFloat</name>
+        <briefdescription>
+<para>This method gets the next data item as a float if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not float. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1053" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1acc16363efef2f43da7be7f85ce535ba1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double evio::CompositeData::getDouble</definition>
+        <argsstring>()</argsstring>
+        <name>getDouble</name>
+        <briefdescription>
+<para>This method gets the next data item as a double if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data item value. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not double. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1060" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a5c19fefe67d96e4a0d283770c07d4024" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::string &gt; &amp;</type>
+        <definition>std::vector&lt;std::string&gt;&amp; evio::CompositeData::getStrings</definition>
+        <argsstring>()</argsstring>
+        <name>getStrings</name>
+        <briefdescription>
+<para>This method gets the next data item as a vector of strings if it&apos;s the correct type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>reference to vector of strings in data item. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::underflow_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if at end of data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is not vector of strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1069" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a0c413a1200c9c998b4d6464f89e85ec9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::swap</definition>
+        <argsstring>()</argsstring>
+        <name>swap</name>
+        <briefdescription>
+<para>This method swaps the data of this composite type between big &amp; little endian. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>It swaps the entire type including the beginning tagsegment header, the following format string it contains, the data&apos;s bank header, and finally the data itself.</para>
+<para><parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if internal error </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1080" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ac4acdf0c61154d716ddafccf90d99fc7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompositeData::process</definition>
+        <argsstring>()</argsstring>
+        <name>process</name>
+        <briefdescription>
+<para>This method extracts and stores all the data items and their types in various lists. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1331" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1ac22cbe87e198afe3318679a5866803aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::CompositeData::toString</definition>
+        <argsstring>(const std::string &amp;indent, bool hex)</argsstring>
+        <name>toString</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>indent</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hex</declname>
+        </param>
+        <briefdescription>
+<para>Obtain a string representation of the composite data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This string has an indent inserted in front of each group of 5 items. After each group of 5, a newline is inserted. Useful for writing data in xml format.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>indent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a string to insert in front of each group of 5 items </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if true, display numbers in hexadecimal. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a string representation of the composite data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1344" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1a867123b42afb4031262debfa4f5f3075" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::CompositeData::toString</definition>
+        <argsstring>() const</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Obtain a string representation of the composite data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a string representation of the composite data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1349" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="d5/d4b/classevio_1_1_composite_data_1aaceb035845b0a7b47120d9797c8aebae" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string evio::CompositeData::toString</definition>
+        <argsstring>(bool hex) const</argsstring>
+        <name>toString</name>
+        <param>
+          <type>bool</type>
+          <declname>hex</declname>
+        </param>
+        <briefdescription>
+<para>This method returns a string representation of this <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object suitable for displaying in org.jlab.coda.jevio.graphics.EventTreeFrame gui. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each data item is separated from those before and after by a line. Non-parenthesis repeats are printed together.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <computeroutput>true</computeroutput> then print integers in hexadecimal </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a string representation of this <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompositeData.h" line="1359" column="21"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>COMPOSITE DATA: </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This is a new type of data (value = 0xf) which originated with Hall B. It is a composite type and allows for possible expansion in the future if there is a demand. Basically it allows the user to specify a custom format by means of a string - stored in a tagsegment. The data in that format follows in a bank. The routine to swap this data must be provided by the definer of the composite type - in this case Hall B. The swapping function is plugged into this evio library&apos;s swapping routine.</para>
+<para>Here&apos;s what the data looks like. <preformatted></preformatted></para>
+<para><preformatted>MSB(31)                          LSB(0)
+&lt;---  32 bits ------------------------&gt;
+_______________________________________
+|  tag    | type |    length          | --&gt; tagsegment header
+|_________|______|____________________|
+|        <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref> Format String           |
+|                                     |
+|_____________________________________|
+|              length                 | \
+|_____________________________________|  \  bank header
+|       tag      |  type   |   num    |  /
+|________________|_________|__________| /
+|               <ref refid="d0/d19/classevio_1_1_composite_data_1_1_data" kindref="compound">Data</ref>                  |
+|                                     |
+|_____________________________________|
+</preformatted></para>
+<para>The beginning tagsegment is a normal evio tagsegment containing a string (type = 0x3). Currently its type and tag are not used - at least not for data formatting. The bank is a normal evio bank header with data following. The format string is used to read/write this data so that takes care of any padding that may exist. As with the tagsegment, the tags and type are ignored.</para>
+<para>This is the class defining the composite data type. It is a mixture of header and raw data. This class is <bold>NOT</bold> thread safe.</para>
+<para><simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="date"><para>4/17/2020 </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/CompositeData.h" line="96" column="5" bodyfile="src/libsrc/CompositeData.h" bodystart="96" bodyend="1360"/>
+    <listofallmembers>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1af4a284ae3d803ceca23a7a84962696a7" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>bHeader</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1af41957da5c622cb2f80bfc91578173c6" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>byteOrder</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ae16870c24e6c1bbb121817e84e6e9fc8" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>CompositeData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ad9a973f60dea6e4f3364e70ee11aeb68" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>CompositeData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ae2e3a1be3d7f1d1554ccfc2b1c755b14" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>CompositeData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ad4d4d58a1a58206845af9e1579aa97b8" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>CompositeData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ab43a65aa1a414fdca707d9f699c9d989" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>CompositeData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1abf415d7d278a0f0bff5945712cb3d258" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>compositeFormatToInt</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aa5892c353f243d843ebbd58d5c8b9806" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>dataBytes</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a0e772c477ce33f52d75ae725d57b4cbe" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>dataOffset</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1af0911899d40d0e4301b3154009fcbaa4" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>dataPadding</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1afe504814bd6e02b610280ac2544fa0ee" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>dataToRawBytes</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a4b4727deb5cfc705638000c8a3598c10" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>format</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aabb81eb94ce7b6e8c31e9eff4b7dcffe" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>formatInts</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a1c44828a1acbffe083cc5122f8c4c8f1" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>generateRawBytes</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a2f7b28094dd581a54f250532a35e3270" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getByteOrder</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aae3edbeee22feff7fb0f3e69c6e10c45" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getChar</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1acc16363efef2f43da7be7f85ce535ba1" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getDouble</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1af3831e073d43eb3391c62bd504d0bc98" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getFloat</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aaad2a6deede81c1b8d233c4bf04a808a" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getFormat</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a8dafd1a151cd30536bf0b1365b5eca36" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getHollerit</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a28fad18c2e4498f341380d0038dbcfd3" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>getIndex</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a012e265c00ad3db8f66e17d63de20697" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>getInstance</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a9d5734937d2a68199b9e8094239a69b7" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getInstance</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a1dc647a4fbfdf51e7865051623bfd53d" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getInstance</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ae8c477eae80930f1b6f1b5a97443b9cd" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getInstance</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a8112b46fbe778b67876724ae55459b33" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getInstance</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a81ad26a95c2d76895804566191685980" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getInt</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a3fc5af5e5da00d80d774a9fe479d8aa3" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getItems</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a67fafb79e736650145b63d479d4b5bb0" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getLong</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ac07a747245b539cebf92a696c1b16aed" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getmValue</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a8b2fbbddf755a416bebcc937e1b2e049" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getmValues</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a831e022b94e5cfa718eae2873b074a7f" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getNValue</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aa206e158c862ec8b9fce92144d2248db" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getnValue</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a041913022da9f5b5706df102754d11d8" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getnValues</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a9a2731962b346699babeadbf33e1ed76" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getNValues</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ab2677724ff9e19b546303c46decde01c" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getPadding</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1af21c4e2a371ea21a74395c12c94fe786" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getRawBytes</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a6da190d6db4c05c79f910f29c3a5762c" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getShort</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a5c19fefe67d96e4a0d283770c07d4024" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getStrings</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a99dfb9bb23c3510e505873be50405c74" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getTypes</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1af7f0186a35212a05ee95cb1cd8b4e134" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getUChar</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aaedcf9d23b3e771ea685ead0625716a4" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getUInt</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a1f3d25cbcf25e1acf12c00ad475ea342" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getULong</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1acdd9d2a6da5aab24000d320a83dee469" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>getUShort</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aa6413ad67219bfe853fc4cfeedbc9062" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>index</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1acd89a9276e8622c455d53fb08fc0f3e2" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>index</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aca6be65dd6630d44a0318e43e0e20fdc" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>items</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aed87b2620e840d67e0aa53aa5e1903be" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>mList</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a4cfb275cf38249f61289910c98ce7367" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>nList</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a2dbca0e2089f3f641e8daf7b6312d859" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>NList</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a9134283cf594778b9e4e925d199e0cc7" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>parse</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ac4acdf0c61154d716ddafccf90d99fc7" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>process</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a9441a3dcc32eb05e7ced7b4995a60f49" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>rawBytes</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a88fa03576610d49d7a3f33f6945727cd" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>stringsToFormat</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a0c413a1200c9c998b4d6464f89e85ec9" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swap</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1adf40a2dfe3ba46ef019b16c2abcf9aba" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapAll</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1af2f5f3b55b2d9202e02b19fd645e5262" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapAll</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a6a813a3387240a4bf3f6ad70edbd3c6a" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapAll</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a5785b1537215340b8b4f2551e463f56c" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapAll</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a103088fd6ee8b4b9a1edc7f1a204f6c2" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapAll</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a465184e11d0b2902cf44b634e7c8e7f7" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1adaa73ee1c055d2ae17fd0b927c12db9c" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a41f9c073bb8eb07f6c5bcb021effffa2" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ab8471f9f68caf00e713970ef755de2dd" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a1a7ab62439d624c9951124f3e8cbfbaf" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>swapData</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ac22cbe87e198afe3318679a5866803aa" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>toString</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a867123b42afb4031262debfa4f5f3075" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>toString</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1aaceb035845b0a7b47120d9797c8aebae" prot="public" virt="non-virtual"><scope>evio::CompositeData</scope><name>toString</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1a41e7131a9511cf6511eb96e1a5e3d809" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>tsHeader</name></member>
+      <member refid="d5/d4b/classevio_1_1_composite_data_1ae1f9ff9072866ea17b035735acf92a47" prot="private" virt="non-virtual"><scope>evio::CompositeData</scope><name>types</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

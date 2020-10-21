@@ -1,0 +1,339 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xpath__variable__set" kind="class" language="C++" prot="public">
+    <compoundname>pugi::xpath_variable_set</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpugi_1_1xpath__variable__set_1acdc8e00090e1474c3dcbe6f1603ba986" prot="private" static="no" mutable="no">
+        <type><ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> *</type>
+        <definition>xpath_variable* pugi::xpath_variable_set::_data[64]</definition>
+        <argsstring>[64]</argsstring>
+        <name>_data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1169" column="16" bodyfile="src/libsrc/pugixml.hpp" bodystart="1169" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a9cc4fe6607e88edd75b6997b682ad00f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xpath_variable_set::_assign</definition>
+        <argsstring>(const xpath_variable_set &amp;rhs)</argsstring>
+        <name>_assign</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xpath__variable__set" kindref="compound">xpath_variable_set</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1171" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="12473" bodyend="12482"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a0efd4400aed50a2613c4e20b0bf2bc26" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xpath_variable_set::_swap</definition>
+        <argsstring>(xpath_variable_set &amp;rhs)</argsstring>
+        <name>_swap</name>
+        <param>
+          <type><ref refid="classpugi_1_1xpath__variable__set" kindref="compound">xpath_variable_set</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1172" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="12484" bodyend="12493"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a3e12f9c357c81c0b771d847cf8b981af" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> *</type>
+        <definition>xpath_variable * pugi::xpath_variable_set::_find</definition>
+        <argsstring>(const char_t *name) const</argsstring>
+        <name>_find</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1174" column="16" bodyfile="src/libsrc/pugixml.cpp" bodystart="12495" bodyend="12506"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a358ab301cbe434582a5b30fa64e5bc49" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xpath_variable_set::_clone</definition>
+        <argsstring>(xpath_variable *var, xpath_variable **out_result)</argsstring>
+        <name>_clone</name>
+        <param>
+          <type><ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> *</type>
+          <declname>var</declname>
+        </param>
+        <param>
+          <type><ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> **</type>
+          <declname>out_result</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1176" column="13" bodyfile="src/libsrc/pugixml.cpp" bodystart="12508" bodyend="12533"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a6df3a3fffebedb41968524bc6cd3d77c" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xpath_variable_set::_destroy</definition>
+        <argsstring>(xpath_variable *var)</argsstring>
+        <name>_destroy</name>
+        <param>
+          <type><ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> *</type>
+          <declname>var</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1177" column="13" bodyfile="src/libsrc/pugixml.cpp" bodystart="12535" bodyend="12545"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1ab033f696c56a2b1aa439c91e323f4280" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xpath_variable_set::xpath_variable_set</definition>
+        <argsstring>()</argsstring>
+        <name>xpath_variable_set</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1181" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="12420" bodyend="12424"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a0983ca4af1c542ed73a49bdc33307886" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xpath_variable_set::~xpath_variable_set</definition>
+        <argsstring>()</argsstring>
+        <name>~xpath_variable_set</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1182" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="12426" bodyend="12430"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1ab278b91d27586869a237b55d89e72a1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xpath_variable_set::xpath_variable_set</definition>
+        <argsstring>(const xpath_variable_set &amp;rhs)</argsstring>
+        <name>xpath_variable_set</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xpath__variable__set" kindref="compound">xpath_variable_set</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1185" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="12432" bodyend="12438"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a4117dd3bf09b3832ea6e59b2928d3f17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xpath__variable__set" kindref="compound">xpath_variable_set</ref> &amp;</type>
+        <definition>xpath_variable_set &amp; pugi::xpath_variable_set::operator=</definition>
+        <argsstring>(const xpath_variable_set &amp;rhs)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xpath__variable__set" kindref="compound">xpath_variable_set</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1186" column="20" bodyfile="src/libsrc/pugixml.cpp" bodystart="12440" bodyend="12447"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1adaeaea83945e99a8c100f4bfeaea1239" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> *</type>
+        <definition>xpath_variable * pugi::xpath_variable_set::add</definition>
+        <argsstring>(const char_t *name, xpath_value_type type)</argsstring>
+        <name>add</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>xpath_value_type</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1195" column="16" bodyfile="src/libsrc/pugixml.cpp" bodystart="12547" bodyend="12568"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a4aa2947aa449a1ebb3a9b9aba3e9b71f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xpath_variable_set::set</definition>
+        <argsstring>(const char_t *name, bool value)</argsstring>
+        <name>set</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1198" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="12570" bodyend="12574"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a7eeeb55efe26eb4b1f8e81311c573368" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xpath_variable_set::set</definition>
+        <argsstring>(const char_t *name, double value)</argsstring>
+        <name>set</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1199" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="12576" bodyend="12580"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a54013d1f93f345839f16c628c7ff457c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xpath_variable_set::set</definition>
+        <argsstring>(const char_t *name, const char_t *value)</argsstring>
+        <name>set</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>const char_t *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1200" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="12582" bodyend="12586"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a44a4a6f4333369166f3694b318b54b6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xpath_variable_set::set</definition>
+        <argsstring>(const char_t *name, const xpath_node_set &amp;value)</argsstring>
+        <name>set</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classpugi_1_1xpath__node__set" kindref="compound">xpath_node_set</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1201" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="12588" bodyend="12592"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a8ed34356b736733899d9a35f75a08b33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> *</type>
+        <definition>xpath_variable * pugi::xpath_variable_set::get</definition>
+        <argsstring>(const char_t *name)</argsstring>
+        <name>get</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1204" column="16" bodyfile="src/libsrc/pugixml.cpp" bodystart="12594" bodyend="12597"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xpath__variable__set_1a37ae105658bc1022fc2cfcd09881685b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classpugi_1_1xpath__variable" kindref="compound">xpath_variable</ref> *</type>
+        <definition>const xpath_variable * pugi::xpath_variable_set::get</definition>
+        <argsstring>(const char_t *name) const</argsstring>
+        <name>get</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1205" column="22" bodyfile="src/libsrc/pugixml.cpp" bodystart="12599" bodyend="12602"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/libsrc/pugixml.hpp" line="1166" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="1167" bodyend="1206"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xpath__variable__set_1a9cc4fe6607e88edd75b6997b682ad00f" prot="private" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>_assign</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a358ab301cbe434582a5b30fa64e5bc49" prot="private" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>_clone</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1acdc8e00090e1474c3dcbe6f1603ba986" prot="private" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>_data</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a6df3a3fffebedb41968524bc6cd3d77c" prot="private" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>_destroy</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a3e12f9c357c81c0b771d847cf8b981af" prot="private" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>_find</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a0efd4400aed50a2613c4e20b0bf2bc26" prot="private" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>_swap</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1adaeaea83945e99a8c100f4bfeaea1239" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>add</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a8ed34356b736733899d9a35f75a08b33" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>get</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a37ae105658bc1022fc2cfcd09881685b" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>get</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a4117dd3bf09b3832ea6e59b2928d3f17" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a4aa2947aa449a1ebb3a9b9aba3e9b71f" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>set</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a7eeeb55efe26eb4b1f8e81311c573368" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>set</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a54013d1f93f345839f16c628c7ff457c" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>set</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a44a4a6f4333369166f3694b318b54b6f" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>set</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1ab033f696c56a2b1aa439c91e323f4280" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>xpath_variable_set</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1ab278b91d27586869a237b55d89e72a1b" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>xpath_variable_set</name></member>
+      <member refid="classpugi_1_1xpath__variable__set_1a0983ca4af1c542ed73a49bdc33307886" prot="public" virt="non-virtual"><scope>pugi::xpath_variable_set</scope><name>~xpath_variable_set</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

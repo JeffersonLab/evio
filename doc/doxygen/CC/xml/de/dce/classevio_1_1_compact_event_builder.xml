@@ -1,0 +1,1404 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="de/dce/classevio_1_1_compact_event_builder" kind="class" language="C++" prot="public">
+    <compoundname>evio::CompactEventBuilder</compoundname>
+    <includes local="no">CompactEventBuilder.h</includes>
+    <innerclass refid="d4/d5d/classevio_1_1_compact_event_builder_1_1_structure_content" prot="private">evio::CompactEventBuilder::StructureContent</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1a1493245ea308fd87e388b40a32daf7c3" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ByteBuffer&gt; evio::CompactEventBuilder::buffer</definition>
+        <argsstring></argsstring>
+        <name>buffer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Buffer in which to write. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="52" column="25" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1a718b1662ef317e19cb056bd9cc102058" prot="private" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* evio::CompactEventBuilder::array</definition>
+        <argsstring></argsstring>
+        <name>array</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Byte array which backs the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="55" column="18" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1a8caaeb6758373a1850b727e1a45c50ba" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::CompactEventBuilder::arrayOffset</definition>
+        <argsstring></argsstring>
+        <name>arrayOffset</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Offset into backing array. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="58" column="16" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1a33e40b5512c7a29ab7cf0cefb5f3aa16" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t evio::CompactEventBuilder::position</definition>
+        <argsstring></argsstring>
+        <name>position</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Current writing position in the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="61" column="16" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1aab4bb41f48a9752933a64513eae3bb73" prot="private" static="no" mutable="no">
+        <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref></type>
+        <definition>ByteOrder evio::CompactEventBuilder::order</definition>
+        <argsstring></argsstring>
+        <name>order</name>
+        <initializer>{<ref refid="da/d7d/classevio_1_1_byte_order_1ae4055f708921d4e6540ab4662d27147c" kindref="member">ByteOrder::ENDIAN_LOCAL</ref>}</initializer>
+        <briefdescription>
+<para>Byte order of the buffer, convenience variable. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="64" column="19" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1ab51e08d0e7d318d5981fde5dd9cf94cd" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::CompactEventBuilder::createdBuffer</definition>
+        <argsstring></argsstring>
+        <name>createdBuffer</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Did this object create the byte buffer? </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="67" column="14" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1aab6ed115af77d674c648704feb3ebdb1" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool evio::CompactEventBuilder::generateNodes</definition>
+        <argsstring></argsstring>
+        <name>generateNodes</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>When writing to buffer, generate <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> objects as evio structures are being created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="71" column="14" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1aac51667fe729c702574b7ea322a1b296" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;EvioNode&gt; &gt; evio::CompactEventBuilder::nodes</definition>
+        <argsstring></argsstring>
+        <name>nodes</name>
+        <briefdescription>
+<para>If <ref refid="" kindref="compound">generateNodes</ref> is. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> , then store generated node objects in this list (in buffer order. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="75" column="21" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1acaf250f4d10e2c85cb91ff8f041f118f" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; StructureContent &gt; &gt;</type>
+        <definition>std::vector&lt;std::shared_ptr&lt;StructureContent&gt; &gt; evio::CompactEventBuilder::stackArray</definition>
+        <argsstring></argsstring>
+        <name>stackArray</name>
+        <briefdescription>
+<para>The top (first element) of the vector is the first structure created or the event bank. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each level is the parent of the next one down (index + 1) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="118" column="21" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1a15072ba015d2e2d4941cbbee25dcde9e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; uint32_t &gt;</type>
+        <definition>std::vector&lt;uint32_t&gt; evio::CompactEventBuilder::totalLengths</definition>
+        <argsstring></argsstring>
+        <name>totalLengths</name>
+        <briefdescription>
+<para>Each element of the vector is the total length of all evio data in a structure including the full length of that structure&apos;s header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>There is one length for each level of evio structures with the 0th element being the top structure (or event) level. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="125" column="21" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1ad3387a6955dc69e28951cff0f6e8b9f7" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; StructureContent &gt;</type>
+        <definition>std::shared_ptr&lt;StructureContent&gt; evio::CompactEventBuilder::currentStructure</definition>
+        <argsstring></argsstring>
+        <name>currentStructure</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+<para>Current evio structure being created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="128" column="25" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1a80691631f223c8da60d996c017fee9eb" prot="private" static="no" mutable="no">
+        <type>int32_t</type>
+        <definition>int32_t evio::CompactEventBuilder::currentLevel</definition>
+        <argsstring></argsstring>
+        <name>currentLevel</name>
+        <initializer>= -1</initializer>
+        <briefdescription>
+<para>Level of the evio structure currently being created. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Starts at 0 for the event bank. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="132" column="17" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1a634bbb2d189a96e20790a34c64ab53d2" prot="private" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t evio::CompactEventBuilder::MAX_LEVELS</definition>
+        <argsstring></argsstring>
+        <name>MAX_LEVELS</name>
+        <initializer>= 50</initializer>
+        <briefdescription>
+<para>Maximum allowed evio structure levels in buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="78" column="31" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="de/dce/classevio_1_1_compact_event_builder_1ab92c0653ab75b18a7e788a93ba135141" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr uint32_t</type>
+        <definition>constexpr uint32_t evio::CompactEventBuilder::padCount[]</definition>
+        <argsstring>[]</argsstring>
+        <name>padCount</name>
+        <initializer>= {0,3,2,1}</initializer>
+        <briefdescription>
+<para>Number of bytes to pad short and byte data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="81" column="35" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1afba69414ba4596c97c7abfd180186a25" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompactEventBuilder::CompactEventBuilder</definition>
+        <argsstring>(size_t bufferSize, ByteOrder const &amp;order, bool generateNodes=false)</argsstring>
+        <name>CompactEventBuilder</name>
+        <param>
+          <type>size_t</type>
+          <declname>bufferSize</declname>
+        </param>
+        <param>
+          <type><ref refid="da/d7d/classevio_1_1_byte_order" kindref="compound">ByteOrder</ref> const &amp;</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>generateNodes</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>This is the constructor to use for building a new event (just the event in a buffer, not the full evio file format). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A buffer is created in this constructor.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bufferSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of byte buffer (in bytes) to create. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>byte order of created buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>generateNodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>generate and store an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object for each evio structure created.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if bufferSize arg too small </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="137" column="9" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="30" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1acfd2ada6c368910006f3981e982604df" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>evio::CompactEventBuilder::CompactEventBuilder</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; buffer, bool generateNodes=false)</argsstring>
+        <name>CompactEventBuilder</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>generateNodes</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>This is the constructor to use for building a new event (just the event in a buffer, not the full evio file format) with a user-given buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byte buffer to write into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>generateNodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>generate and store an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object for each evio structure created.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if arg is null; if buffer is too small </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="138" column="18" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="68" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1aea41d8c743a988976ab75ce42b368b9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::setBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; buffer, bool generateNodes=false)</argsstring>
+        <name>setBuffer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>generateNodes</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Set the buffer to be written into. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to be written into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>generateNodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>generate and store an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object for each evio structure created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if arg is null; if buffer is too small </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="140" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="93" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a38e1d5ab9c5a4bf799d60c5a1d216d83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ByteBuffer &gt; evio::CompactEventBuilder::getBuffer</definition>
+        <argsstring>()</argsstring>
+        <name>getBuffer</name>
+        <briefdescription>
+<para>Get the buffer being written into. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The buffer is ready to read. <simplesect kind="return"><para>buffer being written into. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="148" column="25" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="140" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a43f3bdca4a61710c6b903c9e926042b3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t evio::CompactEventBuilder::getTotalBytes</definition>
+        <argsstring>() const</argsstring>
+        <name>getTotalBytes</name>
+        <briefdescription>
+<para>Get the total number of bytes written into the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>total number of bytes written into the buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="150" column="16" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="150" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a565d005085544e6e8c66e410fd1e8a8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::CompactEventBuilder::openSegment</definition>
+        <argsstring>(uint16_t tag, DataType const &amp;dataType)</argsstring>
+        <name>openSegment</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an evio segment structure to the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag of segment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data to be contained by this segment </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>if told to generate nodes in constructor, then return the node created here; else return null </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if containing structure does not hold segments; if no room in buffer for segment header; if too many nested evio structures; if top-level bank has not been added first. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="152" column="25" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="165" bodyend="226"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a84e08dfdd193f7c1b336dc06b222fa73" compoundref="db/da7/_data_type_8h" startline="49">evio::DataType::ALSOSEGMENT</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa696a1e106a458b808fbb6892432ae59" compoundref="db/da7/_data_type_8h" startline="53">evio::DataType::SEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a9b7812e1d18349d5fec68cd1611dfcf8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::CompactEventBuilder::openTagSegment</definition>
+        <argsstring>(int tag, DataType dataType)</argsstring>
+        <name>openTagSegment</name>
+        <param>
+          <type>int</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref></type>
+          <declname>dataType</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an evio tagsegment structure to the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag of tagsegment header </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of data to be contained by this tagsegment </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>if told to generate nodes in constructor, then return the node created here; else return null </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if containing structure does not hold tagsegments; if no room in buffer for tagsegment header; if too many nested evio structures; if top-level bank has not been added first. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="153" column="25" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="241" bodyend="308"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a96276904feb345922470078df8b5e5c7" compoundref="db/da7/_data_type_8h" startline="48">evio::DataType::TAGSEGMENT</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a14cd5da1c84c052c8a446235dd67f03c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EvioNode &gt; evio::CompactEventBuilder::openBank</definition>
+        <argsstring>(uint16_t tag, DataType const &amp;dataType, uint8_t num)</argsstring>
+        <name>openBank</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>tag</declname>
+        </param>
+        <param>
+          <type><ref refid="d5/d23/classevio_1_1_data_type" kindref="compound">DataType</ref> const &amp;</type>
+          <declname>dataType</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>This method adds an evio bank to the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tag of bank header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>data type to be contained in this bank. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>num of bank header. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>if told to generate nodes in constructor, then return the node created here; else return null </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if containing structure does not hold banks; if no room in buffer for bank header; if too many nested evio structures; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="154" column="25" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="323" bodyend="398"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab38996675c5240d92a1593fac3600cdc" compoundref="db/da7/_data_type_8h" startline="50">evio::DataType::ALSOBANK</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9abb7776dd6a75467243aa15eded907d" compoundref="db/da7/_data_type_8h" startline="52">evio::DataType::BANK</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a69fcde1e86a8cbad2a2ab213d070f3c8" compoundref="db/da7/_data_type_8h" startline="184" endline="184">evio::DataType::getValue</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a1c1a628643059987a3a8371ce794c4af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool evio::CompactEventBuilder::closeStructure</definition>
+        <argsstring>()</argsstring>
+        <name>closeStructure</name>
+        <briefdescription>
+<para>This method ends the writing of the current evio structure and makes sure the length and padding fields are properly set. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Its parent, if any, then becomes the current structure.</para>
+<para><simplesect kind="return"><para><programlisting><codeline><highlight class="normal">true<sp/></highlight></codeline>
+</programlisting> if top structure was reached (is current), else<programlisting><codeline><highlight class="normal">false<sp/></highlight></codeline>
+</programlisting> . </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="156" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="408" bodyend="437"/>
+        <referencedby refid="de/dce/classevio_1_1_compact_event_builder_1a6102f05fbcc1e84fdc423e1c24dfc1de" compoundref="da/d47/_compact_event_builder_8cpp" startline="444" endline="446">closeAll</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a6102f05fbcc1e84fdc423e1c24dfc1de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::closeAll</definition>
+        <argsstring>()</argsstring>
+        <name>closeAll</name>
+        <briefdescription>
+<para>This method finishes the event writing by setting all the proper lengths &amp; padding and ends up at the event or top level. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="157" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="444" bodyend="446"/>
+        <references refid="de/dce/classevio_1_1_compact_event_builder_1a1c1a628643059987a3a8371ce794c4af" compoundref="da/d47/_compact_event_builder_8cpp" startline="408" endline="437">closeStructure</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a01e1b344efd2d7f26fe331c241175822" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::setTopLevelTag</definition>
+        <argsstring>(short tag)</argsstring>
+        <name>setTopLevelTag</name>
+        <param>
+          <type>short</type>
+          <declname>tag</declname>
+        </param>
+        <briefdescription>
+<para>In the emu software package, it&apos;s necessary to change the top level tag after the top level bank has already been created. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This method allows changing it after initially written. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>new tag value of top-level, event bank. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="159" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="455" bodyend="464"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1aa11600b2ff36c44d7f2f8e345cfc937d" compoundref="d1/d02/_byte_order_8h" startline="58">evio::ByteOrder::ENDIAN_BIG</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a269b8a8d59188c70e793f0c0eeb95615" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addEvioNode</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; node)</argsstring>
+        <name>addEvioNode</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Adds the evio structure represented by the <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object into the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object representing the evio structure to data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null or empty; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="173" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="679" bodyend="721"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a1a5d4684f272840631b56f19fb0870f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addByteData</definition>
+        <argsstring>(uint8_t *data, uint32_t len)</argsstring>
+        <name>addByteData</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Appends byte data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the byte data to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null or empty; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="175" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="734" bodyend="785"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9a9803199ba7b5236f9fb5ccaacc9c6d" compoundref="db/da7/_data_type_8h" startline="42">evio::DataType::CHAR8</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a1d561abba7301ebf74fefad8b29fa8ae" compoundref="db/da7/_data_type_8h" startline="43">evio::DataType::UCHAR8</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1afbc1aa2c526d31495a238f1282cbbbb1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addIntData</definition>
+        <argsstring>(uint32_t *data, uint32_t len)</argsstring>
+        <name>addIntData</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Appends int data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the int data to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of ints from data to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null or empty; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="176" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="798" bodyend="840"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1ae23b05542b144e3b7d72628280532195" compoundref="db/da7/_data_type_8h" startline="47">evio::DataType::INT32</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" compoundref="d1/d02/_byte_order_8h" startline="102" endline="102">evio::ByteOrder::isLocalEndian</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1ab594570d76a48584ae27c5e2276b3c04" compoundref="db/da7/_data_type_8h" startline="37">evio::DataType::UINT32</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a2b3013fda814a931239319319790c761" compoundref="db/da7/_data_type_8h" startline="36">evio::DataType::UNKNOWN32</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a11a8e0e5b532591b481c3a9c7ae14b5f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addShortData</definition>
+        <argsstring>(uint16_t *data, uint32_t len)</argsstring>
+        <name>addShortData</name>
+        <param>
+          <type>uint16_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Appends short data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the short data to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of shorts from data to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null; if count/offset negative or too large; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="177" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="854" bodyend="920"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" compoundref="d1/d02/_byte_order_8h" startline="102" endline="102">evio::ByteOrder::isLocalEndian</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a227fb12c5f747c91239e4d305fa83447" compoundref="db/da7/_data_type_8h" startline="40">evio::DataType::SHORT16</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1aa4dc041c0f0796a4b7dd12d11a9c325a" compoundref="db/da7/_data_type_8h" startline="41">evio::DataType::USHORT16</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a279a3c0cc400a703d505ac116beb4885" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addLongData</definition>
+        <argsstring>(uint64_t *data, uint32_t len)</argsstring>
+        <name>addLongData</name>
+        <param>
+          <type>uint64_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Appends long data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the long data to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of longs from data to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="178" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="933" bodyend="979"/>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" compoundref="d1/d02/_byte_order_8h" startline="102" endline="102">evio::ByteOrder::isLocalEndian</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0ad3467f252ad341a3f630f0210bc9e1" compoundref="db/da7/_data_type_8h" startline="45">evio::DataType::LONG64</references>
+        <references refid="d5/d23/classevio_1_1_data_type_1a0f556bae625e41a9adc3bae9949112d3" compoundref="db/da7/_data_type_8h" startline="46">evio::DataType::ULONG64</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1add132a161db8b8cc578203233454df7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addFloatData</definition>
+        <argsstring>(float *data, uint32_t len)</argsstring>
+        <name>addFloatData</name>
+        <param>
+          <type>float *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Appends float data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the float data to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of the floats to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null or empty; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="179" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="992" bodyend="1030"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a15212317494206aed89652808e36ffcb" compoundref="db/da7/_data_type_8h" startline="38">evio::DataType::FLOAT32</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" compoundref="d1/d02/_byte_order_8h" startline="102" endline="102">evio::ByteOrder::isLocalEndian</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a352207f5c6fb728773649bc44f17adca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addDoubleData</definition>
+        <argsstring>(double *data, uint32_t len)</argsstring>
+        <name>addDoubleData</name>
+        <param>
+          <type>double *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Appends double data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the double data to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of doubles from data to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is null or empty; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="180" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="1043" bodyend="1081"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a018e0280b01ac441c63dc529f391c812" compoundref="db/da7/_data_type_8h" startline="44">evio::DataType::DOUBLE64</references>
+        <references refid="da/d7d/classevio_1_1_byte_order_1ab0a29204d87f503b7e96f1b855914137" compoundref="d1/d02/_byte_order_8h" startline="102" endline="102">evio::ByteOrder::isLocalEndian</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a9835683a45cb69bbaec9f8f41c691ce0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addStringData</definition>
+        <argsstring>(std::vector&lt; std::string &gt; &amp;strings)</argsstring>
+        <name>addStringData</name>
+        <param>
+          <type>std::vector&lt; std::string &gt; &amp;</type>
+          <declname>strings</declname>
+        </param>
+        <briefdescription>
+<para>Appends string data to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of strings to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if strings is empty; if adding wrong data type to structure; if structure not added first; if no room in buffer for strings. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="181" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="1093" bodyend="1125"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a44ebcac2851a8e66b41605ab55bc6708" compoundref="db/da7/_data_type_8h" startline="39">evio::DataType::CHARSTAR8</references>
+        <references refid="d3/d87/classevio_1_1_util_1aa190851d3b2fe20f4c0d02bae9713f10" compoundref="dd/d90/_util_8h" startline="784" endline="828">evio::Util::stringsToRawBytes</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1aa9b4794a8a205b1e96fe7226cef3c864" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addCompositeData</definition>
+        <argsstring>(std::vector&lt; std::shared_ptr&lt; CompositeData &gt;&gt; &amp;data)</argsstring>
+        <name>addCompositeData</name>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> &gt;&gt; &amp;</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para>Appends <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> objects to the structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the <ref refid="d5/d4b/classevio_1_1_composite_data" kindref="compound">CompositeData</ref> objects to append, or set if there is no existing data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data is empty; if adding wrong data type to structure; if structure not added first; if no room in buffer for data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="182" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="1137" bodyend="1177"/>
+        <references refid="d5/d23/classevio_1_1_data_type_1a9790e6d2d964cd17518b510cade71013" compoundref="db/da7/_data_type_8h" startline="51">evio::DataType::COMPOSITE</references>
+        <references refid="d5/d4b/classevio_1_1_composite_data_1a1c44828a1acbffe083cc5122f8c4c8f1">evio::CompositeData::generateRawBytes</references>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a9042fd06e8d738ef387684b6df3c765f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::toFile</definition>
+        <argsstring>(std::string const &amp;fileName)</argsstring>
+        <name>toFile</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>This method writes a file in proper evio format with block header containing the single event constructed by this object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is useful as a test to see if event is being properly constructed. Use this in conjunction with the event viewer in order to check that format is correct. This only works with array backed buffers.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="184" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="1189" bodyend="1287"/>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aa0e335238a57eaa0bffee8f968e5995f" compoundref="d4/d6c/_byte_buffer_8cpp" startline="475" endline="475">evio::ByteBuffer::array</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a37f94e6875b3d3eb9aaf672f91d3302b" compoundref="d2/d66/_file_header_8h" startline="101">evio::FileHeader::EVIO_FILE_UNIQUE_WORD</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1aed6fb0a09f6320dfc89196e6c7d03191" compoundref="d4/d6c/_byte_buffer_8cpp" startline="549" endline="554">evio::ByteBuffer::flip</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1acd0cfbbe33c75999f56823156fd6334f" compoundref="de/d46/_file_header_8cpp" startline="315" endline="325">evio::FileHeader::generateBitInfoWord</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1abef5b84c1929a20a6429dee0f54ea979" compoundref="dd/d2d/_record_header_8cpp" startline="479" endline="494">evio::RecordHeader::generateSixthWord</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a8af8636060d069a9aa45868710dd7218" compoundref="d2/d66/_file_header_8h" startline="107">evio::FileHeader::HEADER_MAGIC</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a92896dc06aad1eb7f4add3ce7fec5424" compoundref="d6/dea/_record_header_8h" startline="129">evio::RecordHeader::HEADER_MAGIC</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1a60a8eab054b6f02e84d8975e3aa436b9" compoundref="d2/d66/_file_header_8h" startline="105">evio::FileHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1a0e09d731589bcfe2705d0c606192f6eb" compoundref="d6/dea/_record_header_8h" startline="127">evio::RecordHeader::HEADER_SIZE_BYTES</references>
+        <references refid="d1/da6/classevio_1_1_file_header_1ace7c98d335c9ef664cb9e2b4496c8350" compoundref="d2/d66/_file_header_8h" startline="103">evio::FileHeader::HEADER_SIZE_WORDS</references>
+        <references refid="d8/d64/classevio_1_1_record_header_1ac6566ea9b1bba9c25b545831bcbb5200" compoundref="d6/dea/_record_header_8h" startline="125">evio::RecordHeader::HEADER_SIZE_WORDS</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a3d5f0120189717ffc8d2d480d89cb91a" compoundref="d4/d6c/_byte_buffer_8cpp" startline="466" endline="466">evio::ByteBuffer::order</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a8bc5745c6525ec0e5bfaee09db9b5c60" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1570" endline="1579">evio::ByteBuffer::putInt</references>
+        <references refid="dc/d30/classevio_1_1_byte_buffer_1a0f3ae4b0b792506bb6ea752edb028dc3" compoundref="d4/d6c/_byte_buffer_8cpp" startline="1615" endline="1624">evio::ByteBuffer::putLong</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a8986f3698d8307c00ebbd45c1535cfb5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::initBuffer</definition>
+        <argsstring>(std::shared_ptr&lt; ByteBuffer &gt; buffer, bool generateNodes)</argsstring>
+        <name>initBuffer</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="dc/d30/classevio_1_1_byte_buffer" kindref="compound">ByteBuffer</ref> &gt;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>generateNodes</declname>
+        </param>
+        <briefdescription>
+<para>Set the buffer to be written into. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer to be written into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>generateNodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>generate and store an <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> object for each evio structure created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if arg is null; if buffer is too small </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="144" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="110" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1a5928e29a72110c16e52cbdbc321cf0b4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::addToAllLengths</definition>
+        <argsstring>(uint32_t len)</argsstring>
+        <name>addToAllLengths</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method adds the given length to the current structure&apos;s existing length and all its ancestors&apos; lengths. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Nothing is written into the buffer. The lengths are keep in an array for later use in writing to the buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length to add </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="163" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="475" bodyend="482"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1af7910594b83290b19a5f4e7d07540b54" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::setCurrentHeaderLength</definition>
+        <argsstring>(uint32_t len)</argsstring>
+        <name>setCurrentHeaderLength</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>This method sets the length of the current evio structure in the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>length of current structure </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="165" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="489" bodyend="511"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1aeb80778c1171aab00a4fea098e567158" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::setCurrentHeaderPadding</definition>
+        <argsstring>(uint32_t padding)</argsstring>
+        <name>setCurrentHeaderPadding</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>padding</declname>
+        </param>
+        <briefdescription>
+<para>This method sets the padding of the current evio structure in the buffer-&gt; </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>padding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>padding of current structure&apos;s data </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="166" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="518" bodyend="542"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1adf31d36991b41fa4fe63270bbed4e39e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::writeHeader</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node)</argsstring>
+        <name>writeHeader</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>This method takes the node (which has been scanned and that info stored in that object) and rewrites it into the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is equivalent to a swap if the node is opposite endian in its original buffer. If the node is not opposite endian, there is no point in calling this method.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node whose header data must be written </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="168" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="554" bodyend="625"/>
+      </memberdef>
+      <memberdef kind="function" id="de/dce/classevio_1_1_compact_event_builder_1ae4c5dfff668520172dce4f5d7b731934" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio::CompactEventBuilder::writeNode</definition>
+        <argsstring>(std::shared_ptr&lt; EvioNode &gt; &amp;node, bool swapData)</argsstring>
+        <name>writeNode</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="de/dd0/classevio_1_1_evio_node" kindref="compound">EvioNode</ref> &gt; &amp;</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>swapData</declname>
+        </param>
+        <briefdescription>
+<para>Take the node object and write its data into buffer in the proper endian while also swapping primitive data if desired. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node to be written (is never null) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>swapData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>do we swap the primitive data or not? </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="d0/d0b/classevio_1_1_evio_exception" kindref="compound">EvioException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if data needs to, but cannot be swapped. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/CompactEventBuilder.h" line="169" column="14" bodyfile="src/libsrc/CompactEventBuilder.cpp" bodystart="636" bodyend="666"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class is used for creating events and their substructures while minimizing use of objects. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Evio format data of a single event is written directly, and sequentially, into a buffer. The buffer contains only the single event, not the full, evio file format.</para>
+<para>The methods of this class are not synchronized so it is NOT threadsafe. This is done for speed. The buffer retrieved by <ref refid="de/dce/classevio_1_1_compact_event_builder_1a38e1d5ab9c5a4bf799d60c5a1d216d83" kindref="member">getBuffer()</ref> is ready to read.</para>
+<para><simplesect kind="author"><para>timmer </para>
+</simplesect>
+<simplesect kind="date"><para>2/6/2014 (Java) </para>
+</simplesect>
+<simplesect kind="date"><para>7/5/2020 (C++) </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="src/libsrc/CompactEventBuilder.h" line="47" column="5" bodyfile="src/libsrc/CompactEventBuilder.h" bodystart="47" bodyend="186"/>
+    <listofallmembers>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a1a5d4684f272840631b56f19fb0870f6" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addByteData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1aa9b4794a8a205b1e96fe7226cef3c864" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addCompositeData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a352207f5c6fb728773649bc44f17adca" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addDoubleData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a269b8a8d59188c70e793f0c0eeb95615" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addEvioNode</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1add132a161db8b8cc578203233454df7f" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addFloatData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1afbc1aa2c526d31495a238f1282cbbbb1" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addIntData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a279a3c0cc400a703d505ac116beb4885" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addLongData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a11a8e0e5b532591b481c3a9c7ae14b5f" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addShortData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a9835683a45cb69bbaec9f8f41c691ce0" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addStringData</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a5928e29a72110c16e52cbdbc321cf0b4" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>addToAllLengths</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a718b1662ef317e19cb056bd9cc102058" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>array</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a8caaeb6758373a1850b727e1a45c50ba" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>arrayOffset</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a1493245ea308fd87e388b40a32daf7c3" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>buffer</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a6102f05fbcc1e84fdc423e1c24dfc1de" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>closeAll</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a1c1a628643059987a3a8371ce794c4af" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>closeStructure</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1afba69414ba4596c97c7abfd180186a25" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>CompactEventBuilder</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1acfd2ada6c368910006f3981e982604df" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>CompactEventBuilder</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1ab51e08d0e7d318d5981fde5dd9cf94cd" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>createdBuffer</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a80691631f223c8da60d996c017fee9eb" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>currentLevel</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1ad3387a6955dc69e28951cff0f6e8b9f7" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>currentStructure</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1aab6ed115af77d674c648704feb3ebdb1" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>generateNodes</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a38e1d5ab9c5a4bf799d60c5a1d216d83" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>getBuffer</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a43f3bdca4a61710c6b903c9e926042b3" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>getTotalBytes</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a8986f3698d8307c00ebbd45c1535cfb5" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>initBuffer</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a634bbb2d189a96e20790a34c64ab53d2" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>MAX_LEVELS</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1aac51667fe729c702574b7ea322a1b296" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>nodes</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a14cd5da1c84c052c8a446235dd67f03c" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>openBank</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a565d005085544e6e8c66e410fd1e8a8a" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>openSegment</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a9b7812e1d18349d5fec68cd1611dfcf8" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>openTagSegment</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1aab4bb41f48a9752933a64513eae3bb73" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>order</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1ab92c0653ab75b18a7e788a93ba135141" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>padCount</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a33e40b5512c7a29ab7cf0cefb5f3aa16" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>position</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1aea41d8c743a988976ab75ce42b368b9a" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>setBuffer</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1af7910594b83290b19a5f4e7d07540b54" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>setCurrentHeaderLength</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1aeb80778c1171aab00a4fea098e567158" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>setCurrentHeaderPadding</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a01e1b344efd2d7f26fe331c241175822" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>setTopLevelTag</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1acaf250f4d10e2c85cb91ff8f041f118f" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>stackArray</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a9042fd06e8d738ef387684b6df3c765f" prot="public" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>toFile</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1a15072ba015d2e2d4941cbbee25dcde9e" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>totalLengths</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1adf31d36991b41fa4fe63270bbed4e39e" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>writeHeader</name></member>
+      <member refid="de/dce/classevio_1_1_compact_event_builder_1ae4c5dfff668520172dce4f5d7b731934" prot="private" virt="non-virtual"><scope>evio::CompactEventBuilder</scope><name>writeNode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

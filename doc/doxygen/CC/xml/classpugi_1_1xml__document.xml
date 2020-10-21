@@ -1,0 +1,753 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.20" xml:lang="en-US">
+  <compounddef id="classpugi_1_1xml__document" kind="class" language="C++" prot="public">
+    <compoundname>pugi::xml_document</compoundname>
+    <basecompoundref refid="classpugi_1_1xml__node" prot="public" virt="non-virtual">pugi::xml_node</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpugi_1_1xml__document_1ae0308876ff5f791287aa1199c98ae69b" prot="private" static="no" mutable="no">
+        <type>char_t *</type>
+        <definition>char_t* pugi::xml_document::_buffer</definition>
+        <argsstring></argsstring>
+        <name>_buffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1025" column="8" bodyfile="src/libsrc/pugixml.hpp" bodystart="1025" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classpugi_1_1xml__document_1a5b6b5b7c0f0e8f5f772b962fd49fbe1f" prot="private" static="no" mutable="no">
+        <type>char</type>
+        <definition>char pugi::xml_document::_memory[192]</definition>
+        <argsstring>[192]</argsstring>
+        <name>_memory</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1027" column="6" bodyfile="src/libsrc/pugixml.hpp" bodystart="1027" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a518e0f2e1919b6cb1003b7dec1012ed9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_document::xml_document</definition>
+        <argsstring>(const xml_document &amp;)</argsstring>
+        <name>xml_document</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xml__document" kindref="compound">xml_document</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1030" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1af8e921993cb396b96e1e3c025d21b469" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__document" kindref="compound">xml_document</ref> &amp;</type>
+        <definition>xml_document&amp; pugi::xml_document::operator=</definition>
+        <argsstring>(const xml_document &amp;)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xml__document" kindref="compound">xml_document</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1031" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a3f42e17758aef54a086d9441ae2e09ca" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::_create</definition>
+        <argsstring>()</argsstring>
+        <name>_create</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1033" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6963" bodyend="7004"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1af7740a51c34aa9071e812e01f30ac89d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::_destroy</definition>
+        <argsstring>()</argsstring>
+        <name>_destroy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1034" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="7006" bodyend="7043"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a21097a0b95abbd6b8c8d63cff56265f6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::_move</definition>
+        <argsstring>(xml_document &amp;rhs)</argsstring>
+        <name>_move</name>
+        <param>
+          <type><ref refid="classpugi_1_1xml__document" kindref="compound">xml_document</ref> &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1035" column="6"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a8db801c1d42eaa9073d14dfafda84f37" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_document::xml_document</definition>
+        <argsstring>()</argsstring>
+        <name>xml_document</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1039" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="6921" bodyend="6924"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a16c086e679286271b0ccd4541d1c1290" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>pugi::xml_document::~xml_document</definition>
+        <argsstring>()</argsstring>
+        <name>~xml_document</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1042" column="1" bodyfile="src/libsrc/pugixml.cpp" bodystart="6926" bodyend="6929"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a7d325c6309910157080fe69f73922186" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::reset</definition>
+        <argsstring>()</argsstring>
+        <name>reset</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1051" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6950" bodyend="6954"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1ac35e9409706a0cd8caa7cbf5b80abcca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::reset</definition>
+        <argsstring>(const xml_document &amp;proto)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>const <ref refid="classpugi_1_1xml__document" kindref="compound">xml_document</ref> &amp;</type>
+          <declname>proto</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1054" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="6956" bodyend="6961"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a38e37826481a041103a11ba4c1e53aa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load</definition>
+        <argsstring>(std::basic_istream&lt; char, std::char_traits&lt; char &gt; &gt; &amp;stream, unsigned int options=parse_default, xml_encoding encoding=encoding_auto)</argsstring>
+        <name>load</name>
+        <param>
+          <type>std::basic_istream&lt; char, std::char_traits&lt; char &gt; &gt; &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1058" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7153" bodyend="7158"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a7bea1b385fd40ad2b193655427d68145" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load</definition>
+        <argsstring>(std::basic_istream&lt; wchar_t, std::char_traits&lt; wchar_t &gt; &gt; &amp;stream, unsigned int options=parse_default)</argsstring>
+        <name>load</name>
+        <param>
+          <type>std::basic_istream&lt; wchar_t, std::char_traits&lt; wchar_t &gt; &gt; &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1059" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7160" bodyend="7165"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1af155720fa4a736acd8a30310f895f67d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load</definition>
+        <argsstring>(const char_t *contents, unsigned int options=parse_default)</argsstring>
+        <name>load</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>contents</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1063" column="21" bodyfile="src/libsrc/pugixml.cpp" bodystart="7180" bodyend="7183"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a558900d79e74717e1697586623740a33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load_string</definition>
+        <argsstring>(const char_t *contents, unsigned int options=parse_default)</argsstring>
+        <name>load_string</name>
+        <param>
+          <type>const char_t *</type>
+          <declname>contents</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1066" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7168" bodyend="7178"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a340e0688c19ba9195537bc9af6d72cd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load_file</definition>
+        <argsstring>(const char *path, unsigned int options=parse_default, xml_encoding encoding=encoding_auto)</argsstring>
+        <name>load_file</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1069" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7185" bodyend="7193"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a6103fc3af07c93f67bfacb5b85cf9a3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load_file</definition>
+        <argsstring>(const wchar_t *path, unsigned int options=parse_default, xml_encoding encoding=encoding_auto)</argsstring>
+        <name>load_file</name>
+        <param>
+          <type>const wchar_t *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1070" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7195" bodyend="7203"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1afd17b9b9a246371cfd331773a62ce01e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load_buffer</definition>
+        <argsstring>(const void *contents, size_t size, unsigned int options=parse_default, xml_encoding encoding=encoding_auto)</argsstring>
+        <name>load_buffer</name>
+        <param>
+          <type>const void *</type>
+          <declname>contents</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1073" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7205" bodyend="7210"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1ac478c757f27581d32afc040548dbe8e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load_buffer_inplace</definition>
+        <argsstring>(void *contents, size_t size, unsigned int options=parse_default, xml_encoding encoding=encoding_auto)</argsstring>
+        <name>load_buffer_inplace</name>
+        <param>
+          <type>void *</type>
+          <declname>contents</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1077" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7212" bodyend="7217"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a1845e732da5ad243d9c41b37d3d69237" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structpugi_1_1xml__parse__result" kindref="compound">xml_parse_result</ref></type>
+        <definition>xml_parse_result pugi::xml_document::load_buffer_inplace_own</definition>
+        <argsstring>(void *contents, size_t size, unsigned int options=parse_default, xml_encoding encoding=encoding_auto)</argsstring>
+        <name>load_buffer_inplace_own</name>
+        <param>
+          <type>void *</type>
+          <declname>contents</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>options</declname>
+          <defval>parse_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1081" column="18" bodyfile="src/libsrc/pugixml.cpp" bodystart="7219" bodyend="7224"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1ae4646651134eb6197b753a5e64d71009" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::save</definition>
+        <argsstring>(xml_writer &amp;writer, const char_t *indent=&quot;\t&quot;, unsigned int flags=format_default, xml_encoding encoding=encoding_auto) const</argsstring>
+        <name>save</name>
+        <param>
+          <type><ref refid="classpugi_1_1xml__writer" kindref="compound">xml_writer</ref> &amp;</type>
+          <declname>writer</declname>
+        </param>
+        <param>
+          <type>const char_t *</type>
+          <declname>indent</declname>
+          <defval>&quot;\t&quot;</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+          <defval>format_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1084" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="7226" bodyend="7252"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a075a8d532de37f495c4d8915fe2dccd5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::save</definition>
+        <argsstring>(std::basic_ostream&lt; char, std::char_traits&lt; char &gt; &gt; &amp;stream, const char_t *indent=&quot;\t&quot;, unsigned int flags=format_default, xml_encoding encoding=encoding_auto) const</argsstring>
+        <name>save</name>
+        <param>
+          <type>std::basic_ostream&lt; char, std::char_traits&lt; char &gt; &gt; &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const char_t *</type>
+          <declname>indent</declname>
+          <defval>&quot;\t&quot;</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+          <defval>format_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1088" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="7255" bodyend="7260"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1ac80f8791a483f9d4637f53559aca7e16" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void pugi::xml_document::save</definition>
+        <argsstring>(std::basic_ostream&lt; wchar_t, std::char_traits&lt; wchar_t &gt; &gt; &amp;stream, const char_t *indent=&quot;\t&quot;, unsigned int flags=format_default) const</argsstring>
+        <name>save</name>
+        <param>
+          <type>std::basic_ostream&lt; wchar_t, std::char_traits&lt; wchar_t &gt; &gt; &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const char_t *</type>
+          <declname>indent</declname>
+          <defval>&quot;\t&quot;</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+          <defval>format_default</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1089" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="7262" bodyend="7267"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a153857d776472e98e7396695652645ae" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_document::save_file</definition>
+        <argsstring>(const char *path, const char_t *indent=&quot;\t&quot;, unsigned int flags=format_default, xml_encoding encoding=encoding_auto) const</argsstring>
+        <name>save_file</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>const char_t *</type>
+          <declname>indent</declname>
+          <defval>&quot;\t&quot;</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+          <defval>format_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1093" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="7270" bodyend="7276"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a246a3d9e9a79ba45604d867397131ab1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool pugi::xml_document::save_file</definition>
+        <argsstring>(const wchar_t *path, const char_t *indent=&quot;\t&quot;, unsigned int flags=format_default, xml_encoding encoding=encoding_auto) const</argsstring>
+        <name>save_file</name>
+        <param>
+          <type>const wchar_t *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>const char_t *</type>
+          <declname>indent</declname>
+          <defval>&quot;\t&quot;</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+          <defval>format_default</defval>
+        </param>
+        <param>
+          <type>xml_encoding</type>
+          <declname>encoding</declname>
+          <defval>encoding_auto</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1094" column="6" bodyfile="src/libsrc/pugixml.cpp" bodystart="7278" bodyend="7284"/>
+      </memberdef>
+      <memberdef kind="function" id="classpugi_1_1xml__document_1a99bd93e704443c433524afbac75459f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classpugi_1_1xml__node" kindref="compound">xml_node</ref></type>
+        <definition>xml_node pugi::xml_document::document_element</definition>
+        <argsstring>() const</argsstring>
+        <name>document_element</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/libsrc/pugixml.hpp" line="1097" column="10" bodyfile="src/libsrc/pugixml.cpp" bodystart="7286" bodyend="7295"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>pugi::xml_document</label>
+        <link refid="classpugi_1_1xml__document"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>pugi::xml_node</label>
+        <link refid="classpugi_1_1xml__node"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>pugi::xml_document</label>
+        <link refid="classpugi_1_1xml__document"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>pugi::xml_attribute_struct</label>
+        <link refid="structpugi_1_1xml__attribute__struct"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>next_attribute</edgelabel>
+          <edgelabel>prev_attribute_c</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>pugi::xml_node_struct</label>
+        <link refid="structpugi_1_1xml__node__struct"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>first_attribute</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>first_child</edgelabel>
+          <edgelabel>next_sibling</edgelabel>
+          <edgelabel>parent</edgelabel>
+          <edgelabel>prev_sibling_c</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>pugi::xml_node</label>
+        <link refid="classpugi_1_1xml__node"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>_root</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/libsrc/pugixml.hpp" line="1022" column="1" bodyfile="src/libsrc/pugixml.hpp" bodystart="1023" bodyend="1098"/>
+    <listofallmembers>
+      <member refid="classpugi_1_1xml__document_1ae0308876ff5f791287aa1199c98ae69b" prot="private" virt="non-virtual"><scope>pugi::xml_document</scope><name>_buffer</name></member>
+      <member refid="classpugi_1_1xml__document_1a3f42e17758aef54a086d9441ae2e09ca" prot="private" virt="non-virtual"><scope>pugi::xml_document</scope><name>_create</name></member>
+      <member refid="classpugi_1_1xml__document_1af7740a51c34aa9071e812e01f30ac89d" prot="private" virt="non-virtual"><scope>pugi::xml_document</scope><name>_destroy</name></member>
+      <member refid="classpugi_1_1xml__document_1a5b6b5b7c0f0e8f5f772b962fd49fbe1f" prot="private" virt="non-virtual"><scope>pugi::xml_document</scope><name>_memory</name></member>
+      <member refid="classpugi_1_1xml__document_1a21097a0b95abbd6b8c8d63cff56265f6" prot="private" virt="non-virtual"><scope>pugi::xml_document</scope><name>_move</name></member>
+      <member refid="classpugi_1_1xml__node_1a45a5b342de1e37a60565f7693f03cc08" prot="protected" virt="non-virtual"><scope>pugi::xml_document</scope><name>_root</name></member>
+      <member refid="classpugi_1_1xml__node_1a47b328e66413f1c6134e29d21a5a4d7c" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>append_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a9c35d3f3595af46da1208cf9d14715c0" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>append_buffer</name></member>
+      <member refid="classpugi_1_1xml__node_1a498e41f14a04014eaf5d6af3ae8f9d99" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>append_child</name></member>
+      <member refid="classpugi_1_1xml__node_1a7f2d90363b0bb2e42566e0ca2e503020" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>append_child</name></member>
+      <member refid="classpugi_1_1xml__node_1ab480b6e6080d4dd83ebb46e5d10e706b" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>append_copy</name></member>
+      <member refid="classpugi_1_1xml__node_1a56796f244b13436de2f33da3e8c182f8" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>append_copy</name></member>
+      <member refid="classpugi_1_1xml__node_1a83619cb521a024b87e7a63800669fecf" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>append_move</name></member>
+      <member refid="classpugi_1_1xml__node_1a8992c17cd7218cf24c5150eeb47e1451" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1ad00be2662bbeef5912d942d1f7288eb3" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a9084f97350ffc64af1eaf7c17c57f4ba" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>attribute_iterator</name></member>
+      <member refid="classpugi_1_1xml__node_1a6bfb9e57ebdf105c4f7fde5dabc92853" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>attributes</name></member>
+      <member refid="classpugi_1_1xml__node_1a5db0f1a8937e949463b7473b126060b8" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>attributes_begin</name></member>
+      <member refid="classpugi_1_1xml__node_1a3970f031dc1c2b575c8eebd5d508dab3" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>attributes_end</name></member>
+      <member refid="classpugi_1_1xml__node_1ad37b3df6daac9a449b0fd82aa5214edf" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>begin</name></member>
+      <member refid="classpugi_1_1xml__node_1af3994814d80cdf2aef455bf3948c3385" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>child</name></member>
+      <member refid="classpugi_1_1xml__node_1ab0fca49d6bfdf83c21e81b3ac96bfea4" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>child_value</name></member>
+      <member refid="classpugi_1_1xml__node_1ad31835b1a5317ab53d2965f3c0bc3a6d" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>child_value</name></member>
+      <member refid="classpugi_1_1xml__node_1a5a71c1067b728a67b5757aeef311f2de" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>children</name></member>
+      <member refid="classpugi_1_1xml__node_1a83f2e0d78500b63cc365679de9c1695f" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>children</name></member>
+      <member refid="classpugi_1_1xml__document_1a99bd93e704443c433524afbac75459f8" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>document_element</name></member>
+      <member refid="classpugi_1_1xml__node_1ad6c9835f849ac6aeba8b920a63197b08" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>empty</name></member>
+      <member refid="classpugi_1_1xml__node_1a9ad59765e701650a6c2b99f0db0828a4" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>end</name></member>
+      <member refid="classpugi_1_1xml__node_1a4494f8397e3bdf586b1dec6da19f5649" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>find_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1ad00b88f63f6015ee34d4e38dc8ed4e80" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>find_child</name></member>
+      <member refid="classpugi_1_1xml__node_1a6929d610ca3a5c85b42037a8d9b22f4f" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>find_child_by_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a37ec6cd06119f0bff7a0bfdf1193fa1b" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>find_child_by_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a8c360e4966b4015c50b927009c3d1ee3" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>find_node</name></member>
+      <member refid="classpugi_1_1xml__node_1a3eaa68e1bcad9956590c0b8812d75bdf" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>first_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a7ed8da5b747abef912f014f91c0560da" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>first_child</name></member>
+      <member refid="classpugi_1_1xml__node_1a4dfa5b23ace286b93989899067cb1282" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>first_element_by_path</name></member>
+      <member refid="classpugi_1_1xml__node_1ab9a95d30e6f0f38565fc6faa7effae92" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>hash_value</name></member>
+      <member refid="classpugi_1_1xml__node_1a40aeecd8772b36c517c226fd12bc1450" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_attribute_after</name></member>
+      <member refid="classpugi_1_1xml__node_1a6695f3b7dcb86347a00b4bb16fbb88ed" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_attribute_before</name></member>
+      <member refid="classpugi_1_1xml__node_1afb2c70e3908e65b001dcd9bcf794d605" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_child_after</name></member>
+      <member refid="classpugi_1_1xml__node_1ad060be40b3aafe7b5d7b86597b2762c4" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_child_after</name></member>
+      <member refid="classpugi_1_1xml__node_1aa07c23d9835e8174fbe75f0c9a0c7d7b" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_child_before</name></member>
+      <member refid="classpugi_1_1xml__node_1a21b8665790dec7a3689159addb4ca014" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_child_before</name></member>
+      <member refid="classpugi_1_1xml__node_1a406c755ac801843febcf905228d7d0a9" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_copy_after</name></member>
+      <member refid="classpugi_1_1xml__node_1a0789c30be732fc91069ac6a18dec4d92" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_copy_after</name></member>
+      <member refid="classpugi_1_1xml__node_1a998d3fe85ce36aa1de55cb7403cc0dd7" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_copy_before</name></member>
+      <member refid="classpugi_1_1xml__node_1a86369d34a6d625e1859752de89c2bf30" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_copy_before</name></member>
+      <member refid="classpugi_1_1xml__node_1a323d1ae706926de76f69450345eb7b44" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_move_after</name></member>
+      <member refid="classpugi_1_1xml__node_1a0f1a3dd31b07d70ae292d1d4940d0021" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>insert_move_before</name></member>
+      <member refid="classpugi_1_1xml__node_1a51ae9386156672370bf5aafd7a4732c7" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>internal_object</name></member>
+      <member refid="classpugi_1_1xml__node_1ae053ea39add5a64de584f7a81212e388" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>iterator</name></member>
+      <member refid="classpugi_1_1xml__node_1a990a18d73198bcc1126151bfda3b6d3f" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>last_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1aae4b30f38f3b2fb92552766d47cc8899" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>last_child</name></member>
+      <member refid="classpugi_1_1xml__document_1a38e37826481a041103a11ba4c1e53aa3" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load</name></member>
+      <member refid="classpugi_1_1xml__document_1a7bea1b385fd40ad2b193655427d68145" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load</name></member>
+      <member refid="classpugi_1_1xml__document_1af155720fa4a736acd8a30310f895f67d" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load</name></member>
+      <member refid="classpugi_1_1xml__document_1afd17b9b9a246371cfd331773a62ce01e" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load_buffer</name></member>
+      <member refid="classpugi_1_1xml__document_1ac478c757f27581d32afc040548dbe8e9" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load_buffer_inplace</name></member>
+      <member refid="classpugi_1_1xml__document_1a1845e732da5ad243d9c41b37d3d69237" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load_buffer_inplace_own</name></member>
+      <member refid="classpugi_1_1xml__document_1a340e0688c19ba9195537bc9af6d72cd2" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load_file</name></member>
+      <member refid="classpugi_1_1xml__document_1a6103fc3af07c93f67bfacb5b85cf9a3a" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load_file</name></member>
+      <member refid="classpugi_1_1xml__document_1a558900d79e74717e1697586623740a33" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>load_string</name></member>
+      <member refid="classpugi_1_1xml__node_1a5afaf684fb8589f5bf0b57b6a8910274" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>name</name></member>
+      <member refid="classpugi_1_1xml__node_1ae20b80ae97d770242b06ff6e3f2852f6" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>next_sibling</name></member>
+      <member refid="classpugi_1_1xml__node_1a3cfa7927b5176668d8cfb6883eb4c3bc" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>next_sibling</name></member>
+      <member refid="classpugi_1_1xml__node_1a7a100242db3c432629993c9d3310dd01" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>offset_debug</name></member>
+      <member refid="classpugi_1_1xml__node_1a05a7878cf71ede93a4dfd1a31529275e" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator unspecified_bool_type</name></member>
+      <member refid="classpugi_1_1xml__node_1aab507574954191a49fa02c4f21e91960" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator!</name></member>
+      <member refid="classpugi_1_1xml__node_1a40824364b7bfc39806c315d6a1efc5f4" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator!=</name></member>
+      <member refid="classpugi_1_1xml__node_1a8f72f466e4e44ef77a49fc1f3b51b783" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator&lt;</name></member>
+      <member refid="classpugi_1_1xml__node_1a322be74394b3726d74ce588f98f46559" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator&lt;=</name></member>
+      <member refid="classpugi_1_1xml__document_1af8e921993cb396b96e1e3c025d21b469" prot="private" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator=</name></member>
+      <member refid="classpugi_1_1xml__node_1a93ec2237e647a58d3b02b5a3034ee38d" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator==</name></member>
+      <member refid="classpugi_1_1xml__node_1ade33edf2c1dd7341f802f141fac87398" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator&gt;</name></member>
+      <member refid="classpugi_1_1xml__node_1a307aea478b6a80611571650ef6c75c4a" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>operator&gt;=</name></member>
+      <member refid="classpugi_1_1xml__node_1aa5e551fb7095338188a7ed33ca6026b4" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>parent</name></member>
+      <member refid="classpugi_1_1xml__node_1ad695e3498bf08d58d0d5c03142a06ba1" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>path</name></member>
+      <member refid="classpugi_1_1xml__node_1a79e6ff9f9c51d1fa7aa88a5b36add3a4" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>prepend_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a44d9683f11e29baed1bcb00686b4f2aa" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>prepend_child</name></member>
+      <member refid="classpugi_1_1xml__node_1ac0e4d20eb8e5ac53ec32107240dcd315" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>prepend_child</name></member>
+      <member refid="classpugi_1_1xml__node_1a82e79ec07dc0e894a0567dcadcc7a9b9" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>prepend_copy</name></member>
+      <member refid="classpugi_1_1xml__node_1a26d22e6a651616a3cf114f4efeccd602" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>prepend_copy</name></member>
+      <member refid="classpugi_1_1xml__node_1a3a82e734770972017b8d23d8ec07e70a" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>prepend_move</name></member>
+      <member refid="classpugi_1_1xml__node_1a7fe1a00db01eaedb4f3ee592aa5d735c" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>previous_sibling</name></member>
+      <member refid="classpugi_1_1xml__node_1a6c0b2cdbafda832011aa90ad6c24de49" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>previous_sibling</name></member>
+      <member refid="classpugi_1_1xml__node_1a534869c396c2c163bf4af9ceb6440a39" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>print</name></member>
+      <member refid="classpugi_1_1xml__node_1a943e71526b391a49fecbd9d15a6b2e69" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>print</name></member>
+      <member refid="classpugi_1_1xml__node_1a8b6c5fd561c518a794abe0ed82cb0450" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>print</name></member>
+      <member refid="classpugi_1_1xml__node_1ad2a65ed9e5a0c8ff40918e98c2c2319d" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>remove_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a9b93a949a0c8d23c6457eb18bedf6fe8" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>remove_attribute</name></member>
+      <member refid="classpugi_1_1xml__node_1a7c907437d2e917ba6a9888077958de1f" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>remove_attributes</name></member>
+      <member refid="classpugi_1_1xml__node_1a0adf80ff295b5ebfc38d9164b99c1ee3" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>remove_child</name></member>
+      <member refid="classpugi_1_1xml__node_1a8816dfd666bd9507bfb646f7e0a278bd" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>remove_child</name></member>
+      <member refid="classpugi_1_1xml__node_1aa15c448b268c9f5ef1740c307949422f" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>remove_children</name></member>
+      <member refid="classpugi_1_1xml__document_1a7d325c6309910157080fe69f73922186" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>reset</name></member>
+      <member refid="classpugi_1_1xml__document_1ac35e9409706a0cd8caa7cbf5b80abcca" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>reset</name></member>
+      <member refid="classpugi_1_1xml__node_1a775f091ea1847d0c5d841b81718ed9e7" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>root</name></member>
+      <member refid="classpugi_1_1xml__document_1ae4646651134eb6197b753a5e64d71009" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>save</name></member>
+      <member refid="classpugi_1_1xml__document_1a075a8d532de37f495c4d8915fe2dccd5" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>save</name></member>
+      <member refid="classpugi_1_1xml__document_1ac80f8791a483f9d4637f53559aca7e16" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>save</name></member>
+      <member refid="classpugi_1_1xml__document_1a153857d776472e98e7396695652645ae" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>save_file</name></member>
+      <member refid="classpugi_1_1xml__document_1a246a3d9e9a79ba45604d867397131ab1" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>save_file</name></member>
+      <member refid="classpugi_1_1xml__node_1a8efe3576017e18426cf33594441c0f3c" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>select_node</name></member>
+      <member refid="classpugi_1_1xml__node_1a484ffd2ecbaa29f580c4d87a236fc5a2" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>select_node</name></member>
+      <member refid="classpugi_1_1xml__node_1ae39bdcc40aa988cddbe1092b91858292" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>select_nodes</name></member>
+      <member refid="classpugi_1_1xml__node_1adbe78a62d770a3a1b44e2297973a9a8e" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>select_nodes</name></member>
+      <member refid="classpugi_1_1xml__node_1a056b21c47cf6f04dc370399d63b6ab42" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>select_single_node</name></member>
+      <member refid="classpugi_1_1xml__node_1ae832e4892c9e71070fa365687b4d3110" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>select_single_node</name></member>
+      <member refid="classpugi_1_1xml__node_1a76043b1d6318d2e26f05d1725df73761" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>set_name</name></member>
+      <member refid="classpugi_1_1xml__node_1affa26e7cc8d95259ea426c1be348e37c" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>set_value</name></member>
+      <member refid="classpugi_1_1xml__node_1aba8c6bfb169529ee9f3d6f07a5eee9e2" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>text</name></member>
+      <member refid="classpugi_1_1xml__node_1a41be22248598bdf1575ed8d7bdd77807" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>traverse</name></member>
+      <member refid="classpugi_1_1xml__node_1ac5405119b45e539d3527fe6941546099" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>type</name></member>
+      <member refid="classpugi_1_1xml__node_1a83fe32b933530b244865ee401b08b037" prot="protected" virt="non-virtual"><scope>pugi::xml_document</scope><name>unspecified_bool_type</name></member>
+      <member refid="classpugi_1_1xml__node_1a2ccf5a9fa0918849d820ed57fd00ac6f" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>value</name></member>
+      <member refid="classpugi_1_1xml__document_1a518e0f2e1919b6cb1003b7dec1012ed9" prot="private" virt="non-virtual"><scope>pugi::xml_document</scope><name>xml_document</name></member>
+      <member refid="classpugi_1_1xml__document_1a8db801c1d42eaa9073d14dfafda84f37" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>xml_document</name></member>
+      <member refid="classpugi_1_1xml__node_1a1db6c67c97cddd74f59d872057987432" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>xml_node</name></member>
+      <member refid="classpugi_1_1xml__node_1a6897fb4e94def0ec60fda1f459bd746d" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>xml_node</name></member>
+      <member refid="classpugi_1_1xml__document_1a16c086e679286271b0ccd4541d1c1290" prot="public" virt="non-virtual"><scope>pugi::xml_document</scope><name>~xml_document</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
