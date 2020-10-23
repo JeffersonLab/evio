@@ -4,7 +4,7 @@
 
 Follow this link to get to doxygen documentation:  <a href="doc/doxygen/CC/html/index.html">doxygen documentation</a>
 
-Follow this link to get to pdf documentation:  [<a href="doc/users_guide/evio_Users_Guide.pdf">pdf documentation</a>
+Follow this link to get to pdf documentation:  <a href="doc/users_guide/evio_Users_Guide.pdf">pdf documentation</a>
 
 You can use the [editor on GitHub](https://github.com/JeffersonLab/evio/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
