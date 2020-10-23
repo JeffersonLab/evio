@@ -4,7 +4,7 @@
 
 Follow this link to get to doxygen documentation:  [Doxygen](https://jeffersonlab.github.io/evio/doc/doxygen/CC/html/index.html)
 
-Follow this link to get to Jefferson Lab:  [Lab](http://www.jlab.org)
+Follow this link to get to pdf documentation:  [PDF](https://jeffersonlab.github.io/evio/doc/users_guide/evio_Users_Guide.pdf)
 
 You can use the [editor on GitHub](https://github.com/JeffersonLab/evio/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
