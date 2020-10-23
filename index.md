@@ -6,6 +6,8 @@ Follow this link to get to doxygen documentation:  <a href="doc/doxygen/CC/html/
 
 Follow this link to get to pdf documentation:  <a href="doc/users_guide/evio_Users_Guide.pdf">pdf documentation</a>
 
+Follow this link to get to html documentation:  <a href="doc/users_guide/evio_Users_Guide.html">html documentation</a>
+
 You can use the [editor on GitHub](https://github.com/JeffersonLab/evio/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
