@@ -273,9 +273,6 @@ namespace evio {
          * The equivalent of rewinding the file. What it actually does
          * is set the position of the file/buffer back to where it was
          * after calling the constructor - after the first header.
-         * This method, along with the two <code>position()</code> and the
-         * <code>close()</code> method, allows applications to treat files
-         * in a normal random access manner.
          *
          * @throws EvioException if object closed; if failed file access or buffer/file read
          */
@@ -283,23 +280,15 @@ namespace evio {
 
         /**
          * This is equivalent to obtaining the current position in the file.
-         * What it actually does is return the position of the buffer. This
-         * method, along with the <code>rewind()</code>, <code>position(int)</code>
-         * and the <code>close()</code> method, allows applications to treat files
-         * in a normal random access manner. Only meaningful to evio versions 1-3
-         * and for sequential reading.<p>
+         * What it actually does is return the position of the buffer.
+         * Only meaningful to evio versions 1-3 and for sequential reading.<p>
          *
          * @return the position of the buffer; -1 if not sequential read and version 4+
          * @throws EvioException if object closed; if error accessing file
          */
         virtual ssize_t position() = 0;
 
-        /**
-         * This is closes the file, but for buffers it only sets the position to 0.
-         * This method, along with the <code>rewind()</code> and the two
-         * <code>position()</code> methods, allows applications to treat files
-         * in a normal random access manner.
-         */
+        /** This is closes the file, but for buffers it only sets the position to 0. */
         virtual void close() = 0;
 
         /**
