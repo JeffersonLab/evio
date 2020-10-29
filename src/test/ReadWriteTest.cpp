@@ -345,7 +345,7 @@ namespace evio {
             auto buffer = std::make_shared<ByteBuffer>(bufSize);
             buffer->order(order);
 
-            bool compressed = true;
+            bool compressed = false;
 
             if (!compressed) {
 
@@ -658,6 +658,51 @@ namespace evio {
 
                 try {
                     EvioReader reader3(copy2);
+
+                    ///////////////////////////////////
+                    // Do a parsing listener test here
+                    auto parser = reader3.getParser();
+
+                    // Define a listener to be used with an event parser IEvioListener listener = new IEvioListener() { 
+                    class myListener : public IEvioListener {
+                      public:
+                        void gotStructure(std::shared_ptr<BaseStructure> topStructure,
+                                          std::shared_ptr<BaseStructure> structure) override {
+                            std::cout << "  GOT struct = " << structure->toString() << std::endl << std::endl;
+                        }
+
+                        // We're not parsing so these are not used ...
+                        void startEventParse(std::shared_ptr<BaseStructure> structure) override {
+                            std::cout << "  START parsing event = " << structure->toString() << std::endl << std::endl;
+                        }
+                        void endEventParse(std::shared_ptr<BaseStructure> structure) override {
+                            std::cout << "  END parsing event = " << structure->toString() << std::endl << std::endl;
+                        }
+                    };
+
+                    auto listener = std::make_shared<myListener>();
+
+                    // Add the listener to the parser
+                    parser->addEvioListener(listener);
+
+                    // Define a filter to select everything (not much of a filter!)
+                    class myFilter : public IEvioFilter {
+                      public:
+                        bool accept(StructureType const & type, std::shared_ptr<BaseStructure> struc) override {
+                            return (true);
+                        }
+                    };
+
+                    auto filter = std::make_shared<myFilter>();
+
+                    // Add the filter to the parser
+                    parser->setEvioFilter(filter);
+
+                    // Now parse some event
+                    cout << "Run custom filter and listener, placed in reader's parser, on first event:" << endl;
+                    auto ev = reader3.parseEvent(1);
+
+                    ///////////////////////////////////
 
                     int32_t evCount3 = reader3.getEventCount();
                     cout << "Read in buffer, got " << evCount3 << " events" << endl;
