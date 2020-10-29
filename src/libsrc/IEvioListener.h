@@ -31,7 +31,8 @@ namespace evio {
     public:
 
         /**
-         * Called when a structure is read while parsing or searching an event.
+         * Called after a structure is read in while parsing or searching an event
+         * and any filter has accepted it.
          *
          * NOTE: the user should NOT modify the arguments.
          *
@@ -42,14 +43,14 @@ namespace evio {
                                   std::shared_ptr<BaseStructure> structure) = 0;
 
         /**
-         * Starting to parse a new evio structure.
-         * @param structure the evio structure in question.
+         * Starting to parse a new event structure.
+         * @param structure the event structure in question.
          */
         virtual void startEventParse(std::shared_ptr<BaseStructure> structure) = 0;
 
         /**
-         * Done parsing a new evio structure.
-         * @param structure the evio structure in question.
+         * Done parsing a new event structure.
+         * @param structure the event structure in question.
          */
         virtual void endEventParse(std::shared_ptr<BaseStructure> structure) = 0;
 

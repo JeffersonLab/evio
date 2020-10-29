@@ -177,7 +177,6 @@ namespace evio {
         if (synchronized) {
             const std::lock_guard<std::mutex> lock(mtx);
         }
-
         auto event = getEvent(index);
         if (event != nullptr) parseEvent(event);
         return event;
@@ -216,8 +215,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioReaderV6::parseEvent(std::shared_ptr<EvioEvent> evioEvent) {
-            // This method is synchronized too
-            parser->parseEvent(evioEvent);
+        // This method is synchronized too
+        parser->parseEvent(evioEvent);
     }
 
 
