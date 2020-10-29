@@ -36,6 +36,7 @@
 #include "EvioEvent.h"
 #include "EvioSegment.h"
 #include "StructureTransformer.h"
+#include "StructureFinder.h"
 #include "EvioSwap.h"
 #include "EventWriter.h"
 #include "EvioReader.h"
@@ -295,10 +296,24 @@ namespace evio {
             std::cout << std::endl << "Add 1 child to topBank with same tag (4) as first leaf but num = 20" << std::endl;
             auto midBank4 = EvioBank::getInstance(4, DataType::BANK, 20);
             topBank->add(midBank4);
-            std::cout << "Search for all banks of tag = 4, got the following:" << std::endl;
 
+            //////////////////////////////////////////////////////
+            // FINDING STRUCTURES
+            //////////////////////////////////////////////////////
+
+            std::cout << "Search for all banks of tag = 4 Using StructureFinder, got the following:" << std::endl;
+            uint16_t tag = 4;
+            uint8_t  num = 4;
             std::vector<std::shared_ptr<BaseStructure>> vec;
 
+            StructureFinder::getMatchingBanks(topBank, tag, num, vec);
+            for (auto n : vec) {
+                std::cout << "  bank = " << n->toString() << std::endl;
+            }
+            vec.clear();
+
+
+            std::cout << "Search for all banks of tag = 4, got the following:" << std::endl;
             class myFilter : public IEvioFilter {
                 uint16_t tag; uint8_t num = 0;
             public:
@@ -316,7 +331,6 @@ namespace evio {
             }
 
             std::cout<< std::endl << "Search again for all banks of tag = 4, and execute listener:" << std::endl;
-
             class myListener : public IEvioListener {
             public:
                 void gotStructure(std::shared_ptr<BaseStructure> topStructure,
@@ -326,13 +340,16 @@ namespace evio {
                 }
 
                 // We're not parsing so these are not used ...
-                void startEventParse(std::shared_ptr<BaseStructure> structure) {}
-                void endEventParse(std::shared_ptr<BaseStructure> structure) {}
+                void startEventParse(std::shared_ptr<BaseStructure> structure) {
+                    std::cout << "  start parsing struct = " << structure->toString() << std::endl;
+                }
+                void endEventParse(std::shared_ptr<BaseStructure> structure) {
+                    std::cout << "  end parsing struct = " << structure->toString() << std::endl;
+                }
             };
 
             auto listener = std::make_shared<myListener>();
             topBank->visitAllStructures(listener, filter);
-
 
 
         }
