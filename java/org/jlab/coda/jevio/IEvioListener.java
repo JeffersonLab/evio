@@ -11,7 +11,8 @@ import java.util.EventListener;
 public interface IEvioListener extends EventListener {
 
 	/**
-	 * Called when a structure is read while parsing an event.
+	 * Called after a structure is read in while parsing or searching an event
+	 * and any filter has accepted it.
 	 * 
 	 * NOTE: the user should NOT modify the arguments.
 	 * 
@@ -21,14 +22,14 @@ public interface IEvioListener extends EventListener {
 	void gotStructure(BaseStructure topStructure, IEvioStructure structure);
     
     /**
-     * Starting to parse a new evio structure.
-     * @param structure the evio structure in question.
+     * Starting to parse a new event structure.
+     * @param structure the event structure in question.
      */
     void startEventParse(BaseStructure structure);
 
     /**
-     * Done parsing a new evio structure.
-     * @param structure the evio structure in question.
+     * Done parsing a new event structure.
+     * @param structure the event structure in question.
      */
     void endEventParse(BaseStructure structure);
 
