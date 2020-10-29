@@ -92,12 +92,12 @@ namespace evio {
 
     public:
 
-        void removeEvioListener(std::shared_ptr<IEvioListener> & listener);
-        void addEvioListener(std::shared_ptr<IEvioListener> & listener);
+        void removeEvioListener(std::shared_ptr<IEvioListener> listener);
+        void addEvioListener(std::shared_ptr<IEvioListener> listener);
 
         bool isNotificationActive() const;
         void setNotificationActive(bool notificationActive);
-        void setEvioFilter(std::shared_ptr<IEvioFilter> & evioFilter);
+        void setEvioFilter(std::shared_ptr<IEvioFilter> evioFilter);
 
     public:
 

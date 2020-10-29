@@ -331,9 +331,9 @@ namespace  evio {
             }
         }
 
-        // This weird loop is the bullet proof way of notifying all listeners.
-        for (int i = evioListenerList.size() - 2; i >= 0; i -= 2) {
-            (evioListenerList[i + 1])->gotStructure(evioEvent, structure);
+        for (int i = (int)evioListenerList.size(); i > 0; i--) {
+            //std::cout << "notifyEvioListeners: call listener #" << (i-1) << std::endl;
+            (evioListenerList[i - 1])->gotStructure(evioEvent, structure);
         }
     }
 
@@ -353,9 +353,9 @@ namespace  evio {
             return;
         }
 
-        // This weird loop is the bullet proof way of notifying all listeners.
-        for (int i = evioListenerList.size() - 2; i >= 0; i -= 2) {
-            (evioListenerList[i + 1])->startEventParse(evioEvent);
+        for (int i = (int)evioListenerList.size(); i > 0; i--) {
+            //std::cout << "notifyStart: call startEventParse on listener #" << (i-1) << std::endl;
+            (evioListenerList[i - 1])->startEventParse(evioEvent);
         }
     }
 
@@ -375,9 +375,9 @@ namespace  evio {
             return;
         }
 
-        // This weird loop is the bullet proof way of notifying all listeners.
-        for (int i = evioListenerList.size() - 2; i >= 0; i -= 2) {
-            (evioListenerList[i + 1])->endEventParse(evioEvent);
+        for (int i = (int)evioListenerList.size(); i > 0; i--) {
+            //std::cout << "notifyStop: call endEventParse on listener #" << (i-1) << std::endl;
+            (evioListenerList[i - 1])->endEventParse(evioEvent);
         }
     }
 
@@ -386,7 +386,7 @@ namespace  evio {
      * Remove an Evio listener. Evio listeners listen for structures encountered when an event is being parsed.
      * @param listener The Evio listener to remove.
      */
-    void EventParser::removeEvioListener(std::shared_ptr<IEvioListener> & listener) {
+    void EventParser::removeEvioListener(std::shared_ptr<IEvioListener> listener) {
         if ((listener == nullptr) || (evioListenerList.empty())) {
             return;
         }
@@ -407,7 +407,7 @@ namespace  evio {
      * Add an Evio listener. Evio listeners listen for structures encountered when an event is being parsed.
      * @param listener The Evio listener to add.
      */
-    void EventParser::addEvioListener(std::shared_ptr<IEvioListener> & listener) {
+    void EventParser::addEvioListener(std::shared_ptr<IEvioListener> listener) {
         if (listener == nullptr) {
             return;
         }
@@ -442,7 +442,7 @@ namespace  evio {
      * @param filter the filter to set.
      * @see IEvioFilter
      */
-    void EventParser::setEvioFilter(std::shared_ptr<IEvioFilter> & filter) {evioFilter = filter;}
+    void EventParser::setEvioFilter(std::shared_ptr<IEvioFilter> filter) {evioFilter = filter;}
 
 
     ///////////////////////////////////////////
