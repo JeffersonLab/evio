@@ -804,6 +804,57 @@ Utilities.printBytes(buffer, 0, bufSize, "Buffer Bytes");
         try {
             EvioReader reader3 = new EvioReader(copy2);
 
+            ///////////////////////////////////
+            // Do a parsing listener test here
+            EventParser parser = reader3.getParser();
+
+            IEvioListener myListener = new IEvioListener() {
+                public void startEventParse(BaseStructure structure) {
+                    System.out.println("  START parsing event = " + structure.toString());
+                }
+
+                public void endEventParse(BaseStructure structure) {
+                    System.out.println("  END parsing event = " + structure.toString());
+                }
+
+                public void gotStructure(BaseStructure topStructure, IEvioStructure structure) {
+                    System.out.println("  GOT struct = " + structure.toString());
+                }
+            };
+
+            IEvioListener myListener2 = new IEvioListener() {
+                public void startEventParse(BaseStructure structure) {
+                    System.out.println("  START parsing event 2 = " + structure.toString());
+                }
+
+                public void endEventParse(BaseStructure structure) {
+                    System.out.println("  END parsing event 2 = " + structure.toString());
+                }
+
+                public void gotStructure(BaseStructure topStructure, IEvioStructure structure) {
+                    System.out.println("  GOT struct 2 = " + structure.toString());
+                }
+            };
+
+            // Add the listener to the parser
+            parser.addEvioListener(myListener);
+            parser.addEvioListener(myListener2);
+
+            IEvioFilter myFilter = new IEvioFilter() {
+                public boolean accept(StructureType type, IEvioStructure struct) {
+                    return true;
+                }
+            };
+
+            // Add the filter to the parser
+            parser.setEvioFilter(myFilter);
+
+            // Now parse some event
+            System.out.println("Run custom filter and listener, placed in reader's parser, on first event:");
+            reader3.parseEvent(1);
+
+            ///////////////////////////////////
+
             int evCount3 = reader3.getEventCount();
             System.out.println("Read in buffer, got " + evCount3 + " events");
 
