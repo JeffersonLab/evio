@@ -101,6 +101,11 @@ namespace evio {
             //                createCompactEvents(tag, num);
             //            }
 
+            createDictionary(tag,num);
+        }
+
+
+        void createDictionary(uint16_t tag, uint8_t num) {
             std::stringstream ss;
 
             ss << "<xmlDict>\n" <<
@@ -118,7 +123,9 @@ namespace evio {
                "          <leaf name=\"x(%n)\" tag=\"7\" num=\"1-3\" />\n" <<
                "      </bank >\n" <<
                "  </bank >\n" <<
-               "  <dictEntry name=\"JUNK\" tag=\"5\" num=\"0\" />\n" <<
+               "  <dictEntry name=\"My Event\" tag=\"1\" num=\"1\" />\n" <<
+               "  <dictEntry name=\"2nd Level Bank of banks\" tag=\"2\" num=\"2\" />\n" <<
+               "  <dictEntry name=\"2nd Level Bank of Segments\" tag=\"15\"  num=\"15\" />\n" <<
                "  <dictEntry name=\"SEG5\" tag=\"5\" >\n" <<
                "       <description format=\"Old Format\" >tag 5 description</description>\n" <<
                "  </dictEntry>\n" <<
@@ -129,9 +136,7 @@ namespace evio {
 
             dictionary = ss.str();
 
-            std::cout << "Const: dictionary = " << dictionary << std::endl;
-
-
+            std::cout << "Const: dictionary xml =\n" << dictionary << std::endl;
         }
 
 
