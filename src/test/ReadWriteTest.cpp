@@ -682,8 +682,29 @@ namespace evio {
 
                     auto listener = std::make_shared<myListener>();
 
+                    // Define a listener to be used with an event parser IEvioListener listener = new IEvioListener() { 
+                    class myListener2 : public IEvioListener {
+                    public:
+                        void gotStructure(std::shared_ptr<BaseStructure> topStructure,
+                                          std::shared_ptr<BaseStructure> structure) override {
+                            std::cout << "  GOT struct 2 = " << structure->toString() << std::endl << std::endl;
+                        }
+
+                        // We're not parsing so these are not used ...
+                        void startEventParse(std::shared_ptr<BaseStructure> structure) override {
+                            std::cout << "  START parsing event 2 = " << structure->toString() << std::endl << std::endl;
+                        }
+                        void endEventParse(std::shared_ptr<BaseStructure> structure) override {
+                            std::cout << "  END parsing event 2 = " << structure->toString() << std::endl << std::endl;
+                        }
+                    };
+
+                    auto listener2 = std::make_shared<myListener2>();
+
+
                     // Add the listener to the parser
                     parser->addEvioListener(listener);
+                    parser->addEvioListener(listener2);
 
                     // Define a filter to select everything (not much of a filter!)
                     class myFilter : public IEvioFilter {
