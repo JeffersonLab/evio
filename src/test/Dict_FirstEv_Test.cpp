@@ -109,11 +109,17 @@ namespace evio {
             std::stringstream ss;
 
             ss << "<xmlDict>\n" <<
+               "  <dictEntry name=\"me\" tag=\"100\" num=\"0\" type=\"composite\" >\n" <<
+               "     <description format=\"2iN(FD)\" >\n" <<
+               "          Some text goes here" <<
+               "     </description>\n" <<
+               "  </dictEntry>\n" <<
                "  <dictEntry name=\"MyBadDictEntry\" tag=\"1-3\" num=\"2\" />\n" <<
                "  <dictEntry name=\"My Event\" tag=\"1-3\"  />\n" <<
                "  <dictEntry name=\"2nd Level Bank of banks\" tag=\"2\" num=\"3\" />\n" <<
                "  <dictEntry name=\"2nd Level Bank of Segments\" tag=\"15\"  num=\"16\" />\n" <<
                "  <dictEntry name=\"2nd Level Bank of TagSegments\" tag=\"16\"  num=\"17\" />\n" <<
+               "  <dictEntry name=\"SegmentOfInts\" tag=\"9\" />\n" <<
                "  <dictEntry name=\"Tag 5\" tag=\"5\" />\n" <<
                "</xmlDict>";
 
@@ -350,9 +356,9 @@ namespace evio {
 
                     std::cout << "createCompactEvents: search, using dictionary for struct = My Event\n" << std::endl;
                     std::vector<std::shared_ptr<BaseStructure>> vec;
-                    EvioXMLDictionary xDict(dictionary, 0);
+                    EvioXMLDictionary dict(dictionary, 0);
 
-                    StructureFinder::getMatchingStructures(ev, "My Event", xDict, vec);
+                    StructureFinder::getMatchingStructures(ev, "My Event", dict, vec);
                     for (std::shared_ptr<BaseStructure> bs : vec) {
                         std::cout << "createCompactEvents: found, thru dict -> " << bs->toString() << std::endl;
                     }
@@ -360,17 +366,17 @@ namespace evio {
                     std::cout << "\n\n\n\n";
                     vec.clear();
 
-                    StructureFinder::getMatchingStructures(ev, "Tag 5", xDict, vec);
+                    StructureFinder::getMatchingStructures(ev, "Tag 5", dict, vec);
                     for (std::shared_ptr<BaseStructure> bs : vec) {
                         std::cout << "createCompactEvents: found, thru dict -> " << bs->toString() << std::endl;
                     }
                     std::cout << "\n\n\n\n";
 
-                    DataType type = xDict.getType(1, 2);
+                    DataType type = dict.getType(1, 2);
                     std::cout << "createCompactEvents: type of tag=1, num=2 -> " << type.toString() << std::endl;
 
                     uint16_t tag;
-                    bool good = xDict.getTag("2nd Level Bank of Segments", &tag);
+                    bool good = dict.getTag("2nd Level Bank of Segments", &tag);
                     if (good) {
                         std::cout << "createCompactEvents: tag of  2nd Level Bank of Segments = " << tag << std::endl;
                     }
@@ -378,7 +384,7 @@ namespace evio {
                         std::cout << "createCompactEvents: not tag for  2nd Level Bank of Segments"  << std::endl;
                     }
 
-                    good = xDict.getTag("Tag 5", &tag);
+                    good = dict.getTag("Tag 5", &tag);
                     if (good) {
                         std::cout << "createCompactEvents: tag of  Tag 5 = " << tag << std::endl;
                     }
@@ -386,7 +392,7 @@ namespace evio {
                         std::cout << "createCompactEvents: not tag for  Tag 5"  << std::endl;
                     }
 
-                    good = xDict.getTag("Blah", &tag);
+                    good = dict.getTag("Blah", &tag);
                     if (good) {
                         std::cout << "createCompactEvents: tag of  Blah = " << tag << std::endl;
                     }
@@ -394,8 +400,21 @@ namespace evio {
                         std::cout << "createCompactEvents: no tag for  Blah"  << std::endl;
                     }
 
+                    // Retrieve & print info from dictionary
+                    std::cout << "Getting stuff for name = \"me\":" << std::endl;
+                    dict.getTag("me", &tag);
+                    std::cout << "    tag         = " << tag << std::endl;
+                    uint8_t num;  dict.getNum("me",  &num);
+                    std::cout << "    num         = " << +num << std::endl;
+                    std::cout << "    type        = " << dict.getType("me").toString() << std::endl;
+                    std::cout << "    format      = " << dict.getFormat("me") << std::endl;
+                    std::cout << "    description = " << dict.getDescription("me") << std::endl;
 
-
+                    std::cout << "Getting stuff for tag = 100, num = 0:" << std::endl;
+                    std::cout << "    type        = " << dict.getType(100, 0).toString() << std::endl;
+                    std::cout << "    name        = " << dict.getName(100,0) << std::endl;
+                    std::cout << "    format      = " << dict.getFormat(100,0) << std::endl;
+                    std::cout << "    description = " << dict.getDescription(100,0) << std::endl;
                 }
 
             }
