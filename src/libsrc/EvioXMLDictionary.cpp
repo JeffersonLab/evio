@@ -1228,19 +1228,6 @@ namespace evio {
 
                 if (foundEntry) break;
 
-
-//                auto it = tagNumMap.find(key);
-//                if (it != tagNumMap.end()) {
-//                    // name is the "value" of the entry
-//                    name = it->second;
-//
-//                    auto it2 = tagNumReverseMap.find(name);
-//                    if (it2 != tagNumReverseMap.end()) {
-//                        entry = it2->second;
-//                    }
-//                    break;
-//                }
-
                 // Create tag-only key and try to find tag-only match
                 key = std::make_shared<EvioDictionaryEntry>(tag);
             }
@@ -1252,19 +1239,6 @@ namespace evio {
                         goto out;
                     }
                 }
-
-//                auto it = tagOnlyMap.find(key);
-//                if (it != tagOnlyMap.end()) {
-//                    name = it->second;
-//
-//                    for (auto & iter : tagOnlyMap) {
-//                        std::string n = iter.second;
-//                        if (n == name) {
-//                            entry = iter.first;
-//                            goto out;
-//                        }
-//                    }
-//                }
 
                 // Create tag-range key and try to find tag-range match
                 key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd);
@@ -1289,24 +1263,6 @@ namespace evio {
                         }
                     }
                 }
-
-//                auto it = tagRangeMap.find(key);
-//                if (it != tagRangeMap.end()) {
-//                    name  = it->second;
-//                    entry = it->first;
-//                }
-//                // If a tag/num pair or only a tag was specified in the args,
-//                // see if either falls in a range of tags.
-//                else if (entryType != EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE) {
-//                    // See if tag fits in a range
-//                    for (auto & iter : tagRangeMap) {
-//                        auto entry2 = iter.first;
-//                        if (entry2->inRange(tag)) {
-//                            entry = entry2;
-//                            goto out;
-//                        }
-//                    }
-//                }
             }
 
             default:

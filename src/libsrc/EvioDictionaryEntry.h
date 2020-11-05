@@ -256,22 +256,17 @@ namespace evio {
             auto otherParent = other.getParentEntry();
 
             bool match = (tag == other.tag);
-//if (!match) std::cout << "  tags don't match => " << tag << " vs " << other.tag << std::endl;
             match = match && (numValid == other.numValid);
-//if (!match) std::cout << "  numValids don't match => " << numValid << " vs " << other.numValid << std::endl;
 
             if (numValid) {
                 match = match && (num == other.num);
-//if (!match) std::cout << "  nums don't match => " << num << " vs " << other.num << std::endl;
             }
 
             // Now check tag range if any
             match = match && (tagEnd == other.tagEnd);
-//if (!match) std::cout << "  tagEnds don't match => " << tagEnd << " vs " << other.tagEnd << std::endl;
 
             // Now check if same entry type
             match = match && (entryType == other.entryType);
-//if (!match) std::cout << "  entryTypes don't match => " << entryType << " vs " << other.entryType << std::endl;
 
             // If both parent containers are defined, use them as well
             if (parentEntry != nullptr && otherParent != nullptr) {
