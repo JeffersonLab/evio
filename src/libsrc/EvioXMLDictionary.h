@@ -33,8 +33,7 @@ namespace evio {
 
 
     /**
-     * This was developed to read the xml dictionary that Maurizio uses for GEMC.
-     * It implements INameProvider, just like all other dictionary readers.<p>
+     * This was developed to read the xml dictionary that Maurizio uses for GEMC.<p>
      *
      * <b>An assumption in the following class is that each unique tag/num/tagEnd group
      * corresponds to an equally unique name. In other words, 2 different
@@ -109,8 +108,8 @@ namespace evio {
 
         /**
          * This is the heart of the dictionary in which a key is composed of a tag/num
-         * pair and other entry data and its corresponding value is a name.
-         * Using a hashmap ensures entries are unique.
+         * pair & other entry data and its corresponding value is a name.
+         * Using a map ensures entries are unique.
          * @since 4.0
          */
         std::unordered_map<std::shared_ptr<EvioDictionaryEntry>, std::string> tagNumMap;
@@ -135,7 +134,7 @@ namespace evio {
     private:
 
         /**
-         * This is a hashmap in which the key is a name and the value is its
+         * This is a map in which the key is a name and the value is its
          * corresponding dictionary entry. This map contains all entries whether
          * tag/num, tag-only, or tag-range.
          * @since 5.2
@@ -143,7 +142,7 @@ namespace evio {
         std::unordered_map<std::string, std::shared_ptr<EvioDictionaryEntry>> reverseMap;
 
         /**
-         * This is a hashmap in which the key is a name and the value is the entry
+         * This is a map in which the key is a name and the value is the entry
          * of a corresponding tag/num pair. It's the reverse of the tagNumMap map.
          * @since 4.0
          */

@@ -59,7 +59,7 @@ namespace evio {
         uint8_t num = 0;
 
         /** Is the num value of evio container being used? */
-        uint8_t numValid = false;
+        bool numValid = false;
 
         /** Type of data in evio container. */
         DataType type {DataType::UNKNOWN32};
@@ -256,31 +256,36 @@ namespace evio {
             auto otherParent = other.getParentEntry();
 
             bool match = (tag == other.tag);
+//if (!match) std::cout << "  tags don't match => " << tag << " vs " << other.tag << std::endl;
             match = match && (numValid == other.numValid);
+//if (!match) std::cout << "  numValids don't match => " << numValid << " vs " << other.numValid << std::endl;
 
             if (numValid) {
                 match = match && (num == other.num);
+//if (!match) std::cout << "  nums don't match => " << num << " vs " << other.num << std::endl;
             }
 
             // Now check tag range if any
             match = match && (tagEnd == other.tagEnd);
+//if (!match) std::cout << "  tagEnds don't match => " << tagEnd << " vs " << other.tagEnd << std::endl;
 
             // Now check if same entry type
             match = match && (entryType == other.entryType);
+//if (!match) std::cout << "  entryTypes don't match => " << entryType << " vs " << other.entryType << std::endl;
 
             // If both parent containers are defined, use them as well
             if (parentEntry != nullptr && otherParent != nullptr) {
-                match = match && (parentEntry->getTag() == parentEntry->getTag());
+                match = match && (parentEntry->getTag() == otherParent->getTag());
                 match = match && (parentEntry->numValid == otherParent->numValid);
                 if (parentEntry->numValid) {
                      match = match && (parentEntry->getNum() == otherParent->getNum());
                 }
                 match = match && (parentEntry->getTagEnd() == otherParent->getTagEnd());
+                if (!match) std::cout << "  parents don't match" << std::endl;
             }
 
             return match;
         }
-
 
         bool operator!=(const EvioDictionaryEntry &rhs) const {
             return !(rhs == *this);
@@ -296,7 +301,7 @@ namespace evio {
 
             switch (entryType) {
                 case TAG_NUM:
-                    ss << "(tag=" << tag << ",num =" << num << ")" ;
+                    ss << "(tag=" << tag << ",num =" << +num << ")" ;
                     break;
                 case TAG_ONLY:
                     ss << "(tag=" << tag << ")" ;
@@ -358,6 +363,43 @@ namespace evio {
          * @return the parent container's dictionary entry, null if nonexistent.
          */
         std::shared_ptr<EvioDictionaryEntry> getParentEntry() const {return parentEntry;}
+
+        /**
+         * Get the string representation of this object.
+         * @return string representation of this object.
+         */
+        std::string toString() {
+
+            std::stringstream ss;
+
+            ss << std::boolalpha;
+
+            ss << "tag = " << tag << ", tagEnd = " << tagEnd << ", num = " << +num << ", numValid = " << numValid <<
+                  ", data type = " << type.toString();
+
+            if (entryType == TAG_NUM)
+                ss << ", entry type = TAG/NUM";
+            else if (entryType == TAG_ONLY)
+                ss << ", entry type = TAG_ONLY";
+            else if (entryType == TAG_RANGE)
+                ss << ", entry type = TAG_RANGE";
+
+            ss << std::endl;
+
+            if (!format.empty()) {
+                ss << "    format = " << format << std::endl;
+            }
+
+            if (!description.empty()) {
+                ss << "    description = " << description << std::endl;
+            }
+
+            if (parentEntry != nullptr) {
+                ss << "    parent = " << parentEntry->toString() << std::endl;
+            }
+
+            return ss.str();
+        }
 
     };
 

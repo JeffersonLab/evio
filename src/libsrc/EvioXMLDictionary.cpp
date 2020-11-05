@@ -120,8 +120,8 @@ namespace evio {
             return;
         }
 
-        uint16_t tag, tagEnd;
-        uint8_t num, numEnd;
+        int tag, tagEnd;
+        int num, numEnd;
         bool badEntry, isTagRange, isNumRange;
         std::string name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
 
@@ -176,44 +176,52 @@ namespace evio {
                 std::string const & nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
-                //                cout<<"String that matches the pattern:"<<endl;
-                //                for (auto str : sm)
-                //                    cout << str << " ";
+//std::cout << "String that matches the pattern, sm size = " << sm.size() << std::endl;
+//int i = 0;
+//for (auto str : sm)
+//    std::cout << "  sm[" << i++ << "] = " << str << "\n";
 
                 if (sm.size() > 1) {
                     // First num is always >= 0
                     numStr = sm[1];
-                    try {
-                        num = std::stoi(numStr);
+                    if (!numStr.empty()) {
+                        try {
+                            num = (uint8_t) std::stoi(numStr);
+                        }
+                        catch (std::invalid_argument &e) {
+                            badEntry = true;
+                        }
+                        catch (std::out_of_range &e) {
+                            badEntry = true;
+                        }
                     }
-                    catch (std::invalid_argument & e) {
-                        badEntry = true;
-                    }
-                    catch (std::out_of_range & e) {
-                        badEntry = true;
-                    }
+
+//std::cout << "num =  " << num << "\n";
 
                     // Ending num
                     if (sm.size() > 3) {
                         numEndStr = sm[3];
-                        try {
-                            numEnd = std::stoi(numEndStr);
-                            // The regexp matching only allows values >= 0 for tagEnd.
-                            // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                            if (numEnd > 0 && (numEnd != num)) {
-                                isNumRange = true;
+                        if (!numEndStr.empty()) {
+                            try {
+                                numEnd = std::stoi(numEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                if (numEnd > 0 && (numEnd != num)) {
+                                    isNumRange = true;
+                                }
                             }
+                            catch (std::invalid_argument &e) {
+                                badEntry = true;
+                            }
+                            catch (std::out_of_range &e) {
+                                badEntry = true;
+                            }
+//std::cout << "numEnd =  " << numEnd << "\n";
                         }
-                        catch (std::invalid_argument & e) {
-                            badEntry = true;
+                        else {
+                            // Set for later convenience in for loop
+                            numEnd = num;
                         }
-                        catch (std::out_of_range & e) {
-                            badEntry = true;
-                        }
-                    }
-                    else {
-                        // Set for later convenience in for loop
-                        numEnd = num;
                     }
                 }
                 else {
@@ -238,41 +246,55 @@ namespace evio {
                 std::string const & nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
+//std::cout << "String that matches the pattern:" << std::endl;
+//int i = 0;
+//for (auto str : sm)
+//    std::cout << "  sm[" << i++ << "] = " << str << "\n";
+
                 if (sm.size() > 1) {
                     // First tag, never null, always >= 0, or no match occurs
                     tagStr = sm[1];
-                    try {
-                        tag = std::stoi(tagStr);
+                    if (!tagStr.empty()) {
+                        try {
+                            tag = std::stoi(tagStr);
+                        }
+                        catch (std::invalid_argument &e) {
+                            badEntry = true;
+                        }
+                        catch (std::out_of_range &e) {
+                            badEntry = true;
+                        }
                     }
-                    catch (std::invalid_argument & e) {
-                        badEntry = true;
-                    }
-                    catch (std::out_of_range & e) {
+                    else {
                         badEntry = true;
                     }
 
                     // Ending tag
                     if (sm.size() > 3) {
                         tagEndStr = sm[3];
-                        try {
-                            tagEnd = std::stoi(tagEndStr);
-                            // The regexp matching only allows values >= 0 for tagEnd.
-                            // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                            if (tagEnd > 0 && (tagEnd != tag)) {
-                                isTagRange = true;
+                        if (!tagEndStr.empty()) {
+                            try {
+                                tagEnd = std::stoi(tagEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                if (tagEnd > 0 && (tagEnd != tag)) {
+                                    isTagRange = true;
+                                }
                             }
-                        }
-                        catch (std::invalid_argument & e) {
-                            badEntry = true;
-                        }
-                        catch (std::out_of_range & e) {
-                            badEntry = true;
+                            catch (std::invalid_argument &e) {
+                                badEntry = true;
+                            }
+                            catch (std::out_of_range &e) {
+                                badEntry = true;
+                            }
                         }
                     }
                 }
                 else {
                     badEntry = true;
                 }
+//std::cout << "tag =  " << tag << "\n";
+//std::cout << "tagEnd =  " << tagEnd << "\n";
             }
 
             // Scan name for the string "%t".
@@ -290,6 +312,7 @@ namespace evio {
             else {
                 name = std::regex_replace(name, std::regex("%t"), tagStr);
             }
+//std::cout << "badEntry = " << badEntry << std::endl;
 
             // Get the type, if any
             attrNode = node.attribute(TYPE.c_str());
@@ -310,13 +333,13 @@ namespace evio {
                 }
 
                 description = childNode.value();
-                //System.out.println("FOUND DESCRIPTION H: = " + description);
+//std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
 
                 // See if there's a format attribute
                 pugi::xml_attribute attr = childNode.attribute(FORMAT.c_str());
                 if (!attr.empty()) {
                     format = attr.value();
-                    //System.out.println("FOUND FORMAT H: = " + format);
+//std::cout << "FOUND FORMAT H: = " << format << std::endl;
                 }
 
                 break;
@@ -324,7 +347,7 @@ namespace evio {
 
             // Skip meaningless entries
             if (name.empty() || tagStr.empty() || badEntry) {
-                std::cout << "IGNORING badly formatted dictionary entry 1: name = " << name << std::endl;
+                std::cout << "IGNORING badly formatted dictionary entry: name = " << name << std::endl;
                 continue;
             }
 
@@ -337,15 +360,16 @@ namespace evio {
             if (!numStr.empty()) {
                 // Make sure num < numEnd
                 if (isNumRange && (num > numEnd)) {
-                    uint8_t tmp = num;
+                    int tmp = num;
                     num = numEnd;
                     numEnd = tmp;
                 }
+//std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << numEnd << "\n";
 
                 std::string nameOrig = name;
 
                 // Range of nums (num == numEnd for no range)
-                for (uint8_t n = num; n <= numEnd; n++) {
+                for (int n = num; n <= numEnd; n++) {
                     // Scan name for the string "%n" and substitute num for it
                     name = std::regex_replace(name, std::regex("%n"), std::to_string(n));
 
@@ -364,6 +388,7 @@ namespace evio {
                         auto itnrm = tagNumReverseMap.find(name);
 
                         if ((itnm == tagNumMap.end()) && (itnrm == tagNumReverseMap.end())) {
+//std::cout << "  PLACING entry into tagNum map, name = " <<  name << std::endl;
                             tagNumMap.insert({key, name});
                             tagNumReverseMap.insert({name, key});
                             entryAlreadyExists = false;
@@ -378,7 +403,7 @@ namespace evio {
                     }
                 }
             }
-                // If no num defined ...
+            // If no num defined ...
             else {
                 auto key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd, type, description, format);
                 bool entryAlreadyExists = true;
@@ -391,6 +416,7 @@ namespace evio {
                     if (isTagRange) {
                         auto itrm = tagRangeMap.find(key);
                         if (itrm == tagRangeMap.end()) {
+//std::cout << "  PLACING entry into tagRange map, name = " <<  name << std::endl;
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -401,6 +427,7 @@ namespace evio {
                     else {
                         auto itom  = tagOnlyMap.find(key);
                         if (itom == tagOnlyMap.end()) {
+//std::cout << "  PLACING entry into tagOnly map, name = " <<  name << std::endl;
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -506,26 +533,9 @@ namespace evio {
                 if (sm.size() > 1) {
                     // First num is always >= 0
                     numStr = sm[1];
-                    try {
-                        num = std::stoi(numStr);
-                    }
-                    catch (std::invalid_argument &e) {
-                        badEntry = true;
-                    }
-                    catch (std::out_of_range &e) {
-                        badEntry = true;
-                    }
-
-                    // Ending num
-                    if (sm.size() > 3) {
-                        numEndStr = sm[3];
+                    if (!numStr.empty()) {
                         try {
-                            numEnd = std::stoi(numEndStr);
-                            // The regexp matching only allows values >= 0 for tagEnd.
-                            // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                            if (numEnd > 0 && (numEnd != num)) {
-                                isNumRange = true;
-                            }
+                            num = std::stoi(numStr);
                         }
                         catch (std::invalid_argument &e) {
                             badEntry = true;
@@ -534,9 +544,30 @@ namespace evio {
                             badEntry = true;
                         }
                     }
-                    else {
-                        // Set for later convenience in for loop
-                        numEnd = num;
+
+                    // Ending num
+                    if (sm.size() > 3) {
+                        numEndStr = sm[3];
+                        if (!numEndStr.empty()) {
+                            try {
+                                numEnd = std::stoi(numEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                if (numEnd > 0 && (numEnd != num)) {
+                                    isNumRange = true;
+                                }
+                            }
+                            catch (std::invalid_argument &e) {
+                                badEntry = true;
+                            }
+                            catch (std::out_of_range &e) {
+                                badEntry = true;
+                            }
+                        }
+                        else {
+                            // Set for later convenience in for loop
+                            numEnd = num;
+                        }
                     }
                 }
                 else {
@@ -563,32 +594,36 @@ namespace evio {
                 if (sm.size() > 1) {
                     // First tag, never null, always >= 0, or no match occurs
                     tagStr = sm[1];
-                    try {
-                        tag = std::stoi(tagStr);
-                    }
-                    catch (std::invalid_argument &e) {
-                        badEntry = true;
-                    }
-                    catch (std::out_of_range &e) {
-                        badEntry = true;
-                    }
-
-                    // Ending tag
-                    if (sm.size() > 3) {
-                        tagEndStr = sm[3];
+                    if (!tagStr.empty()) {
                         try {
-                            tagEnd = std::stoi(tagEndStr);
-                            // The regexp matching only allows values >= 0 for tagEnd.
-                            // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                            if (tagEnd > 0 && (tagEnd != tag)) {
-                                isTagRange = true;
-                            }
+                            tag = std::stoi(tagStr);
                         }
                         catch (std::invalid_argument &e) {
                             badEntry = true;
                         }
                         catch (std::out_of_range &e) {
                             badEntry = true;
+                        }
+                    }
+
+                    // Ending tag
+                    if (sm.size() > 3) {
+                        tagEndStr = sm[3];
+                        if (!tagEndStr.empty()) {
+                            try {
+                                tagEnd = std::stoi(tagEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                if (tagEnd > 0 && (tagEnd != tag)) {
+                                    isTagRange = true;
+                                }
+                            }
+                            catch (std::invalid_argument &e) {
+                                badEntry = true;
+                            }
+                            catch (std::out_of_range &e) {
+                                badEntry = true;
+                            }
                         }
                     }
                 }
@@ -632,13 +667,13 @@ namespace evio {
                 }
 
                 description = childNode.value();
-                //System.out.println("FOUND DESCRIPTION H: = " + description);
+                //std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
 
                 // See if there's a format attribute
                 pugi::xml_attribute attr = childNode.attribute(FORMAT.c_str());
                 if (!attr.empty()) {
                     format = attr.value();
-                    //System.out.println("FOUND FORMAT H: = " + format);
+                    //std::cout << "FOUND FORMAT H: = " << format << std::endl;
                 }
 
                 break;
@@ -701,6 +736,7 @@ namespace evio {
                         auto itnrm = tagNumReverseMap.find(name);
 
                         if ((itnm == tagNumMap.end()) && (itnrm == tagNumReverseMap.end())) {
+//std::cout << "  PLACING entry into tagNum map, name = " <<  name << std::endl;
                             tagNumMap.insert({key, name});
                             tagNumReverseMap.insert({name, key});
                             entryAlreadyExists = false;
@@ -715,7 +751,7 @@ namespace evio {
                     }
                 }
             }
-                // If no num defined ...
+            // If no num defined ...
             else {
                 if (!parentName.empty()) {
                     name.insert(0, delimiter);
@@ -743,6 +779,7 @@ namespace evio {
                     if (isTagRange) {
                         auto itrm = tagRangeMap.find(key);
                         if (itrm == tagRangeMap.end()) {
+//std::cout << "  PLACING entry into tagRange map, name = " <<  name << std::endl;
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -753,6 +790,7 @@ namespace evio {
                     else {
                         auto itom = tagOnlyMap.find(key);
                         if (itom == tagOnlyMap.end()) {
+//std::cout << "  PLACING entry into tagOnly map, name = " <<  name << std::endl;
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -1048,6 +1086,7 @@ namespace evio {
      */
     std::string EvioXMLDictionary::getName(std::shared_ptr<EvioDictionaryEntry> key) {
 
+        bool debug = true;
         uint16_t tag = key->getTag();
         EvioDictionaryEntry::EvioDictionaryEntryType entryType = key->getEntryType();
 
@@ -1056,61 +1095,97 @@ namespace evio {
 
         switch (entryType) {
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM: {
+// if (debug) std::cout << "EvioXMLDictionary.getName:  FIRST TRY tagNum map, look in map:" << std::endl;
+
                 // If a tag/num pair was specified ...
                 // There may be multiple entries with the same tag/tagEnd/num values
                 // but having parents with differing values. Since we don't specify
                 // the parent info, we just get the first match found in the map.
-                auto it = tagNumMap.find(key);
-                if (it != tagNumMap.end()) {
-                    // name is the "value" of the entry
-                    name = it->second;
-                    break;
+                //
+                // We cannot compare shared pointers, we need to compare the actual objects,
+                // which means we have to look at each entry and cannot use map.find(key) .
+                bool foundEntry = false;
+                for (auto & entry : tagNumMap) {
+                    // We need to compare the actual objects ...
+                    if (*(entry.first.get()) == *(key.get())) {
+//std::cout << "    *****   entry in tagNum map MATCHES key for name = " << entry.second << std::endl;
+//std::cout << "            key -> " << key->toString() << std::endl;
+                        name = entry.second;
+                        foundEntry = true;
+                        // need to break 2x
+                        break;
+                    }
                 }
+
+                if (foundEntry) break;
 
                 // Create tag-only key and try to find tag-only match (fall thru case)
                 key = std::make_shared<EvioDictionaryEntry>(tag);
             }
 
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_ONLY: {
+//if (debug) std::cout << "EvioXMLDictionary.getName:  NEXT TRY tagOnly map" << std::endl;
                 // If only a tag was specified or a tag/num pair was specified
                 // but there was no exact match for the pair ...
-                auto it = tagOnlyMap.find(key);
-                if (it != tagOnlyMap.end()) {
-                    name = it->second;
-                    break;
+                bool foundEntry = false;
+                for (auto & entry : tagOnlyMap) {
+                    // We need to compare the actual objects ...
+                    if (*(entry.first.get()) == *(key.get())) {
+//                        std::cout << "    *****   entry in tagOnly map MATCHES key for name = " << entry.second << std::endl;
+//                        std::cout << "            key -> " << key->toString() << std::endl;
+                        name = entry.second;
+                        foundEntry = true;
+                        break;
+                    }
                 }
+
+                if (foundEntry) break;
+
                 // Create tag-range key and try to find tag-range match
                 key = std::make_shared<EvioDictionaryEntry>(tag, key->getTagEnd());
             }
 
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE: {
+//if (debug) std::cout << "EvioXMLDictionary.getName:  LAST TRY tagRange map" << std::endl;
                 // If a range was specified in the args, check to see if
                 // there's an exact match first ...
-                auto it = tagRangeMap.find(key);
-                if (it != tagRangeMap.end()) {
-                    name = it->second;
-                    break;
+                bool foundEntry = false;
+                for (auto & entry : tagRangeMap) {
+                    // We need to compare the actual objects ...
+                    if (*(entry.first.get()) == *(key.get())) {
+//                        std::cout << "    *****   entry in tagRange map MATCHES key for name = " << entry.second << std::endl;
+//                        std::cout << "            key -> " << key->toString() << std::endl;
+                        name = entry.second;
+                        foundEntry = true;
+                        break;
+                    }
                 }
-                    // If a tag/num pair or only a tag was specified in the args,
-                    // see if either falls in a range of tags.
-                else if (entryType != EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE) {
 
+                if (foundEntry) break;
+
+                // If a tag/num pair or only a tag was specified in the args,
+                // see if either falls in a range of tags.
+                else if (entryType != EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE) {
                     // Additional check to see if tag fits in a range
                     for (auto & iter : tagRangeMap) {
                         auto entry = iter.first;
                         if (entry->inRange(tag)) {
                             name = iter.second;
+//if (debug) std::cout << "    DDDDD   found entry in tagRange map with name 2 = " << name << std::endl;
+//std::cout << "            key -> " << key->toString() << std::endl;
                             goto out;
                         }
                     }
                 }
             }
-            out:
 
             default:
-                std::cout << "no dictionary entry for tag = " << tag << ", tagEnd = " <<
-                          key->getTagEnd() << ", num = " << key->getNum() << std::endl;
+                ;
+                //std::cout << "no dictionary entry for tag = " << tag << ", tagEnd = " <<
+                //          key->getTagEnd() << ", num = " << key->getNum() << std::endl;
         }
+
+        out:
 
         return name;
     }
@@ -1136,67 +1211,108 @@ namespace evio {
         EvioDictionaryEntry::EvioDictionaryEntryType entryType = key->getEntryType();
 
         std::string name;
-        std::shared_ptr<EvioDictionaryEntry> entry;
+        std::shared_ptr<EvioDictionaryEntry> entry = nullptr;
 
         switch (entryType) {
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM : {
-                auto it = tagNumMap.find(key);
-                if (it != tagNumMap.end()) {
-                    // name is the "value" of the entry
-                    name = it->second;
 
-                    auto it2 = tagNumReverseMap.find(name);
-                    if (it2 != tagNumReverseMap.end()) {
-                        entry = it2->second;
+                bool foundEntry = false;
+                for (auto & item : tagNumMap) {
+                    // We need to compare the actual objects ...
+                    if (*(item.first.get()) == *(key.get())) {
+                        entry = item.first;
+                        foundEntry = true;
+                        break;
                     }
-                    break;
                 }
+
+                if (foundEntry) break;
+
+
+//                auto it = tagNumMap.find(key);
+//                if (it != tagNumMap.end()) {
+//                    // name is the "value" of the entry
+//                    name = it->second;
+//
+//                    auto it2 = tagNumReverseMap.find(name);
+//                    if (it2 != tagNumReverseMap.end()) {
+//                        entry = it2->second;
+//                    }
+//                    break;
+//                }
 
                 // Create tag-only key and try to find tag-only match
                 key = std::make_shared<EvioDictionaryEntry>(tag);
             }
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_ONLY : {
 
-                auto it = tagOnlyMap.find(key);
-                if (it != tagOnlyMap.end()) {
-                    name = it->second;
-
-                    for (auto & iter : tagOnlyMap) {
-                        std::string n = iter.second;
-                        if (n == name) {
-                            entry = iter.first;
-                            goto out;
-                        }
+                for (auto & item : tagOnlyMap) {
+                    if (*(item.first.get()) == *(key.get())) {
+                        entry = item.first;
+                        goto out;
                     }
                 }
+
+//                auto it = tagOnlyMap.find(key);
+//                if (it != tagOnlyMap.end()) {
+//                    name = it->second;
+//
+//                    for (auto & iter : tagOnlyMap) {
+//                        std::string n = iter.second;
+//                        if (n == name) {
+//                            entry = iter.first;
+//                            goto out;
+//                        }
+//                    }
+//                }
 
                 // Create tag-range key and try to find tag-range match
                 key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd);
             }
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE : {
 
-                auto it = tagRangeMap.find(key);
-                if (it != tagRangeMap.end()) {
-                    name  = it->second;
-                    entry = it->first;
+                for (auto & item : tagRangeMap) {
+                    if (*(item.first.get()) == *(key.get())) {
+                        entry = item.first;
+                        goto out;
+                    }
                 }
-                    // If a tag/num pair or only a tag was specified in the args,
-                    // see if either falls in a range of tags.
-                else if (entryType != EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE) {
+
+                // If a tag/num pair or only a tag was specified in the args,
+                // see if either falls in a range of tags.
+                if (entryType != EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE) {
                     // See if tag fits in a range
-                    for (auto & iter : tagRangeMap) {
-                        auto entry2 = iter.first;
-                        if (entry2->inRange(tag)) {
-                            entry = entry2;
+                    for (auto & item : tagRangeMap) {
+                        if (item.first->inRange(tag)) {
+                            entry = item.first;
                             goto out;
                         }
                     }
                 }
+
+//                auto it = tagRangeMap.find(key);
+//                if (it != tagRangeMap.end()) {
+//                    name  = it->second;
+//                    entry = it->first;
+//                }
+//                // If a tag/num pair or only a tag was specified in the args,
+//                // see if either falls in a range of tags.
+//                else if (entryType != EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE) {
+//                    // See if tag fits in a range
+//                    for (auto & iter : tagRangeMap) {
+//                        auto entry2 = iter.first;
+//                        if (entry2->inRange(tag)) {
+//                            entry = entry2;
+//                            goto out;
+//                        }
+//                    }
+//                }
             }
 
             default:
-                std::cout << "no dictionary entry for tag = " << tag << ", tagEnd = " <<
-                          key->getTagEnd() << ", num = " << key->getNum() << std::endl;
+                ;
+                //std::cout << "no dictionary entry for tag = " << tag << ", tagEnd = " <<
+                //          key->getTagEnd() << ", num = " << key->getNum() << std::endl;
         }
 
         out:
@@ -1213,12 +1329,12 @@ namespace evio {
      */
     std::shared_ptr<EvioDictionaryEntry> EvioXMLDictionary::entryLookupByName(std::string const & name) {
         // Check all entries
-        auto it2 = tagNumReverseMap.find(name);
-        if (it2 != tagNumReverseMap.end()) {
+        auto it2 = reverseMap.find(name);
+        if (it2 != reverseMap.end()) {
             return it2->second;
         }
 
-        std::cout << "entryLookup: no entry for name = " << name << std::endl;
+        //std::cout << "entryLookupByName: no entry for name = " << name << std::endl;
         return nullptr;
     }
 
@@ -1401,9 +1517,11 @@ namespace evio {
      */
     bool EvioXMLDictionary::getTag(std::string const & name, uint16_t *tag) {
         auto entry = entryLookupByName(name);
-        if (tag != nullptr) {
-            *tag = entry->getTag();
-            return true;
+        if (entry != nullptr) {
+            if (tag != nullptr) {
+                *tag = entry->getTag();
+                return true;
+            }
         }
 
         return false;
@@ -1418,9 +1536,11 @@ namespace evio {
      */
     bool EvioXMLDictionary::getTagEnd(std::string const & name, uint16_t *tagEnd) {
         auto entry = entryLookupByName(name);
-        if (entry == nullptr) {
-            *tagEnd = entry->getTagEnd();
-            return true;
+        if (entry != nullptr) {
+            if (tagEnd != nullptr) {
+                *tagEnd = entry->getTagEnd();
+                return true;
+            }
         }
 
         return false;
@@ -1436,7 +1556,7 @@ namespace evio {
      */
     bool EvioXMLDictionary::getNum(std::string const & name, uint8_t *num) {
         auto entry = entryLookupByName(name);
-        if (entry == nullptr) {
+        if (entry != nullptr) {
             if (num != nullptr) {*num = entry->getNum();}
             return true;
         }
