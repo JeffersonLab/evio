@@ -20,7 +20,7 @@
 #include <unordered_map>
 #include <vector>
 #include <sstream>
-
+#include <algorithm>
 
 #include "EvioDictionaryEntry.h"
 #include "EvioException.h"
