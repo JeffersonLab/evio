@@ -109,30 +109,41 @@ namespace evio {
             std::stringstream ss;
 
             ss << "<xmlDict>\n" <<
-               "  <bank name=\"HallD\"             tag=\"6-8\"  type=\"bank\" >\n" <<
-               "      <description format=\"New Format\" >hall_d_tag_range</description>\n" <<
-               "      <bank name=\"DC(%t)\"        tag=\"6\" num=\"4\" >\n" <<
-               "          <leaf name=\"xpos(%n)\"  tag=\"6\" num=\"5\" />\n" <<
-               "          <bank name=\"ypos(%n)\"  tag=\"6\" num=\"6\" />\n" <<
-               "      </bank >\n" <<
-               "      <bank name=\"TOF\"     tag=\"8\" num=\"0\" >\n" <<
-               "          <leaf name=\"x\"   tag=\"8\" num=\"1\" />\n" <<
-               "          <bank name=\"y\"   tag=\"8\" num=\"2\" />\n" <<
-               "      </bank >\n" <<
-               "      <bank name=\"BCAL\"      tag=\"7\" >\n" <<
-               "          <leaf name=\"x(%n)\" tag=\"7\" num=\"1-3\" />\n" <<
-               "      </bank >\n" <<
-               "  </bank >\n" <<
-               "  <dictEntry name=\"My Event\" tag=\"1\" num=\"1\" />\n" <<
-               "  <dictEntry name=\"2nd Level Bank of banks\" tag=\"2\" num=\"2\" />\n" <<
-               "  <dictEntry name=\"2nd Level Bank of Segments\" tag=\"15\"  num=\"15\" />\n" <<
-               "  <dictEntry name=\"SEG5\" tag=\"5\" >\n" <<
-               "       <description format=\"Old Format\" >tag 5 description</description>\n" <<
-               "  </dictEntry>\n" <<
-               "  <bank name=\"Rangy\" tag=\"75 - 78\" >\n" <<
-               "      <leaf name=\"BigTag\" tag=\"76\" />\n" <<
-               "  </bank >\n" <<
+               "  <dictEntry name=\"MyBadDictEntry\" tag=\"1-3\" num=\"2\" />\n" <<
+               "  <dictEntry name=\"My Event\" tag=\"1-3\"  />\n" <<
+               "  <dictEntry name=\"2nd Level Bank of banks\" tag=\"2\" num=\"3\" />\n" <<
+               "  <dictEntry name=\"2nd Level Bank of Segments\" tag=\"15\"  num=\"16\" />\n" <<
+               "  <dictEntry name=\"2nd Level Bank of TagSegments\" tag=\"16\"  num=\"17\" />\n" <<
+               "  <dictEntry name=\"Tag 5\" tag=\"5\" />\n" <<
                "</xmlDict>";
+
+//            ss << "<xmlDict>\n" <<
+//               "  <bank name=\"HallD\"             tag=\"6-8\"  type=\"bank\" >\n" <<
+//               "      <description format=\"New Format\" >hall_d_tag_range</description>\n" <<
+//               "      <bank name=\"DC(%t)\"        tag=\"6\" num=\"4\" >\n" <<
+//               "          <leaf name=\"xpos(%n)\"  tag=\"6\" num=\"5\" />\n" <<
+//               "          <bank name=\"ypos(%n)\"  tag=\"6\" num=\"6\" />\n" <<
+//               "      </bank >\n" <<
+//               "      <bank name=\"TOF\"     tag=\"8\" num=\"0\" >\n" <<
+//               "          <leaf name=\"x\"   tag=\"8\" num=\"1\" />\n" <<
+//               "          <bank name=\"y\"   tag=\"8\" num=\"2\" />\n" <<
+//               "      </bank >\n" <<
+//               "      <bank name=\"BCAL\"      tag=\"7\" >\n" <<
+//               "          <leaf name=\"x(%n)\" tag=\"7\" num=\"1-3\" />\n" <<
+//               "      </bank >\n" <<
+//               "  </bank >\n" <<
+//               "  <dictEntry name=\"My Event\" tag=\"1\" num=\"1\" />\n" <<
+//               "  <dictEntry name=\"2nd Level Bank of banks\" tag=\"2\" num=\"2\" />\n" <<
+//               "  <dictEntry name=\"2nd Level Bank of Segments\" tag=\"15\"  num=\"15\" />\n" <<
+//               "  <dictEntry name=\"2nd Level Bank of TagSegments\" tag=\"16\"  num=\"16\" />\n" <<
+//               "  <dictEntry name=\"SEG5\" tag=\"5\" >\n" <<
+//               "       <description format=\"Old Format\" >tag 5 description</description>\n" <<
+//               "  </dictEntry>\n" <<
+//               "  <bank name=\"Rangy\" tag=\"75 - 78\" >\n" <<
+//               "      <leaf name=\"BigTag\" tag=\"76\" />\n" <<
+//               "  </bank >\n" <<
+//               "</xmlDict>";
+
 
             dictionary = ss.str();
 
@@ -185,10 +196,10 @@ namespace evio {
                 CompactEventBuilder builder(buffer);
 
                 // add top/event level bank of banks
-                builder.openBank(tag, DataType::BANK, num);
+                builder.openBank(tag, DataType::BANK, num+1);
 
                 // add bank of banks
-                builder.openBank(tag + 1, DataType::BANK, num + 1);
+                builder.openBank(tag + 1, DataType::BANK, num + 2);
 
                 // add bank of ints
                 builder.openBank(tag + 2, DataType::UINT32, num + 2);
@@ -229,7 +240,7 @@ namespace evio {
 
 
                 // add bank of segs
-                builder.openBank(tag + 14, DataType::SEGMENT, num + 14);
+                builder.openBank(tag + 14, DataType::SEGMENT, num + 15);
 
                 // add seg of ints
                 builder.openSegment(tag + 8, DataType::INT32);
@@ -270,7 +281,7 @@ namespace evio {
 
 
                 // add bank of tagsegs
-                builder.openBank(tag + 15, DataType::TAGSEGMENT, num + 15);
+                builder.openBank(tag + 15, DataType::TAGSEGMENT, num + 16);
 
                 // add tagseg of ints
                 builder.openTagSegment(tag + 16, DataType::UINT32);
@@ -335,6 +346,56 @@ namespace evio {
                     // This sets the proper pos and lim in buffer
                     auto bb = builder.getBuffer();
                     std::cout << "createCompactEvents: buffer = \n" << bb->toString() << std::endl;
+
+
+                    std::cout << "createCompactEvents: search, using dictionary for struct = My Event\n" << std::endl;
+                    std::vector<std::shared_ptr<BaseStructure>> vec;
+                    EvioXMLDictionary xDict(dictionary, 0);
+
+                    StructureFinder::getMatchingStructures(ev, "My Event", xDict, vec);
+                    for (std::shared_ptr<BaseStructure> bs : vec) {
+                        std::cout << "createCompactEvents: found, thru dict -> " << bs->toString() << std::endl;
+                    }
+
+                    std::cout << "\n\n\n\n";
+                    vec.clear();
+
+                    StructureFinder::getMatchingStructures(ev, "Tag 5", xDict, vec);
+                    for (std::shared_ptr<BaseStructure> bs : vec) {
+                        std::cout << "createCompactEvents: found, thru dict -> " << bs->toString() << std::endl;
+                    }
+                    std::cout << "\n\n\n\n";
+
+                    DataType type = xDict.getType(1, 2);
+                    std::cout << "createCompactEvents: type of tag=1, num=2 -> " << type.toString() << std::endl;
+
+                    uint16_t tag;
+                    bool good = xDict.getTag("2nd Level Bank of Segments", &tag);
+                    if (good) {
+                        std::cout << "createCompactEvents: tag of  2nd Level Bank of Segments = " << tag << std::endl;
+                    }
+                    else {
+                        std::cout << "createCompactEvents: not tag for  2nd Level Bank of Segments"  << std::endl;
+                    }
+
+                    good = xDict.getTag("Tag 5", &tag);
+                    if (good) {
+                        std::cout << "createCompactEvents: tag of  Tag 5 = " << tag << std::endl;
+                    }
+                    else {
+                        std::cout << "createCompactEvents: not tag for  Tag 5"  << std::endl;
+                    }
+
+                    good = xDict.getTag("Blah", &tag);
+                    if (good) {
+                        std::cout << "createCompactEvents: tag of  Blah = " << tag << std::endl;
+                    }
+                    else {
+                        std::cout << "createCompactEvents: no tag for  Blah"  << std::endl;
+                    }
+
+
+
                 }
 
             }
@@ -578,8 +639,8 @@ namespace evio {
 
 int main(int argc, char **argv) {
     evio::Tester tester;
-    //tester.createCompactEvents(1,1);
-    tester.createObjectEvents(1,1);
+    tester.createCompactEvents(1,1);
+    //tester.createObjectEvents(1,1);
     return 0;
 }
 
