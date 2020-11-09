@@ -187,6 +187,7 @@ namespace evio {
                     if (!numStr.empty()) {
                         try {
                             num = (uint8_t) std::stoi(numStr);
+                            numEnd = num;
                         }
                         catch (std::invalid_argument &e) {
                             badEntry = true;
@@ -366,14 +367,14 @@ namespace evio {
                     num = numEnd;
                     numEnd = tmp;
                 }
-//std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << numEnd << "\n";
+std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << numEnd << "\n";
 
                 std::string nameOrig = name;
 
                 // Range of nums (num == numEnd for no range)
                 for (int n = num; n <= numEnd; n++) {
                     // Scan name for the string "%n" and substitute num for it
-                    name = std::regex_replace(name, std::regex("%n"), std::to_string(n));
+                    name = std::regex_replace(nameOrig, std::regex("%n"), std::to_string(n));
 
                     std::shared_ptr<EvioDictionaryEntry> key =
                             std::make_shared<EvioDictionaryEntry>(tag, n, tagEnd, type, description, format);
@@ -382,7 +383,7 @@ namespace evio {
 
                     auto it = reverseMap.find(name);
                     if (it != reverseMap.end()) {
-                        std::cout << "IGNORING duplicate dictionary entry: name = " <<  name << std::endl;
+                        std::cout << "IGNORING duplicate dictionary entry 1: name = " <<  name << std::endl;
                     }
                     else {
                         // Only add to dictionary if both name and tag/num pair are unique
@@ -390,13 +391,13 @@ namespace evio {
                         auto itnrm = tagNumReverseMap.find(name);
 
                         if ((itnm == tagNumMap.end()) && (itnrm == tagNumReverseMap.end())) {
-//std::cout << "  PLACING entry into tagNum map, name = " <<  name << std::endl;
+//std::cout << "  PLACING entry 1 into tagNum map, name = " <<  name << std::endl;
                             tagNumMap.insert({key, name});
                             tagNumReverseMap.insert({name, key});
                             entryAlreadyExists = false;
                         }
                         else {
-                            std::cout << "IGNORING duplicate dictionary entry: name = " <<  name << std::endl;
+                            std::cout << "IGNORING duplicate dictionary entry 2: name = " <<  name << std::endl;
                         }
 
                         if (!entryAlreadyExists) {
@@ -412,24 +413,24 @@ namespace evio {
 
                 auto it = reverseMap.find(name);
                 if (it != reverseMap.end()) {
-                    std::cout << "IGNORING duplicate dictionary entry: name = " <<  name << std::endl;
+                    std::cout << "IGNORING duplicate dictionary entry 3: name = " <<  name << std::endl;
                 }
                 else {
                     if (isTagRange) {
                         auto itrm = tagRangeMap.find(key);
                         if (itrm == tagRangeMap.end()) {
-//std::cout << "  PLACING entry into tagRange map, name = " <<  name << std::endl;
+//std::cout << "  PLACING entry 2 into tagRange map, name = " <<  name << std::endl;
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
                         else {
-                            std::cout << "IGNORING duplicate dictionary entry: name = " <<  name << std::endl;
+                            std::cout << "IGNORING duplicate dictionary entry 4: name = " <<  name << std::endl;
                         }
                     }
                     else {
                         auto itom  = tagOnlyMap.find(key);
                         if (itom == tagOnlyMap.end()) {
-//std::cout << "  PLACING entry into tagOnly map, name = " <<  name << std::endl;
+//std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name << std::endl;
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -708,7 +709,7 @@ namespace evio {
                 // Range of nums (num == numEnd for no range)
                 for (uint8_t n = num; n <= numEnd; n++) {
                     // Scan name for the string "%n" and substitute num for it
-                    name = std::regex_replace(name, std::regex("%n"), std::to_string(n));
+                    name = std::regex_replace(nameOrig, std::regex("%n"), std::to_string(n));
 
                     // Create hierarchical name
                     if (!parentName.empty()) {
