@@ -654,6 +654,8 @@ namespace evio {
             attrNode = node.attribute(TYPE.c_str());
             if (attrNode.name() == TYPE) {
                 typeStr = attrNode.value();
+                // Change string to upper case, stupid C++ lib
+                std::transform(typeStr.begin(), typeStr.end(), typeStr.begin(), [](unsigned char c) -> unsigned char { return std::toupper(c); });
                 type = DataType::valueOf(typeStr);
             }
 
@@ -668,7 +670,7 @@ namespace evio {
                     continue;
                 }
 
-                description = childNode.value();
+                description = childNode.child_value();
                 //std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
 
                 // See if there's a format attribute
