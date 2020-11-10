@@ -209,6 +209,11 @@ namespace evio {
                                 // When tagEnd == 0 or tag == tagEnd, no range is defined.
                                 if (numEnd > 0 && (numEnd != num)) {
                                     isNumRange = true;
+
+                                    // Since a num range is defined, the name MUST contain at least one %n
+                                    if (name.find("%n") == std::string::npos) {
+                                        badEntry = true;
+                                    }
                                 }
                             }
                             catch (std::invalid_argument &e) {
@@ -558,6 +563,11 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                                 // When tagEnd == 0 or tag == tagEnd, no range is defined.
                                 if (numEnd > 0 && (numEnd != num)) {
                                     isNumRange = true;
+
+                                    // Since a num range is defined, the name MUST contain at least one %n
+                                    if (name.find("%n") == std::string::npos) {
+                                        badEntry = true;
+                                    }
                                 }
                             }
                             catch (std::invalid_argument &e) {

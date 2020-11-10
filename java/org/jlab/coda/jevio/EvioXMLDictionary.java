@@ -322,6 +322,11 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                 // When tagEnd == 0 or tag == tagEnd, no range is defined.
                                 if (numEnd > 0 && !numEnd.equals(num)) {
                                     isNumRange = true;
+
+                                    // Since a num range is defined, the name MUST contain at least one %n
+                                    if (!name.contains("%n")) {
+                                        badEntry = true;
+                                    }
                                 }
                             }
                             catch (NumberFormatException e) {
@@ -622,6 +627,11 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                 // When tagEnd == 0 or tag == tagEnd, no range is defined.
                                 if (numEnd > 0 && !numEnd.equals(num)) {
                                     isNumRange = true;
+
+                                    // Since a num range is defined, the name MUST contain at least one %n
+                                    if (!name.contains("%n")) {
+                                        badEntry = true;
+                                    }
                                 }
                             }
                             catch (NumberFormatException e) {
