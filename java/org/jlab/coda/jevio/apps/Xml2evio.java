@@ -10,7 +10,8 @@ import java.util.List;
 /**
  * This program takes an xml format file containing evio data
  * and saves it into a binary evio format file.
- * Created by timmer on 1/15/16.
+ * @author timmer
+ * @since version 4
  */
 public class Xml2evio {
 
