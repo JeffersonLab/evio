@@ -10,3 +10,5 @@ build/
 cmake-build-debug/
 doxyerrors.log
 /target/
+doc/javadoc
+doc/doxygen/CC
