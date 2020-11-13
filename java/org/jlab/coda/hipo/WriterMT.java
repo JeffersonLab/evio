@@ -8,8 +8,7 @@
 package org.jlab.coda.hipo;
 
 import com.lmax.disruptor.AlertException;
-import org.jlab.coda.jevio.ByteDataTransformer;
-import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.EvioBank;
 import org.jlab.coda.jevio.EvioNode;
 import org.jlab.coda.jevio.Utilities;
 
@@ -24,8 +23,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Class to write Evio/HIPO files only (not to buffers).
- * Able to multithread the compression of data.
+ * This class is for writing Evio/HIPO files only (not buffers).
+ * It's able to multithread the compression of data.<p>
+ *
+ * At the center of how this class works is an ultra-fast ring buffer containing
+ * a store of empty records. As the user calls one of the {@link #addEvent} methods,
+ * it gradually fills one of those empty records with data. When the record is full,
+ * it's put back into the ring to wait for one of the compression thread to grab it and compress it.
+ * After compression, it's again placed back into the ring and waits for a final thread to
+ * write it to file. After being written, the record is freed up for reuse.
+ * This entire ring functionality is encapsulated in 2 classes,
+ * {@link RecordSupply} and {@link RecordRingItem}.
  *
  * @version 6.0
  * @since 6.0 8/10/17
@@ -116,12 +124,13 @@ public class WriterMT implements AutoCloseable {
 
     
     /**
-     * Default constructor. Compression is single-threaded LZ4. Little endian.
+     * Default constructor is single-threaded, no compression. Little endian.
      * <b>No</b> file is opened. Any file will have little endian byte order.
+     * 1M max event count and 8M max buffer size.
      */
     public WriterMT() {
         fileHeader = new FileHeader(true); // evio file
-        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, CompressionType.RECORD_COMPRESSION_LZ4);
+        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, CompressionType.RECORD_UNCOMPRESSED);
 
         // Get a single blank record to start writing into
         ringItem = supply.get();
@@ -828,8 +837,14 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      * @param buffer array to add to the file.
      * @param offset offset into array from which to start writing data.
      * @param length number of bytes to write from array.
+     * @throws HipoException if buffer arg is null.
      */
-    public void addEvent(byte[] buffer, int offset, int length) {
+    public void addEvent(byte[] buffer, int offset, int length) throws HipoException {
+
+        if (buffer == null) {
+            throw new HipoException("arg is null");
+        }
+
         // Try putting data into current record being filled
         boolean status = outputRecord.addEvent(buffer, offset, length);
 
@@ -858,8 +873,9 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      * is not thread-safe.
      *
      * @param buffer array to add to the file.
+     * @throws HipoException if buffer arg is null.
      */
-    public void addEvent(byte[] buffer){
+    public void addEvent(byte[] buffer) throws HipoException {
         addEvent(buffer, 0, buffer.length);
     }
 
@@ -873,9 +889,13 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      * match the byte order given in constructor!</b>
      *
      * @param buffer array to add to the file.
-     * @throws HipoException if buffer arg's byte order is wrong.
+     * @throws HipoException if buffer arg is null or byte order is wrong.
      */
     public void addEvent(ByteBuffer buffer) throws HipoException {
+
+        if (buffer == null) {
+            throw new HipoException("arg is null");
+        }
 
         if (buffer.order() != byteOrder) {
             throw new HipoException("buffer arg byte order is wrong");
@@ -900,6 +920,40 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
     }
 
     /**
+     * Add an EvioBank to the internal record. If the length of
+     * the bank exceeds the maximum size of the record, the record
+     * will be written to the file (compressed if the flag is set).
+     * Internal record will be reset to receive new buffers.
+     * Using this method in conjunction with writeRecord() is not thread-safe.
+     *
+     * @param bank event to add to the file.
+     * @throws HipoException if arg is null.
+     */
+    public void addEvent(EvioBank bank) throws HipoException {
+
+        if (bank == null) {
+            throw new HipoException("arg is null");
+        }
+
+        boolean status = outputRecord.addEvent(bank);
+
+        // If record is full ...
+        if (!status) {
+            // Put it back in supply for compressing
+            supply.publish(ringItem);
+
+            // Now get another, empty record.
+            // This may block if threads are busy compressing
+            // and/or writing all records in supply.
+            ringItem = supply.get();
+            outputRecord = ringItem.getRecord();
+
+            // Adding the first event to a record is guaranteed to work
+            outputRecord.addEvent(bank);
+        }
+    }
+
+    /**
      * Add an EvioNode to the internal record. If the length of
      * the data exceeds the maximum size of the record, the record
      * will be written to the file (compressed if the flag is set).
@@ -909,9 +963,13 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      * match the byte order given in constructor!</b>
      *
      * @param node node to add to the file.
-     * @throws HipoException if node does not correspond to a bank.
+     * @throws HipoException if node is null or does not correspond to a bank.
      */
     public void addEvent(EvioNode node) throws HipoException {
+
+        if (node == null) {
+            throw new HipoException("arg is null");
+        }
 
         ByteBuffer buffer = node.getBuffer();
 
