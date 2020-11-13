@@ -15,13 +15,14 @@ namespace evio {
 
 
     /**
-     * Default constructor. Compression is single-threaded, LZ4. Little endian.
+     * Default constructor. Compression is single-threaded, no compression. Little endian.
      * <b>No</b> file is opened. Any file will have little endian byte order.
      * 1M max event count and 8M max buffer size.
      */
     WriterMT::WriterMT() :
             WriterMT(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LITTLE, 0, 0,
-                     "", nullptr, 0, Compressor::LZ4, 1, true, 16) {
+                     "", nullptr, 0, Compressor::UNCOMPRESSED,
+                     1, true, 16) {
     }
 
 
