@@ -45,14 +45,23 @@
 namespace evio {
 
 
-    /**
-     * Class to write Evio/HIPO files only (not to buffers).
-     * Able to multithread the compression of data.
-     *
-     * @version 6.0
-     * @since 6.0 5/13/19
-     * @author timmer
-     */
+   /**
+    * This class is for writing Evio/HIPO files only (not buffers).
+    * It's able to multithread the compression of data.<p>
+    *
+    * At the center of how this class works is an ultra-fast ring buffer containing
+    * a store of empty records. As the user calls one of the {@link #addEvent} methods,
+    * it gradually fills one of those empty records with data. When the record is full,
+    * it's put back into the ring to wait for one of the compression thread to grab it and compress it.
+    * After compression, it's again placed back into the ring and waits for a final thread to
+    * write it to file. After being written, the record is freed up for reuse.
+    * This entire ring functionality is encapsulated in 2 classes,
+    * {@link RecordSupply} and {@link RecordRingItem}.
+    *
+    * @version 6.0
+    * @since 6.0 5/13/19
+    * @author timmer
+    */
     class WriterMT {
 
 
