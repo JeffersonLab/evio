@@ -43,11 +43,14 @@ import java.util.List;
  * +----------------------------------+
  *
  * </pre>
- * 
+ *
+ * <p></p><b>NOTE: THIS CLASS IS NOT USED IN EVIO!</b></p>
+ *
  * HIPO Record Class that creates records of
  * data buffers (agnostic to what the data represents).
  * @author gavalian
  * @since 08/10/2017
+ * @deprecated
  */
 public class Record {
     /**
@@ -93,14 +96,12 @@ public class Record {
      */
     private CompressionType compressionType = CompressionType.RECORD_UNCOMPRESSED;
     
-    
-    private RecordHeader  recordHeader = null; 
+    /** Header for this record. */
+    private RecordHeader recordHeader;
 
     
-    public Record(){
+    public Record() {
        recordHeader = new RecordHeader();
-       //recordHeader.setVersion(6);
-       recordHeader.setHeaderLength(14);
     }
 
     /**
@@ -198,13 +199,14 @@ public class Record {
         int userHeaderSize = userHeader.array().length;
         //int indexArraySize = 
     }
+
     /**
      * Builds a byte[] array of the record. The record header, index
      * array and compressed data are written out. NOTE ! the buffer
      * is LITTLE_ENDIAN independent of the platform.
      * @return array representation of the record.
      */
-    public ByteBuffer build(){
+    public ByteBuffer build() {
         
         int   record_size = this.recordHeaderSize + 4*this.recordEvents.size();
         int data_size_unc = this.bytesWritten;
@@ -328,7 +330,4 @@ public class Record {
         }
     }
     
-    public static void main(String[] args){
-        System.out.println("----");
-    }
 }
