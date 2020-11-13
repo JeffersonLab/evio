@@ -1535,7 +1535,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      *
      * @param listener an listener to notify as each structure is visited.
      */
-    public void vistAllStructures(IEvioListener listener) {
+    public void visitAllStructures(IEvioListener listener) {
         visitAllDescendants(this, listener, null);
     }
 
@@ -1549,7 +1549,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      *               structures are passed. In this way, specific types of
      *               structures can be captured.
      */
-    public void vistAllStructures(IEvioListener listener, IEvioFilter filter) {
+    public void visitAllStructures(IEvioListener listener, IEvioFilter filter) {
         visitAllDescendants(this, listener, filter);
     }
 
@@ -1602,7 +1602,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             }
         };
 
-        vistAllStructures(listener, filter);
+        visitAllStructures(listener, filter);
 
         if (structures.size() == 0) {
             return null;
