@@ -213,9 +213,7 @@ public class TestWriter {
         try {
             // Variables to track record build rate
             double freqAvg;
-            long t1, t2, deltaT,
-
-                    totalC=0;
+            long t1, t2, deltaT, totalC=0;
             // Ignore the first N values found for freq in order
             // to get better avg statistics. Since the JIT compiler in java
             // takes some time to analyze & compile code, freq may initially be low.
@@ -361,6 +359,17 @@ public class TestWriter {
 
             System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
 
+            if (reader.hasDictionary()) {
+                String dict = reader.getDictionary();
+            }
+
+            // Sequential API
+            while (reader.hasNext()) {
+                byte[] pEvent = reader.getNextEvent();
+                System.out.println("        size = " + pEvent.length);
+            }
+
+            // Random access API
             for (int i = 0; i < nevents; i++) {
                 System.out.println(" Try getting EVENT # " + (i+1));
                 byte[] pEvent = reader.getEvent(i);
@@ -372,6 +381,8 @@ public class TestWriter {
             }
             System.out.println("     converter 5");
             writer.close();
+            reader.close();
+
         } catch (Exception  ex) {
             ex.printStackTrace();
         }
