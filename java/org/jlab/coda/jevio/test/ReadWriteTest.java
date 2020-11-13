@@ -13,6 +13,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ReadWriteTest {
 
@@ -490,6 +491,65 @@ public class ReadWriteTest {
         return builder.getBuffer();
     }
 
+    static void treeTest() {
+
+
+        try {
+            // Create some banks
+            EvioBank topBank   = new EvioBank(0, DataType.BANK, 0);
+            EvioBank midBank   = new EvioBank(1, DataType.BANK, 1);
+            EvioBank midBank2  = new EvioBank(2, DataType.SEGMENT, 2);
+            EvioBank childBank = new EvioBank(4, DataType.FLOAT32, 4);
+
+            // Child bank's float data
+            float[] fData = new float[] {0.F, 1.F};
+            childBank.setFloatData(fData);
+
+            // Create tree
+            topBank.insert(midBank);
+            topBank.insert(midBank2);
+            midBank.insert(childBank);
+
+            // Create more structures
+            EvioSegment childSeg1 = new EvioSegment(5, DataType.INT32);
+            EvioSegment childSeg2 = new EvioSegment(6, DataType.INT32);
+            EvioSegment childSeg3 = new EvioSegment(7, DataType.SHORT16);
+
+            // Children data
+            int[] iData = new int[] {3, 4};
+            childSeg1.setIntData(iData);
+
+            int[] iData2 = new int[] {5, 6};
+            childSeg2.setIntData(iData2);
+
+            short[] sData = new short[] {7, 8};
+            childSeg3.setShortData(sData);
+
+            // Add segments to tree
+            midBank2.insert(childSeg1);
+            midBank2.insert(childSeg2);
+            midBank2.insert(childSeg3);
+
+            //--------------------
+            // Print out tree info
+            //--------------------
+            System.out.println("midBank2 has " + midBank2.getChildCount() + " children");
+            System.out.println("Remove childSeg2 from midBank2");
+            midBank2.remove(childSeg2);
+            System.out.println("midBank2 now has " + midBank2.getChildCount() + " children");
+
+            System.out.println("iterate thru topBank children:");
+            for (BaseStructure kid : topBank.getChildrenList()) {
+                System.out.println("  kid = " + kid.toString());
+            }
+
+            System.out.println("childSeg1 is a Leaf? " + childSeg1.isLeaf());
+
+        } catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     static void writeAndReadBuffer() throws EvioException, HipoException, IOException {
 
