@@ -1,5 +1,7 @@
 # ignore all files/dirs beginning with .
 .*
+# ignore all files/dirs beginning with _
+_*
 
 # except this one
 !.gitignore
@@ -12,3 +14,4 @@ doxyerrors.log
 /target/
 doc/javadoc
 doc/doxygen/CC
+doc/doxygen/C
