@@ -32,25 +32,7 @@
 #include <fstream>
 #include <sys/mman.h>
 
-#include "EvioBank.h"
-#include "EvioEvent.h"
-#include "EvioSegment.h"
-#include "StructureTransformer.h"
-#include "StructureFinder.h"
-#include "EvioSwap.h"
-#include "EventWriter.h"
-#include "EvioReader.h"
-#include "ByteOrder.h"
-
-#include "IBlockHeader.h"
-#include "BlockHeaderV2.h"
-#include "CompositeData.h"
-#include "DataType.h"
-
-#include "EventBuilder.h"
-#include "CompactEventBuilder.h"
-
-#include "Util.h"
+#include "eviocc.h"
 
 
 using namespace std;

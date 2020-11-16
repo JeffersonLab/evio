@@ -29,20 +29,7 @@
 #include <fstream>
 #include <sys/mman.h>
 
-#include "EvioBank.h"
-#include "EvioEvent.h"
-#include "EvioSegment.h"
-#include "StructureTransformer.h"
-#include "EvioSwap.h"
-#include "EventWriter.h"
-#include "EvioReader.h"
-#include "EventBuilder.h"
-#include "CompactEventBuilder.h"
-#include "ByteOrder.h"
-
-#include "CompositeData.h"
-#include "DataType.h"
-#include "Util.h"
+#include "eviocc.h"
 
 
 namespace evio {
