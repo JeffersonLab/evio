@@ -8,8 +8,8 @@
 // (757)-269-7100
 
 
-#ifndef EVIO_6_0_EVIO_H
-#define EVIO_6_0_EVIO_H
+#ifndef EVIO_6_0_EVIO_CC_H
+#define EVIO_6_0_EVIO_CC_H
 
 
 #include "BankHeader.h"
@@ -62,4 +62,4 @@
 #include "WriterMT.h"
 
 
-#endif //EVIO_6_0_EVIO_H
+#endif //EVIO_6_0_EVIO_CC_H
