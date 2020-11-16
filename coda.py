@@ -323,7 +323,7 @@ def configureJNI(env):
 # Documentation
 ###################
 
-def generateDocs(env, doCPP=False, doJava=False):
+def generateDocs(env, doCPP=False, doC=False, doJava=False):
     """Generate and install generated documentation (doxygen & javadoc)."""
 
     # remove target files so documentation always gets rebuilt
@@ -342,8 +342,21 @@ def generateDocs(env, doCPP=False, doJava=False):
         
         env.Alias('doc', env.DocGenCC(target = ['#/doc/doxygen/CC/html/index.html'],
                                       source = scanFiles("src/libsrc", accept=["*.cpp", "*.h"])))
-    
-    
+
+
+    if doC:
+        def docGeneratorC(target, source, env):
+            cmd = 'doxygen doc/doxygen/DoxyfileC'
+            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+            return
+
+        docBuildC = Builder(action = docGeneratorC)
+        env.Append(BUILDERS = {'DocGenC' : docBuildC})
+
+        env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/C/html/index.html'],
+                                      source = scanFiles("src/libCsrc", accept=["*.c", "*.h"])))
+
+
     if doJava:
         def docGeneratorJava(target, source, env):
             cmd = 'ant javadoc'
@@ -365,7 +378,7 @@ def removeDocs(env):
     """Remove all generated documentation (doxygen & javadoc)."""
 
     def docRemover(target, source, env):
-        cmd = 'rm -fr doc/javadoc doc/doxygen/CC'
+        cmd = 'rm -fr doc/javadoc doc/doxygen/CC doc/doxygen/C'
         output = os.popen(cmd).read()
         return
     
