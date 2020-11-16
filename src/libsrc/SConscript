@@ -9,8 +9,8 @@ fileList = Glob('*.cpp',  strings=True)
 
 env.AppendUnique(CPPPATH = ['#src/libsrc', '/usr/local/include', '/usr/include/boost', '/usr/local/include/boost'])
 
-#evioNewLib = env.StaticLibrary(target = 'evio'+debugSuffix, source = fileList)
-evioNewLib = env.SharedLibrary(target = 'evio'+debugSuffix, source = fileList)
+#evioNewLib = env.StaticLibrary(target = 'eviocc'+debugSuffix, source = fileList)
+evioNewLib = env.SharedLibrary(target = 'eviocc'+debugSuffix, source = fileList)
 
 if 'install' in COMMAND_LINE_TARGETS:
     env.Alias("install", env.Install(target = [incInstallDir, archIncInstallDir], source = headerList))
