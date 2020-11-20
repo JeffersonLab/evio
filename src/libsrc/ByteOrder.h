@@ -139,7 +139,7 @@ namespace evio {
          * @return true if the local host is big endian, else false.
          */
         static bool isLocalHostBigEndian() {
-            int i = 1;
+            int32_t i = 1;
             return !*((char *) &i);
         }
 
