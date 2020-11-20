@@ -22,11 +22,12 @@
 #define __EVIO_h__
 
 /** Evio format version, not the evio package version #. */
-#define EV_VERSION 4
+#define EV_VERSION 6
 
 /** Size of block header in 32 bit words.
  *  Must never be smaller than 8, but can be set larger.*/
 #define EV_HDSIZ 8
+#define EV_HDSIZ_V6 14
 
 
 #ifndef S_SUCCESS
@@ -77,6 +78,11 @@
 #define EVIO_SWAP16(x) ( (((x) >> 8) & 0x00FF) | \
                          (((x) << 8) & 0xFF00) )
 
+/** Calculate a 64 bit result from 2 32 bit inputs. */
+#define EVIO_TO_64_BITS(low, high) ((((uint64_t) low) & 0xffffffffL) && \
+                                    ((((uint64_t) high) << 32)))
+
+
 /** @} */
 
 #include <stdio.h>
@@ -92,27 +98,28 @@
     #include <stdint.h>		  // Use the C99 official header
 #endif
 
-        
+
 /**
  * This structure contains information about file
  * opened for either reading or writing.
  */
 typedef struct evfilestruct {
 
-  FILE    *file;         /**< pointer to file. */
-  int      handle;       /**< handle used to access this structure. */
-  int      rw;           /**< are we reading, writing, piping? */
-  int      magic;        /**< magic number. */
-  int      byte_swapped; /**< bytes do NOT need swapping = 0 else 1 */
-  int      version;      /**< evio FORMAT version number. */
-  int      append;       /**< open buffer or file for writing in append mode = 1, else 0.
-                              If append = 2, then an event was already been appended. */
-  uint32_t eventCount;   /**< current number of events in (or written to) file/buffer
-                          *   NOT including dictionary(ies). If the file being written to is split,
-                          *   this value refers to all split files taken together. */
+    FILE    *file;         /**< pointer to file. */
+    int      handle;       /**< handle used to access this structure. */
+    int      rw;           /**< are we reading, writing, piping? */
+    int      magic;        /**< magic number. */
+    int      bigEndian;    /**< if big endian = 1 else 0 */
+    int      byte_swapped; /**< bytes need swapping = 1 else 0 */
+    int      version;      /**< evio FORMAT version number. */
+    int      append;       /**< open buffer or file for writing in append mode = 1, else 0.
+                                If append = 2, then an event was already been appended. */
+    uint32_t eventCount;   /**< current number of events in (or written to) file/buffer
+                            *   NOT including dictionary(ies). If the file being written to is split,
+                            *   this value refers to all split files taken together. */
 
-  /* block stuff */
-  uint32_t *buf;           /**< For files, sockets, and reading buffers = pointer to
+    /* block stuff */
+    uint32_t *buf;           /**< For files, sockets, and reading buffers = pointer to
                             *   buffer of block-being-read / blocks-being-written.
                             *   When writing to file/socket/pipe, this buffer may
                             *   contain multiple blocks.
@@ -122,90 +129,104 @@ typedef struct evfilestruct {
                             *   For reading ver 1-3 files, this points to block being
                             *   parsed (multiple block are read in at once) and pBuf
                             *   points to the beginning of actual buffer in memory. */
-  uint32_t *pBuf;          /**< For reading ver 1-3 files, this points to the beginning
+    uint32_t *pBuf;          /**< For reading ver 1-3 files, this points to the beginning
                             *   of actual buffer in memory. */
-  uint32_t  *next;         /**< pointer to next word in block to be read/written. */
-  uint32_t  left;          /**< # of valid 32 bit unread/unwritten words in block. */
-  uint32_t  blksiz;        /**< size of block in 32 bit words - v3 or
+    uint32_t  *next;         /**< pointer to next word in block to be read/written. */
+    uint32_t  left;          /**< # of valid 32 bit unread/unwritten words in block. */
+    uint32_t  blksiz;        /**< size of block in 32 bit words - v3 or
                             *   size of actual data in block (including header) - v4. */
-  uint32_t  blknum;        /**< block number of block being read/written. Next to be used, starting at 1. */
-  int       blkNumDiff;    /**< When reading, the difference between blknum read in and
+    uint32_t  blknum;        /**< block number of block being read/written. Next to be used, starting at 1. */
+    int       blkNumDiff;    /**< When reading, the difference between blknum read in and
                             *   the expected (sequential) value. Used in debug message. */
-  uint32_t  blkSizeTarget; /**< target size of block in 32 bit words (including block header). */
-  uint32_t  blkEvCount;    /**< number of events written to block so far (including dictionary). */
-  uint32_t  bufSize;       /**< When reading, size of block buffer (buf) in 32 bit words.
+    uint32_t  blkSizeTarget; /**< target size of block in 32 bit words (including block header). */
+    uint32_t  blkEvCount;    /**< number of events written to block so far (including dictionary). */
+    uint32_t  bufSize;       /**< When reading, size of block buffer (buf) in 32 bit words.
                             *   When writing file/sock/pipe, size of buffer being written to
                             *   that is actually being used (must be <= bufRealSize). */
-  uint32_t  bufRealSize;   /**< When writing file/sock/pipe, total size of buffer being written to.
+    uint32_t  bufRealSize;   /**< When writing file/sock/pipe, total size of buffer being written to.
                             *   Amount of memory actually allocated in 32 bit words (not all may
                             *   be used). */
-  uint32_t  blkEvMax;      /**< max number of events per block. */
-  int       isLastBlock;   /**< 1 if buf contains last block of file/sock/buf, else 0. */
-  uint32_t  blocksToParse; /**< reading file verions 1-3, # of blocks yet to be parsed. */
+    uint32_t  blkEvMax;      /**< max number of events per block. */
+    int       isLastBlock;   /**< 1 if buf contains last block of file/sock/buf, else 0. */
+    uint32_t  blocksToParse; /**< reading file verions 1-3, # of blocks yet to be parsed. */
 
 
-  /* file stuff: splitting, auto naming, internal buffer */
-  char     *baseFileName;   /**< base name of file to be written to. */
-  char     *fileName;       /**< actual name of file to be written to. */
-  char     *runType;        /**< run type used in auto naming of split files. */
-  int       specifierCount; /**< number of C printing int format specifiers in file name (0, 1, 2). */
-  int       splitting;      /**< 0 if not splitting file, else 1. */
-  int       lastEmptyBlockHeaderExists;/**< 1 if internal buffer has the last empty block header
+    /* file stuff: splitting, auto naming, internal buffer */
+    char     *baseFileName;   /**< base name of file to be written to. */
+    char     *fileName;       /**< actual name of file to be written to. */
+    char     *runType;        /**< run type used in auto naming of split files. */
+    int       specifierCount; /**< number of C printing int format specifiers in file name (0, 1, 2). */
+    int       splitting;      /**< 0 if not splitting file, else 1. */
+    int       lastEmptyBlockHeaderExists;/**< 1 if internal buffer has the last empty block header
                                         * written, else 0. */
-  uint32_t *currentHeader;  /**< When writing to file/socket/pipe, this points to
+    uint32_t *currentHeader;  /**< When writing to file/socket/pipe, this points to
                              *   current block header of block being written. */
-  uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including dict. */
-  uint32_t  eventsToBuf;    /**< # events written to internal buffer including dictionary. */
-  uint32_t  eventsToFile;   /**< # of events written to file including dictionary.
+    uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including dict. */
+    uint32_t  eventsToBuf;    /**< # events written to internal buffer including dictionary. */
+    uint32_t  eventsToFile;   /**< # of events written to file including dictionary.
                              * If the file is being split, this value refers to the file
                              * currently being written to. */
-  uint64_t  bytesToFile;    /**< # bytes flushed to the current file (including ending
+    uint64_t  bytesToFile;    /**< # bytes flushed to the current file (including ending
                              *   empty block & dictionary), not the total in all split files. */
-  uint32_t  streamId;       /**< stream id # used in auto naming of files. */
-  uint32_t  runNumber;      /**< run # used in auto naming of split files. */
-  uint32_t  splitNumber;    /**< number of next split file (used in auto naming). */
-  uint64_t  split;          /**< # of bytes at which to split file when writing
+    uint32_t  streamId;       /**< stream id # used in auto naming of files. */
+    uint32_t  runNumber;      /**< run # used in auto naming of split files. */
+    uint32_t  splitNumber;    /**< number of next split file (used in auto naming). */
+    uint64_t  split;          /**< # of bytes at which to split file when writing
                              *  (defaults to EV_SPLIT_SIZE, 1GB). */
 
-  uint64_t  fileSize;       /**< size of file being read from, in bytes. */
-  uint64_t  filePosition;   /**< how far into the file have we read, in bytes. */
+    uint64_t  fileSize;       /**< size of file being read from, in bytes. */
+    uint64_t  filePosition;   /**< how far into the file have we read, in bytes. */
 
 
-  /* buffer stuff */
-  char     *rwBuf;         /**< pointer to buffer if reading/writing from/to buffer. */
-  uint32_t  rwBufSize;     /**< size of rwBuf buffer in bytes. */
-  uint32_t  rwBytesOut;    /**< number of bytes written to rwBuf with evWrite. */
-  uint32_t  rwBytesIn;     /**< number of bytes read from rwBuf so far
+    /* buffer stuff */
+    char     *rwBuf;         /**< pointer to buffer if reading/writing from/to buffer. */
+    uint32_t  rwBufSize;     /**< size of rwBuf buffer in bytes. */
+    uint32_t  rwBytesOut;    /**< number of bytes written to rwBuf with evWrite. */
+    uint32_t  rwBytesIn;     /**< number of bytes read from rwBuf so far
                             *   (i.e. # bytes in buffer already used).*/
-  int       rwFirstWrite;  /**< 1 if this evWrite is the first for this rwBuf, else 0.
+    int       rwFirstWrite;  /**< 1 if this evWrite is the first for this rwBuf, else 0.
                             *   Needed for calculating accurate value for rwBytesOut. */
 
-  /* socket stuff */
-  int   sockFd;            /**< socket file descriptor if reading/writing from/to socket. */
+    /* socket stuff */
+    int   sockFd;            /**< socket file descriptor if reading/writing from/to socket. */
 
-  /* randomAcess stuff */
-  int        randomAccess; /**< if true, use random access file/buffer reading. */
-  size_t     mmapFileSize; /**< size of mapped file in bytes. */
-  uint32_t  *mmapFile;     /**< pointer to memory mapped file. */
-  uint32_t  **pTable;      /**< array of pointers to events in memory mapped file or buffer. */
+    /* randomAcess stuff */
+    int        randomAccess; /**< if true, use random access file/buffer reading. */
+    size_t     mmapFileSize; /**< size of mapped file in bytes. */
+    uint32_t  *mmapFile;     /**< pointer to memory mapped file. */
+    uint32_t  **pTable;      /**< array of pointers to events in memory mapped file or buffer. */
 
 
-  /* dictionary */
-  int   hasAppendDictionary;  /**< if appending, does existing file/buffer have dictionary? */
-  int   wroteDictionary;      /**< dictionary already written out to a single (split fragment) file? */
-  uint32_t dictLength;        /**< length of dictionary bank in bytes (including entire header). */
-  uint32_t *dictBuf;          /**< buffer containing dictionary bank. */
-  char *dictionary;           /**< xml format dictionary to either read or write. */
+    /* dictionary */
+    int   hasAppendDictionary;
+    int   wroteDictionary;      /**< dictionary already written out to a single (split fragment) file? */
+    uint32_t dictLength;        /**< length of dictionary bank in bytes (including entire header). */
+    uint32_t *dictBuf;          /**< buffer containing dictionary bank. */
+    char *dictionary;           /**< xml format dictionary to either read or write. */
 
-  /* first event */
-  uint32_t firstEventLength;  /**< length of first event bank in bytes (including entire header). */
-  uint32_t *firstEventBuf;    /**< buffer containing firstEvent bank. */
+    /* first event */
+    uint32_t firstEventLength;  /**< length of first event bank in bytes (including entire header). */
+    uint32_t *firstEventBuf;    /**< buffer containing firstEvent bank. */
 
-  /* Common block is first block in file/buf with dictionary and firstEvent */
-  uint32_t commonBlkCount;    /**< Number of events written into common block.
+    /* Common block is first block in file/buf with dictionary and firstEvent */
+    uint32_t commonBlkCount;    /**< Number of events written into common block.
                                *   This can be 2 at the most, dictionary + first event. */
-  /* synchronization */
-  int lockingOn;             /**< if = 1 (default), turn on the use of a mutex for thread safety. */
+    /* synchronization */
+    int lockingOn;             /**< if = 1 (default), turn on the use of a mutex for thread safety. */
+
+    /****************************/
+    /*   Evio version 6 stuff   */
+    /****************************/
+
+    uint32_t fileIndexArrayLen; /**< file header's index array len in bytes. */
+    uint32_t fileUserHeaderLen; /**< file header's user header len in bytes. */
+
+    uint32_t curRecordIndexArrayLen; /**< current record header's index array len in bytes. */
+    uint32_t curRecordUserHeaderLen; /**< current record header's user header len in bytes. */
+
+    uint64_t trailerPosition; /**< trailer's position from start of file in bytes (0 if unknown). */
+
+    uint32_t *eventLengths; /**< For current record, an array containing the event lengths. */
 
 } EVFILE;
 
@@ -213,16 +234,16 @@ typedef struct evfilestruct {
 /** Structure for Sergei Boiarinov's use. */
 typedef struct evioBlockHeaderV4_t {
 
-	uint32_t length;       /**< total length of block in 32-bit words including this complete header. */
-	uint32_t blockNumber;  /**< block id # starting at 1. */
-	uint32_t headerLength; /**< length of this block header in 32-bit words (always 8). */
-	uint32_t eventCount;   /**< # of events in this block (not counting dictionary). */
-	uint32_t reserved1;    /**< reserved for future use. */
-	uint32_t bitInfo;      /**< Contains version # in lowest 8 bits.
+    uint32_t length;       /**< total length of block in 32-bit words including this complete header. */
+    uint32_t blockNumber;  /**< block id # starting at 1. */
+    uint32_t headerLength; /**< length of this block header in 32-bit words (always 8). */
+    uint32_t eventCount;   /**< # of events in this block (not counting dictionary). */
+    uint32_t reserved1;    /**< reserved for future use. */
+    uint32_t bitInfo;      /**< Contains version # in lowest 8 bits.
                                 If dictionary is included as the first event, bit #9 is set.
                                 If is a last block, bit #10 is set. */
-	uint32_t reserved2;    /**< reserved for future use. */
-	uint32_t magicNumber;  /**< written as 0xc0da0100 and used to check endianness. */
+    uint32_t reserved2;    /**< reserved for future use. */
+    uint32_t magicNumber;  /**< written as 0xc0da0100 and used to check endianness. */
 
 } evioBlockHeaderV4;
 
@@ -245,7 +266,11 @@ extern "C" {
 #endif
 
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
+int evioIsLocalHostBigEndian();
+uint64_t evioToLongWord(uint32_t word1, uint32_t word2, int needToSwap);
 void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
+void evioSwapFileHeaderV6(uint32_t *header);
+void evioSwapRecordHeaderV6(uint32_t *header);
 uint16_t *swap_int16_t(uint16_t *data, unsigned int length, uint16_t *dest);
 uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest);
 uint64_t *swap_int64_t(uint64_t *data, unsigned int length, uint64_t *dest);

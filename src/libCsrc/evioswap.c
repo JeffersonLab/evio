@@ -96,6 +96,107 @@ static int  swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32
 
 /*--------------------------------------------------------------------------*/
 
+
+
+/**
+ * Is the local host big endian?
+ * @return 1 if the local host is big endian, else 0.
+ */
+int evioIsLocalHostBigEndian() {
+    int32_t i = 1;
+    return (*((char *) &i) != 1);
+}
+
+/**
+ * Take 2, 32 bit words and change that into a 64 bit word,
+ * taking endianness and swapping into account.
+ *
+ * @param word1 word which occurs first in memory being read
+ * @param word2 word which occurs second in memory being read
+ * @param needToSwap true if word arguments are of an endian opposite to this host
+ * @return 64 bit word comprised of 2, 32 bit words
+ */
+uint64_t evioToLongWord(uint32_t word1, uint32_t word2, int needToSwap) {
+
+    uint64_t result;
+    int hostIsBigEndian = evioIsLocalHostBigEndian();
+
+    if (needToSwap) {
+        // First swap each 32 bit word
+        word1 = EVIO_SWAP32(word1);
+        word2 = EVIO_SWAP32(word2);
+
+        // If this is a big endian machine ... EVIO_TO_64_BITS(low, high)
+        if (hostIsBigEndian) {
+            result = EVIO_TO_64_BITS(word1, word2);
+        }
+        else {
+            result = EVIO_TO_64_BITS(word2, word1);
+        }
+    }
+    else if (hostIsBigEndian) {
+        result = EVIO_TO_64_BITS(word2, word1);
+    }
+    else {
+        // this host is little endian
+        result = EVIO_TO_64_BITS(word1, word2);
+    }
+
+    return result;
+}
+
+/**
+ * Swap an evio version 6 <b>file</b> header in place
+ * (but not the following index arrary, etc).
+ * Nothing done for NULL arg.
+ * @param header pointer to header
+ */
+void evioSwapFileHeaderV6(uint32_t *header) {
+    if (header == NULL) return;
+
+    // Swap everything as 32 bit words
+    swap_int32_t(header, EV_HDSIZ_V6, NULL);
+
+    // Now take care of the 64 bit entries:
+
+    // user register
+    uint32_t temp = header[8];
+    header[8] = header[9];
+    header[9] = temp;
+
+    // trailer position
+    temp = header[10];
+    header[10] = header[11];
+    header[11] = temp;
+}
+
+/**
+ * Swap an evio version 6 <b>record</b> header in place
+ * (but not the following index arrary, etc).
+ * Nothing done for NULL arg.
+ * @param header pointer to header
+ */
+void evioSwapRecordHeaderV6(uint32_t *header) {
+    if (header == NULL) return;
+
+    // Swap everything as 32 bit words
+    swap_int32_t(header, EV_HDSIZ_V6, NULL);
+
+    // Now take care of the 64 bit entries:
+
+    // user register 1
+    uint32_t temp = header[10];
+    header[10] = header[11];
+    header[11] = temp;
+
+    // user register 2
+    temp = header[12];
+    header[12] = header[13];
+    header[13] = temp;
+}
+
+
+
 /**
  * Routine to swap the endianness of an evio event (bank).
  *

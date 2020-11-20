@@ -119,10 +119,10 @@
 /** Version 3's fixed block size in 32 bit words */
 #define EV_BLOCKSIZE_V3 8192
 
-/** Version 4's target block size in 32 bit words (16MB).
+/** Version 4&6's target block size in 32 bit words (16MB).
  * It is a soft limit since a single event larger than
  * this limit may need to be written. */
-#define EV_BLOCKSIZE_V4 500000
+#define EV_BLOCKSIZE 500000
 
 /** Minimum block size in 32 bit words allowed if size reset (32kB) */
 #define EV_BLOCKSIZE_MIN 16
@@ -134,25 +134,34 @@
  */
 #define EV_BLOCKSIZE_MAX 33554432
 
-/** In version 4, lowest 8 bits are version, rest is bit info */
+/** In version 4&6, lowest 8 bits are version, rest is bit info */
 #define EV_VERSION_MASK 0xFF
 
-/** In version 4, dictionary presence is 9th bit in version/info word */
+/** In version 4&6, dictionary presence is 9th bit in version/info word */
 #define EV_DICTIONARY_MASK 0x100
 
-/** In version 4, "last block" is 10th bit in version/info word */
+/** In version 4, "last block" is 10th bit in version/info word. */
 #define EV_LASTBLOCK_MASK 0x200
+/** In version 6, "last block" is 11th bit in version/info word. */
+#define EV_LASTBLOCK_MASK_V6 0x400
 
 /** In version 4, "first event" is 15th bit in version/info word */
 #define EV_FIRSTEVENT_MASK 0x4000
+/** In version 6, "first event" is 10th bit in version/info word */
+#define EV_FIRSTEVENT_MASK_V6 0x200
 
-/** In version 4, upper limit on maximum max number of events per block */
+/** In version 6, number of bits to shift compression word right to get type of compression. */
+#define EV_COMPRESSED_SHIFT 28
+/** In version 6, # of bits in record's compression word that specifies type of compression after shift right. */
+#define EV_COMPRESSED_MASK 0xf
+
+/** In version 4%6, upper limit on maximum max number of events per block */
 #define EV_EVENTS_MAX 100000
 
-/** In version 4, default max number of events per block */
+/** In version 4%6, default max number of events per block */
 #define EV_EVENTS_MAX_DEF 10000
 
-/** In version 4, if splitting file, default split size in bytes (2GB) */
+/** In version 4&6, if splitting file, default split size in bytes (2GB) */
 #define EV_SPLIT_SIZE 2000000000L
 
 /** In versions 1-3, default size for a single file read in bytes.
@@ -214,7 +223,7 @@
  * events will be contained in a single block.
  *
  * ################################
- * Evio block header, version 4+:
+ * Evio block header, version 4:
  * ################################
  *
  * MSB(31)                          LSB(0)
@@ -299,19 +308,272 @@
  *   The bank is a normal evio bank header with data following.
  *   The format string is used to read/write this data so that takes care of any
  *   padding that may exist. As with the tagsegment, the tags and type are ignored.
+ *
+ * ########################################
+ * Evio block or record header, version 6+:
+ * ########################################
+ *
+ *  GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
+ *
+ *    +----------------------------------+
+ *  1 |         Record Length            | // 32bit words, inclusive
+ *    +----------------------------------+
+ *  2 +         Record Number            |
+ *    +----------------------------------+
+ *  3 +         Header Length            | // 14 (words)
+ *    +----------------------------------+
+ *  4 +       Event (Index) Count        |
+ *    +----------------------------------+
+ *  5 +      Index Array Length          | // bytes
+ *    +-----------------------+----------+
+ *  6 +       Bit Info        | Version  | // version (8 bits)
+ *    +-----------------------+----------+
+ *  7 +      User Header Length          | // bytes
+ *    +----------------------------------+
+ *  8 +          Magic Number            | // 0xc0da0100
+ *    +----------------------------------+
+ *  9 +     Uncompressed Data Length     | // bytes
+ *    +------+---------------------------+
+ * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits); compressed len in words
+ *    +----------------------------------+
+ * 11 +          User Register 1         | // UID 1st (64 bits)
+ *    +--                              --+
+ * 12 +                                  |
+ *    +----------------------------------+
+ * 13 +          User Register 2         | // UID 2nd (64 bits)
+ *    +--                              --+
+ * 14 +                                  |
+ *    +----------------------------------+
+ *
+ * -------------------
+ *   Compression Type
+ * -------------------
+ *     0  = none
+ *     1  = LZ4 fastest
+ *     2  = LZ4 best
+ *     3  = gzip
+ *
+ * -------------------
+ *   Bit Info Word
+ * -------------------
+ *     0-7  = version
+ *     8    = true if dictionary is included (relevant for first record only)
+ *     9    = true if this record has "first" event (to be in every split file)
+ *    10    = true if this record is the last in file or stream
+ *    11-14 = type of events contained: 0 = ROC Raw,
+ *                                      1 = Physics
+ *                                      2 = PartialPhysics
+ *                                      3 = DisentangledPhysics
+ *                                      4 = User
+ *                                      5 = Control
+ *                                     15 = Other
+ *    15-19 = reserved
+ *    20-21 = pad 1
+ *    22-23 = pad 2
+ *    24-25 = pad 3
+ *    26-27 = reserved
+ *    28-31 = general header type: 0 = Evio record,
+ *                                 3 = Evio file trailer
+ *                                 4 = HIPO record,
+ *                                 7 = HIPO file trailer
+ *
+ * ------------------------------------------------------------
+ * ------------------------------------------------------------
+ *
+ *   TRAILER HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
+ *
+ *    +----------------------------------+
+ *  1 |         Record Length            | // 32bit words, inclusive
+ *    +----------------------------------+
+ *  2 +         Record Number            |
+ *    +----------------------------------+
+ *  3 +               14                 |
+ *    +----------------------------------+
+ *  4 +                0                 |
+ *    +----------------------------------+
+ *  5 +      Index Array Length          | // bytes
+ *    +-----------------------+----------+
+ *  6 +       Bit Info        | Version  |
+ *    +-----------------------+----------+
+ *  7 +                0                 |
+ *    +----------------------------------+
+ *  8 +           0xc0da0100             |
+ *    +----------------------------------+
+ *  9 +     Uncompressed Data Length     | // bytes
+ *    +----------------------------------+
+ * 10 +                0                 |
+ *    +----------------------------------+
+ * 11 +                0                 |
+ *    +--                              --+
+ * 12 +                0                 |
+ *    +----------------------------------+
+ * 13 +                0                 |
+ *    +--                              --+
+ * 14 +                0                 |
+ *    +----------------------------------+
+ *
+ * -------------------
+ *   Bit Info Word
+ *  bit #s  =  value
+ * -------------------
+ *     0-7  = 6
+ *     8    = 0
+ *     9    = 0
+ *    10    = 1
+ *    11-14 = 0
+ *    15-19 = 0
+ *    20-21 = 0
+ *    22-23 = 0
+ *    24-25 = 0
+ *    26-27 = 0
+ *    28-31 = 3
+ *
+ * ------------------------------------------------------------
+ * ------------------------------------------------------------
+ *
+ *         THE FULL RECORD FORMAT IS:
+ *
+ *    +----------------------------------+
+ *    |         Record Header            |
+ *    |          (14 words)              |
+ *    +----------------------------------+
+ *
+ *    +----------------------------------+
+ *    |           Index Array            |
+ *    |     (required index of all       |
+ *    |      event lengths in bytes,     |
+ *    |       one word / length )        |
+ *    +----------------------------------+
+ *
+ *    +----------------------------------+
+ *    |          User Header             |
+ *    |    (any user data)    +----------+
+ *    |                       |  Pad_1   |
+ *    +-----------------------+----------+
+ *
+ *    +----------------------------------+
+ *    |             Events               |
+ *    |                       +----------+
+ *    |                       |  Pad_2   |
+ *    +-----------------------+----------+
+ *
+ *
+ * Records may be compressed, but that is only handled in the Java and C++ libs.
+ * The record header is never compressed and so is always readable.
+ * If events are in the evio format, pad_2 will be 0.
+ *
+ *
+ * ################################
+ * Evio FILE header, version 6+:
+ * ################################
+ *
+ * FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
+ *
+ *    +----------------------------------+
+ *  1 |              ID                  | // HIPO: 0x43455248, Evio: 0x4556494F
+ *    +----------------------------------+
+ *  2 +          File Number             | // split file #
+ *    +----------------------------------+
+ *  3 +         Header Length            | // 14 (words)
+ *    +----------------------------------+
+ *  4 +      Record (Index) Count        |
+ *    +----------------------------------+
+ *  5 +      Index Array Length          | // bytes
+ *    +-----------------------+----------+
+ *  6 +       Bit Info        | Version  | // version (8 bits)
+ *    +-----------------------+----------+
+ *  7 +      User Header Length          | // bytes
+ *    +----------------------------------+
+ *  8 +          Magic Number            | // 0xc0da0100
+ *    +----------------------------------+
+ *  9 +          User Register           |
+ *    +--                              --+
+ * 10 +                                  |
+ *    +----------------------------------+
+ * 11 +         Trailer Position         | // File offset to trailer head (64 bits).
+ *    +--                              --+ // 0 = no offset available or no trailer exists.
+ * 12 +                                  |
+ *    +----------------------------------+
+ * 13 +          User Integer 1          |
+ *    +----------------------------------+
+ * 14 +          User Integer 2          |
+ *    +----------------------------------+
+ *
+ * -------------------
+ *   Bit Info Word
+ * -------------------
+ *     0-7  = version
+ *     8    = true if dictionary is included (relevant for first record only)
+ *     9    = true if this file has "first" event (in every split file)
+ *    10    = File trailer with index array of record lengths exists
+ *    11-19 = reserved
+ *    20-21 = pad 1
+ *    22-23 = pad 2
+ *    24-25 = pad 3 (always 0)
+ *    26-27 = reserved
+ *    28-31 = general header type: 1 = Evio file
+ *                                 2 = Evio extended file
+ *                                 5 = HIPO file
+ *                                 6 = HIPO extended file
+ *
+ * ---------------------------------------------------------------
+ * ---------------------------------------------------------------
+ *
+ * The file header occurs once at the beginning of the file.
+ * The full file format looks like:
+ *
+ *         THE FULL FILE FORMAT IS:
+ *
+ *    +----------------------------------+
+ *    |          File Header             |
+ *    |          (14 words)              |
+ *    +----------------------------------+
+ *
+ *    +----------------------------------+
+ *    |           Index Array            |
+ *    |     (optional index of all       |
+ *    |      record lengths in bytes,    |
+ *    |       one word / length )        |
+ *    +----------------------------------+
+ *
+ *    +----------------------------------+
+ *    |          User Header             |
+ *    |    (any user data)    +----------+
+ *    |                       |  Pad_1   |
+ *    +-----------------------+----------+
+ *
+ *    +----------------------------------+
+ *    |             Record 1             |
+ *    +----------------------------------+
+ *                   ...
+ *    +----------------------------------+
+ *    |             Record N             |
+ *    +----------------------------------+
+ *
+ *    The last record may be a trailer.
+ *
  * </pre>
  */
 
-#define EV_HD_BLKSIZ 0	/**< Position of blk hdr word for size of block in 32-bit words. */
-#define EV_HD_BLKNUM 1	/**< Position of blk hdr word for block number, starting at 0. */
-#define EV_HD_HDSIZ  2	/**< Position of blk hdr word for size of header in 32-bit words (=8). */
-#define EV_HD_COUNT  3  /**< Position of blk hdr word for number of events in block (version 4+). */
+#define EV_HD_BLKSIZ 0	/**< Position of blk hdr word for size of block in 32-bit words (v 1-6). */
+#define EV_HD_BLKNUM 1	/**< Position of blk hdr word for block number, starting at 0 (v 1-6). */
+#define EV_HD_HDSIZ  2	/**< Position of blk hdr word for size of header in 32-bit words (v 1-4, =8) (v 6 =14). */
+#define EV_HD_COUNT  3  /**< Position of blk hdr word for number of events in block (version 4,6). */
 #define EV_HD_START  3  /**< Position of blk hdr word for first start of event in this block (ver 1-3). */
 #define EV_HD_USED   4	/**< Position of blk hdr word for number of words used in block (<= BLKSIZ) (ver 1-3). */
-#define EV_HD_RESVD1 4  /**< Position of blk hdr word for reserved (ver 4+). */
-#define EV_HD_VER    5	/**< Position of blk hdr word for version of file format (+ bit info in ver 4+). */
-#define EV_HD_RESVD2 6	/**< Position of blk hdr word for reserved. */
-#define EV_HD_MAGIC  7	/**< Position of blk hdr word for magic number for endianness tracking. */
+#define EV_HD_RESVD1 4  /**< Position of blk hdr word for reserved (v 1-4). */
+#define EV_HD_VER    5	/**< Position of blk hdr word for version of file format (+ bit info in ver 4,6). */
+#define EV_HD_RESVD2 6	/**< Position of blk hdr word for reserved (v 1-4). */
+#define EV_HD_MAGIC  7	/**< Position of blk hdr word for magic number for endianness tracking (v 4,6). */
+
+#define EV_HD_INDEXARRAYLEN  4   /**< Position of file & blk hdr word for index array length (v 6). */
+#define EV_HD_USERHDRLEN     6   /**< Position of file & blk hdr word for user header length (v 6). */
+#define EV_HD_UNCOMPDATALEN  8   /**< Position of blk hdr word for uncompressed data length (v 6). */
+#define EV_HD_COMPDATALEN    9   /**< Position of blk hdr word for compressed data length (v 6). */
+#define EV_HD_TRAILERPOS     10  /**< Position of file hdr word for trailer position (v 6). */
+#define EV_HD_USERREG1       10  /**< Position of blk hdr word for user register 1 (v 6). */
+#define EV_HD_USERREG2       12  /**< Position of blk hdr word for user register 2 (v 6). */
+#define EV_HD_USERREGFILE    8   /**< Position of file hdr word for user register (v 6). */
 
 
 /** Turn on 9th bit to indicate dictionary included in block */
@@ -322,40 +584,97 @@
 #define hasDictionary(a)        (((a)[EV_HD_VER] & EV_DICTIONARY_MASK) > 0 ? 1 : 0)
 /** Is there a dictionary in this block? */
 #define hasDictionaryInt(i)     ((i & EV_DICTIONARY_MASK) > 0 ? 1 : 0)
-/** Turn on 10th bit to indicate last block of file/transmission */
-#define setLastBlockBit(a)      ((a)[EV_HD_VER] |= EV_LASTBLOCK_MASK)
-/** Turn off 10th bit to indicate last block of file/transmission */
-#define clearLastBlockBit(a)    ((a)[EV_HD_VER] &= ~EV_LASTBLOCK_MASK)
-/** Turn off 10th bit to indicate last block of file/transmission */
-#define clearLastBlockBitInt(i) (i &= ~EV_LASTBLOCK_MASK)
+
+/** Turn on bit to indicate last block of file/transmission */
+#define setLastBlockBit(a)       ((a)[EV_HD_VER] |= EV_LASTBLOCK_MASK)
+#define setLastBlockBit_V6(a)    ((a)[EV_HD_VER] |= EV_LASTBLOCK_MASK_V6)
+
+/** Turn off bit to indicate last block of file/transmission */
+#define clearLastBlockBit(a)     ((a)[EV_HD_VER] &= ~EV_LASTBLOCK_MASK)
+#define clearLastBlockBit_V6(a)  ((a)[EV_HD_VER] &= ~EV_LASTBLOCK_MASK_V6)
+
+/** Turn off bit to indicate last block of file/transmission */
+#define clearLastBlockBitInt(i)    (i &= ~EV_LASTBLOCK_MASK)
+#define clearLastBlockBitInt_V6(i) (i &= ~EV_LASTBLOCK_MASK_V6)
+
 /** Is this the last block of file/transmission? */
 #define isLastBlock(a)          (((a)[EV_HD_VER] & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
+#define isLastBlock_V6(a)       (((a)[EV_HD_VER] & EV_LASTBLOCK_MASK_V6) > 0 ? 1 : 0)
+
 /** Is this the last block of file/transmission? */
 #define isLastBlockInt(i)       ((i & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
+#define isLastBlockInt_V6(i)    ((i & EV_LASTBLOCK_MASK_V6) > 0 ? 1 : 0)
 
-/** Initialize a block header */
+/** Is the record data compressed (version 6, 10th header word)? */
+#define isCompressed(i) (((i >> 28) && 0xf) == 0 ? 0 : 1)
+
+/** Get padding #1 from bitinfo word (v6). */
+#define getPad1(i) ((i >> 20) & 0x11)
+/** Get padding #2 from bitinfo word (v6). */
+#define getPad2(i) ((i >> 22) & 0x11)
+/** Get padding #3 from bitinfo word (v6). */
+#define getPad3(i) ((i >> 24) & 0x11)
+
+
+///** Initialize a block header */
+//#define initBlockHeader(a) { \
+//    (a)[EV_HD_BLKSIZ] = EV_HDSIZ; \
+//    (a)[EV_HD_BLKNUM] = 1; \
+//    (a)[EV_HD_HDSIZ]  = EV_HDSIZ; \
+//    (a)[EV_HD_COUNT]  = 0; \
+//    (a)[EV_HD_RESVD1] = 0; \
+//    (a)[EV_HD_VER]    = EV_VERSION; \
+//    (a)[EV_HD_RESVD2] = 0; \
+//    (a)[EV_HD_MAGIC]  = EV_MAGIC; \
+//}
+//
+///** Initialize a block header */
+//#define initBlockHeader2(a,b) { \
+//    (a)[EV_HD_BLKSIZ] = EV_HDSIZ; \
+//    (a)[EV_HD_BLKNUM] = b; \
+//    (a)[EV_HD_HDSIZ]  = EV_HDSIZ; \
+//    (a)[EV_HD_COUNT]  = 0; \
+//    (a)[EV_HD_RESVD1] = 0; \
+//    (a)[EV_HD_VER]    = EV_VERSION; \
+//    (a)[EV_HD_RESVD2] = 0; \
+//    (a)[EV_HD_MAGIC]  = EV_MAGIC; \
+//}
+
 #define initBlockHeader(a) { \
-    (a)[EV_HD_BLKSIZ] = 8; \
-    (a)[EV_HD_BLKNUM] = 1; \
-    (a)[EV_HD_HDSIZ]  = EV_HDSIZ; \
-    (a)[EV_HD_COUNT]  = 0; \
-    (a)[EV_HD_RESVD1] = 0; \
-    (a)[EV_HD_VER]    = EV_VERSION; \
-    (a)[EV_HD_RESVD2] = 0; \
-    (a)[EV_HD_MAGIC]  = EV_MAGIC; \
-} \
+    (a)[EV_HD_BLKSIZ]        = EV_HDSIZ_V6; \
+    (a)[EV_HD_BLKNUM]        = 1; \
+    (a)[EV_HD_HDSIZ]         = EV_HDSIZ_V6; \
+    (a)[EV_HD_COUNT]         = 0; \
+    (a)[EV_HD_INDEXARRAYLEN] = 0; \
+    (a)[EV_HD_VER]           = EV_VERSION; \
+    (a)[EV_HD_USERHDRLEN]    = 0; \
+    (a)[EV_HD_MAGIC]         = EV_MAGIC; \
+    (a)[EV_HD_UNCOMPDATALEN] = 4*EV_HDSIZ_V6; \
+    (a)[EV_HD_COMPDATALEN]   = 0; \
+    (a)[EV_HD_USERREG1]      = 0; \
+    (a)[EV_HD_USERREG1 + 1]  = 0; \
+    (a)[EV_HD_USERREG2]      = 0; \
+    (a)[EV_HD_USERREG2 + 1]  = 0; \
+}
 
 /** Initialize a block header */
 #define initBlockHeader2(a,b) { \
-    (a)[EV_HD_BLKSIZ] = 8; \
-    (a)[EV_HD_BLKNUM] = b; \
-    (a)[EV_HD_HDSIZ]  = EV_HDSIZ; \
-    (a)[EV_HD_COUNT]  = 0; \
-    (a)[EV_HD_RESVD1] = 0; \
-    (a)[EV_HD_VER]    = EV_VERSION; \
-    (a)[EV_HD_RESVD2] = 0; \
-    (a)[EV_HD_MAGIC]  = EV_MAGIC; \
-} \
+    (a)[EV_HD_BLKSIZ]        = EV_HDSIZ_V6; \
+    (a)[EV_HD_BLKNUM]        = b; \
+    (a)[EV_HD_HDSIZ]         = EV_HDSIZ_V6; \
+    (a)[EV_HD_COUNT]         = 0; \
+    (a)[EV_HD_INDEXARRAYLEN] = 0; \
+    (a)[EV_HD_VER]           = EV_VERSION; \
+    (a)[EV_HD_USERHDRLEN]    = 0; \
+    (a)[EV_HD_MAGIC]         = EV_MAGIC; \
+    (a)[EV_HD_UNCOMPDATALEN] = 4*EV_HDSIZ_V6; \
+    (a)[EV_HD_COMPDATALEN]   = 0; \
+    (a)[EV_HD_USERREG1]      = 0; \
+    (a)[EV_HD_USERREG1 + 1]  = 0; \
+    (a)[EV_HD_USERREG2]      = 0; \
+    (a)[EV_HD_USERREG2 + 1]  = 0; \
+}
+
 
 
 /* Prototypes for static routines */
@@ -419,8 +738,6 @@ static pthread_mutex_t getHandleMutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
 /* Array of pthread lock pointers for preventing simultaneous calls
  * to evClose, read/write routines, etc. Need 1 for each evOpen() call. */
 static pthread_mutex_t **handleLocks = NULL;
-
-
 
 /*-----------------*
  *     FORTRAN     *
@@ -522,7 +839,10 @@ int evioctl_
  * @return 1 of this is the last block, else 0
  */
 int evIsLastBlock(uint32_t sixthWord) {
-     return (sixthWord & EV_LASTBLOCK_MASK) > 0 ? 1 : 0;
+    if (EV_VERSION >= 6) {
+        return (sixthWord & EV_LASTBLOCK_MASK_V6) > 0 ? 1 : 0;
+    }
+    return (sixthWord & EV_LASTBLOCK_MASK) > 0 ? 1 : 0;
 }
 
 
@@ -558,12 +878,12 @@ void evPrintBuffer(uint32_t *p, uint32_t len, int swap) {
  * 
  * @param a   pointer to structure being inititalized
  */
-static void structInit(EVFILE *a)
-{
+static void structInit(EVFILE *a) {
     a->file         = NULL;
     a->handle       = 0;
     a->rw           = 0;
     a->magic        = EV_MAGIC;
+    a->bigEndian    = evioIsLocalHostBigEndian();
     a->byte_swapped = 0;
     a->version      = EV_VERSION;
     a->append       = 0;
@@ -574,17 +894,27 @@ static void structInit(EVFILE *a)
     a->pBuf          = NULL;
     a->next          = NULL;
     /* Space in number of words, not in header, left for writing */
-    a->left          = EV_BLOCKSIZE_V4 - EV_HDSIZ;
+    if (EV_VERSION >= 6) {
+        a->left = EV_BLOCKSIZE - EV_HDSIZ_V6;
+    }
+    else {
+        a->left = EV_BLOCKSIZE - EV_HDSIZ;
+    }
     a->blocksToParse = 0; /* for reading version 1-3 files */
     /* Total data written = block header size so far */
-    a->blksiz        = EV_HDSIZ;
+    if (EV_VERSION >= 6) {
+        a->blksiz = EV_HDSIZ_V6;
+    }
+    else {
+        a->blksiz = EV_HDSIZ;
+    }
     a->blknum        = 1;
     a->blkNumDiff    = 0;
     /* Target block size (final size may be larger or smaller) */
-    a->blkSizeTarget = EV_BLOCKSIZE_V4;
+    a->blkSizeTarget = EV_BLOCKSIZE;
     /* Start with this size block buffer */
-    a->bufSize       = EV_BLOCKSIZE_V4;
-    a->bufRealSize   = EV_BLOCKSIZE_V4;
+    a->bufSize       = EV_BLOCKSIZE;
+    a->bufRealSize   = EV_BLOCKSIZE;
     /* Max # of events/block */
     a->blkEvMax      = EV_EVENTS_MAX_DEF;
     a->blkEvCount    = 0;
@@ -603,7 +933,12 @@ static void structInit(EVFILE *a)
     a->split          = EV_SPLIT_SIZE;
     a->fileSize       = 0L;
     a->bytesToFile    = 0L;
-    a->bytesToBuf     = 4*EV_HDSIZ; /* start off with 1 ending block header */
+    if (EV_VERSION >= 6) {
+        a->bytesToBuf = 4 * EV_HDSIZ_V6; /* start off with 1 ending block header */
+    }
+    else {
+        a->bytesToBuf = 4 * EV_HDSIZ; /* start off with 1 ending block header */
+    }
     a->eventsToBuf    = 0;
     a->eventsToFile   = 0;
     a->currentHeader  = NULL;
@@ -644,6 +979,44 @@ static void structInit(EVFILE *a)
 
     /* sync */
     a->lockingOn = 1;
+
+    /* version 6 */
+    a->fileIndexArrayLen = 0;
+    a->fileUserHeaderLen = 0;
+
+    a->curRecordIndexArrayLen = 0;
+    a->curRecordUserHeaderLen = 0;
+
+    a->trailerPosition = 0;
+
+    a->eventLengths = NULL;
+}
+
+
+/**
+ * Routine to free an EVFILE structure.
+ * @param a pointer to structure being freed.
+ */
+static void freeEVFILE(EVFILE *a) {
+
+    if (a->buf != NULL && a->rw != EV_WRITEBUF) {
+        if (a->pBuf != NULL) {
+            free((void *)(a->pBuf));
+        }
+        else {
+            free((void *) (a->buf));
+        }
+    }
+
+    if (a->pTable        != NULL) free((void *)(a->pTable));
+    if (a->dictBuf       != NULL) free((void *)(a->dictBuf));
+    if (a->dictionary    != NULL) free((void *)(a->dictionary));
+    if (a->fileName      != NULL) free((void *)(a->fileName));
+    if (a->baseFileName  != NULL) free((void *)(a->baseFileName));
+    if (a->runType       != NULL) free((void *)(a->runType));
+    if (a->eventLengths  != NULL) free((void *)(a->eventLengths));
+
+    free((void *)a);
 }
 
 
@@ -1771,7 +2144,7 @@ static int evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, i
     EVFILE *a;
     char *filename=NULL, *buffer=NULL, *baseName;
 
-    uint32_t blk_size, temp, headerInfo, blkHdrSize, header[EV_HDSIZ];
+    uint32_t blk_size, temp, headerInfo, blkHdrSize, header[EV_HDSIZ_V6], fileHeader[EV_HDSIZ_V6];
     uint32_t rwBufSize=0, bytesToRead;
 
     int err, version;
@@ -1913,7 +2286,10 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
 
     
     /*********************************************************/
-    /* If we're reading a version 1-4 file/socket/buffer ... */
+    /* If we're reading a version 1-6 file/socket/buffer,
+     * first read a smaller size header compatible with versions 1-4.
+     * If the data proves to be version 6, read the full, larger header
+     * again or if that's not possible, the rest of the header. */
     /*********************************************************/
     if (reading) {
         
@@ -1943,7 +2319,7 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
             else if (randomAccess) {
                 err = memoryMapFile(a, filename);
                 if (err != S_SUCCESS) {
-                    free(a);
+                    freeEVFILE(a);
                     free(filename);
                     return(errno);
                 }
@@ -1954,15 +2330,15 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
 #endif
             if (randomAccess) {
                 /* Read (copy) in header */
-                nBytes = (int64_t )sizeof(header);
+                nBytes = EV_HDSIZ;
                 memcpy((void *)header, (const void *)a->mmapFile, (size_t)nBytes);
             }
             else {
-                int bytesRead = 0, headerSize = sizeof(header);
+                int bytesRead = 0, headerSize = EV_HDSIZ;
                 char *pHead = (char *)header;
 
                 if (a->file == NULL) {
-                    free(a);
+                    freeEVFILE(a);
                     free(filename);
                     return(errno);
                 }
@@ -1975,23 +2351,22 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
                     if (nBytes < 1) {
                         if (feof(a->file)) {
                             localClose(a);
-                            free(a);
+                            freeEVFILE(a);
                             free(filename);
                             return(EOF);
                         }
                         else if (ferror(a->file)) {
                             /* errno is not set for ferror */
                             localClose(a);
-                            free(a);
+                            freeEVFILE(a);
                             free(filename);
                             return(S_FAILURE);
                         }
                     }
                     bytesRead += nBytes;
                 }
-
-                a->filePosition += headerSize;
             }
+            a->filePosition = EV_HDSIZ;
 
             {
                 /* Find the size of the file just opened for reading */
@@ -2000,22 +2375,21 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
                 err = fstat(fd, &fstatBuf);
                 if (err != 0) {
                     localClose(a);
-                    free(a);
+                    freeEVFILE(a);
                     free(filename);
                     return(errno);
                 }
                 a->fileSize = (uint64_t) fstatBuf.st_size;
             }
-
         }
         else if (useSocket) {
             a->sockFd = sockFd;
             a->rw = EV_READSOCK;
             
             /* Read in header */
-            nBytes = (int64_t)tcpRead(sockFd, header, sizeof(header));
+            nBytes = (int64_t)tcpRead(sockFd, header, EV_HDSIZ);
             if (nBytes < 0) {
-                free(a);
+                freeEVFILE(a);
                 return(errno);
             }
         }
@@ -2025,7 +2399,7 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
             a->rwBufSize = rwBufSize;
             
             /* Read (copy) in header */
-            nBytes = (int64_t)sizeof(header);
+            nBytes = EV_HDSIZ;
 //TODO: get rid of this copy!
             memcpy((void *)header, (const void *)(a->rwBuf), (size_t)nBytes);
             a->rwBytesIn += nBytes;
@@ -2046,13 +2420,13 @@ if (debug) {
 }
 
         /* Check to see if all bytes are there */
-        if (nBytes != sizeof(header)) {
+        if (nBytes != EV_HDSIZ) {
             /* Close file and free memory */
             if (useFile) {
                 localClose(a);
                 free(filename);
             }
-            free(a);
+            freeEVFILE(a);
             return(S_EVFILE_BADFILE);
         }
 
@@ -2068,7 +2442,7 @@ if (debug) printf("Magic # is a bad value\n");
                     localClose(a);
                     free(filename);
                 }
-                free(a);
+                freeEVFILE(a);
                 return(S_EVFILE_BADFILE);
             }
         }
@@ -2076,20 +2450,25 @@ if (debug) printf("Magic # is a bad value\n");
             a->byte_swapped = 0;
         }
 
+        if (a->byte_swapped) {
+            a->bigEndian = a->bigEndian ? 0 : 1;
+        }
+
         /* Check VERSION */
         headerInfo = header[EV_HD_VER];
         if (a->byte_swapped) {
             headerInfo = EVIO_SWAP32(headerInfo);
         }
+
         /* Only lowest 8 bits count in version 4's header word */
         version = headerInfo & EV_VERSION_MASK;
-        if (version < 1 || version > 4) {
+        if (version < 1 || version > 6 || version == 5) {
 if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
             if (useFile) {
                 localClose(a);
                 free(filename);
             }
-            free(a);
+            freeEVFILE(a);
             return(S_EVFILE_BADFILE);
         }
         a->version = version;
@@ -2100,29 +2479,386 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
             blkHdrSize = EVIO_SWAP32(blkHdrSize);
         }
 
-        /* If actual header size not what we're expecting ... */
-        if (blkHdrSize != EV_HDSIZ) {
-            int restOfHeader = blkHdrSize - EV_HDSIZ;
-if (debug) printf("Header size was assumed to be %d but it was actually %u\n", EV_HDSIZ, blkHdrSize);
-            if (restOfHeader < 0) {
-if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
+        /******************************************************************************
+         * Version 6 departs radically from the others as there is, for a file,
+         * an additional file header before the expected records/blocks.
+         * Also the file and record headers are larger, 14 instead of 8 words.
+         * And finally, there are the index array and user header for each that must
+         * be accounted for.
+        ******************************************************************************/
+
+        if (version < 6) {
+            /* If actual header size not what we're expecting ... */
+            if (blkHdrSize != EV_HDSIZ) {
+                int restOfHeader = blkHdrSize - EV_HDSIZ;
+                if (debug) printf("Header size was assumed to be %d but it was actually %u\n", EV_HDSIZ, blkHdrSize);
+                if (restOfHeader < 0) {
+                    if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
+                    if (useFile) {
+                        localClose(a);
+                        free(filename);
+                    }
+                    freeEVFILE(a);
+                    return (S_EVFILE_BADFILE);
+                }
+            }
+        }
+        // VERSION 6
+        else {
+            /* If actual header size not what we're expecting ... */
+            if (blkHdrSize != EV_HDSIZ_V6) {
+                int restOfHeader = blkHdrSize - EV_HDSIZ_V6;
+                if (debug) printf("Header size was assumed to be %d but it was actually %u\n", EV_HDSIZ_V6, blkHdrSize);
+                if (restOfHeader < 0) {
+                    if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
+                    if (useFile) {
+                        localClose(a);
+                        free(filename);
+                    }
+                    freeEVFILE(a);
+                    return (S_EVFILE_BADFILE);
+                }
+            }
+
+            //------------------------------------------------------------
+            //  For file, socket, or buffer, read in first record header
+            //------------------------------------------------------------
+
+            if (useFile) {
+                //--------------------------------------------------
+                // Read in file header first, just re-read.
+                // This header will not exist for buffer or socket.
+                //--------------------------------------------------
+
+                int bytesRead = 0;
+
+                if (randomAccess) {
+                    /* Read in v6 file header */
+                    nBytes = EV_HDSIZ_V6;
+                    memcpy((void *) fileHeader, (const void *) a->mmapFile, (size_t) nBytes);
+                }
+                else {
+                    int headerSize = EV_HDSIZ_V6;
+                    char *pHead = (char *) fileHeader;
+
+                    /* Read in v6 file header */
+                    while (bytesRead < headerSize) {
+
+                        nBytes = (int64_t) fread((void *) (pHead + bytesRead), 1,
+                                                 (size_t) (headerSize - bytesRead), a->file);
+                        if (nBytes < 1) {
+                            if (feof(a->file)) {
+                                localClose(a);
+                                freeEVFILE(a);
+                                free(filename);
+                                return (EOF);
+                            }
+                            else if (ferror(a->file)) {
+                                localClose(a);
+                                freeEVFILE(a);
+                                free(filename);
+                                return (S_FAILURE);
+                            }
+                        }
+                        bytesRead += nBytes;
+                    }
+
+                    /* Check to see if all bytes are there */
+                    if (nBytes != EV_HDSIZ_V6) {
+                        localClose(a);
+                        free(filename);
+                        freeEVFILE(a);
+                        return (S_EVFILE_BADFILE);
+                    }
+                }
+
+                // Swap if necessary
+                if (a->byte_swapped) {
+                    evioSwapFileHeaderV6(fileHeader);
+                }
+
+                // Store some additional info from file header
+                a->fileIndexArrayLen = fileHeader[EV_HD_INDEXARRAYLEN];
+                a->fileUserHeaderLen = fileHeader[EV_HD_USERHDRLEN];
+
+                // Calculate the 64 bit trailer position from 2, 32 bit words
+                uint32_t word1 = fileHeader[EV_HD_TRAILERPOS];
+                uint32_t word2 = fileHeader[EV_HD_TRAILERPOS + 1];
+                a->trailerPosition = evioToLongWord(word1, word2, 0);
+
+                // Skip over index array since it's not used in coda.
+                // Skip over user header and its padding since they're not used either.
+                int padding = getPad1(fileHeader[EV_HD_VER]);
+                a->filePosition = EV_HDSIZ_V6 + a->fileIndexArrayLen + a->fileUserHeaderLen + padding;
+
+                //---------------------------------------
+                // Now read in first record (block)
+                //---------------------------------------
+                bytesRead = 0;
+                if (randomAccess) {
+                    /* Read in v6 file header */
+                    nBytes = EV_HDSIZ_V6;
+                    memcpy((void *) header, (const void *) ((char *) (a->mmapFile) + a->filePosition), (size_t) nBytes);
+                }
+                else {
+                    int headerSize = EV_HDSIZ_V6;
+                    char *pHead = (char *) header;
+
+                    /* Read in v6 file header */
+                    while (bytesRead < headerSize) {
+
+                        nBytes = (int64_t) fread((void *) (pHead + bytesRead), 1, (size_t) headerSize, a->file);
+                        if (nBytes < 1) {
+                            if (feof(a->file)) {
+                                localClose(a);
+                                freeEVFILE(a);
+                                free(filename);
+                                return (EOF);
+                            }
+                            else if (ferror(a->file)) {
+                                localClose(a);
+                                freeEVFILE(a);
+                                free(filename);
+                                return (S_FAILURE);
+                            }
+                        }
+                        bytesRead += nBytes;
+                    }
+
+                    /* Check to see if all bytes are there */
+                    if (nBytes != EV_HDSIZ_V6) {
+                        localClose(a);
+                        free(filename);
+                        freeEVFILE(a);
+                        return (S_EVFILE_BADFILE);
+                    }
+                }
+            }
+            else if (useSocket) {
+                /* Read in rest of RECORD header, no file header in this case */
+                nBytes += (int64_t)tcpRead(a->sockFd, (void *) ((char *)header + EV_HDSIZ), (EV_HDSIZ_V6 - EV_HDSIZ));
+                if (nBytes != EV_HDSIZ_V6) {
+                    freeEVFILE(a);
+                    return(errno);
+                }
+            }
+            else if (useBuffer) {
+                /* Read in rest of RECORD header, no file header in this case */
+                nBytes = EV_HDSIZ_V6 - EV_HDSIZ;
+                // TODO: get rid of this copy!
+                memcpy((void *)((char *)header + EV_HDSIZ), (const void *)(a->rwBuf + EV_HDSIZ), (size_t)nBytes);
+                a->rwBytesIn += nBytes;
+            }
+
+            //------------------------------------------------------
+            // At this point we've read in the first record header
+            //------------------------------------------------------
+
+            // Swap if header necessary
+            if (a->byte_swapped) {
+                evioSwapRecordHeaderV6(header);
+            }
+
+            // C library is not equipped to (un)compress data
+            uint32_t compWord = header[EV_HD_COMPDATALEN];
+            if (isCompressed(compWord)) {
+                printf("evOpen: compressed data cannot be read by C evio lib");
                 if (useFile) {
                     localClose(a);
                     free(filename);
                 }
-                free(a);
+                freeEVFILE(a);
                 return(S_EVFILE_BADFILE);
             }
+
+            // bytes in index array
+            uint32_t indexLen = a->curRecordIndexArrayLen = header[EV_HD_INDEXARRAYLEN];
+            // bytes in user header
+            a->curRecordUserHeaderLen = header[EV_HD_USERHDRLEN];
+            // padding bytes in user header
+            int padding = getPad1(header[EV_HD_VER]);
+
+            // Read event lengths if there are any
+            if (indexLen > 0) {
+                if (indexLen % 4 != 0) {
+                    printf("evOpen: index array has bad size");
+                    if (useFile) {
+                        localClose(a);
+                        free(filename);
+                    }
+                    freeEVFILE(a);
+                    return (S_EVFILE_BADFILE);
+                }
+
+                // alloc memory for the event lengths
+                a->eventLengths = (uint32_t *) malloc(indexLen);
+                if (a->eventLengths == NULL) {
+                    if (useFile) {
+                        localClose(a);
+                        free(filename);
+                    }
+                    freeEVFILE(a);
+                    return (S_EVFILE_ALLOCFAIL);
+                }
+
+                if (useFile) {
+                    // read in event lengths
+                    bytesRead = 0;
+                    if (randomAccess) {
+                        nBytes = indexLen;
+                        memcpy((void *) a->eventLengths,
+                               (const void *) ((char *) (a->mmapFile) + a->filePosition + EV_HDSIZ_V6),
+                               (size_t) indexLen);
+                    }
+                    else {
+                        while (bytesRead < indexLen) {
+                            nBytes = (int64_t) fread((void *) ((char *)(a->eventLengths) + bytesRead), 1,
+                                                     (size_t)(indexLen), a->file);
+                            if (nBytes < 1) {
+                                if (feof(a->file)) {
+                                    localClose(a);
+                                    freeEVFILE(a);
+                                    free(filename);
+                                    return (EOF);
+                                }
+                                else if (ferror(a->file)) {
+                                    localClose(a);
+                                    freeEVFILE(a);
+                                    free(filename);
+                                    return (S_FAILURE);
+                                }
+                            }
+                            bytesRead += nBytes;
+                        }
+
+                        /* Check to see if all bytes are there */
+                        if (nBytes != indexLen) {
+                            localClose(a);
+                            free(filename);
+                            freeEVFILE(a);
+                            return (S_EVFILE_BADFILE);
+                        }
+                    }
+                }
+                else if (useSocket) {
+                    nBytes = (int64_t)tcpRead(a->sockFd, (void *)(a->eventLengths), indexLen);
+                    if (nBytes != indexLen) {
+                        freeEVFILE(a);
+                        return(errno);
+                    }
+                }
+                else if (useBuffer) {
+ß                   memcpy((void *)(a->eventLengths), (const void *)(a->rwBuf), (size_t)indexLen);
+                    a->rwBytesIn += indexLen;
+                }
+
+                // Swap array in place if necessary
+                if (a->byte_swapped) {
+                    swap_int32_t(a->eventLengths, indexLen / 4, NULL);
+                }
+
+
+
+
+
+
+
+
+
+                // Skip over user header and its padding since they're not used either.
+                padding = getPad1(header[EV_HD_VER]);
+                bytesRead = EV_HDSIZ_V6 + a->curRecordIndexArrayLen + a->curRecordUserHeaderLen + padding;
+                a->filePosition += bytesRead;
+            }
+            else if (useSocket) {
+                /* Read in rest of RECORD header, no file header in this case */
+                nBytes += (int64_t)tcpRead(a->sockFd, (void *) ((char *)header + EV_HDSIZ), (EV_HDSIZ_V6 - EV_HDSIZ));
+                if (nBytes != EV_HDSIZ_V6) {
+                    freeEVFILE(a);
+                    return(errno);
+                }
+
+                // Swap if necessary
+                if (a->byte_swapped) {
+                    evioSwapRecordHeaderV6(header);
+                }
+
+                // # of bytes
+                uint32_t indexLen = a->curRecordIndexArrayLen = header[EV_HD_INDEXARRAYLEN];
+                a->curRecordUserHeaderLen = header[EV_HD_USERHDRLEN];
+
+                // Read record lengths if there are any
+                if (indexLen > 0) {
+                    if (indexLen % 4 != 0) {
+                        printf("evOpen: index array has bad size");
+                        freeEVFILE(a);
+                        return (S_EVFILE_BADFILE);
+                    }
+
+                    // alloc memory for the record lengths
+                    a->eventLengths = (uint32_t *) malloc(indexLen);
+                    if (a->eventLengths == NULL) {
+                        freeEVFILE(a);
+                        return (S_EVFILE_ALLOCFAIL);
+                    }
+
+                    // read in event lengths
+                    nBytes = (int64_t)tcpRead(a->sockFd, (void *)(a->eventLengths), indexLen);
+                    if (nBytes != indexLen) {
+                        freeEVFILE(a);
+                        return(errno);
+                    }
+
+                    // Swap array in place if necessary
+                    if (a->byte_swapped) {
+                        swap_int32_t(a->eventLengths, indexLen / 4, NULL);
+                    }
+                }
+
+                // Skip over user header and its padding since they're not used either.
+                uint32_t bytesToSkip = a->curRecordUserHeaderLen + getPad1(header[EV_HD_VER]);
+                if (bytesToSkip > 0) {
+                    // Unfortunately, for sockets, we still have to put bytes somewhere when reading
+                    char *storage = (char *) malloc(bytesToSkip);
+                    if (storage == NULL) {
+                        freeEVFILE(a);
+                        return (S_EVFILE_ALLOCFAIL);
+                    }
+
+                    nBytes = (int64_t) tcpRead(a->sockFd, (void *) (storage), bytesToSkip);
+                    if (nBytes != bytesToSkip) {
+                        freeEVFILE(a);
+                        return (errno);
+                    }
+
+                    free(storage);
+                }
+            }
+            else if (useBuffer) {
+                /* Read in rest of RECORD header, no file header in this case */
+                nBytes = EV_HDSIZ_V6 - EV_HDSIZ;
+                // TODO: get rid of this copy!
+                memcpy((void *)((char *)header + EV_HDSIZ), (const void *)(a->rwBuf + EV_HDSIZ), (size_t)nBytes);
+                a->rwBytesIn += nBytes;
+
+                // Swap if necessary
+                if (a->byte_swapped) {
+                    evioSwapRecordHeaderV6(header);
+                }
+
+
+            }
+
         }
 
-        if (randomAccess) {
+        if (randomAccess)   {
             /* Random access only available for version 4+ */
             if (version < 4) {
                 if (useFile) {
                     localClose(a);
                     free(filename);
                 }
-                free(a);
+                freeEVFILE(a);
                 return(S_EVFILE_BADFILE);
             }
 
@@ -2133,7 +2869,7 @@ if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
                     localClose(a);
                     free(filename);
                 }
-                free(a);
+                freeEVFILE(a);
                 return(err);
             }
         }
@@ -2166,7 +2902,7 @@ if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
                     localClose(a);
                     free(filename);
                 }
-                free(a);
+                freeEVFILE(a);
                 return(S_EVFILE_ALLOCFAIL);
             }
     
@@ -2202,7 +2938,7 @@ fprintf(stderr,"evOpenImpl: file is NOT integral # of 32K blocks!\n");
                         localClose(a);
                         free(filename);
                         free(a->buf);
-                        free(a);
+                        freeEVFILE(a);
                         return (S_FAILURE);
                     }
 
@@ -2214,7 +2950,7 @@ fprintf(stderr,"evOpenImpl: file is NOT integral # of 32K blocks!\n");
                                 localClose(a);
                                 free(filename);
                                 free(a->buf);
-                                free(a);
+                                freeEVFILE(a);
                                 return (EOF);
                             }
                             else if (ferror(a->file)) {
@@ -2222,7 +2958,7 @@ fprintf(stderr,"evOpenImpl: file is NOT integral # of 32K blocks!\n");
                                 localClose(a);
                                 free(filename);
                                 free(a->buf);
-                                free(a);
+                                freeEVFILE(a);
                                 return (S_FAILURE);
                             }
                         }
@@ -2240,7 +2976,7 @@ fprintf(stderr,"evOpenImpl: file is NOT integral # of 32K blocks!\n");
                 nBytes = (int64_t)tcpRead(sockFd, a->buf+EV_HDSIZ, bytesToRead);
                 if (nBytes < 0) {
                     free(a->buf);
-                    free(a);
+                    freeEVFILE(a);
                     return(errno);
                 }
             }
@@ -2257,7 +2993,7 @@ fprintf(stderr,"evOpenImpl: file is NOT integral # of 32K blocks!\n");
                     free(filename);
                 }            
                 free(a->buf);
-                free(a);
+                freeEVFILE(a);
                 return(S_EVFILE_BADFILE);
             }
     
@@ -2318,7 +3054,7 @@ printf("ERROR retrieving DICTIONARY, status = %#.8x\n", status);
             if (strcmp(filename,"-") == 0) {
                 /* Cannot append to stdout */
                 if (append) {
-                    free(a);
+                    freeEVFILE(a);
                     free(filename);
                     return (S_EVFILE_BADARG);
                 }
@@ -2328,7 +3064,7 @@ printf("ERROR retrieving DICTIONARY, status = %#.8x\n", status);
 if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                 /* Cannot append to pipe */
                 if (append) {
-                    free(a);
+                    freeEVFILE(a);
                     free(filename);
                     return (S_EVFILE_BADARG);
                 }
@@ -2342,7 +3078,7 @@ if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                  * truncate (erase) the file here! */
                 a->file = fopen(filename,"r+");
                 if (a->file == NULL) {
-                    free(a);
+                    freeEVFILE(a);
                     free(filename);
                     return(errno);
                 }
@@ -2355,14 +3091,14 @@ if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                     /* Close file and free memory */
                     fclose(a->file);
                     free(filename);
-                    free(a);
+                    freeEVFILE(a);
                     return(S_EVFILE_BADFILE);
                 }
             }
             else {
                 err = evGenerateBaseFileName(filename, &baseName, &specifierCount);
                 if (err != S_SUCCESS) {
-                    free(a);
+                    freeEVFILE(a);
                     free(filename);
                     return(err);
                 }
@@ -2386,7 +3122,7 @@ if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                 nBytes = sizeof(header);
                 /* unexpected EOF or end-of-buffer in this case */
                 if (rwBufSize < nBytes) {
-                    free(a);
+                    freeEVFILE(a);
                     return(S_EVFILE_UNXPTDEOF);
                 }
                 /* Read (copy) in header */
@@ -2412,7 +3148,7 @@ if (debug) printf("Magic # is a bad value\n");
                         localClose(a);
                         free(filename);
                     }
-                    free(a);
+                    freeEVFILE(a);
                     return(S_EVFILE_BADFILE);
                 }
             }
@@ -2433,7 +3169,7 @@ if (debug) printf("File must be evio version %d (not %d) for append mode, quit\n
                     localClose(a);
                     free(filename);
                 }
-                free(a);
+                freeEVFILE(a);
                 return(S_EVFILE_BADFILE);
             }
 
@@ -2443,14 +3179,14 @@ if (debug) printf("File must be evio version %d (not %d) for append mode, quit\n
         
         /* Allocate memory for a block only if we are not writing to a buffer. */
         if (!useBuffer) {
-            /* bufRealSize is EV_BLOCKSIZE_V4 by default, see structInit() */
+            /* bufRealSize is EV_BLOCKSIZE by default, see structInit() */
             a->buf = (uint32_t *) calloc(1,4*a->bufRealSize);
             if (a->buf == NULL) {
                 if (useFile) {
                     localClose(a);
                     free(filename);
                 }
-                free(a);
+                freeEVFILE(a);
                 return(S_EVFILE_ALLOCFAIL);
             }
 
@@ -2484,7 +3220,7 @@ if (debug) printf("File must be evio version %d (not %d) for append mode, quit\n
             if (!useBuffer) {
                 free(a->buf);
             }
-            free(a);
+            freeEVFILE(a);
             return(err);
         }
         
@@ -5302,7 +6038,6 @@ if(debug) printf("evClose: write header, free bytes In Buffer = %d\n", (int)(a->
     if (a->rw == EV_WRITEFILE || a->rw == EV_READFILE) {
         if (a->randomAccess) {
             status = munmap(a->mmapFile, a->mmapFileSize);
-            if (a->pTable != NULL) free(a->pTable);
             if (status < 0) status = S_FAILURE;
             else status = S_SUCCESS;
         }
@@ -5322,21 +6057,7 @@ if(debug) printf("evClose: write header, free bytes In Buffer = %d\n", (int)(a->
     }
 
     /* Free up resources */
-    if (a->buf != NULL && a->rw != EV_WRITEBUF) {
-        if (a->pBuf != NULL) {
-            free((void *)(a->pBuf));
-        }
-        else {
-            free((void *) (a->buf));
-        }
-    }
-    if (a->dictBuf      != NULL) free(a->dictBuf);
-    if (a->dictionary   != NULL) free(a->dictionary);
-    if (a->fileName     != NULL) free(a->fileName);
-    if (a->baseFileName != NULL) free(a->baseFileName);
-    if (a->runType      != NULL) free(a->runType);
-
-    free((void *)a);
+    freeEVFILE(a);
 
     /* Remove this handle from the list */
     getHandleLock();
