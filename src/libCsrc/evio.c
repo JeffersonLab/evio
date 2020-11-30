@@ -448,13 +448,13 @@
  *    +----------------------------------+
  *    |          User Header             |
  *    |    (any user data)    +----------+
- *    |                       |  Pad_1   |
+ *    |                       |  Pad 1   |
  *    +-----------------------+----------+
  *
  *    +----------------------------------+
  *    |             Events               |
  *    |                       +----------+
- *    |                       |  Pad_2   |
+ *    |                       |  Pad 2   |
  *    +-----------------------+----------+
  *
  *
@@ -539,7 +539,7 @@
  *    +----------------------------------+
  *    |          User Header             |
  *    |    (any user data)    +----------+
- *    |                       |  Pad_1   |
+ *    |                       |  Pad 1   |
  *    +-----------------------+----------+
  *
  *    +----------------------------------+
@@ -720,6 +720,7 @@ static  int      toAppendPosition(EVFILE *a);
 /* Random Access Mode */
 static  int      memoryMapFile(EVFILE *a, const char *fileName);
 static  int      generatePointerTable(EVFILE *a);
+static  int      generatePointerTableV6(EVFILE *a);
 
 /* Array that holds all pointers to structures created with evOpen().
  * Space in the array is allocated as needed, beginning with 100
@@ -2330,11 +2331,11 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
 #endif
             if (randomAccess) {
                 /* Read (copy) in header */
-                nBytes = EV_HDSIZ;
+                nBytes = EV_HDSIZ_BYTES;
                 memcpy((void *)header, (const void *)a->mmapFile, (size_t)nBytes);
             }
             else {
-                int bytesRead = 0, headerSize = EV_HDSIZ;
+                int bytesRead = 0, headerSize = EV_HDSIZ_BYTES;
                 char *pHead = (char *)header;
 
                 if (a->file == NULL) {
@@ -2366,7 +2367,7 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
                     bytesRead += nBytes;
                 }
             }
-            a->filePosition = EV_HDSIZ;
+            a->filePosition = EV_HDSIZ_BYTES;
 
             {
                 /* Find the size of the file just opened for reading */
@@ -2387,7 +2388,7 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
             a->rw = EV_READSOCK;
             
             /* Read in header */
-            nBytes = (int64_t)tcpRead(sockFd, header, EV_HDSIZ);
+            nBytes = (int64_t)tcpRead(sockFd, header, EV_HDSIZ_BYTES);
             if (nBytes < 0) {
                 freeEVFILE(a);
                 return(errno);
@@ -2399,7 +2400,7 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
             a->rwBufSize = rwBufSize;
             
             /* Read (copy) in header */
-            nBytes = EV_HDSIZ;
+            nBytes = EV_HDSIZ_BYTES;
 //TODO: get rid of this copy!
             memcpy((void *)header, (const void *)(a->rwBuf), (size_t)nBytes);
             a->rwBytesIn += nBytes;
@@ -2420,7 +2421,7 @@ if (debug) {
 }
 
         /* Check to see if all bytes are there */
-        if (nBytes != EV_HDSIZ) {
+        if (nBytes != EV_HDSIZ_BYTES) {
             /* Close file and free memory */
             if (useFile) {
                 localClose(a);
@@ -2505,7 +2506,7 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
         }
         // VERSION 6
         else {
-            /* If actual header size not what we're expecting ... */
+            /* If actual (file) header size not what we're expecting ... */
             if (blkHdrSize != EV_HDSIZ_V6) {
                 int restOfHeader = blkHdrSize - EV_HDSIZ_V6;
                 if (debug) printf("Header size was assumed to be %d but it was actually %u\n", EV_HDSIZ_V6, blkHdrSize);
@@ -2534,11 +2535,11 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
 
                 if (randomAccess) {
                     /* Read in v6 file header */
-                    nBytes = EV_HDSIZ_V6;
+                    nBytes = EV_HDSIZ_BYTES_V6;
                     memcpy((void *) fileHeader, (const void *) a->mmapFile, (size_t) nBytes);
                 }
                 else {
-                    int headerSize = EV_HDSIZ_V6;
+                    int headerSize = EV_HDSIZ_BYTES_V6;
                     char *pHead = (char *) fileHeader;
 
                     /* Read in v6 file header */
@@ -2564,7 +2565,7 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                     }
 
                     /* Check to see if all bytes are there */
-                    if (nBytes != EV_HDSIZ_V6) {
+                    if (nBytes != headerSize) {
                         localClose(a);
                         free(filename);
                         freeEVFILE(a);
@@ -2586,22 +2587,25 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                 uint32_t word2 = fileHeader[EV_HD_TRAILERPOS + 1];
                 a->trailerPosition = evioToLongWord(word1, word2, 0);
 
-                // Skip over index array since it's not used in coda.
-                // Skip over user header and its padding since they're not used either.
+                // Skip over file's header (including those of unusual size)
+                uint32_t actualHeaderBytes = 4*fileHeader[EV_HD_HDSIZ];
+                // Skip over file's index array since it's not used in coda.
+                // Skip over file's user header and its padding since they're not used either.
                 int padding = getPad1(fileHeader[EV_HD_VER]);
-                a->filePosition = EV_HDSIZ_V6 + a->fileIndexArrayLen + a->fileUserHeaderLen + padding;
+                a->filePosition = actualHeaderBytes + a->fileIndexArrayLen + a->fileUserHeaderLen + padding;
+                a->firstRecordPosition = a->filePosition;
 
                 //---------------------------------------
-                // Now read in first record (block)
+                // Now read in first record (block) header
                 //---------------------------------------
                 bytesRead = 0;
                 if (randomAccess) {
                     /* Read in v6 file header */
-                    nBytes = EV_HDSIZ_V6;
+                    nBytes = EV_HDSIZ_BYTES_V6;
                     memcpy((void *) header, (const void *) ((char *) (a->mmapFile) + a->filePosition), (size_t) nBytes);
                 }
                 else {
-                    int headerSize = EV_HDSIZ_V6;
+                    int headerSize = EV_HDSIZ_BYTES_V6;
                     char *pHead = (char *) header;
 
                     /* Read in v6 file header */
@@ -2626,27 +2630,31 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                     }
 
                     /* Check to see if all bytes are there */
-                    if (nBytes != EV_HDSIZ_V6) {
+                    if (nBytes != headerSize) {
                         localClose(a);
                         free(filename);
                         freeEVFILE(a);
                         return (S_EVFILE_BADFILE);
                     }
                 }
+
+                a->filePosition += EV_HDSIZ_BYTES_V6;
             }
             else if (useSocket) {
                 /* Read in rest of RECORD header, no file header in this case */
-                nBytes += (int64_t)tcpRead(a->sockFd, (void *) ((char *)header + EV_HDSIZ), (EV_HDSIZ_V6 - EV_HDSIZ));
-                if (nBytes != EV_HDSIZ_V6) {
+                nBytes += (int64_t) tcpRead(a->sockFd, (void *) ((char *) header + EV_HDSIZ),
+                                           (EV_HDSIZ_BYTES_V6 - EV_HDSIZ_BYTES));
+                if (nBytes != EV_HDSIZ_BYTES_V6) {
                     freeEVFILE(a);
-                    return(errno);
+                    return (errno);
                 }
             }
             else if (useBuffer) {
                 /* Read in rest of RECORD header, no file header in this case */
-                nBytes = EV_HDSIZ_V6 - EV_HDSIZ;
+                nBytes = EV_HDSIZ_BYTES_V6 - EV_HDSIZ_BYTES;
                 // TODO: get rid of this copy!
-                memcpy((void *)((char *)header + EV_HDSIZ), (const void *)(a->rwBuf + EV_HDSIZ), (size_t)nBytes);
+                memcpy((void *) ((char *) header + EV_HDSIZ), (const void *) (a->rwBuf + a->rwBytesIn),
+                       (size_t) nBytes);
                 a->rwBytesIn += nBytes;
             }
 
@@ -2659,6 +2667,39 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                 evioSwapRecordHeaderV6(header);
             }
 
+            // But what do we do if header's not a normal size?
+            blkHdrSize = header[EV_HD_HDSIZ];
+            if (blkHdrSize != EV_HDSIZ_V6) {
+                uint32_t restOfHeader = 4*(blkHdrSize - EV_HDSIZ_V6);
+
+                // If too small, quit
+                if (restOfHeader < 0) {
+                    if (debug) printf("Record header size is too small (%u bytes), return error\n", blkHdrSize);
+                    if (useFile) {
+                        localClose(a);
+                        free(filename);
+                    }
+                    freeEVFILE(a);
+                    return (S_EVFILE_BADFILE);
+                }
+
+                // If extra big, skip over file and buffer bytes, but we must read in extra socket bytes
+                if (useFile) {
+                    a->filePosition += restOfHeader;
+                }
+                else if (useBuffer) {
+                    a->rwBytesIn += restOfHeader;
+                }
+                else if (useSocket) {
+                    char junk[restOfHeader];
+                    nBytes = (int64_t) tcpRead(a->sockFd, (void *) junk, restOfHeader);
+                    if (nBytes != restOfHeader) {
+                        freeEVFILE(a);
+                        return (errno);
+                    }
+                }
+            }
+
             // C library is not equipped to (un)compress data
             uint32_t compWord = header[EV_HD_COMPDATALEN];
             if (isCompressed(compWord)) {
@@ -2668,15 +2709,11 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                     free(filename);
                 }
                 freeEVFILE(a);
-                return(S_EVFILE_BADFILE);
+                return (S_EVFILE_BADFILE);
             }
 
             // bytes in index array
             uint32_t indexLen = a->curRecordIndexArrayLen = header[EV_HD_INDEXARRAYLEN];
-            // bytes in user header
-            a->curRecordUserHeaderLen = header[EV_HD_USERHDRLEN];
-            // padding bytes in user header
-            int padding = getPad1(header[EV_HD_VER]);
 
             // Read event lengths if there are any
             if (indexLen > 0) {
@@ -2701,19 +2738,18 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                     return (S_EVFILE_ALLOCFAIL);
                 }
 
+                // read in event lengths
                 if (useFile) {
-                    // read in event lengths
-                    bytesRead = 0;
+                    int bytesRead = 0;
                     if (randomAccess) {
-                        nBytes = indexLen;
                         memcpy((void *) a->eventLengths,
                                (const void *) ((char *) (a->mmapFile) + a->filePosition + EV_HDSIZ_V6),
                                (size_t) indexLen);
                     }
                     else {
                         while (bytesRead < indexLen) {
-                            nBytes = (int64_t) fread((void *) ((char *)(a->eventLengths) + bytesRead), 1,
-                                                     (size_t)(indexLen), a->file);
+                            nBytes = (int64_t) fread((void *) ((char *) (a->eventLengths) + bytesRead), 1,
+                                                     (size_t) (indexLen), a->file);
                             if (nBytes < 1) {
                                 if (feof(a->file)) {
                                     localClose(a);
@@ -2739,16 +2775,18 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                             return (S_EVFILE_BADFILE);
                         }
                     }
+
+                    a->filePosition += indexLen;
                 }
                 else if (useSocket) {
-                    nBytes = (int64_t)tcpRead(a->sockFd, (void *)(a->eventLengths), indexLen);
+                    nBytes = (int64_t) tcpRead(a->sockFd, (void *) (a->eventLengths), indexLen);
                     if (nBytes != indexLen) {
                         freeEVFILE(a);
-                        return(errno);
+                        return (errno);
                     }
                 }
                 else if (useBuffer) {
-ß                   memcpy((void *)(a->eventLengths), (const void *)(a->rwBuf), (size_t)indexLen);
+                    memcpy((void *) (a->eventLengths), (const void *) (a->rwBuf + a->rwBytesIn), (size_t) indexLen);
                     a->rwBytesIn += indexLen;
                 }
 
@@ -2756,99 +2794,35 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
                 if (a->byte_swapped) {
                     swap_int32_t(a->eventLengths, indexLen / 4, NULL);
                 }
-
-
-
-
-
-
-
-
-
-                // Skip over user header and its padding since they're not used either.
-                padding = getPad1(header[EV_HD_VER]);
-                bytesRead = EV_HDSIZ_V6 + a->curRecordIndexArrayLen + a->curRecordUserHeaderLen + padding;
-                a->filePosition += bytesRead;
             }
-            else if (useSocket) {
-                /* Read in rest of RECORD header, no file header in this case */
-                nBytes += (int64_t)tcpRead(a->sockFd, (void *) ((char *)header + EV_HDSIZ), (EV_HDSIZ_V6 - EV_HDSIZ));
-                if (nBytes != EV_HDSIZ_V6) {
-                    freeEVFILE(a);
-                    return(errno);
+
+            //---------------------------------------------------------------------
+            // Skip over user header and its padding since they're not used
+            //---------------------------------------------------------------------
+
+            // bytes in user header
+            a->curRecordUserHeaderLen = header[EV_HD_USERHDRLEN];
+            // padding bytes in user header
+            int padding = getPad1(header[EV_HD_VER]);
+            uint32_t bytesToSkip = a->curRecordUserHeaderLen + padding;
+
+            if (bytesToSkip > 0) {
+                if (useFile) {
+                    a->filePosition += bytesToSkip;
                 }
-
-                // Swap if necessary
-                if (a->byte_swapped) {
-                    evioSwapRecordHeaderV6(header);
+                else if (useBuffer) {
+                    a->rwBytesIn += bytesToSkip;
                 }
-
-                // # of bytes
-                uint32_t indexLen = a->curRecordIndexArrayLen = header[EV_HD_INDEXARRAYLEN];
-                a->curRecordUserHeaderLen = header[EV_HD_USERHDRLEN];
-
-                // Read record lengths if there are any
-                if (indexLen > 0) {
-                    if (indexLen % 4 != 0) {
-                        printf("evOpen: index array has bad size");
-                        freeEVFILE(a);
-                        return (S_EVFILE_BADFILE);
-                    }
-
-                    // alloc memory for the record lengths
-                    a->eventLengths = (uint32_t *) malloc(indexLen);
-                    if (a->eventLengths == NULL) {
-                        freeEVFILE(a);
-                        return (S_EVFILE_ALLOCFAIL);
-                    }
-
-                    // read in event lengths
-                    nBytes = (int64_t)tcpRead(a->sockFd, (void *)(a->eventLengths), indexLen);
-                    if (nBytes != indexLen) {
-                        freeEVFILE(a);
-                        return(errno);
-                    }
-
-                    // Swap array in place if necessary
-                    if (a->byte_swapped) {
-                        swap_int32_t(a->eventLengths, indexLen / 4, NULL);
-                    }
-                }
-
-                // Skip over user header and its padding since they're not used either.
-                uint32_t bytesToSkip = a->curRecordUserHeaderLen + getPad1(header[EV_HD_VER]);
-                if (bytesToSkip > 0) {
-                    // Unfortunately, for sockets, we still have to put bytes somewhere when reading
-                    char *storage = (char *) malloc(bytesToSkip);
-                    if (storage == NULL) {
-                        freeEVFILE(a);
-                        return (S_EVFILE_ALLOCFAIL);
-                    }
-
+                else if (useSocket) {
+                    // For sockets, we still have to put bytes somewhere when reading
+                    char storage[bytesToSkip];
                     nBytes = (int64_t) tcpRead(a->sockFd, (void *) (storage), bytesToSkip);
                     if (nBytes != bytesToSkip) {
                         freeEVFILE(a);
                         return (errno);
                     }
-
-                    free(storage);
                 }
             }
-            else if (useBuffer) {
-                /* Read in rest of RECORD header, no file header in this case */
-                nBytes = EV_HDSIZ_V6 - EV_HDSIZ;
-                // TODO: get rid of this copy!
-                memcpy((void *)((char *)header + EV_HDSIZ), (const void *)(a->rwBuf + EV_HDSIZ), (size_t)nBytes);
-                a->rwBytesIn += nBytes;
-
-                // Swap if necessary
-                if (a->byte_swapped) {
-                    evioSwapRecordHeaderV6(header);
-                }
-
-
-            }
-
         }
 
         if (randomAccess)   {
@@ -2878,9 +2852,9 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
             /* Allocate buffer to store block */
             /**********************************/
     
-            /* size of block we're reading */
+            /* Size of block we're reading, version 6's header is already swapped */
             blk_size = header[EV_HD_BLKSIZ];
-            if (a->byte_swapped) {
+            if (a->byte_swapped && version < 6) {
                 blk_size = EVIO_SWAP32(blk_size);
             }
             a->blksiz = blk_size;
@@ -2907,7 +2881,11 @@ if (debug) printf("Header has unsupported evio version (%d), quit\n", version);
             }
     
             /* Copy header (the part we read in) into block (swapping if necessary) */
-            if (a->byte_swapped) {
+            if (version > 4) {
+                // Version 6 header already swapped
+                memcpy(a->buf, header, 4*EV_HDSIZ_V6);
+            }
+            else if (a->byte_swapped) {
                 swap_int32_t((uint32_t *)header, EV_HDSIZ, a->buf);
             }
             else {
@@ -3502,18 +3480,22 @@ static int getEventCount(EVFILE *a, uint32_t *count)
  *
  * @param a  handle structure
  *
- * @return S_SUCCESS          if successful or not random access handle (does nothing)
- * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
+ * @return S_SUCCESS          if successful or not random access handle (does nothing).
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated.
+ * @return S_EVFILE_BADFILE   if bad data format.
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
- *                            while reading data (perhaps bad block header)
+ *                            while reading data (perhaps bad block header).
  */
-static int generatePointerTable(EVFILE *a)
-{
+static int generatePointerTable(EVFILE *a) {
+
     int        i, usingBuffer=0, lastBlock=0, firstBlock=1;
     size_t     bytesLeft;
     uint32_t  *pmem, len, numPointers, blockEventCount, blockHdrSize, evIndex = 0L;
 
-    
+    if (a->version > 4) {
+        return generatePointerTableV6(a);
+    }
+
     /* Only random access handles need apply */
     if (!a->randomAccess) {
         return(S_SUCCESS);
@@ -3613,6 +3595,153 @@ static int generatePointerTable(EVFILE *a)
 
     return(S_SUCCESS);
 }
+
+
+/**
+ * This function steps through a memory mapped file or buffer and creates
+ * a table containing pointers to the beginning of all events. For evio version 6 only.
+ *
+ * @param a  handle structure
+ *
+ * @return S_SUCCESS          if successful or not random access handle (does nothing).
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated.
+ * @return S_EVFILE_BADFILE   if bad data format.
+ * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
+ *                            while reading data (perhaps bad block header).
+ */
+static int generatePointerTableV6(EVFILE *a) {
+
+    int        usingBuffer=0, lastRecord=0, firstRecord=1;
+    size_t     bytesLeft;
+    uint32_t  *pmem, numPointers, evIndex = 0L;
+
+
+    /* Only random access */
+    if (!a->randomAccess) {
+        return(S_SUCCESS);
+    }
+
+    if (a->rw == EV_READBUF) {
+        usingBuffer = 1;
+    }
+
+    /* Start with space for 10,000 event pointers */
+    numPointers = 10000;
+    a->pTable = (uint32_t **) malloc(numPointers * sizeof(uint32_t *));
+    if (!a->pTable) {
+        return (S_EVFILE_ALLOCFAIL);
+    }
+
+    if (usingBuffer) {
+        pmem = (uint32_t *)a->rwBuf;
+        bytesLeft = a->rwBufSize; /* limit on size only */
+    }
+    else {
+        pmem = a->mmapFile + a->firstRecordPosition;
+        bytesLeft = a->mmapFileSize - a->firstRecordPosition;
+    }
+
+    while (!lastRecord) {
+
+        /* Look at block header to get info */
+        int i                     = pmem[EV_HD_VER];
+        uint32_t recordHdrSize    = pmem[EV_HD_HDSIZ];
+        uint32_t recordEventCount = pmem[EV_HD_COUNT];
+        uint32_t compWord         = pmem[EV_HD_COMPDATALEN];
+        uint32_t indexLen         = pmem[EV_HD_INDEXARRAYLEN];
+        uint32_t usrHdrLen        = pmem[EV_HD_USERHDRLEN];
+
+        /* Swap if necessary */
+        if (a->byte_swapped) {
+            i                = EVIO_SWAP32(i);
+            recordHdrSize    = EVIO_SWAP32(recordHdrSize);
+            recordEventCount = EVIO_SWAP32(recordEventCount);
+            compWord         = EVIO_SWAP32(compWord);
+            indexLen         = EVIO_SWAP32(indexLen);
+            usrHdrLen        = EVIO_SWAP32(usrHdrLen);
+        }
+        lastRecord = isLastBlockInt_V6(i);
+
+        // C library is not equipped to (un)compress data
+        if (isCompressed(compWord)) {
+            printf("generatePointerTableV6: compressed data cannot be read by C evio lib");
+            return (S_EVFILE_BADFILE);
+        }
+
+        if (indexLen % 4 != 0 || indexLen == 0) {
+            printf("generatePointerTableV6: index array has bad size");
+            return (S_EVFILE_BADFILE);
+        }
+
+        // Need more space for the table, increase by 10,000 pointers each time
+        if (evIndex + recordEventCount >= numPointers) {
+            uint32_t** old_pTable = a->pTable;
+            numPointers += 10000 + recordEventCount;
+            a->pTable = realloc(a->pTable, numPointers*sizeof(uint32_t *));
+            if (a->pTable == NULL) {
+                free(old_pTable);
+                return(S_EVFILE_ALLOCFAIL);
+            }
+        }
+
+        // Hop over record header
+        pmem += recordHdrSize;
+        bytesLeft -= 4 * recordHdrSize;
+
+        // If there's an index of event lengths, use that.
+        // There should always be one, but in case there isn't.
+        if (indexLen > 0) {
+            // Create pointer to start of first event
+            uint32_t  *pevent = pmem + (indexLen + usrHdrLen)/4;
+
+            // For each event in block, store its location
+            for (int j=0; j < (int)recordEventCount; j++) {
+                uint32_t eventByteLen = pmem[j];
+                if (a->byte_swapped) {
+                    eventByteLen = EVIO_SWAP32(eventByteLen);
+                }
+
+                a->pTable[evIndex++] = pevent;
+                pevent += eventByteLen/4;
+            }
+
+            // Hop over index and user header
+            pmem = pevent;
+            bytesLeft -= indexLen + usrHdrLen;
+        }
+        else {
+            // Else hop through record event by event.
+            // Start by hopping over user header
+            pmem += usrHdrLen/4;
+
+            for (i=0; i < (int)recordEventCount; i++) {
+                // Sanity check - must have at least 2 ints left
+                if (bytesLeft < 8) {
+                    free(a->pTable);
+                    return(S_EVFILE_UNXPTDEOF);
+                }
+
+                // Bank's length is first word of bank
+                uint32_t eventWordLen = *pmem;
+                if (a->byte_swapped) {
+                    eventWordLen = EVIO_SWAP32(eventWordLen);
+                }
+
+                // Bank's len does not include itself
+                eventWordLen++;
+                a->pTable[evIndex++] = pmem;
+
+                pmem += eventWordLen;
+                bytesLeft -= 4*eventWordLen;
+            }
+        }
+    }
+
+    a->eventCount = evIndex;
+
+    return(S_SUCCESS);
+}
+
 
 /**
  * This function positions a file or buffer for the first {@link #evWrite}
@@ -4193,8 +4322,8 @@ static int evGetNewBufferFileV3(EVFILE *a)
  * evio format. A status is returned.
  *
  * @param handle evio handle
- * @param buffer pointer to buffer
- * @param buflen length of buffer in 32 bit words
+ * @param buffer pointer to buffer provided by user to hold data.
+ * @param buflen length of buffer in 32 bit words.
  *
  * @return S_SUCCESS          if successful
  * @return S_EVFILE_BADMODE   if opened for writing or random-access reading
@@ -4212,8 +4341,6 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
 {
     int       status,  swap;
     uint32_t  nleft, ncopy;
-    uint32_t *temp_buffer=NULL, *temp_ptr=NULL;
-
 
     /* If no more data left to read from current BLOCK, get a new block */
     if (a->left < 1) {
@@ -4225,9 +4352,6 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
 
     /* Find number of words to read in next event (including header) */
     if (a->byte_swapped) {
-        /* Create temp buffer for swapping */
-        temp_ptr = temp_buffer = (uint32_t *) malloc(buflen*sizeof(uint32_t));
-        if (temp_ptr == NULL) return(S_EVFILE_ALLOCFAIL);
         /* Value at pointer to next event (bank) header = length of bank - 1 */
         nleft = EVIO_SWAP32(*(a->next)) + 1;
     }
@@ -4240,7 +4364,6 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
     if (nleft > buflen) {
         /* Buffer too small, just return error.
          * Previous evio lib tried to swap truncated event!? */
-        if (temp_ptr != NULL) free(temp_ptr);
         return(S_EVFILE_TRUNC);
     }
 
@@ -4251,7 +4374,6 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
         if (a->left < 1) {
             status = evGetNewBufferFileV3(a);
             if (status != S_SUCCESS) {
-                if (temp_ptr != NULL) free(temp_ptr);
                 return(status);
             }
         }
@@ -4261,15 +4383,9 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
          * copy # left in block to buffer.*/
         ncopy = (nleft <= a->left) ? nleft : a->left;
 
-        if (a->byte_swapped) {
-            memcpy(temp_buffer, a->next, ncopy*4);
-            temp_buffer += ncopy;
-        }
-        else{
-            memcpy(buffer, a->next, ncopy*4);
-            buffer += ncopy;
-        }
-        
+        memcpy(buffer, a->next, ncopy*4);
+        buffer += ncopy;
+
         nleft   -= ncopy;
         a->next += ncopy;
         a->left -= ncopy;
@@ -4280,8 +4396,7 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
     
     /* Swap event if necessary */
     if (swap) {
-        evioswap(temp_ptr, 1, buffer);
-        free(temp_ptr);
+        evioswap(buffer, 1, NULL);
     }
 
     return(S_SUCCESS);
@@ -4315,7 +4430,6 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
     EVFILE   *a;
     int       status,  swap;
     uint32_t  nleft, ncopy;
-    uint32_t *temp_buffer=NULL, *temp_ptr=NULL;
 
 
     if (handle < 1 || (size_t)handle > handleCount) {
@@ -4368,12 +4482,6 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 
     /* Find number of words to read in next event (including header) */
     if (a->byte_swapped) {
-        /* Create temp buffer for swapping */
-        temp_ptr = temp_buffer = (uint32_t *) malloc(buflen*sizeof(uint32_t));
-        if (temp_ptr == NULL) {
-            handleUnlock(handle);
-            return(S_EVFILE_ALLOCFAIL);
-        }
         /* Value at pointer to next event (bank) header = length of bank - 1 */
         nleft = EVIO_SWAP32(*(a->next)) + 1;
     }
@@ -4386,7 +4494,6 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
     if (nleft > buflen) {
         /* Buffer too small, just return error.
          * Previous evio lib tried to swap truncated event!? */
-        if (temp_ptr != NULL) free(temp_ptr);
         handleUnlock(handle);
         return(S_EVFILE_TRUNC);
     }
@@ -4398,7 +4505,6 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
         if (a->left < 1) {
             status = evGetNewBuffer(a);
             if (status != S_SUCCESS) {
-                if (temp_ptr != NULL) free(temp_ptr);
                 handleUnlock(handle);
                 return(status);
             }
@@ -4409,14 +4515,8 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
          * copy # left in block to buffer.*/
         ncopy = (nleft <= a->left) ? nleft : a->left;
 
-        if (a->byte_swapped) {
-            memcpy(temp_buffer, a->next, ncopy*4);
-            temp_buffer += ncopy;
-        }
-        else{
-            memcpy(buffer, a->next, ncopy*4);
-            buffer += ncopy;
-        }
+        memcpy(buffer, a->next, ncopy*4);
+        buffer += ncopy;
 
         nleft   -= ncopy;
         a->next += ncopy;
@@ -4431,8 +4531,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 
     /* Swap event if necessary */
     if (swap) {
-        evioswap(temp_ptr, 1, buffer);
-        free(temp_ptr);
+        evioswap(buffer, 1, NULL);
     }
 
     return(S_SUCCESS);

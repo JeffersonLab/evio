@@ -28,6 +28,8 @@
  *  Must never be smaller than 8, but can be set larger.*/
 #define EV_HDSIZ 8
 #define EV_HDSIZ_V6 14
+#define EV_HDSIZ_BYTES 32
+#define EV_HDSIZ_BYTES_V6 56
 
 
 #ifndef S_SUCCESS
@@ -225,6 +227,7 @@ typedef struct evfilestruct {
     uint32_t curRecordUserHeaderLen; /**< current record header's user header len in bytes. */
 
     uint64_t trailerPosition; /**< trailer's position from start of file in bytes (0 if unknown). */
+    uint64_t firstRecordPosition; /**< first record's position from start of file in bytes (0 if unknown). */
 
     uint32_t *eventLengths; /**< For current record, an array containing the event lengths. */
 
