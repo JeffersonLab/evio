@@ -21,6 +21,8 @@
 #ifndef __EVIO_h__
 #define __EVIO_h__
 
+#include <stdint.h>
+
 /** Evio format version, not the evio package version #. */
 #define EV_VERSION 6
 
@@ -121,7 +123,7 @@ typedef struct evfilestruct {
                             *   this value refers to all split files taken together. */
 
     /* block stuff */
-    uint32_t *buf;           /**< For files, sockets, and reading buffers = pointer to
+    uint32_t *buf;         /**< For files, sockets, and reading buffers = pointer to
                             *   buffer of block-being-read / blocks-being-written.
                             *   When writing to file/socket/pipe, this buffer may
                             *   contain multiple blocks.
@@ -133,8 +135,8 @@ typedef struct evfilestruct {
                             *   points to the beginning of actual buffer in memory. */
     uint32_t *pBuf;          /**< For reading ver 1-3 files, this points to the beginning
                             *   of actual buffer in memory. */
-    uint32_t  *next;         /**< pointer to next word in block to be read/written. */
-    uint32_t  left;          /**< # of valid 32 bit unread/unwritten words in block. */
+    uint32_t  *next;         /**< pointer to next word in buffer to be read/written. */
+    uint32_t  left;          /**< # of valid 32 bit unread/unwritten words in buffer. */
     uint32_t  blksiz;        /**< size of block in 32 bit words - v3 or
                             *   size of actual data in block (including header) - v4. */
     uint32_t  blknum;        /**< block number of block being read/written. Next to be used, starting at 1. */
@@ -229,7 +231,22 @@ typedef struct evfilestruct {
     uint64_t trailerPosition; /**< trailer's position from start of file in bytes (0 if unknown). */
     uint64_t firstRecordPosition; /**< first record's position from start of file in bytes (0 if unknown). */
 
-    uint32_t *eventLengths; /**< For current record, an array containing the event lengths. */
+    uint32_t *eventLengths;   /**< For current record, an array containing the event lengths.
+                                * blkEvCount tracks how many events and therefore entries in this array. */
+    uint32_t eventLengthsLen; /**< Size of eventLengths array in words. */
+
+    //// WRITING ////
+
+    uint32_t *dataBuf;      /**< For writing, pointer to buffer of events (data) to be written.
+                             *   Due to evio version 6 having an array of event lengths
+                             *   after the record header and before the record data, we must store
+                             *   the data separately in order to facilitate writing the
+                             *   record with fewest number of data copies.
+                             *   Stores data for a single record.
+                             *   For convenience, it'll be same size as "buf". */
+    uint32_t  *dataNext;    /**< pointer to next word in dataBuf to be written. */
+    uint32_t  dataLeft;     /**< # of valid 32 bit unwritten words in dataBuf. */
+    uint32_t  bytesToDataBuf;  /**< # data bytes written to dataBuf. */
 
 } EVFILE;
 
@@ -300,9 +317,6 @@ int evGetFileName(int handle, char *name, size_t maxLength);
 int evIsLastBlock(uint32_t sixthWord);
 
 int evGetDictionary(int handle, char **dictionary, uint32_t *len);
-int evWriteDictionary(int handle, char *xmlDictionary);
-int evWriteFirstEvent(int handle, const uint32_t *firstEvent);
-int evCreateFirstEventBlock(const uint32_t *firstEvent, int localEndian, void **block, uint32_t *words);
 int evStringsToBuf(uint32_t *buffer, int bufLen, char **strings, int stringCount, int *dataLen);
 int evBufToStrings(char *buffer, int bufLen, char ***pStrArray, int *strCount);
 
