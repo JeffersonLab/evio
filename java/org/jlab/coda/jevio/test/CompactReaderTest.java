@@ -879,12 +879,13 @@ public class CompactReaderTest {
 
     /** For reading a local file/buffer, take events and put them into
      *  a EvioCompactEventWriter and write a file with it. */
-    public static void main(String args[]) {
+    public static void main222(String args[]) {
 
         int evCount;
 
         try {
             String filename = "/home/timmer/evioDataFiles/clas_006586.evio.00001";
+            //String filename = "/Users/timmer/coda/clas_011868.evio.00008";
 
             // Get each event in the buffer
             int mmapCount = 0;
@@ -939,6 +940,96 @@ public class CompactReaderTest {
         }
     }
 
+
+
+
+    /** For reading a local file/buffer, take events and put them into
+     *  a EvioCompactEventWriter and write a file with it. */
+    public static void main333(String args[]) {
+
+        int evCount;
+
+        try {
+            String filename = "/Users/timmer/coda/clas_011868.evio.00008";
+
+            // Get each event in the buffer
+            int compositeBanksCount = 0;
+
+
+                EvioCompactReader reader = new EvioCompactReader(filename);
+                evCount = reader.getEventCount();
+System.out.println("got Count = " + evCount);
+
+                int evNumber = 928;
+
+                    EvioNode node = reader.getScannedEvent(evNumber);
+                    ArrayList<EvioNode> kids = node.getChildNodes();
+System.out.println("event " + evNumber + ": has kid count = " + kids.size());
+
+                    for (EvioNode kid : kids) {
+                        // For look for bank of banks
+                        if (kid.getDataTypeObj().isStructure()) {
+
+                            ArrayList<EvioNode> grkids = kid.getChildNodes();
+System.out.println("    bank kid count = " + grkids.size());
+                            for (EvioNode grandkid : grkids) {
+System.out.println("        grkid type = " + grandkid.getDataTypeObj());
+                                if (grandkid.getDataTypeObj() == DataType.COMPOSITE) {
+//System.out.println("            got composite");
+                                    // Got a bank of composite data
+                                    ByteBuffer buf = grandkid.getByteData(true);
+                                    CompositeData data = new CompositeData(buf.array(), reader.getByteOrder());
+                                    compositeBanksCount++;
+                                }
+                            }
+                        }
+                        else {
+                            System.out.println("    bank kid count = 0000000");
+                        }
+                    }
+
+                reader.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+
+
+    /** For reading a local file/buffer, take events and put them into
+     *  a EvioCompactEventWriter and write a file with it. */
+    public static void main(String args[]) {
+
+        int evCount;
+
+        try {
+            String filename = "/Users/timmer/coda/clas_011868.evio.00008";
+
+                EvioCompactReader reader = new EvioCompactReader(filename);
+                evCount = reader.getEventCount();
+System.out.println("got Count = " + evCount);
+
+                for (int i = 0; i < evCount; i++) {
+                    //EvioNode node = reader.getScannedEvent(i+1);
+                    ByteBuffer bb = reader.getEventBuffer(i + 1);
+
+                    EvioCompactStructureHandler handler = new EvioCompactStructureHandler(bb, DataType.BANK);
+                    List<EvioNode> eventNodes = handler.getNodes();
+                    for (EvioNode node : eventNodes) {
+                        if (node.getDataTypeObj() == DataType.CHARSTAR8) {
+                            System.out.println("event #" + (i+1) + " contains string data");
+                        }
+                    }
+                }
+                reader.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
 
 
 
