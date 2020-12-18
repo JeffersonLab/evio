@@ -233,7 +233,7 @@ typedef struct evfilestruct {
 
     uint32_t *eventLengths;   /**< For current record, an array containing the event lengths.
                                 * blkEvCount tracks how many events and therefore entries in this array. */
-    uint32_t eventLengthsLen; /**< Size of eventLengths array in words. */
+    uint32_t eventLengthsLen; /**< Size of eventLengths array in words, convenience variable when reading. */
 
     //// WRITING ////
 
