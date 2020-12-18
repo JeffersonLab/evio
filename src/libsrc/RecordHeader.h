@@ -153,6 +153,24 @@ namespace evio {
      *    26-27 = 0
      *    28-31 = 3
      *
+     *         THE FULL TRAILER FORMAT IS:
+     *
+     *    +----------------------------------+
+     *    |         Trailer Header           |
+     *    |          (14 words)              |
+     *    +----------------------------------+
+     *
+     *    +----------------------------------+
+     *    |            Optional              |
+     *    |      Uncompressed Array of       |
+     *    |     a record length in bytes,    |
+     *    |           followed by            |
+     *    |  an event count for that record  |
+     *    |       (2 words / record)         |
+     *    |          (all records)           |
+     *    +----------------------------------+
+     *
+     *
      * ------------------------------------------------------------
      * </pre>
      *
