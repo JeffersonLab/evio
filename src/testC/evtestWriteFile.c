@@ -193,7 +193,7 @@ int mainBuffer() {
 
 int main() {
 
-    int i, handle, handle2, nevents, nwords;
+    int i, handle, handle2, handle3, nevents, nwords;
     uint32_t status, *ip, *pBuf, buffer[4096], *buffer2, bufLen;
     const uint32_t *buffer3, *ip2;
 
@@ -205,7 +205,7 @@ int main() {
 
     pBuf = ip = makeEvent2();
 
-    for (int i =0; i < 10; i++) {
+    for (int j =0; j < 3; j++) {
         status = evWrite(handle, ip);
         //printf("    Will wrote event to %s, status = %u\n", filename, status);
     }
@@ -214,6 +214,21 @@ int main() {
     printf ("    Closed %s, status = %u\n\n", filename, status);
 
     /////////
+
+    printf("\nAppend to file\n");
+    status = evOpen(filename, "a", &handle3);
+    printf ("    Opened %s, status = %u\n", filename, status);
+
+    for (int j=0; j < 2; j++) {
+        status = evWrite(handle3, ip);
+        //printf("    Will wrote event to %s, status = %u\n", filename, status);
+    }
+
+    status = evClose(handle3);
+    printf ("    Closed %s, status = %u\n\n", filename, status);
+
+    /////////
+
 
     status = evOpen(filename, "r", &handle2);
     if (status != S_SUCCESS) {
