@@ -21,31 +21,39 @@ set(CMAKE_INSTALL_PREFIX ./)
 cmake_minimum_required(VERSION 3.2)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-project(evio_6_0)
-
-# Find include files here
-include_directories(src/libsrc src/libsrc++ src/libsrc /usr/include/boost /usr/local/include $ENV{DISRUPTOR_CPP_HOME})
+project(evio VERSION 6.0)
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/allBinaries)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread -lexpat -ldl -lz -lm")
+message("CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+set(C_HEADER_FILES
+        src/libCsrc/evio.h
+        src/libCsrc/msinttypes.h
+        )
+
+set(C_LIB_FILES
+        src/libCsrc/evio.c
+        src/libCsrc/evioswap.c
+        src/libCsrc/eviofmt.c
+        src/libCsrc/eviofmtdump.c
+        src/libCsrc/eviofmtswap.c
+        src/libCsrc/eviocopy.c
+        )
 
 set(CPP_HEADER_FILES_NEW
         src/libsrc/FileEventIndex.h
-        src/libsrc/HipoException.h
         src/libsrc/EvioException.h
         src/libsrc/ByteOrder.h
         src/libsrc/ByteBuffer.h
-        src/libsrc/ByteBufferVector.h
         src/libsrc/HeaderType.h
-        src/libsrc/Stoppable.h
-        src/libsrc/ConcurrentFixedQueue.h
         src/libsrc/Compressor.h
-        src/libsrc/CompressionType.h
         src/libsrc/FileHeader.h
         src/libsrc/RecordHeader.h
         src/libsrc/RecordInput.h
@@ -56,15 +64,11 @@ set(CPP_HEADER_FILES_NEW
         src/libsrc/DataType.h
         src/libsrc/StructureType.h
         src/libsrc/RecordNode.h
-        src/libsrc/EvioNodeSource.h
-        src/libsrc/TestWriter.h
-        src/libsrc/ReadWriteTest.h
         src/libsrc/Reader.h
         src/libsrc/RecordSupply.h
         src/libsrc/RecordRingItem.h
         src/libsrc/Util.h
         src/libsrc/EventWriter.h
-        src/libsrc/RecordWriter.h
         src/libsrc/RecordCompressor.h
         src/libsrc/BaseStructure.h
         src/libsrc/BaseStructureHeader.h
@@ -95,15 +99,13 @@ set(CPP_HEADER_FILES_NEW
         src/libsrc/EvioDictionaryEntry.h
         src/libsrc/pugixml.hpp
         src/libsrc/pugiconfig.hpp
-        src/libsrc/INameProvider.h
         src/libsrc/EvioCompactReaderV4.h
-        src/libsrc/BlockNode.h
         src/libsrc/EvioCompactReaderV6.h
         src/libsrc/EventBuilder.h
         src/libsrc/CompactEventBuilder.h
         src/libsrc/EvioSwap.h
         src/libsrc/StructureFinder.h
-        src/libsrc/evio.h
+        src/libsrc/eviocc.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -157,6 +159,24 @@ set(TEST
         )
 
 
+set(TESTC
+        src/testC/evReadPipe.c
+        src/testC/evtest.c
+        src/testC/evtest2.c
+        src/testC/evtest3.c
+        src/testC/evtestAppend.c
+        src/testC/evtestBuf.c
+        src/testC/evtestBuf2.c
+        src/testC/evTestFile.c
+        src/testC/evtestWriteFile.c
+        src/testC/evtestRead.c
+        src/testC/evtestRio.c
+        src/testC/evtestSock.c
+        src/testC/evWritePipe.c
+        src/testC/splitTest.c
+        )
+
+
 #set(CPP_LIB_FILES_DISRUPTOR
 #        src/disruptorTest/claim_strategy_test.cc
 #        src/disruptorTest/ring_buffer_test.cc
@@ -171,34 +191,78 @@ set(TEST
 
 
 #file(GLOB TEST_FILES_CC src/test/*.cc)
+include(FindPackageHandleStandardArgs)
+
+# search for unit_test_framework
+find_package(Boost REQUIRED system thread chrono)
+
+if (Boost_FOUND)
+    message("Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
+elseif(NOT Boost_FOUND)
+    error("Boost Not Found")
+endif()
+
+find_package_handle_standard_args( LZ4 DEFAULT_MSG LZ4_LIBRARY LZ4_INCLUDE_DIR )
+
+if( LZ4_FOUND )
+  message("LZ4 Found")
+  message("LZ4 include directory = ${LZ4_INCLUDE_DIR}")
+  message("LZ4 library = ${LZ4_LIBRARY}")
+  set( CMAKE_REQUIRED_INCLUDES ${LZ4_INCLUDE_DIRS} )
+  set( CMAKE_REQUIRED_LIBRARIES ${LZ4_LIBRARY})
+else()
+  set( LZ4_INCLUDE_DIRS )
+  set( LZ4_LIBRARIES )
+endif()
+
+find_path(DISRUPTOR_INCLUDE_DIR
+           NAMES lz4.h
+           PATHS $ENV{DISRUPTOR_CPP_HOME}/Disruptor
+         )
+
+find_library(DISRUPTOR_LIBRARY
+             NAMES Disruptor
+             PATHS $ENV{DISRUPTOR_CPP_HOME}/build/Disruptor
+            )
+
+
+# Find include files here
+#include_directories(src/libsrc src/libCsrc /usr/local/include ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIR} $ENV{DISRUPTOR_CPP_HOME}/Disruptor)
+
+# Shared evio C library
+add_library(evio SHARED ${C_LIB_FILES})
+include_directories(evio PUBLIC src/libCsrc /usr/local/include)
 
 
 # Shared evio C++ library
-add_library(evio SHARED ${CPP_LIB_FILES_NEW})
-target_include_directories(evio PUBLIC src/libsrc /usr/local/include)
+add_library(eviocc SHARED ${CPP_LIB_FILES_NEW})
+target_link_libraries(eviocc ${LZ4_LIBRARY} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
+include_directories(eviocc PUBLIC src/libsrc /usr/local/include
+                    ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} $ENV{DISRUPTOR_CPP_HOME}/Disruptor)
 
 
 # Main Executables
 add_executable(ReadWriteTest src/test/ReadWriteTest.cpp)
-target_link_libraries(ReadWriteTest pthread expat z hipo)
+target_link_libraries(ReadWriteTest pthread ${Boost_LIBRARIES} expat dl z m ${LZ4_LIBRARY} eviocc)
+
 
 add_executable(RingBufferTest src/test/RingBufferTest.cpp)
-target_link_libraries(RingBufferTest pthread expat z hipo)
+target_link_libraries(RingBufferTest pthread ${Boost_LIBRARIES}  expat dl z m ${LZ4_LIBRARY} eviocc)
 
 
-## Test programs
-#foreach(fileName ${TEST_FILES_C})
-#    # Get file name with no directory or extension as executable name
-#    get_filename_component(execName ${fileName} NAME_WE)
-#    # Create executable from file
-#    add_executable(${execName} ${fileName})
-#    # Needs these libs
-#    target_link_libraries(${execName} evio)
-#    # Install into bin/test dir
-#    install(TARGETS ${execName} DESTINATION bin/test)
-#endforeach(fileName)
+# Test programs
+foreach(fileName ${TESTC})
+    # Get file name with no directory or extension as executable name
+    get_filename_component(execName ${fileName} NAME_WE)
+    # Create executable from file
+    add_executable(${execName} ${fileName})
+    # Needs these libs
+    target_link_libraries(${execName} evio)
+    # Install into bin/test dir
+    install(TARGETS ${execName} DESTINATION bin/testC)
+endforeach(fileName)
 
 
 # Installation relative to build/cmake
-install(TARGETS evio DESTINATION lib)
+install(TARGETS evio eviocc DESTINATION lib)
 install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION inc)
