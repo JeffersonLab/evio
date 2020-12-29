@@ -26,8 +26,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(evio VERSION 6.0)
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
-set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/allBinaries)
+set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/ccBuild)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/ccBuild)
 
 message("CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
 
