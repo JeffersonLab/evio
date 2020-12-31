@@ -52,6 +52,7 @@ import java.util.List;
  * @since 08/10/2017
  * @deprecated
  */
+@Deprecated
 public class Record {
     /**
      * Constants providing Unique ID that is written at the beginning 

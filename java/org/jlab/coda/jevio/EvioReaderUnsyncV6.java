@@ -409,6 +409,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
      * @throws EvioException if object closed
      */
     @Override
+    @Deprecated
     public EvioEvent gotoEventNumber(int evNumber) throws EvioException {
 
         if (closed) {
