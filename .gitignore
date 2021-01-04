@@ -9,10 +9,16 @@ _*
 # ignore generated files/dirs
 coda.pyc
 build/
-cmake-build-debug/
+cmake-build-*/
+cmake-build-debug
+cmake_install.cmake
+Makefile
 doxyerrors.log
 /target/
 doc/javadoc
 doc/doxygen/CC
 doc/doxygen/C
-ccBuild
+ccBuild/
+cMakeFiles/
+cMakeCache.txt
+config.log
