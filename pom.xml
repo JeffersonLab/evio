@@ -1,11 +1,19 @@
-<!--
-
-    Example JEVIO Maven config
-
-    Jeremy McCormick <jeremym@slac.stanford.edu>
-
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <!-- 
+        NOTE:  (N. Baltzell)
+        Since some of the third-party jars included with evio in java/jars do not have
+        remote maven repositories, we install them in the local maven repository during
+        the build procedure.  This is currently done in the "clean" lifecycle (with the
+        maven-install-plugin below), due to issues getting it to work properly during
+        "install" (which seems to maybe be a real maven limitation).  There may be a
+        better/easier way to do this and still have a simple maven build command ...
+
+        Therefore, meanwhile, you have to clean first:
+        1. mvn clean
+        2. mvn install
+    -->
+
     <modelVersion>4.0.0</modelVersion>
 
     <!-- name to appear in generated jars etc. -->
@@ -21,102 +29,192 @@
     <groupId>org.jlab.coda</groupId>
 
     <!-- current rolling version using snapshot release -->
-    <version>6.1-SNAPSHOT</version>
-
-    <!-- Package code into jar file -->
-    <packaging>jar</packaging>
-    <dependencies>
-          <dependency>
-            <groupId>net.jpountz.lz4</groupId>
-            <artifactId>lz4</artifactId>
-            <version>1.3.0</version>
-          </dependency>
-          <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>3.3.7</version>
-          </dependency>
-
-    </dependencies>
+    <version>6.3-SNAPSHOT</version>
 
     <properties>
+
         <!-- Make java version 7 jar -->
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+
+        <!-- define version numbers, for convenience below -->
+        <!-- the "1.0" are fake, for jars that come with jevio but w/o a version -->
+        <lz4.version>1.4.0</lz4.version>
+        <disruptor.version>3.3</disruptor.version>
+        <proguard.version>1.0</proguard.version>
+        <aha.version>1.0</aha.version>
+
     </properties>
+
+    <!-- Package code into jar file -->
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.jpountz.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+            <version>${lz4.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>proguard</groupId>
+            <artifactId>proguard</artifactId>
+            <version>${proguard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aha.compression</groupId>
+            <artifactId>AHACompressionAPI</artifactId>
+            <version>${aha.version}</version>
+        </dependency>
+    </dependencies>
 
     <!-- build customization -->
     <build>
-        <!-- copy jar into external directory -->
-	<extensions>
-          <extension>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-ssh-external</artifactId>
-            <version>2.8</version>
-          </extension>
-	</extensions>
-        <plugins>
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.6</version>
-            <configuration>
-              <archive>
-		<manifest>
-		  <mainClass>org.jlab.coda.hipo.Evio6Converter</mainClass>
-		</manifest>
-              </archive>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
-            </configuration>
-	    <executions>
-	      <execution>
-		<id>make-assembly</id> <!-- this is used for inheritance merges -->
-		<phase>package</phase> <!-- bind to the packaging phase -->
-		<goals>
-		  <goal>single</goal>
-		</goals>
-	      </execution>
-	    </executions>
-	  </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <version>2.10</version>
-            <executions>
-              <execution>
-                <id>copy-installed</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>copy</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>${project.artifactId}</artifactId>
-                      <version>${project.version}</version>
-                      <type>${project.packaging}</type>
-                    </artifactItem>
-                  </artifactItems>
-                  <outputDirectory>${env.CODA}/common/jar</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-	
-	
+
         <sourceDirectory>./java/</sourceDirectory>
-        <defaultGoal>install</defaultGoal>
+
+        <!--<defaultGoal>install</defaultGoal>-->
+
+        <!-- copy jar into external directory -->
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.8</version>
+            </extension>
+        </extensions>
+
+        <plugins>
+
+            <plugin>
+                <!-- install included 3rd-party jars into local maven repo, before compilation -->
+                <!--
+                    Couldn't figure out how to do this such that the install-file plugin runs
+                    automatically during install/package and early enough.  As is, you have to
+                    run "mvn clean" first (or "mvn clean install").
+                -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>aha</id>
+                        <phase>clean</phase>
+                        <goals><goal>install-file</goal></goals>
+                        <configuration>
+                            <file>java/jars/AHACompressionAPI.jar</file>
+                            <groupId>com.aha.compression</groupId>
+                            <artifactId>AHACompressionAPI</artifactId>
+                            <version>${aha.version}</version>
+                            <packaging>jar</packaging>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>disruptor</id>
+                        <phase>clean</phase>
+                        <goals><goal>install-file</goal></goals>
+                        <configuration>
+                            <file>java/jars/disruptor-${disruptor.version}.jar</file>
+                            <groupId>com.lmax</groupId>
+                            <artifactId>disruptor</artifactId>
+                            <version>${disruptor.version}</version>
+                            <packaging>jar</packaging>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>lz4</id>
+                        <phase>clean</phase>
+                        <goals><goal>install-file</goal></goals>
+                        <configuration>
+                            <file>java/jars/lz4-java-${lz4.version}.jar</file>
+                            <groupId>net.jpountz.lz4</groupId>
+                            <artifactId>lz4-java</artifactId>
+                            <version>${lz4.version}</version>
+                            <packaging>jar</packaging>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>proguard</id>
+                        <phase>clean</phase>
+                        <goals><goal>install-file</goal></goals>
+                        <configuration>
+                            <file>java/jars/proguard.jar</file>
+                            <groupId>proguard</groupId>
+                            <artifactId>proguard</artifactId>
+                            <version>${proguard.version}</version>
+                            <packaging>jar</packaging>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.jlab.coda.hipo.Evio6Converter</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy-installed</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>${project.packaging}</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <!--
+                                 This appears to just create an unnecessary output.
+                                 Maybe/probably this enire plugin is unnecessary.
+                                 <outputDirectory>${env.CODA}/common/jar</outputDirectory>
+                            -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
     </build>
 
     <!-- distribution for deployment -->
     <distributionManagement>
         <repository>
-	    <id>ssh-clasweb</id>
-            <url>scpexe://clas12@jlabl1.jlab.org/group/clas/www/clasweb/html/jhep/maven</url>
-            <!-- FIXME: Set this to a real repo location. -->
+            <id>ssh-clasweb</id>
+            <url>scpexe://clas12@jlabl5/group/clas/www/clasweb/html/clas12maven</url>
         </repository>
     </distributionManagement>
 
