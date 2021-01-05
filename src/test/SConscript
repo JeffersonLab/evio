@@ -16,7 +16,7 @@ for fileName in ccfileList:
     compiledFile = env.Program(source  = fileName,
                             LIBS    = ['eviocc'+debugSuffix, 'Disruptor',
                                        'boost_system', boostThdLib,  'boost_chrono',  execLibs],
-                            LIBPATH = ['#src/libsrc/'+archDir, '/usr/local/lib'],
+                            LIBPATH = ['#src/libsrc/'+archDir, '/usr/lib64', '/usr/lib', '/usr/local/lib', disruptorHome+'/build/Disruptor'],
                             CPPPATH = ['#src/libsrc', disruptorHome, '/usr/local/include',
                                       '/usr/include/boost', '/usr/local/include/boost'])
 

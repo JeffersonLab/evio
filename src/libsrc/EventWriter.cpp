@@ -783,7 +783,7 @@ namespace evio {
 #ifdef __APPLE__
         return "myFile";
 #else
-        return currentFilePath.generic_string();}
+        return currentFilePath.generic_string();
 #endif
     }
 

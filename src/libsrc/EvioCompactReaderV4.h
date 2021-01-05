@@ -17,6 +17,7 @@
 #include <vector>
 #include <memory>
 #include <limits>
+#include <climits>
 #include <string>
 #include <cstdio>
 #include <fcntl.h>
