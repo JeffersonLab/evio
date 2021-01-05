@@ -199,6 +199,8 @@ if( LZ4_FOUND )
   set( CMAKE_REQUIRED_INCLUDES ${LZ4_INCLUDE_DIRS} )
   set( CMAKE_REQUIRED_LIBRARIES ${LZ4_LIBRARY})
 else()
+    message("LZ4 NOT Found, try again ...")
+
     # On Linux lz4 cannot be found for some reason.
     # This is where it is on my system.
     find_path(LZ4_INCLUDE_DIR
@@ -211,9 +213,14 @@ else()
             PATHS /usr/lib64
             )
 
-    message("LZ4 NOT Found, try again ...")
-    message("LZ4 include directory = ${LZ4_INCLUDE_DIR}")
-    message("LZ4 library = ${LZ4_LIBRARY}")
+    if (LZ4_INCLUDE_DIR-NOTFOUND)
+        error("lz4.h cannot be found)
+
+    if (LZ4_LIBRARY-NOTFOUND)
+        error("lz4 library cannot be found)
+
+    message("Found LZ4 include directory = ${LZ4_INCLUDE_DIR}")
+    message("Found LZ4 library = ${LZ4_LIBRARY}")
 endif()
 
 # search for disruptor lib
