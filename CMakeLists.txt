@@ -202,7 +202,7 @@ else()
     # On Linux lz4 cannot be found for some reason.
     # This is where it is on my system.
     find_path(LZ4_INCLUDE_DIR
-            NAMES lz4.h lz4hc.h
+            NAMES lz4.h
             PATHS /usr/include
             )
 
