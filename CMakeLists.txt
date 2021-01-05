@@ -177,32 +177,20 @@ set(TESTC
         )
 
 
-#set(CPP_LIB_FILES_DISRUPTOR
-#        src/disruptorTest/claim_strategy_test.cc
-#        src/disruptorTest/ring_buffer_test.cc
-#        src/disruptorTest/sequence_barrier_test.cc
-#        src/disruptorTest/sequence_test.cc
-#        src/disruptorTest/sequencer_test.cc
-#        src/disruptorTest/wait_strategy_test.cc
-#        src/disruptorTest/benchmark/one_publisher_to_one_unicast_throughput_test.cc
-#        src/disruptorTest/benchmark/one_publisher_to_three_pipeline_throughput_test.cc
-#        )
-
-
-
-#file(GLOB TEST_FILES_CC src/test/*.cc)
 include(FindPackageHandleStandardArgs)
 
-# search for unit_test_framework
+# search for boost libs
 find_package(Boost REQUIRED system thread chrono)
 
 if (Boost_FOUND)
     message("Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
+    link_directories(${Boost_LIBRARY_DIRS})
 elseif(NOT Boost_FOUND)
     error("Boost Not Found")
 endif()
 
-find_package_handle_standard_args( LZ4 DEFAULT_MSG LZ4_LIBRARY LZ4_INCLUDE_DIR )
+# search for lz4 libs
+find_package_handle_standard_args( LZ4 REQUIRED_VARS LZ4_LIBRARY LZ4_INCLUDE_DIR HANDLE_COMPONENTS)
 
 if( LZ4_FOUND )
   message("LZ4 Found")
@@ -211,10 +199,24 @@ if( LZ4_FOUND )
   set( CMAKE_REQUIRED_INCLUDES ${LZ4_INCLUDE_DIRS} )
   set( CMAKE_REQUIRED_LIBRARIES ${LZ4_LIBRARY})
 else()
-  set( LZ4_INCLUDE_DIRS )
-  set( LZ4_LIBRARIES )
+    # On Linux lz4 cannot be found for some reason.
+    # This is where it is on my system.
+    find_path(LZ4_INCLUDE_DIR
+            NAMES lz4.h lz4hc.h
+            PATHS /usr/include
+            )
+
+    find_library(LZ4_LIBRARY
+            NAMES lz4
+            PATHS /usr/lib64
+            )
+
+    message("LZ4 NOT Found, try again ...")
+    message("LZ4 include directory = ${LZ4_INCLUDE_DIR}")
+    message("LZ4 library = ${LZ4_LIBRARY}")
 endif()
 
+# search for disruptor lib
 find_path(DISRUPTOR_INCLUDE_DIR
            NAMES lz4.h
            PATHS $ENV{DISRUPTOR_CPP_HOME}/Disruptor
