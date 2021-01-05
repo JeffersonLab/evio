@@ -213,11 +213,13 @@ else()
             PATHS /usr/lib64
             )
 
-    if (LZ4_INCLUDE_DIR-NOTFOUND)
-        error("lz4.h cannot be found)
+    if(LZ4_INCLUDE_DIR-NOTFOUND)
+        error("lz4.h cannot be found")
+    endif()
 
     if (LZ4_LIBRARY-NOTFOUND)
-        error("lz4 library cannot be found)
+        error("lz4 library cannot be found")
+    endif()
 
     message("Found LZ4 include directory = ${LZ4_INCLUDE_DIR}")
     message("Found LZ4 library = ${LZ4_LIBRARY}")
