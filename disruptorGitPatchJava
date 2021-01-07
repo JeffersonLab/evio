@@ -1449,10 +1449,10 @@ index 5b7729c..0000000
 -    }
 -}
 diff --git a/src/main/java/com/lmax/disruptor/MultiProducerSequencer.java b/src/main/java/com/lmax/disruptor/MultiProducerSequencer.java
-index 05363e9..69d0f95 100644
+index 05363e9..a5356bb 100644
 --- a/src/main/java/com/lmax/disruptor/MultiProducerSequencer.java
 +++ b/src/main/java/com/lmax/disruptor/MultiProducerSequencer.java
-@@ -149,6 +149,54 @@ public final class MultiProducerSequencer extends AbstractSequencer
+@@ -149,6 +149,55 @@ public final class MultiProducerSequencer extends AbstractSequencer
          return next;
      }
  
@@ -1485,7 +1485,8 @@ index 05363e9..69d0f95 100644
 +
 +                if (wrapPoint > gatingSequence)
 +                {
-+                    if (Thread.currentThread().isInterrupted()) {
++                    if (Thread.currentThread().isInterrupted())
++                    {
 +                        throw new InterruptedException();
 +                    }
 +                    LockSupport.parkNanos(1);
@@ -1559,10 +1560,10 @@ index 3c8ba69..89e4770 100644
       * Attempt to claim the next event in sequence for publishing.  Will return the
       * number of the slot if there is at least <code>requiredCapacity</code> slots
 diff --git a/src/main/java/com/lmax/disruptor/SingleProducerSequencer.java b/src/main/java/com/lmax/disruptor/SingleProducerSequencer.java
-index d5a7ae0..cc7202d 100644
+index d5a7ae0..678388a 100644
 --- a/src/main/java/com/lmax/disruptor/SingleProducerSequencer.java
 +++ b/src/main/java/com/lmax/disruptor/SingleProducerSequencer.java
-@@ -145,6 +145,43 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
+@@ -145,6 +145,44 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
          return nextSequence;
      }
  
@@ -1589,7 +1590,8 @@ index d5a7ae0..cc7202d 100644
 +            long minSequence;
 +            while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
 +            {
-+                if (Thread.currentThread().isInterrupted()) {
++                if (Thread.currentThread().isInterrupted())
++                {
 +                    throw new InterruptedException();
 +                }
 +                LockSupport.parkNanos(1L);
@@ -1608,10 +1610,10 @@ index d5a7ae0..cc7202d 100644
       */
 diff --git a/src/main/java/com/lmax/disruptor/SpinCountBackoffWaitStrategy.java b/src/main/java/com/lmax/disruptor/SpinCountBackoffWaitStrategy.java
 new file mode 100644
-index 0000000..1818f3c
+index 0000000..5d82f08
 --- /dev/null
 +++ b/src/main/java/com/lmax/disruptor/SpinCountBackoffWaitStrategy.java
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,51 @@
 +package com.lmax.disruptor;
 +
 +
@@ -1624,13 +1626,13 @@ index 0000000..1818f3c
 + */
 +public final class SpinCountBackoffWaitStrategy implements WaitStrategy
 +{
-+    private final int SPIN_TRIES;
++    private final int spin_tries;
 +    private final WaitStrategy fallbackStrategy;
 +
 +    public SpinCountBackoffWaitStrategy(int spinTries,
 +                                        WaitStrategy fallbackStrategy)
 +    {
-+        this.SPIN_TRIES = spinTries;
++        this.spin_tries = spinTries;
 +        this.fallbackStrategy = fallbackStrategy;
 +    }
 +
@@ -1640,14 +1642,17 @@ index 0000000..1818f3c
 +        throws AlertException, InterruptedException, TimeoutException
 +    {
 +        long availableSequence;
-+        int counter = SPIN_TRIES;
++        int counter = spin_tries;
 +
-+        do {
-+            if ((availableSequence = dependentSequence.get()) >= sequence) {
++        do
++        {
++            if ((availableSequence = dependentSequence.get()) >= sequence)
++            {
 +                return availableSequence;
 +            }
 +
-+            if (0 == --counter) {
++            if (0 == --counter)
++            {
 +                return fallbackStrategy.waitFor(sequence, cursor, dependentSequence, barrier);
 +            }
 +
@@ -1661,10 +1666,10 @@ index 0000000..1818f3c
 +    }
 +}
 diff --git a/src/main/java/com/lmax/disruptor/YieldingWaitStrategy.java b/src/main/java/com/lmax/disruptor/YieldingWaitStrategy.java
-index ba357ac..4097313 100644
+index ba357ac..f8c4546 100644
 --- a/src/main/java/com/lmax/disruptor/YieldingWaitStrategy.java
 +++ b/src/main/java/com/lmax/disruptor/YieldingWaitStrategy.java
-@@ -49,13 +49,17 @@ public final class YieldingWaitStrategy implements WaitStrategy
+@@ -49,13 +49,18 @@ public final class YieldingWaitStrategy implements WaitStrategy
      }
  
      private int applyWaitMethod(final SequenceBarrier barrier, int counter)
@@ -1677,7 +1682,8 @@ index ba357ac..4097313 100644
          {
              Thread.yield();
 +            // Next 3 lines added by Carl Timmer to make it interruptible
-+            if (Thread.interrupted()) {
++            if (Thread.interrupted())
++            {
 +                throw new InterruptedException();
 +            }
          }
