@@ -1,6 +1,8 @@
--injars       build/lib/jevio-6.0.jar
--outjars      build/lib/jevio-6.0.optimized.jar
--libraryjars  <java.home>/lib/rt.jar
+-injars       ../evio/build/lib/jevio-6.0.jar
+-injars       ../evio/java/jars/disruptor-3.4.jar
+-injars       ../evio/java/jars/lz4-java-1.4.0.jar
+-outjars      ../evio/build/lib/jevio-6.0.optimized.jar
+-libraryjars  <java.home>/jre/lib/rt.jar
 
 -optimizationpasses 3
 -overloadaggressively
