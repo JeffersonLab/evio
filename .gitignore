@@ -19,6 +19,6 @@ doc/javadoc
 doc/doxygen/CC
 doc/doxygen/C
 ccBuild/
-cMakeFiles/
-cMakeCache.txt
+CMakeFiles/
+CMakeCache.txt
 config.log
