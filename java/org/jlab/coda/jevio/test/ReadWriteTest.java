@@ -2,7 +2,6 @@ package org.jlab.coda.jevio.test;
 
 import org.jlab.coda.hipo.*;
 import org.jlab.coda.jevio.*;
-import proguard.io.JarWriter;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.io.File;
