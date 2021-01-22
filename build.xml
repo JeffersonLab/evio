@@ -29,6 +29,9 @@
     <property name="compJarName"     value="AHACompressionAPI.jar" />
     <property name="compJarPath"     value="${local.jars}/${compJarName}" />
 
+    <property name="disruptorJarName"  value="disruptor-3.4.2.jar" />
+    <property name="disruptorJarPath"  value="${local.jars}/${disruptorJarName}" />
+
     <!-- Set Classpath, ignore caller's classpath -->
     <property name="build.sysclasspath" value="ignore" />
     <!-- By default use local jars in classpath -->
@@ -224,12 +227,14 @@
         <echo>Install ${jarName} into ${prefix}</echo>
         <echo>Install ${lz4JarName} into ${prefix}</echo>
         <echo>Install ${compJarName} into ${prefix}</echo>
+        <echo>Install ${disruptorJarName} into ${prefix}</echo>
         <delete>
             <fileset dir="${prefix}/jar" includes="${allJarNames}" />
         </delete>
         <copy file="${jarPath}" todir="${prefix}/jar"/>
         <copy file="${lz4JarPath}" todir="${prefix}/jar"/>
         <copy file="${compJarPath}" todir="${prefix}/jar"/>
+        <copy file="${disruptorJarPath}" todir="${prefix}/jar"/>
     </target>
 
     <!-- Install in $CODA -->
@@ -237,12 +242,14 @@
         <echo>Install ${jarName} into ${env.CODA}/common/jar</echo>
         <echo>Install ${lz4JarName} into ${env.CODA}/common/jar</echo>
         <echo>Install ${compJarName} into ${env.CODA}/common/jar</echo>
+        <echo>Install ${disruptorJarName} into ${env.CODA}/common/jar</echo>
         <delete>
             <fileset dir="${env.CODA}/common/jar" includes="${allJarNames}" />
         </delete>
         <copy file="${jarPath}" todir="${env.CODA}/common/jar"/>
         <copy file="${lz4JarPath}" todir="${env.CODA}/common/jar"/>
         <copy file="${compJarPath}" todir="${env.CODA}/common/jar"/>
+        <copy file="${disruptorJarPath}" todir="${env.CODA}/common/jar"/>
     </target>
 
     <!-- No installation directory defined -->
@@ -264,9 +271,11 @@
         <echo>Remove ${jarName} from ${prefix}</echo>
         <echo>Remove ${lz4JarName} from ${prefix}</echo>
         <echo>Remove ${compJarName} from ${prefix}</echo>
+        <echo>Remove ${disruptorJarName} from ${prefix}</echo>
         <delete file="${prefix}/jar/${jarName}"/>
         <delete file="${prefix}/jar/${lz4JarName}"/>
         <delete file="${prefix}/jar/${compJarName}"/>
+        <delete file="${prefix}/jar/${disruptorJarName}"/>
     </target>
 
     <!-- Uninstall from $CODA -->
@@ -274,9 +283,11 @@
         <echo>Remove ${jarName} from ${env.CODA}/common/jar</echo>
         <echo>Remove ${lz4JarName} from ${env.CODA}/common/jar</echo>
         <echo>Remove ${compJarName} from ${env.CODA}/common/jar</echo>
+        <echo>Remove ${disruptorJarName} from ${env.CODA}/common/jar</echo>
         <delete file="${env.CODA}/common/jar/${jarName}"/>
         <delete file="${env.CODA}/common/jar/${lz4JarName}"/>
         <delete file="${env.CODA}/common/jar/${compJarName}"/>
+        <delete file="${env.CODA}/common/jar/${disruptorJarName}"/>
     </target>
 
     <!-- No installation directory defined to uninstall from -->
