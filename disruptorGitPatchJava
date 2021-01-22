@@ -255,6 +255,63 @@ index 32e1942..678388a 100644
      /**
       * @see Sequencer#tryNext()
       */
+diff --git a/src/main/java/com/lmax/disruptor/SpinCountBackoffWaitStrategy.java b/src/main/java/com/lmax/disruptor/SpinCountBackoffWaitStrategy.java
+new file mode 100644
+index 0000000..5d82f08
+--- /dev/null
++++ b/src/main/java/com/lmax/disruptor/SpinCountBackoffWaitStrategy.java
+@@ -0,0 +1,51 @@
++package com.lmax.disruptor;
++
++
++/**
++ * <p>Spin first wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
++ *
++ * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
++ * Spins for a given number of times then waits using the configured fallback WaitStrategy.</p>
++ * @author timmer
++ */
++public final class SpinCountBackoffWaitStrategy implements WaitStrategy
++{
++    private final int spin_tries;
++    private final WaitStrategy fallbackStrategy;
++
++    public SpinCountBackoffWaitStrategy(int spinTries,
++                                        WaitStrategy fallbackStrategy)
++    {
++        this.spin_tries = spinTries;
++        this.fallbackStrategy = fallbackStrategy;
++    }
++
++
++    @Override
++    public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
++        throws AlertException, InterruptedException, TimeoutException
++    {
++        long availableSequence;
++        int counter = spin_tries;
++
++        do
++        {
++            if ((availableSequence = dependentSequence.get()) >= sequence)
++            {
++                return availableSequence;
++            }
++
++            if (0 == --counter)
++            {
++                return fallbackStrategy.waitFor(sequence, cursor, dependentSequence, barrier);
++            }
++
++        } while (true);
++    }
++
++    @Override
++    public void signalAllWhenBlocking()
++    {
++        fallbackStrategy.signalAllWhenBlocking();
++    }
++}
 diff --git a/src/main/java/com/lmax/disruptor/YieldingWaitStrategy.java b/src/main/java/com/lmax/disruptor/YieldingWaitStrategy.java
 index ba357ac..f8c4546 100644
 --- a/src/main/java/com/lmax/disruptor/YieldingWaitStrategy.java
