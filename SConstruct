@@ -22,7 +22,7 @@ from subprocess import Popen, PIPE
 import coda
 
 # Created files & dirs will have this permission
-os.umask(002)
+os.umask(2)
 
 # Software version
 versionMajor = '5'
@@ -41,13 +41,13 @@ ldLibPath = os.getenv('LD_LIBRARY_PATH', '')
 
 if path == '':
     print
-    print "Error: set PATH environmental variable"
+    print ("Error: set PATH environmental variable")
     print
     raise SystemExit
 
 if ldLibPath == '':
     print
-    print "Warning: LD_LIBRARY_PATH environmental variable not defined"
+    print ("Warning: LD_LIBRARY_PATH environmental variable not defined")
     print
     env = Environment(ENV = {'PATH' : os.environ['PATH']})
 else:
@@ -58,16 +58,16 @@ else:
 ################################
 # 64 or 32 bit operating system?
 ################################
-    
+
 # How many bits is the operating system?
 # For Linux 64 bit x86 machines, the "machine' variable is x86_64,
 # but for Darwin or Solaris there is no obvious check so run
 # a configure-type test.
 is64bits = coda.is64BitMachine(env, platform, machine)
 if is64bits:
-    print "We're on a 64-bit machine"
+    print ("We're on a 64-bit machine")
 else:
-    print "We're on a 32-bit machine"
+    print ("We're on a 32-bit machine")
 
 
 #############################################
@@ -80,13 +80,13 @@ Help('\nlocal scons OPTIONS:\n')
 # debug option
 AddOption('--dbg', dest='ddebug', default=False, action='store_true')
 debug = GetOption('ddebug')
-if debug: print "Enable debugging"
+if debug: print ("Enable debugging")
 Help('--dbg               compile with debug flag\n')
 
 # 32 bit option
 AddOption('--32bits', dest='use32bits', default=False, action='store_true')
 use32bits = GetOption('use32bits')
-if use32bits: print "use 32-bit libs & executables even on 64 bit system"
+if use32bits: print ("use 32-bit libs & executables even on 64 bit system")
 Help('--32bits            compile 32bit libs & executables on 64bit system\n')
 
 # install directory option
@@ -118,8 +118,8 @@ Help('--bindir=<dir>      copy binary  files to directory <dir> when doing insta
 debugSuffix = ''
 if debug:
     debugSuffix = '-dbg'
-# Compile with -g and add debugSuffix to all executable names
-    env.Append(CCFLAGS = ['-g', '-O0'], PROGSUFFIX = debugSuffix)
+    # Compile with -g and add debugSuffix to all executable names
+    env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 else:
     env.Append(CCFLAGS = ['-O3'])
 
@@ -143,16 +143,14 @@ env.Append(CCFLAGS = ['-Wall', '-Wextra', '-pedantic', '-Wno-unused-parameter'])
 
 if platform == 'Darwin':
     execLibs = ['pthread', 'dl', 'expat', 'z']
-    #env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined','suppress','-undefined','dynamic_lookup'])
     env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
     env.Append(CCFLAGS = ['-fmessage-length=0'])
-
 
 
 if is64bits and use32bits:
     osname = osname + '-32'
 
-print "OSNAME =", osname
+print ("OSNAME = " + osname)
 
 # hidden sub directory into which variant builds go
 archDir = '.' + osname + debugSuffix
@@ -178,24 +176,24 @@ if (incdir == None):
 if 'install' in COMMAND_LINE_TARGETS:
     # Determine installation directories
     installDirs = coda.getInstallationDirs(osname, prefix, incdir, libdir, bindir)
-    
+
     mainInstallDir    = installDirs[0]
     osDir             = installDirs[1]
     incInstallDir     = installDirs[2]
     archIncInstallDir = installDirs[3]
     libInstallDir     = installDirs[4]
     binInstallDir     = installDirs[5]
-    
+
     # Create the include directories (make symbolic link if possible)
     coda.makeIncludeDirs(incInstallDir, archIncInstallDir, osDir, archIncLocalLink)
 
-    print 'Main install dir  = ', mainInstallDir
-    print 'bin  install dir  = ', binInstallDir
-    print 'lib  install dir  = ', libInstallDir
-    print 'inc  install dirs = ', incInstallDir, ", ", archIncInstallDir
+    print ('Main install dir  = ', mainInstallDir)
+    print ('bin  install dir  = ', binInstallDir)
+    print ('lib  install dir  = ', libInstallDir)
+    print ('inc  install dirs = ', incInstallDir, ", ", archIncInstallDir)
 
 else:
-    print 'No installation being done'
+    print ('No installation being done')
 
 print
 
