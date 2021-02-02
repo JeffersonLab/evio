@@ -1,5 +1,7 @@
 # ignore all files/dirs beginning with .
 .*
+# ignore all files/dirs beginning with _
+_*
 
 # except this one
 !.gitignore
@@ -7,7 +9,16 @@
 # ignore generated files/dirs
 coda.pyc
 build/
-doc/doxygen/C/
-doc/doxygen/CC/
-doc/javadoc/
+cmake-build-*/
+cmake-build-debug
+cmake_install.cmake
+Makefile
 doxyerrors.log
+/target/
+doc/javadoc
+doc/doxygen/CC
+doc/doxygen/C
+ccBuild/
+CMakeFiles/
+CMakeCache.txt
+config.log
