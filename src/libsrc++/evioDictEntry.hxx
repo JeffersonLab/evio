@@ -13,11 +13,10 @@
 #ifndef _evioDictEntry_hxx
 #define _evioDictEntry_hxx
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <iostream>
 #include "evioException.hxx"
-#include "evioDictionary.hxx"
 
 #if defined(__GNUC__) || defined(__clang__)
 # define _MAYBE_UNUSED __attribute__((unused))
@@ -73,16 +72,17 @@ namespace evio {
         "tagsegment", "alsosegment", "alsobank",
         "composite",  "bank",        "segment" };
 
+
     /** This class defines an entry in the XML dictionary. */
     class evioDictEntry {
 
     public:
-        // These methods need to call setFormat and setDescription which should be private
-        friend  void evioDictionary::startElementHandler(void *userData, const char *xmlname, const char **atts);
-        friend  void evioDictionary::charDataHandler(void *userData, const char *s, int len);
+        // The methods, evioDictionary::startElementHandler and evioDictionary::charDataHandler,
+        // need to call setFormat and setDescription which should be private
+        friend class evioDictionary;
 
         evioDictEntry();
-        evioDictEntry(uint16_t tag);
+        explicit evioDictEntry(uint16_t tag);
         evioDictEntry(uint16_t tag, uint8_t num, uint16_t tagEnd);
         evioDictEntry(uint16_t tag, uint8_t num);
         evioDictEntry(uint16_t tag, uint8_t num, uint16_t tagEnd, DataType type,
