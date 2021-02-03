@@ -7,8 +7,8 @@
 #define _evioException_hxx
 
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <string>
 
