@@ -162,7 +162,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
             if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
             {
               mcnf = 0;
-              b32 = (uint32_t *)b8;
+              b32 = (int32_t *)b8;
               ncnf = *b32 = SWAP32(*b32); /* get #repeats from data */
 #ifdef PRINT
               xml += sprintf(xml,"          %d(\n",ncnf);
@@ -177,7 +177,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
             if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
             {
               mcnf = 0;
-              b16 = (uint16_t *)b8;
+              b16 = (int16_t *)b8;
               ncnf = *b16 = SWAP16(*b16); /* get #repeats from data */
 #ifdef PRINT
               xml += sprintf(xml,"          %d(\n",ncnf);

@@ -92,7 +92,10 @@
     #include <stdint.h>		  // Use the C99 official header
 #endif
 
-        
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * This structure contains information about file
  * opened for either reading or writing.
@@ -240,9 +243,6 @@ typedef struct evioBlockHeaderV4_t {
 #define EVIO_BH_MAGNUM_OFFSET 224
 
 /* prototypes */
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
@@ -294,7 +294,6 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
 
 #ifdef __cplusplus
 }
-
 #endif
 
 #endif
