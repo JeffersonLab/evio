@@ -485,9 +485,10 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec
  */
 template <class Predicate> evioDOMNodeListP evioDOMNode::getChildren(Predicate pred) throw(evioException) {
   evioDOMNodeListP l = getChildren();
-  if(l.get()==NULL)return(l);
-  l->remove_if(not1(pred));
-  return(l);
+  if (l.get() != nullptr) {
+    l->remove_if(not1(pred));
+  }
+  return(std::move(l));
 }
 
 

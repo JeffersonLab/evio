@@ -938,8 +938,8 @@ evioDOMNode& evioDOMNode::operator<<(char *s) throw(evioException) {
  * @return Pointer to internal child list
  */
 evioDOMNodeList *evioDOMNode::getChildList(void) throw(evioException) {
-  if(!isContainer())return(NULL);
-  evioDOMContainerNode *c = static_cast<evioDOMContainerNode*>(this);
+  if(!isContainer())return(nullptr);
+  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(this);
   return(&c->childList);
 }
 
@@ -952,12 +952,14 @@ evioDOMNodeList *evioDOMNode::getChildList(void) throw(evioException) {
  * List must be deleted by user
  * @return Copy of child list
  */
-
-//evioDOMNodeList *evioDOMNode::getChildren(void) throw(evioException) {
 evioDOMNodeListP evioDOMNode::getChildren(void) throw(evioException) {
   evioDOMNodeList *l1 = getChildList();
-  if(l1==NULL)return(evioDOMNodeListP(NULL));
-  evioDOMNodeList *l2 = new evioDOMNodeList(l1->size());
+  if (l1==nullptr) {
+      list<evioDOMNode *> *elist = new list<evioDOMNode *>;
+      evioDOMNodeListP emptyList(elist);
+      return(std::move(emptyList));
+  }
+  list<evioDOMNodeP> *l2 = new evioDOMNodeList(l1->size());
   copy(l1->begin(), l1->end(), l2->begin());
   return(evioDOMNodeListP(l2));
 }
@@ -2370,7 +2372,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
 
 /**
  * Returns list of all nodes in tree.
- * @return Pointer to list of nodes in tree (actually auto_ptr<>)
+ * @return Pointer to list of nodes in tree (actually unique_ptr<>)
  */
 evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
   return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,isTrue)));
@@ -2383,18 +2385,20 @@ evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
 /**
  * Returns list of all nodes in tree with particular name, evioDictEntry from dictionary
  * @param name Name of banks to find
- * @return Pointer to list of nodes in tree (actually auto_ptr<>)
+ * @return Pointer to list of nodes in tree (actually unique_ptr<>)
  */
 evioDOMNodeListP evioDOMTree::getNodeList(const string &nName) throw(evioException) {
 
-  if(dictionary!=NULL) {
+  if(dictionary!=nullptr) {
     map<string, evioDictEntry>::const_iterator iter = dictionary->getTagNumMap.find(nName);
     if(iter!=dictionary->getTagNumMap.end())
       return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,tagNumEquals((*iter).second))));
   }
 
   // return empty list if no dictionary or name not found
-  return(*(new evioDOMNodeListP));
+  list<evioDOMNode *> *elist = new list<evioDOMNode *>;
+  evioDOMNodeListP emptyList(elist);
+  return(std::move(emptyList));
 }
 
 
