@@ -21,6 +21,10 @@
 #ifndef __EVIO_h__
 #define __EVIO_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Evio format version, not the evio package version #. */
 #define EV_VERSION 4
 
@@ -90,10 +94,6 @@
     #define strncasecmp strnicmp
 #else
     #include <stdint.h>		  // Use the C99 official header
-#endif
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 /**
