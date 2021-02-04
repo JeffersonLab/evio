@@ -1,8 +1,9 @@
 -injars       ../evio/build/lib/jevio-6.0.jar
--injars       ../evio/java/jars/disruptor-3.4.jar
+-injars       ../evio/java/jars/disruptor-3.4.2.jar
 -injars       ../evio/java/jars/lz4-java-1.4.0.jar
+-injars       ../evio/java/jars/AHACompressionAPI.jar
 -outjars      ../evio/build/lib/jevio-6.0.optimized.jar
--libraryjars  <java.home>/jre/lib/rt.jar
+-libraryjars  <java.home>/lib/rt.jar
 
 -optimizationpasses 3
 -overloadaggressively
