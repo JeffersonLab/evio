@@ -118,7 +118,7 @@ if disruptorHome == "":
     print('Disruptor-cpp must be installed by defining DISRUPTOR_CPP_HOME')
     Exit(1)
 else:
-    print('Disruptor-cpp = ' + disruptorHome)
+    print('Disruptor-cpp = ' + str(disruptorHome))
 
 #########################
 # Compile flags
