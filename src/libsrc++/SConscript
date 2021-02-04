@@ -1,5 +1,10 @@
 # scons build file for evio
-Import('env', 'libInstallDir', 'incInstallDir', 'archIncInstallDir', 'debugSuffix')
+Import('env', 'archDir', 'libInstallDir', 'incInstallDir', 'archIncInstallDir', 'debugSuffix')
+
+# Need to copy the environment here or else when compiling the C evio lib, the values set for LIBS below
+# will also be invoked while compiling the evio lib, resulting in a circular reference with the evio lib
+# depending on itself!
+myEnv = env.Clone()
 
 # Headers to install
 headerList = Glob('*.h*',  strings=True)
@@ -7,9 +12,12 @@ headerList = Glob('*.h*',  strings=True)
 # Files to compile
 fileList = Glob('*.cc',  strings=True)
 
-env.AppendUnique(CPPPATH = ['.', '#src/libsrc'])
-evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)
-    
+myEnv.AppendUnique(CPPPATH = ['.', '#src/libsrc'], LIBS = ['expat', 'evio'+debugSuffix], LIBPATH = ['/usr/lib', '#src/libsrc/'+archDir])
+
+#evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList, SHLIBVERSION="5.2")
+evioxxLib = myEnv.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)
+
 if 'install' in COMMAND_LINE_TARGETS:
-    env.Alias("install", env.Install(target = [incInstallDir, archIncInstallDir], source = headerList))
-    env.Alias("install", env.Install(target = libInstallDir, source = evioxxLib))
+    print("archDir = " + archDir)
+    myEnv.Alias("install", myEnv.Install(target = [incInstallDir, archIncInstallDir], source = headerList))
+    myEnv.Alias("install", myEnv.Install(target = libInstallDir, source = evioxxLib))

@@ -109,6 +109,15 @@ AddOption('--bindir', dest='bindir', nargs=1, default=None, action='store')
 bindir = GetOption('bindir')
 Help('--bindir=<dir>      copy binary  files to directory <dir> when doing install\n')
 
+#########################
+# System checks
+#########################
+
+conf = Configure(env)
+if not conf.CheckCHeader('expat.h'):
+    print('expat must be installed!')
+    Exit(1)
+env = conf.Finish()
 
 #########################
 # Compile flags
@@ -119,9 +128,9 @@ debugSuffix = ''
 if debug:
     debugSuffix = '-dbg'
     # Compile with -g and add debugSuffix to all executable names
-    env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
+    env.AppendUnique(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 else:
-    env.Append(CCFLAGS = ['-O3'])
+    env.AppendUnique(CCFLAGS = ['-O3'])
 
 
 # Take care of 64/32 bit issues
@@ -138,13 +147,12 @@ execLibs = ['']
 # Platform dependent quantities. Default to standard Linux libs.
 execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
 
-env.Append(CFLAGS = ['-std=c99', '-Wall', '-Wextra', '-pedantic'])
-env.Append(CCFLAGS = ['-Wall', '-Wextra', '-pedantic', '-Wno-unused-parameter'])
+#env.AppendUnique(CCFLAGS = ['-Wall', '-Wextra', '-pedantic', '-Wno-unused-parameter'])
 
 if platform == 'Darwin':
     execLibs = ['pthread', 'dl', 'expat', 'z']
-    env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
-    env.Append(CCFLAGS = ['-fmessage-length=0'])
+    env.AppendUnique(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
+    env.AppendUnique(CCFLAGS = ['-fmessage-length=0'])
 
 
 if is64bits and use32bits:
