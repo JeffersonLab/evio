@@ -1821,7 +1821,7 @@ namespace evio {
         while (b8 < b8end) {
 
 #ifdef COMPOSITE_DEBUG
-            std::cout << ""+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
+            std::cout << "+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
                                    ", end = " << b8end << dec << std::endl;
 #endif
             // get next format code
