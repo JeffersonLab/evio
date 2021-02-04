@@ -69,14 +69,16 @@ static char bad7[3] =  {(char)101, (char)0,   (char)4};
 
 static void printStringArray(char** a, int count)
 {
-  for(int i = 0; i<count; ++i) {
+  int i;
+  for(i = 0; i<count; ++i) {
     printf("       %2d: %s\n", i, a[i]);
   }
 }
 
 static void freeStringArray(char** a, int count)
 {
-  for(int i = 0; i<count; ++i) {
+  int i;
+  for(i = 0; i<count; ++i) {
     free(a[i]);
   }
   free(a);
