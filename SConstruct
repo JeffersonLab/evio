@@ -132,6 +132,8 @@ if debug:
 else:
     env.AppendUnique(CCFLAGS = ['-O3'])
 
+# for unique_ptr now replacing auto_ptr
+env.Append(CXXFLAGS = ['-std=c++11'])
 
 # Take care of 64/32 bit issues
 if is64bits:
