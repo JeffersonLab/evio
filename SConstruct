@@ -108,6 +108,17 @@ AddOption('--bindir', dest='bindir', nargs=1, default=None, action='store')
 bindir = GetOption('bindir')
 Help('--bindir=<dir>      copy binary  files to directory <dir> when doing install\n')
 
+#########################
+# System checks
+#########################
+
+# location of C++ version of disruptor
+disruptorHome = os.getenv('DISRUPTOR_CPP_HOME')
+if disruptorHome == "":
+    print('Disruptor-cpp must be installed by defining DISRUPTOR_CPP_HOME')
+    Exit(1)
+else:
+    print('Disruptor-cpp = ' + disruptorHome)
 
 #########################
 # Compile flags
@@ -124,9 +135,6 @@ if debug:
 
 # code for newlib++ written in C++17
 env.Append(CXXFLAGS = ['-std=c++17'])
-
-# location of C++ version of disruptor
-disruptorHome = os.getenv('DISRUPTOR_CPP_HOME')
 
 # Take care of 64/32 bit issues
 if is64bits:
