@@ -112,6 +112,15 @@ Help('--bindir=<dir>      copy binary  files to directory <dir> when doing insta
 # System checks
 #########################
 
+conf = Configure(env)
+if not conf.CheckCHeader('lz4.h'):
+    print('lz4 must be installed!')
+    Exit(1)
+else:
+    print('lz4 was found')
+
+env = conf.Finish()
+
 # location of C++ version of disruptor
 disruptorHome = os.getenv('DISRUPTOR_CPP_HOME')
 if disruptorHome == "":
