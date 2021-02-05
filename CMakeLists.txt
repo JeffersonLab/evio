@@ -20,16 +20,20 @@ set(CMAKE_INSTALL_PREFIX ./)
 
 cmake_minimum_required(VERSION 3.2)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(evio VERSION 6.0)
 
-# Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
-set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/ccBuild)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/ccBuild)
+# Place libs & binaries in build/cmake/lib and bin
+#set(CMAKE_INSTALL_PREFIX   /Users/timmer/coda/codaIn1)
+set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-message("CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
+message(STATUS "CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
+message(STATUS "CMAKE_INSTALL_PREFIX = " ${CMAKE_INSTALL_PREFIX})
+message(STATUS "CMAKE_INSTALL_LIBDIR = " ${CMAKE_INSTALL_LIBDIR})
+message(STATUS "CMAKE_INSTALL_INCLUDEDIR = " ${CMAKE_INSTALL_INCLUDEDIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
@@ -183,7 +187,7 @@ include(FindPackageHandleStandardArgs)
 find_package(Boost REQUIRED system thread chrono)
 
 if (Boost_FOUND)
-    message("Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
+    message(STATUS "Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
 elseif(NOT Boost_FOUND)
     error("Boost Not Found")
@@ -193,9 +197,9 @@ endif()
 find_package_handle_standard_args( LZ4 REQUIRED_VARS LZ4_LIBRARY LZ4_INCLUDE_DIR HANDLE_COMPONENTS)
 
 if( LZ4_FOUND )
-  message("LZ4 Found")
-  message("LZ4 include directory = ${LZ4_INCLUDE_DIR}")
-  message("LZ4 library = ${LZ4_LIBRARY}")
+  message(STATUS "LZ4 Found")
+  message(STATUS "LZ4 include directory = ${LZ4_INCLUDE_DIR}")
+  message(STATUS "LZ4 library = ${LZ4_LIBRARY}")
   set( CMAKE_REQUIRED_INCLUDES ${LZ4_INCLUDE_DIRS} )
   set( CMAKE_REQUIRED_LIBRARIES ${LZ4_LIBRARY})
 else()
@@ -213,28 +217,76 @@ else()
             PATHS /usr/lib64
             )
 
-    if(LZ4_INCLUDE_DIR-NOTFOUND)
-        error("lz4.h cannot be found")
+    if(NOT LZ4_INCLUDE_DIR)
+        message(FATAL_ERROR "lz4.h cannot be found, cmake will exit." )
     endif()
 
-    if (LZ4_LIBRARY-NOTFOUND)
-        error("lz4 library cannot be found")
+    if (NOT LZ4_LIBRARY)
+        message(FATAL_ERROR "lz4 library cannot be found, cmake will exit." )
     endif()
 
     message("Found LZ4 include directory = ${LZ4_INCLUDE_DIR}")
     message("Found LZ4 library = ${LZ4_LIBRARY}")
 endif()
 
-# search for disruptor lib
+# Remove from cache so new search done each time
+unset(DISRUPTOR_INCLUDE_DIR CACHE)
+unset(DISRUPTOR_LIBRARY CACHE)
+
+# Search for disruptor includes & lib
 find_path(DISRUPTOR_INCLUDE_DIR
-           NAMES lz4.h
-           PATHS $ENV{DISRUPTOR_CPP_HOME}/Disruptor
+          NAMES Disruptor.h
+          PATHS $ENV{DISRUPTOR_CPP_HOME}/Disruptor
+          NO_DEFAULT_PATH
          )
 
 find_library(DISRUPTOR_LIBRARY
              NAMES Disruptor
              PATHS $ENV{DISRUPTOR_CPP_HOME}/build/Disruptor
+             NO_DEFAULT_PATH
             )
+
+
+if( DISRUPTOR_INCLUDE_DIR )
+    message(STATUS "Disruptor.h found in path = " $ENV{DISRUPTOR_CPP_HOME}/Disruptor)
+    # Reset this to one directory upstream since these files are included as
+    # include "Disruptor/xxx.h
+    set (DISRUPTOR_INCLUDE_DIR  $ENV{DISRUPTOR_CPP_HOME})
+    message(STATUS "Disruptor include directory now set to " ${DISRUPTOR_INCLUDE_DIR})
+else()
+    message(FATAL_ERROR "Disruptor.h NOT found, cmake will exit." )
+endif()
+
+
+if( DISRUPTOR_LIBRARY )
+    message(STATUS "Disruptor library found at = " ${DISRUPTOR_LIBRARY})
+else()
+    message(FATAL_ERROR "Disruptor library NOT found, cmake will exit." )
+endif()
+
+
+find_package(Doxygen)
+
+if( DOXYGEN_FOUND )
+    message(STATUS "Doxygen found")
+
+    # Change these values from cmake defaults in the Doxyfile
+    set(DOXYGEN_GENERATE_TREEVIEW YES)
+    set(DOXYGEN_REFERENCED_BY_RELATION YES)
+    set(DOXYGEN_EXCLUDE_PATTERNS */.* */CMakeFiles/* */_CPack_Packages/* DartConfiguration.tcl CMakeLists.txt CMakeCache.txt)
+    set(DOXYGEN_EXCLUDE src/libsrc/pugixml.cpp src/libsrc/pugixml.hpp)
+    set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
+    #set(DOXYGEN_WARN_LOGFILE doxyerrors.log)
+    set(DOXYGEN_SORT_MEMBERS_CTORS_1ST YES)
+    set(DOXYGEN_SHOW_GROUPED_MEMB_INC YES)
+    set(DOXYGEN_INLINE_IHERITED_MEMB YES)
+    set(DOXYGEN_JAVADOC_AUTOBRIEF YES)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/CC)
+
+    doxygen_add_docs(docs src/libsrc )
+else()
+    message(FATAL_ERROR "DOxygen NOT found, cmake will exit." )
+endif()
 
 
 # Find include files here
@@ -249,7 +301,7 @@ include_directories(evio PUBLIC src/libCsrc /usr/local/include)
 add_library(eviocc SHARED ${CPP_LIB_FILES_NEW})
 target_link_libraries(eviocc ${LZ4_LIBRARY} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
 include_directories(eviocc PUBLIC src/libsrc /usr/local/include
-                    ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} $ENV{DISRUPTOR_CPP_HOME}/Disruptor)
+                    ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
 
 # Main Executables
@@ -269,11 +321,20 @@ foreach(fileName ${TESTC})
     add_executable(${execName} ${fileName})
     # Needs these libs
     target_link_libraries(${execName} evio)
-    # Install into bin/test dir
-    install(TARGETS ${execName} DESTINATION bin/testC)
+    # Install into bin/testC dir
+    install(TARGETS ${execName} RUNTIME DESTINATION testC)
 endforeach(fileName)
 
 
-# Installation relative to build/cmake
-install(TARGETS evio eviocc DESTINATION lib)
-install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION inc)
+# Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib
+install(TARGETS evio LIBRARY)
+install(TARGETS eviocc ARCHIVE)
+# Installation defaulting to ${CMAKE_INSTALL_PREFIX}/include
+install(DIRECTORY src/libsrc/ DESTINATION include FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+# This works too
+#install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION include)
+# This works too
+# foreach(headerFile ${CPP_HEADER_FILES_NEW})
+#     install(FILES ${headerFile} PUBLIC_HEADER DESTINATION include)
+# endforeach(headerFile)
+
