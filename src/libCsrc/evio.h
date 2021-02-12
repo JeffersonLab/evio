@@ -21,6 +21,10 @@
 #ifndef __EVIO_h__
 #define __EVIO_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /** Evio format version, not the evio package version #. */
@@ -281,10 +285,6 @@ typedef struct evioBlockHeaderV4_t {
 #define EVIO_BH_MAGNUM_OFFSET 224
 
 /* prototypes */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 int evioIsLocalHostBigEndian();
 uint64_t evioToLongWord(uint32_t word1, uint32_t word2, int needToSwap);

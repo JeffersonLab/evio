@@ -2762,7 +2762,8 @@ if (debug) printf("evOpen: read in rest of header, bytes = %d\n", (int)(EV_HDSIZ
 
             if (debug) {
                 printf("\n");
-                for (int j=0; j < EV_HDSIZ_V6; j++) {
+                int j;
+                for (j=0; j < EV_HDSIZ_V6; j++) {
                     printf("firstHdr[%d] = 0x%x\n", j, header[j]);
                 }
             }
@@ -3858,9 +3859,10 @@ static int generatePointerTableV6(EVFILE *a) {
         if (indexLen > 0) {
             // Create pointer to start of first event
             uint32_t  *pevent = pmem + (indexLen + usrHdrLen)/4;
+            int j;
 
             // For each event in block, store its location
-            for (int j=0; j < (int)recordEventCount; j++) {
+            for (j=0; j < (int)recordEventCount; j++) {
                 uint32_t eventByteLen = pmem[j];
                 if (a->byte_swapped) {
                     eventByteLen = EVIO_SWAP32(eventByteLen);
@@ -4734,12 +4736,14 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
         evioswap(buffer, 1, NULL);
     }
 
-//    printf("evRead: data length = %u\n", evLen);
-//    for (int j=0; j < evLen; j++) {
-//        printf("data[%d] = 0x%x\n", j, bufferOrig[j]);
-//    }
-//
-//    printf("Length of ev = %ld\n", (a->next - nextOrig));
+//    {
+//        int j;
+//        printf("evRead: data length = %u\n", evLen);
+//        for (j=0; j < evLen; j++) {
+//            printf("data[%d] = 0x%x\n", j, bufferOrig[j]);
+//        }
+//        printf("Length of ev = %ld\n", (a->next - nextOrig));
+//   }
 
     return(S_SUCCESS);
 }
