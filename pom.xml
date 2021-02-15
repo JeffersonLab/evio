@@ -40,8 +40,7 @@
         <!-- define version numbers, for convenience below -->
         <!-- the "1.0" are fake, for jars that come with jevio but w/o a version -->
         <lz4.version>1.4.0</lz4.version>
-        <disruptor.version>3.3</disruptor.version>
-        <proguard.version>1.0</proguard.version>
+        <disruptor.version>3.4.2</disruptor.version>
         <aha.version>1.0</aha.version>
 
     </properties>
@@ -59,11 +58,6 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>proguard</groupId>
-            <artifactId>proguard</artifactId>
-            <version>${proguard.version}</version>
         </dependency>
         <dependency>
             <groupId>com.aha.compression</groupId>
@@ -134,18 +128,6 @@
                             <groupId>net.jpountz.lz4</groupId>
                             <artifactId>lz4-java</artifactId>
                             <version>${lz4.version}</version>
-                            <packaging>jar</packaging>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>proguard</id>
-                        <phase>clean</phase>
-                        <goals><goal>install-file</goal></goals>
-                        <configuration>
-                            <file>java/jars/proguard.jar</file>
-                            <groupId>proguard</groupId>
-                            <artifactId>proguard</artifactId>
-                            <version>${proguard.version}</version>
                             <packaging>jar</packaging>
                         </configuration>
                     </execution>
