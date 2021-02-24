@@ -22,6 +22,7 @@ cmake_minimum_required(VERSION 3.2)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_DEBUG_POSTFIX -dbg)
 
 project(evio VERSION 6.0)
 
@@ -31,11 +32,11 @@ set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 message(STATUS "CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
+message(STATUS "CMAKE_CURRENT_BINARY_DIR = " ${CMAKE_CURRENT_BINARY_DIR})
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR = " ${CMAKE_CURRENT_SOURCE_DIR})
 message(STATUS "CMAKE_INSTALL_PREFIX = " ${CMAKE_INSTALL_PREFIX})
 message(STATUS "CMAKE_INSTALL_LIBDIR = " ${CMAKE_INSTALL_LIBDIR})
 message(STATUS "CMAKE_INSTALL_INCLUDEDIR = " ${CMAKE_INSTALL_INCLUDEDIR})
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 set(C_HEADER_FILES
         src/libCsrc/evio.h
@@ -319,6 +320,8 @@ foreach(fileName ${TESTC})
     get_filename_component(execName ${fileName} NAME_WE)
     # Create executable from file
     add_executable(${execName} ${fileName})
+    # Put debug extension on if applicable
+    set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     # Needs these libs
     target_link_libraries(${execName} evio)
     # Install into bin/testC dir
@@ -327,14 +330,29 @@ endforeach(fileName)
 
 
 # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib
-install(TARGETS evio LIBRARY)
-install(TARGETS eviocc ARCHIVE)
+install(TARGETS evio ARCHIVE)
+install(TARGETS eviocc LIBRARY)
+
 # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/include
-install(DIRECTORY src/libsrc/ DESTINATION include FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION include)
+
 # This works too
-#install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION include)
+#install(DIRECTORY src/libsrc/ DESTINATION include FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+
 # This works too
 # foreach(headerFile ${CPP_HEADER_FILES_NEW})
 #     install(FILES ${headerFile} PUBLIC_HEADER DESTINATION include)
 # endforeach(headerFile)
+
+
+# Uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
 
