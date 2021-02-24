@@ -1,6 +1,6 @@
-diff -Naru -x .git ../Disruptor-cpp-orig/Disruptor/CMakeLists.txt ./Disruptor/CMakeLists.txt
---- ../Disruptor-cpp-orig/Disruptor/CMakeLists.txt	2021-02-24 11:03:27.000000000 -0500
-+++ ./Disruptor/CMakeLists.txt	2021-02-24 11:05:17.000000000 -0500
+diff -Naru -x .git ../Disruptor-cpp/Disruptor/CMakeLists.txt ./Disruptor/CMakeLists.txt
+--- ../Disruptor-cpp/Disruptor/CMakeLists.txt	2021-02-24 14:08:04.000000000 -0500
++++ ./Disruptor/CMakeLists.txt	2021-02-24 14:23:55.000000000 -0500
 @@ -22,6 +22,7 @@
      Sequence.cpp
      SequenceGroups.cpp
@@ -17,9 +17,9 @@ diff -Naru -x .git ../Disruptor-cpp-orig/Disruptor/CMakeLists.txt ./Disruptor/CM
      SpinWait.h
      SpinWaitWaitStrategy.h
      ThreadPerTaskScheduler.h
-diff -Naru -x .git ../Disruptor-cpp-orig/Disruptor/SpinCountBackoffWaitStrategy.cpp ./Disruptor/SpinCountBackoffWaitStrategy.cpp
---- ../Disruptor-cpp-orig/Disruptor/SpinCountBackoffWaitStrategy.cpp	1969-12-31 19:00:00.000000000 -0500
-+++ ./Disruptor/SpinCountBackoffWaitStrategy.cpp	2021-02-24 11:04:05.000000000 -0500
+diff -Naru -x .git ../Disruptor-cpp/Disruptor/SpinCountBackoffWaitStrategy.cpp ./Disruptor/SpinCountBackoffWaitStrategy.cpp
+--- ../Disruptor-cpp/Disruptor/SpinCountBackoffWaitStrategy.cpp	1969-12-31 19:00:00.000000000 -0500
++++ ./Disruptor/SpinCountBackoffWaitStrategy.cpp	2021-02-24 14:23:44.000000000 -0500
 @@ -0,0 +1,71 @@
 +#include "stdafx.h"
 +#include "SpinCountBackoffWaitStrategy.h"
@@ -92,9 +92,9 @@ diff -Naru -x .git ../Disruptor-cpp-orig/Disruptor/SpinCountBackoffWaitStrategy.
 +
 +} // namespace Disruptor
 +
-diff -Naru -x .git ../Disruptor-cpp-orig/Disruptor/SpinCountBackoffWaitStrategy.h ./Disruptor/SpinCountBackoffWaitStrategy.h
---- ../Disruptor-cpp-orig/Disruptor/SpinCountBackoffWaitStrategy.h	1969-12-31 19:00:00.000000000 -0500
-+++ ./Disruptor/SpinCountBackoffWaitStrategy.h	2021-02-24 11:04:05.000000000 -0500
+diff -Naru -x .git ../Disruptor-cpp/Disruptor/SpinCountBackoffWaitStrategy.h ./Disruptor/SpinCountBackoffWaitStrategy.h
+--- ../Disruptor-cpp/Disruptor/SpinCountBackoffWaitStrategy.h	1969-12-31 19:00:00.000000000 -0500
++++ ./Disruptor/SpinCountBackoffWaitStrategy.h	2021-02-24 14:23:44.000000000 -0500
 @@ -0,0 +1,57 @@
 +#pragma once
 +
