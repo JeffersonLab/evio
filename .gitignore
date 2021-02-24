@@ -18,6 +18,7 @@ doxyerrors.log
 doc/javadoc
 doc/doxygen/CC
 doc/doxygen/C
+doc/source/
 ccBuild/
 CMakeFiles/
 CMakeCache.txt
