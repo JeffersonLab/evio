@@ -359,7 +359,7 @@ foreach(fileName ${TESTC})
     # Put debug extension on if applicable
     set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     # Needs these libs
-    target_link_libraries(${execName} evio)
+    target_link_libraries(${execName} evio pthread)
 
     # Only install if installation directory has been defined
     if (DEFINED INSTALL_DIR_DEFINED)
