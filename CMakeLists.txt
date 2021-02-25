@@ -1,14 +1,14 @@
 # To use this, do the following the first time:
 #   % mkdir build
-#   % mkdir build/cmake
-#   % cd build/cmake
-#   % cmake ../..
+#   % mkdir build
+#   % cd build
+#   % cmake ..
 #   % make (install)
 #
 #
 # After doing this once can do the following to recompile
 #  % cd <top level evio dir>
-#  % cmake --build build/cmake (--target install)
+#  % cmake --build build (--target install)
 #
 #
 # Set the path in which to install.
@@ -45,6 +45,13 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 # Set architecture-related string for installation consistent with scons file
 set(ARCH ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
 message(STATUS "ARCH = " ${ARCH})
+
+# Include experimental boost file system library if on linux
+if (NOT DEFINED CMAKE_HOST_APPLE)
+    set(BOOST_FILE_SYSTEM_LIB stdc++fs)
+else()
+    set(BOOST_FILE_SYSTEM_LIB "")
+endif()
 
 # Install into $CODA_INSTALL directory
 if (DEFINED CODA_INSTALL)
@@ -329,7 +336,7 @@ include_directories(evio PUBLIC src/libCsrc /usr/local/include)
 
 # Shared evio C++ library
 add_library(eviocc SHARED ${CPP_LIB_FILES_NEW})
-target_link_libraries(eviocc ${LZ4_LIBRARY} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
+target_link_libraries(eviocc ${LZ4_LIBRARY} ${BOOST_FILE_SYSTEM_LIB} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
 include_directories(eviocc PUBLIC src/libsrc /usr/local/include
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
