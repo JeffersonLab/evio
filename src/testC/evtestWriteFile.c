@@ -43,7 +43,7 @@ int mainBuffer() {
 
     pBuf = ip = makeEvent2();
 
-    for (int i =0; i < 10; i++) {
+    for (i =0; i < 10; i++) {
         status = evWrite(handle, ip);
         //printf("    Will wrote event to buffer, status = %u\n", status);
     }
@@ -96,7 +96,7 @@ int mainBuffer() {
         }
 
 
-//    for (int j=0; j < evCount; j++) {
+//    for (j=0; j < evCount; j++) {
 //
 //        status = evReadRandom(handle2, &buffer3, &bufLen, j+1);
 //        nevents++;
@@ -193,7 +193,7 @@ int mainBuffer() {
 
 int main() {
 
-    int i, handle, handle2, handle3, nevents, nwords;
+    int i, j, handle, handle2, handle3, nevents, nwords;
     uint32_t status, *ip, *pBuf, buffer[4096], *buffer2, bufLen;
     const uint32_t *buffer3, *ip2;
 
@@ -205,7 +205,7 @@ int main() {
 
     pBuf = ip = makeEvent2();
 
-    for (int j =0; j < 3; j++) {
+    for (j =0; j < 3; j++) {
         status = evWrite(handle, ip);
         //printf("    Will wrote event to %s, status = %u\n", filename, status);
     }
@@ -219,7 +219,7 @@ int main() {
     status = evOpen(filename, "a", &handle3);
     printf ("    Opened %s, status = %u\n", filename, status);
 
-    for (int j=0; j < 2; j++) {
+    for (j=0; j < 2; j++) {
         status = evWrite(handle3, ip);
         //printf("    Will wrote event to %s, status = %u\n", filename, status);
     }
@@ -297,7 +297,7 @@ int main() {
 //    }
 
 
-//        for (int j=0; j < evCount; j++) {
+//        for (j=0; j < evCount; j++) {
 //
 //            status = evReadRandom(handle2, &buffer3, &bufLen, j+1);
 //            nevents++;
