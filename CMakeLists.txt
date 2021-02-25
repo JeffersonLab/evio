@@ -16,7 +16,6 @@
 #   % cmake -DCMAKE_INSTALL_PREFIX=<my_dir> ../..
 #   % make install
 # (This call must be placed BEFORE "project" command).
-set(CMAKE_INSTALL_PREFIX ./)
 
 cmake_minimum_required(VERSION 3.2)
 
@@ -26,17 +25,48 @@ set(CMAKE_DEBUG_POSTFIX -dbg)
 
 project(evio VERSION 6.0)
 
-# Place libs & binaries in build/cmake/lib and bin
-#set(CMAKE_INSTALL_PREFIX   /Users/timmer/coda/codaIn1)
+# Place libs & binaries in build/cmake/lib and bin (this is not for installation)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-message(STATUS "CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
-message(STATUS "CMAKE_CURRENT_BINARY_DIR = " ${CMAKE_CURRENT_BINARY_DIR})
-message(STATUS "CMAKE_CURRENT_SOURCE_DIR = " ${CMAKE_CURRENT_SOURCE_DIR})
-message(STATUS "CMAKE_INSTALL_PREFIX = " ${CMAKE_INSTALL_PREFIX})
-message(STATUS "CMAKE_INSTALL_LIBDIR = " ${CMAKE_INSTALL_LIBDIR})
-message(STATUS "CMAKE_INSTALL_INCLUDEDIR = " ${CMAKE_INSTALL_INCLUDEDIR})
+# Some available CMAKE variables ...
+#message(STATUS "CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
+#message(STATUS "CMAKE_CURRENT_BINARY_DIR = " ${CMAKE_CURRENT_BINARY_DIR})
+#message(STATUS "CMAKE_CURRENT_SOURCE_DIR = " ${CMAKE_CURRENT_SOURCE_DIR})
+#message(STATUS "CMAKE_INSTALL_PREFIX = " ${CMAKE_INSTALL_PREFIX})
+#message(STATUS "CMAKE_SYSTEM_PROCESSOR = " ${CMAKE_SYSTEM_PROCESSOR})
+#message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR = " ${CMAKE_HOST_SYSTEM_PROCESSOR})
+#message(STATUS "CMAKE_HOST_APPLE = " ${CMAKE_HOST_APPLE})
+#message(STATUS "CMAKE_HOST_UNIX = " ${CMAKE_HOST_UNIX})
+#message(STATUS "CMAKE_HOST_SYSTEM = " ${CMAKE_HOST_SYSTEM})
+#message(STATUS "CMAKE_HOST_SYSTEM_VERSION = " ${CMAKE_HOST_SYSTEM_VERSION})
+#message(STATUS "CMAKE_SYSTEM = " ${CMAKE_SYSTEM})
+
+# Set architecture-related string for installation consistent with scons file
+set(ARCH ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
+message(STATUS "ARCH = " ${ARCH})
+
+# Install into $CODA_INSTALL directory
+if (DEFINED CODA_INSTALL)
+    message(STATUS "CODA_INSTALL = " ${CODA_INSTALL})
+    set(INSTALL_DIR_DEFINED 1)
+    set(CMAKE_INSTALL_PREFIX ${CODA_INSTALL}/${ARCH})
+    set(CMAKE_INSTALL_INCLUDEDIR ${CODA_INSTALL}/common/include)
+    message(STATUS "CMAKE_INSTALL_PREFIX reset to " ${CMAKE_INSTALL_PREFIX})
+# Install into $CODA directory
+elseif (DEFINED ENV{CODA})
+    message(STATUS "CODA = " $ENV{CODA})
+    set(INSTALL_DIR_DEFINED 1)
+    set(CMAKE_INSTALL_PREFIX $ENV{CODA}/${ARCH})
+    set(CMAKE_INSTALL_INCLUDEDIR $ENV{CODA}/common/include)
+    message(STATUS "CMAKE_INSTALL_PREFIX reset to " ${CMAKE_INSTALL_PREFIX})
+else()
+    message(STATUS "Set the \"CODA\" env var or specify -DCODA_INSTALL=... on the command line or no installation possible!")
+endif()
+
+# Example of executing a command
+#EXECUTE_PROCESS( COMMAND uname -a COMMAND tr -d '\n' OUTPUT_VARIABLE UNAME )
+#message(STATUS "UNAME = " ${UNAME})
 
 set(C_HEADER_FILES
         src/libCsrc/evio.h
@@ -148,7 +178,8 @@ set(CPP_LIB_FILES_NEW
         src/libsrc/EvioCompactReaderV4.cpp
         src/libsrc/EvioCompactReaderV6.cpp
         src/libsrc/EventBuilder.cpp
-        src/libsrc/CompactEventBuilder.cpp)
+        src/libsrc/CompactEventBuilder.cpp
+        )
 
 
 set(TEST
@@ -284,14 +315,12 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_JAVADOC_AUTOBRIEF YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/CC)
 
+    # Add target of "docs"
     doxygen_add_docs(docs src/libsrc )
 else()
-    message(FATAL_ERROR "DOxygen NOT found, cmake will exit." )
+    message(FATAL_ERROR "Doxygen NOT found, cmake will exit." )
 endif()
 
-
-# Find include files here
-#include_directories(src/libsrc src/libCsrc /usr/local/include ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIR} $ENV{DISRUPTOR_CPP_HOME}/Disruptor)
 
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
@@ -324,25 +353,25 @@ foreach(fileName ${TESTC})
     set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     # Needs these libs
     target_link_libraries(${execName} evio)
-    # Install into bin/testC dir
-    install(TARGETS ${execName} RUNTIME DESTINATION testC)
+
+    # Only install if installation directory has been defined
+    if (DEFINED INSTALL_DIR_DEFINED)
+        # Install into bin/testC dir
+        install(TARGETS ${execName} RUNTIME DESTINATION bin/testC)
+    endif()
 endforeach(fileName)
 
 
-# Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib
-install(TARGETS evio ARCHIVE)
-install(TARGETS eviocc LIBRARY)
+# Only install if installation directory has been defined
+if (DEFINED INSTALL_DIR_DEFINED)
+    # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib
+    install(TARGETS evio ARCHIVE)
+    install(TARGETS eviocc LIBRARY)
 
-# Installation defaulting to ${CMAKE_INSTALL_PREFIX}/include
-install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION include)
-
-# This works too
-#install(DIRECTORY src/libsrc/ DESTINATION include FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
-
-# This works too
-# foreach(headerFile ${CPP_HEADER_FILES_NEW})
-#     install(FILES ${headerFile} PUBLIC_HEADER DESTINATION include)
-# endforeach(headerFile)
+    # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/include
+    install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION include)
+    install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
 
 
 # Uninstall target
