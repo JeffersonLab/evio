@@ -76,6 +76,12 @@ else:
 Help('\n-D                  build from subdirectory of package\n')
 Help('\nlocal scons OPTIONS:\n')
 
+# C compilation only option
+AddOption('--C', dest='onlyC', default=False, action='store_true')
+onlyC = GetOption('onlyC')
+if onlyC: print ("Compile C code only")
+Help('--C                 compile C code only\n')
+
 # debug option
 AddOption('--dbg', dest='ddebug', default=False, action='store_true')
 debug = GetOption('ddebug')
@@ -114,8 +120,9 @@ Help('--bindir=<dir>      copy binary  files to directory <dir> when doing insta
 
 conf = Configure(env)
 if not conf.CheckCHeader('lz4.h'):
-    print('lz4 must be installed!')
-    Exit(1)
+    if not onlyC:
+        print('lz4 must be installed!')
+        Exit(1)
 else:
     print('lz4 was found')
 
@@ -124,8 +131,9 @@ env = conf.Finish()
 # location of C++ version of disruptor
 disruptorHome = os.getenv('DISRUPTOR_CPP_HOME')
 if disruptorHome == "":
-    print('Disruptor-cpp must be installed by defining DISRUPTOR_CPP_HOME')
-    Exit(1)
+    if not onlyC:
+        print('Disruptor-cpp must be installed by defining DISRUPTOR_CPP_HOME')
+        Exit(1)
 else:
     print('Disruptor-cpp = ' + str(disruptorHome))
 
@@ -158,18 +166,25 @@ execLibs = ['']
 
 # Platform dependent quantities. Default to standard Linux libs.
 # -lstdc++fs is a library needed for the experimental <filesystem> header in C++17
-execLibs = ['stdc++fs', 'pthread', 'expat', 'z', 'lz4', 'dl', 'm']
-#execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
+if onlyC:
+    execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
+else:
+    execLibs = ['stdc++fs', 'pthread', 'expat', 'z', 'lz4', 'dl', 'm']
+    #execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
 
 env.AppendUnique(CPPDEFINES = ['USE_GZIP'])
 
 if platform == 'Darwin':
-    #execLibs = ['pthread', 'expat', 'z', 'lz4', 'dl', 'm']
-    execLibs = ['pthread', 'dl', 'expat', 'z', 'lz4']
+    if onlyC:
+        execLibs = ['pthread', 'dl', 'expat', 'z']
+    else:
+        #execLibs = ['pthread', 'expat', 'z', 'lz4', 'dl', 'm']
+        execLibs = ['pthread', 'dl', 'expat', 'z', 'lz4']
+
     env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-undefined','dynamic_lookup'])
     #env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
     env.Append(CCFLAGS = ['-fmessage-length=0'])
-#    env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
+    #env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
 
 
 if is64bits and use32bits:
@@ -234,7 +249,10 @@ Help('install -c          uninstall libs, headers, and binaries\n')
 ###############################
 
 if 'doc' in COMMAND_LINE_TARGETS:
-    coda.generateDocs(env, True, True)
+    if onlyC:
+        coda.generateDocs(env, False, True)
+    else:
+        coda.generateDocs(env, True, True)
 
 if 'undoc' in COMMAND_LINE_TARGETS:
     coda.removeDocs(env)
@@ -267,8 +285,11 @@ Export('env platform archDir incInstallDir libInstallDir binInstallDir archIncIn
 
 # Run lower level build files
 env.SConscript('src/libCsrc/SConscript', variant_dir='src/libCsrc/'+archDir,   duplicate=0)
-env.SConscript('src/libsrc/SConscript', variant_dir='src/libsrc/'+archDir,   duplicate=0)
-#env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
-#env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
-env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
+
+if not onlyC:
+    env.SConscript('src/libsrc/SConscript', variant_dir='src/libsrc/'+archDir,   duplicate=0)
+    #env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
+    #env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
+    env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
+
 env.SConscript('src/testC/SConscript',     variant_dir='src/testC/'+archDir,     duplicate=0)
