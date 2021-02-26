@@ -1,50 +1,44 @@
 # To use this, do the following the first time:
 #   % mkdir build
-#   % mkdir build
 #   % cd build
-#   % cmake ..
+#   % cmake .. -DCMAKE_BUILD_TYPE=release
 #   % make (install)
 #
+# To only build C libraries and executables, replace the 3rd cammand above with
+#   % cmake .. -DCMAKE_BUILD_TYPE=release -DC_ONLY=1
 #
 # After doing this once can do the following to recompile
 #  % cd <top level evio dir>
 #  % cmake --build build (--target install)
 #
 #
-# Set the path in which to install.
-# This can be overridden on command line (in build/cmake dir) with:
-#   % cmake -DCMAKE_INSTALL_PREFIX=<my_dir> ../..
+# The installation will default to the CODA env variable if it's defined
+# This can be overridden on command line (in build dir) with:
+#   % cmake -DCODA_INSTALL=<my_dir> ..
 #   % make install
-# (This call must be placed BEFORE "project" command).
 
+
+# This call must be placed BEFORE "project" command
 cmake_minimum_required(VERSION 3.2)
+
+
+project(evio VERSION 6.0)
+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
 
-project(evio VERSION 6.0)
 
 # Place libs & binaries in build/cmake/lib and bin (this is not for installation)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-# Some available CMAKE variables ...
-#message(STATUS "CMAKE_BINARY_DIR = " ${CMAKE_BINARY_DIR})
-#message(STATUS "CMAKE_CURRENT_BINARY_DIR = " ${CMAKE_CURRENT_BINARY_DIR})
-#message(STATUS "CMAKE_CURRENT_SOURCE_DIR = " ${CMAKE_CURRENT_SOURCE_DIR})
-#message(STATUS "CMAKE_INSTALL_PREFIX = " ${CMAKE_INSTALL_PREFIX})
-#message(STATUS "CMAKE_SYSTEM_PROCESSOR = " ${CMAKE_SYSTEM_PROCESSOR})
-#message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR = " ${CMAKE_HOST_SYSTEM_PROCESSOR})
-#message(STATUS "CMAKE_HOST_APPLE = " ${CMAKE_HOST_APPLE})
-#message(STATUS "CMAKE_HOST_UNIX = " ${CMAKE_HOST_UNIX})
-#message(STATUS "CMAKE_HOST_SYSTEM = " ${CMAKE_HOST_SYSTEM})
-#message(STATUS "CMAKE_HOST_SYSTEM_VERSION = " ${CMAKE_HOST_SYSTEM_VERSION})
-#message(STATUS "CMAKE_SYSTEM = " ${CMAKE_SYSTEM})
 
 # Set architecture-related string for installation consistent with scons file
 set(ARCH ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
 message(STATUS "ARCH = " ${ARCH})
+
 
 # Include experimental boost file system library if on linux
 if (NOT DEFINED CMAKE_HOST_APPLE)
@@ -52,6 +46,7 @@ if (NOT DEFINED CMAKE_HOST_APPLE)
 else()
     set(BOOST_FILE_SYSTEM_LIB "")
 endif()
+
 
 # Install into $CODA_INSTALL directory
 if (DEFINED CODA_INSTALL)
@@ -71,9 +66,11 @@ else()
     message(STATUS "Set the \"CODA\" env var or specify -DCODA_INSTALL=... on the command line or no installation possible!")
 endif()
 
+
 # Example of executing a command
 #EXECUTE_PROCESS( COMMAND uname -a COMMAND tr -d '\n' OUTPUT_VARIABLE UNAME )
 #message(STATUS "UNAME = " ${UNAME})
+
 
 set(C_HEADER_FILES
         src/libCsrc/evio.h
@@ -89,7 +86,7 @@ set(C_LIB_FILES
         src/libCsrc/eviocopy.c
         )
 
-set(CPP_HEADER_FILES_NEW
+set(CPP_HEADER_FILES
         src/libsrc/FileEventIndex.h
         src/libsrc/EvioException.h
         src/libsrc/ByteOrder.h
@@ -150,7 +147,7 @@ set(CPP_HEADER_FILES_NEW
         src/libsrc/eviocc.h
         )
 
-set(CPP_LIB_FILES_NEW
+set(CPP_LIB_FILES
         src/libsrc/FileEventIndex.cpp
         src/libsrc/ByteOrder.cpp
         src/libsrc/ByteBuffer.cpp
@@ -222,18 +219,22 @@ set(TESTC
 
 include(FindPackageHandleStandardArgs)
 
+
 # search for boost libs
 find_package(Boost REQUIRED system thread chrono)
+
 
 if (Boost_FOUND)
     message(STATUS "Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
-elseif(NOT Boost_FOUND)
-    error("Boost Not Found")
+elseif(NOT DEFINED C_ONLY)
+    message(FATAL_ERROR "Boost cannot be found, cmake will exit." )
 endif()
+
 
 # search for lz4 libs
 find_package_handle_standard_args( LZ4 REQUIRED_VARS LZ4_LIBRARY LZ4_INCLUDE_DIR HANDLE_COMPONENTS)
+
 
 if( LZ4_FOUND )
   message(STATUS "LZ4 Found")
@@ -256,21 +257,20 @@ else()
             PATHS /usr/lib64
             )
 
-    if(NOT LZ4_INCLUDE_DIR)
-        message(FATAL_ERROR "lz4.h cannot be found, cmake will exit." )
-    endif()
+    if(NOT DEFINED C_ONLY)
+        if(NOT LZ4_INCLUDE_DIR)
+            message(FATAL_ERROR "lz4.h cannot be found, cmake will exit." )
+        endif()
 
-    if (NOT LZ4_LIBRARY)
-        message(FATAL_ERROR "lz4 library cannot be found, cmake will exit." )
+        if (NOT LZ4_LIBRARY)
+            message(FATAL_ERROR "lz4 library cannot be found, cmake will exit." )
+        endif()
     endif()
 
     message("Found LZ4 include directory = ${LZ4_INCLUDE_DIR}")
     message("Found LZ4 library = ${LZ4_LIBRARY}")
 endif()
 
-# Remove from cache so new search done each time
-unset(DISRUPTOR_INCLUDE_DIR CACHE)
-unset(DISRUPTOR_LIBRARY CACHE)
 
 # Search for disruptor includes & lib
 find_path(DISRUPTOR_INCLUDE_DIR
@@ -278,6 +278,7 @@ find_path(DISRUPTOR_INCLUDE_DIR
           PATHS $ENV{DISRUPTOR_CPP_HOME}/Disruptor
           NO_DEFAULT_PATH
          )
+
 
 find_library(DISRUPTOR_LIBRARY
              NAMES Disruptor
@@ -292,14 +293,14 @@ if( DISRUPTOR_INCLUDE_DIR )
     # include "Disruptor/xxx.h
     set (DISRUPTOR_INCLUDE_DIR  $ENV{DISRUPTOR_CPP_HOME})
     message(STATUS "Disruptor include directory now set to " ${DISRUPTOR_INCLUDE_DIR})
-else()
+elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Disruptor.h NOT found, cmake will exit." )
 endif()
 
 
 if( DISRUPTOR_LIBRARY )
     message(STATUS "Disruptor library found at = " ${DISRUPTOR_LIBRARY})
-else()
+elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Disruptor library NOT found, cmake will exit." )
 endif()
 
@@ -324,7 +325,7 @@ if( DOXYGEN_FOUND )
 
     # Add target of "docs"
     doxygen_add_docs(docs src/libsrc )
-else()
+elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Doxygen NOT found, cmake will exit." )
 endif()
 
@@ -334,23 +335,25 @@ add_library(evio SHARED ${C_LIB_FILES})
 include_directories(evio PUBLIC src/libCsrc /usr/local/include)
 
 
-# Shared evio C++ library
-add_library(eviocc SHARED ${CPP_LIB_FILES_NEW})
-target_link_libraries(eviocc ${LZ4_LIBRARY} ${BOOST_FILE_SYSTEM_LIB} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
-include_directories(eviocc PUBLIC src/libsrc /usr/local/include
+if (NOT DEFINED C_ONLY)
+    # Shared evio C++ library
+    add_library(eviocc SHARED ${CPP_LIB_FILES})
+    target_link_libraries(eviocc ${LZ4_LIBRARY} ${BOOST_FILE_SYSTEM_LIB} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
+    include_directories(eviocc PUBLIC src/libsrc /usr/local/include
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
+    # Main Executables
+    add_executable(ReadWriteTest src/test/ReadWriteTest.cpp)
+    target_link_libraries(ReadWriteTest pthread ${Boost_LIBRARIES} expat dl z m ${LZ4_LIBRARY} eviocc)
 
-# Main Executables
-add_executable(ReadWriteTest src/test/ReadWriteTest.cpp)
-target_link_libraries(ReadWriteTest pthread ${Boost_LIBRARIES} expat dl z m ${LZ4_LIBRARY} eviocc)
+    add_executable(RingBufferTest src/test/RingBufferTest.cpp)
+    target_link_libraries(RingBufferTest pthread ${Boost_LIBRARIES}  expat dl z m ${LZ4_LIBRARY} eviocc)
+else()
+    message(STATUS "NOT compiling C++ evio library!!!" )
+endif()
 
 
-add_executable(RingBufferTest src/test/RingBufferTest.cpp)
-target_link_libraries(RingBufferTest pthread ${Boost_LIBRARIES}  expat dl z m ${LZ4_LIBRARY} eviocc)
-
-
-# Test programs
+# C Test programs
 foreach(fileName ${TESTC})
     # Get file name with no directory or extension as executable name
     get_filename_component(execName ${fileName} NAME_WE)
@@ -371,13 +374,15 @@ endforeach(fileName)
 
 # Only install if installation directory has been defined
 if (DEFINED INSTALL_DIR_DEFINED)
-    # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib
+    # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib or include
     install(TARGETS evio ARCHIVE)
-    install(TARGETS eviocc LIBRARY)
+    install(FILES ${C_HEADER_FILES} DESTINATION include)
 
-    # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/include
-    install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION include)
-    install(FILES ${CPP_HEADER_FILES_NEW} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    if (NOT DEFINED C_ONLY)
+        install(TARGETS eviocc LIBRARY)
+        install(FILES ${CPP_HEADER_FILES} DESTINATION include)
+        install(FILES ${CPP_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    endif()
 endif()
 
 
@@ -385,8 +390,7 @@ endif()
 if(NOT TARGET uninstall)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" IMMEDIATE @ONLY)
 
   add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
