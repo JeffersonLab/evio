@@ -19,7 +19,7 @@
 
 
 # This call must be placed BEFORE "project" command
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.3)
 
 
 project(evio VERSION 6.0)
