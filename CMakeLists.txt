@@ -38,7 +38,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 # Set architecture-related string for installation consistent with scons file
 set(ARCH ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
 message(STATUS "ARCH = " ${ARCH})
-message(STATUS "INSTALL DIR + " ${CMAKE_INSTALL_PREFIX})
+
 
 # Install into $CODA_INSTALL directory
 if (DEFINED CODA_INSTALL)
@@ -127,6 +127,7 @@ include(FindPackageHandleStandardArgs)
 
 
 find_package(Doxygen)
+
 
 if( DOXYGEN_FOUND )
     message(STATUS "Doxygen found")
