@@ -123,9 +123,6 @@ set(TESTC
         )
 
 
-include(FindPackageHandleStandardArgs)
-
-
 find_package(Doxygen)
 
 
