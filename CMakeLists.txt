@@ -308,7 +308,7 @@ if( DOXYGEN_FOUND )
     # Change these values from cmake defaults in the Doxyfile
     set(DOXYGEN_GENERATE_TREEVIEW YES)
     set(DOXYGEN_REFERENCED_BY_RELATION YES)
-    set(DOXYGEN_EXCLUDE_PATTERNS */.* */CMakeFiles/* */_CPack_Packages/* DartConfiguration.tcl CMakeLists.txt CMakeCache.txt)
+    set(DOXYGEN_EXCLUDE_PATTERNS */.* */CMakeFiles/* */_CPack_Packages/* CMakeLists.txt CMakeCache.txt)
     set(DOXYGEN_EXCLUDE src/libsrc/pugixml.cpp src/libsrc/pugixml.hpp)
     set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
     #set(DOXYGEN_WARN_LOGFILE doxyerrors.log)
@@ -327,12 +327,14 @@ endif()
 
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
+set_target_properties(evio PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 include_directories(evio PUBLIC src/libCsrc /usr/local/include)
 
 
 if (NOT DEFINED C_ONLY)
     # Shared evio C++ library
     add_library(eviocc SHARED ${CPP_LIB_FILES})
+    set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     target_link_libraries(eviocc ${LZ4_LIBRARY} ${BOOST_FILE_SYSTEM_LIB} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
     include_directories(eviocc PUBLIC src/libsrc /usr/local/include
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
