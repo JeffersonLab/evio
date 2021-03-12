@@ -30,7 +30,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
 
 
-# Place libs & binaries in build/cmake/lib and bin (this is not for installation)
+# Place libs & binaries in build/lib and bin (this is not for installation)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -65,11 +65,6 @@ elseif (DEFINED ENV{CODA})
 else()
     message(STATUS "Set the \"CODA\" env var or specify -DCODA_INSTALL=... on the command line or no installation possible!")
 endif()
-
-
-# Example of executing a command
-#EXECUTE_PROCESS( COMMAND uname -a COMMAND tr -d '\n' OUTPUT_VARIABLE UNAME )
-#message(STATUS "UNAME = " ${UNAME})
 
 
 set(C_HEADER_FILES
@@ -344,9 +339,12 @@ if (NOT DEFINED C_ONLY)
 
     # Main Executables
     add_executable(ReadWriteTest src/test/ReadWriteTest.cpp)
+    # Put debug extension on if applicable
+    set_target_properties(ReadWriteTest PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     target_link_libraries(ReadWriteTest pthread ${Boost_LIBRARIES} expat dl z m ${LZ4_LIBRARY} eviocc)
 
     add_executable(RingBufferTest src/test/RingBufferTest.cpp)
+    set_target_properties(RingBufferTest PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     target_link_libraries(RingBufferTest pthread ${Boost_LIBRARIES}  expat dl z m ${LZ4_LIBRARY} eviocc)
 else()
     message(STATUS "NOT compiling C++ evio library!!!" )
