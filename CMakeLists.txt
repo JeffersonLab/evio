@@ -375,7 +375,7 @@ endforeach(fileName)
 # Only install if installation directory has been defined
 if (DEFINED INSTALL_DIR_DEFINED)
     # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib or include
-    install(TARGETS evio ARCHIVE DESTINATION lib)
+    install(TARGETS evio LIBRARY DESTINATION lib)
     install(FILES ${C_HEADER_FILES} DESTINATION include)
 
     if (NOT DEFINED C_ONLY)
