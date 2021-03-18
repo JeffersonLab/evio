@@ -12,6 +12,14 @@
 
 namespace evio {
 
+    // Initialize a couple of static arrays
+
+    /** Bytes with which to pad short and byte data. */
+    const uint8_t BaseStructure::padValues[3] = {0, 0, 0};
+
+    /** Number of bytes to pad short and byte data. */
+    const uint32_t BaseStructure::padCount[4] = {0, 3, 2, 1};
+
 
     /**
      * Constructor.

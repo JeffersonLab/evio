@@ -41,7 +41,6 @@
 #include "IEvioFilter.h"
 
 
-using namespace std::literals;
 
 
 namespace evio {
@@ -607,10 +606,10 @@ namespace evio {
     private:
 
         /** Bytes with which to pad short and byte data. */
-        static constexpr uint8_t padValues[3] = {0, 0, 0};
+        static const uint8_t padValues[3];
 
         /** Number of bytes to pad short and byte data. */
-        static constexpr uint32_t padCount[4] = {0, 3, 2, 1};
+        static const uint32_t padCount[4];
 
     protected:
 

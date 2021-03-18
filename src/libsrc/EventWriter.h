@@ -12,6 +12,7 @@
 #define EVIO_6_0_EVENTWRITER_H
 
 
+#include <cstdlib>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -25,8 +26,10 @@
 #include <atomic>
 #include <algorithm>
 #include <future>
+#include <sys/stat.h>
+#include <sys/statvfs.h>
 
-#ifndef __APPLE__
+#ifdef USE_FILESYSTEMLIB
     #include <experimental/filesystem>
 #endif
 
@@ -49,7 +52,7 @@
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 
-#ifndef __APPLE__
+#ifdef USE_FILESYSTEMLIB
 namespace fs = std::experimental::filesystem;
 #endif
 
@@ -821,9 +824,9 @@ namespace evio {
         FileHeader appendFileHeader;
 
         /** File currently being written to. */
-        std::string currentFileName{""};
+        std::string currentFileName;
 
-#ifndef __APPLE__
+#ifdef USE_FILESYSTEMLIB
         /** Path object corresponding to file currently being written. */
         fs::path currentFilePath;
 #endif

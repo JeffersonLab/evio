@@ -248,19 +248,22 @@ namespace evio {
         // All subsequent split numbers are calculated by adding the splitIncrement
         this->splitNumber += splitIncrement;
 
-#ifndef __APPLE__
+#ifdef USE_FILESYSTEMLIB
         currentFilePath = fs::path(fileName);
         currentFileName = currentFilePath.generic_string();
-
-        // If we can't overwrite or append and file exists, throw exception
-        if (!overWriteOK && !append && (fs::exists(currentFilePath) &&
-                                        fs::is_regular_file(currentFilePath))) {
-            throw EvioException("File exists but user requested no over-writing of or appending to "
-                                + currentFileName);
-        }
+        bool fileExists = fs::exists(currentFilePath);
+        bool isRegularFile = fs::is_regular_file(currentFilePath);
 #else
         currentFileName = fileName;
+        struct stat stt{};
+        bool fileExists = stat( fileName.c_str(), &stt ) == 0;
+        bool isRegularFile = S_ISREG(stt.st_mode);
 #endif
+
+        if (!overWriteOK && !append && (fileExists && isRegularFile)) {
+            throw EvioException("File exists but user requested no over-writing of or appending to "
+                                + fileName);
+        }
 
         // Create internal storage buffers.
         // The reason there are 2 internal buffers is that we'll be able to
@@ -307,10 +310,10 @@ namespace evio {
             // If we have an empty file, that's OK.
             // Otherwise we have to examine it for compatibility
             // and position ourselves for the first write.
-#ifdef __APPLE__
-            {
+#ifdef USE_FILESYSTEMLIB
+            if (fs::file_size(currentFilePath) > 0) {
 #else
-                if (fs::file_size(currentFilePath) > 0) {
+            if (stt.st_size > 0) {
 #endif
 
                 // Look at first record header to find endianness & version.
@@ -365,14 +368,21 @@ namespace evio {
             maxSupplyBytes = supply->getMaxRingBytes();
 
             // Number of available bytes in file's disk partition
-            //cout << "EventWriter constr: call fs::space(" << currentFilePath.parent_path().generic_string() << ")" << endl;
-#ifdef __APPLE__
-            uint64_t freeBytes = 20000000000L;
-#else
+
+#ifdef USE_FILESYSTEMLIB
             fs::space_info spaceInfo = fs::space(currentFilePath.parent_path());
             uint64_t freeBytes = spaceInfo.available;
-//cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
-//         currentFilePath.parent_path().generic_string() << endl;
+            //cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
+            //         currentFilePath.parent_path().generic_string() << endl;
+#else
+            uint64_t freeBytes;
+            struct statvfs sttvfs{};
+            if (statvfs(fileName.c_str(), &sttvfs) == 0) {
+                freeBytes = sttvfs.f_bavail * sttvfs.f_frsize;
+            }
+            else {
+                throw EvioException("error getting disk partition's available space for " + fileName);
+            }
 #endif
             // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
             // then don't even start writing ...
@@ -781,7 +791,13 @@ namespace evio {
      */
     std::string EventWriter::getCurrentFilePath() const {
 #ifdef __APPLE__
-        return "myFile";
+        char *actualPath = realpath(currentFileName.c_str(), nullptr);
+        if (actualPath != nullptr) {
+            auto strPath = std::string(actualPath);
+            free(actualPath);
+            return strPath;
+        }
+        return currentFileName;
 #else
         return currentFilePath.generic_string();
 #endif
@@ -1403,12 +1419,20 @@ namespace evio {
         // This puts us at the beginning of the first record header
         fileWritingPosition = pos;
 
-#ifdef __APPLE__
-        uint64_t fileSize = 20000000000L;
-#else
+#ifdef USE_FILESYSTEMLIB
         uint64_t fileSize = fs::file_size(currentFileName);
-std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWritingPosition << std::endl;
+#else
+        uint64_t fileSize;
+        struct stat stt{};
+        if (stat(currentFileName.c_str(), &stt) == 0) {
+            fileSize = stt.st_size;
+        }
+        else {
+            throw EvioException("error getting file size of " + currentFileName);
+        }
 #endif
+//std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWritingPosition << std::endl;
+
         bool lastRecord, isTrailer, readEOF = false;
         uint32_t recordLen, eventCount, nBytes, bitInfo, headerPosition;
         std::future<void> future;
@@ -2476,12 +2500,24 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
      * @return  true if full, else false.
      */
     bool EventWriter::fullDisk() {
-#ifdef __APPLE__
-        uint64_t freeBytes = 20000000000L;
-#else
+#ifdef USE_FILESYSTEMLIB
         // How much free space is available on the disk?
-    fs::space_info dirInfo = fs::space(currentFilePath.parent_path());
-    uint64_t freeBytes = dirInfo.available;
+        fs::space_info dirInfo = fs::space(currentFilePath.parent_path());
+        uint64_t freeBytes = dirInfo.available;
+#else
+        uint64_t freeBytes;
+        struct statvfs sttvfs{};
+        if (statvfs(currentFileName.c_str(), &sttvfs) == 0) {
+            freeBytes = sttvfs.f_bavail * sttvfs.f_frsize;
+        }
+        else {
+            // assume there is room if we can't get disk info
+            diskIsFull = false;
+            if (!singleThreadedCompression) {
+                diskIsFullVolatile = false;
+            }
+            return false;
+        }
 #endif
         // If there isn't enough free space to write the complete, projected size file
         // plus full records + 10MB extra ...
@@ -2831,24 +2867,28 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
                                                  runNumber, split, splitNumber,
                                                  streamId, streamCount);
         splitNumber += splitIncrement;
-#ifdef __APPLE__
-#else
 
+#ifdef USE_FILESYSTEMLIB
         currentFilePath = fs::path(fileName);
         currentFileName = currentFilePath.generic_string();
+        bool fileExists = fs::exists(currentFilePath);
+        bool isRegularFile = fs::is_regular_file(currentFilePath);
+#else
+        struct stat stt{};
+        bool fileExists = stat( fileName.c_str(), &stt ) == 0;
+        bool isRegularFile = S_ISREG(stt.st_mode);
+#endif
 
-        // If we can't overwrite and file exists, throw exception
-        if (!overWriteOK && fs::exists(currentFilePath) && fs::is_regular_file(currentFilePath)) {
-            // If we're doing a multithreaded write ...
+        if (!overWriteOK && (fileExists && isRegularFile)) {
             if (supply != nullptr) {
                 supply->haveError(true);
                 std::string errMsg("file exists but user requested no over-writing");
                 supply->setError(errMsg);
             }
-
             throw EvioException("file " + currentFileName + " exists, but user requested no over-writing");
         }
-#endif
+        currentFileName = fileName;
+
 
         // Reset file values for reuse
         if (singleThreadedCompression) {

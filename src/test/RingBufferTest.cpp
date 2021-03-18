@@ -122,7 +122,7 @@ namespace evio {
                     std::shared_ptr<Integer> & item = ((*ringBuffer.get())[nextWriteSeq]);
                     cout << "Writing item " << item->get() << endl;
                     gateSequence->setValue(nextWriteSeq++);
-                    std::this_thread::sleep_for(2s);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
             catch (std::exception & e) {
@@ -214,7 +214,7 @@ cout << "Comp " << threadNumber << ":  " << item->get() << ", next " << (nextWri
                     compSequence->setValue(nextWriteSeq);
                     nextWriteSeq += threadCount;
 
-                    std::this_thread::sleep_for(2s);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
             catch (std::exception & e) {
