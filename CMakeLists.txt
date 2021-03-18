@@ -185,6 +185,7 @@ set(TEST
         src/test/CompactBuilder_Test.cpp
         src/test/Dict_FirstEv_Test.cpp
         src/test/Hipo_Test.cpp
+        src/test/ReadTest.cpp
         src/test/ReadWriteTest.cpp
         src/test/RecordSupplyTest.cpp
         src/test/RingBufferTest.cpp
@@ -339,15 +340,22 @@ if (NOT DEFINED C_ONLY)
     include_directories(eviocc PUBLIC src/libsrc /usr/local/include
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
-    # Main Executables
-    add_executable(ReadWriteTest src/test/ReadWriteTest.cpp)
-    # Put debug extension on if applicable
-    set_target_properties(ReadWriteTest PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-    target_link_libraries(ReadWriteTest pthread ${Boost_LIBRARIES} expat dl z m ${LZ4_LIBRARY} eviocc)
+    foreach(fileName ${TEST})
+        # Get file name with no directory or extension as executable name
+        get_filename_component(execName ${fileName} NAME_WE)
+        # Create executable from file
+        add_executable(${execName} ${fileName})
+        # Put debug extension on if applicable
+        set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+        # Needs these libs
+        target_link_libraries(${execName} eviocc pthread ${Boost_LIBRARIES} ${LZ4_LIBRARY} expat dl z m )
 
-    add_executable(RingBufferTest src/test/RingBufferTest.cpp)
-    set_target_properties(RingBufferTest PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-    target_link_libraries(RingBufferTest pthread ${Boost_LIBRARIES}  expat dl z m ${LZ4_LIBRARY} eviocc)
+        # Only install if installation directory has been defined
+        if (DEFINED INSTALL_DIR_DEFINED)
+            # Install into bin/testC dir
+            install(TARGETS ${execName} RUNTIME DESTINATION bin/test)
+        endif()
+    endforeach(fileName)
 else()
     message(STATUS "NOT compiling C++ evio library!!!" )
 endif()
