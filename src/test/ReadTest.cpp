@@ -24,18 +24,12 @@
 #include <iterator>
 #include <fstream>
 
-#ifndef __APPLE__
-#include <experimental/filesystem>
-#endif
 
 #include "eviocc.h"
 
 
 using namespace std;
 
-#ifndef __APPLE__
-namespace fs = std::experimental::filesystem;
-#endif
 
 namespace evio {
 

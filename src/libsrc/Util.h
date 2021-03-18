@@ -44,10 +44,6 @@ namespace evio {
 
         // Some methods to help deal with padding data to 4-byte boundaries
 
-        /** Array to help find number of bytes to pad data. */
-        static const uint32_t padValue[4];
-
-
         /**
          * Returns length padded to 4-byte boundary for given length in bytes.
          * @param length length in bytes.
@@ -65,7 +61,11 @@ namespace evio {
          * @param length length in bytes.
          * @return number of bytes needed to pad to 4-byte boundary.
          */
-        static uint32_t getPadding(uint32_t length) {return padValue[length%4];}
+        static uint32_t getPadding(uint32_t length) {
+            /** Array to help find number of bytes to pad data. */
+            static uint32_t padValue[4] = {0,3,2,1};
+            return padValue[length%4];
+        }
 
 
         //-----------------------------------------------------------------------
@@ -1043,8 +1043,37 @@ namespace evio {
             while ( std::regex_search(text, match, env) ) {
                 const char * s = getenv(match[1].str().c_str());
                 const std::string var(s == nullptr ? "" : s);
-                text.replace(match[0].first, match[0].second, var);
+                text.replace(match[0].first, match[0].second, var.c_str());
             }
+        }
+
+        static std::string expandEnvHelper(const char *envVarName) {
+            std::cout << "expandEnvHelper: arg ($1) = " << envVarName << std::endl;
+            char *var = std::getenv(envVarName);
+            std::cout << "expandEnvHelper: getenv ret val = " << var << std::endl;
+            std::string ret;
+            if (var != nullptr) {
+                ret = std::string(var);
+                std::cout << "expandEnvHelper: change char* to string = " << ret << std::endl;
+            }
+            return ret;
+        }
+
+        static void expandEnvironmentalVariables2(std::string & text) {
+            std::cout << "expandEnvVar2: 0" << std::endl;
+            static std::regex env(R"(\$\(([^)]+)\))");
+            std::cout << "expandEnvVar2: 1" << std::endl;
+            bool same = false;
+            while (!same) {
+                std::cout << "expandEnvVar2: A" << std::endl;
+                std::string blech = "blech";
+                auto resultStr = std::regex_replace(text, env, expandEnvHelper(R"(\$1)").c_str() );
+                std::cout << "expandEnvVar2: txt = " << text << ", result = " << resultStr << std::endl;
+                if (resultStr == text) break;
+                text = resultStr;
+                std::cout << "expandEnvVar2: C" << std::endl;
+            }
+            std::cout << "expandEnvVar2: END" << std::endl;
         }
 
 
@@ -1338,9 +1367,6 @@ namespace evio {
         }
 
     };
-
-    /** Array to help find number of bytes to pad data. */
-    static const uint32_t padValue[4] = {0,3,2,1};
 
 }
 

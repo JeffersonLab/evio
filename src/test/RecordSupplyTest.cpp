@@ -16,21 +16,12 @@
  */
 
 
-#include <string>
 #include <cstdint>
-#include <cstdlib>
-#include <cstdio>
 #include <chrono>
 #include <thread>
 #include <memory>
 #include <regex>
-#include <limits>
-#include <cstdio>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <fstream>
-#include <sys/mman.h>
 
 #include "eviocc.h"
 
@@ -163,7 +154,7 @@ namespace evio {
                     // Release back to supply
                     supply->releaseCompressor(item);
 
-                    std::this_thread::sleep_for(2s);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
             catch (std::exception & e) {
