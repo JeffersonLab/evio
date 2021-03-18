@@ -173,7 +173,7 @@ namespace evio {
             /** Force write to disk. */
             std::atomic_bool forceToDisk{false};
             /** Id of RecordRingItem that initiated the forced write. */
-            std::atomic_uint64_t forcedRecordId{0};
+            std::atomic<std::uint64_t> forcedRecordId{0};
 
         public:
 
