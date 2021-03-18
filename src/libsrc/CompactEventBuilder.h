@@ -78,7 +78,7 @@ namespace evio {
         static const uint32_t MAX_LEVELS = 50;
 
         /** Number of bytes to pad short and byte data. */
-        static constexpr uint32_t padCount[] = {0,3,2,1};
+        static const uint32_t padCount[];
 
 
         /**

@@ -14,6 +14,7 @@
 namespace evio {
 
 
+    const uint32_t CompactEventBuilder::padCount[] = {0,3,2,1};
 
     /**
      * This is the constructor to use for building a new event
