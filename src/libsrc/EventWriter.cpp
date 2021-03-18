@@ -790,7 +790,9 @@ namespace evio {
      * @return the full name or path of the current file being written to.
      */
     std::string EventWriter::getCurrentFilePath() const {
-#ifdef __APPLE__
+#ifdef USE_FILESYSTEMLIB
+        return currentFilePath.generic_string();
+#else
         char *actualPath = realpath(currentFileName.c_str(), nullptr);
         if (actualPath != nullptr) {
             auto strPath = std::string(actualPath);
@@ -798,8 +800,6 @@ namespace evio {
             return strPath;
         }
         return currentFileName;
-#else
-        return currentFilePath.generic_string();
 #endif
     }
 
