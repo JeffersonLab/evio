@@ -1043,9 +1043,8 @@ namespace evio {
             while ( std::regex_search(text, match, env) ) {
                 char * s = getenv(match[1].str().c_str());
                 std::string var(s == nullptr ? "" : s);
-                size_t pos = match.prefix().length();
-                size_t len = match[0].length();
-                text.replace(pos, len, var);
+                text.replace(match[0].first, match[0].second, var);
+                //text.replace(match.prefix().length(), match[0].length(), var);
             }
         }
 
