@@ -150,8 +150,8 @@ if debug:
 # Compile with -g and add debugSuffix to all executable names
     env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 
-# code for newlib++ written in C++17
-env.Append(CXXFLAGS = ['-std=c++17'])
+# code for newlib++ written in C++11
+env.Append(CXXFLAGS = ['-std=c++11'])
 
 # Take care of 64/32 bit issues
 if is64bits:
