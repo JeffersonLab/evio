@@ -1043,37 +1043,10 @@ namespace evio {
             while ( std::regex_search(text, match, env) ) {
                 char * s = getenv(match[1].str().c_str());
                 std::string var(s == nullptr ? "" : s);
-                text.replace(match[0].first, match[0].second, var.c_str());
-            }
-        }
+                char *p = const_cast<char *>(var.c_str());
 
-        static std::string expandEnvHelper(const char *envVarName) {
-            std::cout << "expandEnvHelper: arg ($1) = " << envVarName << std::endl;
-            char *var = std::getenv(envVarName);
-            std::cout << "expandEnvHelper: getenv ret val = " << var << std::endl;
-            std::string ret;
-            if (var != nullptr) {
-                ret = std::string(var);
-                std::cout << "expandEnvHelper: change char* to string = " << ret << std::endl;
+                text.replace(match[0].first, match[0].second, p);
             }
-            return ret;
-        }
-
-        static void expandEnvironmentalVariables2(std::string & text) {
-            std::cout << "expandEnvVar2: 0" << std::endl;
-            static std::regex env(R"(\$\(([^)]+)\))");
-            std::cout << "expandEnvVar2: 1" << std::endl;
-            bool same = false;
-            while (!same) {
-                std::cout << "expandEnvVar2: A" << std::endl;
-                std::string blech = "blech";
-                auto resultStr = std::regex_replace(text, env, expandEnvHelper(R"(\$1)").c_str() );
-                std::cout << "expandEnvVar2: txt = " << text << ", result = " << resultStr << std::endl;
-                if (resultStr == text) break;
-                text = resultStr;
-                std::cout << "expandEnvVar2: C" << std::endl;
-            }
-            std::cout << "expandEnvVar2: END" << std::endl;
         }
 
 
