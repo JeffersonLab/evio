@@ -40,14 +40,6 @@ set(ARCH ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
 message(STATUS "ARCH = " ${ARCH})
 
 
-# Include experimental boost file system library if on linux
-if (NOT DEFINED CMAKE_HOST_APPLE)
-    set(BOOST_FILE_SYSTEM_LIB stdc++fs)
-else()
-    set(BOOST_FILE_SYSTEM_LIB "")
-endif()
-
-
 # Install into $CODA_INSTALL directory
 if (DEFINED CODA_INSTALL)
     message(STATUS "CODA_INSTALL = " ${CODA_INSTALL})
@@ -336,7 +328,7 @@ if (NOT DEFINED C_ONLY)
     # Shared evio C++ library
     add_library(eviocc SHARED ${CPP_LIB_FILES})
     set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-    target_link_libraries(eviocc ${LZ4_LIBRARY} ${BOOST_FILE_SYSTEM_LIB} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
+    target_link_libraries(eviocc ${LZ4_LIBRARY} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
     include_directories(eviocc PUBLIC src/libsrc /usr/local/include
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
