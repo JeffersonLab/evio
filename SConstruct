@@ -284,10 +284,10 @@ Help('tar                 create tar file (in ./tar)\n')
 Export('env platform archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix disruptorHome')
 
 # Run lower level build files
-env.SConscript('src/libCsrc/SConscript', variant_dir='src/libCsrc/'+archDir,   duplicate=0)
+env.SConscript('src/libsrc/SConscript', variant_dir='src/libCsrc/'+archDir,   duplicate=0)
 
 if not onlyC:
-    env.SConscript('src/libsrc/SConscript', variant_dir='src/libsrc/'+archDir,   duplicate=0)
+    env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc/'+archDir,   duplicate=0)
     #env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
     #env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
     env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)

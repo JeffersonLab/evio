@@ -60,116 +60,116 @@ endif()
 
 
 set(C_HEADER_FILES
-        src/libCsrc/evio.h
-        src/libCsrc/msinttypes.h
+        src/libsrc/evio.h
+        src/libsrc/msinttypes.h
         )
 
 set(C_LIB_FILES
-        src/libCsrc/evio.c
-        src/libCsrc/evioswap.c
-        src/libCsrc/eviofmt.c
-        src/libCsrc/eviofmtdump.c
-        src/libCsrc/eviofmtswap.c
-        src/libCsrc/eviocopy.c
+        src/libsrc/evio.c
+        src/libsrc/evioswap.c
+        src/libsrc/eviofmt.c
+        src/libsrc/eviofmtdump.c
+        src/libsrc/eviofmtswap.c
+        src/libsrc/eviocopy.c
         )
 
 set(CPP_HEADER_FILES
-        src/libsrc/FileEventIndex.h
-        src/libsrc/EvioException.h
-        src/libsrc/ByteOrder.h
-        src/libsrc/ByteBuffer.h
-        src/libsrc/HeaderType.h
-        src/libsrc/Compressor.h
-        src/libsrc/FileHeader.h
-        src/libsrc/RecordHeader.h
-        src/libsrc/RecordInput.h
-        src/libsrc/RecordOutput.h
-        src/libsrc/Writer.h
-        src/libsrc/WriterMT.h
-        src/libsrc/EvioNode.h
-        src/libsrc/DataType.h
-        src/libsrc/StructureType.h
-        src/libsrc/RecordNode.h
-        src/libsrc/Reader.h
-        src/libsrc/RecordSupply.h
-        src/libsrc/RecordRingItem.h
-        src/libsrc/Util.h
-        src/libsrc/EventWriter.h
-        src/libsrc/RecordCompressor.h
-        src/libsrc/BaseStructure.h
-        src/libsrc/BaseStructureHeader.h
-        src/libsrc/CompositeData.h
-        src/libsrc/BankHeader.h
-        src/libsrc/SegmentHeader.h
-        src/libsrc/TagSegmentHeader.h
-        src/libsrc/EvioBank.h
-        src/libsrc/EvioSegment.h
-        src/libsrc/EvioTagSegment.h
-        src/libsrc/EvioEvent.h
-        src/libsrc/EventParser.h
-        src/libsrc/IEvioFilter.h
-        src/libsrc/IEvioListener.h
-        src/libsrc/EventParser.h
-        src/libsrc/EventHeaderParser.h
-        src/libsrc/StructureTransformer.h
-        src/libsrc/IBlockHeader.h
-        src/libsrc/IEvioReader.h
-        src/libsrc/EvioReader.h
-        src/libsrc/EvioReaderV4.h
-        src/libsrc/BlockHeaderV2.h
-        src/libsrc/BlockHeaderV4.h
-        src/libsrc/EvioReaderV6.h
-        src/libsrc/EvioCompactReader.h
-        src/libsrc/IEvioCompactReader.h
-        src/libsrc/EvioXMLDictionary.h
-        src/libsrc/EvioDictionaryEntry.h
-        src/libsrc/pugixml.hpp
-        src/libsrc/pugiconfig.hpp
-        src/libsrc/EvioCompactReaderV4.h
-        src/libsrc/EvioCompactReaderV6.h
-        src/libsrc/EventBuilder.h
-        src/libsrc/CompactEventBuilder.h
-        src/libsrc/EvioSwap.h
-        src/libsrc/StructureFinder.h
-        src/libsrc/eviocc.h
+        src/libsrc++/FileEventIndex.h
+        src/libsrc++/EvioException.h
+        src/libsrc++/ByteOrder.h
+        src/libsrc++/ByteBuffer.h
+        src/libsrc++/HeaderType.h
+        src/libsrc++/Compressor.h
+        src/libsrc++/FileHeader.h
+        src/libsrc++/RecordHeader.h
+        src/libsrc++/RecordInput.h
+        src/libsrc++/RecordOutput.h
+        src/libsrc++/Writer.h
+        src/libsrc++/WriterMT.h
+        src/libsrc++/EvioNode.h
+        src/libsrc++/DataType.h
+        src/libsrc++/StructureType.h
+        src/libsrc++/RecordNode.h
+        src/libsrc++/Reader.h
+        src/libsrc++/RecordSupply.h
+        src/libsrc++/RecordRingItem.h
+        src/libsrc++/Util.h
+        src/libsrc++/EventWriter.h
+        src/libsrc++/RecordCompressor.h
+        src/libsrc++/BaseStructure.h
+        src/libsrc++/BaseStructureHeader.h
+        src/libsrc++/CompositeData.h
+        src/libsrc++/BankHeader.h
+        src/libsrc++/SegmentHeader.h
+        src/libsrc++/TagSegmentHeader.h
+        src/libsrc++/EvioBank.h
+        src/libsrc++/EvioSegment.h
+        src/libsrc++/EvioTagSegment.h
+        src/libsrc++/EvioEvent.h
+        src/libsrc++/EventParser.h
+        src/libsrc++/IEvioFilter.h
+        src/libsrc++/IEvioListener.h
+        src/libsrc++/EventParser.h
+        src/libsrc++/EventHeaderParser.h
+        src/libsrc++/StructureTransformer.h
+        src/libsrc++/IBlockHeader.h
+        src/libsrc++/IEvioReader.h
+        src/libsrc++/EvioReader.h
+        src/libsrc++/EvioReaderV4.h
+        src/libsrc++/BlockHeaderV2.h
+        src/libsrc++/BlockHeaderV4.h
+        src/libsrc++/EvioReaderV6.h
+        src/libsrc++/EvioCompactReader.h
+        src/libsrc++/IEvioCompactReader.h
+        src/libsrc++/EvioXMLDictionary.h
+        src/libsrc++/EvioDictionaryEntry.h
+        src/libsrc++/pugixml.hpp
+        src/libsrc++/pugiconfig.hpp
+        src/libsrc++/EvioCompactReaderV4.h
+        src/libsrc++/EvioCompactReaderV6.h
+        src/libsrc++/EventBuilder.h
+        src/libsrc++/CompactEventBuilder.h
+        src/libsrc++/EvioSwap.h
+        src/libsrc++/StructureFinder.h
+        src/libsrc++/eviocc.h
         )
 
 set(CPP_LIB_FILES
-        src/libsrc/FileEventIndex.cpp
-        src/libsrc/ByteOrder.cpp
-        src/libsrc/ByteBuffer.cpp
-        src/libsrc/HeaderType.cpp
-        src/libsrc/Compressor.cpp
-        src/libsrc/FileHeader.cpp
-        src/libsrc/RecordHeader.cpp
-        src/libsrc/RecordInput.cpp
-        src/libsrc/RecordOutput.cpp
-        src/libsrc/Writer.cpp
-        src/libsrc/WriterMT.cpp
-        src/libsrc/EvioNode.cpp
-        src/libsrc/DataType.cpp
-        src/libsrc/StructureType.cpp
-        src/libsrc/Reader.cpp
-        src/libsrc/RecordSupply.cpp
-        src/libsrc/RecordRingItem.cpp
-        src/libsrc/EventWriter.cpp
-        src/libsrc/BaseStructure.cpp
-        src/libsrc/BaseStructureHeader.cpp
-        src/libsrc/CompositeData.cpp
-        src/libsrc/BankHeader.cpp
-        src/libsrc/SegmentHeader.cpp
-        src/libsrc/TagSegmentHeader.cpp
-        src/libsrc/EventParser.cpp
-        src/libsrc/EvioReader.cpp
-        src/libsrc/EvioReaderV4.cpp
-        src/libsrc/EvioReaderV6.cpp
-        src/libsrc/EvioCompactReader.cpp
-        src/libsrc/EvioXMLDictionary.cpp
-        src/libsrc/pugixml.cpp
-        src/libsrc/EvioCompactReaderV4.cpp
-        src/libsrc/EvioCompactReaderV6.cpp
-        src/libsrc/EventBuilder.cpp
-        src/libsrc/CompactEventBuilder.cpp
+        src/libsrc++/FileEventIndex.cpp
+        src/libsrc++/ByteOrder.cpp
+        src/libsrc++/ByteBuffer.cpp
+        src/libsrc++/HeaderType.cpp
+        src/libsrc++/Compressor.cpp
+        src/libsrc++/FileHeader.cpp
+        src/libsrc++/RecordHeader.cpp
+        src/libsrc++/RecordInput.cpp
+        src/libsrc++/RecordOutput.cpp
+        src/libsrc++/Writer.cpp
+        src/libsrc++/WriterMT.cpp
+        src/libsrc++/EvioNode.cpp
+        src/libsrc++/DataType.cpp
+        src/libsrc++/StructureType.cpp
+        src/libsrc++/Reader.cpp
+        src/libsrc++/RecordSupply.cpp
+        src/libsrc++/RecordRingItem.cpp
+        src/libsrc++/EventWriter.cpp
+        src/libsrc++/BaseStructure.cpp
+        src/libsrc++/BaseStructureHeader.cpp
+        src/libsrc++/CompositeData.cpp
+        src/libsrc++/BankHeader.cpp
+        src/libsrc++/SegmentHeader.cpp
+        src/libsrc++/TagSegmentHeader.cpp
+        src/libsrc++/EventParser.cpp
+        src/libsrc++/EvioReader.cpp
+        src/libsrc++/EvioReaderV4.cpp
+        src/libsrc++/EvioReaderV6.cpp
+        src/libsrc++/EvioCompactReader.cpp
+        src/libsrc++/EvioXMLDictionary.cpp
+        src/libsrc++/pugixml.cpp
+        src/libsrc++/EvioCompactReaderV4.cpp
+        src/libsrc++/EvioCompactReaderV6.cpp
+        src/libsrc++/EventBuilder.cpp
+        src/libsrc++/CompactEventBuilder.cpp
         )
 
 
@@ -302,8 +302,8 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_GENERATE_TREEVIEW YES)
     set(DOXYGEN_REFERENCED_BY_RELATION YES)
     set(DOXYGEN_EXCLUDE_PATTERNS */.* */CMakeFiles/* */_CPack_Packages/* CMakeLists.txt CMakeCache.txt)
-    set(DOXYGEN_EXCLUDE src/libsrc/pugixml.cpp src/libsrc/pugixml.hpp)
-    set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
+    set(DOXYGEN_EXCLUDE src/libsrc++/pugixml.cpp src/libsrc++/pugixml.hpp)
+    set(DOXYGEN_FILE_PATTERNS *.c *.cpp *.h)
     #set(DOXYGEN_WARN_LOGFILE doxyerrors.log)
     set(DOXYGEN_SORT_MEMBERS_CTORS_1ST YES)
     set(DOXYGEN_SHOW_GROUPED_MEMB_INC YES)
@@ -311,8 +311,16 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_JAVADOC_AUTOBRIEF YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/CC)
 
-    # Add target of "docs"
-    doxygen_add_docs(docs src/libsrc )
+    # Add target of "docCC"
+    doxygen_add_docs(docCC src/libsrc++ src/libsrc)
+
+    # Change these values from cmake defaults in the Doxyfile
+    set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/C)
+
+    # Add target of "docC"
+    doxygen_add_docs(docC src/libsrc )
+
 elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Doxygen NOT found, cmake will exit." )
 endif()
@@ -321,7 +329,7 @@ endif()
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
 set_target_properties(evio PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-include_directories(evio PUBLIC src/libCsrc /usr/local/include)
+include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 
 if (NOT DEFINED C_ONLY)
@@ -329,7 +337,7 @@ if (NOT DEFINED C_ONLY)
     add_library(eviocc SHARED ${CPP_LIB_FILES})
     set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     target_link_libraries(eviocc ${LZ4_LIBRARY} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
-    include_directories(eviocc PUBLIC src/libsrc /usr/local/include
+    include_directories(eviocc PUBLIC src/libsrc++ /usr/local/include
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
     if (DEFINED MAKE_EXAMPLES)
