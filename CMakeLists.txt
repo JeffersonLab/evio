@@ -133,7 +133,7 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_GENERATE_TREEVIEW YES)
     set(DOXYGEN_REFERENCED_BY_RELATION YES)
     set(DOXYGEN_EXCLUDE_PATTERNS */.* */CMakeFiles/* */_CPack_Packages/* CMakeLists.txt CMakeCache.txt)
-    set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
+    set(DOXYGEN_FILE_PATTERNS *.c *.cpp *.h)
     #set(DOXYGEN_WARN_LOGFILE doxyerrors.log)
     set(DOXYGEN_SORT_MEMBERS_CTORS_1ST YES)
     set(DOXYGEN_SHOW_GROUPED_MEMB_INC YES)
@@ -141,8 +141,17 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_JAVADOC_AUTOBRIEF YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/CC)
 
-    # Add target of "docs"
-    doxygen_add_docs(docs src/libsrc )
+    # Add target of "docCC"
+    doxygen_add_docs(docCC src/libsrc++)
+
+    # Change these values from cmake defaults in the Doxyfile
+    set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/C)
+
+    # Add target of "docC"
+    doxygen_add_docs(docC src/libsrc )
+
+
 elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Doxygen NOT found, cmake will exit." )
 endif()
