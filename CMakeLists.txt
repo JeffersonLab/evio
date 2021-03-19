@@ -321,7 +321,7 @@ endif()
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
 set_target_properties(evio PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-include_directories(evio PUBLIC src/libCsrc)
+include_directories(evio PUBLIC src/libCsrc /usr/local/include)
 
 
 if (NOT DEFINED C_ONLY)
@@ -329,7 +329,7 @@ if (NOT DEFINED C_ONLY)
     add_library(eviocc SHARED ${CPP_LIB_FILES})
     set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     target_link_libraries(eviocc ${LZ4_LIBRARY} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
-    include_directories(eviocc PUBLIC src/libsrc
+    include_directories(eviocc PUBLIC src/libsrc /usr/local/include
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
     if (DEFINED MAKE_EXAMPLES)
