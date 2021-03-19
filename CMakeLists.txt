@@ -312,7 +312,7 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/CC)
 
     # Add target of "docCC"
-    doxygen_add_docs(docCC src/libsrc++ src/libsrc)
+    doxygen_add_docs(docCC src/libsrc++)
 
     # Change these values from cmake defaults in the Doxyfile
     set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
