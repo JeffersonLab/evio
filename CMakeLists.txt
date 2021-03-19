@@ -151,7 +151,7 @@ endif()
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
 set_target_properties(evio PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-include_directories(evio PUBLIC src/libsrc)
+include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 
 if (NOT DEFINED C_ONLY)
@@ -159,7 +159,7 @@ if (NOT DEFINED C_ONLY)
     add_library(eviocc SHARED ${CPP_LIB_FILES})
     set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     target_link_libraries(eviocc expat evio)
-    include_directories(eviocc PUBLIC src/libsrc src/libsrc++)
+    include_directories(eviocc PUBLIC src/libsrc src/libsrc++ /usr/local/include)
 
     # Test programs
     if (DEFINED MAKE_EXAMPLES)
