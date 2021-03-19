@@ -321,7 +321,7 @@ endif()
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
 set_target_properties(evio PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-include_directories(evio PUBLIC src/libCsrc /usr/local/include)
+include_directories(evio PUBLIC src/libCsrc)
 
 
 if (NOT DEFINED C_ONLY)
@@ -329,10 +329,35 @@ if (NOT DEFINED C_ONLY)
     add_library(eviocc SHARED ${CPP_LIB_FILES})
     set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
     target_link_libraries(eviocc ${LZ4_LIBRARY} ${Boost_LIBRARIES} ${DISRUPTOR_LIBRARY})
-    include_directories(eviocc PUBLIC src/libsrc /usr/local/include
+    include_directories(eviocc PUBLIC src/libsrc
                     ${Boost_INCLUDE_DIRS} ${LZ4_INCLUDE_DIRS} ${DISRUPTOR_INCLUDE_DIR})
 
-    foreach(fileName ${TEST})
+    if (DEFINED MAKE_EXAMPLES)
+        foreach(fileName ${TEST})
+            # Get file name with no directory or extension as executable name
+            get_filename_component(execName ${fileName} NAME_WE)
+            # Create executable from file
+            add_executable(${execName} ${fileName})
+            # Put debug extension on if applicable
+            set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+            # Needs these libs
+            target_link_libraries(${execName} eviocc pthread ${Boost_LIBRARIES} ${LZ4_LIBRARY} expat dl z m )
+
+            # Only install if installation directory has been defined
+            if (DEFINED INSTALL_DIR_DEFINED)
+                # Install into bin/testC dir
+                install(TARGETS ${execName} RUNTIME DESTINATION bin/test)
+            endif()
+        endforeach(fileName)
+    endif()
+else()
+    message(STATUS "NOT compiling C++ evio library!!!" )
+endif()
+
+
+# C Test programs
+if (DEFINED MAKE_EXAMPLES)
+    foreach(fileName ${TESTC})
         # Get file name with no directory or extension as executable name
         get_filename_component(execName ${fileName} NAME_WE)
         # Create executable from file
@@ -340,7 +365,7 @@ if (NOT DEFINED C_ONLY)
         # Put debug extension on if applicable
         set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
         # Needs these libs
-        target_link_libraries(${execName} eviocc pthread ${Boost_LIBRARIES} ${LZ4_LIBRARY} expat dl z m )
+        target_link_libraries(${execName} evio pthread)
 
         # Only install if installation directory has been defined
         if (DEFINED INSTALL_DIR_DEFINED)
@@ -348,28 +373,7 @@ if (NOT DEFINED C_ONLY)
             install(TARGETS ${execName} RUNTIME DESTINATION bin/test)
         endif()
     endforeach(fileName)
-else()
-    message(STATUS "NOT compiling C++ evio library!!!" )
 endif()
-
-
-# C Test programs
-foreach(fileName ${TESTC})
-    # Get file name with no directory or extension as executable name
-    get_filename_component(execName ${fileName} NAME_WE)
-    # Create executable from file
-    add_executable(${execName} ${fileName})
-    # Put debug extension on if applicable
-    set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-    # Needs these libs
-    target_link_libraries(${execName} evio pthread)
-
-    # Only install if installation directory has been defined
-    if (DEFINED INSTALL_DIR_DEFINED)
-        # Install into bin/testC dir
-        install(TARGETS ${execName} RUNTIME DESTINATION bin/testC)
-    endif()
-endforeach(fileName)
 
 
 # Only install if installation directory has been defined
