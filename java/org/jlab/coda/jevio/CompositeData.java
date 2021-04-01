@@ -55,7 +55,7 @@ import java.util.List;
  * @author timmer
  * 
  */
-public final class CompositeData {
+public final class CompositeData implements Cloneable {
 
     /** String containing data format. */
     private String format;
