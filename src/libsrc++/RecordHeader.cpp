@@ -1182,6 +1182,7 @@ namespace evio {
 
     /**
      * Writes a trailer with an optional index array into the given buffer.
+     * Buffer's limit and position will set ready to read again after this method called.
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNum record number of trailer.
@@ -1210,7 +1211,6 @@ namespace evio {
         if (buf.hasArray()) {
             writeTrailer(buf.array() + buf.arrayOffset() + off, buf.remaining(),
                          recordNum, buf.order(), recordLengths);
-            buf.position(buf.limit());
         }
         else {
             uint32_t bitinfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
@@ -1236,6 +1236,8 @@ namespace evio {
                     buf.putInt(vec[i]);
                 }
             }
+
+            buf.limit(off + wholeLen).position(off);
         }
     }
 
