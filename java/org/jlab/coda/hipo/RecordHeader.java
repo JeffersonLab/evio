@@ -13,7 +13,6 @@ import org.jlab.coda.jevio.Utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -552,6 +551,15 @@ public class RecordHeader implements IBlockHeader {
      * @return length of this header data in words.
    	 */
    	public int getHeaderWords() {return headerLengthWords;}
+
+    /**
+     * Get the length of the regular header + index + user header (including padding) in bytes.
+     * This will be a multiple of 4.
+     * @return length of the regular header + index + user header + user header padding in bytes.
+     */
+   	public int getTotalHeaderLength() {
+   	    return (headerLength + indexLength + 4*userHeaderLengthWords);
+    }
 
     /**
      * Get the record number.
@@ -1206,7 +1214,7 @@ public class RecordHeader implements IBlockHeader {
 
             // Second the index
             if (indexLength > 0) {
-                System.out.println("writeTrailer []: put index");
+//System.out.println("writeTrailer []: put index");
                 for (int i=0; i < index.size(); i++) {
                     ByteDataTransformer.toBytes(index.get(i), order, array, 56+off+4*i);
                 }
@@ -1218,6 +1226,7 @@ public class RecordHeader implements IBlockHeader {
 
     /**
      * Writes a trailer with an optional index array into the given buffer.
+     * Buffer's limit and position will set ready to read again after this method called.
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNumber record number of trailer.
@@ -1240,13 +1249,12 @@ public class RecordHeader implements IBlockHeader {
         if (buf == null || (buf.capacity() < wholeLength + off)) {
             throw new HipoException("buf null or too small");
         }
-System.out.println("writeTrailer buf: writing with order = " + buf.order());
+
         // Make sure the limit allows writing
         buf.limit(off + wholeLength).position(off);
 
         if (buf.hasArray()) {
             writeTrailer(buf.array(), buf.arrayOffset() + off, recordNumber, buf.order(), index);
-            buf.position(buf.limit());
         }
         else {
             int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
@@ -1268,11 +1276,14 @@ System.out.println("writeTrailer buf: writing with order = " + buf.order());
             if (indexLength > 0) {
                 //public ByteBuffer put(byte[] src, int offset, int length) {
                 // relative bulk copy
-System.out.println("writeTrailer buf: put index");
+//System.out.println("writeTrailer buf: put index");
                 for (int i : index) {
                     buf.putInt(i);
                 }
             }
+
+            // Set buf to read
+            buf.limit(off + wholeLength).position(off);
         }
     }
 
