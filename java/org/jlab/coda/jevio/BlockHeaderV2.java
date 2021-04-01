@@ -52,7 +52,7 @@ import java.nio.ByteOrder;
  * @author heddle
  *
  */
-public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
+public class BlockHeaderV2 implements Cloneable, IEvioWriter, IBlockHeader {
 
 	/**
 	 * The maximum block size in 32 bit ints in this implementation of evio.
