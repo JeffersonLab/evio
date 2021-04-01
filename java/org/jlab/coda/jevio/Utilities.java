@@ -11,6 +11,8 @@
 
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.RecordHeader;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;
 import javax.xml.stream.events.*;
@@ -54,6 +56,68 @@ final public class Utilities {
      * @return number of bytes needed to pad to 4-byte boundary.
      */
     static public int getPadding(int length) {return padValue[length%4];}
+
+
+    /**
+     * Get the evio version of the given file.
+     * @param file file name.
+     * @return the evio version of the given file.
+     * @throws EvioException if version cannot be found.
+     */
+    static public int getEvioVersion(File file) throws EvioException {
+        // try with resources, close automatically called
+        try (RandomAccessFile rFile = new RandomAccessFile(file, "r")) {
+            // Read first 32 bytes of file header
+            ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[32]);
+            rFile.read(byteBuffer.array());
+            return getEvioVersion(byteBuffer);
+        } catch (IOException ex) {
+            throw new EvioException(ex);
+        }
+    }
+
+
+    /**
+     * Get the evio version of the given evio header in ByteBuffer form.
+     * The buffer can contain any evio version and be a file, record, or block header.
+     * Side effect is that the headerData arg is set to the correct endian order.
+     * @param headerData ByteBuffer object with at least 8 words (32 bytes) of data.
+     * @return the evio version of the given data.
+     * @throws EvioException if version cannot be found.
+     */
+    static public int getEvioVersion(ByteBuffer headerData) throws EvioException {
+
+        // Have enough remaining bytes to read 8 words of header?
+        if (headerData.limit() < 32) {
+            throw new EvioException("data must contain at least 32 bytes");
+        }
+
+        // Set the byte order to match the file's ordering.
+
+        // Check the magic number for endianness (buffer defaults to big endian)
+        ByteOrder byteOrder = headerData.order();
+
+        int magicNumber = headerData.getInt(RecordHeader.MAGIC_OFFSET);
+        if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+            if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                byteOrder = ByteOrder.LITTLE_ENDIAN;
+            }
+            else {
+                byteOrder = ByteOrder.BIG_ENDIAN;
+            }
+            headerData.order(byteOrder);
+
+            // Reread magic number to make sure things are OK
+            magicNumber = headerData.getInt(RecordHeader.MAGIC_OFFSET);
+            if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+                throw new EvioException("magic number cannot be read from data");
+            }
+        }
+
+        // Find the version number
+        int bitInfo = headerData.getInt(RecordHeader.BIT_INFO_OFFSET);
+        return bitInfo & RecordHeader.VERSION_MASK;
+    }
 
 
     /**
