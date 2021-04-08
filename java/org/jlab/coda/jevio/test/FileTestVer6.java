@@ -233,7 +233,7 @@ public class FileTestVer6 {
      * data from each roc.
      * @return  typical Hall D type of event.
      */
-    static private EvioEvent createEvioEvent(int ts, int tag) {
+    static private EvioEvent createEvioEvent(int ts, int tag, int rocDataWords) {
 
         int EBid = 1;
         int numRocs = 64;
@@ -301,7 +301,7 @@ public class FileTestVer6 {
             // One data bank for each roc
             /////////////////////////////////////////////////////////////////////
 
-            int[] data = new int[50];     // 200 bytes
+            int[] data = new int[rocDataWords];
             Arrays.fill(data, 0xf0f0f0f0);
             data[0] = (int)startingEventNumber;
             data[1] = 10; // TS
@@ -366,7 +366,7 @@ public class FileTestVer6 {
 
 
     /** For WRITING a file. Mimic online conditions as much as possible. */
-    public static void main(String args[]) {
+    public static void main1(String args[]) {
 
 //        String fileName  = "/Users/timmer/onlineTest.ev.v6";
 //        String splitFileName  = "/Users/timmer/onlineTest.ev.v6.0";
@@ -461,7 +461,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
     }
 
     /** For WRITING a local file/buffer. */
-    public static void main1(String args[]) {
+    public static void main11(String args[]) {
 
         String fileName  = "/Users/timmer/fileTest.ev.v6";
         String splitFileName  = "/Users/timmer/fileTest.ev.v6.0";
@@ -487,7 +487,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
             ByteOrder order = ByteOrder.BIG_ENDIAN;
 
             // Define a first event and write it into byte array
-            EvioEvent eventFirst = createEvioEvent(100, 0xff50);
+            EvioEvent eventFirst = createEvioEvent(100, 0xff50, 50);
             byte[] efArray = new byte[eventFirst.getTotalBytes()];
             ByteBuffer efBuf = ByteBuffer.wrap(efArray);
             efBuf.order(order);
@@ -521,7 +521,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                 myBuf.order(order);
                 writer = new EventWriter(myBuf, targetRecordBytes,
                         10000, null,
-                        1, null, CompressionType.RECORD_UNCOMPRESSED);
+                        1, CompressionType.RECORD_UNCOMPRESSED);
 //                public EventWriter(ByteBuffer buf, int maxRecordSize, int maxEventCount,
 //                            String xmlDictionary, int recordNumber,
 //                            EvioBank firstEvent, int compressionType)
@@ -530,7 +530,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
 
             for (int i = 0; i < 10; i++) {
                 // Top level event
-                EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i);
+                EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i, 50);
                 // Write event to file
                 writer.writeEvent(event);
                 // How much room do I have left in the buffer now?
@@ -590,9 +590,9 @@ System.out.println("FileTest, write to file " + fileName + "\n");
     }
 
     /** For WRITING a local file. */
-    public static void main2(String args[]) {
+    public static void main(String args[]) {
 
-        String fileName  = "/daqfs/home/timmer/evioFiles/fileTestSmall.ev";
+        String fileName  = "/tmp/fileTestSmall.ev";
         File file = new File(fileName);
         file.delete();
 
@@ -602,7 +602,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
         boolean append = false;
 
         // Do we write to file or buffer?
-        boolean useFile = false;
+        boolean useFile = true;
 
 
         EvioEvent eventFirst = null;
@@ -610,32 +610,32 @@ System.out.println("FileTest, write to file " + fileName + "\n");
         try {
             // Create an event writer to write out the test events to file
             Writer writer;
-            int targetBlockBytes = 8*1000*1000; // 8 MB
-            int splitBytes = 200000000;
+            int targetBlockBytes = 1000; // 1kb
+            int splitBytes = 40000;
             int internalBufSize = 0;
             RecordOutputStream outputStream = new RecordOutputStream();
 
             ByteOrder order = ByteOrder.BIG_ENDIAN;
 
             // Define a first event and write it into byte array
-            eventFirst = createEvioEvent(100, 0xff50);
+            eventFirst = createEvioEvent(100, 0xff50, 10);
             byte[] efArray = new byte[eventFirst.getTotalBytes()];
             ByteBuffer efBuf = ByteBuffer.wrap(efArray);
             efBuf.order(order);
             eventFirst.write(efBuf);
 
             if (useFile) {
-                writer = new Writer(HeaderType.HIPO_FILE, order,
-                                    10, targetBlockBytes, dictionary, efArray,
-                                    CompressionType.RECORD_UNCOMPRESSED, false);
+                writer = new Writer(HeaderType.EVIO_FILE, order,
+                                    5, targetBlockBytes, dictionary, efArray,
+                                    CompressionType.RECORD_UNCOMPRESSED, true);
 
                 writer.getFileHeader().setUserIntFirst(111);
                 writer.getFileHeader().setUserIntSecond(222);
                 writer.getFileHeader().setUserRegister(12121212);
-                byte[] userHeader = null;
-                //userHeader = new byte[20];
+                //byte[] userHeader = new byte[20];
                 //Arrays.fill(userHeader, (byte)4);
-                writer.open(fileName, userHeader);
+                //writer.open(fileName, userHeader);
+                writer.open(fileName);
             }
             else {
                 // Create an event writer to write to buffer
@@ -647,7 +647,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
             if (useFile) {
                 for (int i = 0; i < 6; i++) {
                     // Top level event
-                    EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i);
+                    EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i, 5);
                     // Write event to file
                     writer.addEvent(event);
                     // How much room do I have left in the buffer now?
@@ -661,7 +661,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
 
                 for (int i = 0; i < 6; i++) {
                     // Top level event
-                    EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i);
+                    EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i, 50);
                     // Write event to output stream
                     outputStream.addEvent(event);
                     // How much room do I have left in the buffer now?
@@ -684,20 +684,20 @@ System.out.println("FileTest, write to file " + fileName + "\n");
 //                NameProvider.setProvider(dict);
 //            }
 
-            if (useFile) {
-                // Mess with the file by removing bytes off the end
-                // to simulate incomplete writes due to crashes.
-                //removeBytesFromFileEnd(fileName, 5);
-                boolean useSequentialRead = false;
-                readWrittenData(fileName, null, useSequentialRead);
-            }
-            else {
-                ByteBuffer buf = writer.getBuffer();
-                // remove header + 1 word if closed, else just 1 word
-                buf.limit(buf.limit() - 84);
-                Utilities.bufferToFile(fileName+"out", buf, true, false);
-                readWrittenData(buf, false);
-            }
+//            if (useFile) {
+//                // Mess with the file by removing bytes off the end
+//                // to simulate incomplete writes due to crashes.
+//                //removeBytesFromFileEnd(fileName, 5);
+//                boolean useSequentialRead = false;
+//                readWrittenData(fileName, null, useSequentialRead);
+//            }
+//            else {
+//                ByteBuffer buf = writer.getBuffer();
+//                // remove header + 1 word if closed, else just 1 word
+//                buf.limit(buf.limit() - 84);
+//                Utilities.bufferToFile(fileName+"out", buf, true, false);
+//                readWrittenData(buf, false);
+//            }
 
         }
         catch (Exception e) {

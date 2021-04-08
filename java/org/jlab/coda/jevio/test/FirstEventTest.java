@@ -94,7 +94,7 @@ public class FirstEventTest {
             else {
                 System.out.println("FirstEventTest: create EventWriter for buffer");
 
-                EventWriter ER = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, eventFirst,
+                EventWriter ER = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1,
                                                   CompressionType.RECORD_UNCOMPRESSED);
 
                 System.out.println("FirstEventTest: write event #1");
@@ -169,7 +169,7 @@ public class FirstEventTest {
 
             // Create buffer writer
             System.out.println("FirstEventTest: create EventWriter for buffer w/o first event");
-            EventWriter bufWriter = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, null,
+            EventWriter bufWriter = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1,
                                                      CompressionType.RECORD_UNCOMPRESSED);
 
             // Write first event into buf as a regular event

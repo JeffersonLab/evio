@@ -156,7 +156,7 @@ public class BufferTest {
             ev.appendIntData(dat);
 
             // create writer with max block size of 256 ints
-            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*256, 20, null, 1, null,
+            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*256, 20, null, 1,
                                                     CompressionType.RECORD_UNCOMPRESSED);
             evWriter.close();
 
@@ -210,7 +210,7 @@ public class BufferTest {
             double[] da = new double[] {1., 2., 3.};
             ev.appendDoubleData(da);
 
-            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null,
+            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1,
                                                     CompressionType.RECORD_UNCOMPRESSED);
             evWriter.close();
 
@@ -253,7 +253,7 @@ public class BufferTest {
             ev.appendByteData(da);
 
             ByteBuffer buffer = ByteBuffer.allocate(100);
-            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null,
+            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1,
                                                    CompressionType.RECORD_UNCOMPRESSED);
             evWriter.writeEvent(ev);
             evWriter.close();

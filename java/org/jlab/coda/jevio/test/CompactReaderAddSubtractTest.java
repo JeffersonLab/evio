@@ -112,7 +112,7 @@ public class CompactReaderAddSubtractTest {
         try {
             // Create an event writer to write into "myBuf"
             //EventWriter writer = new EventWriter(myBuf);
-            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1, null,
+            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1,
                                                   CompressionType.RECORD_UNCOMPRESSED);
 
             EvioEvent ev1 = createComplexEvent(1);
@@ -144,7 +144,7 @@ public class CompactReaderAddSubtractTest {
         try {
             // Create an event writer to write into "myBuf"
             //EventWriter writer = new EventWriter(myBuf);
-            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1, null,
+            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1,
                                                   CompressionType.RECORD_UNCOMPRESSED);
 
             EvioEvent ev1 = createSingleEvent(1);

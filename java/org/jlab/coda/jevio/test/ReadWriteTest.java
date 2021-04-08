@@ -80,14 +80,14 @@ public class ReadWriteTest {
         int tag  = 0x1234;
         int type = 0x10;  // contains evio banks
         int num  = 0x12;
-        int secondWord = tag << 16 | type << 4 | num;
+        int secondWord = tag << 16 | type << 8 | num;
 
         evioDataBuf.putInt(secondWord);  // 2nd evio header word
 
         // now put in a bank of ints
         evioDataBuf.putInt(1+dataWords);  // bank of ints length in words
         tag = 0x5678; type = 0x1; num = 0x56;
-        secondWord = tag << 16 | type << 4 | num;
+        secondWord = tag << 16 | type << 8 | num;
         evioDataBuf.putInt(secondWord);  // 2nd evio header word
 
         // Int data

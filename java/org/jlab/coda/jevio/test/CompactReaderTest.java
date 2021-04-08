@@ -343,7 +343,7 @@ public class CompactReaderTest {
 
         try {
             // Create an event writer to write into "myBuf" with 10000 ints or 100 events/block max
-            EventWriter writer = new  EventWriter(myBuf, 4*10000, 100, xmlDict, 1, null,
+            EventWriter writer = new  EventWriter(myBuf, 4*10000, 100, xmlDict, 1,
                                                   CompressionType.RECORD_UNCOMPRESSED);
 
 //            EvioEvent ev = createSingleEvent(1);
@@ -432,7 +432,7 @@ public class CompactReaderTest {
 
 
             ByteBuffer buffie = ByteBuffer.allocate(7664);
-            EventWriter writer = new EventWriter(buffie, 4*300, 1000, null, 1, null,
+            EventWriter writer = new EventWriter(buffie, 4*300, 1000, null, 1,
                                                  CompressionType.RECORD_UNCOMPRESSED);
 
             long t2, t1 = System.currentTimeMillis();
@@ -730,7 +730,7 @@ public class CompactReaderTest {
 
             if (false) {
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1,
                                                       CompressionType.RECORD_UNCOMPRESSED);
 
                 long t2, t1 = System.currentTimeMillis();
@@ -763,21 +763,21 @@ public class CompactReaderTest {
                 long t2, t1 = System.currentTimeMillis();
 
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1,
                                                       CompressionType.RECORD_UNCOMPRESSED);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
-                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                writer = new  EventWriter(buffie, 4*300, 1000, null, 1,
                                           CompressionType.RECORD_UNCOMPRESSED);
 
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                writer = new  EventWriter(buffie, 4*300, 1000, null, 1,
                                           CompressionType.RECORD_UNCOMPRESSED);
 
                 writer.writeEvent(evBuf3);  // big
