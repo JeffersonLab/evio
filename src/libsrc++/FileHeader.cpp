@@ -551,12 +551,14 @@ namespace evio {
 
     /**
      * Set the this header's length in bytes & words.
+     * Minimum length of 56 (14 words) is enforced.
      * If length is not a multiple of 4, you're on your own!
      * Sets the total length too.
      * @param length  this header's length in bytes.
      * @return a reference to this object.
      */
     FileHeader & FileHeader::setHeaderLength(uint32_t length) {
+        if (length < 56) length = 56;
         headerLength = length;
         headerLengthWords = length/4;
         setLength(headerLength + indexLength + userHeaderLength + userHeaderLengthPadding);
