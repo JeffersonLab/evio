@@ -226,10 +226,8 @@ namespace evio {
 
         /** 8th bit set in bitInfo word in header means contains dictionary. */
         static const uint32_t   DICTIONARY_BIT = 0x100;
-        /** 9th bit set in bitInfo word in header means every split file has same first event. */
-        static const uint32_t   FIRST_EVENT_BIT = 0x200;
-        /** 10th bit set in bitInfo word in header means is last in stream or file. */
-        static const uint32_t   LAST_RECORD_BIT = 0x400;
+        /** 9th bit set in bitInfo word in header means is last in stream or file. */
+        static const uint32_t   LAST_RECORD_BIT = 0x200;
 
         /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
         static const uint32_t   DATA_ROC_RAW_BITS = 0x000;
@@ -390,7 +388,7 @@ namespace evio {
 
         // Bit info methods
 
-        uint32_t  setBitInfo(bool isLastRecord, bool haveFirstEvent, bool haveDictionary);
+        uint32_t  setBitInfo(bool isLastRecord, bool haveDictionary);
         uint32_t  getBitInfoWord() const;
         void setBitInfoWord(uint32_t word);
         void setBitInfoWord(std::bitset<24> const & set);
@@ -403,9 +401,6 @@ namespace evio {
                                           uint32_t headerType = 0);
 
         // Boolean setters/getters
-
-        uint32_t    hasFirstEvent(bool hasFirst);
-        // hasFirstEvent() is part of IBlockHeader below
 
         uint32_t    hasDictionary(bool hasFirst);
         // hasDictionary() part of IBlockHeader below ...

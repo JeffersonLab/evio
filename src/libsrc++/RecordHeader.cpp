@@ -417,12 +417,10 @@ namespace evio {
      * Set the bit info word for a record header.
      * Current value of bitInfo is lost.
      * @param isLastRecord   true if record is last in stream or file.
-     * @param haveFirstEvent true if record has a first event in user header.
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
      */
     uint32_t  RecordHeader::setBitInfo(bool isLastRecord,
-                                       bool haveFirstEvent,
                                        bool haveDictionary) {
 
         bitInfo = (headerType.getValue()       << 28) |
@@ -432,7 +430,6 @@ namespace evio {
                   (headerVersion & 0xFF);
 
         if (haveDictionary) bitInfo |= DICTIONARY_BIT;
-        if (haveFirstEvent) bitInfo |= FIRST_EVENT_BIT;
         if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
 
         return bitInfo;
@@ -580,29 +577,10 @@ namespace evio {
 
 
     /**
-     * Set the bit which says record has a first event in the user header.
-     * @param hasFirst  true if record has a first event in the user header.
-     * @return new bitInfo word.
-     */
-    uint32_t RecordHeader::hasFirstEvent(bool hasFirst) {
-        if (hasFirst) {
-            // set bit
-            bitInfo |= FIRST_EVENT_BIT;
-        }
-        else {
-            // clear bit
-            bitInfo &= ~FIRST_EVENT_BIT;
-        }
-
-        return bitInfo;
-    }
-
-
-    /**
      * Does this header have a first event in the user header?
      * @return true if header has a first event in the user header, else false.
      */
-    bool RecordHeader::hasFirstEvent() {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
+    bool RecordHeader::hasFirstEvent() {return false;}
 
 
     /**

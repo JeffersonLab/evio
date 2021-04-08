@@ -189,10 +189,8 @@ public class RecordHeader implements IBlockHeader {
     
     /** 8th bit set in bitInfo word in header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
-    /** 9th bit set in bitInfo word in header means every split file has same first event. */
-    final static int   FIRST_EVENT_BIT = 0x200;
-    /** 10th bit set in bitInfo word in header means is last in stream or file. */
-    final static int   LAST_RECORD_BIT = 0x400;
+    /** 9th bit set in bitInfo word in header means is last in stream or file. */
+    final static int   LAST_RECORD_BIT = 0x200;
 
     /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
     final static int   DATA_ROC_RAW_BITS = 0x000;
@@ -596,12 +594,10 @@ public class RecordHeader implements IBlockHeader {
      * Set the bit info word for a record header.
      * Current value of bitInfo is lost.
      * @param isLastRecord   true if record is last in stream or file.
-     * @param haveFirstEvent true if record has first event in user header.
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
      */
     public int  setBitInfo(boolean isLastRecord,
-                           boolean haveFirstEvent,
                            boolean haveDictionary) {
 
         bitInfo = (headerType.getValue()       << 28) |
@@ -611,7 +607,6 @@ public class RecordHeader implements IBlockHeader {
                   (headerVersion & 0xFF);
 
         if (haveDictionary) bitInfo |= DICTIONARY_BIT;
-        if (haveFirstEvent) bitInfo |= FIRST_EVENT_BIT;
         if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
 
         return bitInfo;
@@ -753,28 +748,10 @@ public class RecordHeader implements IBlockHeader {
 
 
     /**
-     * Set the bit which says record has a first event in the user header.
-     * @param hasFirst  true if record has a first event in the user header.
-     * @return new bitInfo word.
-     */
-    public int hasFirstEvent(boolean hasFirst) {
-        if (hasFirst) {
-            // set bit
-            bitInfo |= FIRST_EVENT_BIT;
-        }
-        else {
-            // clear bit
-            bitInfo &= ~FIRST_EVENT_BIT;
-        }
-
-        return bitInfo;
-    }
-
-    /**
      * Does this header have a first event in the user header?
      * @return true if header has a first event in the user header, else false.
      */
-    public boolean hasFirstEvent() {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
+    public boolean hasFirstEvent() {return false;}
 
     /**
      * Set the bit which says record has a dictionary in the user header.
@@ -916,7 +893,7 @@ public class RecordHeader implements IBlockHeader {
 
     /**
      * Set the bit info of a record header for a specified CODA event type.
-     * Must be called AFTER {@link #setBitInfo(boolean, boolean, boolean)} or
+     * Must be called AFTER {@link #setBitInfo(boolean, boolean)} or
      * {@link #setBitInfoWord(int)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
      *             3=Disentangled, 4=User, 5=Control, 15=Other,
