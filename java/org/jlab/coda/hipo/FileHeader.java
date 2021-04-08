@@ -6,12 +6,8 @@
  */
 package org.jlab.coda.hipo;
 
-import org.jlab.coda.jevio.ByteDataTransformer;
-import org.jlab.coda.jevio.EvioException;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 /**
  * <pre>
@@ -72,7 +68,7 @@ import java.util.Arrays;
  * @author gavalian
  * @author timmer
  */
-public class FileHeader {
+public class FileHeader implements Cloneable {
 
     /** Array to help find number of bytes to pad data. */
     private  final static int[] padValue = {0,3,2,1};
@@ -451,6 +447,28 @@ public class FileHeader {
     }
 
     /**
+     * Get the file's type.
+     * @return the file's HeaderType.
+     */
+    public HeaderType getFileType() {return headerType;}
+
+    /**
+     * Get the file's type from the bit info word.
+     * @param word bit-info word.
+     * @return the file's HeaderType.
+     */
+    public static HeaderType getFileType(int word) {
+        HeaderType headerType = HeaderType.getHeaderType(word >>> 28);
+        if (headerType == null) {
+            headerType = HeaderType.EVIO_FILE;
+        }
+        if (!headerType.isFileHeader()) {
+            headerType = HeaderType.EVIO_FILE;
+        }
+        return headerType;
+    }
+
+    /**
      * Set the bit which says file has a first event.
      * @param hasFirst  true if file has a first event.
      * @return new bitInfo word.
@@ -655,12 +673,17 @@ public class FileHeader {
 
     /**
      * Set the this header's length in bytes and words.
+     * Minimum length of 56 (14 words) is enforced.
      * If length is not a multiple of 4, you're on your own!
      * Sets the total length too.
      * @param length  this header's length in bytes.
      * @return this object.
      */
     public FileHeader setHeaderLength(int length) {
+        if (length < 56) {
+            length = 56;
+//System.out.println("setHeaderLength: attempting to set header length too small (" + hasFirstEvent() + ")");
+        }
         headerLength = length;
         headerLengthWords = length/4;
         setLength(headerLength + indexLength + userHeaderLength + userHeaderLengthPadding);
