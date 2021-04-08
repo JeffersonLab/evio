@@ -611,7 +611,7 @@ namespace evio {
      * @param firstEvLen number of bytes in firstEv
      * @param order     byte order of returned byte array
      * @param fileHdr   file header to update with dictionary/first-event info (may be null).
-     * @param recordHdr record header to update with dictionary/first-event info (may be null).
+     * @param recordHdr record header to update with dictionary info (may be null).
      * @return buffer representation of record containing dictionary and/or first event.
      *         Null pointer if both are empty/null.
      */
@@ -653,12 +653,12 @@ namespace evio {
             if (recordHdr != nullptr) recordHdr->hasDictionary(true);
         }
 
-        // Add first event to record
+        // Add first event to file header but not record
         if (firstEv != nullptr) {
 //std::cout << "createRecord: add first event to record" << std::endl;
             record.addEvent(firstEv, firstEvLen, 0);
             if (fileHdr   != nullptr)   fileHdr->hasFirstEvent(true);
-            if (recordHdr != nullptr) recordHdr->hasFirstEvent(true);
+            //if (recordHdr != nullptr) recordHdr->hasFirstEvent(true);
         }
 
         // Make events into record. Pos = 0, limit = # valid bytes.

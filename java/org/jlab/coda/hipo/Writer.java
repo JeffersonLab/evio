@@ -603,7 +603,7 @@ public class Writer implements AutoCloseable {
      * @param firstEvent   bytes representing evio event
      * @param byteOrder    byte order of returned byte array
      * @param fileHeader   file header to update with dictionary/first-event info (may be null).
-     * @param recordHeader record header to update with dictionary/first-event info (may be null).
+     * @param recordHeader record header to update with dictionary info (may be null).
      * @return buffer representation of record
      *         containing dictionary and/or first event.
      *         Null if both are null.
@@ -622,7 +622,7 @@ public class Writer implements AutoCloseable {
 
         // How much data we got?
         int bytes = 0;
-        
+
         if (dictionary != null) {
             bytes += dictionary.length();
         }
@@ -646,12 +646,12 @@ System.out.println("createRecord: add first event bytes " + firstEvent.length);
             if (recordHeader != null) recordHeader.hasDictionary(true);
         }
 
-        // Add first event to record
+        // Add first event to file header but NOT record
         if (firstEvent != null) {
 System.out.println("createRecord: add first event to record");
             record.addEvent(firstEvent);
             if (fileHeader   != null)   fileHeader.hasFirstEvent(true);
-            if (recordHeader != null) recordHeader.hasFirstEvent(true);
+            //if (recordHeader != null) recordHeader.hasFirstEvent(true);
         }
 
         // Make events into record. Pos = 0, limit = # valid bytes.
