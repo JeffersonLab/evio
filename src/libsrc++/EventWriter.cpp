@@ -441,8 +441,7 @@ namespace evio {
      * @throws EvioException if buf arg is null
      */
     EventWriter::EventWriter(std::shared_ptr<ByteBuffer> & buf) :
-                EventWriter(buf, 0, 0, "",
-                            1, nullptr,
+                EventWriter(buf, 0, 0, "",1,
                             Compressor::CompressionType::UNCOMPRESSED) {
     }
 
@@ -456,8 +455,7 @@ namespace evio {
      * @throws EvioException if buf arg is null
      */
     EventWriter::EventWriter(std::shared_ptr<ByteBuffer> & buf, std::string & xmlDictionary) :
-                EventWriter(buf, 0, 0,
-                                xmlDictionary, 1, nullptr,
+                EventWriter(buf, 0, 0, xmlDictionary, 1,
                                 Compressor::CompressionType::UNCOMPRESSED) {
     }
 
@@ -475,9 +473,6 @@ namespace evio {
      *                        Value &lt;= O means use default (1M).
      * @param xmlDictionary   dictionary in xml format or null if none.
      * @param recordNumber    number at which to start record number counting.
-     * @param firstEvent      the first event written into the buffer (after any dictionary).
-     *                        May be null. Not useful when writing to a buffer as this
-     *                        event may be written using normal means.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
@@ -485,7 +480,6 @@ namespace evio {
     EventWriter::EventWriter(std::shared_ptr<ByteBuffer> & buf,
                              uint32_t maxRecordSize, uint32_t maxEventCount,
                              const std::string & xmlDictionary, uint32_t recordNumber,
-                             std::shared_ptr<EvioBank> const & firstEvent,
                              Compressor::CompressionType compressionType) {
 
         this->toFile          = false;
@@ -522,9 +516,8 @@ namespace evio {
         recordLengths = std::make_shared<std::vector<uint32_t>>();
 
         // Write any record containing dictionary and first event, first
-        haveFirstEvent = firstEvent != nullptr &&  firstEvent->getHeader()->getLength() > 0;
-        if (!xmlDictionary.empty() || haveFirstEvent) {
-            createCommonRecord(xmlDictionary, firstEvent, nullptr, nullptr);
+        if (!xmlDictionary.empty()) {
+            createCommonRecord(xmlDictionary, nullptr, nullptr, nullptr);
         }
 
         // When writing to buffer, just fill/compress/write one record at a time
@@ -533,7 +526,7 @@ namespace evio {
                                                        HeaderType::EVIO_RECORD);
 
         auto & header = currentRecord->getHeader();
-        header->setBitInfo(false, haveFirstEvent, !xmlDictionary.empty());
+        header->setBitInfo(false, !xmlDictionary.empty());
     }
 
 
@@ -897,11 +890,7 @@ namespace evio {
      *
      * <b>BUFFER:</b>
      * By its nature this method is not all that useful for writing to a buffer since
-     * the buffer is never split. Writing this event is done by storing the common record
-     * in the main record's user-header. When writing to a buffer, the common record is not
-     * written until main buffer is full and flushCurrentRecordToBuffer() is called. That is not
-     * done until close() or flush() is called. In other words, there is still time to change
-     * the common record up until close is called.<p>
+     * the buffer is never split. For that reason it throws an exception.<p>
      *
      * Do not call this while simultaneously calling
      * close, flush, writeEvent, or getByteBuffer.
@@ -913,7 +902,8 @@ namespace evio {
      *                       if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
-     *                       if file could not be opened for writing;
+      *                      if writing to buffer;
+    *                        if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
@@ -921,15 +911,14 @@ namespace evio {
 
         if (closed) {return;}
 
+        if (!toFile) {
+            throw EvioException("cannot write first event to buffer");
+        }
+
         // There's no way to remove an event from a record, so reconstruct it.
         createCommonRecord(xmlDictionary, nullptr, node, nullptr);
 
-        // When writing to a buffer, the common record is not written until
-        // buffer is full and flushCurrentRecordToBuffer() is called. That
-        // is not done until close() or flush() is called. In other words,
-        // there is still time to change the common record.
-
-        if (toFile && (recordsWritten > 0)) {
+        if (recordsWritten > 0) {
             // If we've already written the file header, it's too late to place
             // the common record there, so write first event as a regular event.
             // The new common record will be written to the file header of the
@@ -959,11 +948,7 @@ namespace evio {
      *
      * <b>BUFFER:</b>
      * By its nature this method is not all that useful for writing to a buffer since
-     * the buffer is never split. Writing this event is done by storing the common record
-     * in the main record's user-header. When writing to a buffer, the common record is not
-     * written until main buffer is full and flushCurrentRecordToBuffer() is called. That is not
-     * done until close() or flush() is called. In other words, there is still time to change
-     * the common record up until close is called.<p>
+     * the buffer is never split. For that reason it throws an exception.<p>
      *
      * Do not call this while simultaneously calling
      * close, flush, writeEvent, or getByteBuffer.
@@ -975,6 +960,7 @@ namespace evio {
      *                       if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
+     *                       if writing to buffer;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
@@ -988,9 +974,13 @@ namespace evio {
             return;
         }
 
+        if (!toFile) {
+            throw EvioException("cannot write first event to buffer");
+        }
+
         createCommonRecord(xmlDictionary, nullptr, nullptr, buf);
 
-        if (toFile && (recordsWritten > 0) && (buf->remaining() > 7)) {
+        if ((recordsWritten > 0) && (buf->remaining() > 7)) {
             writeEvent(buf, false);
         }
     }
@@ -1016,11 +1006,7 @@ namespace evio {
      *
      * <b>BUFFER:</b>
      * By its nature this method is not all that useful for writing to a buffer since
-     * the buffer is never split. Writing this event is done by storing the common record
-     * in the main record's user-header. When writing to a buffer, the common record is not
-     * written until main buffer is full and flushCurrentRecordToBuffer() is called. That is not
-     * done until close() or flush() is called. In other words, there is still time to change
-     * the common record up until close is called.<p>
+     * the buffer is never split. For that reason it throws an exception.<p>
      *
      * Do not call this while simultaneously calling
      * close, flush, writeEvent, or getByteBuffer.
@@ -1031,6 +1017,7 @@ namespace evio {
      *                       if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
+     *                       if writing to buffer;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
@@ -1039,9 +1026,13 @@ namespace evio {
 
         if (closed) {return;}
 
+        if (!toFile) {
+            throw EvioException("cannot write first event to buffer");
+        }
+
         createCommonRecord(xmlDictionary, bank, nullptr, nullptr);
 
-        if (toFile && (recordsWritten > 0)) {
+        if (recordsWritten > 0) {
             writeEvent(bank, nullptr, false);
         }
     }
