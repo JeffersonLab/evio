@@ -95,11 +95,11 @@ public class RecordInputStream {
     private int  nEntries;
 
     /** Offset, in uncompressed dataBuffer, from just past header to user header
-     *  (past index). */
+     *  (past index) bytes. */
     private int  userHeaderOffset;
 
     /** Offset, in uncompressed dataBuffer, from just past header to event data
-     *  (past index + user header). */
+     *  (past index + user header) bytes. */
     private int  eventsOffset;
 
     /** Length in bytes of uncompressed data (events) in dataBuffer, not including
@@ -212,7 +212,7 @@ public class RecordInputStream {
      *               set to last index. If negative, it's set to 0.
      * @return byte array containing event.
      */
-    public byte[] getEvent(int index){
+    public byte[] getEvent(int index) {
 
         int firstPosition = 0;
 
@@ -230,7 +230,7 @@ public class RecordInputStream {
 
         int lastPosition = dataBuffer.getInt(index*4);
         int length = lastPosition - firstPosition;
-        
+
 // TODO: Allocating memory here!!!
         byte[] event = new byte[length];
         int   offset = eventsOffset + firstPosition;
@@ -245,7 +245,7 @@ public class RecordInputStream {
             dataBuffer.get(event, 0, length);
         }
 
-//System.out.println("getEvent: reading from " + offset + "  length = " + event.length);
+//System.out.println("RecordInputStream: getEvent: reading from " + offset + "  length = " + event.length);
         return event;
     }
 

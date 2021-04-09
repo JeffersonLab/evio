@@ -111,11 +111,11 @@ namespace evio {
         uint32_t nEntries = 0;
 
         /** Offset, in uncompressed dataBuffer, from just past header to user header
-         *  (past index). */
+         *  (past index) in bytes. */
         uint32_t userHeaderOffset = 0;
 
         /** Offset, in uncompressed dataBuffer, from just past header to event data
-         *  (past index + user header). */
+         *  (past index + user header) in bytes. */
         uint32_t eventsOffset = 0;
 
         /** Length in bytes of uncompressed data (events) in dataBuffer, not including
