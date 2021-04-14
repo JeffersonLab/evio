@@ -1532,7 +1532,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                               fileHeader.getUserHeaderLengthPadding();
 
 //System.out.println("forceScanFile: record 1 pos = 0");
-int recordCount = 0;
+        int recordCount = 0;
         while (recordPosition < maximumSize) {
             channel.position(recordPosition);
 //System.out.println("forceScanFile: record " + recordCount +  " @ pos = " + recordPosition +
@@ -1617,8 +1617,8 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
         // Index in file header gets next priority.
         boolean fileHasIndex = fileHeader.hasTrailerWithIndex() || (fileHeader.hasIndex());
 //System.out.println(" file has index = " + fileHasIndex
-//                    + "  " + fileHeader.hasTrailerWithIndex()
-//                    + "  " + fileHeader.hasIndex());
+//                    + ", has trailer w/ index = " + fileHeader.hasTrailerWithIndex()
+//                    + ", file hdr has index = " + fileHeader.hasIndex());
 
         // If there is no index, scan file
         if (!fileHasIndex) {
@@ -1647,7 +1647,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
 
         // First record position (past file's header + index + user header)
         long recordPosition = fileHeader.getLength();
-//System.out.println("scanFile: record position = " + recordPosition);
+//System.out.println("scanFile: first record position = " + recordPosition);
 
         // Move to first record and save the header
         channel.position(recordPosition);
@@ -1697,6 +1697,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
 //Utilities.printStackTrace();
                 eventIndex.addEventSize(count);
                 recordPosition += len;
+//System.out.println("scanFile: next record position = " + recordPosition);
             }
         }
         catch (EvioException e) {/* never happen */}
