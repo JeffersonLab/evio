@@ -212,15 +212,22 @@ public final class BlockHeaderV2 implements Cloneable, IEvioWriter, IBlockHeader
         return false;
     }
 
-    /**
-     * Is this the last block in the file or being sent over the network?
-     * This is not implemented in evio versions 1-3. Just return false.
-     *
-     * @return always returns false for evio versions 1-3
-     */
-    public boolean isLastBlock() {
-        return false;
-    }
+	/**
+	 * Is this the last block in the file or being sent over the network?
+	 * This is not implemented in evio versions 1-3. Just return false.
+	 *
+	 * @return always returns false for evio versions 1-3
+	 */
+	public boolean isLastBlock() {
+		return false;
+	}
+
+	/**
+	 * Is this the data in this block compressed?
+	 * This is always false in evio versions 1-3.
+	 * @return <code>false</code>.
+	 */
+	public boolean isCompressed() {return false;}
 
 
 	/**

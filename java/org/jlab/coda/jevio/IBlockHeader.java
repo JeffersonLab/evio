@@ -139,6 +139,12 @@ public interface IBlockHeader {
      */
     boolean isLastBlock();
 
+    /**
+     * Is this the data in this block compressed?
+     * @return <code>true</code> if the data in this block is compressed, else <code>false</code>.
+     */
+    boolean isCompressed();
+
 // TODO: this needs to throw an exception right?? Or is the return enough?
     /**
 	 * Write myself out into a byte buffer. This write is relative--i.e.,

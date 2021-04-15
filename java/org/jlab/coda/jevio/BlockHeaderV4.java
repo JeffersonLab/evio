@@ -381,6 +381,13 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
     }
 
     /**
+     * Is this the data in this block compressed?
+     * This is always false in evio version 4.
+     * @return <code>false</code>.
+     */
+    public boolean isCompressed() {return false;}
+
+    /**
      * Does this block contain the "first event"
      * (first event to be written to each file split)?
      *
