@@ -479,7 +479,8 @@ public class RecordHeader implements IBlockHeader {
     public int  getEntries() {return entries;}
 
     /**
-     * Get the type of compression used. 0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip.
+     * Get the type of compression used.
+     * Can be none, LZ4 fast, LZ4 best, or gzip.
      * @return type of compression used.
      */
     public CompressionType getCompressionType() {return compressionType;}

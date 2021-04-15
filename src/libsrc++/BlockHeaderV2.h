@@ -197,6 +197,14 @@ namespace evio {
 
 
         /** {@inheritDoc} */
+        bool isCompressed() override {return false;}
+
+
+        /** {@inheritDoc} */
+        Compressor::CompressionType getCompressionType() override {return Compressor::UNCOMPRESSED;}
+
+
+        /** {@inheritDoc} */
         uint32_t getSize() override {return size;}
 
 

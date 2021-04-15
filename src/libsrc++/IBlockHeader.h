@@ -21,6 +21,7 @@
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
+#include "Compressor.h"
 
 
 namespace evio {
@@ -175,6 +176,18 @@ namespace evio {
          *         versions 1-3 (not implemented).
          */
         virtual bool isLastBlock() = 0;
+
+        /**
+         * Is this the data in this block compressed?
+         * @return <code>true</code> if the data in this block is compressed, else <code>false</code>.
+         */
+        virtual bool isCompressed() = 0;
+
+        /**
+         * Get the type of data compression used.
+         * @return type of data compression used.
+         */
+        virtual Compressor::CompressionType getCompressionType() = 0;
 
         /**
          * Write myself out into a byte buffer. This write is relative--i.e.,

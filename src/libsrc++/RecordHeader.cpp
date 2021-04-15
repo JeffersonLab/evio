@@ -296,7 +296,7 @@ namespace evio {
      * Get the type of compression used. 0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip.
      * @return type of compression used.
      */
-    Compressor::CompressionType  RecordHeader::getCompressionType() const {return compressionType;}
+    Compressor::CompressionType  RecordHeader::getCompressionType() {return compressionType;}
 
 
     /**
@@ -663,7 +663,7 @@ namespace evio {
      * Does this header indicate compressed data?
      * @return true if header indicates compressed data, else false.
      */
-    bool RecordHeader::isCompressed() const {return compressionType != Compressor::UNCOMPRESSED;}
+    bool RecordHeader::isCompressed() {return compressionType != Compressor::UNCOMPRESSED;}
 
 
     /**

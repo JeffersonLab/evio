@@ -1,5 +1,7 @@
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.CompressionType;
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -386,6 +388,13 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
      * @return <code>false</code>.
      */
     public boolean isCompressed() {return false;}
+
+    /**
+     * Get the type of data compression used.
+     * This is always {@link CompressionType#RECORD_UNCOMPRESSED} in evio version 4.
+     * @return type of data compression used.
+     */
+    public CompressionType getCompressionType() {return CompressionType.RECORD_UNCOMPRESSED;}
 
     /**
      * Does this block contain the "first event"

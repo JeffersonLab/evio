@@ -346,6 +346,14 @@ namespace evio {
         bool isLastBlock() override {return bitInfo[1];}
 
 
+        /** {@inheritDoc} */
+        bool isCompressed() override {return false;}
+
+
+        /** {@inheritDoc} */
+        Compressor::CompressionType getCompressionType() override {return Compressor::UNCOMPRESSED;}
+
+
         /**
          * Does this block contain the "first event"
          * (first event to be written to each file split)?

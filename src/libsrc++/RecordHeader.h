@@ -384,7 +384,7 @@ namespace evio {
         uint64_t  getUserRegisterFirst() const;
         uint64_t  getUserRegisterSecond() const;
         size_t    getPosition() const;
-        Compressor::CompressionType  getCompressionType() const;
+        Compressor::CompressionType  getCompressionType() override;
 
         // Bit info methods
 
@@ -410,7 +410,7 @@ namespace evio {
         bool        isLastRecord() const;
         static bool isLastRecord(uint32_t bitInfo);
 
-        bool        isCompressed() const;
+        bool        isCompressed() override;
 
         bool        isEvioTrailer() const;
         bool        isEvioRecord()  const;
