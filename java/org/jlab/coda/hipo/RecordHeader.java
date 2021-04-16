@@ -1297,6 +1297,7 @@ public class RecordHeader implements IBlockHeader {
 
         // First read the magic word to establish endianness
         int headerMagicWord = buffer.getInt(MAGIC_OFFSET + offset);
+        ByteOrder originalOrder = buffer.order();
         ByteOrder byteOrder;
         
         // If it's NOT in the proper byte order ...
@@ -1318,6 +1319,7 @@ public class RecordHeader implements IBlockHeader {
         }
 
         int compressionWord = buffer.getInt(COMPRESSION_TYPE_OFFSET + offset);
+        buffer.order(originalOrder);
         return ((compressionWord >>> 28) != 0);
     }
 
