@@ -16,13 +16,21 @@ package org.jlab.coda.hipo;
  * @author timmer
  */
 public enum HeaderType {
+    /** Evio record header. */
     EVIO_RECORD        (0),
+    /** Evio file header. */
     EVIO_FILE          (1),
+    /** Evio extended file header. */
     EVIO_FILE_EXTENDED (2),
+    /** Evio trailer. */
     EVIO_TRAILER       (3),
+    /** Hioo record header. */
     HIPO_RECORD        (4),
+    /** Hipo file header. */
     HIPO_FILE          (5),
+    /** Hipo extended file header. */
     HIPO_FILE_EXTENDED (6),
+    /** Hipo trailer. */
     HIPO_TRAILER       (7);
 
     /** Value of this header type. */

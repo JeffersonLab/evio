@@ -44,7 +44,7 @@ import java.util.List;
  *
  * </pre>
  *
- * <p></p><b>NOTE: THIS CLASS IS NOT USED IN EVIO!</b></p>
+ * <p><b>NOTE: THIS CLASS IS NOT USED IN EVIO!</b></p>
  *
  * HIPO Record Class that creates records of
  * data buffers (agnostic to what the data represents).

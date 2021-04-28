@@ -1,5 +1,9 @@
 package org.jlab.coda.hipo;
 
+/**
+ * This an enum used to represent different types of data compression.
+ * @author timmer
+ */
 public enum CompressionType {
     /** No data compression. */
     RECORD_UNCOMPRESSED(0, "None"),

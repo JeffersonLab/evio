@@ -10,6 +10,13 @@ package org.jlab.coda.jevio;
 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
 */
 public enum ReadStatus {
-SUCCESS, END_OF_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
+        /** Successful read. */
+        SUCCESS,
+        /** End of file condition. */
+        END_OF_FILE,
+        /** Evio exception on read. */
+        EVIO_EXCEPTION,
+        /** Unknown exception on read. */
+        UNKNOWN_ERROR
 }
 

@@ -58,15 +58,15 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  *
  *                       ||
  *                       ||  writeBarrier
- *           >           ||
+ *           ^gt;           ||
  *         /            _____
  *    Write thread     /  |  \
- *              --->  /1 _|_ 2\  <---- Compression Threads 1-M
+ *              ---&gt;  /1 _|_ 2\  &lt;---- Compression Threads 1-M
  *  ================ |__/   \__|               |
  *                   |6 |   | 3|               V
  *             ^     |__|___|__| ==========================
  *             |      \ 5 | 4 /       compressBarrier
- *         Producer->  \__|__/
+ *         Producer-&gt;  \__|__/
  *
  *
  * </code></pre>

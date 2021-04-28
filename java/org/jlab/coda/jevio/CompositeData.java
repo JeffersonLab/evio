@@ -1004,8 +1004,8 @@ public final class CompositeData implements Cloneable {
      * @param strings array of strings to eventually put into a
      *                CompositeData object.
      * @return string representing its format to be used in the
-     *                CompositeData object's format string
-     * @return null if arg is null or has 0 length
+     *                CompositeData object's format string, or
+     *                null if arg is null or has 0 length.
      */
     public static String stringsToFormat(String[] strings) {
         byte[] rawBuf = BaseStructure.stringsToRawBytes(strings);
@@ -1108,8 +1108,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item as an Integer object.
-     * @return Integer object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit signed or
+     * @return Integer object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit signed or
      *         unsigned integer
      */
     public Integer getInt() {
@@ -1129,8 +1129,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next N value item as an Integer object.
-     * @return Integer object, if the correct type of the next data item is NVALUE.
-     * @return null if no more data items or data item is not an NVALUE type.
+     * @return Integer object, if the correct type of the next data item is NVALUE,
+     *         or null if no more data items or data item is not an NVALUE type.
      */
     public Integer getNValue() {
         if (getIndex > types.size()) return null;
@@ -1141,8 +1141,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next n value item as an Integer object.
-     * @return Integer object, if the correct type of the next data item is nVALUE.
-     * @return null if no more data items or data item is not an nVALUE type.
+     * @return Integer object, if the correct type of the next data item is nVALUE,
+     *         or null if no more data items or data item is not an nVALUE type.
      */
     public Integer getnValue() {
         if (getIndex > types.size()) return null;
@@ -1153,8 +1153,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next m value item as an Integer object.
-     * @return Integer object, if the correct type of the next data item is mVALUE.
-     * @return null if no more data items or data item is not an mVALUE type.
+     * @return Integer object, if the correct type of the next data item is mVALUE,
+     *         or null if no more data items or data item is not an mVALUE type.
      */
     public Integer getmValue() {
         if (getIndex > types.size()) return null;
@@ -1165,8 +1165,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item (which is of Hollerit type) as an Integer object.
-     * @return Integer object, if Hollerit is the type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit signed or
+     * @return Integer object, if Hollerit is the type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit signed or
      *         unsigned integer
      */
     public Integer getHollerit() {
@@ -1178,8 +1178,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item as a Byte object.
-     * @return Byte object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 8 bit signed or
+     * @return Byte object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 8 bit signed or
      *         unsigned integer
      */
     public Byte getByte() {
@@ -1191,8 +1191,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item as a Short object.
-     * @return Short object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 16 bit signed or
+     * @return Short object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 16 bit signed or
      *         unsigned integer
      */
     public Short getShort() {
@@ -1204,8 +1204,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item as a Long object.
-     * @return Long object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 64 bit signed or
+     * @return Long object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 64 bit signed or
      *         unsigned integer
      */
     public Long getLong() {
@@ -1217,8 +1217,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item as a Float object.
-     * @return Float object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit float.
+     * @return Float object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit float.
      */
     public Float getFloat() {
         if (getIndex > types.size()) return null;
@@ -1229,8 +1229,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item as a Double object.
-     * @return Double object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit double.
+     * @return Double object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit double.
      */
     public Double getDouble() {
         if (getIndex > types.size()) return null;
@@ -1241,8 +1241,8 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method gets the next data item as a String array.
-     * @return String array, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a string or string array.
+     * @return String array, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a string or string array.
      */
     public String[] getStrings() {
         if (getIndex > types.size()) return null;
@@ -1268,7 +1268,7 @@ public final class CompositeData implements Cloneable {
      *  to swap the endianness of composite data.
      *  It's translated from the eviofmt C function.
      *  <pre>
-     *   format code bits <- format in ascii form
+     *   format code bits &lt;- format in ascii form
      *    [15:14] [13:8] [7:0]
      *      Nnm      #     0           #'('
      *        0      0     0            ')'

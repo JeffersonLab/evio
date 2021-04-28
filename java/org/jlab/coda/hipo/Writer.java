@@ -272,6 +272,7 @@ public class Writer implements AutoCloseable {
      * Constructor for writing to a ByteBuffer with a user header. Byte order is taken from the buffer.
      * No compression.
      * @param buf buffer in to which to write events and/or records.
+     * @param userHeader array containing user header.
      * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf, byte[] userHeader) throws HipoException {

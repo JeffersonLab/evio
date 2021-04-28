@@ -1038,8 +1038,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * evio format of the given string array, not including header.
      *
      * @param strings array of String objects to size
-     * @return the number of bytes in a raw evio format of the given string array
-     * @return 0 if arg is null or has zero length
+     * @return the number of bytes in a raw evio format of the given string array,
+     *         or 0 if arg is null or has zero length.
      */
     static public int stringsToRawSize(String[] strings) {
 
@@ -1068,8 +1068,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * not including header.
      *
      * @param strings array of String objects to transform
-     * @return byte array containing evio format string array
-     * @return null if arg is null or has zero length
+     * @return byte array containing evio format string array,
+     *         or null if arg is null or has zero length.
      */
     static public byte[] stringsToRawBytes(String[] strings) {
 

@@ -15,23 +15,41 @@ package org.jlab.coda.jevio;
  */
 public enum DataType {
 
-	UNKNOWN32      (0x0), 
-	UINT32         (0x1), 
-	FLOAT32        (0x2), 
-	CHARSTAR8      (0x3), 
-	SHORT16        (0x4), 
-	USHORT16       (0x5), 
-	CHAR8          (0x6), 
-	UCHAR8         (0x7), 
-	DOUBLE64       (0x8), 
-	LONG64         (0x9), 
-	ULONG64        (0xa), 
-	INT32          (0xb), 
-	TAGSEGMENT     (0xc), 
+	/** Unknown data type. */
+	UNKNOWN32      (0x0),
+	/** Unsigned 32-bit integer. */
+	UINT32         (0x1),
+	/** 32-bit float. */
+	FLOAT32        (0x2),
+	/** String. */
+	CHARSTAR8      (0x3),
+	/** Signed 16-bit integer. */
+	SHORT16        (0x4),
+	/** Unsigned 16-bit integer. */
+	USHORT16       (0x5),
+	/** Signed 8-bit integer. */
+	CHAR8          (0x6),
+	/** Unsigned 8-bit integer. */
+	UCHAR8         (0x7),
+	/** 64-bit double. */
+	DOUBLE64       (0x8),
+	/** Signed 64-bit integer. */
+	LONG64         (0x9),
+	/** Unsigned 64-bit integer. */
+	ULONG64        (0xa),
+	/** Signed 32-bit integer. */
+	INT32          (0xb),
+	/** Tag segment data container. */
+	TAGSEGMENT     (0xc),
+	/** Segment data container. */
 	ALSOSEGMENT    (0xd),
+	/** Bank data container. */
     ALSOBANK       (0xe),
+	/** Composite data type. */
     COMPOSITE      (0xf),
+	/** Bank data container. */
 	BANK           (0x10),
+	/** Segment data container. */
 	SEGMENT        (0x20),
 
     //  Removed ALSOTAGSEGMENT (0x40) since it was never
@@ -40,9 +58,14 @@ public enum DataType {
 
     // These 2 types are only used when dealing with COMPOSITE data.
     // They are never transported independently and are stored in integers.
+
+	/** Hollerit data type used in Composite data. */
     HOLLERIT       (0x21),
+	/** N (32-bit integer) data type used in Composite data. */
 	NVALUE         (0x22),
+	/** n (16-bit integer) data type used in Composite data. */
 	nVALUE         (0x23),
+	/** m (8-bit integer) data type used in Composite data. */
 	mVALUE         (0x24);
 
 

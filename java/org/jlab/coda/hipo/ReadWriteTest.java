@@ -175,7 +175,6 @@ public class ReadWriteTest {
         }
         catch(Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -261,7 +260,6 @@ public class ReadWriteTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -314,11 +312,14 @@ public class ReadWriteTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
 
+    /**
+     * Main
+     * @param args args
+     */
     public static void main(String[] args){
 
 //        String filename   = "/dev/shm/hipoTest.evio";
