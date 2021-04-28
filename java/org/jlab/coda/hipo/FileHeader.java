@@ -10,6 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * This class represents the file header of an evio or hipo format file.
+ *
  * <pre>
  *
  * FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
