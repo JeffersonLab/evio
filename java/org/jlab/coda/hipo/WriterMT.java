@@ -23,8 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class is for writing Evio/HIPO files only (not buffers).
- * It's able to multithread the compression of data.<p>
+ * This class is for writing Evio/HIPO files only (not buffers)
+ * while multithreading the compression of data.<p>
  *
  * At the center of how this class works is an ultra-fast ring buffer containing
  * a store of empty records. As the user calls one of the {@link #addEvent} methods,

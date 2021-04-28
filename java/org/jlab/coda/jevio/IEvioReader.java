@@ -5,6 +5,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * This interface is used to abstract various file and buffer reading functions.
+ * There are different readers for various evio versions and which are synchronized
+ * or unsynchronized.
  * Created by timmer on 10/23/18.
  */
 public interface IEvioReader {

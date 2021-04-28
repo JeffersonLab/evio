@@ -7,9 +7,9 @@
 package org.jlab.coda.hipo;
 
 /**
- * Numerical values associated with types or variations of RecordHeader.
+ * Numerical values associated with types of record headers, file headers and trailers.
  * The value associated with each enum member is stored in the
- * record header's bit-info word in the top 4 bits.
+ * header's bit-info word in the top 4 bits.
  * 
  * @version 6.0
  * @since 6.0 9/6/17
