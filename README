@@ -24,19 +24,15 @@ you can skip the C/C++ installation.
 1) Getting & Installing evio
 ############################
 
-Evio is hosted on github at:
-https://github.com/JeffersonLab/evio
-The most current version, 6.0, is on the evio-6.0 branch.
+Evio is hosted on github. The most current version, 6.0, is on the evio-6.0 branch.
+To acquire all of evio, do:
+   git clone https://github.com/JeffersonLab/evio.git
+This will give you a full evio distribution with the top level
+directory being evio-6.0.
 
 The evio package, including documentation, can be also be accessed on the
 JLab Data Acquisition Group CODA wiki at http://coda.jlab.org. But that
 ultimately directs one to github.
-
-To acquire all of evio, do:
-   git clone https://github.com/JeffersonLab/evio.git
-
-This will give you a full evio distribution with the top level
-directory being evio-6.0.
 
 Note that for C/C++, only Linux and Darwin (Mac OSX)
 operating systems are supported. VxWorks is no longer supported.
