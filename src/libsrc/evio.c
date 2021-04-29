@@ -6621,10 +6621,10 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI> pointer to uin32_t containing stream id if request = M, or
  * <LI> pointer to int32_t returning version # if request = V, or
  * <LI> address of pointer to uint32_t returning pointer to 14
- *              uint32_t's of block header if request = (only 8 valid for version < 6).
+ *              uint32_t's of block header if request = H (only 8 valid for version < 6).
  *              This pointer must be freed by caller since it points to allocated memory.
  * <LI> pointer to uin32_t returning total # of original events in existing
- *              file/buffer when reading or appending if request = E, or
+ *              file/buffer when reading or appending if request = E
  * </OL>
  *
  * @return S_SUCCESS           if successful
