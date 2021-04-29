@@ -157,9 +157,16 @@ jevio-5.1.jar
 
     - add EventWriter.flush() method for sending internally buffered data to disk
 
+******** NEW VERSION MAJOR VERSION *********
+ jevio-6.0.jar
+    - whole new format after merge with HIPO format
+    - ability to compress data in either lz4 or gzip formats
+    - too many other changes to list (see docs)
+
 
 *********************************************************************************
 C CODE
+*********************************************************************************
 
 evio-4.3.3
 
@@ -223,3 +230,11 @@ evio-5.2
 
     - fix bug in which the writing of a split file with a dictionary got a length
       and therefore the file format wrong.
+
+******** NEW VERSION MAJOR VERSION *********
+ evio-6.0
+    - whole new format after merge with HIPO format
+    - ability to compress data in either lz4 or gzip formats
+    - brand new C++ library which is ported from the Java code
+    - C++ library from previous version is no longer available
+    - too many other changes to list (see docs)
