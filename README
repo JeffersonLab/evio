@@ -54,8 +54,8 @@ or
 ##############################################
 The C++ library is called libeviocc.
 The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
-from the Java code. This was done for a number of reasons. First, a much more comprehensive C++ library
-was desired than was currently existing.
+from the Java code. This was done for a number of reasons.
+First, a much more comprehensive C++ library was desired than was currently existing.
 Second, it needed major, new capabilities such as being able to (un)compress data.
 Third, it had to use a new format developed from the merging of Java evio version 4 and the Java HIPO library.
 Finally, the author and maintainer of the previous code was no longer working at Jefferson Lab.
