@@ -1,9 +1,11 @@
 -injars       ../evio/build/lib/jevio-6.0.jar
--injars       ../evio/java/jars/disruptor-3.4.2.jar
--injars       ../evio/java/jars/lz4-java-1.4.0.jar
+-injars       ../evio/java/jars/disruptor-3.4.3.jar
+-injars       ../evio/java/jars/lz4-java.1.8.0.jar
 -injars       ../evio/java/jars/AHACompressionAPI.jar
 -outjars      ../evio/build/lib/jevio-6.0.optimized.jar
+
 -libraryjars  <java.home>/lib/rt.jar
+#-libraryjars  <java.home>/jmods
 
 -optimizationpasses 3
 -overloadaggressively
@@ -11,8 +13,7 @@
 
 -keepparameternames
 -renamesourcefileattribute SourceFile
--keepattributes Exceptions,InnerClasses,Signature,Deprecated,
-                SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
 
 -keep public class * {
     public protected *;
