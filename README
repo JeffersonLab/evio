@@ -210,8 +210,4 @@ The second uses cmake and make. Also, be sure you’ve set the DISRUPTOR_CPP_HOM
     
         make uninstall
         
-        
-##############################################
-# Java Jar File
-##############################################
 
