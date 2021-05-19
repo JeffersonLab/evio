@@ -53,13 +53,15 @@ or
 # C++ library
 ##############################################
 The C++ library is called libeviocc.
-The current C++ evio library is entirely different from the previous version (5.2) as it has been ported from the Java code.
-This was done for a number of reasons. First, a much more comprehensive C++ library was desired than was currently existing.
-Second, it needed major, new capabilities such as being able to (un)compress data. Third, it had to use a new format
-developed from the merging of Java evio version 4 and the Java HIPO library.
+The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
+from the Java code. This was done for a number of reasons. First, a much more comprehensive C++ library
+was desired than was currently existing.
+Second, it needed major, new capabilities such as being able to (un)compress data.
+Third, it had to use a new format developed from the merging of Java evio version 4 and the Java HIPO library.
 Finally, the author and maintainer of the previous code was no longer working at Jefferson Lab.
-The simplest solution was to port the well-tested Java code which avoided having to redesign complex software from scratch.
-C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used, and gcc version 5 or higher is required.
+The simplest solution was to port the well-tested Java code which avoided having to redesign complex software
+from scratch. C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used,
+and gcc version 5 or higher is required.
 
 
 
@@ -73,8 +75,9 @@ Prerequisites:
     
          https://github.com/JeffersonLab/Disruptor-cpp
          
-    In terms of functionality, it is an ingenious, ultrafast ring buffer which was initially developed in Java and then ported to C++.
-    It’s extremely useful when splitting work among multiple threads and then recombining it. To build it, do this on the Mac:
+    In terms of functionality, it is an ingenious, ultrafast ring buffer which was initially developed in Java
+    and then ported to C++. It’s extremely useful when splitting work among multiple threads and then recombining it.
+    To build it, do this on the Mac:
 
         1) git clone https://github.com/JeffersonLab/Disruptor-cpp.git
         2) cd Disruptor-cpp
@@ -206,3 +209,9 @@ The second uses cmake and make. Also, be sure you’ve set the DISRUPTOR_CPP_HOM
     To uninstall simply do:
     
         make uninstall
+        
+        
+##############################################
+# Java Jar File
+##############################################
+
