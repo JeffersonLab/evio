@@ -112,7 +112,7 @@ def is64BitMachine(env, platform, machine):
 
 
 
-def configure32bits(env, use32bits, platform):
+def configure32bits(env, use32bits, platform, machine):
     """Setup environment on 64 bit machine to handle 32 or 64 bit libs and executables."""
     if platform == 'SunOS':
         if not use32bits:
@@ -326,41 +326,47 @@ def configureJNI(env):
 def generateDocs(env, doCPP=False, doC=False, doJava=False):
     """Generate and install generated documentation (doxygen & javadoc)."""
 
-    # remove target files so documentation always gets rebuilt
-    rmcmd = 'rm -fr doc/javadoc doc/doxygen/CC'
-    output = os.popen(rmcmd).read()
-
-
     if doCPP:
+        print ('Call generateDocs() for C++')
+        # remove target files so documentation always gets rebuilt
+        rmcmd = 'rm -fr doc/doxygen/CC'
+        os.popen(rmcmd).read()
+
         def docGeneratorCC(target, source, env):
             cmd = 'doxygen doc/doxygen/DoxyfileCC'
-            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+            Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
             return
         
         docBuildCC = Builder(action = docGeneratorCC)
         env.Append(BUILDERS = {'DocGenCC' : docBuildCC})
         
         env.Alias('doc', env.DocGenCC(target = ['#/doc/doxygen/CC/html/index.html'],
-                                      source = scanFiles("src/libsrc", accept=["*.cpp", "*.h"])))
+                                      source = scanFiles("src/libsrc++", accept=["*.cpp", "*.h"])))
 
 
     if doC:
+        rmcmd = 'rm -fr doc/doxygen/C'
+        os.popen(rmcmd).read()
+
         def docGeneratorC(target, source, env):
             cmd = 'doxygen doc/doxygen/DoxyfileC'
-            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+            Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
             return
 
         docBuildC = Builder(action = docGeneratorC)
         env.Append(BUILDERS = {'DocGenC' : docBuildC})
 
         env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/C/html/index.html'],
-                                      source = scanFiles("src/libCsrc", accept=["*.c", "*.h"])))
+                                      source = scanFiles("src/libsrc", accept=["*.c", "*.h"])))
 
 
     if doJava:
+        rmcmd = 'rm -fr doc/javadoc'
+        os.popen(rmcmd).read()
+
         def docGeneratorJava(target, source, env):
             cmd = 'ant javadoc'
-            output = os.popen(cmd).read()
+            os.popen(cmd).read()
             return
         
         docBuildJava = Builder(action = docGeneratorJava)
