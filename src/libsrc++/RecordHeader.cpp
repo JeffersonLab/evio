@@ -739,7 +739,7 @@ namespace evio {
 
     /**
      * Set the bit info of a record header for a specified CODA event type.
-     * Must be called AFTER {@link #setBitInfo(bool, bool, bool)} or
+     * Must be called AFTER {@link #setBitInfo(bool, bool)} or
      * {@link #setBitInfoWord(uint32_t)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
      *             3=Disentangled, 4=User, 5=Control, 15=Other,

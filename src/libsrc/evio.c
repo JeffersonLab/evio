@@ -418,7 +418,7 @@
  *
  * -------------------
  *   Bit Info Word
- *  bit #s  =  value
+ *  bit number  =  value
  * -------------------
  *     0-7  = 6
  *     8    = 0
@@ -572,7 +572,7 @@
  *    +----------------------------------+
  *    |             Record 1             |
  *    +----------------------------------+
- *                   ...
+ *                   ___
  *    +----------------------------------+
  *    |             Record N             |
  *    +----------------------------------+
@@ -1691,8 +1691,8 @@ char *evStrRemoveSpecifiers(const char *orig) {
  * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
  * it will be added automatically in order to avoid spaces in the final, generated
  * file name.
- * In the {@link #evGenerateFileName(String, int, int, int, int)} routine, the first
- * occurrence will be substituted with the given runNumber value.
+ * In the {@link #evGenerateFileName(EVFILE *, int, int, int, int, char *, uint32_t)} routine,
+ * the first occurrence will be substituted with the given runNumber value.
  * If the file is being split, the second will be substituted with the split number.<p>
  *
  * The file name may contain characters of the form <b>$(ENV_VAR)</b>
@@ -1754,32 +1754,33 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
 
 
 /**
- * This method generates a complete file name from the previously determined baseFileName
- * obtained from calling {@link #evGenerateBaseFileName} and stored in the evOpen handle.<p>
+ * <p>This method generates a complete file name from the previously determined baseFileName
+ * obtained from calling {@link #evGenerateBaseFileName(char *, char **, int *)} and
+ * stored in the evOpen handle.</p>
  *
- * All occurrences of the string "%s" in the baseFileName will be substituted with the
- * value of the runType arg or nothing if the runType is null.<p>
+ * <p>All occurrences of the string "%s" in the baseFileName will be substituted with the
+ * value of the runType arg or nothing if the runType is null.</p>
  * 
- * If evio data is to be split up into multiple files (split > 0), numbers are used to
+ * <p>If evio data is to be split up into multiple files (split > 0), numbers are used to
  * distinguish between the split files with splitNumber.
  * If baseFileName contains C-style int format specifiers (specifierCount > 0), then
  * the first occurrence will be substituted with the given runNumber value.
  * If the file is being split, the second will be substituted with the splitNumber.
  * If 2 specifiers exist and the file is not being split, no substitutions are made.
  * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
- * It returns the final file name or NULL if error. Free the result if non-NULL.<p>
+ * It returns the final file name or NULL if error. Free the result if non-NULL.</p>
  *
- * If multiple streams of data, each writing a file, end up with the same file name,
+ * <p>If multiple streams of data, each writing a file, end up with the same file name,
  * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
  * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
  * This is done after the run type, run number, split numbers, and env vars have been inserted
- * into the file name.<p>
+ * into the file name.</p>
  *
- * @param handle         evio handle (contains file name to use as a basis for the
+ * @param a              evio handle (contains file name to use as a basis for the
  *                       generated file name)
  * @param specifierCount number of C-style int format specifiers in file name arg
  * @param runNumber      CODA run number
- * @param split          is file being split (split > 0)? 1 - yes, 0 - no
+ * @param splitting      is file being split (split > 0)? 1 - yes, 0 - no
  * @param splitNumber    number of the split file
  * @param runType        run type name
  * @param streamId       streamId number (100 > id > -1)
@@ -4816,7 +4817,7 @@ int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen)
  * @param handle evio handle
  * @param buffer pointer to pointer to buffer gets filled with pointer to location in
  *               internal buffer which is guaranteed to be valid only until the next
- *               {@link #evRead}, {@link #evReadNoAlloc}, or {@link #evReadNoCopy} call.
+ *               {@link #evRead}, {@link #evReadAlloc}, or {@link #evReadNoCopy} call.
  * @param buflen pointer to int gets filled with length of buffer in 32 bit words
  *               including the full (8 byte) bank header
  *
@@ -4929,7 +4930,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
  * Works only with evio version 4 and up. A status is returned.
  *
  * @param handle evio handle
- * @param buffer pointer which gets filled with pointer to event in buffer or
+ * @param pEvent pointer which gets filled with pointer to event in buffer or
  *               memory mapped file
  * @param buflen pointer to int gets filled with length of buffer in 32 bit words
  *               including the full (8 byte) bank header

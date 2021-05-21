@@ -139,7 +139,7 @@ namespace evio {
      *
      * -------------------
      *   Bit Info Word
-     *  bit #s  =  value
+     *   bit number  =  value
      * -------------------
      *     0-7  = 6
      *     8    = 0

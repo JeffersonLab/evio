@@ -731,7 +731,7 @@ namespace evio {
 
     /**
      * Set the bit info of a record header for a specified CODA event type.
-     * Must be called AFTER {@link RecordHeader#setBitInfo(bool, bool, bool)} or
+     * Must be called AFTER {@link RecordHeader#setBitInfo(bool, bool)} or
      * {@link RecordHeader#setBitInfoWord(uint32_t)} in order to have change preserved.
      * This should only be used internally by CODA in emu software.
      *
