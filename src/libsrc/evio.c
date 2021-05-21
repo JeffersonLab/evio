@@ -264,19 +264,19 @@
  *      Magic #            = magic number (0xc0da0100) used to check endianness
  *
  *
- *   Bit info (24 bits) has the following bits defined (starting at 1):
+ *      Bit info (24 bits) has the following bits defined (starting at 1):
  * 
- *   Bit  9     = true if dictionary is included (relevant for first block only)
- *   Bit  10    = true if this block is the last block in file or network transmission
- *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
- *                DisentangledPhysics = 3, User = 4, Control = 5, Prestart = 6, Go = 7,
- *                Pause = 8, End = 9, Other = 15)
- *   Bit  15    = true if block contains "first" event which gets written in each file split
+ *         Bit  9     = true if dictionary is included (relevant for first block only)
+ *         Bit  10    = true if this block is the last block in file or network transmission
+ *         Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
+ *                      DisentangledPhysics = 3, User = 4, Control = 5, Prestart = 6, Go = 7,
+ *                      Pause = 8, End = 9, Other = 15)
+ *         Bit  15    = true if block contains "first" event which gets written in each file split
  *
- *                Bits 11-15 are ONLY for the CODA online use of evio.
- *                That's because only a single CODA event TYPE is placed into
- *                a single ET or cMsg buffer. Each user or control event has its own
- *                buffer. Thus all events parsed from a single buffer will be of a single CODA type.
+ *         Bits 11-15 are ONLY for the CODA online use of evio.
+ *         That's because only a single CODA event TYPE is placed into
+ *         a single ET or cMsg buffer. Each user or control event has its own
+ *         buffer. Thus all events parsed from a single buffer will be of a single CODA type.
  *
  * ################################
  * COMPOSITE DATA:
@@ -298,10 +298,10 @@
  * +        Data Format String           +
  * +                                     +
  * +-------------------------------------+
- * +              length                 + \
- * +----------------+---------+----------+  \  bank header
- * +       tag      +  type   +   num    +  /
- * +----------------+---------+----------+ /
+ * +              length                 + \\
+ * +----------------+---------+----------+  \\  bank header
+ * +       tag      +  type   +   num    +  //
+ * +----------------+---------+----------+ //
  * +               Data                  +
  * +                                     +
  * +-------------------------------------+
@@ -416,10 +416,9 @@
  * 14 +                0                 +
  *    +----------------------------------+
  *
- * -------------------
- *   Bit Info Word
- *  bit number  =  value
- * -------------------
+ * ----------------------------------
+ *   Bit Info Word (bit num = value)
+ * ----------------------------------
  *     0-7  = 6
  *     8    = 0
  *     9    = 0
