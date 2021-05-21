@@ -138,7 +138,7 @@ env.Append(CXXFLAGS = ['-std=c++11'])
 # Take care of 64/32 bit issues
 if is64bits:
     # Setup 64 bit machine to compile either 32 or 64 bit libs & executables
-    coda.configure32bits(env, use32bits, platform)
+    coda.configure32bits(env, use32bits, platform, machine)
 elif not use32bits:
     use32bits = True
 
@@ -219,7 +219,7 @@ Help('install -c          uninstall libs, headers, and binaries\n')
 ###############################
 
 if 'doc' in COMMAND_LINE_TARGETS:
-    coda.generateDocs(env, True, True, True, "java/org/jlab/coda/jevio")
+    coda.generateDocs(env, True, True, True)
 
 if 'undoc' in COMMAND_LINE_TARGETS:
     coda.removeDocs(env)

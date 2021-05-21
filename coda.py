@@ -112,7 +112,7 @@ def is64BitMachine(env, platform, machine):
 
 
 
-def configure32bits(env, use32bits, platform):
+def configure32bits(env, use32bits, platform, machine):
     """Setup environment on 64 bit machine to handle 32 or 64 bit libs and executables."""
     if platform == 'SunOS':
         if not use32bits:
@@ -326,15 +326,15 @@ def configureJNI(env):
 def generateDocs(env, doCPP=False, doC=False, doJava=False):
     """Generate and install generated documentation (doxygen & javadoc)."""
 
-    # remove target files so documentation always gets rebuilt
-    rmcmd = 'rm -fr doc/javadoc doc/doxygen/CC'
-    output = os.popen(rmcmd).read()
-
 
     if doCPP:
+        # remove target files so documentation always gets rebuilt
+        rmcmd = 'rm -fr doc/javadoc doc/doxygen/CC'
+        os.popen(rmcmd).read()
+
         def docGeneratorCC(target, source, env):
             cmd = 'doxygen doc/doxygen/DoxyfileCC'
-            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+            Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
             return
         
         docBuildCC = Builder(action = docGeneratorCC)
@@ -345,9 +345,13 @@ def generateDocs(env, doCPP=False, doC=False, doJava=False):
 
 
     if doC:
+        # remove target files so documentation always gets rebuilt
+        rmcmd = 'rm -fr doc/javadoc doc/doxygen/C'
+        os.popen(rmcmd).read()
+
         def docGeneratorC(target, source, env):
             cmd = 'doxygen doc/doxygen/DoxyfileC'
-            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+            Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
             return
 
         docBuildC = Builder(action = docGeneratorC)
@@ -358,9 +362,13 @@ def generateDocs(env, doCPP=False, doC=False, doJava=False):
 
 
     if doJava:
+        # remove target files so documentation always gets rebuilt
+        rmcmd = 'rm -fr doc/javadoc'
+        os.popen(rmcmd).read()
+
         def docGeneratorJava(target, source, env):
             cmd = 'ant javadoc'
-            output = os.popen(cmd).read()
+            os.popen(cmd).read()
             return
         
         docBuildJava = Builder(action = docGeneratorJava)
