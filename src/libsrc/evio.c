@@ -558,9 +558,11 @@
  *
  *    +----------------------------------+
  *    |           Index Array            |
- *    |     (optional index of all       |
- *    |      record lengths in bytes,    |
- *    |       one word / length )        |
+ *    |   (optional index, same format   |
+ *    |      as file trailer index:      |
+ *    |   1 word of record len in bytes, |
+ *    |           followed by            |
+ *    |      1 word of event count       |
  *    +----------------------------------+
  *
  *    +----------------------------------+
