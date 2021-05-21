@@ -178,23 +178,23 @@
  *
  * MSB(31)                          LSB(0)
  * <---  32 bits ------------------------>
- * _______________________________________
- * |             Block Size              |
- * |_____________________________________|
- * |            Block Number             |
- * |_____________________________________|
- * |           Header Size = 8           |
- * |_____________________________________|
- * |               Start                 |
- * |_____________________________________|
- * |                Used                 |
- * |_____________________________________|
- * |              Version                |
- * |_____________________________________|
- * |              Reserved               |
- * |_____________________________________|
- * |              Magic #                |
- * |_____________________________________|
+ * +-------------------------------------+
+ * +             Block Size              +
+ * +-------------------------------------+
+ * +            Block Number             +
+ * +-------------------------------------+
+ * +           Header Size = 8           +
+ * +-------------------------------------+
+ * +               Start                 +
+ * +-------------------------------------+
+ * +                Used                 +
+ * +-------------------------------------+
+ * +              Version                +
+ * +-------------------------------------+
+ * +              Reserved               +
+ * +-------------------------------------+
+ * +              Magic #                +
+ * +-------------------------------------+
  *
  *
  *      Block Size    = number of 32 bit ints in block (including this one).
@@ -209,33 +209,33 @@
  *      Magic #       = magic number (0xc0da0100) used to check endianness
  *
  *
- * 
+ *
  * In version 4, only an integral number of complete
  * events will be contained in a single block.
  *
  * ################################
- * Evio block header, version 4+:
+ * Evio block header, version 4:
  * ################################
  *
  * MSB(31)                          LSB(0)
  * <---  32 bits ------------------------>
- * _______________________________________
- * |             Block Size              |
- * |_____________________________________|
- * |            Block Number             |
- * |_____________________________________|
- * |          Header Length = 8          |
- * |_____________________________________|
- * |             Event Count             |
- * |_____________________________________|
- * |              Reserved               |
- * |_____________________________________|
- * |          Bit info         | Version |
- * |_____________________________________|
- * |              Reserved               |
- * |_____________________________________|
- * |            Magic Number             |
- * |_____________________________________|
+ * +-------------------------------------+
+ * +             Block Size              +
+ * +-------------------------------------+
+ * +            Block Number             +
+ * +-------------------------------------+
+ * +          Header Length = 8          +
+ * +-------------------------------------+
+ * +             Event Count             +
+ * +-------------------------------------+
+ * +              Reserved               +
+ * +-------------------------------------+
+ * +          Bit info         + Version +
+ * +-------------------------------------+
+ * +              Reserved               +
+ * +-------------------------------------+
+ * +            Magic Number             +
+ * +-------------------------------------+
  *
  *
  *      Block Size         = number of ints in block (including this one).
@@ -251,19 +251,19 @@
  *      Magic #            = magic number (0xc0da0100) used to check endianness
  *
  *
- *   Bit info (24 bits) has the following bits defined (starting at 1):
- * 
- *   Bit  9     = true if dictionary is included (relevant for first block only)
- *   Bit  10    = true if this block is the last block in file or network transmission
- *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
- *                DisentangledPhysics = 3, User = 4, Control = 5, Prestart = 6, Go = 7,
- *                Pause = 8, End = 9, Other = 15)
- *   Bit  15    = true if block contains "first" event which gets written in each file split
+ *      Bit info (24 bits) has the following bits defined (starting at 1):
  *
- *                Bits 11-15 are ONLY for the CODA online use of evio.
- *                That's because only a single CODA event TYPE is placed into
- *                a single ET or cMsg buffer. Each user or control event has its own
- *                buffer. Thus all events parsed from a single buffer will be of a single CODA type.
+ *         Bit  9     = true if dictionary is included (relevant for first block only)
+ *         Bit  10    = true if this block is the last block in file or network transmission
+ *         Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
+ *                      DisentangledPhysics = 3, User = 4, Control = 5, Prestart = 6, Go = 7,
+ *                      Pause = 8, End = 9, Other = 15)
+ *         Bit  15    = true if block contains "first" event which gets written in each file split
+ *
+ *         Bits 11-15 are ONLY for the CODA online use of evio.
+ *         That's because only a single CODA event TYPE is placed into
+ *         a single ET or cMsg buffer. Each user or control event has its own
+ *         buffer. Thus all events parsed from a single buffer will be of a single CODA type.
  *
  * ################################
  * COMPOSITE DATA:
@@ -279,19 +279,19 @@
  *
  * MSB(31)                          LSB(0)
  * <---  32 bits ------------------------>
- * _______________________________________
- * |  tag    | type |    length          | --> tagsegment header
- * |_________|______|____________________|
- * |        Data Format String           |
- * |                                     |
- * |_____________________________________|
- * |              length                 | \
- * |_____________________________________|  \  bank header
- * |       tag      |  type   |   num    |  /
- * |________________|_________|__________| /
- * |               Data                  |
- * |                                     |
- * |_____________________________________|
+ * +---------+------+--------------------+
+ * +  tag    + type +    length          + --> tagsegment header
+ * +---------+------+--------------------+
+ * +        Data Format String           +
+ * +                                     +
+ * +-------------------------------------+
+ * +              length                 + \
+ * +----------------+---------+----------+  \  bank header
+ * +       tag      +  type   +   num    +  /
+ * +----------------+---------+----------+ /
+ * +               Data                  +
+ * +                                     +
+ * +-------------------------------------+
  *
  *   The beginning tagsegment is a normal evio tagsegment containing a string
  *   (type = 0x3). Currently its type and tag are not used - at least not for
