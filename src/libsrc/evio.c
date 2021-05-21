@@ -191,23 +191,23 @@
  *
  * MSB(31)                          LSB(0)
  * <---  32 bits ------------------------>
- * _______________________________________
- * |             Block Size              |
- * |_____________________________________|
- * |            Block Number             |
- * |_____________________________________|
- * |           Header Size = 8           |
- * |_____________________________________|
- * |               Start                 |
- * |_____________________________________|
- * |                Used                 |
- * |_____________________________________|
- * |              Version                |
- * |_____________________________________|
- * |              Reserved               |
- * |_____________________________________|
- * |              Magic #                |
- * |_____________________________________|
+ * +-------------------------------------+
+ * +             Block Size              +
+ * +-------------------------------------+
+ * +            Block Number             +
+ * +-------------------------------------+
+ * +           Header Size = 8           +
+ * +-------------------------------------+
+ * +               Start                 +
+ * +-------------------------------------+
+ * +                Used                 +
+ * +-------------------------------------+
+ * +              Version                +
+ * +-------------------------------------+
+ * +              Reserved               +
+ * +-------------------------------------+
+ * +              Magic #                +
+ * +-------------------------------------+
  *
  *
  *      Block Size    = number of 32 bit ints in block (including this one).
@@ -232,23 +232,23 @@
  *
  * MSB(31)                          LSB(0)
  * <---  32 bits ------------------------>
- * _______________________________________
- * |             Block Size              |
- * |_____________________________________|
- * |            Block Number             |
- * |_____________________________________|
- * |          Header Length = 8          |
- * |_____________________________________|
- * |             Event Count             |
- * |_____________________________________|
- * |              Reserved               |
- * |_____________________________________|
- * |          Bit info         | Version |
- * |_____________________________________|
- * |              Reserved               |
- * |_____________________________________|
- * |            Magic Number             |
- * |_____________________________________|
+ * +-------------------------------------+
+ * +             Block Size              +
+ * +-------------------------------------+
+ * +            Block Number             +
+ * +-------------------------------------+
+ * +          Header Length = 8          +
+ * +-------------------------------------+
+ * +             Event Count             +
+ * +-------------------------------------+
+ * +              Reserved               +
+ * +-------------------------------------+
+ * +          Bit info         + Version +
+ * +-------------------------------------+
+ * +              Reserved               +
+ * +-------------------------------------+
+ * +            Magic Number             +
+ * +-------------------------------------+
  *
  *
  *      Block Size         = number of ints in block (including this one).
@@ -292,19 +292,19 @@
  *
  * MSB(31)                          LSB(0)
  * <---  32 bits ------------------------>
- * _______________________________________
- * |  tag    | type |    length          | --> tagsegment header
- * |_________|______|____________________|
- * |        Data Format String           |
- * |                                     |
- * |_____________________________________|
- * |              length                 | \
- * |_____________________________________|  \  bank header
- * |       tag      |  type   |   num    |  /
- * |________________|_________|__________| /
- * |               Data                  |
- * |                                     |
- * |_____________________________________|
+ * +---------+------+--------------------+
+ * +  tag    + type +    length          + --> tagsegment header
+ * +---------+------+--------------------+
+ * +        Data Format String           +
+ * +                                     +
+ * +-------------------------------------+
+ * +              length                 + \
+ * +----------------+---------+----------+  \  bank header
+ * +       tag      +  type   +   num    +  /
+ * +----------------+---------+----------+ /
+ * +               Data                  +
+ * +                                     +
+ * +-------------------------------------+
  *
  *   The beginning tagsegment is a normal evio tagsegment containing a string
  *   (type = 0x3). Currently its type and tag are not used - at least not for
@@ -320,33 +320,33 @@
  *  GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
  *    +----------------------------------+
- *  1 |         Record Length            | // 32bit words, inclusive
+ *  1 +         Record Length            + // 32bit words, inclusive
  *    +----------------------------------+
- *  2 +         Record Number            |
+ *  2 +         Record Number            +
  *    +----------------------------------+
- *  3 +         Header Length            | // 14 (words)
+ *  3 +         Header Length            + // 14 (words)
  *    +----------------------------------+
- *  4 +       Event (Index) Count        |
+ *  4 +       Event (Index) Count        +
  *    +----------------------------------+
- *  5 +      Index Array Length          | // bytes
+ *  5 +      Index Array Length          + // bytes
  *    +-----------------------+----------+
- *  6 +       Bit Info        | Version  | // version (8 bits)
+ *  6 +       Bit Info        + Version  + // version (8 bits)
  *    +-----------------------+----------+
- *  7 +      User Header Length          | // bytes
+ *  7 +      User Header Length          + // bytes
  *    +----------------------------------+
- *  8 +          Magic Number            | // 0xc0da0100
+ *  8 +          Magic Number            + // 0xc0da0100
  *    +----------------------------------+
- *  9 +     Uncompressed Data Length     | // bytes
+ *  9 +     Uncompressed Data Length     + // bytes
  *    +------+---------------------------+
- * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits); compressed len in words
- *    +----------------------------------+
- * 11 +          User Register 1         | // UID 1st (64 bits)
+ * 10 +  CT  +  Data Length Compressed   + // CT = compression type (4 bits); compressed len in words
+ *    +------+---------------------------+
+ * 11 +          User Register 1         + // UID 1st (64 bits)
  *    +--                              --+
- * 12 +                                  |
+ * 12 +                                  +
  *    +----------------------------------+
- * 13 +          User Register 2         | // UID 2nd (64 bits)
+ * 13 +          User Register 2         + // UID 2nd (64 bits)
  *    +--                              --+
- * 14 +                                  |
+ * 14 +                                  +
  *    +----------------------------------+
  *
  * -------------------
@@ -387,33 +387,33 @@
  *   TRAILER HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
  *    +----------------------------------+
- *  1 |         Record Length            | // 32bit words, inclusive
+ *  1 +         Record Length            + // 32bit words, inclusive
  *    +----------------------------------+
- *  2 +         Record Number            |
+ *  2 +         Record Number            +
  *    +----------------------------------+
- *  3 +               14                 |
+ *  3 +               14                 +
  *    +----------------------------------+
- *  4 +                0                 |
+ *  4 +                0                 +
  *    +----------------------------------+
- *  5 +      Index Array Length          | // bytes
+ *  5 +      Index Array Length          + // bytes
  *    +-----------------------+----------+
- *  6 +       Bit Info        | Version  |
+ *  6 +       Bit Info        + Version  +
  *    +-----------------------+----------+
- *  7 +                0                 |
+ *  7 +                0                 +
  *    +----------------------------------+
- *  8 +           0xc0da0100             |
+ *  8 +           0xc0da0100             +
  *    +----------------------------------+
- *  9 +     Uncompressed Data Length     | // bytes
+ *  9 +     Uncompressed Data Length     + // bytes
  *    +----------------------------------+
- * 10 +                0                 |
+ * 10 +                0                 +
  *    +----------------------------------+
- * 11 +                0                 |
+ * 11 +                0                 +
  *    +--                              --+
- * 12 +                0                 |
+ * 12 +                0                 +
  *    +----------------------------------+
- * 13 +                0                 |
+ * 13 +                0                 +
  *    +--                              --+
- * 14 +                0                 |
+ * 14 +                0                 +
  *    +----------------------------------+
  *
  * -------------------
@@ -436,18 +436,18 @@
  *         THE FULL TRAILER FORMAT IS:
  *
  *    +----------------------------------+
- *    |         Trailer Header           |
- *    |          (14 words)              |
+ *    +         Trailer Header           +
+ *    +          (14 words)              +
  *    +----------------------------------+
  *
  *    +----------------------------------+
- *    |            Optional              |
- *    |      Uncompressed Array of       |
- *    |     a record length in bytes,    |
- *    |           followed by            |
- *    |  an event count for that record  |
- *    |       (2 words / record)         |
- *    |          (all records)           |
+ *    +            Optional              +
+ *    +      Uncompressed Array of       +
+ *    +     a record length in bytes,    +
+ *    +           followed by            +
+ *    +  an event count for that record  +
+ *    +       (2 words / record)         +
+ *    +          (all records)           +
  *    +----------------------------------+
  *
  *   HOWEVER, in this library, the optional index of lengths and counts is NOT written.
@@ -458,27 +458,27 @@
  *         THE FULL RECORD FORMAT IS:
  *
  *    +----------------------------------+
- *    |         Record Header            |
- *    |          (14 words)              |
+ *    +         Record Header            +
+ *    +          (14 words)              +
  *    +----------------------------------+
  *
  *    +----------------------------------+
- *    |           Index Array            |
- *    |     (required index of all       |
- *    |      event lengths in bytes,     |
- *    |       one word / length )        |
+ *    +           Index Array            +
+ *    +     (required index of all       +
+ *    +      event lengths in bytes,     +
+ *    +       one word / length )        +
  *    +----------------------------------+
  *
  *    +----------------------------------+
- *    |          User Header             |
- *    |    (any user data)    +----------+
- *    |                       |  Pad 1   |
+ *    +          User Header             +
+ *    +    (any user data)    +----------+
+ *    +                       +  Pad 1   +
  *    +-----------------------+----------+
  *
  *    +----------------------------------+
- *    |             Events               |
- *    |                       +----------+
- *    |                       |  Pad 2   |
+ *    +             Events               +
+ *    +                       +----------+
+ *    +                       +  Pad 2   +
  *    +-----------------------+----------+
  *
  *
@@ -494,33 +494,33 @@
  * FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
  *    +----------------------------------+
- *  1 |              ID                  | // HIPO: 0x43455248, Evio: 0x4556494F
+ *  1 +              ID                  + // HIPO: 0x43455248, Evio: 0x4556494F
  *    +----------------------------------+
- *  2 +          File Number             | // split file #
+ *  2 +          File Number             + // split file #
  *    +----------------------------------+
- *  3 +         Header Length            | // 14 (words)
+ *  3 +         Header Length            + // 14 (words)
  *    +----------------------------------+
- *  4 +      Record (Index) Count        |
+ *  4 +      Record (Index) Count        +
  *    +----------------------------------+
- *  5 +      Index Array Length          | // bytes
+ *  5 +      Index Array Length          + // bytes
  *    +-----------------------+----------+
- *  6 +       Bit Info        | Version  | // version (8 bits)
+ *  6 +       Bit Info        + Version  + // version (8 bits)
  *    +-----------------------+----------+
- *  7 +      User Header Length          | // bytes
+ *  7 +      User Header Length          + // bytes
  *    +----------------------------------+
- *  8 +          Magic Number            | // 0xc0da0100
+ *  8 +          Magic Number            + // 0xc0da0100
  *    +----------------------------------+
- *  9 +          User Register           |
+ *  9 +          User Register           +
  *    +--                              --+
- * 10 +                                  |
+ * 10 +                                  +
  *    +----------------------------------+
- * 11 +         Trailer Position         | // File offset to trailer head (64 bits).
+ * 11 +         Trailer Position         + // File offset to trailer head (64 bits).
  *    +--                              --+ // 0 = no offset available or no trailer exists.
- * 12 +                                  |
+ * 12 +                                  +
  *    +----------------------------------+
- * 13 +          User Integer 1          |
+ * 13 +          User Integer 1          +
  *    +----------------------------------+
- * 14 +          User Integer 2          |
+ * 14 +          User Integer 2          +
  *    +----------------------------------+
  *
  * -------------------
@@ -552,31 +552,31 @@
  *         THE FULL FILE FORMAT IS:
  *
  *    +----------------------------------+
- *    |          File Header             |
- *    |          (14 words)              |
+ *    +          File Header             +
+ *    +          (14 words)              +
  *    +----------------------------------+
  *
  *    +----------------------------------+
- *    |           Index Array            |
- *    |   (optional index, same format   |
- *    |      as file trailer index:      |
- *    |   1 word of record len in bytes, |
- *    |           followed by            |
- *    |      1 word of event count       |
+ *    +           Index Array            +
+ *    +   (optional index, same format   +
+ *    +      as file trailer index:      +
+ *    +   1 word of record len in bytes, +
+ *    +           followed by            +
+ *    +      1 word of event count       +
  *    +----------------------------------+
  *
  *    +----------------------------------+
- *    |          User Header             |
- *    |    (any user data)    +----------+
- *    |                       |  Pad 1   |
+ *    +          User Header             +
+ *    +    (any user data)    +----------+
+ *    +                       +  Pad 1   +
  *    +-----------------------+----------+
  *
  *    +----------------------------------+
- *    |             Record 1             |
+ *    +             Record 1             +
  *    +----------------------------------+
  *                   ___
  *    +----------------------------------+
- *    |             Record N             |
+ *    +             Record N             +
  *    +----------------------------------+
  *
  *    The last record may be a trailer.
