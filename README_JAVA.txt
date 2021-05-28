@@ -74,30 +74,39 @@ Thus, it may be safely ignored or removed.
 
 ----- Building -----
 
+All code is contained in the github repository,
+
+        https://github.com/JeffersonLab/evio.git
+
+The evio-6.0 branch contains the most recent version of evio.
+Documentation is contained in the repository under the "doc" directory but may also be accessed at:
+
+        https://coda.jlab.org/drupal/content/event-io-evio/
+
 The java evio uses ant to compile. To get a listing of all the options available to the ant command,
 run ant help in the evio top level directory to get this output:
 
 help: 
-    [echo] Usage: ant [ant options] <target1> [target2 | target3 | ...] 
-    
-    [echo]        targets: 
-    [echo]        help       - print out usage 
-    [echo]        env        - print out build file variables' values 
-    [echo]        compile    - compile java files 
-    [echo]        clean      - remove class files 
-    [echo]        cleanall   - remove all generated files 
-    [echo]        jar        - compile and create jar file 
-    [echo]        install    - create jar file and install into 'prefix'
-    [echo]                     if given on command line by -Dprefix=dir',
-    [echo]                     else install into CODA if defined
-    [echo]        uninstall  - remove jar file previously installed into 'prefix'
-    [echo]                     if given on command line by -Dprefix=dir',
-    [echo]                     else installed into CODA if defined
-    [echo]        all        - clean, compile and create jar file 
-    [echo]        javadoc    - create javadoc documentation 
-    [echo]        developdoc - create javadoc documentation for developer 
-    [echo]        undoc      - remove all javadoc documentation
-    [echo]        prepare    - create necessary directories
+    [echo] Usage: ant [ant options] <target1> [target2 | target3 | ...]
+
+    [echo]      targets:
+    [echo]      help        - print out usage
+    [echo]      env         - print out build file variables' values
+    [echo]      compile     - compile java files
+    [echo]      clean       - remove class files
+    [echo]      cleanall    - remove all generated files
+    [echo]      jar         - compile and create jar file
+    [echo]      install     - create jar file and install into 'prefix'
+    [echo]                    if given on command line by -Dprefix=dir',
+    [echo]                    else install into CODA if defined
+    [echo]      uninstall   - remove jar file previously installed into 'prefix'
+    [echo]                    if given on command line by -Dprefix=dir',
+    [echo]                    else installed into CODA if defined
+    [echo]      all         - clean, compile and create jar file
+    [echo]      javadoc     - create javadoc documentation
+    [echo]      developdoc  - create javadoc documentation for developer
+    [echo]      undoc       - remove all javadoc documentation
+    [echo]      prepare     - create necessary directories
 
 
 Although this is fairly self-explanatory, executing ant is the same as ant compile.
