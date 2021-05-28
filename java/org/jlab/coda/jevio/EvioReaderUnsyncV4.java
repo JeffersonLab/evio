@@ -734,6 +734,7 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
      * the evio version # and endianness of the file or buffer in question. These things
      * do <b>not</b> need to be examined in subsequent block headers.
      *
+     * @param headerBuf buffer to parse header from.
      * @throws EvioException if buffer too small, contains invalid data,
      *                       or bad block # sequence
      */

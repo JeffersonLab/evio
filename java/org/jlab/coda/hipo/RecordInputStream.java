@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *  Class which reads data to create an Evio or HIPO Record.
  *  This class is NOT thread safe!
  *
- * <pre>
+ * <pre><code>
  * RECORD STRUCTURE:
  *
  *               Uncompressed                                      Compressed
@@ -80,7 +80,7 @@ import java.util.logging.Logger;
  *    +--                              --+
  * 14 +                                  |
  *    +----------------------------------+
- * </pre>
+ * </code></pre>
  *
  * @version 6.0
  * @since 6.0 10/13/17
@@ -667,7 +667,7 @@ public class RecordInputStream {
     /**
      * Uncompress the data of a record from the source buffer at the given offset
      * into the destination buffer.
-     * Be aware that the position & limit of srcBuf may be changed.
+     * Be aware that the position and limit of srcBuf may be changed.
      * The limit of dstBuf may be changed. The position of dstBuf will
      * be set to just after the user-header and just before the data.
      * 

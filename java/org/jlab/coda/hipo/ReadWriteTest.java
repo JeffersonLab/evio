@@ -26,6 +26,7 @@ public class ReadWriteTest {
      * Write ints.
      *
      * @param size number of INTS
+     * @param order byte order of generated ints
      * @return byte array
      */
     static byte[] generateSequentialInts(int size, ByteOrder order) {
@@ -48,6 +49,7 @@ public class ReadWriteTest {
      *
      * @param size  number of SHORTS
      * @param order byte order of shorts in memory
+     * @return byte array
      */
     static byte[] generateSequentialShorts(int size, ByteOrder order) {
         try {

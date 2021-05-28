@@ -2060,9 +2060,9 @@ public class ByteDataTransformer {
 
 
     /**
-     * This method reads and swaps an evio bank header.
+     * <p>This method reads and swaps an evio bank header.
      * It can also return information about the bank.
-     * Position and limit of neither buffer argument is changed.<p></p>
+     * Position and limit of neither buffer argument is changed.</p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the bank
@@ -2122,9 +2122,9 @@ public class ByteDataTransformer {
 
 
     /**
-     * This method reads and swaps an evio segment header.
+     * <p>This method reads and swaps an evio segment header.
      * It can also return information about the segment.
-     * Position and limit of neither buffer argument is changed.<p></p>
+     * Position and limit of neither buffer argument is changed.</p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the segment
@@ -2178,9 +2178,9 @@ public class ByteDataTransformer {
 
 
     /**
-     * This method reads and swaps an evio tagsegment header.
+     * <p>This method reads and swaps an evio tagsegment header.
      * It can also return information about the tagsegment.
-     * Position and limit of neither buffer argument is changed.<p></p>
+     * Position and limit of neither buffer argument is changed.</p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the tagsegment
@@ -2312,7 +2312,6 @@ public class ByteDataTransformer {
      * @param nodeList   if not null, store all node objects here -
      *                   one for each swapped evio structure in destBuffer.
      *
-     * @throws EvioException
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;

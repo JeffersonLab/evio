@@ -667,7 +667,6 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      *
      * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
      * @return buffer containing a file header followed by the user-defined header.
-     * @throws HipoException if writing to buffer, not file.
      */
     ByteBuffer createHeader(ByteBuffer userHdr) {
 

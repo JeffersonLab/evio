@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  <pre>
+ * <pre><code>
  * RECORD HEADER STRUCTURE ( 48 bytes, 12 integers (32 bit) )
 
  * 
@@ -42,7 +42,7 @@ import java.util.List;
  * +        UID SECOND HIGH           |
  * +----------------------------------+
  *
- * </pre>
+ * </code></pre>
  *
  * <p><b>NOTE: THIS CLASS IS NOT USED IN EVIO!</b></p>
  *

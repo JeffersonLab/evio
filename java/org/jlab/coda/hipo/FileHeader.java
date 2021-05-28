@@ -12,7 +12,7 @@ import java.nio.ByteOrder;
 /**
  * This class represents the file header of an evio or hipo format file.
  *
- * <pre>
+ * <pre><code>
  *
  * FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
@@ -63,7 +63,7 @@ import java.nio.ByteOrder;
  *                                 5 = HIPO file
  *                                 6 = HIPO extended file
  *
- * </pre>
+ * </code></pre>
  *
  * @version 6.0
  * @since 6.0 9/6/17

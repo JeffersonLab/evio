@@ -14,8 +14,8 @@ import java.nio.ByteOrder;
 
 /**
  * Class which handles the creation and use of Evio and HIPO Records.
- *     
- * <pre>
+ *
+ * <pre><code>
  * RECORD STRUCTURE:
  *
  *               Uncompressed                                      Compressed
@@ -76,7 +76,7 @@ import java.nio.ByteOrder;
  *    +--                              --+
  * 14 +                                  |
  *    +----------------------------------+
- * </pre>
+ * </code></pre>
  *
  * @version 6.0
  * @since 6.0 9/6/17

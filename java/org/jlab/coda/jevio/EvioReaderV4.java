@@ -731,6 +731,7 @@ public class EvioReaderV4 implements IEvioReader {
      * do <b>not</b> need to be examined in subsequent block headers. Called only by
      * synchronized methods or constructors.
      *
+     * @param headerBuf buffer to parse header from.
      * @throws EvioException if buffer too small, contains invalid data,
      *                       or bad block # sequence
      */

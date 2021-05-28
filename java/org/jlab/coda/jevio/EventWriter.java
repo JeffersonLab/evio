@@ -30,7 +30,7 @@ import java.util.concurrent.*;
  * This class does NOT write versions 1-4 data, only version 6!
  * This class is not thread-safe.
  *
- * <pre>
+ * <pre><code>
  *
  *            FILE Uncompressed
  *
@@ -106,7 +106,7 @@ import java.util.concurrent.*;
  *    and the index array and user header which follow.
  *    
  *
- * </pre>
+ * </code></pre>
  *
  * @author timmer
  */

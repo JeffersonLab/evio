@@ -949,7 +949,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * entries (same tag, num, and tagEnd) are permitted only as long their
      * parent entries are different. Say, for example, that this dictionary is
      * defined as follows:
-     * <pre>
+     * <pre><code>
      *
      *      &lt;bank name="B1" tag="1" num="1" &gt;
      *           &lt;bank name="sub1" tag="5" num="5" /&gt;
@@ -964,7 +964,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      *           &lt;leaf name="tagRange" tag="30-40" /&gt;
      *      &lt;/bank&gt;
      *
-     * </pre>
+     * </code></pre>
      *
      * You can see that the leaf entries under bank "B1" are identical to those under "B2".
      * This is permitted since B1 and B2 have different tag &amp; num values so there

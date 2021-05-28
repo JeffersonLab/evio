@@ -226,6 +226,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
      * Constructor for reading a buffer.
      *
      * @param byteBuffer the buffer that contains events.
+     * @param pool pool for EvioNode objects.
      *
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
@@ -1504,10 +1505,10 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get the data associated with an evio structure in ByteBuffer form.
+     * <p>Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * a copy of or a view into the data of this reader's buffer.</p>
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1523,9 +1524,9 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio bank or event in ByteBuffer form.
-     * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * <p>Get an evio bank or event in ByteBuffer form.
+     * The returned buffer is a view into the data of this reader's buffer.</p>
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param eventNumber number of event of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1540,10 +1541,10 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio bank or event in ByteBuffer form.
+     * <p>Get an evio bank or event in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * a copy of or a view into the data of this reader's buffer.</p>
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param eventNumber number of event of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1578,9 +1579,9 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
-     * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * <p>Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
+     * The returned buffer is a view into the data of this reader's buffer.</p>
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1594,10 +1595,10 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
+     * <p>Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * a copy of or a view into the data of this reader's buffer.</p>
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a

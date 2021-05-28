@@ -21,7 +21,7 @@ import java.util.List;
  *
  * This class represents the record header in an evio or hipo format file.
  *
- * <pre>
+ * <pre><code>
  *
  * GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
@@ -142,7 +142,7 @@ import java.util.List;
  *
  *
  * ------------------------------------------------------------
- * </pre>
+ * </code></pre>
  *
  * @version 6.0
  * @since 6.0 9/6/17

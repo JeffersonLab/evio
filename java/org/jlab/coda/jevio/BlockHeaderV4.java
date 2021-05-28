@@ -16,7 +16,7 @@ import java.util.BitSet;
  * The information stored in this block header has also changed.
  *
  *
- * <pre>
+ * <pre><code>
  * ################################
  * Evio block header, version 4:
  * ################################
@@ -79,7 +79,7 @@ import java.util.BitSet;
  *
  *
  *
- * </pre>
+ * </code></pre>
  *
  *
  * @author heddle

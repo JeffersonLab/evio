@@ -122,7 +122,10 @@ public class EvioNode implements Cloneable {
         allNodes.add(this);
     }
 
-    /** Constructor used when swapping data. */
+    /**
+     * Constructor used when swapping data.
+     * @param firstNode node of event containing this node or null if this is an event node.
+     */
     EvioNode(EvioNode firstNode) {
         allNodes = new ArrayList<>(50);
         allNodes.add(this);
@@ -961,7 +964,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
      * Remove a node from this child list and, along with its descendants,
      * from the list of all nodes contained in event.
      * If not a child, do nothing.
-     * @param node node to remove from child & allNodes lists.
+     * @param node node to remove from child and allNodes lists.
      */
     final void removeChild(EvioNode node) {
         if (node == null) {

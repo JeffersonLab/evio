@@ -1267,7 +1267,7 @@ public final class CompositeData implements Cloneable {
      *  conjunction with {@link #swapData(ByteBuffer, ByteBuffer, int, List)}
      *  to swap the endianness of composite data.
      *  It's translated from the eviofmt C function.
-     *  <pre>
+     * <pre><code>
      *   format code bits &lt;- format in ascii form
      *    [15:14] [13:8] [7:0]
      *      Nnm      #     0           #'('
@@ -1298,7 +1298,7 @@ public final class CompositeData implements Cloneable {
      *       will be repeated until all data processed; if there are no parenthesis
      *       in format, data processing will be started from the beginning of the format
      *       (FORTRAN agreement)
-     * </pre>
+     * </code></pre>
      *  @param  fmt composite data format string
      *  @return List of ints resulting from transformation of "fmt" string
      *  @throws EvioException if improper format string
@@ -1657,7 +1657,7 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method converts (swaps) a buffer, containing EVIO composite type,
-     * between big & little endian. It swaps the entire type including the beginning
+     * between big and little endian. It swaps the entire type including the beginning
      * tagsegment header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src buffer may contain an array of
      * composite type items and all will be swapped.
@@ -2943,6 +2943,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param bs evio container object that called this method. Allows us to use
      *           some convenient methods.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException if writing bad format XML
      */
     void toXML(XMLStreamWriter xmlWriter, BaseStructure bs, boolean hex)
                         throws XMLStreamException {
@@ -3576,6 +3577,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param xmlWriter the writer used to write the events to XML.
      * @param xmlIndent indentation for writing XML.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException if writing bad format XML
      */
     void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
                         throws XMLStreamException {

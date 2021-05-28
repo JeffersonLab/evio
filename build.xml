@@ -163,8 +163,8 @@
     <!-- Compile all source -->
     <target name="compile" depends="CODA_cp,prepare" description="Compiles all source code.">
         <javac destdir="${build.classes}" debug="${javac.debug}" optimize="yes" >
-            <src path="${src.dir}" />
             <classpath refid="classpath" />
+            <src path="${src.dir}" />
         </javac>
     </target>
     

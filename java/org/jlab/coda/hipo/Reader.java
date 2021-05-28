@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * Reader class that reads files stored in the HIPO format.
  *
- * <pre>
+ * <pre><code>
  * File has this structure:
  *
  *    +----------------------------------+
@@ -83,7 +83,7 @@ import java.util.logging.Logger;
  * The important thing with a buffer or streaming is for the last header or
  * trailer to set the "last record" bit.
  *
- * </pre>
+ * </code></pre>
  *
  * Something to keep in mind is one can intersperse sequential calls
  * (getNextEvent, getPrevEvent, or getNextEventNode) with random access
