@@ -667,7 +667,7 @@ public final class CompactEventBuilder {
 
     /**
      * This method finishes the event writing by setting all the
-     * proper lengths & padding and ends up at the event or top level.
+     * proper lengths and padding and ends up at the event or top level.
      */
     public void closeAll() {
         while (!closeStructure()) {}

@@ -1246,7 +1246,7 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
      *
      * @param eventNumber number of event to remove from buffer
      * @return new ByteBuffer created and updated to reflect the event removal
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if event number does not correspond to existing event;
      *                       if object closed;
      *                       if node was not found in any event;
@@ -1515,23 +1515,23 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
 
 
     /**
-     * This method adds an evio container (bank, segment, or tag segment) as the last
+     * <p>This method adds an evio container (bank, segment, or tag segment) as the last
      * structure contained in an event. It is the responsibility of the caller to make
      * sure that the buffer argument contains valid evio data (only data representing
      * the structure to be added - not in file format with block header and the like)
-     * which is compatible with the type of data stored in the given event.<p>
+     * which is compatible with the type of data stored in the given event.</p>
      *
-     * To produce such evio data use {@link EvioBank#write(java.nio.ByteBuffer)},
+     * <p>To produce such evio data use {@link EvioBank#write(java.nio.ByteBuffer)},
      * {@link EvioSegment#write(java.nio.ByteBuffer)} or
      * {@link EvioTagSegment#write(java.nio.ByteBuffer)} depending on whether
-     * a bank, seg, or tagseg is being added.<p>
+     * a bank, seg, or tagseg is being added.</p>
      *
-     * A note about files here. If the constructor of this reader read in data
+     * <p>A note about files here. If the constructor of this reader read in data
      * from a file, it will now switch to using a new, internal buffer which
      * is returned by this method or can be retrieved by calling
      * {@link #getByteBuffer()}. It will <b>not</b> expand the file originally used.
      * A new file can be created by calling either the {@link #toFile(String)} or
-     * {@link #toFile(java.io.File)} methods.<p>
+     * {@link #toFile(java.io.File)} methods.</p>
      *
      * The given buffer argument must be ready to read with its position and limit
      * defining the limits of the data to copy.
@@ -1542,7 +1542,7 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
      *                  i.e. no block headers)
      * @return a new ByteBuffer object which is created and filled with all the data
      *         including what was just added.
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if addBuffer is null;
      *                       if addBuffer arg is empty or has non-evio format;
      *                       if addBuffer is opposite endian to current event buffer;
@@ -1771,7 +1771,7 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
      * Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1789,12 +1789,12 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
     /**
      * Get an evio bank or event in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param eventNumber number of event of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
      *         set for reading.
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if the event number does not correspond to an existing event;
      *                       if object closed
      */
@@ -1807,14 +1807,14 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
      * Get an evio bank or event in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param eventNumber number of event of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
      *        view into this reader object's buffer.
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
      *         set for reading.
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if the event number does not correspond to an existing event;
      *                       if object closed
      */
@@ -1844,7 +1844,7 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
     /**
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1861,7 +1861,7 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets and puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1925,8 +1925,8 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
      * Save the internal byte buffer to the given file
      * (overwrites existing file).
      *
-     * @param fileName
-     * @throws IOException
+     * @param fileName  name of file to write
+     * @throws IOException if error writing to file
      * @throws EvioException if fileName arg is null;
      *                       if object closed
      */
@@ -1942,10 +1942,10 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
      * Save the internal byte buffer to the given file
      * (overwrites existing file).
      *
-     * @param file
+     * @param file  object of file to write
      * @throws EvioException if file arg is null;
      *                       if object closed
-     * @throws IOException
+     * @throws IOException if error writing to file
      */
     public synchronized void toFile(File file) throws EvioException, IOException {
         if (file == null) {

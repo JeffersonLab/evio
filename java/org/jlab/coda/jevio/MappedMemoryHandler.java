@@ -102,7 +102,6 @@ public class MappedMemoryHandler {
      * @param channel file's file channel object
      * @param byteOrder byte order of the data
      * @throws IOException   if could not map file
-     * @throws EvioException if bad file format
      */
     public MappedMemoryHandler (FileChannel channel, ByteOrder byteOrder) throws IOException {
 

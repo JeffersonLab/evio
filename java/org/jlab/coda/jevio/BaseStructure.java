@@ -442,6 +442,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
     /**
      * Write this structure out as an XML format string.
+     * @return this structure as an XML format string.
      */
     public String toXML() {
         return toXML(false);
@@ -450,6 +451,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     /**
      * Write this structure out as an XML format string.
      * @param hex if true, ints get displayed in hexadecimal
+     * @return this structure as an XML format string.
      */
     public String toXML(boolean hex) {
         try {
@@ -2084,7 +2086,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * For writing events, this will be crucial for setting the values in the headers.
      *
      * @return the length that would go in the header field (for a leaf).
-     * @throws EvioException if the length is too large (> {@link Integer#MAX_VALUE}),
+     * @throws EvioException if the length is too large (&gt; {@link Integer#MAX_VALUE}),
      */
     public int setAllHeaderLengths() throws EvioException {
         // if length info is current, don't bother to recalculate it
@@ -2717,7 +2719,7 @@ System.err.println("Non leaf with null children!");
     /**
      * Appends string to the structure (as ascii). If the structure has no data, then this
      * is the same as setting the data. Don't worry about checking for size limits since
-     * jevio structures will never contain a char array > {@link Integer#MAX_VALUE} in size.
+     * jevio structures will never contain a char array &gt; {@link Integer#MAX_VALUE} in size.
      * @param s the string to append (as ascii), or set if there is no existing data.
      * @throws EvioException if adding data to a structure of a different data type
      */
@@ -2729,7 +2731,7 @@ System.err.println("Non leaf with null children!");
      * Appends an array of strings to the structure (as ascii).
      * If the structure has no data, then this
      * is the same as setting the data. Don't worry about checking for size limits since
-     * jevio structures will never contain a char array > {@link Integer#MAX_VALUE} in size.
+     * jevio structures will never contain a char array &gt; {@link Integer#MAX_VALUE} in size.
      * @param s the strings to append (as ascii), or set if there is no existing data.
      * @throws EvioException if adding data to a structure of a different data type or to
      *                       badly formatted (not proper evio) data.

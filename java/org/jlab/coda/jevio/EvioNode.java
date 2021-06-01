@@ -119,7 +119,10 @@ public class EvioNode implements Cloneable {
         allNodes.add(this);
     }
 
-    /** Constructor used when swapping data. */
+    /**
+     * Constructor used when swapping data.
+     * @param firstNode node corresponding to event.
+     */
     EvioNode(EvioNode firstNode) {
         allNodes = new ArrayList<>(50);
         allNodes.add(this);
@@ -456,7 +459,7 @@ public class EvioNode implements Cloneable {
      * Remove a node from this child list and, along with its descendants,
      * from the list of all nodes contained in event.
      * If not a child, do nothing.
-     * @param node node to remove from child & allNodes lists.
+     * @param node node to remove from child and allNodes lists.
      */
     final void removeChild(EvioNode node) {
         if (node == null) {
@@ -491,9 +494,9 @@ public class EvioNode implements Cloneable {
     }
 
     /**
-     * Set whether this node & descendants are now obsolete because the
+     * Set whether this node and descendants are now obsolete because the
      * data they represent in the buffer has been removed.
-     * @param obsolete true if node & descendants no longer represent valid
+     * @param obsolete true if node and descendants no longer represent valid
      *                 buffer data, else false.
      */
     final void setObsolete(boolean obsolete) {
@@ -551,6 +554,7 @@ public class EvioNode implements Cloneable {
      * This is meaningful only if this node has been scanned,
      * otherwise it is null.
      *
+     * @param index into list of children.
      * @return child node at the given index;
      *         null if not scanned or no child at that index
      */

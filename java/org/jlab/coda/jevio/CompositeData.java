@@ -235,6 +235,7 @@ public final class CompositeData implements Cloneable {
      *
      * @param rawBytes  raw data defining this composite type item
      * @param byteOrder byte order of rawBytes
+     * @throws EvioException if null arg(s) or bad data format
 	 */
 	public CompositeData(byte[] rawBytes, ByteOrder byteOrder)
             throws EvioException {
@@ -1266,8 +1267,8 @@ public final class CompositeData implements Cloneable {
      *  conjunction with {@link #swapData(ByteBuffer, ByteBuffer, int, List)}
      *  to swap the endianness of composite data.
      *  It's translated from the eviofmt C function.
-     *  <pre>
-     *   format code bits <- format in ascii form
+     * <pre><code>
+     *   format code bits &lt;- format in ascii form
      *    [15:14] [13:8] [7:0]
      *      Nnm      #     0           #'('
      *        0      0     0            ')'
@@ -1297,7 +1298,7 @@ public final class CompositeData implements Cloneable {
      *       will be repeated until all data processed; if there are no parenthesis
      *       in format, data processing will be started from the beginning of the format
      *       (FORTRAN agreement)
-     * </pre>
+     * </code></pre>
      *  @param  fmt composite data format string
      *  @return List of ints resulting from transformation of "fmt" string
      *  @throws EvioException if improper format string
@@ -1488,7 +1489,7 @@ public final class CompositeData implements Cloneable {
 
 
     /**
-      * This method swaps the data of this composite type between big &
+      * This method swaps the data of this composite type between big and
       * little endian. It swaps the entire type including the beginning tagsegment
       * header, the following format string it contains, the data's bank header,
       * and finally the data itself.
@@ -1504,7 +1505,7 @@ public final class CompositeData implements Cloneable {
      
 
     /**
-     * This method converts (swaps) a buffer of EVIO composite type between big &
+     * This method converts (swaps) a buffer of EVIO composite type between big and
      * little endian. It swaps the entire type including the beginning tagsegment
      * header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src array may contain an array of
@@ -1518,7 +1519,7 @@ public final class CompositeData implements Cloneable {
      * @param length   length of data array in 32 bit words
      * @param srcOrder the byte order of data in src
      *
-     * @throws EvioException if offsets or length < 0; if src = null;
+     * @throws EvioException if offsets or length &lt; 0; if src = null;
      *                       if src or dest is too small
      */
     public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
@@ -1656,7 +1657,7 @@ public final class CompositeData implements Cloneable {
 
     /**
      * This method converts (swaps) a buffer, containing EVIO composite type,
-     * between big & little endian. It swaps the entire type including the beginning
+     * between big and little endian. It swaps the entire type including the beginning
      * tagsegment header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src buffer may contain an array of
      * composite type items and all will be swapped.
@@ -2195,7 +2196,7 @@ public final class CompositeData implements Cloneable {
      * @param data     data to convert to raw bytes
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
-     * @throws EvioException if ifmt size <= 0; if srcBuf or destBuf is too
+     * @throws EvioException if ifmt size &lt;= 0; if srcBuf or destBuf is too
      *                       small; not enough dataItems for the given format
      */
     public static void dataToRawBytes(ByteBuffer rawBuf, CompositeData.Data data,
@@ -2906,6 +2907,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
     /**
      * This method writes an xml string representation of this CompositeData object.
      * @param hex if <code>true</code> then print integers in hexadecimal.
+     * @return an xml string representation of this CompositeData object.
      */
     public String toXML(boolean hex) {
         StringWriter sWriter = null;
@@ -2939,6 +2941,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param bs evio container object that called this method. Allows us to use
      *           some convenient methods.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException if writing bad format XML
      */
     void toXML(XMLStreamWriter xmlWriter, BaseStructure bs, boolean hex)
                         throws XMLStreamException {
@@ -3572,6 +3575,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param xmlWriter the writer used to write the events to XML.
      * @param xmlIndent indentation for writing XML.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException if writing bad format XML
      */
     void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
                         throws XMLStreamException {
@@ -4201,7 +4205,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
     /**
      * This method returns a string representation of this CompositeData object
-     * suitable for displaying in {@docRoot org.jlab.coda.jevio.graphics.EventTreeFrame}
+     * suitable for displaying in a
      * gui. Each data item is separated from those before and after by a line.
      * Non-parenthesis repeats are printed together.
      *

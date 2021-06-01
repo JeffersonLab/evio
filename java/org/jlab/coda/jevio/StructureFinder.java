@@ -1,13 +1,11 @@
 package org.jlab.coda.jevio;
 
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * This is a set of convenient static methods used to find lists of structures
  * within an event, bank, segment, or tagsegment that match certain criteria. For the most
- * part it uses the <code>List<BaseStructure>&nbsp;getMatchingStructures(IEvioFilter)</code>
+ * part it uses the <code>List&lt;BaseStructure&gt;&nbsp;getMatchingStructures(IEvioFilter)</code>
  * method on the provided <code>EvioEvent</code> object by constructing the
  * appropriate filter.
  *

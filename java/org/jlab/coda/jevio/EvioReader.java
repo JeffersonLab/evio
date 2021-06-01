@@ -364,7 +364,7 @@ public class EvioReader {
      *                       and throw an exception if it is not sequential starting
      *                       with 1
      * @param sequential     if <code>true</code> read the file sequentially,
-     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       else use memory mapped buffers. If file &gt; 2.1 GB,
      *                       reads are always sequential for the older evio format.
      * @see EventWriter
      * @throws IOException   if read failure
@@ -386,7 +386,7 @@ public class EvioReader {
      *                       and throw an exception if it is not sequential starting
      *                       with 1
      * @param sequential     if <code>true</code> read the file sequentially,
-     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       else use memory mapped buffers. If file &gt; 2.1 GB,
      *                       reads are always sequential for the older evio format.
      *
      * @see EventWriter
@@ -690,7 +690,7 @@ public class EvioReader {
      * Get the byte buffer being read directly or corresponding to the event file.
      * Not a very useful method. For files, it works only for evio format versions 2,3 and
      * returns the internal buffer containing an evio block if using sequential access
-     * (for example files > 2.1 GB). It returns the memory mapped buffer otherwise.
+     * (for example files &gt; 2.1 GB). It returns the memory mapped buffer otherwise.
      * For reading buffers it returns the buffer being read.
      * @return the byte buffer being read (in certain cases).
      */
@@ -724,6 +724,7 @@ public class EvioReader {
      * do <b>not</b> need to be examined in subsequent block headers. Called only by
      * synchronized methods or constructors.
      *
+     * @param headerBuf buffer to parse.
      * @throws EvioException if buffer too small, contains invalid data,
      *                       or bad block # sequence
      */
@@ -1189,7 +1190,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException   if failed file access
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if out of memory;
-     *                       if index < 1;
+     *                       if index &lt; 1;
      *                       if object closed
      */
     public EvioEvent getEvent(int index)
@@ -1301,7 +1302,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException if failed file access
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if out of memory;
-     *                       if index < 1;
+     *                       if index &lt; 1;
      *                       if object closed
 	 */
 	public synchronized EvioEvent parseEvent(int index) throws IOException, EvioException {

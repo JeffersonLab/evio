@@ -49,7 +49,7 @@ import org.w3c.dom.NodeList;
  * entry, no additional existence of type, format, or description is allowed.<p>
  *
  * Similarly, an entry with a range of tags is also allowed. In this case,
- * no num & type is allowed. It will match
+ * no num and type is allowed. It will match
  * a tag/num pair if no exact match exists but the tag is in the range
  * (inclusive).
  * 
@@ -888,17 +888,17 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
     /**
      * Returns the name associated with the given tag, num, and tagEnd.
-     * If a valid tag and num are given (>= 0) a search is made for:
+     * If a valid tag and num are given (&gt;= 0) a search is made for:
      * <ol>
-     * <li>an entry of a tag/num pair. If that fails,<p>
-     * <li>an entry of a tag only. If that fails,<p>
-     * <li>an entry of a tag range.<p>
+     * <li>an entry of a tag/num pair. If that fails,
+     * <li>an entry of a tag only. If that fails,
+     * <li>an entry of a tag range.
      * </ol><p>
      *
      * If only a valid tag is given, a search is made for:
      * <ol>
-     * <li>an entry of a tag only. If that fails,<p>
-     * <li>an entry of a tag range.<p>
+     * <li>an entry of a tag only. If that fails,
+     * <li>an entry of a tag range.
      * </ol><p>
      *
      * All other argument values result in ??? being returned.
@@ -914,17 +914,17 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
     /**
      * Returns the name associated with the given tag, num, and tagEnd.
-     * If a valid tag and num are given (>= 0) a search is made for:
+     * If a valid tag and num are given (&gt;= 0) a search is made for:
      * <ol>
-     * <li>an entry of a tag/num pair. If that fails,<p>
-     * <li>an entry of a tag only. If that fails,<p>
-     * <li>an entry of a tag range.<p>
+     * <li>an entry of a tag/num pair. If that fails,
+     * <li>an entry of a tag only. If that fails,
+     * <li>an entry of a tag range.
      * </ol><p>
      *
      * If only a valid tag is given, a search is made for:
      * <ol>
-     * <li>an entry of a tag only. If that fails,<p>
-     * <li>an entry of a tag range.<p>
+     * <li>an entry of a tag only. If that fails,
+     * <li>an entry of a tag range.
      * </ol><p>
      *
      * If a valid tag range is given (different valid tag and tagEnd with no num),
@@ -937,8 +937,8 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * Things are actually more complicated due to parent structures. Duplicate
      * entries (same tag, num, and tagEnd) are permitted only as long their
      * parent entries are different. Say, for example, that this dictionary is
-     * defined as follows:<p>
-     * <pre>
+     * defined as follows:
+     * <pre><code>
      *
      *      &lt;bank name="B1" tag="1" num="1" &gt;
      *           &lt;bank name="sub1" tag="5" num="5" /&gt;
@@ -953,10 +953,10 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      *           &lt;leaf name="tagRange" tag="30-40" /&gt;
      *      &lt;/bank&gt;
      *
-     * </pre>
+     * </code></pre>
      *
      * You can see that the leaf entries under bank "B1" are identical to those under "B2".
-     * This is permitted since B1 and B2 have different tag & num values so there
+     * This is permitted since B1 and B2 have different tag &amp; num values so there
      * is a way to tell the difference between the 2 instances of tagNum, tagOnly and
      * tagRange.<p>
      *
@@ -968,6 +968,10 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * @param tag       tag of dictionary entry to find
      * @param num       num of dictionary entry to find
      * @param tagEnd tagEnd of dictionary entry to find
+     *
+     * @param pTag       tag of dictionary entry's parent
+     * @param pNum       num of dictionary entry's parent
+     * @param pTagEnd tagEnd of dictionary entry's parent
      * @return descriptive name or "???" if none found
      */
     public String getName(Integer tag,  Integer num,  Integer tagEnd,
@@ -993,17 +997,17 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
     /**
      * Returns the name associated with the given tag, num, and tagEnd.
-     * If a valid tag and num are given (>= 0) a search is made for:
+     * If a valid tag and num are given (&gt;= 0) a search is made for:
      * <ol>
-     * <li>an entry of a tag/num pair. If that fails,<p>
-     * <li>an entry of a tag only. If that fails,<p>
-     * <li>an entry of a tag range.<p>
+     * <li>an entry of a tag/num pair. If that fails,
+     * <li>an entry of a tag only. If that fails,
+     * <li>an entry of a tag range.
      * </ol><p>
      *
      * If only a valid tag is given, a search is made for:
      * <ol>
-     * <li>an entry of a tag only. If that fails,<p>
-     * <li>an entry of a tag range.<p>
+     * <li>an entry of a tag only. If that fails,
+     * <li>an entry of a tag range.
      * </ol><p>
      *
      * If a valid tag range is given (different valid tag and tagEnd with no num),

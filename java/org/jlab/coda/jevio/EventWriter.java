@@ -509,12 +509,12 @@ public class EventWriter {
      * If it doesn't exist, it will be created.
      *
      * @param file          the file object to write to.<br>
-     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param byteOrder     the byte order in which to write the file.
      * @param xmlDictionary dictionary in xml format or null if none.
      * @param bitInfo       set of bits to include in first block header.
@@ -538,12 +538,12 @@ public class EventWriter {
      * it will be created.
      *
      * @param file          the file to write to.<br>
-     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param byteOrder     the byte order in which to write the file.
      * @param xmlDictionary dictionary in xml format or null if none.
      * @param bitInfo       set of bits to include in first block header.
@@ -572,12 +572,12 @@ public class EventWriter {
      * it will be created. Byte order defaults to big endian if arg is null.
      *
      * @param file          the file to write to.<br>
-     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param byteOrder     the byte order in which to write the file. This is ignored
      *                      if appending to existing file.
      * @param xmlDictionary dictionary in xml format or null if none.
@@ -615,7 +615,7 @@ public class EventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
      * @param byteOrder     the byte order in which to write the file.
@@ -647,13 +647,13 @@ public class EventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
      * @param byteOrder     the byte order in which to write the file.
      *                      Defaults to big endian if null.
      * @param xmlDictionary dictionary in xml format or null if none.
-     * @param streamId      streamId number (100 > id > -1) for file name
+     * @param streamId      streamId number (100 &gt; id &gt; -1) for file name
      *
      * @throws EvioException if baseName arg is null;
      *                       if file could not be opened, positioned, or written to;
@@ -679,7 +679,7 @@ public class EventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
      * @param byteOrder     the byte order in which to write the file.
@@ -739,15 +739,15 @@ public class EventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
-     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param bufferSize    number of bytes to make the internal buffer which will
      *                      be storing events before writing them to a file. Must be at least
      *                      4*blockSizeMax + 32. If not, it is set to that.
@@ -817,15 +817,15 @@ public class EventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
-     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param bufferSize    number of bytes to make the internal buffer which will
      *                      be storing events before writing them to a file. Must be at least
      *                      4*blockSizeMax + 32. If not, it is set to that.
@@ -895,7 +895,7 @@ public class EventWriter {
      * the runType is null.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
+     * they can be differentiated by a stream id number. If the id is &gt; 0, the string, ".strm"
      * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
      * This is done after the run type, run number, split numbers, and env vars have been inserted
      * into the file name.<p>
@@ -904,15 +904,15 @@ public class EventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
-     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param bufferSize    number of bytes to make the internal buffer which will
      *                      be storing events before writing them to a file. Must be at least
      *                      4*blockSizeMax + 32. If not, it is set to that.
@@ -928,7 +928,7 @@ public class EventWriter {
      * @param firstEvent    the first event written into each file (after any dictionary)
      *                      including all split files; may be null. Useful for adding
      *                      common, static info into each split file.
-     * @param streamId      streamId number (100 > id > -1) for file name
+     * @param streamId      streamId number (100 &gt; id &gt; -1) for file name
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary or first event while appending;
@@ -999,12 +999,12 @@ public class EventWriter {
 //     * @param split         if < 1, do not split file, write to only one file of unlimited size.
 //     *                      Else this is max size in bytes to make a file
 //     *                      before closing it and starting writing another.
-//     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-//     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+//     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+//     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
 //     *                      The size of the block will not be larger than this size
 //     *                      unless a single event itself is larger.
 //     * @param blockCountMax the max number of events (including dictionary) in a single block
-//     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+//     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
 //     * @param bufferSize    number of bytes to make the internal buffer which will
 //     *                      be storing events before writing them to a file. Must be at least
 //     *                      4*blockSizeMax + 32. If not, it is set to that.
@@ -1065,7 +1065,7 @@ public class EventWriter {
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file
      * name after a dot (.).
-     * If streamCount > 1, the split number is calculated starting with streamId and incremented
+     * If streamCount &gt; 1, the split number is calculated starting with streamId and incremented
      * by streamCount each time. In this manner, all split files will have unique, sequential
      * names even though there are multiple parallel ERs.
      * <p>
@@ -1085,15 +1085,15 @@ public class EventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
-     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax  the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                      and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param bufferSize    number of bytes to make the internal buffer which will
      *                      be storing events before writing them to a file. Must be at least
      *                      4*blockSizeMax + 32. If not, it is set to that.
@@ -1109,7 +1109,7 @@ public class EventWriter {
      * @param firstEvent    the first event written into each file (after any dictionary)
      *                      including all split files; may be null. Useful for adding
      *                      common, static info into each split file.
-     * @param streamId      streamId number (100 > id > -1) for file name
+     * @param streamId      streamId number (100 &gt; id &gt; -1) for file name
      * @param splitNumber   number at which to start the split numbers
      * @param splitIncrement amount to increment split number each time another
      *                       file is created.
@@ -1121,7 +1121,7 @@ public class EventWriter {
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
      *                       if file exists but user requested no over-writing or appending;
-     *                       if streamId < 0, splitNumber < 0, or splitIncrement < 1.
+     *                       if streamId &lt; 0, splitNumber &lt; 0, or splitIncrement &lt; 1.
      */
     public EventWriter(String baseName, String directory, String runType,
                        int runNumber, long split,
@@ -1384,12 +1384,12 @@ public class EventWriter {
      * Will overwrite any existing data in buffer!
      *
      * @param buf            the buffer to write to.
-     * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                       and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param blockCountMax  the max number of events (including dictionary) in a single block
-     *                       which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits; if buf arg is null
@@ -1405,12 +1405,12 @@ public class EventWriter {
      * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
-     * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                       and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param blockCountMax  the max number of events (including dictionary) in a single block
-     *                       which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param append         if <code>true</code>, all events to be written will be
@@ -1432,12 +1432,12 @@ public class EventWriter {
      * Will overwrite any existing data in buffer!
      *
      * @param buf            the buffer to write to.
-     * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                       and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param blockCountMax  the max number of events (including dictionary) in a single block
-     *                       which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
@@ -1458,12 +1458,12 @@ public class EventWriter {
      * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
-     * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                       and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param blockCountMax  the max number of events (including dictionary) in a single block
-     *                       which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
@@ -1487,12 +1487,12 @@ public class EventWriter {
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
      *
      * @param buf            the buffer to write to.
-     * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                       and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param blockCountMax  the max number of events (including dictionary) in a single block
-     *                       which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
@@ -1523,12 +1523,12 @@ public class EventWriter {
      * The buffer's position is set to 0 before writing.
      *
      * @param buf            the buffer to write to.
-     * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
-     *                       and <= {@link #MAX_BLOCK_SIZE} ints.
+     * @param blockSizeMax   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
+     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param blockCountMax  the max number of events (including dictionary) in a single block
-     *                       which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
@@ -1960,9 +1960,16 @@ public class EventWriter {
      * @param node node representing event to be placed first in each file written
      *             including all splits. If null, no more first events are written
      *             to any files.
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if event is bad format;
+     *                       if close() already called;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
      */
     synchronized public void setFirstEvent(EvioNode node)
-            throws EvioException, IOException {
+            throws  EvioException, IOException {
 
         // If getting rid of the first event ...
         if (node == null) {
@@ -2032,6 +2039,13 @@ public class EventWriter {
      * @param buffer buffer containing event to be placed first in each file written
      *               including all splits. If null, no more first events are written
      *               to any files.
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if event is bad format;
+     *                       if close() already called;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
      */
     synchronized public void setFirstEvent(ByteBuffer buffer)
             throws EvioException, IOException {
@@ -2107,6 +2121,13 @@ public class EventWriter {
      *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if event is bad format;
+     *                       if close() already called;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
      */
     synchronized public void setFirstEvent(EvioBank bank)
             throws EvioException, IOException {
@@ -2254,6 +2275,9 @@ public class EventWriter {
      * do <b>not</b> need to be examined in subsequent block headers.
      *
      * @return status of read attempt
+     * @throws IOException   if error reading file
+     * @throws EvioException if not in append mode;
+     *                       if file has bad format;
      */
     protected synchronized IOStatus examineFirstBlockHeader()
             throws IOException, EvioException {

@@ -33,7 +33,7 @@ public class EvioCompactEventWriter {
      * It receives buffers containing evio event data (just the event data and <b>not</b> a
      * full evio 4 format) and places them into an internal buffer in full evio 4 format.
      * It writes out the contents of its internal buffer into a file whenever that buffer
-     * becomes full. If the split arg is > 0, when the file size reaches the given limit,
+     * becomes full. If the split arg is &gt; 0, when the file size reaches the given limit,
      * it is closed and another created. If the file already exists, its contents will be
      * overwritten unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. If the file doesn't exist,
@@ -45,7 +45,7 @@ public class EvioCompactEventWriter {
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size (in units of integral # of buffers of maxBuffersize
      *                      bytes each) to make a file before closing it and starting writing another.
      * @param bufferSize    number of bytes to make the internal buffer which will
@@ -79,7 +79,7 @@ public class EvioCompactEventWriter {
      * It receives buffers containing evio event data (just the event data and <b>not</b> a
      * full evio 4 format) and places them into an internal buffer in full evio 4 format.
      * It writes out the contents of its internal buffer into a file whenever that buffer
-     * becomes full. If the split arg is > 0, when the file size reaches the given limit,
+     * becomes full. If the split arg is &gt; 0, when the file size reaches the given limit,
      * it is closed and another created. If the file already exists, its contents will be
      * overwritten unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. If the file doesn't exist,
@@ -92,15 +92,15 @@ public class EvioCompactEventWriter {
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes (+/- blockSizeMax) to make a file
      *                      before closing it and starting writing another.
-     * @param blockSizeMax  the max blocksize in bytes which must be >= 400 B and <= 4 MB.
+     * @param blockSizeMax  the max blocksize in bytes which must be &gt;= 400 B and &lt;= 4 MB.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events in a single block which must be
-     *                      >= {@link EventWriter#MIN_BLOCK_COUNT} and
-     *                      <= {@link EventWriter#MAX_BLOCK_COUNT}.
+     *                      &gt;= {@link EventWriter#MIN_BLOCK_COUNT} and
+     *                      &lt;= {@link EventWriter#MAX_BLOCK_COUNT}.
      * @param bufferSize    number of bytes to make the internal buffer which will
      *                      be storing events before writing them to a file. Must be at least
      *                      blockSizeMax. If not, it is set to that.
@@ -132,7 +132,7 @@ public class EvioCompactEventWriter {
      * It receives buffers containing evio event data (just the event data and <b>not</b> a
      * full evio 4 format) and places them into an internal buffer in full evio 4 format.
      * It writes out the contents of its internal buffer into a file whenever that buffer
-     * becomes full. If the split arg is > 0, when the file size reaches the given limit,
+     * becomes full. If the split arg is &gt; 0, when the file size reaches the given limit,
      * it is closed and another created. If the file already exists, its contents will be
      * overwritten unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. If the file doesn't exist,
@@ -145,15 +145,15 @@ public class EvioCompactEventWriter {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes (+/- blockSizeMax) to make a file
      *                      before closing it and starting writing another.
-     * @param blockSizeMax  the max blocksize in bytes which must be >= 400 B and <= 4 MB.
+     * @param blockSizeMax  the max blocksize in bytes which must be &gt;= 400 B and &lt;= 4 MB.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events in a single block which must be
-     *                      >= {@link EventWriter#MIN_BLOCK_COUNT} and
-     *                      <= {@link EventWriter#MAX_BLOCK_COUNT}.
+     *                      &gt;= {@link EventWriter#MIN_BLOCK_COUNT} and
+     *                      &lt;= {@link EventWriter#MAX_BLOCK_COUNT}.
      * @param bufferSize    number of bytes to make the internal buffer which will
      *                      be storing events before writing them to a file. Must be at least
      *                      blockSizeMax. If not, it is set to that.
@@ -191,11 +191,11 @@ public class EvioCompactEventWriter {
      * remaining data to the buffer and disable this object from any more writing.
      *
      * @param byteBuffer    buffer into which events are written.
-     * @param blockSizeMax  the max blocksize in bytes which must be >= 400 B and <= 4 MB.
+     * @param blockSizeMax  the max blocksize in bytes which must be &gt;= 400 B and &lt;= 4 MB.
      *                      The size of the block will not be larger than this size
      *                      unless a single event itself is larger.
      * @param blockCountMax the max number of events in a single block which must be
-     *                      >= {@link EventWriter#MIN_BLOCK_COUNT} and <= {@link EventWriter#MAX_BLOCK_COUNT}.
+     *                      &gt;= {@link EventWriter#MIN_BLOCK_COUNT} and &lt;= {@link EventWriter#MAX_BLOCK_COUNT}.
      * @param xmlDictionary dictionary in xml format or null if none.
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;

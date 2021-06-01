@@ -6,20 +6,20 @@ import java.util.BitSet;
 
 /**
  * This holds an evio block header, also known as a physical record header.
- * Unfortunately, in versions 1, 2 & 3, evio files impose an anachronistic
+ * Unfortunately, in versions 1, 2 &amp; 3, evio files impose an anachronistic
  * block structure. The complication that arises is that logical records
  * (events) will sometimes cross physical record boundaries. This block structure
  * is changed in version 4 so that blocks only contain integral numbers of events.
  * The information stored in this block header has also changed.
  *
  *
- * <code><pre>
+ * <pre><code>
  * ################################
  * Evio block header, version 4:
  * ################################
  *
  * MSB(31)                          LSB(0)
- * <---  32 bits ------------------------>
+ * &lt;---  32 bits ------------------------&gt;
  * _______________________________________
  * |            Block Length             |
  * |_____________________________________|
@@ -31,7 +31,7 @@ import java.util.BitSet;
  * |_____________________________________|
  * |             reserved 1              |
  * |_____________________________________|
- * |          Bit info & Version         |
+ * |          Bit info &amp; Version         |
  * |_____________________________________|
  * |             reserved 2              |
  * |_____________________________________|
@@ -48,7 +48,7 @@ import java.util.BitSet;
  *                           presence is not included in this count.
  *      Reserved 1         = If bits 11-14 in bit info are RocRaw (1), then (in the first block)
  *                           this contains the CODA id of the source
- *      Bit info & Version = Lowest 8 bits are the version number (4).
+ *      Bit info &amp; Version = Lowest 8 bits are the version number (4).
  *                           Upper 24 bits contain bit info.
  *                           If a dictionary is included as the first event, bit #9 is set (=1)
  *                           If a last block, bit #10 is set (=1)
@@ -76,7 +76,7 @@ import java.util.BitSet;
  *
  *
  *
- * </pre></code>
+ * </code></pre>
  *
  *
  * @author heddle
@@ -85,7 +85,7 @@ import java.util.BitSet;
  */
 public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
-    /** The minimum & expected block header size in 32 bit ints. */
+    /** The minimum and expected block header size in 32 bit ints. */
     public static final int HEADER_SIZE = 8;
 
     /** Dictionary presence is 9th bit in version/info word */
@@ -239,7 +239,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	 * Set the size of the block (physical record). Some trivial checking is done.
 	 *
 	 * @param size the new value for the size, in ints.
-	 * @throws EvioException
+     * @throws EvioException if size &lt; 8
 	 */
 	public void setSize(int size) throws EvioException {
         if (size < 8) {
@@ -264,7 +264,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * NOTE: There are no partial events, only complete events stored in one block.
      *
      * @param count the new number of events in the block.
-     * @throws EvioException
+     * @throws EvioException if count &lt; 0
      */
     public void setEventCount(int count) throws EvioException {
         if (count < 0) {
@@ -307,7 +307,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	 * Set the block header length, in ints. Although technically speaking this value
      * is variable, it should be 8.
 	 *
-	 * param headerLength the new block header length. This should be 8.
+	 * @param headerLength the new block header length. This should be 8.
 	 */
 	public void setHeaderLength(int headerLength) {
 		if (headerLength != HEADER_SIZE) {
@@ -339,6 +339,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Does this integer indicate that there is an evio dictionary
      * (assuming it's the header's sixth word)?
      *
+     * @param i integer to examine.
      * @return <code>true</code> if this int indicates an evio dictionary, else <code>false</code>
      */
     static public boolean hasDictionary(int i) {
@@ -376,6 +377,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Does this integer indicate that this is the last block
      * (assuming it's the header's sixth word)?
      *
+     * @param i integer to examine.
      * @return <code>true</code> if this int indicates the last block, else <code>false</code>
      */
     static public boolean isLastBlock(int i) {
@@ -405,6 +407,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * (assuming it's the header's sixth word)? Only makes sense if the
      * integer arg comes from the first block header of a file or buffer.
      *
+     * @param i integer to examine.
      * @return <code>true</code> if this int indicates the block has a first event,
      *         else <code>false</code>
      */
@@ -661,7 +664,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      *
      * @param word integer to parse into bit info fields
      */
-    public void parseToBitInfo(int word) throws EvioException {
+    public void parseToBitInfo(int word) {
         for (int i=0; i < 24; i++) {
             bitInfo.set(i, ((word >>> 8+i) & 0x1) > 0);
         }
@@ -717,7 +720,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	 * 3) The endianess is not being handled properly.
 	 *
 	 * @param magicNumber the new value for magic number.
-	 * @throws EvioException
+     * @throws EvioException if magic number != MAGIC_NUMBER.
 	 */
 	public void setMagicNumber(int magicNumber) throws EvioException {
 		if (magicNumber != MAGIC_NUMBER) {
@@ -826,7 +829,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	 *
 	 * @param position the absolute current position is a byte buffer.
 	 * @return the number of bytes remaining in this block (physical record.)
-	 * @throws EvioException
+     * @throws EvioException if position &lt; buffer starting position or &gt; buffer end position
 	 */
 	public int bytesRemaining(long position) throws EvioException {
 		if (position < bufferStartingPosition) {

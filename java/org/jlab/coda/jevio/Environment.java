@@ -6,7 +6,8 @@ import java.net.UnknownHostException;
 /**
  * This is a utility class employing a singleton to obtain environment information, such as user name, home directory,
  * OS name, etc.
- * 
+ * 196
+ *
  * @author heddle
  * 
  */
@@ -193,7 +194,7 @@ public class Environment {
 	/**
 	 * Main program used for testing only.
 	 * 
-	 * @param args
+	 * @param args args
 	 */
 	public static void main(String[] args) {
 		Environment env = Environment.getInstance();
