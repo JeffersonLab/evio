@@ -31,7 +31,7 @@
 
 /**
  * @file
- * <pre>
+ * <pre><code>
  * ################################
  * COMPOSITE DATA:
  * ################################
@@ -59,7 +59,7 @@
  * |               Data                  |
  * |                                     |
  * |_____________________________________|
- * </pre>
+ * </code></pre>
  * 
  *   The beginning tagsegment is a normal evio tagsegment containing a string
  *   (type = 0x3). Currently its type and tag are not used - at least not for

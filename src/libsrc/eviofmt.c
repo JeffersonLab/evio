@@ -32,7 +32,7 @@
 #undef DEBUG
 
 /**
- * <pre>
+ * <pre><code>
  *  This routine transforms a composite, format-containing
  *  ASCII string to an unsigned char array. It is to be used
  *  in conjunction with {@link #eviofmtswap} to swap the endianness of
@@ -68,7 +68,7 @@
  *       will be repeated until all data processed; if there are no parenthesis
  *       in format, data processing will be started from the beginnig of the format
  *       (FORTRAN agreement)
- * </pre>
+ * </code></pre>
  * 
  *  @param fmt     null-terminated composite data format string
  *  @param ifmt    unsigned short array to hold transformed format

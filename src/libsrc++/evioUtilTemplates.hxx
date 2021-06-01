@@ -4,6 +4,10 @@
 
 //  ejw, 5-dec-2006
 
+#ifndef _evioUtilTemplates_hxx
+#define _evioUtilTemplates_hxx
+
+
 #include <iostream>
 #include <iomanip>
 
@@ -16,8 +20,6 @@
 #include "evioUtil.hxx"
 
 
-#ifndef _evioUtilTemplates_hxx
-#define _evioUtilTemplates_hxx
 
 
 template <typename T> class typeIs;

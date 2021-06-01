@@ -16,7 +16,7 @@
 
 
 /**
- * Old "tagNum" typedef for pair<uint16_t,uint8_t> has changed to be a
+ * Old "tagNum" typedef for pair&lt;uint16_t,uint8_t&gt; has changed to be a
  * #define for evioDictEntry since that is now used instead of tagNum.
  * This is a hack in order to help backwards compatibility.
  */
