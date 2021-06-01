@@ -32,7 +32,7 @@ namespace evio {
      *  Class which reads data to create an Evio or HIPO Record.
      *  This class is NOT thread safe!<p>
      *
-     * <pre>
+     * <pre><code>
      * RECORD STRUCTURE:
      *
      *               Uncompressed                                      Compressed
@@ -93,7 +93,7 @@ namespace evio {
      *    +--                              --+
      * 14 +                                  |
      *    +----------------------------------+
-     * </pre>
+     * </code></pre>
      *
      * @version 6.0
      * @since 6.0 10/13/17

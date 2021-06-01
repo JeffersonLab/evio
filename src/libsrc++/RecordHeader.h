@@ -36,7 +36,7 @@ namespace evio {
 
 
     /**
-     * <pre>
+     * <pre><code>
      *
      * GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
      *
@@ -172,7 +172,7 @@ namespace evio {
      *
      *
      * ------------------------------------------------------------
-     * </pre>
+     * </code></pre>
      *
      * @version 6.0
      * @since 6.0 4/9/2019

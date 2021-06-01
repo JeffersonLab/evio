@@ -764,7 +764,7 @@ namespace evio {
 
 
     /**
-     * <pre>
+     * <pre><code>
      *  This method was originally called called "eviofmt".
      *  It transforms a composite, format-containing
      *  ASCII string to a vector of shorts codes. It is to be used
@@ -801,7 +801,7 @@ namespace evio {
      *       will be repeated until all data processed; if there are no parenthesis
      *       in format, data processing will be started from the beginnig of the format
      *       (FORTRAN agreement)
-     * </pre>
+     * </code></pre>
      *
      *  @param formatStr composite data format string
      *  @param ifmt      unsigned short vector to hold transformed format

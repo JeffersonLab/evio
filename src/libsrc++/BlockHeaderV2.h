@@ -29,7 +29,7 @@ namespace evio {
      * (events) will sometimes cross physical record boundaries.
      *
      *
-     * <pre>
+     * <pre><code>
      * ####################################
      * Evio block header, versions 1,2 &amp; 3:
      * ####################################
@@ -65,7 +65,7 @@ namespace evio {
      *      Reserved 1    = reserved
      *      Magic #       = magic number (0xc0da0100) used to check endianness
      *
-     * </pre>
+     * </code></pre>
      *
      *
      * @author heddle (original java version)

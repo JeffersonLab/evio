@@ -40,7 +40,7 @@ namespace evio {
     /**
      * Reader class that reads files stored in the HIPO format.<p>
      *
-     * <pre>
+     * <pre><code>
      * File has this structure:
      *
      *    +----------------------------------+
@@ -100,7 +100,7 @@ namespace evio {
      * The important thing with a buffer or streaming is for the last header or
      * trailer to set the "last record" bit.
      *
-     * </pre>
+     * </code></pre>
      *
      * Something to keep in mind is one can intersperse sequential calls
      * (getNextEvent, getPrevEvent, or getNextEventNode) with random access

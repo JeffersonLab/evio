@@ -31,7 +31,7 @@ namespace evio {
 
 
     /**
-     * <pre>
+     * <pre><code>
      *
      * FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
      *
@@ -82,7 +82,7 @@ namespace evio {
      *                                 5 = HIPO file
      *                                 6 = HIPO extended file
      *
-     * </pre>
+     * </code></pre>
      *
      * @version 6.0
      * @since 6.0 10/16/19

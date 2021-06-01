@@ -177,7 +177,7 @@
 
 /**
  * @file
- * <pre>
+ * <pre><code>
  * Let's take a look at an evio block header also
  * known as a physical record header.
  * 
@@ -580,7 +580,7 @@
  *
  *    The last record may be a trailer.
  *
- * </pre>
+ * </code></pre>
  */
 
 #define EV_HD_BLKSIZ 0	/**< Position of blk hdr word for size of block in 32-bit words (v 1-6). */

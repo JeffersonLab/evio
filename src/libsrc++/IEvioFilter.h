@@ -25,7 +25,7 @@ namespace evio {
     /**
      * This interface allows applications to create filters so that they only receive certain structures
      * when events are being processed. Below is a filter that accepts any structure that has tag = 400.
-     * <pre>
+     * <pre><code>
      * class MyFilter : IEvioFilter {
      *     public bool accept(StructureType & structureType, std::shared_ptr<BaseStructure> structure) {
      *         return (structure->getHeader()->getTag() == 400);
@@ -33,7 +33,7 @@ namespace evio {
      * };
      * MyFilter myfilter();
      * EventParser.getInstance().setEvioFilter(myFilter);
-     * </pre>
+     * </code></pre>
      * @author heddle (Original java class)
      * @author timmer
      */

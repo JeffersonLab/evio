@@ -35,7 +35,7 @@ namespace evio {
     /**
      * Class which handles the creation and use of Evio & HIPO Records.<p>
      *
-     * <pre>
+     * <pre><code>
      * RECORD STRUCTURE:
      *
      *               Uncompressed                                      Compressed
@@ -96,7 +96,7 @@ namespace evio {
      *    +--                              --+
      * 14 +                                  |
      *    +----------------------------------+
-     * </pre>
+     * </code></pre>
      *
      * @version 6.0
      * @since 6.0 4/9/2019

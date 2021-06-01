@@ -34,7 +34,7 @@ namespace evio {
      * The information stored in this block header has also changed.
      *
      *
-     * <pre>
+     * <pre><code>
      * ################################
      * Evio block header, version 4:
      * ################################
@@ -95,7 +95,7 @@ namespace evio {
      *                buffer as well. That buffer then is parsed by an EvioReader or
      *                EvioCompactReader object. Thus all events will be of a single CODA type.
      *
-     * </pre>
+     * </code></pre>
      *
      *
      * @author heddle
