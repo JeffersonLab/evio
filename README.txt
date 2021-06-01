@@ -26,10 +26,15 @@ JLab Data Acquisition Group CODA wiki at http://coda.jlab.org.
 That site will direct one to evio's github site.
 To install evio, clone the github repository:
 
-     git clone https://github.com/JeffersonLab/evio/tree/evio-5.2
+     git clone https://github.com/JeffersonLab/evio.git
 
 This will give you a full evio distribution with the top level
-directory being evio. The documentation, while available at coda.jlab.org,
+directory being evio. Go to the evio-5.2 branch:
+
+    cd <evio dir>
+    git checkout evio-5.2
+
+The documentation, while available at coda.jlab.org,
 also exists in the doc subdirectory of the full distribution.
 
 Note that for C/C++, only Linux and Darwin (Mac OSX)
