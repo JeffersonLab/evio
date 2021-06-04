@@ -3,7 +3,7 @@
 ----------------------------
 
 EVIO stands for EVent Input/Output and contains libraries which read & write
-data in it own unique format. It was created by the Data Acquisition (DAQ) group
+data in its own unique format. It was created by the Data Acquisition (DAQ) group
 and is now maintained by the Experimental Physics Software and Computing Infrastructure
 (EPSCI) group at Thomas Jefferson National Accelerator Facility (Jefferson Lab).
 It was originally used in the online DAQ as part of the CODA software,
@@ -28,6 +28,10 @@ All code is contained in the github repository:
 https://github.com/JeffersonLab/evio
 
 The evio-6.0 branch is the default and contains the most recent version of evio.
+
+GUI package for viewing data in evio format:
+
+https://github.com/JeffersonLab/JEventViewer
 
 -----------------------------
 ## **Documentation**
