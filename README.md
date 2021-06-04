@@ -167,8 +167,7 @@ To uninstall simply do:
 
 The current Java evio package, org.jlab.coda.jevio, was originally written by Dr. Dave Heddle of CNU
 and was graciously given to the JLAB DAQ group for maintenance and continued development.
-A large amount of additional work has been done since that time. As previously mentioned,
-evio now uses a new format developed from the merging of evio version 4 and the HIPO library.
+A large amount of additional work has been done since that time.
 The code will compile using Java version 8 or later.
 
 A pre-compiled jevio-5.2.jar file is found in each of these subdirectories:
