@@ -155,9 +155,9 @@ run scons -h in the top-level directory to get this output:
     Use scons -H for help about command-line options.
 
 
-Although this is fairly self-explanatory, executing:
+Although fairly self-explanatory, if on Jefferson Lab's CUE system with Redhat 7, execute:
 
-    1. use gcc/5.3.0 # if on CUE system with Redhat 7
+    1. use gcc/5.3.0
     2. cd <evio dir>
     3. scons install
     
@@ -183,7 +183,7 @@ To build the C and C++ libraries and executables on the Mac:
     4. cmake .. –DCMAKE_BUILD_TYPE=Release
     5. make
     
-If on redhat 7 linux this will be:
+If on Jefferson Lab's redhat 7 linux this will be:
     
     1. cd <evio dir>
     2. mkdir build
@@ -231,8 +231,8 @@ The code will compile using Java version 8 or later.
 The jar files necessary to compile an evio jar file are in the java/jars directory.
 They are compiled with Java 8. In addition, there are 2 subdirectories:
 
-    1. java8, which contains all such jars compiled with Java 8, and
-    2. java15 which contains all jars compiled with Java 15.
+    * java8, which contains all such jars compiled with Java 8, and
+    * java15 which contains all jars compiled with Java 15.
     
 If a jar file is not available in Java 15 use the Java 8 version.
 
@@ -278,7 +278,7 @@ Currently this has been created with java15 and is in the java/jars/java15 direc
 The resulting jar will be in build/libs as before.
 
 
-### LZ4
+### Lz4
 
 
 A jar file used in lz4 data compression, lz4-java-1.8.0.jar is accessible in the java/jars directory (compiled with Java 8).
