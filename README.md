@@ -21,12 +21,12 @@ you can skip the C/C++ installation.Evio Installation
 
 All code is contained in the github repository,
 
-  https://github.com/JeffersonLab/evio.git
+https://github.com/JeffersonLab/evio.git
 
 The evio-6.0 branch contains the most recent version of evio.
 Documentation is contained in the repository but may also be accessed at:
 
-  https://coda.jlab.org/drupal/content/event-io-evio/
+https://coda.jlab.org/drupal/content/event-io-evio/
 
 
 ----------------------------
@@ -74,7 +74,7 @@ and gcc version 5 or higher is required.
 
 Evio depends upon the Disruptor-cpp software package available from a fork of the original package at github at
 
-   https://github.com/JeffersonLab/Disruptor-cpp
+https://github.com/JeffersonLab/Disruptor-cpp
      
 In terms of functionality, it is an ingenious, ultrafast ring buffer which was initially developed in Java
 and then ported to C++. It’s extremely useful when splitting work among multiple threads and then recombining it.
@@ -115,6 +115,7 @@ Besides the disruptor library, evio requires the boost libraries: boost_system, 
 
 Finally, evio depends on the lz4 library for compressing data in the lz4 and gzip formats.
 If it isn’t already available on your machine, it can be obtained from the lz4 repository on github:
+
     1. git clone https://github.com/lz4/lz4.git
     2. cd lz4
     3. make
@@ -248,7 +249,7 @@ Using these allows the user to skip over all the following compilation instructi
 
 Evio depends upon the LMAX-Exchange/disruptor software package available from github whose fork is at:
 
-  https://github.com/JeffersonLab/disruptor
+https://github.com/JeffersonLab/disruptor
         
 In terms of functionality, it is an ingenious, ultrafast ring buffer which was initially developed
 for use the in the commodities exchange markets. It’s extremely useful when splitting work among
@@ -305,12 +306,12 @@ Thus, it may be safely ignored or removed.
 
 All code is contained in the github repository,
 
-  https://github.com/JeffersonLab/evio.git
+https://github.com/JeffersonLab/evio.git
 
 The evio-6.0 branch contains the most recent version of evio.
 Documentation is contained in the repository under the "doc" directory but may also be accessed at:
 
-  https://coda.jlab.org/drupal/content/event-io-evio/
+https://coda.jlab.org/drupal/content/event-io-evio/
 
 The java evio uses ant to compile. To get a listing of all the options available to the ant command,
 run ant help in the evio top level directory to get this output:
