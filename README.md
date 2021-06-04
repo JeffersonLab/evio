@@ -86,7 +86,7 @@ To build it, do this on the Mac:
     6. make
     7. setenv DISRUPTOR_CPP_HOME <../>
     
-    If using Jefferson Lab’s Redhat Enterprise 7 do:
+If using Jefferson Lab’s Redhat Enterprise 7 do:
     
     1. git clone https://github.com/JeffersonLab/Disruptor-cpp.git
     2. cd Disruptor-cpp
@@ -175,7 +175,7 @@ To build the C and C++ libraries and executables on the Mac:
     4. cmake .. –DCMAKE_BUILD_TYPE=Release
     5. make
     
-    If on redhat 7 linux this will be:
+If on redhat 7 linux this will be:
     
     1. cd <evio dir>
     2. mkdir build
@@ -195,7 +195,7 @@ files can be done by calling cmake in 2 ways:
     1. cmake .. –DCMAKE_BUILD_TYPE=Release –DCODA_INSTALL=<install dir>
     2. make install
     
-    or
+or
     
     1. cmake .. –DCMAKE_BUILD_TYPE=Release
     2. make install
@@ -236,7 +236,7 @@ Using these allows the user to skip over all the following compilation instructi
 ### Disruptor
 Evio depends upon the LMAX-Exchange/disruptor software package available from github whose fork is at:
 
-        https://github.com/JeffersonLab/disruptor
+    https://github.com/JeffersonLab/disruptor
         
 In terms of functionality, it is an ingenious, ultrafast ring buffer which was initially developed
 for use the in the commodities exchange markets. It’s extremely useful when splitting work among
