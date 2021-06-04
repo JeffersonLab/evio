@@ -107,7 +107,7 @@ Although fairly self-explanatory executing:
     
 will compile and install all the code.
 Note that for C/C++, only Linux and Darwin (Mac OSX) operating systems are supported.
-By default, the libraries and executables are placed into the $CODA/<arch>/lib and bin subdirectories
+By default, the libraries and executables are placed into the $CODA/[arch]/lib and bin subdirectories
 (eg. Linux-x86_64/lib). If the command line options
 –prefix, --incdir, --libdir, or –bindir are used, they take priority.
 Be sure to change your LD_LIBRARY_PATH environmental variable to include the correct lib directory.
@@ -133,7 +133,7 @@ To build the C and C++ libraries and executables:
     
 To build only C code, place –DC_ONLY=1 on the cmake command line.
 In order to compile all the examples as well, place –DMAKE_EXAMPLES=1 on the cmake command line.
-The above commands will place everything in the current “build” directory and will keep generated
+The above commands will place everything in the current _**build**_ directory and will keep generated
 files from mixing with the source and config files.
 
 In addition to a having a copy in the build directory, installing the library, binary and include
@@ -149,7 +149,7 @@ or
 
 The first option explicitly sets the installation directory. The second option installs in the directory
 given in the CODA environmental variable. If neither are defined, an error is given.
-The libraries and executables are placed into the build/lib and build/bin subdirectories.
+The libraries and executables are placed into the _**build/lib**_ and _**build/bin**_ subdirectories.
 When doing an install, they are also placed into the [install dir]/[arch]/lib and bin subdirectories
 (eg. Darwin-x86_64/lib). If cmake was run previously, remove the CMakeCache.txt file so
 new values are generated and used.
@@ -209,6 +209,6 @@ run ant help in the evio top level directory to get this output:
 
 
 Although this is fairly self-explanatory, executing ant is the same as ant compile.
-That will compile all the java. All compiled code is placed in the generated ./build directory.
-If the user wants a jar file, execute ant jar to place the resulting file in the ./build/lib directory.
+That will compile all the java. All compiled code is placed in the generated _**build**_ directory.
+If the user wants a jar file, execute ant jar to place the resulting file in the _**build/lib**_ directory.
 The java command in the user’s path will be the one used to do the compilation.
