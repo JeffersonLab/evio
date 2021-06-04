@@ -1,6 +1,6 @@
-#############################
-# EVIO 6.0 SOFTWARE PACKAGE #
-#############################
+----------------------------
+# EVIO 6.0 SOFTWARE PACKAGE
+----------------------------
 
 EVIO stands for EVent Input/Output and contains libraries which read & write
 data in it own unique format. It was created by the Data Acquisition (DAQ) group
@@ -29,9 +29,9 @@ Documentation is contained in the repository but may also be accessed at:
         https://coda.jlab.org/drupal/content/event-io-evio/
 
         
-##############################################
+----------------------------
 # C library
-##############################################
+----------------------------
 The C library is called libevio.
 It is a library with limited capabilities. In the past, this was acceptable because the evio
 format was fairly simple. However, as its complexity has greatly expanded in this version, the C library will
@@ -49,9 +49,9 @@ or
     cmake .. –DC_ONLY=1
 
     
-##############################################
+----------------------------
 # C++ library
-##############################################
+----------------------------
 The C++ library is called libeviocc.
 The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
 from the Java code. This was done for a number of reasons.
@@ -65,11 +65,10 @@ and gcc version 5 or higher is required.
 
 
 
-##########################
-Prerequisites:
+## Prerequisites:
 
 
------ Disruptor ------
+### Disruptor
 
     Evio depends upon the Disruptor-cpp software package available from a fork of the original package at github at
     
@@ -103,12 +102,12 @@ Prerequisites:
     or you must specify the proper ones on the cmake command line.
 
     
------ Boost -----
+#### Boost
 
     Besides the disruptor library, evio requires the boost libraries: boost_system, boost_thread, and boost_chrono.
    
    
------- Lz4 ------
+#### Lz4
 
     Finally, evio depends on the lz4 library for compressing data in the lz4 and gzip formats.
     If it isn’t already available on your machine, it can be obtained from the lz4 repository on github:
@@ -119,15 +118,14 @@ Prerequisites:
         
         
         
-##########################
-Building:
+## Building:
 
 There are 2 different methods to build the C++ library and executables.
 The first uses scons, a Python-based build software package which is available at https://scons.org.
 The second uses cmake and make. Also, be sure you’ve set the DISRUPTOR_CPP_HOME environmental variable.
 
 
------ Scons -----
+### Scons
 
     To get a listing of all the local options available to the scons command,
     run scons -h in the top-level directory to get this output:
@@ -166,7 +164,7 @@ The second uses cmake and make. Also, be sure you’ve set the DISRUPTOR_CPP_HOM
         scons install --dbg
    
    
------ Cmake -----
+### Cmake
 
     Evio can also be compiled with cmake using the included CMakeLists.txt file.
     To build the C and C++ libraries and executables on the Mac:
