@@ -170,7 +170,7 @@ and was graciously given to the JLAB DAQ group for maintenance and continued dev
 A large amount of additional work has been done since that time.
 The code will compile using Java version 8 or later.
 
-A pre-compiled jevio-5.2.jar file is found in each of these subdirectories:
+A pre-compiled _**jevio-5.2.jar**_ file is found in each of these subdirectories:
 
   * java8, which contains a jar compiled with Java 8, and
   * java15 which contains a jar compiled with Java 15.
