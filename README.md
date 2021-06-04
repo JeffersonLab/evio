@@ -19,19 +19,17 @@ If you only plan to run C/C++ applications you can skip the Java
 installation. If you only plan to use Java applications you can
 you can skip the C/C++ installation.Evio Installation
 
-The home page is:
+**The home page is:**
 
-https://coda.jlab.org/drupal/content/event-io-evio/
+  https://coda.jlab.org/drupal/content/event-io-evio/
 
-All code is contained in the github repository:
+**All code is contained in the github repository (default evio-6.0 branch):**
 
-https://github.com/JeffersonLab/evio
+  https://github.com/JeffersonLab/evio
 
-The evio-6.0 branch is the default and contains the most recent version of evio.
+**GUI package for viewing data in evio format:**
 
-GUI package for viewing data in evio format:
-
-https://github.com/JeffersonLab/JEventViewer
+  https://github.com/JeffersonLab/JEventViewer
 
 -----------------------------
 ## **Documentation**
