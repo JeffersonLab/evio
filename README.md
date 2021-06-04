@@ -51,9 +51,7 @@ Doxygen doc for C | https://coda.jlab.org/drupal/content/evio-52-doxygen-c-0
 # **C library**
 ----------------------------
 The C library is called libevio.
-It is a library with limited capabilities. In the past, this was acceptable because the evio
-format was fairly simple. However, as its complexity has greatly expanded in this version, the C library will
-be of very limited usefullness unless one is knowledgeable about all the intricacies of the format.
+It is a library with limited capabilities.
 
 To compile it, follow the directions below for the C++ compilation which will include the C as well.
 The C++ library is much more extensive in scope.
@@ -71,15 +69,7 @@ or
 # **C++ library**
 ----------------------------
 The C++ library is called libeviocc.
-The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
-from the Java code. This was done for a number of reasons.
-First, a much more comprehensive C++ library was desired than was currently existing.
-Second, it needed major, new capabilities such as being able to (un)compress data.
-Third, it had to use a new format developed from the merging of Java evio version 4 and the Java HIPO library.
-Finally, the author and maintainer of the previous code was no longer working at Jefferson Lab.
-The simplest solution was to port the well-tested Java code which avoided having to redesign complex software
-from scratch. C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used,
-and gcc version 5 or higher is required.
+C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used.
 
 
 -----------------------------
@@ -88,7 +78,7 @@ and gcc version 5 or higher is required.
 
 There are 2 different methods to build the C++ library and executables.
 The first uses scons, a Python-based build software package which is available at https://scons.org.
-The second uses cmake and make. Also, be sure you’ve set the DISRUPTOR_CPP_HOME environmental variable.
+The second uses cmake and make.
 
 
 ### Scons
@@ -179,15 +169,11 @@ A large amount of additional work has been done since that time. As previously m
 evio now uses a new format developed from the merging of evio version 4 and the HIPO library.
 The code will compile using Java version 8 or later.
 
-The jar files necessary to compile an evio jar file are in the java/jars directory.
-They are compiled with Java 8. In addition, there are 2 subdirectories:
+A pre-compiled jevio-5.2.jar file is found in each of these subdirectories:
 
-  * java8, which contains all such jars compiled with Java 8, and
-  * java15 which contains all jars compiled with Java 15.
+  * java8, which contains a jar compiled with Java 8, and
+  * java15 which contains a jar compiled with Java 15.
     
-If a jar file is not available in Java 15 use the Java 8 version.
-
-A pre-compiled jevio-5.2.jar file is found in each of these subdirectories.
 Using these allows the user to skip over all the following compilation instructions.
 
 
