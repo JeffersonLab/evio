@@ -66,6 +66,7 @@ and gcc version 5 or higher is required.
 
 
 ## **Prerequisites**
+-----------------------------
 
 
 ### Disruptor
@@ -119,6 +120,7 @@ If it isn’t already available on your machine, it can be obtained from the lz4
     
     
 ## **Building**
+-----------------------------
 
 There are 2 different methods to build the C++ library and executables.
 The first uses scons, a Python-based build software package which is available at https://scons.org.
@@ -232,6 +234,7 @@ Using these allows the user to skip over all the following compilation instructi
 
  
 ## **Prerequisites**
+-----------------------------
 
 ### Disruptor
 Evio depends upon the LMAX-Exchange/disruptor software package available from github whose fork is at:
@@ -287,6 +290,7 @@ Thus, it may be safely ignored or removed.
 
 
 ## **Building**
+-----------------------------
 
 All code is contained in the github repository,
 
