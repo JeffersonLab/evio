@@ -48,7 +48,7 @@ Doxygen doc for C++ | https://coda.jlab.org/drupal/content/evio-52-doxygen-c
 Doxygen doc for C | https://coda.jlab.org/drupal/content/evio-52-doxygen-c-0
 
 ----------------------------
-# **C library**
+# **C LIBRARY**
 ----------------------------
 The C library is called libevio.
 It is a library with limited capabilities.
@@ -66,15 +66,10 @@ or
 
 
 ----------------------------
-# **C++ library**
+# **C++ LIBRARY**
 ----------------------------
 The C++ library is called libeviocc.
 C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used.
-
-
------------------------------
-## **Building**
-
 
 There are 2 different methods to build the C++ library and executables.
 The first uses scons, a Python-based build software package which is available at https://scons.org.
@@ -105,14 +100,17 @@ run scons -h in the top-level directory to get this output:
     Use scons -H for help about command-line options.
 
 
-Although fairly self-explanatory, if on Jefferson Lab's CUE system with Redhat 7, execute:
+Although fairly self-explanatory executing:
 
     1. cd <evio dir>
     2. scons install
     
-will compile and install all the code. By default, all libraries, executables and includes are installed
-under the directory given by the CODA env variable. If the command line options
+will compile and install all the code.
+Note that for C/C++, only Linux and Darwin (Mac OSX) operating systems are supported.
+By default, the libraries and executables are placed into the $CODA/<arch>/lib and bin subdirectories
+(eg. Linux-x86_64/lib). If the command line options
 –prefix, --incdir, --libdir, or –bindir are used, they take priority.
+Be sure to change your LD_LIBRARY_PATH environmental variable to include the correct lib directory.
 
 
 To compile a debug version, execute:
@@ -150,8 +148,12 @@ or
     2. make install
 
 The first option explicitly sets the installation directory. The second option installs in the directory
-given in the CODA environmental variable. If cmake was run previously, remove the CMakeCache.txt file so
+given in the CODA environmental variable. If neither are defined, an error is given.
+The libraries and executables are placed into the build/lib and build/bin subdirectories.
+When doing an install, they are also placed into the <install dir>/<arch>/lib and bin subdirectories
+(eg. Darwin-x86_64/lib). If cmake was run previously, remove the CMakeCache.txt file so
 new values are generated and used.
+
 
 To uninstall simply do:
 
@@ -159,7 +161,7 @@ To uninstall simply do:
 
 
 ------------------------------
-# **Java**
+# **JAVA**
 ------------------------------
 
 
