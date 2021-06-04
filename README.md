@@ -80,7 +80,7 @@ The second uses cmake and make.
 
 
 To get a listing of all the local options available to the scons command,
-run scons -h in the top-level directory to get this output:
+run _**scons -h**_ in the top-level directory to get this output:
 
     -D                       build from subdirectory of package
     local scons OPTIONS:
@@ -183,7 +183,7 @@ Using these allows the user to skip over all the following compilation instructi
 
 
 The java evio uses ant to compile. To get a listing of all the options available to the ant command,
-run ant help in the evio top level directory to get this output:
+run _**ant help**_ in the evio top level directory to get this output:
 
     help: 
         [echo] Usage: ant [ant options] <target1> [target2 | target3 | ...]
