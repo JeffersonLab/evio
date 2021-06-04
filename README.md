@@ -17,7 +17,7 @@ evio format data at the byte level.
 
 If you only plan to run C/C++ applications you can skip the Java
 installation. If you only plan to use Java applications you can
-you can skip the C/C++ installation.Evio Installation
+you can skip the C/C++ installation.
 
 **The home page is:**
 
@@ -29,9 +29,9 @@ you can skip the C/C++ installation.Evio Installation
 
 **GUI package for viewing data in evio format:**
 
-  https://github.com/JeffersonLab/JEventViewer
-  
   https://coda.jlab.org/drupal/content/graphical-data-viewer
+
+  https://github.com/JeffersonLab/JEventViewer
   
 -----------------------------
 ## **Documentation**
