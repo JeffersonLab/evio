@@ -222,8 +222,8 @@ The code will compile using Java version 8 or later.
 The jar files necessary to compile an evio jar file are in the java/jars directory.
 They are compiled with Java 8. In addition, there are 2 subdirectories:
 
-    1) java8, which contains all such jars compiled with Java 8, and
-    2) java15 which contains all jars compiled with Java 15.
+    1. java8, which contains all such jars compiled with Java 8, and
+    2. java15 which contains all jars compiled with Java 15.
     
 If a jar file is not available in Java 15 use the Java 8 version.
 
@@ -248,19 +248,19 @@ These are the master and v3.4 branches. The v3.4 branch should be compiled with 
 The disruptor software is provided in the java/jars/disruptor-3.4.3.jar file, compiled with Java 8.
 However, to generate this file yourself, get the disruptor software package by simply doing the following:
 
-    1)	git clone https://github.com/JeffersonLab/disruptor.git
-    2)	cd disruptor
-    3)	git checkout v3.4
-    4)	./gradlew
+    1.	git clone https://github.com/JeffersonLab/disruptor.git
+    2.	cd disruptor
+    3.	git checkout v3.4
+    4.	./gradlew
 
 The resulting disruptor jar file, disruptor-3.4.3.jar, will be found in the disruptor package’s build/libs subdirectory.
 
 One can also use the master branch which needs to be compiled with Java version 11 or greater and produces disruptor-4.0.0.jar.
 Currently this has been created with java15 and is in the java/jars/java15 directory. Here is how to generate it:
 
-    1)	git clone https://github.com/JeffersonLab/disruptor.git
-    2)	cd disruptor
-    3)	./gradlew
+    1.	git clone https://github.com/JeffersonLab/disruptor.git
+    2.	cd disruptor
+    3.	./gradlew
 
 The resulting jar will be in build/libs as before.
 
@@ -270,12 +270,12 @@ A jar file used in lz4 data compression, lz4-java-1.8.0.jar is accessible in the
 Although this is available in various versions and locations on the web, one can generate this from its source which is the
 lz4/lz4-java repository on github:
 
-    1)	git clone https://github.com/lz4/lz4-java.git
-    2)	cd lz4-java
-    3)	ant ivy-bootstrap
-    4)	ant submodule init
-    5)	ant submodule update
-    6)	ant
+    1.	git clone https://github.com/lz4/lz4-java.git
+    2.	cd lz4-java
+    3.	ant ivy-bootstrap
+    4.	ant submodule init
+    5.	ant submodule update
+    6.	ant
 
 Generated jar files will be in dist subdirectory.
 
@@ -300,27 +300,27 @@ Documentation is contained in the repository under the "doc" directory but may a
 The java evio uses ant to compile. To get a listing of all the options available to the ant command,
 run ant help in the evio top level directory to get this output:
 
-help: 
-    [echo] Usage: ant [ant options] <target1> [target2 | target3 | ...]
-
-    [echo]      targets:
-    [echo]      help        - print out usage
-    [echo]      env         - print out build file variables' values
-    [echo]      compile     - compile java files
-    [echo]      clean       - remove class files
-    [echo]      cleanall    - remove all generated files
-    [echo]      jar         - compile and create jar file
-    [echo]      install     - create jar file and install into 'prefix'
-    [echo]                    if given on command line by -Dprefix=dir',
-    [echo]                    else install into CODA if defined
-    [echo]      uninstall   - remove jar file previously installed into 'prefix'
-    [echo]                    if given on command line by -Dprefix=dir',
-    [echo]                    else installed into CODA if defined
-    [echo]      all         - clean, compile and create jar file
-    [echo]      javadoc     - create javadoc documentation
-    [echo]      developdoc  - create javadoc documentation for developer
-    [echo]      undoc       - remove all javadoc documentation
-    [echo]      prepare     - create necessary directories
+    help: 
+        [echo] Usage: ant [ant options] <target1> [target2 | target3 | ...]
+    
+        [echo]      targets:
+        [echo]      help        - print out usage
+        [echo]      env         - print out build file variables' values
+        [echo]      compile     - compile java files
+        [echo]      clean       - remove class files
+        [echo]      cleanall    - remove all generated files
+        [echo]      jar         - compile and create jar file
+        [echo]      install     - create jar file and install into 'prefix'
+        [echo]                    if given on command line by -Dprefix=dir',
+        [echo]                    else install into CODA if defined
+        [echo]      uninstall   - remove jar file previously installed into 'prefix'
+        [echo]                    if given on command line by -Dprefix=dir',
+        [echo]                    else installed into CODA if defined
+        [echo]      all         - clean, compile and create jar file
+        [echo]      javadoc     - create javadoc documentation
+        [echo]      developdoc  - create javadoc documentation for developer
+        [echo]      undoc       - remove all javadoc documentation
+        [echo]      prepare     - create necessary directories
 
 
 Although this is fairly self-explanatory, executing ant is the same as ant compile.
