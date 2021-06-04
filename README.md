@@ -28,7 +28,7 @@ Documentation is contained in the repository but may also be accessed at:
 
     https://coda.jlab.org/drupal/content/event-io-evio/
 
-        
+
 ----------------------------
 # **C library**
 ----------------------------
@@ -48,7 +48,7 @@ or
     cd build
     cmake .. –DC_ONLY=1
 
-    
+
 ----------------------------
 # **C++ library**
 ----------------------------
@@ -65,11 +65,12 @@ and gcc version 5 or higher is required.
 
 
 
-## **Prerequisites**
 -----------------------------
+## **Prerequisites**
 
 
 ### Disruptor
+
 
 Evio depends upon the Disruptor-cpp software package available from a fork of the original package at github at
 
@@ -105,10 +106,12 @@ or you must specify the proper ones on the cmake command line.
 
 ### Boost
 
+
 Besides the disruptor library, evio requires the boost libraries: boost_system, boost_thread, and boost_chrono.
    
    
 ### Lz4
+
 
 Finally, evio depends on the lz4 library for compressing data in the lz4 and gzip formats.
 If it isn’t already available on your machine, it can be obtained from the lz4 repository on github:
@@ -116,11 +119,11 @@ If it isn’t already available on your machine, it can be obtained from the lz4
     2. cd lz4
     3. make
     4. make install
-    
-    
-    
-## **Building**
+
+
 -----------------------------
+## **Building**
+
 
 There are 2 different methods to build the C++ library and executables.
 The first uses scons, a Python-based build software package which is available at https://scons.org.
@@ -128,6 +131,7 @@ The second uses cmake and make. Also, be sure you’ve set the DISRUPTOR_CPP_HOM
 
 
 ### Scons
+
 
 To get a listing of all the local options available to the scons command,
 run scons -h in the top-level directory to get this output:
@@ -167,6 +171,7 @@ To compile a debug version, execute:
 
 
 ### Cmake
+
 
 Evio can also be compiled with cmake using the included CMakeLists.txt file.
 To build the C and C++ libraries and executables on the Mac:
@@ -209,11 +214,12 @@ new values are generated and used.
 To uninstall simply do:
 
     make uninstall
-    
+
 
 ------------------------------
 # **Java**
 ------------------------------
+
 
 The current Java evio package, org.jlab.coda.jevio, was originally written by Dr. Dave Heddle of CNU
 and was graciously given to the JLAB DAQ group for maintenance and continued development.
@@ -233,10 +239,13 @@ A pre-compiled jevio-6.0.jar file is found in each of these subdirectories.
 Using these allows the user to skip over all the following compilation instructions.
 
  
-## **Prerequisites**
 -----------------------------
+## **Prerequisites**
+
 
 ### Disruptor
+
+
 Evio depends upon the LMAX-Exchange/disruptor software package available from github whose fork is at:
 
     https://github.com/JeffersonLab/disruptor
@@ -267,7 +276,9 @@ Currently this has been created with java15 and is in the java/jars/java15 direc
 
 The resulting jar will be in build/libs as before.
 
+
 ### LZ4
+
 
 A jar file used in lz4 data compression, lz4-java-1.8.0.jar is accessible in the java/jars directory (compiled with Java 8).
 Although this is available in various versions and locations on the web, one can generate this from its source which is the
@@ -288,9 +299,9 @@ This is an effort that never took off since LZ4 compresssion was so much more ef
 Thus, it may be safely ignored or removed.
 
 
-
-## **Building**
 -----------------------------
+## **Building**
+
 
 All code is contained in the github repository,
 
