@@ -46,7 +46,7 @@ Doxygen doc for C | https://coda.jlab.org/drupal/content/evio-60-doxygen-c
 Doxygen doc for C++ | https://coda.jlab.org/drupal/content/evio-60-doxygen-c-0
 
 ----------------------------
-# **C library**
+# **C LIBRARY**
 ----------------------------
 The C library is called libevio.
 It is a library with limited capabilities. In the past, this was acceptable because the evio
@@ -66,7 +66,7 @@ or
 
 
 ----------------------------
-# **C++ library**
+# **C++ LIBRARY**
 ----------------------------
 The C++ library is called libeviocc.
 The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
@@ -78,7 +78,6 @@ Finally, the author and maintainer of the previous code was no longer working at
 The simplest solution was to port the well-tested Java code which avoided having to redesign complex software
 from scratch. C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used,
 and gcc version 5 or higher is required.
-
 
 
 -----------------------------
@@ -171,15 +170,18 @@ run scons -h in the top-level directory to get this output:
     Use scons -H for help about command-line options.
 
 
-Although fairly self-explanatory, if on Jefferson Lab's CUE system with Redhat 7, execute:
+Although fairly self-explanatory, if on Jefferson Lab's CUE system with Redhat 7, executing:
 
     1. use gcc/5.3.0
     2. cd <evio dir>
     3. scons install
     
-will compile and install all the code. By default, all libraries, executables and includes are installed
-under the directory given by the CODA env variable. If the command line options
+will compile and install all the code.
+Note that for C/C++, only Linux and Darwin (Mac OSX) operating systems are supported.
+By default, the libraries and executables are placed into the _**$CODA/[arch]/lib**_ and _**bin**_ subdirectories
+(eg. Linux-x86_64/lib). If the command line options
 –prefix, --incdir, --libdir, or –bindir are used, they take priority.
+Be sure to change your LD_LIBRARY_PATH environmental variable to include the correct lib directory.
 
 
 To compile a debug version, execute:
@@ -210,8 +212,9 @@ If on Jefferson Lab's redhat 7 linux this will be:
     
 To build only C code, place –DC_ONLY=1 on the cmake command line.
 In order to compile all the examples as well, place –DMAKE_EXAMPLES=1 on the cmake command line.
-The above commands will place everything in the current “build” directory and will keep generated
+The above commands will place everything in the current _**build**_ directory and will keep generated
 files from mixing with the source and config files.
+
 
 In addition to a having a copy in the build directory, installing the library, binary and include
 files can be done by calling cmake in 2 ways:
@@ -225,8 +228,12 @@ or
     2. make install
 
 The first option explicitly sets the installation directory. The second option installs in the directory
-given in the CODA environmental variable. If cmake was run previously, remove the CMakeCache.txt file so
+given in the CODA environmental variable. If neither are defined, an error is given.
+The libraries and executables are placed into the _**build/lib**_ and _**build/bin**_ subdirectories.
+When doing an install, they are also placed into the _**[install dir]/[arch]/lib**_ and _**bin**_ subdirectories
+(eg. Darwin-x86_64/lib). If cmake was run previously, remove the CMakeCache.txt file so
 new values are generated and used.
+
 
 To uninstall simply do:
 
@@ -234,7 +241,7 @@ To uninstall simply do:
 
 
 ------------------------------
-# **Java**
+# **JAVA**
 ------------------------------
 
 
@@ -252,7 +259,7 @@ They are compiled with Java 8. In addition, there are 2 subdirectories:
     
 If a jar file is not available in Java 15 use the Java 8 version.
 
-A pre-compiled jevio-6.0.jar file is found in each of these subdirectories.
+A pre-compiled _**jevio-6.0.jar**_ file is found in each of these subdirectories.
 Using these allows the user to skip over all the following compilation instructions.
 
  
@@ -274,7 +281,7 @@ only 2 branches have had the necessary changes to be compatible with CODA.
 These are the master and v3.4 branches. The v3.4 branch should be compiled with Java 8
 (it does not compile with Java 15) while the master requires at least Java 11.
 
-The disruptor software is provided in the java/jars/disruptor-3.4.3.jar file, compiled with Java 8.
+The disruptor software is provided in the _**java/jars/disruptor-3.4.3.jar**_ file (compiled with Java 8).
 However, to generate this file yourself, get the disruptor software package by simply doing the following:
 
     1.	git clone https://github.com/JeffersonLab/disruptor.git
@@ -297,7 +304,7 @@ The resulting jar will be in build/libs as before.
 ### Lz4
 
 
-A jar file used in lz4 data compression, lz4-java-1.8.0.jar is accessible in the java/jars directory (compiled with Java 8).
+A lz4 data compression software is provided in the _**java/jars/lz4-java-1.8.0.jar**_ file (compiled with Java 8).
 Although this is available in various versions and locations on the web, one can generate this from its source which is the
 lz4/lz4-java repository on github:
 
@@ -346,7 +353,7 @@ run ant help in the evio top level directory to get this output:
         [echo]      prepare     - create necessary directories
 
 
-Although this is fairly self-explanatory, executing ant is the same as ant compile.
-That will compile all the java. All compiled code is placed in the generated ./build directory.
-If the user wants a jar file, execute ant jar to place the resulting file in the ./build/lib directory.
+Although this is fairly self-explanatory, executing _**ant**_ is the same as ant compile.
+That will compile all the java. All compiled code is placed in the generated _**build**_ directory.
+If the user wants a jar file, execute _**ant jar**_ to place the resulting file in the _**build/lib**_ directory.
 The java command in the user’s path will be the one used to do the compilation.
