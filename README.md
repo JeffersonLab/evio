@@ -231,8 +231,8 @@ The code will compile using Java version 8 or later.
 The jar files necessary to compile an evio jar file are in the java/jars directory.
 They are compiled with Java 8. In addition, there are 2 subdirectories:
 
-    * java8, which contains all such jars compiled with Java 8, and
-    * java15 which contains all jars compiled with Java 15.
+  * java8, which contains all such jars compiled with Java 8, and
+  * java15 which contains all jars compiled with Java 15.
     
 If a jar file is not available in Java 15 use the Java 8 version.
 
@@ -303,15 +303,6 @@ Thus, it may be safely ignored or removed.
 -----------------------------
 ## **Building**
 
-
-All code is contained in the github repository,
-
-https://github.com/JeffersonLab/evio.git
-
-The evio-6.0 branch contains the most recent version of evio.
-Documentation is contained in the repository under the "doc" directory but may also be accessed at:
-
-https://coda.jlab.org/drupal/content/event-io-evio/
 
 The java evio uses ant to compile. To get a listing of all the options available to the ant command,
 run ant help in the evio top level directory to get this output:
