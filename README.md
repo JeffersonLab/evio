@@ -25,7 +25,7 @@ you can skip the C/C++ installation.
   https://coda.jlab.org/drupal/content/event-io-evio/
 
 **All code is contained in the github repository linked below.**
-_BE SURE TO CHECKOUT THE evio-5.2 BRANCH (git checkout evio-5.2):_**
+**_BE SURE TO CHECKOUT THE evio-5.2 BRANCH (git checkout evio-5.2):_**
 
   https://github.com/JeffersonLab/evio
 
