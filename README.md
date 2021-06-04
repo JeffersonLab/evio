@@ -150,7 +150,7 @@ or
 The first option explicitly sets the installation directory. The second option installs in the directory
 given in the CODA environmental variable. If neither are defined, an error is given.
 The libraries and executables are placed into the build/lib and build/bin subdirectories.
-When doing an install, they are also placed into the <install dir>/<arch>/lib and bin subdirectories
+When doing an install, they are also placed into the [install dir]/[arch]/lib and bin subdirectories
 (eg. Darwin-x86_64/lib). If cmake was run previously, remove the CMakeCache.txt file so
 new values are generated and used.
 
