@@ -1,5 +1,5 @@
 ----------------------------
-# EVIO 6.0 SOFTWARE PACKAGE
+# ** EVIO 6.0 SOFTWARE PACKAGE **
 ----------------------------
 
 EVIO stands for EVent Input/Output and contains libraries which read & write
@@ -30,7 +30,7 @@ Documentation is contained in the repository but may also be accessed at:
 
         
 ----------------------------
-# C library
+# ** C library **
 ----------------------------
 The C library is called libevio.
 It is a library with limited capabilities. In the past, this was acceptable because the evio
@@ -50,7 +50,7 @@ or
 
     
 ----------------------------
-# C++ library
+# ** C++ library **
 ----------------------------
 The C++ library is called libeviocc.
 The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
@@ -65,7 +65,7 @@ and gcc version 5 or higher is required.
 
 
 
-## Prerequisites:
+## ** Prerequisites: **
 
 
 ### Disruptor
@@ -102,12 +102,12 @@ If not compiling on Jefferson Lab’s RHEL7, either your default compilers must 
 or you must specify the proper ones on the cmake command line.
 
 
-#### Boost
+### Boost
 
 Besides the disruptor library, evio requires the boost libraries: boost_system, boost_thread, and boost_chrono.
    
    
-#### Lz4
+### Lz4
 
 Finally, evio depends on the lz4 library for compressing data in the lz4 and gzip formats.
 If it isn’t already available on your machine, it can be obtained from the lz4 repository on github:
@@ -118,7 +118,7 @@ If it isn’t already available on your machine, it can be obtained from the lz4
     
     
     
-## Building:
+## ** Building: **
 
 There are 2 different methods to build the C++ library and executables.
 The first uses scons, a Python-based build software package which is available at https://scons.org.
@@ -210,7 +210,7 @@ To uninstall simply do:
     
 
 ------------------------------
-# Java
+# ** Java **
 ------------------------------
 
 The current Java evio package, org.jlab.coda.jevio, was originally written by Dr. Dave Heddle of CNU
@@ -231,7 +231,7 @@ A pre-compiled jevio-6.0.jar file is found in each of these subdirectories.
 Using these allows the user to skip over all the following compilation instructions.
 
  
-## Prerequisites
+## ** Prerequisites **
 
 ### Disruptor
 Evio depends upon the LMAX-Exchange/disruptor software package available from github whose fork is at:
@@ -286,7 +286,7 @@ Thus, it may be safely ignored or removed.
 
 
 
-## Building
+## ** Building **
 
 All code is contained in the github repository,
 
