@@ -30,7 +30,8 @@ you can skip the C/C++ installation.Evio Installation
 **GUI package for viewing data in evio format:**
 
   https://github.com/JeffersonLab/JEventViewer
-
+  https://coda.jlab.org/drupal/content/graphical-data-viewer
+  
 -----------------------------
 ## **Documentation**
 
