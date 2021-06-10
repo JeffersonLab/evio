@@ -53,7 +53,6 @@ The C library is called libevio.
 It is a library with limited capabilities.
 
 To compile it, follow the directions below for the C++ compilation which will include the C as well.
-The C++ library is much more extensive in scope.
 Having said that, the C library and executables can be compiled without any C++. This can be done in 2 ways:
 
     scons --C
@@ -105,7 +104,6 @@ Although fairly self-explanatory executing:
     2. scons install
     
 will compile and install all the code.
-Note that for C/C++, only Linux and Darwin (Mac OSX) operating systems are supported.
 By default, the libraries and executables are placed into the _**$CODA/[arch]/lib**_ and _**bin**_ subdirectories
 (eg. Linux-x86_64/lib). If the command line options
 –prefix, --incdir, --libdir, or –bindir are used, they take priority.
@@ -172,7 +170,7 @@ The code will compile using Java version 8 or later.
 A pre-compiled _**jevio-5.2.jar**_ file is found in each of these subdirectories:
 
   * java8, which contains a jar compiled with Java 8, and
-  * java15 which contains a jar compiled with Java 15.
+  * java15, which contains a jar compiled with Java 15.
     
 Using these allows the user to skip over all the following compilation instructions.
 
