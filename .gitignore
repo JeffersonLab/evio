@@ -3,8 +3,9 @@
 # ignore all files/dirs beginning with _
 _*
 
-# except this one
+# except these two
 !.gitignore
+!.github/
 
 # ignore generated files/dirs
 cmake-*
