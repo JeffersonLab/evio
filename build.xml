@@ -16,7 +16,7 @@
     <property name="build.dir"     value="build" />
     <property name="build.classes" value="${build.dir}/classes" />
     <property name="build.lib"     value="${build.dir}/lib" />
-    <property name="doc.dir"       value="doc/javadoc" />
+    <property name="doc.dir"       value="docs/javadoc" />
     <property name="local.jars"    value="java/jars" />
     
     <property name="jarName"       value="jevio-${evio.version}.jar" />

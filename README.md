@@ -166,8 +166,8 @@ run _**scons -h**_ in the top-level directory to get this output:
     --bindir=<dir>           copy binary files to directory <dir> when doing install 
     install                  install libs, headers, and binaries
     install -c               uninstall libs, headers, and binaries
-    doc                      create doxygen and javadoc (in ./doc)
-    undoc                    remove doxygen and javadoc (in ./doc)
+    doc                      create doxygen and javadoc (in ./docs)
+    undoc                    remove doxygen and javadoc (in ./docs)
     tar                      create tar file (in ./tar)
     
     Use scons -H for help about command-line options.
