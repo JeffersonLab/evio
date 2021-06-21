@@ -26,7 +26,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: evio-doxygen-C-files
-          path: doc/doxygen/C
+          path: docs/doxygen/C
           retention-days: 1
 
   copy:
@@ -45,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: evio-doxygen-C-files
-          path: doc/doxygen/C
+          path: docs/doxygen/C
 
       # add, commit and push to gh-pages
       - name: Commit changes
@@ -55,4 +55,4 @@ jobs:
           author_email: timmer@jlab.org
           message: 'Update doxygen'
           branch: gh-pages
-          add: 'doc/doxygen/C/html/*'
+          add: 'docs/doxygen/C/html/*'
