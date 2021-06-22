@@ -1,5 +1,5 @@
 ----------------------------
-# **EVIO 6.0 Software Package**
+# **EVIO Software Package**
 ----------------------------
 
 **EVIO** stands for **EV**ent **I**nput/**O**utput and contains libraries which read & write
@@ -15,11 +15,13 @@ There are C, C++, and Java libraries and utility programs as well.
 Here are links to the documentation contained in the github repository
 (although it may also be accessed at the home page).
 
-* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc/users_guide/evio_Users_Guide.pdf)
-* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc/javadoc/index.html)
-* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc/doxygen/C/html/index.html)
-* [Doxygen for C++ Library](https://jeffersonlab.github.io/evio/doc/doxygen/CC/html/index.html)
+___________________________
+## **Version 6.0**
 
-Try this for going to gh-pages branch's doc
+* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc-6.0/users_guide/evio_Users_Guide.pdf)
+* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc-6.0/javadoc/index.html)
+* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/C/html/index.html)
+* [Doxygen for C++ Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
 
-* [Javadoc linked ](https://github.com/JeffersonLab/evio/tree/gh-pages/doc/javadoc/index.html)
+___________________________
+## **Version 5.2**
