@@ -15,9 +15,9 @@ There are C, C++, and Java libraries and utility programs as well.
 Here are links to the documentation contained in the github repository
 (although it may also be accessed at the home page).
 
-* [User's Guide](https://jeffersonlab.github.io/evio/doc/users_guide/evio_Users_Guide.pdf)
-* [Javadoc for Java library](https://jeffersonlab.github.io/evio/doc/javadoc/index.html)
-* [Doxygen for C library](https://jeffersonlab.github.io/evio/doc/doxygen/C/html/index.html)
-* [Doxygen for C++ library](https://jeffersonlab.github.io/evio/doc/doxygen/CC/html/index.html)
+* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc/users_guide/evio_Users_Guide.pdf)
+* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc/javadoc/index.html)
+* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc/doxygen/C/html/index.html)
+* [Doxygen for C++ Library](https://jeffersonlab.github.io/evio/doc/doxygen/CC/html/index.html)
 
 
