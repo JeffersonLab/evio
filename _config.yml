@@ -1,3 +1,2 @@
-description: >- # this means to ignore newlines until "baseurl:"
-  EVIO Documentation Website on Github.
+description: EVIO Documentation Website on Github
 theme: jekyll-theme-cayman
