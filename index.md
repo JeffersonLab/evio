@@ -37,7 +37,7 @@ you can skip the C/C++ installation.
    https://jeffersonlab.github.io/evio/
 
 # **Trial link To local gh-pages branch doxygen**
-   https://jeffersonlab.github.io/evio/docs/doxygen/C/html
+   https://jeffersonlab.github.io/evio/docs/doxygen/C/html/index.html
 
 -----------------------------
 ## **Documentation**
