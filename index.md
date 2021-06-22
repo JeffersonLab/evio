@@ -20,4 +20,6 @@ Here are links to the documentation contained in the github repository
 * [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc/doxygen/C/html/index.html)
 * [Doxygen for C++ Library](https://jeffersonlab.github.io/evio/doc/doxygen/CC/html/index.html)
 
+Try this for going to gh-pages branch's doc
 
+* [Javadoc linked ](https://JeffersonLab/evio/tree/gh-pages/doc/javadoc/index.html)
