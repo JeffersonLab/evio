@@ -39,6 +39,12 @@ jobs:
       - name: Javadoc Action
         run: ant -noinput -buildfile build.xml javadoc
 
+      - name: Tidy up the javadocs
+        id: tidy
+        uses: cicirello/javadoc-cleanup@v1
+        with:
+          path-to-root: doc/javadoc
+
       - run: ls doc/javadoc
 
       # store the C/C++ doxygen files
