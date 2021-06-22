@@ -29,6 +29,18 @@ jobs:
           working-directory: '.'
           doxyfile-path: 'doc/doxygen/DoxyfileCC'
 
+      # generate the javadoc files
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+
+      - name: Javadoc Action
+        run: ant -noinput -buildfile build.xml javadoc
+
+      - run: ls doc/javadoc
+
       # store the C/C++ doxygen files
       - name: Upload Output Directory
         uses: actions/upload-artifact@v2
@@ -63,4 +75,4 @@ jobs:
           author_email: timmer@jlab.org
           message: 'Update doxygen'
           branch: gh-pages
-          add: '["doc/doxygen/C/html/*", "doc/doxygen/CC/html/*", "doc/users_guide/evio_Users_Guide.pdf"]'
+          add: '["doc/doxygen/C/html/*", "doc/doxygen/CC/html/*", "doc/javadoc/", "doc/users_guide/evio_Users_Guide.pdf"]'
