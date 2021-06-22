@@ -19,31 +19,27 @@ If you only plan to run C/C++ applications you can skip the Java
 installation. If you only plan to use Java applications you can
 you can skip the C/C++ installation.
 
-**The home page is:**
+**Main evio links:**
 
-  https://coda.jlab.org/drupal/content/event-io-evio/
+  [EVIO Home Page](https://coda.jlab.org/drupal/content/event-io-evio/)
 
-**All code is contained in the github repository (default evio-6.0 branch):**
+  [EVIO View on GitHub (**evio-6.0** branch)](https://github.com/JeffersonLab/evio)
 
-  https://github.com/JeffersonLab/evio
+**GUI for viewing data in evio format:**
 
-**GUI package for viewing data in evio format:**
+  [Evio Event Viewer Home Page](https://coda.jlab.org/drupal/content/graphical-data-viewer)
 
-  https://coda.jlab.org/drupal/content/graphical-data-viewer
-
-  https://github.com/JeffersonLab/JEventViewer
+  [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
   
 -----------------------------
 ## **Documentation**
 
-Documentation is contained in the repository but may also be accessed at the home site:
+Documentation links at the home site:
 
-Documentation Type | Link
------------- | -------------
-PDF User's Guide | https://coda.jlab.org/drupal/content/evio-60-users-guide
-Javadoc | https://coda.jlab.org/drupal/content/evio-60-javadoc
-Doxygen doc for C | https://coda.jlab.org/drupal/content/evio-60-doxygen-c
-Doxygen doc for C++ | https://coda.jlab.org/drupal/content/evio-60-doxygen-c-0
+* [User's Guide PDF](https://coda.jlab.org/drupal/content/evio-60-users-guide)
+* [Javadoc for Java Library](https://coda.jlab.org/drupal/content/evio-60-javadoc)
+* [Doxygen for C Library](https://coda.jlab.org/drupal/content/evio-60-doxygen-c)
+* [Doxygen for C++ Libary](https://coda.jlab.org/drupal/content/evio-60-doxygen-c-0)
 
 ----------------------------
 # **C LIBRARY**

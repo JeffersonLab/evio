@@ -1,5 +1,5 @@
-# Automatic generation of doxygen files for Evio's C and C++ code on the evio-6.0 branch
-# which will be copied and checked into the gh-pages branch.
+# Automatic generation of doxygen and javadoc files for Evio's C, C++, and Java code
+# on the evio-6.0 branch which will be copied and checked into the gh-pages branch.
 name: Doxygen generation CI
 
 on:
@@ -39,6 +39,7 @@ jobs:
       - name: Javadoc Action
         run: ant -noinput -buildfile build.xml javadoc
 
+      # clean up the javadoc files including removing timestamps. OPTIONAL.
       - name: Tidy up the javadocs
         id: tidy
         uses: cicirello/javadoc-cleanup@v1
@@ -47,7 +48,7 @@ jobs:
 
       - run: ls doc/javadoc
 
-      # store the C/C++ doxygen files
+      # store the doc files
       - name: Upload Output Directory
         uses: actions/upload-artifact@v2
         with:
@@ -66,12 +67,12 @@ jobs:
         with:
           ref: gh-pages
 
-      # download doxygen files generated above
+      # download the doc files, most of which are generated above
       - name: Download Output Directory
         uses: actions/download-artifact@v2
         with:
           name: evio-doc-files
-          path: doc
+          path: doc-6.0
 
       # add, commit and push to gh-pages
       - name: Commit changes
@@ -79,6 +80,6 @@ jobs:
         with:
           author_name: Carl Timmer
           author_email: timmer@jlab.org
-          message: 'Update doxygen'
+          message: 'Update docs'
           branch: gh-pages
-          add: '["doc/doxygen/C/html/*", "doc/doxygen/CC/html/*", "doc/javadoc/", "doc/users_guide/evio_Users_Guide.pdf"]'
+          add: '["doc-6.0/doxygen/C/html/*", "doc-6.0/doxygen/CC/html/*", "doc-6.0/javadoc/", "doc-6.0/users_guide/evio_Users_Guide.pdf"]'
