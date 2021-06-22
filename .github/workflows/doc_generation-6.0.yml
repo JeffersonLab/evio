@@ -1,6 +1,6 @@
 # Automatic generation of doxygen and javadoc files for Evio's C, C++, and Java code
 # on the evio-6.0 branch which will be copied and checked into the gh-pages branch.
-name: Doxygen generation CI
+name: Documentation generation CI
 
 on:
   push:
