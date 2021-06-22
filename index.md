@@ -34,10 +34,10 @@ you can skip the C/C++ installation.
   https://github.com/JeffersonLab/JEventViewer
   
 # **Trial link**
-   https://jeffersonlab.github.io/evio/
+   https://JeffersonLab.github.io/evio/
 
 # **Trial link To local gh-pages branch doxygen**
-   https://jeffersonlab.github.io/evio/docs/doxygen/C/html/index.html
+   https://JeffersonLab.github.io/evio/docs/doxygen/C/html/index.html
 
 -----------------------------
 ## **Documentation**
