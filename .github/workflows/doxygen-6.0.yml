@@ -29,6 +29,8 @@ jobs:
           working-directory: '.'
           doxyfile-path: 'doc/doxygen/DoxyfileCC'
 
+      - run: ls doc/doxygen/C/html/* doc/doxygen/CC/html/*
+
       # store the C/C++ doxygen files
       - name: Upload Output Directory
         uses: actions/upload-artifact@v2
@@ -63,4 +65,4 @@ jobs:
           author_email: timmer@jlab.org
           message: 'Update doxygen'
           branch: gh-pages
-          add: '["docs/doxygen/C/html/*", "docs/doxygen/CC/html/*"]'
+          add: '["doc/doxygen/C/html/*", "doc/doxygen/CC/html/*"]'
