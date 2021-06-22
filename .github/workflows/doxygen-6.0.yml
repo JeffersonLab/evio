@@ -1,4 +1,5 @@
 # Automatic generation of doxygen files for Evio's C and C++ code on the evio-6.0 branch
+# which will be copied and checked into the gh-pages branch.
 name: Doxygen generation CI
 
 on:
