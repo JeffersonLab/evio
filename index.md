@@ -40,7 +40,8 @@ Documentation is contained in the repository but may also be accessed at the hom
 
 * [PDF User's Guide](https://coda.jlab.org/drupal/content/evio-60-users-guide)
 * [Javadoc](https://coda.jlab.org/drupal/content/evio-60-javadoc)
-* [Local Doxygen doc for C](https://jeffersonlab.github.io/evio/docs/doxygen/C/html/index.html)
+* [Local Doxygen doc for C](https://jeffersonlab.github.io/evio/doc/doxygen/C/html/index.html)
+* [Local Doxygen doc for C++](https://jeffersonlab.github.io/evio/doc/doxygen/CC/html/index.html)
 * [Doxygen doc for C](https://coda.jlab.org/drupal/content/evio-60-doxygen-c)
 * [Doxygen doc for C++](https://coda.jlab.org/drupal/content/evio-60-doxygen-c-0)
 
