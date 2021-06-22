@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: evio-doxygen-C-files
-          path: docs/doxygen/C
+          path: doc/doxygen/C
           retention-days: 1
 
   copy:
@@ -46,7 +46,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: evio-doxygen-C-files
-          path: docs/doxygen/C
+          path: doc/doxygen/C
 
       # add, commit and push to gh-pages
       - name: Commit changes
