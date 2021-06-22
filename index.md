@@ -22,4 +22,4 @@ Here are links to the documentation contained in the github repository
 
 Try this for going to gh-pages branch's doc
 
-* [Javadoc linked ](https://JeffersonLab/evio/tree/gh-pages/doc/javadoc/index.html)
+* [Javadoc linked ](https://github.com/JeffersonLab/evio/tree/gh-pages/doc/javadoc/index.html)
