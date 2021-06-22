@@ -25,3 +25,8 @@ ___________________________
 
 ___________________________
 ## **Version 5.2**
+
+* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc-5.2/users_guide/evio_Users_Guide.pdf)
+* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc-5.2/javadoc/index.html)
+* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-5.2/doxygen/C/html/index.html)
+* [Doxygen for C++ Library](https://jeffersonlab.github.io/evio/doc-5.2/doxygen/CC/html/index.html)
