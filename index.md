@@ -1,5 +1,5 @@
 ----------------------------
-# **EVIO 6.0 SOFTWARE PACKAGE**
+# **EVIO 6.0 Software Package**
 ----------------------------
 
 **EVIO** stands for **EV**ent **I**nput/**O**utput and contains libraries which read & write
