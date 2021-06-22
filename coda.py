@@ -329,39 +329,39 @@ def generateDocs(env, doCPP=False, doC=False, doJava=False):
     if doCPP:
         print ('Call generateDocs() for C++')
         # remove target files so documentation always gets rebuilt
-        rmcmd = 'rm -fr docs/doxygen/CC'
+        rmcmd = 'rm -fr doc/doxygen/CC'
         os.popen(rmcmd).read()
 
         def docGeneratorCC(target, source, env):
-            cmd = 'doxygen docs/doxygen/DoxyfileCC'
+            cmd = 'doxygen doc/doxygen/DoxyfileCC'
             Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
             return
         
         docBuildCC = Builder(action = docGeneratorCC)
         env.Append(BUILDERS = {'DocGenCC' : docBuildCC})
         
-        env.Alias('doc', env.DocGenCC(target = ['#/docs/doxygen/CC/html/index.html'],
+        env.Alias('doc', env.DocGenCC(target = ['#/doc/doxygen/CC/html/index.html'],
                                       source = scanFiles("src/libsrc++", accept=["*.cpp", "*.h"])))
 
 
     if doC:
-        rmcmd = 'rm -fr docs/doxygen/C'
+        rmcmd = 'rm -fr doc/doxygen/C'
         os.popen(rmcmd).read()
 
         def docGeneratorC(target, source, env):
-            cmd = 'doxygen docs/doxygen/DoxyfileC'
+            cmd = 'doxygen doc/doxygen/DoxyfileC'
             Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
             return
 
         docBuildC = Builder(action = docGeneratorC)
         env.Append(BUILDERS = {'DocGenC' : docBuildC})
 
-        env.Alias('doc', env.DocGenC(target = ['#/docs/doxygen/C/html/index.html'],
+        env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/C/html/index.html'],
                                       source = scanFiles("src/libsrc", accept=["*.c", "*.h"])))
 
 
     if doJava:
-        rmcmd = 'rm -fr docs/javadoc'
+        rmcmd = 'rm -fr doc/javadoc'
         os.popen(rmcmd).read()
 
         def docGeneratorJava(target, source, env):
@@ -372,7 +372,7 @@ def generateDocs(env, doCPP=False, doC=False, doJava=False):
         docBuildJava = Builder(action = docGeneratorJava)
         env.Append(BUILDERS = {'DocGenJava' : docBuildJava})
         
-        env.Alias('doc', env.DocGenJava(target = ['#/docs/javadoc/index.html'],
+        env.Alias('doc', env.DocGenJava(target = ['#/doc/javadoc/index.html'],
             source = scanFiles("java/org/jlab/coda", accept=["*.java"]) ))
     
     return 1

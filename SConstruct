@@ -259,10 +259,10 @@ if 'undoc' in COMMAND_LINE_TARGETS:
 
 
 # use "doc" on command line to create tar file
-Help('doc                 create doxygen and javadoc (in ./docs)\n')
+Help('doc                 create doxygen and javadoc (in ./doc)\n')
 
 # use "undoc" on command line to create tar file
-Help('undoc               remove doxygen and javadoc (in ./docs)\n')
+Help('undoc               remove doxygen and javadoc (in ./doc)\n')
 
 
 #########################

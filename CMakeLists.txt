@@ -309,14 +309,14 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_SHOW_GROUPED_MEMB_INC YES)
     set(DOXYGEN_INLINE_IHERITED_MEMB YES)
     set(DOXYGEN_JAVADOC_AUTOBRIEF YES)
-    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen/CC)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/CC)
 
     # Add target of "docCC"
     doxygen_add_docs(docCC src/libsrc++)
 
     # Change these values from cmake defaults in the Doxyfile
     set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen/C)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/C)
 
     # Add target of "docC"
     doxygen_add_docs(docC src/libsrc )
