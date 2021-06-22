@@ -29,7 +29,7 @@ jobs:
           working-directory: '.'
           doxyfile-path: 'doc/doxygen/DoxyfileCC'
 
-      - run: ls doc/doxygen/C/html/* doc/doxygen/CC/html/*
+      - run: ls doc/users_guide/*
 
       # store the C/C++ doxygen files
       - name: Upload Output Directory
@@ -65,4 +65,4 @@ jobs:
           author_email: timmer@jlab.org
           message: 'Update doxygen'
           branch: gh-pages
-          add: '["doc/doxygen/C/html/*", "doc/doxygen/CC/html/*"]'
+          add: '["doc/doxygen/C/html/*", "doc/doxygen/CC/html/*", "doc/users_guide/evio_Users_Guide.pdf"]'
