@@ -46,8 +46,6 @@ jobs:
         with:
           path-to-root: doc/javadoc
 
-      - run: ls doc/javadoc
-
       # store the doc files
       - name: Upload Output Directory
         uses: actions/upload-artifact@v2
