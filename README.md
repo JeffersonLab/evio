@@ -19,26 +19,27 @@ If you only plan to run C/C++ applications you can skip the Java
 installation. If you only plan to use Java applications you can
 you can skip the C/C++ installation.
 
-**Main evio links:**
+###**Main evio links:**
 
   [EVIO Home Page](https://coda.jlab.org/drupal/content/event-io-evio/)
 
-  [EVIO View on GitHub (**evio-6.0** branch)](https://github.com/JeffersonLab/evio)
+  [EVIO on GitHub (**evio-6.0** branch)](https://github.com/JeffersonLab/evio)
 
-**GUI for viewing data in evio format:**
+###**GUI for viewing data in evio format:**
 
-  [Evio Event Viewer Home Page](https://coda.jlab.org/drupal/content/graphical-data-viewer)
+  [EVIO Event Viewer Home Page](https://coda.jlab.org/drupal/content/graphical-data-viewer)
 
   [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
   
 -----------------------------
-## **Documentation**
+# **Documentation**
+----------------------------
 
-Documentation links at the GitHub site:
+Documentation on GitHub:
 
 * [All Documentation](https://jeffersonlab.github.io/evio)
 
-Documentation links at the home site:
+Documentation on the home page:
 
 * [User's Guide PDF](https://coda.jlab.org/drupal/content/evio-60-users-guide)
 * [Javadoc for Java Library](https://coda.jlab.org/drupal/content/evio-60-javadoc)
@@ -46,7 +47,7 @@ Documentation links at the home site:
 * [Doxygen for C++ Libary](https://coda.jlab.org/drupal/content/evio-60-doxygen-c-0)
 
 ----------------------------
-# **C LIBRARY**
+# **C Library**
 ----------------------------
 The C library is called libevio.
 It is a library with limited capabilities. In the past, this was acceptable because the evio
@@ -66,7 +67,7 @@ or
 
 
 ----------------------------
-# **C++ LIBRARY**
+# **C++ Library**
 ----------------------------
 The C++ library is called libeviocc.
 The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
@@ -89,29 +90,29 @@ and gcc version 5 or higher is required.
 
 Evio depends upon the Disruptor-cpp software package available from a fork of the original package at github at
 
-https://github.com/JeffersonLab/Disruptor-cpp
+[C++ Disruptor Fork on Github](https://github.com/JeffersonLab/Disruptor-cpp)
      
 In terms of functionality, it is an ingenious, ultrafast ring buffer which was initially developed in Java
 and then ported to C++. It’s extremely useful when splitting work among multiple threads and then recombining it.
 To build it, do this on the Mac:
 
-    1. git clone https://github.com/JeffersonLab/Disruptor-cpp.git
-    2. cd Disruptor-cpp
-    3. mkdir build
-    4. cd build
-    5. cmake .. -DCMAKE_BUILD_TYPE=Release
-    6. make
-    7. setenv DISRUPTOR_CPP_HOME <../>
+    git clone https://github.com/JeffersonLab/Disruptor-cpp.git
+    cd Disruptor-cpp
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make
+    setenv DISRUPTOR_CPP_HOME <../>
     
 If using Jefferson Lab’s Redhat Enterprise 7 do:
     
-    1. git clone https://github.com/JeffersonLab/Disruptor-cpp.git
-    2. cd Disruptor-cpp
-    3. mkdir build
-    4. cd build
-    5. cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++
-    6. make
-    7. setenv DISRUPTOR_CPP_HOME <../>
+    git clone https://github.com/JeffersonLab/Disruptor-cpp.git
+    cd Disruptor-cpp
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++
+    make
+    setenv DISRUPTOR_CPP_HOME <../>
 
 Note that it requires GCC 5.0 / Clang 3.8 / C++14 or newer and boost.
 Its shared library must be installed where evio can find it.
@@ -129,12 +130,13 @@ Besides the disruptor library, evio requires the boost libraries: boost_system, 
 
 
 Finally, evio depends on the lz4 library for compressing data in the lz4 and gzip formats.
-If it isn’t already available on your machine, it can be obtained from the lz4 repository on github:
+If it isn’t already available on your machine, it can be obtained from the
+[lz4 repository on github](https://github.com/lz4/lz4):
 
-    1. git clone https://github.com/lz4/lz4.git
-    2. cd lz4
-    3. make
-    4. make install
+    git clone https://github.com/lz4/lz4.git
+    cd lz4
+    make
+    make install
 
 
 -----------------------------
@@ -172,9 +174,9 @@ run _**scons -h**_ in the top-level directory to get this output:
 
 Although fairly self-explanatory, if on Jefferson Lab's CUE system with Redhat 7, executing:
 
-    1. use gcc/5.3.0
-    2. cd <evio dir>
-    3. scons install
+    use gcc/5.3.0
+    cd <evio dir>
+    scons install
     
 will compile and install all the code.
 Note that for C/C++, only Linux and Darwin (Mac OSX) operating systems are supported.
@@ -195,19 +197,19 @@ To compile a debug version, execute:
 Evio can also be compiled with cmake using the included CMakeLists.txt file.
 To build the C and C++ libraries and executables on the Mac:
 
-    1. cd <evio dir>
-    2. mkdir build
-    3. cd build
-    4. cmake .. –DCMAKE_BUILD_TYPE=Release
-    5. make
+    cd <evio dir>
+    mkdir build
+    cd build
+    cmake .. –DCMAKE_BUILD_TYPE=Release
+    make
     
 If on Jefferson Lab's redhat 7 linux this will be:
     
-    1. cd <evio dir>
-    2. mkdir build
-    3. cd build
-    4. cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++
-    5. make
+    cd <evio dir>
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++
+    make
     
     
 To build only C code, place –DC_ONLY=1 on the cmake command line.
@@ -219,13 +221,13 @@ files from mixing with the source and config files.
 In addition to a having a copy in the build directory, installing the library, binary and include
 files can be done by calling cmake in 2 ways:
 
-    1. cmake .. –DCMAKE_BUILD_TYPE=Release –DCODA_INSTALL=<install dir>
-    2. make install
+    cmake .. –DCMAKE_BUILD_TYPE=Release –DCODA_INSTALL=<install dir>
+    make install
     
 or
     
-    1. cmake .. –DCMAKE_BUILD_TYPE=Release
-    2. make install
+    cmake .. –DCMAKE_BUILD_TYPE=Release
+    make install
 
 The first option explicitly sets the installation directory. The second option installs in the directory
 given in the CODA environmental variable. If neither are defined, an error is given.
@@ -241,7 +243,7 @@ To uninstall simply do:
 
 
 ------------------------------
-# **JAVA**
+# **Java**
 ------------------------------
 
 
@@ -272,7 +274,7 @@ Using these allows the user to skip over all the following compilation instructi
 
 Evio depends upon the LMAX-Exchange/disruptor software package available from github whose fork is at:
 
-https://github.com/JeffersonLab/disruptor
+[Original Disruptor Fork on Github](https://github.com/JeffersonLab/disruptor)
         
 In terms of functionality, it is an ingenious, ultrafast ring buffer which was initially developed
 for use the in the commodities exchange markets. It’s extremely useful when splitting work among
@@ -284,19 +286,19 @@ These are the master and v3.4 branches. The v3.4 branch should be compiled with 
 The disruptor software is provided in the _**java/jars/disruptor-3.4.3.jar**_ file (compiled with Java 8).
 However, to generate this file yourself, get the disruptor software package by simply doing the following:
 
-    1.	git clone https://github.com/JeffersonLab/disruptor.git
-    2.	cd disruptor
-    3.	git checkout v3.4
-    4.	./gradlew
+    git clone https://github.com/JeffersonLab/disruptor.git
+    cd disruptor
+    git checkout v3.4
+    ./gradlew
 
 The resulting disruptor jar file, disruptor-3.4.3.jar, will be found in the disruptor package’s build/libs subdirectory.
 
 One can also use the master branch which needs to be compiled with Java version 11 or greater and produces disruptor-4.0.0.jar.
 Currently this has been created with java15 and is in the java/jars/java15 directory. Here is how to generate it:
 
-    1.	git clone https://github.com/JeffersonLab/disruptor.git
-    2.	cd disruptor
-    3.	./gradlew
+    git clone https://github.com/JeffersonLab/disruptor.git
+    cd disruptor
+    ./gradlew
 
 The resulting jar will be in build/libs as before.
 
@@ -306,14 +308,14 @@ The resulting jar will be in build/libs as before.
 
 A lz4 data compression software is provided in the _**java/jars/lz4-java-1.8.0.jar**_ file (compiled with Java 8).
 Although this is available in various versions and locations on the web, one can generate this from its source which is the
-lz4/lz4-java repository on github:
+[lz4/lz4-java repository on github](https://github.com/lz4/lz4-java):
 
-    1.	git clone https://github.com/lz4/lz4-java.git
-    2.	cd lz4-java
-    3.	ant ivy-bootstrap
-    4.	ant submodule init
-    5.	ant submodule update
-    6.	ant
+    git clone https://github.com/lz4/lz4-java.git
+    cd lz4-java
+    ant ivy-bootstrap
+    ant submodule init
+    ant submodule update
+    ant
 
 Generated jar files will be in dist subdirectory.
 
