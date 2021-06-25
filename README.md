@@ -20,34 +20,37 @@ If you only plan to run C/C++ applications you can skip the Java
 installation. If you only plan to use Java applications you can
 you can skip the C/C++ installation.
 
-**The home page is:**
+###**Main evio links:**
 
-  https://coda.jlab.org/drupal/content/event-io-evio/
+  [EVIO Home Page](https://coda.jlab.org/drupal/content/event-io-evio/)
 
-**All code is contained in the github repository linked below (evio-5.2 branch).**
+  [EVIO on GitHub (**evio-5.2** branch)](https://github.com/JeffersonLab/evio/tree/evio-5.2)
 
-  https://github.com/JeffersonLab/evio/tree/evio-5.2
+###**GUI for viewing data in evio format:**
 
-**GUI package for viewing data in evio format:**
+  [EVIO Event Viewer Home Page](https://coda.jlab.org/drupal/content/graphical-data-viewer)
 
-  https://coda.jlab.org/drupal/content/graphical-data-viewer
+  [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
 
-  https://github.com/JeffersonLab/JEventViewer
-  
+
 -----------------------------
-## **Documentation**
+# **Documentation**
+----------------------------
 
-Documentation is contained in the repository but may also be accessed at the home site:
+Documentation on GitHub:
 
-Documentation Type | Link
------------- | -------------
-PDF User's Guide | https://coda.jlab.org/drupal/content/evio-52-users-guide
-Javadoc | https://coda.jlab.org/drupal/content/evio-52-javadoc
-Doxygen doc for C++ | https://coda.jlab.org/drupal/content/evio-52-doxygen-c
-Doxygen doc for C | https://coda.jlab.org/drupal/content/evio-52-doxygen-c-0
+* [All Documentation](https://jeffersonlab.github.io/evio)
+
+Documentation on the home page:
+
+* [User's Guide PDF](https://coda.jlab.org/drupal/content/evio-52-users-guide)
+* [Javadoc for Java Library](https://coda.jlab.org/drupal/content/evio-52-javadoc)
+* [Doxygen for C Library](https://coda.jlab.org/drupal/content/evio-52-doxygen-c-0)
+* [Doxygen for C++ Libary](https://coda.jlab.org/drupal/content/evio-52-doxygen-c)
+
 
 ----------------------------
-# **C LIBRARY**
+# **C Library**
 ----------------------------
 The C library is called libevio.
 It is a library with limited capabilities.
@@ -64,7 +67,7 @@ or
 
 
 ----------------------------
-# **C++ LIBRARY**
+# **C++ Library**
 ----------------------------
 The C++ library is called libeviocc.
 C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used.
@@ -100,8 +103,8 @@ run _**scons -h**_ in the top-level directory to get this output:
 
 Although fairly self-explanatory executing:
 
-    1. cd <evio dir>
-    2. scons install
+    cd <evio dir>
+    scons install
     
 will compile and install all the code.
 By default, the libraries and executables are placed into the _**$CODA/[arch]/lib**_ and _**bin**_ subdirectories
@@ -121,11 +124,11 @@ To compile a debug version, execute:
 Evio can also be compiled with cmake using the included CMakeLists.txt file.
 To build the C and C++ libraries and executables:
 
-    1. cd <evio dir>
-    2. mkdir build
-    3. cd build
-    4. cmake .. –DCMAKE_BUILD_TYPE=Release
-    5. make
+    cd <evio dir>
+    mkdir build
+    cd build
+    cmake .. –DCMAKE_BUILD_TYPE=Release
+    make
        
     
 To build only C code, place –DC_ONLY=1 on the cmake command line.
@@ -136,13 +139,13 @@ files from mixing with the source and config files.
 In addition to a having a copy in the build directory, installing the library, binary and include
 files can be done by calling cmake in 2 ways:
 
-    1. cmake .. –DCMAKE_BUILD_TYPE=Release –DCODA_INSTALL=<install dir>
-    2. make install
+    cmake .. –DCMAKE_BUILD_TYPE=Release –DCODA_INSTALL=<install dir>
+    make install
     
 or
     
-    1. cmake .. –DCMAKE_BUILD_TYPE=Release
-    2. make install
+    cmake .. –DCMAKE_BUILD_TYPE=Release
+    make install
 
 The first option explicitly sets the installation directory. The second option installs in the directory
 given in the CODA environmental variable. If neither are defined, an error is given.
@@ -158,7 +161,7 @@ To uninstall simply do:
 
 
 ------------------------------
-# **JAVA**
+# **Java**
 ------------------------------
 
 
