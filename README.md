@@ -1,5 +1,7 @@
 ----------------------------
+
 # **EVIO 6.0 SOFTWARE PACKAGE**
+
 ----------------------------
 
 EVIO stands for EVent Input/Output and contains libraries which read & write
@@ -19,20 +21,22 @@ If you only plan to run C/C++ applications you can skip the Java
 installation. If you only plan to use Java applications you can
 you can skip the C/C++ installation.
 
-###**Main evio links:**
+### **Main evio links:**
 
   [EVIO Home Page](https://coda.jlab.org/drupal/content/event-io-evio/)
 
   [EVIO on GitHub (**evio-6.0** branch)](https://github.com/JeffersonLab/evio)
 
-###**GUI for viewing data in evio format:**
+### **GUI for viewing data in evio format:**
 
   [EVIO Event Viewer Home Page](https://coda.jlab.org/drupal/content/graphical-data-viewer)
 
   [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
   
 -----------------------------
+
 # **Documentation**
+
 ----------------------------
 
 Documentation on GitHub:
@@ -47,7 +51,9 @@ Documentation on the home page:
 * [Doxygen for C++ Libary](https://coda.jlab.org/drupal/content/evio-60-doxygen-c-0)
 
 ----------------------------
+
 # **C Library**
+
 ----------------------------
 The C library is called libevio.
 It is a library with limited capabilities. In the past, this was acceptable because the evio
@@ -67,7 +73,9 @@ or
 
 
 ----------------------------
+
 # **C++ Library**
+
 ----------------------------
 The C++ library is called libeviocc.
 The current C++ evio library is entirely different from the previous version (5.2) as it has been ported
@@ -243,7 +251,9 @@ To uninstall simply do:
 
 
 ------------------------------
+
 # **Java**
+
 ------------------------------
 
 
@@ -359,3 +369,12 @@ Although this is fairly self-explanatory, executing _**ant**_ is the same as ant
 That will compile all the java. All compiled code is placed in the generated _**build**_ directory.
 If the user wants a jar file, execute _**ant jar**_ to place the resulting file in the _**build/lib**_ directory.
 The java command in the user’s path will be the one used to do the compilation.
+
+----------------------------
+
+# **Copyright**
+
+----------------------------
+
+For any issues regarding use and copyright, read the [license](LICENSE.txt) file.
+
