@@ -1,5 +1,7 @@
 ----------------------------
+
 # **EVIO 5.2 SOFTWARE PACKAGE**
+
 ----------------------------
 
 EVIO stands for EVent Input/Output and contains libraries which read & write
@@ -20,13 +22,13 @@ If you only plan to run C/C++ applications you can skip the Java
 installation. If you only plan to use Java applications you can
 you can skip the C/C++ installation.
 
-###**Main evio links:**
+### **Main evio links:**
 
   [EVIO Home Page](https://coda.jlab.org/drupal/content/event-io-evio/)
 
   [EVIO on GitHub (**evio-5.2** branch)](https://github.com/JeffersonLab/evio/tree/evio-5.2)
 
-###**GUI for viewing data in evio format:**
+### **GUI for viewing data in evio format:**
 
   [EVIO Event Viewer Home Page](https://coda.jlab.org/drupal/content/graphical-data-viewer)
 
@@ -34,7 +36,9 @@ you can skip the C/C++ installation.
 
 
 -----------------------------
+
 # **Documentation**
+
 ----------------------------
 
 Documentation on GitHub:
@@ -50,8 +54,11 @@ Documentation on the home page:
 
 
 ----------------------------
+
 # **C Library**
+
 ----------------------------
+
 The C library is called libevio.
 It is a library with limited capabilities.
 
@@ -67,8 +74,11 @@ or
 
 
 ----------------------------
+
 # **C++ Library**
+
 ----------------------------
+
 The C++ library is called libeviocc.
 C++ evio is supported on both the MacOS and Linux platforms. C++ version 11 is used.
 
@@ -161,7 +171,9 @@ To uninstall simply do:
 
 
 ------------------------------
+
 # **Java**
+
 ------------------------------
 
 
@@ -212,3 +224,11 @@ Although this is fairly self-explanatory, executing _**ant**_ is the same as ant
 That will compile all the java. All compiled code is placed in the generated _**build**_ directory.
 If the user wants a jar file, execute _**ant jar**_ to place the resulting file in the _**build/lib**_ directory.
 The java command in the user’s path will be the one used to do the compilation.
+
+----------------------------
+
+# **Copyright**
+
+----------------------------
+
+For any issues regarding use and copyright, read the [license](LICENSE.txt) file.
