@@ -21,7 +21,7 @@
     <groupId>org.jlab.coda</groupId>
 
     <!-- current rolling version using snapshot release -->
-    <version>5.2-SNAPSHOT</version>
+    <version>5.3-SNAPSHOT</version>
     
     <!-- Package code into jar file -->
     <packaging>jar</packaging>

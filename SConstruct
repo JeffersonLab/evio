@@ -26,10 +26,10 @@ os.umask(2)
 
 # Software version
 versionMajor = '5'
-versionMinor = '2'
+versionMinor = '3'
 
 # Determine the os and machine names
-uname    = os.uname();
+uname    = os.uname()
 platform = uname[0]
 machine  = uname[4]
 osname   = os.getenv('CODA_OSNAME', platform + '-' +  machine)

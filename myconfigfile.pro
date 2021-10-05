@@ -1,5 +1,5 @@
--injars       ../evio-5.2/build/lib/jevio-5.2.jar
--outjars      ../evio-5.2/build/lib/jevio-5.2.optimized.jar
+-injars       ../evio-5.3/build/lib/jevio-5.3.jar
+-outjars      ../evio-5.3/build/lib/jevio-5.3.optimized.jar
 
 -libraryjars  <java.home>/lib/rt.jar
 #-libraryjars  <java.home>/jmods

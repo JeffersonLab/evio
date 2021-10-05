@@ -157,6 +157,8 @@ jevio-5.1.jar
 
     - add EventWriter.flush() method for sending internally buffered data to disk
 
+jevio-5.3.jar
+    - no changes
 
 *********************************************************************************
 C CODE
@@ -223,3 +225,7 @@ evio-5.2
 
     - fix bug in which the writing of a split file with a dictionary got a length
       and therefore the file format wrong.
+
+evio-5.3
+    - Protect against crash if a nonsense buffer length is read for bank, segment and
+      tagsegments in swap_data.

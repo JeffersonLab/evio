@@ -14,7 +14,7 @@ fileList = Glob('*.cc',  strings=True)
 
 myEnv.AppendUnique(CPPPATH = ['.', '#src/libsrc'], LIBS = ['expat', 'evio'+debugSuffix], LIBPATH = ['/usr/lib', '#src/libsrc/'+archDir])
 
-#evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList, SHLIBVERSION="5.2")
+#evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList, SHLIBVERSION="5.3")
 evioxxLib = myEnv.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)
 
 if 'install' in COMMAND_LINE_TARGETS:
