@@ -78,12 +78,12 @@ typedef struct {
  * @return -1 if nwrd or nfmt arg(s) < 0
  */
 int
-eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal, int padding)
+eviofmtswap(int32_t *iarr, int nwrd, const unsigned short *ifmt, int nfmt, int tolocal, int padding)
 {
     int imt  = 0;   /* ifmt[] index */
     int ncnf = 0;   /* how many times must repeat a format */
     int lev  = 0;   /* parenthesis level */
-    int kcnf, mcnf, iterm = 0;
+    int kcnf, mcnf/*, iterm = 0*/;
     int64_t *b64, *b64end;
     int32_t *b32, *b32end;
     int16_t *b16, *b16end;
