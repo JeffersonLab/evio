@@ -161,6 +161,8 @@ endif()
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
 set_target_properties(evio PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+target_compile_options(evio PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/Wall>
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra -Wno-unused-parameter>)
 include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 
@@ -168,6 +170,8 @@ if (NOT C_ONLY)
     # Shared evio C++ library
     add_library(eviocc SHARED ${CPP_LIB_FILES})
     set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+    target_compile_options(eviocc PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/Wall>
+      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wall -Wextra -Wno-unused-parameter>)
     target_link_libraries(eviocc expat evio)
     include_directories(eviocc PUBLIC src/libsrc src/libsrc++ /usr/local/include)
 
