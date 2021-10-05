@@ -22,7 +22,7 @@
 cmake_minimum_required(VERSION 3.3)
 
 
-project(evio VERSION 5.2)
+project(evio VERSION 5.2.1 LANGUAGES C CXX)
 
 option(C_ONLY "Build C-library only" OFF)
 
