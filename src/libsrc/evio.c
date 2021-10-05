@@ -98,6 +98,8 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 #include "evio.h"
 
 
@@ -4656,7 +4658,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
     bytesToWrite = 4 * wordsToWrite;
 
     if (debug && a->splitting) {
-printf("evWrite: splitting, bytesToFile = %llu, event bytes = %u, bytesToBuf = %u, split = %llu\n",
+printf("evWrite: splitting, bytesToFile = %"PRIu64", event bytes = %u, bytesToBuf = %u, split = %"PRIu64"\n",
                a->bytesToFile, bytesToWrite, a->bytesToBuf, a->split);
 printf("evWrite: blockNum = %u, (blkNum == 2) = %d, eventsToBuf (%u)  <=? common blk cnt (%u)\n",
        a->blknum, (a->blknum == 2),  a->eventsToBuf,  a->commonBlkCount);
@@ -4701,10 +4703,10 @@ if (debug) printf("evWrite: don't split file cause only common block written so 
         }
 
 if (debug) {
-    printf("evWrite: splitting = %s: total size = %llu >? split = %llu\n",
+    printf("evWrite: splitting = %s: total size = %"PRIu64" >? split = %"PRIu64"\n",
            (totalSize > a->split ? "True" : "False"), totalSize, a->split);
 
-    printf("evWrite: total size components: bytesToFile = %llu, bytesToBuf = %u, ev bytes = %u, dictlen = %u\n",
+    printf("evWrite: total size components: bytesToFile = %"PRIu64", bytesToBuf = %u, ev bytes = %u, dictlen = %u\n",
            a->bytesToFile, a->bytesToBuf, bytesToWrite, a->dictLength);
 }
 
@@ -4885,7 +4887,7 @@ if (debug) {
         printf("         common block cnt = %u\n", a->commonBlkCount);
         printf("         current block cnt (dict) = %u\n", a->blkEvCount);
         printf("         bytes-to-buf  = %u\n", a->bytesToBuf);
-        printf("         bytes-to-file = %llu\n", a->bytesToFile);
+        printf("         bytes-to-file = %"PRIu64"\n", a->bytesToFile);
         printf("         block # = %u\n", a->blknum);
 }
 
@@ -5125,7 +5127,7 @@ printf("    flushToFile: will not overwrite file = %s\n", a->fileName);
         printf("         internal buffer cnt (dict) = %u\n", a->eventsToBuf);
         printf("         current block cnt (dict) = %u\n", a->blkEvCount);
         printf("         bytes-written = %u\n", bytesToWrite);
-        printf("         bytes-to-file = %llu\n", a->bytesToFile);
+        printf("         bytes-to-file = %"PRIu64"\n", a->bytesToFile);
         printf("         block # = %u\n", a->blknum);
     }
 
@@ -5890,13 +5892,13 @@ if (debug) printf("evIoctl: increasing internal buffer size to %u words\n", buff
             /* Smallest possible evio format file = 10 32-bit ints.
              * Must also be bigger than a single buffer? */
             if (splitSize < 4*10) {
-if (debug) printf("evIoctl: split file size is too small! (%llu bytes), must be min 40\n", splitSize);
+if (debug) printf("evIoctl: split file size is too small! (%"PRIu64" bytes), must be min 40\n", splitSize);
                 handleUnlock(handle);
                 return(S_EVFILE_BADSIZEREQ);
             }
             
             a->split = splitSize;
-if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, splitSize);
+if (debug) printf("evIoctl: split file at %"PRIu64" (0x%"PRIx64") bytes\n", splitSize, splitSize);
             break;
 
         /************************************************/
