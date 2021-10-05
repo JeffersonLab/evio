@@ -3134,7 +3134,7 @@ if (debug) printf("toAppendPosition: last block had no data, back up 1 header to
 static int evReadAllocImplFileV3(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 {
     uint32_t *buf, *pBuf;
-    int       status;
+    int       status = S_SUCCESS;
     uint32_t  nleft, ncopy, len;
 
 
@@ -3190,14 +3190,14 @@ static int evReadAllocImplFileV3(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 
     /* Swap event in place if necessary */
     if (a->byte_swapped) {
-        evioswap(buf, 1, NULL);
+        status = evioswap(buf, 1, NULL);
     }
 
     /* Return allocated buffer with event inside and its inclusive len (with full header) */
     *buffer = buf;
     *buflen = len;
 
-    return(S_SUCCESS);
+    return(status);
 }
 
 
@@ -3227,7 +3227,7 @@ static int evReadAllocImplFileV3(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 {
     uint32_t *buf, *pBuf;
-    int       status;
+    int       status = S_SUCCESS;
     uint32_t  nleft, ncopy, len;
 
 
@@ -3303,14 +3303,14 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 
     /* Swap event in place if necessary */
     if (a->byte_swapped) {
-        evioswap(buf, 1, NULL);
+        status = evioswap(buf, 1, NULL);
     }
 
     /* Return allocated buffer with event inside and its inclusive len (with full header) */
     *buffer = buf;
     *buflen = len;
     
-    return(S_SUCCESS);
+    return(status);
 }
 
 
@@ -3474,7 +3474,7 @@ static int evGetNewBufferFileV3(EVFILE *a)
  */
 static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
 {
-    int       status,  swap;
+    int       status = S_SUCCESS,  swap;
     uint32_t  nleft, ncopy;
     uint32_t *temp_buffer=NULL, *temp_ptr=NULL;
 
@@ -3544,11 +3544,11 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
     
     /* Swap event if necessary */
     if (swap) {
-        evioswap(temp_ptr, 1, buffer);
+        status = evioswap(temp_ptr, 1, buffer);
         free(temp_ptr);
     }
 
-    return(S_SUCCESS);
+    return(status);
 }
 
 
@@ -3577,7 +3577,7 @@ static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
 int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 {
     EVFILE   *a;
-    int       status,  swap;
+    int       status = S_SUCCESS,  swap;
     uint32_t  nleft, ncopy;
     uint32_t *temp_buffer=NULL, *temp_ptr=NULL;
 
@@ -3695,11 +3695,11 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 
     /* Swap event if necessary */
     if (swap) {
-        evioswap(temp_ptr, 1, buffer);
+        status = evioswap(temp_ptr, 1, buffer);
         free(temp_ptr);
     }
 
-    return(S_SUCCESS);
+    return(status);
 }
 
 
@@ -3786,7 +3786,7 @@ int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen)
 int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
 {
     EVFILE    *a;
-    int       status;
+    int       status = S_SUCCESS;
     uint32_t  nleft;
 
 
@@ -3845,7 +3845,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
         nleft = EVIO_SWAP32(*(a->next)) + 1;
                         
         /* swap data in block buffer */
-        evioswap(a->next, 1, NULL);
+        status = evioswap(a->next, 1, NULL);
     }
     else {
         /* Length of next bank, including header, in 32 bit words */
@@ -3861,7 +3861,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
     
     handleUnlock(handle);
 
-    return(S_SUCCESS);
+    return(status);
 }
 
 
@@ -3897,7 +3897,7 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t
 {
     EVFILE   *a;
     uint32_t *pev;
-
+    int      status = S_SUCCESS;
     
     if (pEvent == NULL) {
         return(S_EVFILE_BADARG);
@@ -3953,7 +3953,7 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t
         *buflen = EVIO_SWAP32(*pev) + 1;
                         
         /* swap data in buf/mem-map buffer */
-        evioswap(pev, 1, NULL);
+        status = evioswap(pev, 1, NULL);
     }
     else {
         /* Length of bank, including header, in 32 bit words */
@@ -3965,7 +3965,7 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t
 
     handleUnlock(handle);
 
-    return(S_SUCCESS);
+    return(status);
 }
 
 
@@ -6908,7 +6908,11 @@ char *evPerror(int error) {
             sprintf(temp, "S_EVFILE_BADMODE:  invalid operation for current evOpen() mode\n");
             break;
 
-        default:
+        case S_EVFILE_BADHEADER:
+            sprintf(temp, "S_EVFILE_BADHEADER:  invalid data in bank or segment header\n");
+            break;
+
+      default:
             sprintf(temp, "?evPerror...no such error: %d\n",error);
             break;
     }

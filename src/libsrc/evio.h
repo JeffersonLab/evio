@@ -57,6 +57,7 @@ extern "C" {
 #define S_EVFILE_BADSIZEREQ 0x80730006  /**< Invalid buffer size request to evIoct */
 #define S_EVFILE_BADARG     0x80730007  /**< Invalid function argument */
 #define S_EVFILE_BADMODE    0x80730008  /**< Wrong mode used in evOpen for this operation */
+#define S_EVFILE_BADHEADER  0x80730009  /**< Invalid data in bank or segment header */
 
 /**
  * @addtogroup swap
@@ -245,7 +246,7 @@ typedef struct evioBlockHeaderV4_t {
 /* prototypes */
 
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
-void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
+int evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
 uint16_t *swap_int16_t(uint16_t *data, unsigned int length, uint16_t *dest);
 uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest);
 uint64_t *swap_int64_t(uint64_t *data, unsigned int length, uint64_t *dest);

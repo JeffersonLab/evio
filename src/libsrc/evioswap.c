@@ -72,6 +72,7 @@
 
 /* include files */
 #include <stdio.h>
+#include <string.h>
 #include "evio.h"
 
 
@@ -80,12 +81,12 @@ extern int eviofmt(char *fmt, unsigned short *ifmt, int ifmtLen);
 extern int eviofmtswap(uint32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal, int padding);
 
 /* internal prototypes */
-static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest);
-static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest);
-static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest);
-static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, uint32_t *dest);
-static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest);
-static int  swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_t length);
+static int swap_bank(uint32_t *buf, int tolocal, uint32_t *dest);
+static int swap_segment(uint32_t *buf, int tolocal, uint32_t *dest);
+static int swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest);
+static int swap_data(uint32_t *data, uint32_t type, uint32_t length, int tolocal, uint32_t *dest);
+static int copy_data(uint32_t *data, uint32_t length, uint32_t *dest);
+static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_t length);
 
 
 /**
@@ -104,12 +105,13 @@ static int  swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32
  *                else buf has data of opposite endian
  * @param dest    buffer to place swapped data into.
  *                If this is NULL, then dest = buf.
+ * @return S_SUCCESS            if successful
+ * @return S_EVFILE_BADFILE     format error in array of composite type
+ * @return S_EVFILE_BADHEADER   inconsistent header data (bad length)
  */
-void evioswap(uint32_t *buf, int tolocal, uint32_t *dest) {
+int evioswap(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  swap_bank(buf, tolocal, dest);
-
-  return;
+  return swap_bank(buf, tolocal, dest);
 }
 
 
@@ -124,8 +126,11 @@ void evioswap(uint32_t *buf, int tolocal, uint32_t *dest) {
  *                else buf has data of opposite endian
  * @param dest    buffer to place swapped data into.
  *                If this is NULL, then dest = buf.
+ * @return S_SUCCESS            if successful
+ * @return S_EVFILE_BADFILE     format error in array of composite type
+ * @return S_EVFILE_BADHEADER   inconsistent header data (bad length)
  */
-static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest) {
+static int swap_bank(uint32_t *buf, int tolocal, uint32_t *dest) {
 
     uint32_t data_length, data_type;
     uint32_t *p=buf;
@@ -144,9 +149,7 @@ static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest) {
     }
     
     /* Swap non-header bank data */
-    swap_data(&buf[2], data_type, data_length, tolocal, ((dest==NULL) ? NULL: &dest[2]));
-
-    return;
+    return swap_data(&buf[2], data_type, data_length, tolocal, ((dest==NULL) ? NULL: &dest[2]));
 }
 
 
@@ -159,8 +162,11 @@ static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest) {
  *                else buf has data of opposite endian
  * @param dest    buffer to place swapped data into.
  *                If this is NULL, then dest = buf.
+ * @return S_SUCCESS            if successful
+ * @return S_EVFILE_BADFILE     format error in array of composite type
+ * @return S_EVFILE_BADHEADER   inconsistent header data (bad length)
  */
-static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest) {
+static int swap_segment(uint32_t *buf, int tolocal, uint32_t *dest) {
 
     uint32_t data_length,data_type;
     uint32_t *p=buf;
@@ -179,9 +185,7 @@ static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest) {
     }
   
     /* Swap non-header segment data */
-    swap_data(&buf[1], data_type, data_length, tolocal, ((dest==NULL) ? NULL : &dest[1]));
-  
-    return;
+    return swap_data(&buf[1], data_type, data_length, tolocal, ((dest==NULL) ? NULL : &dest[1]));
 }
 
 
@@ -194,8 +198,11 @@ static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest) {
  *                else buf has data of opposite endian
  * @param dest    buffer to place swapped data into.
  *                If this is NULL, then dest = buf.
+ * @return S_SUCCESS            if successful
+ * @return S_EVFILE_BADFILE     format error in array of composite type
+ * @return S_EVFILE_BADHEADER   inconsistent header data (bad length)
  */
-static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest) {
+static int swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest) {
 
     uint32_t data_length,data_type;
     uint32_t *p=buf;
@@ -214,9 +221,7 @@ static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest) {
     }
     
     /* Swap non-header tagsegment data */
-    swap_data(&buf[1], data_type, data_length, tolocal, ((dest==NULL)? NULL : &dest[1]));
-  
-    return;
+    return swap_data(&buf[1], data_type, data_length, tolocal, ((dest==NULL)? NULL : &dest[1]));
 }
 
 
@@ -231,16 +236,20 @@ static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest) {
  *                else data is of opposite endian
  * @param dest    buffer to place swapped data into.
  *                If this is NULL, then dest = data.
+ * @return S_SUCCESS            if successful
+ * @return S_EVFILE_BADFILE     format error in array of composite type
+ * @return S_EVFILE_BADHEADER   inconsistent header data (bad length)
  */
-static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, uint32_t *dest) {
+static int swap_data(uint32_t *data, uint32_t type, uint32_t length, int tolocal, uint32_t *dest) {
     uint32_t fraglen, l=0;
+    int ret = S_SUCCESS;
 
     /* Swap the data or call swap_fragment */
     switch (type) {
 
         /* unknown type ... no swap */
         case 0x0:
-            copy_data(data, length, dest);
+            ret = copy_data(data, length, dest);
             break;
 
 
@@ -256,7 +265,7 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
         case 0x3:
         case 0x6:
         case 0x7:
-            copy_data(data, length, dest);
+            ret = copy_data(data, length, dest);
             break;
 
 
@@ -277,7 +286,9 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
 
         /* Composite type */
         case 0xf:
-            swap_composite_t(data, tolocal, dest, length);
+            ret = swap_composite_t(data, tolocal, dest, length);
+            if( ret != S_SUCCESS )
+              ret = S_EVFILE_BADFILE;
             break;
             
 
@@ -285,16 +296,16 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
         case 0xe:
         case 0x10:
             while (l < length) {
-                /* data is opposite local endian */
-                if (tolocal) {
-                    /* swap bank */
-                    swap_bank(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
-                    /* bank was this long (32 bit words) including header */
-                    fraglen = (dest==NULL) ? data[l]+1: dest[l]+1;
-                } else {
-                    fraglen = data[l] + 1;
-                    swap_bank(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                /* Check for invalid length */
+                fraglen = (tolocal ? EVIO_SWAP32(data[l]) : data[l]) + 1;
+                if( l+fraglen > length ) {
+                    fprintf(stderr, "swap_data: Bad bank length encountered: %u > %u\n", l+fraglen, length);
+                    return S_EVFILE_BADHEADER;
                 }
+                /* swap bank */
+                ret = swap_bank(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                if (ret != S_SUCCESS)
+                  return ret;
                 l += fraglen;
             }
             break;
@@ -304,13 +315,16 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
         case 0xd:
         case 0x20:
             while (l < length) {
-                if (tolocal) {
-                    swap_segment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
-                    fraglen = (dest==NULL) ? (data[l]&0xffff)+1: (dest[l]&0xffff)+1;
-                } else {
-                    fraglen = (data[l] & 0xffff) + 1;
-                    swap_segment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                /* Check for invalid length */
+                fraglen = ((tolocal ? EVIO_SWAP32(data[l]) : data[l]) & 0xffff) + 1;
+                if( l+fraglen > length ) {
+                    fprintf(stderr, "swap_data: Bad segment length encountered: %u > %u\n", l+fraglen, length);
+                    return S_EVFILE_BADHEADER;
                 }
+                /* Swap segment */
+                ret = swap_segment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                if (ret != S_SUCCESS)
+                  return ret;
                 l += fraglen;
             }
             break;
@@ -319,13 +333,15 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
         /* tagsegment, NOTE: val of 0x40 is no longer used for tagsegment - needed for padding */
         case 0xc:
             while (l < length) {
-                if (tolocal) {
-                    swap_tagsegment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
-                    fraglen = (dest==NULL)?(data[l]&0xffff)+1:(dest[l]&0xffff)+1;
-                } else {
-                    fraglen = (data[l] & 0xffff) + 1;
-                    swap_tagsegment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                /* Check for invalid length */
+                fraglen = ((tolocal ? EVIO_SWAP32(data[l]) : data[l]) & 0xffff) + 1;
+                if( l+fraglen > length ) {
+                    fprintf(stderr, "swap_data: Bad tagsegment length encountered: %u > %u\n", l+fraglen, length);
+                    return S_EVFILE_BADHEADER;
                 }
+                ret = swap_tagsegment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                if (ret != S_SUCCESS)
+                  return ret;
                 l += fraglen;
             }
             break;
@@ -333,11 +349,11 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
 
         /* unknown type, just copy */
         default:
-            copy_data(data, length, dest);
+            ret = copy_data(data, length, dest);
             break;
     }
 
-    return;
+    return ret;
 }
 
 /* Do we need this for backwards compatibility??? *?
@@ -448,18 +464,15 @@ uint16_t *swap_int16_t(uint16_t *data, unsigned int length, uint16_t *dest) {
  * @param length number of 32 bit ints to be copied
  * @param dest   pointer to where data is to be copied to.
  *               If NULL, nothing is done.
+ * @return S_SUCCESS  if successful
  */
-static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest) {
+static int copy_data(uint32_t *data, uint32_t length, uint32_t *dest) {
 
-    uint32_t i;
-
-    if (dest == NULL) {
-        return;
+    if (dest != NULL) {
+        memcpy(dest, data, sizeof(uint32_t) * length);
     }
 
-    for (i=0; i<length; i++) {
-        dest[i] = data[i];
-    }
+    return S_SUCCESS;
 }
 
 
@@ -538,12 +551,12 @@ static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_
         /* swap composite data: convert format string to internal format, then call formatted swap routine */
         if ((nfmt = eviofmt(formatString, ifmt, 1024)) > 0 ) {
             if (eviofmtswap(pData, dataLen, ifmt, nfmt, tolocal, 0)) {
-                printf("swap_composite_t: eviofmtswap returned error, bad arg(s)\n");
+                fprintf(stderr, "swap_composite_t: eviofmtswap returned error, bad arg(s)\n");
                 return S_FAILURE;
             }
         }
         else {
-            printf("swap_composite_t: error %d in eviofmt\n", nfmt);
+            fprintf(stderr,"swap_composite_t: error %d in eviofmt\n", nfmt);
             return S_FAILURE;
         }
 
