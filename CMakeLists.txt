@@ -24,6 +24,7 @@ cmake_minimum_required(VERSION 3.3)
 
 project(evio VERSION 5.2)
 
+option(C_ONLY "Build C-library only" OFF)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -152,7 +153,7 @@ if( DOXYGEN_FOUND )
     doxygen_add_docs(docC src/libsrc )
 
 
-elseif(NOT DEFINED C_ONLY)
+elseif(NOT C_ONLY)
     message(FATAL_ERROR "Doxygen NOT found, cmake will exit." )
 endif()
 
@@ -163,7 +164,7 @@ set_target_properties(evio PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 
-if (NOT DEFINED C_ONLY)
+if (NOT C_ONLY)
     # Shared evio C++ library
     add_library(eviocc SHARED ${CPP_LIB_FILES})
     set_target_properties(eviocc PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
@@ -222,7 +223,7 @@ if (DEFINED INSTALL_DIR_DEFINED)
     install(TARGETS evio LIBRARY DESTINATION lib)
     install(FILES ${C_HEADER_FILES} DESTINATION include)
 
-    if (NOT DEFINED C_ONLY)
+    if (NOT C_ONLY)
         install(TARGETS eviocc LIBRARY DESTINATION lib)
         install(FILES ${CPP_HEADER_FILES} DESTINATION include)
         install(FILES ${CPP_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
