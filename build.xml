@@ -23,13 +23,13 @@
     <property name="allJarNames"   value="jevio-*.jar" />
     <property name="jarPath"       value="${build.lib}/${jarName}" />
 
-    <property name="lz4JarName"     value="lz4-java-1.4.0.jar" />
+    <property name="lz4JarName"     value="lz4-java.1.8.0.jar" />
     <property name="lz4JarPath"     value="${local.jars}/${lz4JarName}" />
 
     <property name="compJarName"     value="AHACompressionAPI.jar" />
     <property name="compJarPath"     value="${local.jars}/${compJarName}" />
 
-    <property name="disruptorJarName"  value="disruptor-3.4.2.jar" />
+    <property name="disruptorJarName"  value="disruptor-3.4.3.jar" />
     <property name="disruptorJarPath"  value="${local.jars}/${disruptorJarName}" />
 
     <!-- Set Classpath, ignore caller's classpath -->
