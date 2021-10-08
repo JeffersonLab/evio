@@ -327,6 +327,10 @@ namespace evio {
 
 
         /** {@inheritDoc} */
+        bool isStreaming() override {return false;}
+
+
+        /** {@inheritDoc} */
         uint32_t getEventType() override {return 0;}
 
 

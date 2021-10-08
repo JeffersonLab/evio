@@ -84,6 +84,13 @@ namespace evio {
         virtual bool hasFirstEvent() = 0;
 
         /**
+         * Is the data in this block from a streaming (not triggered) DAQ system?
+         * @return <code>true</code> if the data in this block is from a streaming (not triggered)
+         *         DAQ system, else <code>false</code>
+         */
+        virtual bool isStreaming() = 0;
+
+        /**
          * Get the type of events in block/record (see values of {@link DataType}.
          * This is not supported by versions 1-3 which returns 0.
          * @return type of events in block/record, or 0 if evio version 1-3.

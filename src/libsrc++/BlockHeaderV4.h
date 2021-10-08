@@ -59,6 +59,7 @@ namespace evio {
      * |             Magic Int               |
      * |_____________________________________|
      *
+     * The following bit #s start with 0.
      *
      *      Block Length       = number of ints in block (including this one).
      *      Block Number       = id number (starting at 1)
@@ -67,33 +68,35 @@ namespace evio {
      *                           NOTE: this value should not be used to parse the following
      *                           events since the first block may have a dictionary whose
      *                           presence is not included in this count.
-     *      Reserved 1         = If bits 11-14 in bit info are RocRaw (1), then (in the first block)
+     *      Reserved 1         = If bits 10-13 in bit info are RocRaw (1), then (in the first block)
      *                           this contains the CODA id of the source
      *      Bit info &amp; Version = Lowest 8 bits are the version number (4).
      *                           Upper 24 bits contain bit info.
-     *                           If a dictionary is included as the first event, bit #9 is set (=1)
-     *                           If a last block, bit #10 is set (=1)
+     *                           If a dictionary is included as the first event, bit #8 is set (=1)
+     *                           If a last block, bit #9 is set (=1)
      *      Reserved 2         = unused
      *      Magic Int          = magic number (0xc0da0100) used to check endianness
      *
      *
      *
-     * Bit info has the following bits defined (bit numbers start with 1):
-     *   Bit  9     = true if dictionary is included (relevant for first block only)
+     * Bit info has the following bits defined (bit #s start with 0):
+     *   Bit  8     = true if dictionary is included (relevant for first block only)
      *
-     *   Bit  10    = true if this block is the last block in file or network transmission
+     *   Bit  9     = true if this block is the last block in file or network transmission
      *
-     *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
+     *   Bits 10-13 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
      *                DisentangledPhysics = 3, User = 4, Control = 5, Other = 15).
      *
-     *   Bit 15     = true if next (non-dictionary) event in this block is a "first event" to
+     *   Bit 14     = true if next (non-dictionary) event in this block is a "first event" to
      *                be placed at the beginning of each written file and its splits.
      *
-     *                Bits 11-15 are useful ONLY for the CODA online use of evio.
+     *                Bits 10-14 are useful ONLY for the CODA online use of evio.
      *                That's because only a single CODA event type is placed into
      *                a single (ET, cMsg) buffer, and each user or control event has its own
      *                buffer as well. That buffer then is parsed by an EvioReader or
      *                EvioCompactReader object. Thus all events will be of a single CODA type.
+     *
+     *   Bit 15     = true if data in streaming mode, false if triggered
      *
      * </code></pre>
      *
@@ -119,6 +122,9 @@ namespace evio {
 
         /** "First event" is 15th bit in version/info word */
         static const uint32_t EV_FIRSTEVENT_MASK  = 0x4000;
+
+        /** "Streaming mode" is 16th bit in version/info word */
+        static const uint32_t EV_STREAMING_MASK  = 0x8000;
 
         /** Position of word for size of block in 32-bit words. */
         static const uint32_t EV_BLOCKSIZE = 0;
@@ -329,6 +335,10 @@ namespace evio {
         bool hasFirstEvent() override {return bitInfo[6];}
 
 
+        /** {@inheritDoc} */
+        bool isStreaming() override {return bitInfo[7];}
+
+
         /**
          * Does this integer indicate that there is an evio dictionary
          * (assuming it's the header's sixth word)?
@@ -360,6 +370,8 @@ namespace evio {
          * @return <code>true</code> if this contains the first event, else <code>false</code>
          */
         bool hasFirstEvent() const {return bitInfo[6];}
+
+
 
 
         /**
@@ -413,6 +425,35 @@ namespace evio {
          * @return arg with first event bit cleared
          */
         static uint32_t clearFirstEventBit(uint32_t i) {return (i &= ~EV_FIRSTEVENT_MASK);}
+
+
+        /**
+        * Does this integer indicate that the data in the block is from a streaming
+        * (not triggered) DAQ system (assuming it's the header's sixth word)?
+        *
+        * @param i integer to examine.
+        * @return <code>true</code> if the data in this block is from a streaming (not triggered)
+        *         DAQ system, else <code>false</code>
+        */
+        static bool isStreaming(uint32_t i) {return ((i & EV_STREAMING_MASK) > 0);}
+
+
+        /**
+         * Set the bit in the given arg which indicates that the data in the
+         * block is from a streaming (not triggered) DAQ system?
+         * @param i integer in which to set the streaming bit.
+         * @return  arg with streaming bit set.
+         */
+        static uint32_t setStreamingBit(uint32_t i)   {return (i |= EV_STREAMING_MASK);}
+
+
+        /**
+         * Clear the bit in the given arg to indicate that the data in the
+         * block is from a streaming (not triggered) DAQ system?
+         * @param i integer in which to clear the streaming bit.
+         * @return arg with streaming bit cleared.
+         */
+        static uint32_t clearStreamingBit(uint32_t i) {return (i &= ~EV_STREAMING_MASK);}
 
 
         //-//////////////////////////////////////////////////////////////////

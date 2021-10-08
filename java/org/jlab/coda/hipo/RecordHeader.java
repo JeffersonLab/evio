@@ -78,7 +78,8 @@ import java.util.List;
  *                                      4 = User
  *                                      5 = Control
  *                                     15 = Other
- *    15-19 = reserved
+ *    15    = true if data in streaming mode, false if triggered
+ *    16-19 = reserved
  *    20-21 = pad 1
  *    22-23 = pad 2
  *    24-25 = pad 3
@@ -209,6 +210,10 @@ public class RecordHeader implements IBlockHeader {
     final static int   DATA_CONTROL_BITS = 0x2800;
     /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
     final static int   DATA_OTHER_BITS   = 0x7800;
+
+    /** 16th bit set in bitInfo word in record header means streaming (not triggered) data source. */
+    public static final int EV_STREAMING_BIT  = 0x8000;
+
 
     // Bit masks
 
@@ -818,6 +823,49 @@ public class RecordHeader implements IBlockHeader {
      * @return true this is the header of the last record, else false.
      */
     static public boolean isLastRecord(int bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
+
+
+    /**
+     * Set the bit which says record has streaming (not triggered) data.
+     * @param isStreaming  true if record has streaming data.
+     * @return new bitInfo word.
+     */
+    public int isStreaming(boolean isStreaming) {
+        if (isStreaming) {
+            // set bit
+            bitInfo |= EV_STREAMING_BIT;
+        }
+        else {
+            // clear bit
+            bitInfo &= ~EV_STREAMING_BIT;
+        }
+
+        return bitInfo;
+    }
+
+    /**
+     * Is the data in this block from a streaming (not triggered) DAQ system?
+     * @return <code>true</code> if the data in this block is from a streaming (not triggered)
+     *         DAQ system, else <code>false</code>
+     */
+    public boolean isStreaming() {return ((bitInfo & EV_STREAMING_BIT) != 0);}
+
+    /**
+     * Does this word indicate that the data in the block is from a streaming
+     * (not triggered) DAQ system?
+     * @param bitInfo bitInfo word.
+     * @return <code>true</code> if the data in this block is from a streaming (not triggered)
+     *         DAQ system, else <code>false</code>
+     */
+    static public boolean isStreaming(int bitInfo) {return ((bitInfo & EV_STREAMING_BIT) != 0);}
+
+    /**
+     * Clear the bit in the given arg to indicate that the data in the block is
+     * from a streaming (not triggered) DAQ system.
+     * @param i integer in which to clear the streaming bit.
+     * @return arg with last-streaming bit cleared.
+     */
+    static public int clearStreamingBit(int i) {return (i & ~EV_STREAMING_BIT);}
 
 
     /**

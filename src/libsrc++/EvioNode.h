@@ -205,6 +205,7 @@ namespace evio {
         void getAllDescendants(std::vector<std::shared_ptr<EvioNode>> & descendants);
         std::shared_ptr<EvioNode> getChildAt(uint32_t index);
         uint32_t getChildCount() const;
+        uint32_t getChildCount(int level);
 
         std::shared_ptr<ByteBuffer> getBuffer();
 

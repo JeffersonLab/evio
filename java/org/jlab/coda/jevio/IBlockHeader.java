@@ -49,6 +49,13 @@ public interface IBlockHeader {
     boolean hasFirstEvent();
 
     /**
+     * Is the data in this block from a streaming (not triggered) DAQ system?
+     * @return <code>true</code> if the data in this block is from a streaming (not triggered)
+     *         DAQ system, else <code>false</code>
+     */
+    boolean isStreaming();
+
+    /**
      * Get the type of events in block/record (see values of {@link DataType}.
      * @return type of events in block/record.
      */
