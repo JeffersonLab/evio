@@ -25,6 +25,7 @@ var classevio_1_1_block_header_v2 =
     [ "hasFirstEvent", "d7/d9e/classevio_1_1_block_header_v2.html#a9996b49ef9bee798b40342a517cde74a", null ],
     [ "isCompressed", "d7/d9e/classevio_1_1_block_header_v2.html#ac517171e3174eed82b42b125366cada0", null ],
     [ "isLastBlock", "d7/d9e/classevio_1_1_block_header_v2.html#ade0d222d1966f7b7d4c40736006bb18a", null ],
+    [ "isStreaming", "d7/d9e/classevio_1_1_block_header_v2.html#a9230442e4c274873d76d941137d0bd15", null ],
     [ "nextBufferStartingPosition", "d7/d9e/classevio_1_1_block_header_v2.html#a49914b70191da34a5d975411613a884e", null ],
     [ "setBufferStartingPosition", "d7/d9e/classevio_1_1_block_header_v2.html#ac2bcabda588d79fc31229326cc080270", null ],
     [ "setByteOrder", "d7/d9e/classevio_1_1_block_header_v2.html#a8a08973331be904e798ebb9af87d8203", null ],

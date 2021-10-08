@@ -199,6 +199,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6f65ae4d0740ac3c7fcf29056c15c7ed"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a6f65ae4d0740ac3c7fcf29056c15c7ed">isLastRecord</a> () const</td></tr>
 <tr class="memdesc:a6f65ae4d0740ac3c7fcf29056c15c7ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is this the header of the last record?  <a href="../../d8/d64/classevio_1_1_record_header.html#a6f65ae4d0740ac3c7fcf29056c15c7ed">More...</a><br /></td></tr>
 <tr class="separator:a6f65ae4d0740ac3c7fcf29056c15c7ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b3599d1e2ea7f5387171241550934af"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a0b3599d1e2ea7f5387171241550934af">isStreaming</a> (bool isStreaming)</td></tr>
+<tr class="memdesc:a0b3599d1e2ea7f5387171241550934af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the bit which says record has streaming (not triggered) data.  <a href="../../d8/d64/classevio_1_1_record_header.html#a0b3599d1e2ea7f5387171241550934af">More...</a><br /></td></tr>
+<tr class="separator:a0b3599d1e2ea7f5387171241550934af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a982276c1a1baca8f018aacfbb0502cd0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a982276c1a1baca8f018aacfbb0502cd0">isCompressed</a> () override</td></tr>
 <tr class="memdesc:a982276c1a1baca8f018aacfbb0502cd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this header indicate compressed data?  <a href="../../d8/d64/classevio_1_1_record_header.html#a982276c1a1baca8f018aacfbb0502cd0">More...</a><br /></td></tr>
 <tr class="separator:a982276c1a1baca8f018aacfbb0502cd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -292,6 +295,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a890212c74be79021bf3e3b185cc6505a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a890212c74be79021bf3e3b185cc6505a">hasFirstEvent</a> () override</td></tr>
 <tr class="memdesc:a890212c74be79021bf3e3b185cc6505a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this header have a first event in the user header?  <a href="../../d8/d64/classevio_1_1_record_header.html#a890212c74be79021bf3e3b185cc6505a">More...</a><br /></td></tr>
 <tr class="separator:a890212c74be79021bf3e3b185cc6505a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac05e8688224c659dd8719b722d92977b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ac05e8688224c659dd8719b722d92977b">isStreaming</a> () override</td></tr>
+<tr class="memdesc:ac05e8688224c659dd8719b722d92977b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is the data in this block from a streaming (not triggered) DAQ system?  <a href="../../d8/d64/classevio_1_1_record_header.html#ac05e8688224c659dd8719b722d92977b">More...</a><br /></td></tr>
+<tr class="separator:ac05e8688224c659dd8719b722d92977b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2dcd97069067546c8ea3e2d919b48ce0"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a2dcd97069067546c8ea3e2d919b48ce0">getEventType</a> () override</td></tr>
 <tr class="memdesc:a2dcd97069067546c8ea3e2d919b48ce0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the type of events in record (see values of <a class="el" href="../../d5/d23/classevio_1_1_data_type.html">DataType</a>.  <a href="../../d8/d64/classevio_1_1_record_header.html#a2dcd97069067546c8ea3e2d919b48ce0">More...</a><br /></td></tr>
 <tr class="separator:a2dcd97069067546c8ea3e2d919b48ce0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -361,6 +367,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a0cd0301674740a2924e81fbbd73524c0"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a0cd0301674740a2924e81fbbd73524c0">isLastRecord</a> (uint32_t bitInfo)</td></tr>
 <tr class="memdesc:a0cd0301674740a2924e81fbbd73524c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this word indicate this is the header of the last record?  <a href="../../d8/d64/classevio_1_1_record_header.html#a0cd0301674740a2924e81fbbd73524c0">More...</a><br /></td></tr>
 <tr class="separator:a0cd0301674740a2924e81fbbd73524c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa51971294934a855f370b58cb140c382"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aa51971294934a855f370b58cb140c382">isStreaming</a> (uint32_t bitInfo)</td></tr>
+<tr class="memdesc:aa51971294934a855f370b58cb140c382"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this word indicate that the data in the block is from a streaming (not triggered) DAQ system?  <a href="../../d8/d64/classevio_1_1_record_header.html#aa51971294934a855f370b58cb140c382">More...</a><br /></td></tr>
+<tr class="separator:aa51971294934a855f370b58cb140c382"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ef4098ca6b8d53e88083a817763d98c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a9ef4098ca6b8d53e88083a817763d98c">isEvioTrailer</a> (uint32_t bitInfo)</td></tr>
 <tr class="memdesc:a9ef4098ca6b8d53e88083a817763d98c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this arg indicate its header is an evio trailer?  <a href="../../d8/d64/classevio_1_1_record_header.html#a9ef4098ca6b8d53e88083a817763d98c">More...</a><br /></td></tr>
 <tr class="separator:a9ef4098ca6b8d53e88083a817763d98c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -376,6 +385,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aedd5cd2e0d2d70e8c58bfa14dcb356b6"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aedd5cd2e0d2d70e8c58bfa14dcb356b6">clearLastRecordBit</a> (uint32_t i)</td></tr>
 <tr class="memdesc:aedd5cd2e0d2d70e8c58bfa14dcb356b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the bit in the given arg to indicate it is NOT the last record.  <a href="../../d8/d64/classevio_1_1_record_header.html#aedd5cd2e0d2d70e8c58bfa14dcb356b6">More...</a><br /></td></tr>
 <tr class="separator:aedd5cd2e0d2d70e8c58bfa14dcb356b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86cc6f6e746cab99540be18637fa481b"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a86cc6f6e746cab99540be18637fa481b">clearStreamingBit</a> (uint32_t i)</td></tr>
+<tr class="memdesc:a86cc6f6e746cab99540be18637fa481b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the bit in the given arg to indicate that the data in the block is from a streaming (not triggered) DAQ system.  <a href="../../d8/d64/classevio_1_1_record_header.html#a86cc6f6e746cab99540be18637fa481b">More...</a><br /></td></tr>
+<tr class="separator:a86cc6f6e746cab99540be18637fa481b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad50204c6561532848d91fe9599cad958"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ad50204c6561532848d91fe9599cad958">writeTrailer</a> (uint8_t *array, size_t arrayLen, uint32_t recordNum, const <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> &amp;order, const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; &amp;recordLengths=nullptr)</td></tr>
 <tr class="memdesc:ad50204c6561532848d91fe9599cad958"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given byte array.  <a href="../../d8/d64/classevio_1_1_record_header.html#ad50204c6561532848d91fe9599cad958">More...</a><br /></td></tr>
 <tr class="separator:ad50204c6561532848d91fe9599cad958"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -469,6 +481,9 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:aa79aabcabbbad053f77fb9a43999cc17"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aa79aabcabbbad053f77fb9a43999cc17">DATA_OTHER_BITS</a> = 0x7800</td></tr>
 <tr class="memdesc:aa79aabcabbbad053f77fb9a43999cc17"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in record header for CODA data type, other = 15.  <a href="../../d8/d64/classevio_1_1_record_header.html#aa79aabcabbbad053f77fb9a43999cc17">More...</a><br /></td></tr>
 <tr class="separator:aa79aabcabbbad053f77fb9a43999cc17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa96f205b1a5934408eb214243239d4fd"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aa96f205b1a5934408eb214243239d4fd">EV_STREAMING_BIT</a> = 0x8000</td></tr>
+<tr class="memdesc:aa96f205b1a5934408eb214243239d4fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">16th bit set in bitInfo word in record header means streaming (not triggered) data source.  <a href="../../d8/d64/classevio_1_1_record_header.html#aa96f205b1a5934408eb214243239d4fd">More...</a><br /></td></tr>
+<tr class="separator:aa96f205b1a5934408eb214243239d4fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad19ddc97493261aaf446ac33991987b7"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ad19ddc97493261aaf446ac33991987b7">VERSION_MASK</a> = 0xff</td></tr>
 <tr class="memdesc:ad19ddc97493261aaf446ac33991987b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask to get version number from 6th int in header.  <a href="../../d8/d64/classevio_1_1_record_header.html#ad19ddc97493261aaf446ac33991987b7">More...</a><br /></td></tr>
 <tr class="separator:ad19ddc97493261aaf446ac33991987b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -536,7 +551,8 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
                                      4 = User
                                      5 = Control
                                     15 = Other
-   15-19 = reserved
+   15    = true if data in streaming mode, false if triggered
+   16-19 = reserved
    20-21 = pad 1
    22-23 = pad 2
    24-25 = pad 3
@@ -851,6 +867,41 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>arg with last-record bit cleared </dd></dl>
+
+</div>
+</div>
+<a id="a86cc6f6e746cab99540be18637fa481b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86cc6f6e746cab99540be18637fa481b">&#9670;&nbsp;</a></span>clearStreamingBit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t evio::RecordHeader::clearStreamingBit </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>i</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Clear the bit in the given arg to indicate that the data in the block is from a streaming (not triggered) DAQ system. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">i</td><td>integer in which to clear the streaming bit. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>arg with last-streaming bit cleared. </dd></dl>
 
 </div>
 </div>
@@ -2534,6 +2585,98 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 </div>
 </div>
+<a id="ac05e8688224c659dd8719b722d92977b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac05e8688224c659dd8719b722d92977b">&#9670;&nbsp;</a></span>isStreaming() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool evio::RecordHeader::isStreaming </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Is the data in this block from a streaming (not triggered) DAQ system? </p>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if the data in this block is from a streaming (not triggered) DAQ system, else <code>false</code> </dd></dl>
+
+<p>Implements <a class="el" href="../../d5/d6e/classevio_1_1_i_block_header.html#a7c376062b9c37c1b697ede5e2549e834">evio::IBlockHeader</a>.</p>
+
+</div>
+</div>
+<a id="a0b3599d1e2ea7f5387171241550934af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b3599d1e2ea7f5387171241550934af">&#9670;&nbsp;</a></span>isStreaming() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t evio::RecordHeader::isStreaming </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>isStreaming</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the bit which says record has streaming (not triggered) data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">isStreaming</td><td>true if record has streaming data. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>new bitInfo word. </dd></dl>
+
+</div>
+</div>
+<a id="aa51971294934a855f370b58cb140c382"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa51971294934a855f370b58cb140c382">&#9670;&nbsp;</a></span>isStreaming() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool evio::RecordHeader::isStreaming </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>bitInfo</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Does this word indicate that the data in the block is from a streaming (not triggered) DAQ system? </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bitInfo</td><td>bitInfo word. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if the data in this block is from a streaming (not triggered) DAQ system, else <code>false</code> </dd></dl>
+
+</div>
+</div>
 <a id="ae024fb4c94d944577e44dcec1b16d418"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae024fb4c94d944577e44dcec1b16d418">&#9670;&nbsp;</a></span>main()</h2>
 
@@ -4026,6 +4169,30 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </div><div class="memdoc">
 
 <p>8th bit set in bitInfo word in header means contains dictionary. </p>
+
+</div>
+</div>
+<a id="aa96f205b1a5934408eb214243239d4fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa96f205b1a5934408eb214243239d4fd">&#9670;&nbsp;</a></span>EV_STREAMING_BIT</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t evio::RecordHeader::EV_STREAMING_BIT = 0x8000</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>16th bit set in bitInfo word in record header means streaming (not triggered) data source. </p>
 
 </div>
 </div>

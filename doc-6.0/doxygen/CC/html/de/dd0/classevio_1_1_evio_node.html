@@ -179,6 +179,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abb073b68f16fb2f8bc8d51a39d5fa74b"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#abb073b68f16fb2f8bc8d51a39d5fa74b">getChildCount</a> () const</td></tr>
 <tr class="memdesc:abb073b68f16fb2f8bc8d51a39d5fa74b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number all children that this node contains.  <a href="../../de/dd0/classevio_1_1_evio_node.html#abb073b68f16fb2f8bc8d51a39d5fa74b">More...</a><br /></td></tr>
 <tr class="separator:abb073b68f16fb2f8bc8d51a39d5fa74b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2326a58447c2a170384c7e81d47f23f5"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a2326a58447c2a170384c7e81d47f23f5">getChildCount</a> (int level)</td></tr>
+<tr class="memdesc:a2326a58447c2a170384c7e81d47f23f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of children that this node contains at a single level of the evio tree.  <a href="../../de/dd0/classevio_1_1_evio_node.html#a2326a58447c2a170384c7e81d47f23f5">More...</a><br /></td></tr>
+<tr class="separator:a2326a58447c2a170384c7e81d47f23f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62277033890518669c730a7b41296ec6"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a62277033890518669c730a7b41296ec6">getBuffer</a> ()</td></tr>
 <tr class="memdesc:a62277033890518669c730a7b41296ec6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the object containing the buffer that this node is associated with.  <a href="../../de/dd0/classevio_1_1_evio_node.html#a62277033890518669c730a7b41296ec6">More...</a><br /></td></tr>
 <tr class="separator:a62277033890518669c730a7b41296ec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1163,7 +1166,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="abb073b68f16fb2f8bc8d51a39d5fa74b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abb073b68f16fb2f8bc8d51a39d5fa74b">&#9670;&nbsp;</a></span>getChildCount()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abb073b68f16fb2f8bc8d51a39d5fa74b">&#9670;&nbsp;</a></span>getChildCount() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1180,6 +1183,34 @@ Friends</h2></td></tr>
 <p>Get the number all children that this node contains. </p>
 <p>This is meaningful only if this node has been scanned, otherwise it returns 0.</p>
 <dl class="section return"><dt>Returns</dt><dd>number of children that this node contains; 0 if not scanned </dd></dl>
+
+</div>
+</div>
+<a id="a2326a58447c2a170384c7e81d47f23f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2326a58447c2a170384c7e81d47f23f5">&#9670;&nbsp;</a></span>getChildCount() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t evio::EvioNode::getChildCount </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>level</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the number of children that this node contains at a single level of the evio tree. </p>
+<p>This is meaningful only if this node has been scanned, otherwise it returns 0.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">level</td><td>go down this many levels in evio structure to count children. A level of 0 means immediate children, 1 means grandchildren, etc. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>number of children that this node contains at the given level; 0 if not scanned or level &lt; 0. </dd></dl>
 
 </div>
 </div>

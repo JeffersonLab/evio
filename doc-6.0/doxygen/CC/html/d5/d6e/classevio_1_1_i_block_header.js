@@ -17,6 +17,7 @@ var classevio_1_1_i_block_header =
     [ "hasFirstEvent", "d5/d6e/classevio_1_1_i_block_header.html#a953e010d22af7c17885f8411f559f25e", null ],
     [ "isCompressed", "d5/d6e/classevio_1_1_i_block_header.html#a38f79159ade003b36173dcfb785323f0", null ],
     [ "isLastBlock", "d5/d6e/classevio_1_1_i_block_header.html#ab050cc01445362e75370ee83febb3bdf", null ],
+    [ "isStreaming", "d5/d6e/classevio_1_1_i_block_header.html#a7c376062b9c37c1b697ede5e2549e834", null ],
     [ "nextBufferStartingPosition", "d5/d6e/classevio_1_1_i_block_header.html#aabc390043eb275ffc75c05a393dbd5f4", null ],
     [ "setBufferStartingPosition", "d5/d6e/classevio_1_1_i_block_header.html#a002a72c5150ebcc37d202271881aba3d", null ],
     [ "toString", "d5/d6e/classevio_1_1_i_block_header.html#acb7353227cb5c75302ba2541e6639f64", null ],

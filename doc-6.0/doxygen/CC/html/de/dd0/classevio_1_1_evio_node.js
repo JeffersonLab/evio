@@ -24,6 +24,7 @@ var classevio_1_1_evio_node =
     [ "getByteData", "de/dd0/classevio_1_1_evio_node.html#a6ee5b9b5fd99abf9e72900ef4ef2d1f3", null ],
     [ "getChildAt", "de/dd0/classevio_1_1_evio_node.html#af7549643fc7d60de1b7f831ef5afc90d", null ],
     [ "getChildCount", "de/dd0/classevio_1_1_evio_node.html#abb073b68f16fb2f8bc8d51a39d5fa74b", null ],
+    [ "getChildCount", "de/dd0/classevio_1_1_evio_node.html#a2326a58447c2a170384c7e81d47f23f5", null ],
     [ "getChildNodes", "de/dd0/classevio_1_1_evio_node.html#a92235dbcfd647901ebfa74d40e3bcbf4", null ],
     [ "getDataLength", "de/dd0/classevio_1_1_evio_node.html#a414e25a53928b161f60355f6a8001483", null ],
     [ "getDataPosition", "de/dd0/classevio_1_1_evio_node.html#a674a8858957903872315886e80dc65a1", null ],
