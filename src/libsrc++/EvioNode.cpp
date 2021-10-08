@@ -848,6 +848,36 @@ namespace evio {
 
 
     /**
+    * Get the number of children that this node contains at a single
+    * level of the evio tree.
+    * This is meaningful only if this node has been scanned,
+    * otherwise it returns 0.
+    *
+    * @param level go down this many levels in evio structure to count children.
+    *              A level of 0 means immediate children, 1 means
+    *              grandchildren, etc.
+    * @return number of children that this node contains at the given level;
+    *         0 if not scanned or level &lt; 0.
+    */
+    uint32_t EvioNode::getChildCount(int level) {
+        if (childNodes.empty() || level < 0) {
+            return 0;
+        }
+
+        if (level == 0) {
+            return childNodes.size();
+        }
+
+        int kidCount = 0;
+        for (std::shared_ptr<EvioNode> & n : childNodes) {
+            kidCount += n->getChildCount(level - 1);
+        }
+
+        return kidCount;
+    }
+
+
+    /**
      * Get the object containing the buffer that this node is associated with.
      * @return object containing the buffer that this node is associated with.
      */
