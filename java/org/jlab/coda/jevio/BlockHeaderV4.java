@@ -63,7 +63,7 @@ import java.util.BitSet;
  *   Bit  10    = true if this block is the last block in file or network transmission
  *
  *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
- *                DisentangledPhysics = 3, User = 4, Control = 5, Other = 15).
+ *                DisentangledPhysics = 3, User = 4, Control = 5, Mixed = 6, Other = 15).
  *
  *   Bit 15     = true if next (non-dictionary) event in this block is a "first event" to
  *                be placed at the beginning of each written file and its splits.
