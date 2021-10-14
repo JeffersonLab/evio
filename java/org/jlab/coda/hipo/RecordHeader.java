@@ -77,6 +77,7 @@ import java.util.List;
  *                                      3 = DisentangledPhysics
  *                                      4 = User
  *                                      5 = Control
+ *                                      6 = Mixed
  *                                     15 = Other
  *    15    = true if data in streaming mode, false if triggered
  *    16-19 = reserved
@@ -208,6 +209,8 @@ public class RecordHeader implements IBlockHeader {
     final static int   DATA_USER_BITS    = 0x2000;
     /** 11-14th bits in bitInfo word in record header for CODA data type, control = 5. */
     final static int   DATA_CONTROL_BITS = 0x2800;
+    /** 11-14th bits in bitInfo word in record header for CODA data type, mixed = 6. */
+    final static int   DATA_MIXED_BITS = 0x3000;
     /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
     final static int   DATA_OTHER_BITS   = 0x7800;
 
@@ -948,7 +951,7 @@ public class RecordHeader implements IBlockHeader {
      * Must be called AFTER {@link #setBitInfo(boolean, boolean)} or
      * {@link #setBitInfoWord(int)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
-     *             3=Disentangled, 4=User, 5=Control, 15=Other,
+     *             3=Disentangled, 4=User, 5=Control, 6=Mixed, 15=Other,
      *             else = nothing set).
      * @return new bit info word.
      */
@@ -976,6 +979,10 @@ public class RecordHeader implements IBlockHeader {
                 break;
             case 5:
                 bitInfo |= DATA_CONTROL_BITS;
+                eventType = type;
+                break;
+            case 6:
+                bitInfo |= DATA_MIXED_BITS;
                 eventType = type;
                 break;
             case 15:
