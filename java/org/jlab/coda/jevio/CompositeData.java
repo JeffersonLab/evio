@@ -325,6 +325,80 @@ public final class CompositeData implements Cloneable {
 
 
     /**
+     * Reset the data in this object.
+     * This is designed to use the format, formatTag, dataTag, and dataNum
+     * from the intitial constructor call.
+     *
+     * @param data data in given format
+     *
+     * @throws EvioException data arg = null
+     */
+    public void resetData(CompositeData.Data data)
+            throws EvioException {
+
+        // Check args
+        if (data == null) {
+            throw new EvioException("data arg is null");
+        }
+
+        items = data.dataItems;
+        types = data.dataTypes;
+        NList = data.Nlist;
+        nList = data.nlist;
+        mList = data.mlist;
+
+        EvioTagSegment tagSegment = new EvioTagSegment(tsHeader.getTag(), DataType.CHARSTAR8);
+        try {
+            // Add format string
+            tagSegment.appendStringData(format);
+        }
+        catch (EvioException e) {/* never happen */ }
+
+        // How many bytes do we skip over at the end?
+        dataPadding = data.getPadding();
+
+        // How big is the data in bytes (including padding) ?
+        dataBytes = data.getDataSize();
+
+        // Set data length in bank header (includes 2nd bank header word)
+        bHeader.setLength(1 + dataBytes/4);
+
+        // Length of everything except data (32 bit words)
+        dataOffset = bHeader.getHeaderLength() +
+                     tsHeader.getHeaderLength() +
+                     tsHeader.getLength();
+
+        // Length of everything in bytes
+        int totalByteLen = dataBytes + 4*dataOffset;
+
+        // Create a big enough array to hold everything
+        if (rawBytes.length < totalByteLen) {
+            rawBytes = new byte[totalByteLen];
+        }
+
+        // Create ByteBuffer object around array
+        ByteBuffer allDataBuffer = ByteBuffer.wrap(rawBytes, 0, totalByteLen);
+        allDataBuffer.order(byteOrder);
+
+        // Write tagsegment to buffer
+        tagSegment.write(allDataBuffer);
+
+        // Write bank header to buffer
+        bHeader.write(allDataBuffer);
+
+        // Write data into the dataBuffer
+        dataToRawBytes(allDataBuffer, data, formatInts);
+
+        // Set data buffer for completeness
+        dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
+        dataBuffer.order(byteOrder);
+
+        // How big is the data in bytes (without padding) ?
+        dataBytes -= data.getPadding();
+    }
+
+
+    /**
      * This method parses an array of raw bytes into an array of CompositeData objects.
      *
      * @param rawBytes  array of raw bytes to parse
@@ -574,8 +648,14 @@ public final class CompositeData implements Cloneable {
     /**
      * This class is used to provide all data when constructing a CompositeData object.
      * Doing things this way keeps all internal data members self-consistent.
+     * This class is NOT threadsafe, so only 1 thread should set values unless
+     * protected by the caller.
      */
     public static final class Data  {
+
+        /** Convenient way to calculate padding. */
+        static private int[] pads = {0,3,2,1};
+
 
         /** Keep a running total of how many bytes the data take without padding.
          *  This includes both the dataItems and N values and thus assumes all N
@@ -584,9 +664,6 @@ public final class CompositeData implements Cloneable {
 
         /** The number of bytes needed to complete a 4-byte boundary. */
         private int paddingBytes;
-
-        /** Convenient way to calculate padding. */
-        private int[] pads = {0,3,2,1};
 
         /** List of data objects. */
         private ArrayList<Object> dataItems = new ArrayList<Object>(100);
@@ -620,6 +697,53 @@ public final class CompositeData implements Cloneable {
         /** Constructor. */
         public Data() {}
 
+
+        /** Clear all existing data in this object to prepare for reuse. */
+        public void clear() {
+            dataItems.clear();
+            dataTypes.clear();
+            Nlist.clear();
+            nlist.clear();
+            mlist.clear();
+            dataBytes = paddingBytes = formatTag = dataTag = dataNum = 0;
+        }
+
+        /**
+         * Copy data from another object.
+         * @param dataToCopy object to copy.
+         */
+        public void copy(Data dataToCopy) {
+            dataBytes = dataToCopy.dataBytes;
+            paddingBytes = dataToCopy.paddingBytes;
+            formatTag = dataToCopy.formatTag;
+            dataTag = dataToCopy.dataTag;
+            dataNum = dataToCopy.dataNum;
+
+            dataItems.clear();
+            if (dataToCopy.dataItems.size() > 0) {
+                dataItems.addAll(dataToCopy.dataItems);
+            }
+
+            dataTypes.clear();
+            if (dataToCopy.dataTypes.size() > 0) {
+                dataTypes.addAll(dataToCopy.dataTypes);
+            }
+
+            Nlist.clear();
+            if (dataToCopy.Nlist.size() > 0) {
+                Nlist.addAll(dataToCopy.Nlist);
+            }
+
+            nlist.clear();
+            if (dataToCopy.nlist.size() > 0) {
+                nlist.addAll(dataToCopy.nlist);
+            }
+
+            mlist.clear();
+            if (dataToCopy.mlist.size() > 0) {
+                mlist.addAll(dataToCopy.mlist);
+            }
+        }
 
         /**
          * This method sets the tag in the segment containing the format string.
@@ -684,7 +808,7 @@ public final class CompositeData implements Cloneable {
          * This method gets the raw data size in bytes.
          * @return raw data size in bytes.
          */
-        synchronized public int getDataSize() {
+        public int getDataSize() {
             return (dataBytes + paddingBytes);
         }
 
@@ -692,7 +816,7 @@ public final class CompositeData implements Cloneable {
          * This method gets the padding (in bytes).
          * @return padding (in bytes).
          */
-        synchronized public int getPadding() {
+        public int getPadding() {
             return paddingBytes;
         }
 
@@ -701,7 +825,7 @@ public final class CompositeData implements Cloneable {
          * It needs to be added in sequence with other data.
          * @param N  N or multiplier value
          */
-        synchronized public void addN(int N) {
+        public void addN(int N) {
             Nlist.add(N);
             dataItems.add(N);
             dataTypes.add(DataType.INT32);
@@ -713,7 +837,7 @@ public final class CompositeData implements Cloneable {
          * It needs to be added in sequence with other data.
          * @param n  n or multiplier value
          */
-        synchronized public void addn(short n) {
+        public void addn(short n) {
             nlist.add(n);
             dataItems.add(n);
             dataTypes.add(DataType.SHORT16);
@@ -725,7 +849,7 @@ public final class CompositeData implements Cloneable {
          * It needs to be added in sequence with other data.
          * @param m  m or multiplier value
          */
-        synchronized public void addm(byte m) {
+        public void addm(byte m) {
             mlist.add(m);
             dataItems.add(m);
             dataTypes.add(DataType.CHAR8);
@@ -736,7 +860,7 @@ public final class CompositeData implements Cloneable {
          * Add a signed 32 bit integer to the data.
          * @param i integer to add.
          */
-        synchronized public void addInt(int i) {
+        public void addInt(int i) {
             dataItems.add(i);
             dataTypes.add(DataType.INT32);
             addBytesToData(4);
@@ -746,7 +870,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of signed 32 bit integers to the data.
          * @param i array of integers to add.
          */
-        synchronized public void addInt(int[] i) {
+        public void addInt(int[] i) {
             for (int ii : i) {
                 dataItems.add(ii);
                 dataTypes.add(DataType.INT32);
@@ -760,7 +884,7 @@ public final class CompositeData implements Cloneable {
          * responsibility of the user to handle this type properly.
          * @param i unsigned integer to add.
          */
-        synchronized public void addUint(int i) {
+        public void addUint(int i) {
             dataItems.add(i);
             dataTypes.add(DataType.UINT32);
             addBytesToData(4);
@@ -772,7 +896,7 @@ public final class CompositeData implements Cloneable {
          * responsibility of the user to handle this type properly.
          * @param i array of unsigned integers to add.
          */
-        synchronized public void addUint(int[] i) {
+        public void addUint(int[] i) {
             for (int ii : i) {
                 dataItems.add(ii);
                 dataTypes.add(DataType.UINT32);
@@ -786,7 +910,7 @@ public final class CompositeData implements Cloneable {
          * Add a 16 bit short to the data.
          * @param s short to add.
          */
-        synchronized public void addShort(short s) {
+        public void addShort(short s) {
             dataItems.add(s);
             dataTypes.add(DataType.SHORT16);
             addBytesToData(2);
@@ -796,7 +920,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of 16 bit shorts to the data.
          * @param s array of shorts to add.
          */
-        synchronized public void addShort(short[] s) {
+        public void addShort(short[] s) {
             for (short ss : s) {
                 dataItems.add(ss);
                 dataTypes.add(DataType.SHORT16);
@@ -808,7 +932,7 @@ public final class CompositeData implements Cloneable {
          * Add an unsigned 16 bit short to the data.
          * @param s unsigned short to add.
          */
-        synchronized public void addUshort(short s) {
+        public void addUshort(short s) {
             dataItems.add(s);
             dataTypes.add(DataType.USHORT16);
             addBytesToData(2);
@@ -818,7 +942,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of unsigned 16 bit shorts to the data.
          * @param s array of unsigned shorts to add.
          */
-        synchronized public void addUshort(short[] s) {
+        public void addUshort(short[] s) {
             for (short ss : s) {
                 dataItems.add(ss);
                 dataTypes.add(DataType.USHORT16);
@@ -832,7 +956,7 @@ public final class CompositeData implements Cloneable {
          * Add a 64 bit long to the data.
          * @param l long to add.
          */
-        synchronized public void addLong(long l) {
+        public void addLong(long l) {
             dataItems.add(l);
             dataTypes.add(DataType.LONG64);
             addBytesToData(8);
@@ -842,7 +966,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of 64 bit longs to the data.
          * @param l array of longs to add.
          */
-        synchronized public void addLong(long[] l) {
+        public void addLong(long[] l) {
             for (long ll : l) {
                 dataItems.add(ll);
                 dataTypes.add(DataType.LONG64);
@@ -854,7 +978,7 @@ public final class CompositeData implements Cloneable {
          * Add an unsigned 64 bit long to the data.
          * @param l unsigned long to add.
          */
-        synchronized public void addUlong(long l) {
+        public void addUlong(long l) {
             dataItems.add(l);
             dataTypes.add(DataType.ULONG64);
             addBytesToData(8);
@@ -864,7 +988,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of unsigned 64 bit longs to the data.
          * @param l array of unsigned longs to add.
          */
-        synchronized public void addUlong(long[] l) {
+        public void addUlong(long[] l) {
             for (long ll : l) {
                 dataItems.add(ll);
                 dataTypes.add(DataType.ULONG64);
@@ -878,7 +1002,7 @@ public final class CompositeData implements Cloneable {
          * Add an 8 bit byte (char) to the data.
          * @param b byte to add.
          */
-        synchronized public void addChar(byte b) {
+        public void addChar(byte b) {
             dataItems.add(b);
             dataTypes.add(DataType.CHAR8);
             addBytesToData(1);
@@ -888,7 +1012,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of 8 bit bytes (chars) to the data.
          * @param b array of bytes to add.
          */
-        synchronized public void addChar(byte[] b) {
+        public void addChar(byte[] b) {
             for (byte bb : b) {
                 dataItems.add(bb);
                 dataTypes.add(DataType.CHAR8);
@@ -900,7 +1024,7 @@ public final class CompositeData implements Cloneable {
          * Add an unsigned 8 bit byte (uchar) to the data.
          * @param b unsigned byte to add.
          */
-        synchronized public void addUchar(byte b) {
+        public void addUchar(byte b) {
             dataItems.add(b);
             dataTypes.add(DataType.UCHAR8);
             addBytesToData(1);
@@ -910,7 +1034,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of unsigned 8 bit bytes (uchars) to the data.
          * @param b array of unsigned bytes to add.
          */
-        synchronized public void addUchar(byte[] b) {
+        public void addUchar(byte[] b) {
             for (byte bb : b) {
                 dataItems.add(bb);
                 dataTypes.add(DataType.UCHAR8);
@@ -924,7 +1048,7 @@ public final class CompositeData implements Cloneable {
          * Add a 32 bit float to the data.
          * @param f float to add.
          */
-        synchronized public void addFloat(float f) {
+        public void addFloat(float f) {
             dataItems.add(f);
             dataTypes.add(DataType.FLOAT32);
             addBytesToData(4);
@@ -934,7 +1058,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of 32 bit floats to the data.
          * @param f array of floats to add.
          */
-        synchronized public void addFloat(float[] f) {
+        public void addFloat(float[] f) {
             for (float ff : f) {
                 dataItems.add(ff);
                 dataTypes.add(DataType.FLOAT32);
@@ -948,7 +1072,7 @@ public final class CompositeData implements Cloneable {
          * Add a 64 bit double to the data.
          * @param d double to add.
          */
-        synchronized public void addDouble(double d) {
+        public void addDouble(double d) {
             dataItems.add(d);
             dataTypes.add(DataType.DOUBLE64);
             addBytesToData(8);
@@ -958,7 +1082,7 @@ public final class CompositeData implements Cloneable {
           * Add an array of 64 bit doubles to the data.
           * @param d array of doubles to add.
           */
-        synchronized public void addDouble(double[] d) {
+        public void addDouble(double[] d) {
             for (double dd : d) {
                 dataItems.add(dd);
                 dataTypes.add(DataType.DOUBLE64);
@@ -972,7 +1096,7 @@ public final class CompositeData implements Cloneable {
          * Add a string to the data.
          * @param s string to add.
          */
-        synchronized public void addString(String s) {
+        public void addString(String s) {
             String[] ss = new String[] {s};
             dataItems.add(ss);
             dataTypes.add(DataType.CHARSTAR8);
@@ -983,7 +1107,7 @@ public final class CompositeData implements Cloneable {
          * Add an array of strings to the data.
          * @param s array of strings to add.
          */
-        synchronized public void addString(String[] s) {
+        public void addString(String[] s) {
             dataItems.add(s);
             dataTypes.add(DataType.CHARSTAR8);
             addBytesToData(BaseStructure.stringsToRawSize(s));

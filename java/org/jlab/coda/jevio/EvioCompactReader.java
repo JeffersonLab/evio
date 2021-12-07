@@ -1891,7 +1891,9 @@ System.out.println("     readFirstHeader: unsupported evio version (" + evioVers
 	 * This only sets the position to its initial value.
 	 */
     public synchronized void close() {
-        byteBuffer.position(initialPosition);
+        //byteBuffer.position(initialPosition);
+        byteBuffer = null;
+        mappedByteBuffer = null;
         closed = true;
 	}
 

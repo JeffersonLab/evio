@@ -183,9 +183,11 @@ public final class CompactEventBuilder {
 
 
     /**
-     * This is the constructor to use for building a new event
+     * <p>This is the constructor to use for building a new event
      * (just the event in a buffer, not the full evio file format)
-     * with a user-given buffer.
+     * with a user-given buffer.</p>
+     * <b>NOTE: it is assumed that if the given buffer is backed by a byte array,
+     * the offset of that array (given by buffer.arrayOffset()) is ZERO!</b>
      *
      * @param buffer the byte buffer to write into.
      *
@@ -199,9 +201,11 @@ public final class CompactEventBuilder {
 
 
     /**
-     * This is the constructor to use for building a new event
+     * <p>This is the constructor to use for building a new event
      * (just the event in a buffer, not the full evio file format)
-     * with a user-given buffer.
+     * with a user-given buffer.</p>
+     * <b>NOTE: it is assumed that if the given buffer is backed by a byte array,
+     * the offset of that array (given by buffer.arrayOffset()) is ZERO!</b>
      *
      * @param buffer the byte buffer to write into.
      * @param generateNodes generate and store an EvioNode object
@@ -230,6 +234,8 @@ public final class CompactEventBuilder {
 
     /**
      * Set the buffer to be written into.
+     * <b>NOTE: it is assumed that if the given buffer is backed by a byte array,
+     * the offset of that array (given by buffer.arrayOffset()) is ZERO!</b>
      * @param buffer buffer to be written into.
      * @throws EvioException if arg is null;
      *                       if buffer is too small
@@ -241,6 +247,8 @@ public final class CompactEventBuilder {
 
     /**
      * Set the buffer to be written into.
+     * <b>NOTE: it is assumed that if the given buffer is backed by a byte array,
+     * the offset of that array (given by buffer.arrayOffset()) is ZERO!</b>
      * @param buffer buffer to be written into.
      * @param generateNodes generate and store an EvioNode object
      *                      for each evio structure created.
@@ -263,6 +271,8 @@ public final class CompactEventBuilder {
      * stackArray and totalLengths arrays and do NOT refill
      * stackArray with objects. This avoid unnecessary garbage
      * generation.
+     * <b>NOTE: it is assumed that if the given buffer is backed by a byte array,
+     * the offset of that array (given by buffer.arrayOffset()) is ZERO!</b>
      *
      * @param buffer buffer to be written into.
      * @param generateNodes generate and store an EvioNode object
@@ -321,6 +331,28 @@ public final class CompactEventBuilder {
      * @return total number of bytes written into the buffer.
      */
     public int getTotalBytes() {return position;}
+
+
+    /** Reset all members for reuse of this object. */
+    public void reset() {
+        position = 0;
+        currentLevel = -1;
+        currentStructure = null;
+
+        buffer.clear();
+
+        if (nodes != null) {
+            nodes.clear();
+        }
+
+        if (array != null) {
+            Arrays.fill(array, (byte)0);
+        }
+
+        if (totalLengths != null) {
+            Arrays.fill(totalLengths, 0);
+        }
+    }
 
 
     /**
