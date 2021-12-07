@@ -325,6 +325,80 @@ public final class CompositeData implements Cloneable {
 
 
     /**
+     * Reset the data in this object.
+     * This is designed to use the format, formatTag, dataTag, and dataNum
+     * from the intitial constructor call.
+     *
+     * @param data data in given format
+     *
+     * @throws EvioException data arg = null;
+     */
+    public void resetData(CompositeData.Data data)
+            throws EvioException {
+
+        // Check args
+        if (data == null) {
+            throw new EvioException("data arg is null");
+        }
+
+        items = data.dataItems;
+        types = data.dataTypes;
+        NList = data.Nlist;
+        nList = data.nlist;
+        mList = data.mlist;
+
+        EvioTagSegment tagSegment = new EvioTagSegment(tsHeader.getTag(), DataType.CHARSTAR8);
+        try {
+            // Add format string
+            tagSegment.appendStringData(format);
+        }
+        catch (EvioException e) {/* never happen */ }
+
+        // How many bytes do we skip over at the end?
+        dataPadding = data.getPadding();
+
+        // How big is the data in bytes (including padding) ?
+        dataBytes = data.getDataSize();
+
+        // Set data length in bank header (includes 2nd bank header word)
+        bHeader.setLength(1 + dataBytes/4);
+
+        // Length of everything except data (32 bit words)
+        dataOffset = bHeader.getHeaderLength() +
+                tsHeader.getHeaderLength() +
+                tsHeader.getLength();
+
+        // Length of everything in bytes
+        int totalByteLen = dataBytes + 4*dataOffset;
+
+        // Create a big enough array to hold everything
+        if (rawBytes.length < totalByteLen) {
+            rawBytes = new byte[totalByteLen];
+        }
+
+        // Create ByteBuffer object around array
+        ByteBuffer allDataBuffer = ByteBuffer.wrap(rawBytes, 0, totalByteLen);
+        allDataBuffer.order(byteOrder);
+
+        // Write tagsegment to buffer
+        tagSegment.write(allDataBuffer);
+
+        // Write bank header to buffer
+        bHeader.write(allDataBuffer);
+
+        // Write data into the dataBuffer
+        dataToRawBytes(allDataBuffer, data, formatInts);
+
+        // Set data buffer for completeness
+        dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
+        dataBuffer.order(byteOrder);
+
+        // How big is the data in bytes (without padding) ?
+        dataBytes -= data.getPadding();
+    }
+
+
+    /**
      * This method parses an array of raw bytes into an array of CompositeData objects.
      *
      * @param rawBytes  array of raw bytes to parse
@@ -577,6 +651,10 @@ public final class CompositeData implements Cloneable {
      */
     public static final class Data  {
 
+        /** Convenient way to calculate padding. */
+        static private int[] pads = {0,3,2,1};
+
+
         /** Keep a running total of how many bytes the data take without padding.
          *  This includes both the dataItems and N values and thus assumes all N
          *  values will be written. */
@@ -584,9 +662,6 @@ public final class CompositeData implements Cloneable {
 
         /** The number of bytes needed to complete a 4-byte boundary. */
         private int paddingBytes;
-
-        /** Convenient way to calculate padding. */
-        private int[] pads = {0,3,2,1};
 
         /** List of data objects. */
         private ArrayList<Object> dataItems = new ArrayList<Object>(100);
@@ -620,6 +695,53 @@ public final class CompositeData implements Cloneable {
         /** Constructor. */
         public Data() {}
 
+
+        /** Clear all existing data in this object to prepare for reuse. */
+        public void clear() {
+            dataItems.clear();
+            dataTypes.clear();
+            Nlist.clear();
+            nlist.clear();
+            mlist.clear();
+            dataBytes = paddingBytes = formatTag = dataTag = dataNum = 0;
+        }
+
+        /**
+         * Copy data from another object.
+         * @param dataToCopy object to copy.
+         */
+        public void copy(Data dataToCopy) {
+            dataBytes = dataToCopy.dataBytes;
+            paddingBytes = dataToCopy.paddingBytes;
+            formatTag = dataToCopy.formatTag;
+            dataTag = dataToCopy.dataTag;
+            dataNum = dataToCopy.dataNum;
+
+            dataItems.clear();
+            if (dataToCopy.dataItems.size() > 0) {
+                dataItems.addAll(dataToCopy.dataItems);
+            }
+
+            dataTypes.clear();
+            if (dataToCopy.dataTypes.size() > 0) {
+                dataTypes.addAll(dataToCopy.dataTypes);
+            }
+
+            Nlist.clear();
+            if (dataToCopy.Nlist.size() > 0) {
+                Nlist.addAll(dataToCopy.Nlist);
+            }
+
+            nlist.clear();
+            if (dataToCopy.nlist.size() > 0) {
+                nlist.addAll(dataToCopy.nlist);
+            }
+
+            mlist.clear();
+            if (dataToCopy.mlist.size() > 0) {
+                mlist.addAll(dataToCopy.mlist);
+            }
+        }
 
         /**
          * This method sets the tag in the segment containing the format string.

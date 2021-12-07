@@ -1683,6 +1683,45 @@ public class ByteDataTransformer {
         }
     }
 
+
+    /**
+     * Turn byte array into an long array.
+     *
+     * @param data byte array to convert
+     * @param dataOffset offset into data array.
+     * @param dataLen    number of bytes to convert.
+     * @param byteOrder byte order of supplied bytes (big endian if null)
+     * @param dest array in which to write converted bytes
+     * @param destOffset offset into dest array
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
+     */
+    public static void toLongArray(byte[] data, int dataOffset, int dataLen,
+                                   ByteOrder byteOrder, long[] dest, int destOffset)
+            throws EvioException {
+
+        if (data == null ||
+                dataOffset < 0 || dataOffset > data.length - 1 ||
+                dataLen < 0 || dataLen > (data.length - dataOffset) ||
+                dest == null ||
+                8*(dest.length - destOffset) < dataLen ||
+                destOffset < 0) {
+            throw new EvioException("bad arg");
+        }
+
+        for (int i = 0; i < data.length-7; i+=8) {
+            dest[i/8+destOffset] = toLong(data[i + dataOffset],
+                    data[i + 1 + dataOffset],
+                    data[i + 2 + dataOffset],
+                    data[i + 3 + dataOffset],
+                    data[i + 4 + dataOffset],
+                    data[i + 5 + dataOffset],
+                    data[i + 6 + dataOffset],
+                    data[i + 7 + dataOffset],
+                    byteOrder);
+        }
+    }
+
+
     // =========================
 
     /**
