@@ -1097,17 +1097,18 @@ namespace evio {
 
 
     /**
-      * Writes a trailer with an optional index array into the given byte array.
-      *
-      * @param array         byte array to write trailer into.
-      * @param arrayLen      number of available bytes in array to write into.
-      * @param recordNum     record number of trailer.
-      * @param order         byte order of data to be written.
-      * @param recordLengths vector containing record lengths interspersed with event counts
-      *                      to be written to trailer. Null if no index array.
-      * @throws EvioException if array arg is null, array too small to hold trailer + index.
-      */
-    void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen,
+     * Writes a trailer with an optional index array into the given byte array.
+     *
+     * @param array         byte array to write trailer into.
+     * @param arrayLen      number of available bytes in array to write into.
+     * @param recordNum     record number of trailer.
+     * @param order         byte order of data to be written.
+     * @param recordLengths vector containing record lengths interspersed with event counts
+     *                      to be written to trailer. Null if no index array.
+     * @return trailer bytes written into array.
+     * @throws EvioException if array arg is null, array too small to hold trailer + index.
+     */
+    int RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen,
                                     uint32_t recordNum, const ByteOrder & order,
                                     const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
 
@@ -1149,6 +1150,7 @@ namespace evio {
             }
         }
         catch (EvioException & e) {/* never happen */}
+        return wholeLen;
     }
 
 
@@ -1161,8 +1163,9 @@ namespace evio {
      * @param order         byte order of data to be written.
      * @param recordLengths vector containing record lengths interspersed with event counts
      *                      to be written to trailer. Null if no index array.
+     * @return trailer bytes written into array.
      */
-    void RecordHeader::writeTrailer(std::vector<uint8_t> & array, size_t off,
+    int RecordHeader::writeTrailer(std::vector<uint8_t> & array, size_t off,
                                     uint32_t recordNum, const ByteOrder & order,
                                     const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
 
@@ -1201,6 +1204,7 @@ namespace evio {
             }
         }
         catch (EvioException & e) {/* never happen */}
+        return wholeLen;
     }
 
 
@@ -1212,9 +1216,10 @@ namespace evio {
      * @param recordNum record number of trailer.
      * @param recordLengths vector containing record lengths interspersed with event counts
      *                      to be written to trailer. Null if no index array.
+     * @return trailer bytes written into array.
      * @throws EvioException if buf too small to hold trailer + index.
      */
-    void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
+    int RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
                                     const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
 
         uint32_t indexLen = 0;
@@ -1223,6 +1228,7 @@ namespace evio {
             indexLen = 4*recordLengths->size();
             wholeLen += indexLen;
         }
+        size_t origPos = buf.position();
 
         // Check arg
         if (buf.capacity() < wholeLen + off) {
@@ -1261,23 +1267,25 @@ namespace evio {
                 }
             }
 
-            buf.limit(off + wholeLen).position(off);
+            buf.limit(off + wholeLen).position(origPos);
         }
+        return wholeLen;
     }
 
 
     /**
-    * Writes a trailer with an optional index array into the given buffer.
-    * @param buf   ByteBuffer to write trailer into.
-    * @param off   offset into buffer to start writing.
-    * @param recordNum record number of trailer.
-    * @param recordLengths vector containing record lengths interspersed with event counts
-    *                      to be written to trailer. Null if no index array.
-    * @throws EvioException if buf too small to hold trailer + index.
-    */
-    void RecordHeader::writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
+     * Writes a trailer with an optional index array into the given buffer.
+     * @param buf   ByteBuffer to write trailer into.
+     * @param off   offset into buffer to start writing.
+     * @param recordNum record number of trailer.
+     * @param recordLengths vector containing record lengths interspersed with event counts
+     *                      to be written to trailer. Null if no index array.
+     * @return trailer bytes written into array.
+     * @throws EvioException if buf too small to hold trailer + index.
+     */
+    int RecordHeader::writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
                                     const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
-        writeTrailer(*(buf.get()), off, recordNum, recordLengths);
+        return writeTrailer(*(buf.get()), off, recordNum, recordLengths);
     }
 
 

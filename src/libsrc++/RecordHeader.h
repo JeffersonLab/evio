@@ -91,6 +91,7 @@ namespace evio {
      *                                      3 = DisentangledPhysics
      *                                      4 = User
      *                                      5 = Control
+ *                                          6 = Mixed
      *                                     15 = Other
      *    15    = true if data in streaming mode, false if triggered
      *    16-19 = reserved
@@ -227,8 +228,10 @@ namespace evio {
 
         /** 8th bit set in bitInfo word in header means contains dictionary. */
         static const uint32_t   DICTIONARY_BIT = 0x100;
-        /** 9th bit set in bitInfo word in header means is last in stream or file. */
-        static const uint32_t   LAST_RECORD_BIT = 0x200;
+        /** 9th bit set in bitInfo word in header means contains first event. */
+        static const uint32_t   FIRSTEVENT_BIT  = 0x200;
+        /** 10th bit set in bitInfo word in header means is last in stream or file. */
+        static const uint32_t   LAST_RECORD_BIT = 0x400;
 
         /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
         static const uint32_t   DATA_ROC_RAW_BITS = 0x000;
@@ -456,19 +459,19 @@ namespace evio {
         void writeHeader(uint8_t *array, const ByteOrder & order);
 
 
-        static void writeTrailer(uint8_t* array, size_t arrayLen,
-                                 uint32_t recordNum, const ByteOrder & order,
-                                 const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+        static int writeTrailer(uint8_t* array, size_t arrayLen,
+                                uint32_t recordNum, const ByteOrder & order,
+                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
 
-        static void writeTrailer(std::vector<uint8_t> & array, size_t off,
-                                 uint32_t recordNum, const ByteOrder & order,
-                                 const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+        static int writeTrailer(std::vector<uint8_t> & array, size_t off,
+                                uint32_t recordNum, const ByteOrder & order,
+                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
 
-        static void writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
-                                 const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+        static int writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
+                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
 
-        static void writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
-                                 const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+        static int writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
+                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
 
 
         static bool isCompressed(ByteBuffer & buffer, size_t offset);
