@@ -191,11 +191,13 @@ public class RecordHeader implements IBlockHeader {
     public final static int   REGISTER2_OFFSET = 48;
 
     // Bits in bit info word
-    
+
     /** 8th bit set in bitInfo word in header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
-    /** 9th bit set in bitInfo word in header means is last in stream or file. */
-    final static int   LAST_RECORD_BIT = 0x200;
+    /** 9th bit set in bitInfo word in header means contains first event. */
+    final static int   FIRSTEVENT_BIT = 0x200;
+    /** 10th bit set in bitInfo word in header means is last in stream or file. */
+    final static int   LAST_RECORD_BIT = 0x400;
 
     /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
     final static int   DATA_ROC_RAW_BITS = 0x000;
@@ -1199,11 +1201,12 @@ public class RecordHeader implements IBlockHeader {
      * @param array byte array to write trailer into.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
+     * @return trailer bytes written into array.
      * @throws HipoException if array arg is null or too small to hold trailer
      */
-    static public void writeTrailer(byte[] array, int recordNumber, ByteOrder order)
+    static public int writeTrailer(byte[] array, int recordNumber, ByteOrder order)
             throws HipoException {
-        writeTrailer(array, 0, recordNumber, order, null);
+        return writeTrailer(array, 0, recordNumber, order, null);
     }
 
     /**
@@ -1214,9 +1217,10 @@ public class RecordHeader implements IBlockHeader {
      * @param order byte order of data to be written.
      * @param index list of record lengths interspersed with event counts
      *              to be written to trailer. Null if no index list.
+     * @return trailer bytes written into array.
      * @throws HipoException if array arg is null, array too small to hold trailer + index.
      */
-    static public void writeTrailer(byte[] array, int off, int recordNumber,
+    static public int writeTrailer(byte[] array, int off, int recordNumber,
                                     ByteOrder order, List<Integer> index)
             throws HipoException {
 
@@ -1257,6 +1261,7 @@ public class RecordHeader implements IBlockHeader {
             }
         }
         catch (EvioException e) {/* never happen */}
+        return wholeLength;
     }
 
 
@@ -1268,9 +1273,10 @@ public class RecordHeader implements IBlockHeader {
      * @param recordNumber record number of trailer.
      * @param index list of record lengths interspersed with event counts
      *              to be written to trailer. Null if no index list.
+     * @return trailer bytes written into array.
      * @throws HipoException if buf arg is null, buf too small to hold trailer + index.
      */
-    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
+    static public int writeTrailer(ByteBuffer buf, int off, int recordNumber,
                                     List<Integer> index)
             throws HipoException {
 
@@ -1280,6 +1286,7 @@ public class RecordHeader implements IBlockHeader {
             indexLength = 4*index.size();
             wholeLength += indexLength;
         }
+        int origPos = buf.position();
 
         // Check arg
         if (buf == null || (buf.capacity() < wholeLength + off)) {
@@ -1290,9 +1297,12 @@ public class RecordHeader implements IBlockHeader {
         buf.limit(off + wholeLength).position(off);
 
         if (buf.hasArray()) {
+//System.out.println("writeTrailer buf: WITH backing array");
             writeTrailer(buf.array(), buf.arrayOffset() + off, recordNumber, buf.order(), index);
         }
         else {
+//System.out.println("writeTrailer buf: no backing array");
+
             int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
 
             // First the general header part
@@ -1319,8 +1329,11 @@ public class RecordHeader implements IBlockHeader {
             }
 
             // Set buf to read
-            buf.limit(off + wholeLength).position(off);
+            buf.limit(off + wholeLength).position(origPos);
+//System.out.println("writeTrailer buf: set lim to " + (off + wholeLength) + ", set pos = "+ origPos);
         }
+
+        return wholeLength;
     }
 
 
@@ -1328,11 +1341,12 @@ public class RecordHeader implements IBlockHeader {
      * Writes an empty trailer into the given buffer.
      * @param buf   ByteBuffer to write trailer into.
      * @param recordNumber record number of trailer.
+     * @return trailer bytes written into array.
      * @throws HipoException if buf arg is null or too small to hold trailer
      */
-    static public void writeTrailer(ByteBuffer buf, int recordNumber)
+    static public int writeTrailer(ByteBuffer buf, int recordNumber)
             throws HipoException {
-        writeTrailer(buf, 0, recordNumber, null);
+        return writeTrailer(buf, 0, recordNumber, null);
     }
 
 
