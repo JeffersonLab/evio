@@ -463,6 +463,8 @@ namespace evio {
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
      * The buffer's position is set to 0 before writing.
+     * Any dictionary will be put in a commonRecord and that record will be
+     * placed in the user header associated with the single record.
      *
      * @param buf             the buffer to write to starting at position = 0.
      * @param maxRecordSize   max number of data bytes each record can hold.
@@ -832,7 +834,8 @@ namespace evio {
     uint32_t EventWriter::getEventsWritten() const {
         //std::cout << "getEventsWritten: eventsWrittenTotal = " << eventsWrittenTotal <<
         //        ", curRec.getEvCount = " << currentRecord->getEventCount() << std::endl;
-        return eventsWrittenTotal + currentRecord->getEventCount();
+        //return eventsWrittenTotal + currentRecord->getEventCount();
+        return eventsWrittenTotal;
     }
 
 
