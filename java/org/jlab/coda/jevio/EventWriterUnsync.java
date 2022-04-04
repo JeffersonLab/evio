@@ -1323,6 +1323,9 @@ final public class EventWriterUnsync implements AutoCloseable {
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
      * The buffer's position is set to 0 before writing.
+     * When writing a buffer, only 1 record is used.
+     * Any dictionary will be put in a commonRecord and that record will be
+     * placed in the user header associated with the single record.
      *
      * @param buf             the buffer to write to starting at position = 0.
      * @param maxRecordSize   max number of data bytes each record can hold.
@@ -1677,7 +1680,8 @@ final public class EventWriterUnsync implements AutoCloseable {
     public int getEventsWritten() {
 //        System.out.println("getEventsWritten: eventsWrittenTotal = " + eventsWrittenTotal +
 //                ", curRec.getEvCount = " + currentRecord.getEventCount());
-        return eventsWrittenTotal + currentRecord.getEventCount();
+//        return eventsWrittenTotal + currentRecord.getEventCount();
+        return eventsWrittenTotal;
     }
 
 
@@ -2087,6 +2091,7 @@ final public class EventWriterUnsync implements AutoCloseable {
             flushCurrentRecordToBuffer();
             // Write empty last header
             try {
+// System.out.println("EventWriterUnsync: writing trailer to buffer");
                 writeTrailerToBuffer(addTrailerIndex);
             }
             catch (EvioException e) {
@@ -4186,6 +4191,9 @@ final public class EventWriterUnsync implements AutoCloseable {
      */
     private void writeTrailerToBuffer(boolean writeIndex) throws EvioException {
 
+//System.out.println("writeTrailerToBuffer: internal buf, lim = " + buffer.limit() +
+//                ", pos = " + buffer.position());
+
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             // Make sure buffer can hold a trailer
@@ -4194,8 +4202,14 @@ final public class EventWriterUnsync implements AutoCloseable {
             }
 
             try {
-                RecordHeader.writeTrailer(buffer, (int)bytesWritten,
-                                          recordNumber, recordLengths);
+//int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + 4*recordLengths.size();
+//System.out.println("writeTrailerToBuffer: bytesToWrite = " + bytesToWrite + ", record index len = " + recordLengths.size());
+//System.out.println("writeTrailerToBuffer: bytesWritten = " + (int)bytesWritten);
+//System.out.println("writeTrailerToBuffer: write trailer without index, buf limit so far = " + buffer.limit());
+                int bytes = RecordHeader.writeTrailer(buffer, (int)bytesWritten,
+                                                      recordNumber, recordLengths);
+                bytesWritten += bytes;
+                buffer.limit((int)bytesWritten);
             }
             catch (HipoException e) {/* never happen */}
         }
@@ -4204,7 +4218,7 @@ final public class EventWriterUnsync implements AutoCloseable {
 
             // How many bytes are we writing here?
             int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + 4*recordLengths.size();
-//System.out.println("writeTrailerToBuffer: bytesToWrite = " + bytesToWrite + ", record index len = " + recordIndex.length);
+//System.out.println("writeTrailerToBuffer: bytesToWrite = " + bytesToWrite + ", record index len = " + recordLengths.size());
 
             // Make sure our buffer can hold everything
             if ((buffer.capacity() - (int) bytesWritten) < bytesToWrite) {
@@ -4214,8 +4228,10 @@ final public class EventWriterUnsync implements AutoCloseable {
             try {
                 // Place data into buffer - both header and index
 //System.out.println("writeTrailerToBuffer: start writing at pos = " + bytesWritten);
-                RecordHeader.writeTrailer(buffer, (int) bytesWritten,
-                                          recordNumber, recordLengths);
+                int bytes = RecordHeader.writeTrailer(buffer, (int) bytesWritten,
+                                                      recordNumber, recordLengths);
+                bytesWritten += bytes;
+                buffer.limit((int)bytesWritten);
             }
             catch (HipoException e) {/* never happen */}
         }

@@ -1630,7 +1630,8 @@ System.out.println("EventWriter contr: Disk is FULL");
      * @return number of events written to a file/buffer.
      */
     public int getEventsWritten() {
-        return eventsWrittenTotal + currentRecord.getEventCount();
+        //return eventsWrittenTotal + currentRecord.getEventCount();
+        return eventsWrittenTotal;
     }
 
 
