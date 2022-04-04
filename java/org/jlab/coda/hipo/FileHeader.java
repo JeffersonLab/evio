@@ -50,7 +50,7 @@ import java.nio.ByteOrder;
  *   Bit Info Word
  * -------------------
  *     0-7  = version
- *     8    = true if dictionary is included (relevant for first record only)
+ *     8    = true if dictionary is included
  *     9    = true if this file has "first" event (in every split file)
  *    10    = File trailer with index array of record lengths exists
  *    11-19 = reserved
@@ -115,7 +115,7 @@ public class FileHeader implements Cloneable {
 
     // Bits in bit info word
 
-    /** 8th bit set in bitInfo word in record/file header means contains dictionary. */
+    /** 8th bit set in bitInfo word in file header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
     /** 9th bit set in bitInfo word in file header means every split file has same first event. */
     final static int   FIRST_EVENT_BIT = 0x200;
