@@ -12,6 +12,7 @@ cmake-*
 cmake_install.cmake
 coda.pyc
 build/
+jbuild/
 doxyerrors.log
 /target/
 doc/javadoc
