@@ -660,52 +660,6 @@ namespace evio {
 
 
     /**
-     * Set the bit which says record has streaming (not triggered) data.
-     * @param isStreaming  true if record has streaming data.
-     * @return new bitInfo word.
-     */
-    uint32_t RecordHeader::isStreaming(bool isStreaming) {
-        if (isStreaming) {
-            // set bit
-            bitInfo |= EV_STREAMING_BIT;
-        }
-        else {
-            // clear bit
-            bitInfo &= ~EV_STREAMING_BIT;
-        }
-
-        return bitInfo;
-    }
-
-
-    /**
-    * Is the data in this block from a streaming (not triggered) DAQ system?
-    * @return <code>true</code> if the data in this block is from a streaming (not triggered)
-    *         DAQ system, else <code>false</code>
-    */
-    bool RecordHeader::isStreaming() {return ((bitInfo & EV_STREAMING_BIT) != 0);}
-
-
-    /**
-     * Does this word indicate that the data in the block is from a streaming
-     * (not triggered) DAQ system?
-     * @param bitInfo bitInfo word.
-     * @return <code>true</code> if the data in this block is from a streaming (not triggered)
-     *         DAQ system, else <code>false</code>
-     */
-    bool RecordHeader::isStreaming(uint32_t bitInfo) {return ((bitInfo & EV_STREAMING_BIT) != 0);}
-
-
-    /**
-    * Clear the bit in the given arg to indicate that the data in the block is
-    * from a streaming (not triggered) DAQ system.
-    * @param i integer in which to clear the streaming bit.
-    * @return arg with last-streaming bit cleared.
-    */
-    uint32_t RecordHeader::clearStreamingBit(uint32_t i) {return (i & ~EV_STREAMING_BIT);}
-
-
-    /**
      * Does this header indicate compressed data?
      * @return true if header indicates compressed data, else false.
      */

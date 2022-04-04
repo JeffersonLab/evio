@@ -96,7 +96,6 @@ namespace evio {
      *                buffer as well. That buffer then is parsed by an EvioReader or
      *                EvioCompactReader object. Thus all events will be of a single CODA type.
      *
-     *   Bit 15     = true if data in streaming mode, false if triggered
      *
      * </code></pre>
      *
@@ -122,9 +121,6 @@ namespace evio {
 
         /** "First event" is 15th bit in version/info word */
         static const uint32_t EV_FIRSTEVENT_MASK  = 0x4000;
-
-        /** "Streaming mode" is 16th bit in version/info word */
-        static const uint32_t EV_STREAMING_MASK  = 0x8000;
 
         /** Position of word for size of block in 32-bit words. */
         static const uint32_t EV_BLOCKSIZE = 0;
@@ -335,10 +331,6 @@ namespace evio {
         bool hasFirstEvent() override {return bitInfo[6];}
 
 
-        /** {@inheritDoc} */
-        bool isStreaming() override {return bitInfo[7];}
-
-
         /**
          * Does this integer indicate that there is an evio dictionary
          * (assuming it's the header's sixth word)?
@@ -425,35 +417,6 @@ namespace evio {
          * @return arg with first event bit cleared
          */
         static uint32_t clearFirstEventBit(uint32_t i) {return (i &= ~EV_FIRSTEVENT_MASK);}
-
-
-        /**
-        * Does this integer indicate that the data in the block is from a streaming
-        * (not triggered) DAQ system (assuming it's the header's sixth word)?
-        *
-        * @param i integer to examine.
-        * @return <code>true</code> if the data in this block is from a streaming (not triggered)
-        *         DAQ system, else <code>false</code>
-        */
-        static bool isStreaming(uint32_t i) {return ((i & EV_STREAMING_MASK) > 0);}
-
-
-        /**
-         * Set the bit in the given arg which indicates that the data in the
-         * block is from a streaming (not triggered) DAQ system?
-         * @param i integer in which to set the streaming bit.
-         * @return  arg with streaming bit set.
-         */
-        static uint32_t setStreamingBit(uint32_t i)   {return (i |= EV_STREAMING_MASK);}
-
-
-        /**
-         * Clear the bit in the given arg to indicate that the data in the
-         * block is from a streaming (not triggered) DAQ system?
-         * @param i integer in which to clear the streaming bit.
-         * @return arg with streaming bit cleared.
-         */
-        static uint32_t clearStreamingBit(uint32_t i) {return (i &= ~EV_STREAMING_MASK);}
 
 
         //-//////////////////////////////////////////////////////////////////

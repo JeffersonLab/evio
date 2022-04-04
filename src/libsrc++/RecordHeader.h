@@ -91,9 +91,9 @@ namespace evio {
      *                                      3 = DisentangledPhysics
      *                                      4 = User
      *                                      5 = Control
- *                                          6 = Mixed
+     *                                      6 = Mixed
      *                                     15 = Other
-     *    15    = true if data in streaming mode, false if triggered
+     *
      *    16-19 = reserved
      *    20-21 = pad 1
      *    22-23 = pad 2
@@ -247,9 +247,6 @@ namespace evio {
         static const uint32_t   DATA_CONTROL_BITS = 0x2800;
         /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
         static const uint32_t   DATA_OTHER_BITS   = 0x7800;
-
-        /** 16th bit set in bitInfo word in record header means streaming (not triggered) data source. */
-        static const uint32_t   EV_STREAMING_BIT  = 0x8000;
 
         // Bit masks
 
@@ -417,10 +414,6 @@ namespace evio {
         bool        isLastRecord() const;
         static bool isLastRecord(uint32_t bitInfo);
 
-        // isStreaming() part of IBlockHeader below ...
-        uint32_t     isStreaming(bool isStreaming);
-        static  bool isStreaming(uint32_t bitInfo);
-
         bool        isCompressed() override;
 
         bool        isEvioTrailer() const;
@@ -436,7 +429,6 @@ namespace evio {
         // Setters
 
         static uint32_t clearLastRecordBit(uint32_t i);
-        static uint32_t clearStreamingBit(uint32_t i);
         uint32_t  setBitInfoEventType (uint32_t type);
 
         RecordHeader & setHeaderType(HeaderType const & type);
@@ -491,7 +483,6 @@ namespace evio {
         uint32_t getHeaderWords() override;
         uint32_t getSourceId() override;
         bool     hasFirstEvent() override;
-        bool     isStreaming() override;
         uint32_t getEventType() override;
         uint32_t getVersion() override;
         uint32_t getMagicNumber() override;

@@ -382,9 +382,6 @@ public final class BlockHeaderV2 implements Cloneable, IEvioWriter, IBlockHeader
     */
    public boolean hasFirstEvent() {return false;}
 
-	/**{@inheritDoc} */
-	public boolean isStreaming() {return false;}
-
    /**
     * Get the type of events in block (see values of {@link DataType}.
 	* This is not supported by this version header. So just return -1.

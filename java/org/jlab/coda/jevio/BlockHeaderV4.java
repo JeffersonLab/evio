@@ -78,9 +78,6 @@ import java.util.BitSet;
  *                buffer as well. That buffer then is parsed by an EvioReader or
  *                EvioCompactReader object. Thus all events will be of a single CODA type.
  *
- *   Bit 15     = true if data in streaming mode, false if triggered
- *
- *
  * </code></pre>
  *
  *
@@ -104,9 +101,6 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
 
     /** "First event" is 15th bit in version/info word */
     public static final int EV_FIRSTEVENT_MASK  = 0x4000;
-
-    /** "Streaming mode" is 16th bit in version/info word */
-    public static final int EV_STREAMING_MASK  = 0x8000;
 
     /** Position of word for size of block in 32-bit words. */
     public static final int EV_BLOCKSIZE = 0;
@@ -410,13 +404,6 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
     public boolean hasFirstEvent() { return bitInfo.get(6); }
 
     /**
-     * Is the data in this block from a streaming (not triggered) DAQ system?
-     * @return <code>true</code> if the data in this block is from a streaming (not triggered)
-     *         DAQ system, else <code>false</code>
-     */
-    public boolean isStreaming() {return bitInfo.get(7);}
-
-    /**
      * Does this integer indicate that this is the last block
      * (assuming it's the header's sixth word)?
      * @param i integer to examine.
@@ -473,36 +460,6 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
      */
     static public int clearFirstEventBit(int i) {
         return (i &= ~EV_FIRSTEVENT_MASK);
-    }
-
-    /**
-     * Does this integer indicate that the data in the block is from a streaming
-     * (not triggered) DAQ system (assuming it's the header's sixth word)?
-     *
-     * @param i integer to examine.
-     * @return <code>true</code> if the data in this block is from a streaming (not triggered)
-     *         DAQ system, else <code>false</code>
-     */
-    static public boolean isStreaming(int i) {return ((i & EV_STREAMING_MASK) > 0);}
-
-    /**
-     * Set the bit in the given arg which indicates that the data in the
-     * block is from a streaming (not triggered) DAQ system?
-     * @param i integer in which to set the streaming bit.
-     * @return  arg with streaming bit set.
-     */
-    static public int setStreamingBit(int i)   {
-        return (i |= EV_STREAMING_MASK);
-    }
-
-    /**
-     * Clear the bit in the given arg to indicate that the data in the
-     * block is from a streaming (not triggered) DAQ system?
-     * @param i integer in which to clear the streaming bit.
-     * @return arg with streaming bit cleared.
-     */
-    static public int clearStreamingBit(int i) {
-        return (i &= ~EV_STREAMING_MASK);
     }
 
     /**
