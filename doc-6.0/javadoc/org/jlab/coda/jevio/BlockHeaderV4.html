@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9,"i2":9,"i3":9,"i4":10,"i5":10,"i6":9,"i7":9,"i8":9,"i9":9,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":9,"i30":10,"i31":9,"i32":10,"i33":10,"i34":9,"i35":10,"i36":9,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":9,"i44":9,"i45":9,"i46":10,"i47":9,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":9,"i54":10,"i55":10,"i56":9,"i57":10};
+var methods = {"i0":10,"i1":9,"i2":9,"i3":10,"i4":10,"i5":9,"i6":9,"i7":9,"i8":9,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":9,"i29":10,"i30":9,"i31":10,"i32":10,"i33":9,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":9,"i41":9,"i42":9,"i43":10,"i44":9,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":9,"i53":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -189,9 +189,6 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
                 buffer as well. That buffer then is parsed by an EvioReader or
                 EvioCompactReader object. Thus all events will be of a single CODA type.
 
-   Bit 15     = true if data in streaming mode, false if triggered
-
-
  </code></pre></div>
 <dl>
 <dt><span class="simpleTagLabel">Author:</span></dt>
@@ -283,17 +280,11 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#EV_STREAMING_MASK">EV_STREAMING_MASK</a></span></code>
-<div class="block">"Streaming mode" is 16th bit in version/info word</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#EV_VERSION">EV_VERSION</a></span></code>
 <div class="block">Position of word for version of file format.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#HEADER_SIZE">HEADER_SIZE</a></span></code>
 <div class="block">The minimum and expected block header size in 32 bit ints.</div>
@@ -371,31 +362,24 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#clearStreamingBit-int-">clearStreamingBit</a></span>(int&nbsp;i)</code>
-<div class="block">Clear the bit in the given arg to indicate that the data in the
- block is from a streaming (not triggered) DAQ system?</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>java.lang.Object</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#clone--">clone</a></span>()</code></td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#firstEventStartingPosition--">firstEventStartingPosition</a></span>()</code>
 <div class="block">Determines where the start of the first event (logical record) in this block (physical record) is located
  (in bytes).</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#generateSixthWord-java.util.BitSet-">generateSixthWord</a></span>(java.util.BitSet&nbsp;set)</code>
 <div class="block">Calculates the sixth word of this header which has the version number (4)
  in the lowest 8 bits and the set in the upper 24 bits.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#generateSixthWord-java.util.BitSet-boolean-boolean-">generateSixthWord</a></span>(java.util.BitSet&nbsp;bSet,
                  boolean&nbsp;hasDictionary,
@@ -404,7 +388,7 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
  in the lowest 8 bits and the set in the upper 24 bits.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#generateSixthWord-java.util.BitSet-int-boolean-boolean-int-">generateSixthWord</a></span>(java.util.BitSet&nbsp;bSet,
                  int&nbsp;version,
@@ -415,7 +399,7 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
  in the lowest 8 bits and the set in the upper 24 bits.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#generateSixthWord-int-boolean-boolean-int-">generateSixthWord</a></span>(int&nbsp;version,
                  boolean&nbsp;hasDictionary,
@@ -425,137 +409,137 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
  in the lowest 8 bits.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>java.util.BitSet</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getBitInfo--">getBitInfo</a></span>()</code>
 <div class="block">Gets a copy of all stored bit information.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getBitInfo-int-">getBitInfo</a></span>(int&nbsp;bitIndex)</code>
 <div class="block">Gets the value of a particular bit in the bitInfo field.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getBufferEndingPosition--">getBufferEndingPosition</a></span>()</code>
 <div class="block">Get the position in the buffer (in bytes) of this block's last data word.<br></div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getBufferStartingPosition--">getBufferStartingPosition</a></span>()</code>
 <div class="block">Get the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
  This is not part of the block header proper.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>java.nio.ByteOrder</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getByteOrder--">getByteOrder</a></span>()</code>
 <div class="block">Get the byte order of the data being read.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/CompressionType.html" title="enum in org.jlab.coda.hipo">CompressionType</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getCompressionType--">getCompressionType</a></span>()</code>
 <div class="block">Get the type of data compression used.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getEventCount--">getEventCount</a></span>()</code>
 <div class="block">Get the number of events completely contained in the block.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getEventType--">getEventType</a></span>()</code>
 <div class="block">Get the value of bits 2-5.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getHeaderLength--">getHeaderLength</a></span>()</code>
 <div class="block">Get the block header length, in ints.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getHeaderWords--">getHeaderWords</a></span>()</code>
 <div class="block">Get the block header length, in 32 bit words (ints).</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getMagicNumber--">getMagicNumber</a></span>()</code>
 <div class="block">Get the magic number the block (record) header which should be 0xc0da0100.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getNumber--">getNumber</a></span>()</code>
 <div class="block">Get the block number for this block (physical record).</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getReserved1--">getReserved1</a></span>()</code>
 <div class="block">Get the first reserved word.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getReserved2--">getReserved2</a></span>()</code>
 <div class="block">Get the second reserved word.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getSixthWord--">getSixthWord</a></span>()</code>
 <div class="block">Calculates the sixth word of this header which has the version number
  in the lowest 8 bits and the bit info in the highest 24 bits.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getSize--">getSize</a></span>()</code>
 <div class="block">Get the size of the block (physical record).</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getSourceId--">getSourceId</a></span>()</code>
 <div class="block">Get the source ID number if in CODA online context and data is coming from ROC.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#getVersion--">getVersion</a></span>()</code>
 <div class="block">Get the evio version of the block (physical record) header.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#hasDictionary--">hasDictionary</a></span>()</code>
 <div class="block">Is this block's first event an evio dictionary?</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#hasDictionary-int-">hasDictionary</a></span>(int&nbsp;i)</code>
 <div class="block">Does this integer indicate that there is an evio dictionary
  (assuming it's the header's sixth word)?</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#hasFirstEvent--">hasFirstEvent</a></span>()</code>
 <div class="block">Does this block contain the "first event"
  (first event to be written to each file split)?</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#hasFirstEvent-int-">hasFirstEvent</a></span>(int&nbsp;i)</code>
 <div class="block">Does this integer indicate that block has the first event
@@ -563,78 +547,65 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
  integer arg comes from the first block header of a file or buffer.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#isCompressed--">isCompressed</a></span>()</code>
 <div class="block">Is this the data in this block compressed?
  This is always false in evio version 4.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#isLastBlock--">isLastBlock</a></span>()</code>
 <div class="block">Is this the last block in the file/buffer or being sent over the network?</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#isLastBlock-int-">isLastBlock</a></span>(int&nbsp;i)</code>
 <div class="block">Does this integer indicate that this is the last block
  (assuming it's the header's sixth word)?</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#isStreaming--">isStreaming</a></span>()</code>
-<div class="block">Is the data in this block from a streaming (not triggered) DAQ system?</div>
-</td>
-</tr>
-<tr id="i36" class="altColor">
-<td class="colFirst"><code>static boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#isStreaming-int-">isStreaming</a></span>(int&nbsp;i)</code>
-<div class="block">Does this integer indicate that the data in the block is from a streaming
- (not triggered) DAQ system (assuming it's the header's sixth word)?</div>
-</td>
-</tr>
-<tr id="i37" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#nextBufferStartingPosition--">nextBufferStartingPosition</a></span>()</code>
 <div class="block">Determines where the start of the next block (physical record) header in some buffer is located (in bytes).</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#parseToBitInfo-int-">parseToBitInfo</a></span>(int&nbsp;word)</code>
 <div class="block">Parses the argument into the bit info fields.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setBit-int-boolean-">setBit</a></span>(int&nbsp;bitIndex,
       boolean&nbsp;value)</code>
 <div class="block">Sets a particular bit in the bitInfo field.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setBufferStartingPosition-long-">setBufferStartingPosition</a></span>(long&nbsp;bufferStartingPosition)</code>
 <div class="block">Set the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
  This is not part of the block header proper.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setByteOrder-java.nio.ByteOrder-">setByteOrder</a></span>(java.nio.ByteOrder&nbsp;byteOrder)</code>
 <div class="block">Sets the byte order of data being read.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setEventCount-int-">setEventCount</a></span>(int&nbsp;count)</code>
 <div class="block">Set the number of events completely contained in the block.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setEventType-java.util.BitSet-int-">setEventType</a></span>(java.util.BitSet&nbsp;bSet,
             int&nbsp;type)</code>
@@ -642,88 +613,81 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
  to hold 4 bits of the given type value.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setFirstEvent-java.util.BitSet-">setFirstEvent</a></span>(java.util.BitSet&nbsp;bSet)</code>
 <div class="block">Encode the "is first event" into the bit info word
  which will be in evio block header.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setFirstEventBit-int-">setFirstEventBit</a></span>(int&nbsp;i)</code>
 <div class="block">Set the bit in the given arg which indicates this block has a first event.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setHeaderLength-int-">setHeaderLength</a></span>(int&nbsp;headerLength)</code>
 <div class="block">Set the block header length, in ints.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setLastBlockBit-int-">setLastBlockBit</a></span>(int&nbsp;i)</code>
 <div class="block">Set the bit in the given arg which indicates this is the last block.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setMagicNumber-int-">setMagicNumber</a></span>(int&nbsp;magicNumber)</code>
 <div class="block">Sets the value of magicNumber.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setNumber-int-">setNumber</a></span>(int&nbsp;number)</code>
 <div class="block">Set the block number for this block (physical record).</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setReserved1-int-">setReserved1</a></span>(int&nbsp;reserved1)</code>
 <div class="block">Sets the value of first reserved word.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setReserved2-int-">setReserved2</a></span>(int&nbsp;reserved2)</code>
 <div class="block">Sets the value of second reserved word.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setSize-int-">setSize</a></span>(int&nbsp;size)</code>
 <div class="block">Set the size of the block (physical record).</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setStreamingBit-int-">setStreamingBit</a></span>(int&nbsp;i)</code>
-<div class="block">Set the bit in the given arg which indicates that the data in the
- block is from a streaming (not triggered) DAQ system?</div>
-</td>
-</tr>
-<tr id="i54" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#setVersion-int-">setVersion</a></span>(int&nbsp;version)</code>
 <div class="block">Sets the evio version.</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#toString--">toString</a></span>()</code>
 <div class="block">Obtain a string representation of the block (physical record) header.</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#unsetFirstEvent-java.util.BitSet-">unsetFirstEvent</a></span>(java.util.BitSet&nbsp;bSet)</code>
 <div class="block">Encode the "is NOT first event" into the bit info word
  which will be in evio block header.</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BlockHeaderV4.html#write-java.nio.ByteBuffer-">write</a></span>(java.nio.ByteBuffer&nbsp;byteBuffer)</code>
 <div class="block">Write myself out a byte buffer.</div>
@@ -818,20 +782,6 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#org.jlab.coda.jevio.BlockHeaderV4.EV_FIRSTEVENT_MASK">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="EV_STREAMING_MASK">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EV_STREAMING_MASK</h4>
-<pre>public static final&nbsp;int EV_STREAMING_MASK</pre>
-<div class="block">"Streaming mode" is 16th bit in version/info word</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#org.jlab.coda.jevio.BlockHeaderV4.EV_STREAMING_MASK">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -1303,23 +1253,6 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
 </dl>
 </li>
 </ul>
-<a name="isStreaming--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isStreaming</h4>
-<pre>public&nbsp;boolean&nbsp;isStreaming()</pre>
-<div class="block">Is the data in this block from a streaming (not triggered) DAQ system?</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../org/jlab/coda/jevio/IBlockHeader.html#isStreaming--">isStreaming</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="interface in org.jlab.coda.jevio">IBlockHeader</a></code></dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd><code>true</code> if the data in this block is from a streaming (not triggered)
-         DAQ system, else <code>false</code></dd>
-</dl>
-</li>
-</ul>
 <a name="isLastBlock-int-">
 <!--   -->
 </a>
@@ -1417,58 +1350,6 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
 <dd><code>i</code> - integer in which to clear the first event bit</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>arg with first event bit cleared</dd>
-</dl>
-</li>
-</ul>
-<a name="isStreaming-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isStreaming</h4>
-<pre>public static&nbsp;boolean&nbsp;isStreaming(int&nbsp;i)</pre>
-<div class="block">Does this integer indicate that the data in the block is from a streaming
- (not triggered) DAQ system (assuming it's the header's sixth word)?</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>i</code> - integer to examine.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd><code>true</code> if the data in this block is from a streaming (not triggered)
-         DAQ system, else <code>false</code></dd>
-</dl>
-</li>
-</ul>
-<a name="setStreamingBit-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setStreamingBit</h4>
-<pre>public static&nbsp;int&nbsp;setStreamingBit(int&nbsp;i)</pre>
-<div class="block">Set the bit in the given arg which indicates that the data in the
- block is from a streaming (not triggered) DAQ system?</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>i</code> - integer in which to set the streaming bit.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>arg with streaming bit set.</dd>
-</dl>
-</li>
-</ul>
-<a name="clearStreamingBit-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>clearStreamingBit</h4>
-<pre>public static&nbsp;int&nbsp;clearStreamingBit(int&nbsp;i)</pre>
-<div class="block">Clear the bit in the given arg to indicate that the data in the
- block is from a streaming (not triggered) DAQ system?</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>i</code> - integer in which to clear the streaming bit.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>arg with streaming bit cleared.</dd>
 </dl>
 </li>
 </ul>
