@@ -727,7 +727,7 @@ Protected Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a>. </p>
-<p>The buffer's position is set to 0 before writing.</p>
+<p>The buffer's position is set to 0 before writing. Any dictionary will be put in a commonRecord and that record will be placed in the user header associated with the single record.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">buf</td><td>the buffer to write to starting at position = 0. </td></tr>
