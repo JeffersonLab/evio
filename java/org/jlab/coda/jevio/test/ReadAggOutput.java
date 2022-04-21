@@ -24,7 +24,7 @@ public class ReadAggOutput {
             for (int i=1; i <= evCount; i++) {
 
                 System.out.println("Event " + i + ":");
-                EvioEvent ev = reader.getEvent(i);
+                EvioEvent ev = reader.parseEvent(i);
                 int evTag = ev.getHeader().getTag();
                 if (evTag == 0xffd1) {
                     System.out.println("Skip over PRESTART event");
@@ -73,18 +73,11 @@ public class ReadAggOutput {
                     // Skip over SIB by starting at 1
                     for (int k=1; k < kids; k++) {
                         EvioBank dataBank = (EvioBank) rocTSB.getChildAt(k);
-                        // Vardan, here is where you get data
-                        DataType type = dataBank.getHeader().getDataType();
-                        System.out.println("    Data type in data bank " + (k-1) +
-                                           " is " + type.toString());
-                        switch (type) {
-                            case INT32:
-                                // do some stuff
-                                int[] iData = dataBank.getIntData();
-                                break;
-                            default:
+                        // Vardan, here is where you get data.
+                        // Ignore the data type (currently the improper value of 0xf).
+                        // Just get the data as bytes
+                        byte[] byteData = dataBank.getRawBytes();
 
-                        }
                     }
                 }
             }
