@@ -123,7 +123,9 @@ public class ReadAggOutput {
     public static void main(String args[]) {
 
         try {
+            System.out.println("args has length = " + args.length);
             if (args.length > 1) {
+                System.out.println("entered file name = " + args[1]);
                 fileName = args[1];
             }
             readFile(fileName);
