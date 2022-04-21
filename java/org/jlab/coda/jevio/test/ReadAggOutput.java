@@ -5,6 +5,7 @@ import org.jlab.coda.jevio.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.Scanner;
 
 public class ReadAggOutput {
 
@@ -19,6 +20,8 @@ public class ReadAggOutput {
 
             int evCount = reader.getEventCount();
             System.out.println("Read in file " + finalFilename + ", got " + evCount + " events");
+
+            Scanner scanner = new Scanner(System.in);
 
             // Loop through all events (skip first 2 which are prestart and go)
             for (int i=1; i <= evCount; i++) {
@@ -98,6 +101,9 @@ public class ReadAggOutput {
                           byte[] byteData = dataBank.getRawBytes();
                       }
                 }
+
+                System.out.println("\nHit <return> for next event");
+                scanner.nextLine();
             }
         }
         catch (IOException e) {
