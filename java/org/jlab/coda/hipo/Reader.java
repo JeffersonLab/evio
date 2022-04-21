@@ -1206,7 +1206,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             if (recordHeader.getLength() > bytesLeft) {
                 System.out.println("    record size = " + recordHeader.getLength() + " >? bytesLeft = " + bytesLeft +
                         ", pos = " + buffer.position());
-                throw new HipoException("Bad hipo format: not enough data to read record");
+                throw new HipoException("Bad evio format: not enough data to read record");
             }
 
             // Header is now describing the uncompressed buffer, bigEnoughBuf
