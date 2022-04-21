@@ -9,7 +9,7 @@ import java.nio.ByteOrder;
 public class ReadAggOutput {
 
 
-    static String fileName = "muFile";
+    static String fileName = "myFile";
 
     static int readFile(String finalFilename) throws Exception {
 
@@ -60,25 +60,43 @@ public class ReadAggOutput {
 
                 // Loop through all ROC Time Slice Banks (TSB) which come after TIB
                 for (int j=1; j < childCount; j++) {
-                    // ROC Time SLice Bank
+                    // ROC Time Slice Bank (TSB)
                     EvioBank rocTSB = (EvioBank)ev.getChildAt(j);
                     int kids = rocTSB.getChildCount();
                     if (kids < 2) {
                         throw new Exception("Problem: too few child for TSB (" + childCount + ")");
                     }
 
-                    // Another level down, each TSB has a Stream Info Bank (SIB) which comes first,
-                    // followed by data banks
+                      // Stream Info Bank (SIB), first child of TSB:
+                      EvioBank sib = (EvioBank) rocTSB.getChildAt(0);
 
-                    // Skip over SIB by starting at 1
-                    for (int k=1; k < kids; k++) {
-                        EvioBank dataBank = (EvioBank) rocTSB.getChildAt(k);
-                        // Vardan, here is where you get data.
-                        // Ignore the data type (currently the improper value of 0xf).
-                        // Just get the data as bytes
-                        byte[] byteData = dataBank.getRawBytes();
+                        // Each SIB has 2 EvioSegment children: 1) Time Slice Seg, 2) Aggregation Info Seg
+                        EvioSegment aggInfoSeg = (EvioSegment) sib.getChildAt(1);
+                        DataType aggInfoType = aggInfoSeg.getHeader().getDataType();
+                        if (aggInfoType != DataType.USHORT16) {
+                            throw new Exception("Problem: Aggregation Info Segment has wrong data type (" + aggInfoType + ")");
+                        }
+                        short[] payloads = aggInfoSeg.getShortData();
+                        for (int ii=0; ii < payloads.length; ii++) {
+                            short s = payloads[ii];
+                            int payloadPort = s & 0x1f;
+                            int laneId = (s >> 5) & 0x3;
+                            int bond = (s >> 7) & 0x1;
+                            int moduleId = (s >> 8) & 0xf;
+                            System.out.println("  payload port " + ii + " = " + payloadPort);
+                        }
 
-                    }
+                      // Another level down, each TSB has a Stream Info Bank (SIB) which comes first,
+                      // followed by data banks
+
+                      // Skip over SIB by starting at 1
+                      for (int k=1; k < kids; k++) {
+                          EvioBank dataBank = (EvioBank) rocTSB.getChildAt(k);
+                          // Vardan, here is where you get data.
+                          // Ignore the data type (currently the improper value of 0xf).
+                          // Just get the data as bytes
+                          byte[] byteData = dataBank.getRawBytes();
+                      }
                 }
             }
         }
@@ -99,6 +117,9 @@ public class ReadAggOutput {
     public static void main(String args[]) {
 
         try {
+            if (args.length > 1) {
+                fileName = args[1];
+            }
             readFile(fileName);
         }
         catch (Exception e) {
