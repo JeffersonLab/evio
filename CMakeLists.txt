@@ -28,6 +28,8 @@ project(evio VERSION 6.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
+#set(CMAKE_BUILD_TYPE Debug)
+#add_compile_options(-g)
 
 
 # Place libs & binaries in build/lib and bin (this is not for installation)
@@ -184,6 +186,7 @@ set(TEST
         src/test/Tree_Buf_Composite_Builder_Test.cpp
         src/test/Writer_Reader_Compression_Test.cpp
         src/test/Writer_Reader_Test.cpp
+        src/test/FileWriteTest.cpp
         )
 
 
