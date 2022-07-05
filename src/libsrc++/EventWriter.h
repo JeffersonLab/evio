@@ -970,6 +970,7 @@ namespace evio {
     private:
 
         std::shared_ptr<ByteBuffer> getBuffer();
+        void expandInternalBuffers(int bytes);
 
 
     public:
@@ -1025,7 +1026,9 @@ namespace evio {
 
         bool writeEvent(std::shared_ptr<EvioNode> & node, bool force);
         bool writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
+
         bool writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
+        bool writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force, bool duplicate);
 
         bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer);
         bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force);

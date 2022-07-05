@@ -715,6 +715,61 @@ namespace evio {
 
 
     /**
+     * <p>
+     * Increase internal buffer size when writing to a file with a single
+     * compression thread. Design to accommodate a single event which
+     * exceeds the current memory limit. This happens automatically for
+     * multiple compression threads, but with only one such thread,
+     * code get excercised in the constructor in which
+     * this object creates buffers "by hand" and passes one to the constructor
+     * for RecordOutputStream. Since it's not created by the constructor, it
+     * cannot be automatically increased in size for a large event. Thus, we do
+     * it here instead.</p>
+     *
+     * This method can only be called if all events have been written to file
+     * and so record is empty.
+     *
+     * @param bytes size in bytes of new internal buffers.
+     */
+    void EventWriter::expandInternalBuffers(int bytes) {
+
+        if ((bytes <= bufferSize) || !toFile || !singleThreadedCompression) {
+            return;
+        }
+
+        // Give it 20% more than asked for
+        bufferSize = bytes / 10 * 12;
+
+        internalBuffers.clear();
+
+        internalBuffers.push_back(std::make_shared<ByteBuffer>(bufferSize));
+        internalBuffers.push_back(std::make_shared<ByteBuffer>(bufferSize));
+        internalBuffers[0]->order(byteOrder);
+        internalBuffers[1]->order(byteOrder);
+        buffer = internalBuffers[0];
+
+        try {
+            // There may be a simultaneous write in progress,
+            // wait for it to finish.
+            if (future1 != nullptr && future1->valid()) {
+                // Wait for last write to end before we continue
+                future1->get();
+            }
+        }
+        catch (std::exception & e) {}
+
+        // Start over
+        future1 = nullptr;
+        usedBuffer = nullptr;
+
+        currentRecord->setBuffer(buffer);
+
+//        std::cout << "expandInternalBuffers: buffer cap = " << buffer->capacity() <<
+//                     ", lim = " << buffer->limit() << ", pos = " << buffer->position() << std::endl;
+    }
+
+
+    /**
      * Set the value of the source Id in the first block header.
      * Only necessary to do this when using EventWriter in EMU's
      * RocSimulation module. Only the ROC sends sourceId in header.
@@ -1821,6 +1876,71 @@ namespace evio {
     }
 
     /**
+     * Write an event (bank) into a record and eventually to a file in evio/hipo
+     * version 6 format.
+     * Once the record is full and if writing with multiple compression
+     * threads, the record will be sent to a thread which may compress the data,
+     * then it will be sent to a thread to write the record to file.
+     * If there is only 1 compression thread, it's all done in the thread which
+     * call this method.<p>
+     *
+     * <b>
+     * If splitting files, this method returns false if disk partition is too full
+     * to write the complete, next split file. If force arg is true, write anyway.
+     * DO NOT mix calling this method with calling
+     * {@link #writeEvent()} (all variants).
+     * Results are unpredictable as it messes up the
+     * logic used to quit writing to full disk.
+     * </b>
+     *
+     * The buffer must contain only the event's data (event header and event data)
+     * and must <b>not</b> be in complete evio file format.
+     * Do not call this while simultaneously calling
+     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * Be warned that injudicious use of a true 2nd arg, the force flag, will
+     * <b>kill</b> performance when writing to a file.
+     * A true 3rd arg can be used when the backing buffer
+     * of the node is accessed by multiple threads simultaneously. This allows
+     * that buffer's limit and position to be changed without interfering
+     * with the other threads.<p>
+     *
+     * This method is not used to write the dictionary or the first event
+     * which are both placed in the common record which, in turn, is the
+     * user header part of the file header.<p>
+     *
+     * @param bb         ByteBuffer representing the event.
+     * @param force      if writing to disk, force it to write event to the disk.
+     * @param duplicate  if true, duplicate bb so its position and limit
+     *                   can be changed without issue.
+     * @return true if event was added to record. If splitting files, false if disk
+     *         partition too full to write the complete, next split file.
+     *         False if interrupted. If force arg is true, write anyway.
+     *
+     * @throws EvioException if error writing file
+     *                       if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     */
+    bool EventWriter::writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force, bool duplicate) {
+
+        std::shared_ptr<ByteBuffer> eventBuffer;
+
+        // Duplicate buffer so we can set pos & limit without messing others up
+        if (duplicate) {
+            eventBuffer = bb->duplicate();
+            eventBuffer->order(bb->order());
+        }
+        else {
+            eventBuffer = bb;
+        }
+
+        return writeEventToFile(nullptr, eventBuffer, force);
+    }
+
+    /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
@@ -2401,6 +2521,8 @@ namespace evio {
             fitInRecord = currentRecord->addEvent(bank);
         }
 
+//std::cout << "writeEventToFile: fit in record = " << fitInRecord << std::endl;
+
         // If no room or too many events in record, write out current record first,
         // then start working on a new record with this event.
 
@@ -2412,22 +2534,57 @@ namespace evio {
             // just been set to 0.
 
             if (singleThreadedCompression) {
-                try {
-                    // This might be the first write after the file split.
-                    // If so, return false if disk is full,
-                    // otherwise write what we already have first.
-                    if (!tryCompressAndWriteToFile(force)) {
-                        // Undo stuff since we're no longer writing
-                        splitEventCount--;
-                        splitEventBytes -= currentEventBytes;
+                // Only try to write what we have if there's something to write
+                if (currentRecord->getEventCount() > 0) {
+//std::cout << "writeEventToFile: single threaded compression, force = " << force << std::endl;
+                    try {
+                        // This might be the first write after the file split.
+                        // If so, return false if disk is full,
+                        // otherwise write what we already have first.
+                        if (!tryCompressAndWriteToFile(force)) {
+                            // Undo stuff since we're no longer writing
+                            splitEventCount--;
+                            splitEventBytes -= currentEventBytes;
+//std::cout << "writeEventToFile: did NOT write existing record to disk" << std::endl;
+                            return false;
+                        }
+//std::cout << "writeEventToFile: wrote existing record to disk" << std::endl;
+                    }
+                    catch (boost::thread_interrupted &e) {
                         return false;
                     }
+                    catch (std::exception &e) {
+                        throw EvioException(e);
+                    }
+
+                    // Add event to it which will fit -- unless buffer is provided
+                    // by user and single event is bigger than available memory.
+                    if (bankBuffer != nullptr) {
+                        fitInRecord = currentRecord->addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord->addEvent(bank);
+                    }
+//std::cout << "writeEventToFile: try again to fit in record = " << fitInRecord << std::endl;
                 }
-                catch (boost::thread_interrupted & e) {
-                    return false;
-                }
-                catch (std::exception & e) {
-                    throw EvioException(e);
+
+                // Since we're here, we have a single event too big to fit in the
+                // allocated buffers. So expand buffers and try again.
+                if (!fitInRecord) {
+//std::cout << "writeEventToFile: expand buffers to " << (currentEventBytes/10*12) << "  bytes" << std::endl;
+                    expandInternalBuffers(currentEventBytes);
+
+                    if (bankBuffer != nullptr) {
+                        fitInRecord = currentRecord->addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord->addEvent(bank);
+                    }
+
+                    if (!fitInRecord) {
+                        throw EvioException("cannot fit event into buffer");
+                    }
+//std::cout << "writeEventToFile: EVENT FINALLY FIT!" << std::endl;
                 }
             }
             else {
@@ -2436,15 +2593,15 @@ namespace evio {
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //std::cout << "writeEventToFile: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
-            }
+//std::cout << "writeEventToFile: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
 
-            // Add event to it (guaranteed to fit)
-            if (bankBuffer != nullptr) {
-                currentRecord->addEvent(bankBuffer);
-            }
-            else {
-                currentRecord->addEvent(bank);
+                // Add event to it (guaranteed to fit)
+                if (bankBuffer != nullptr) {
+                    currentRecord->addEvent(bankBuffer);
+                }
+                else {
+                    currentRecord->addEvent(bank);
+                }
             }
         }
 
@@ -2654,7 +2811,7 @@ namespace evio {
         // Length of this record
         int bytesToWrite = header->getLength();
         int eventCount   = header->getEntries();
-//        std::cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " << eventCount << std::endl;
+//std::cout << "    writeToFile: adding to recordLengths: " << bytesToWrite << ", evCount = " << eventCount << std::endl;
         recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths->push_back(eventCount);
@@ -2662,8 +2819,11 @@ namespace evio {
         // Data to write
         auto buf = record->getBinaryBuffer();
 
-//std::cout << "\nwriteToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
-  //           fileWritingPosition << std::endl;
+//        std::cout << "\n    writeToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
+//                  fileWritingPosition << std::endl;
+//        std::cout << "\n    writeToFile: write into buf: pos = " << buf->position() <<
+//                     ", lim =  = " << buf->limit() <<
+//                  ", cap = " << buf->capacity() << std::endl;
 
         future1 = std::make_shared<std::future<void>>(std::future<void>(
                 std::async(std::launch::async,  // run in a separate thread
@@ -2697,15 +2857,15 @@ namespace evio {
         eventsWrittenToFile += eventCount;
         eventsWrittenTotal  += eventCount;
 
-        //        if (false) {
-        //            std::cout << "    writeToFile: after last header written, Events written to:" << std::endl;
-        //            std::cout << "                 cnt total (no dict) = " << eventsWrittenTotal << std::endl;
-        //            std::cout << "                 file cnt total (dict) = " << eventsWrittenToFile << std::endl;
-        //            std::cout << "                 internal buffer cnt (dict) = " << eventsWrittenToBuffer << std::endl;
-        //            std::cout << "                 bytes-written  = " << bytesToWrite << std::endl;
-        //            std::cout << "                 bytes-to-file = " << bytesWritten << std::endl;
-        //            std::cout << "                 record # = " << recordNumber << std::endl;
-        //        }
+//        if (false) {
+//            std::cout << "    writeToFile: after last header written, Events written to:" << std::endl;
+//            std::cout << "                 cnt total (no dict) = " << eventsWrittenTotal << std::endl;
+//            std::cout << "                 file cnt total (dict) = " << eventsWrittenToFile << std::endl;
+//            std::cout << "                 internal buffer cnt (dict) = " << eventsWrittenToBuffer << std::endl;
+//            std::cout << "                 bytes-written  = " << bytesToWrite << std::endl;
+//            std::cout << "                 bytes-to-file = " << bytesWritten << std::endl;
+//            std::cout << "                 record # = " << recordNumber << std::endl;
+//        }
 
         return true;
     }

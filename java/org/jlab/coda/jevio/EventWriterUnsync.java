@@ -981,7 +981,14 @@ final public class EventWriterUnsync implements AutoCloseable {
      * the runType is null.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be difcompressionferentiated by a stream id, starting split # and split increment.
+     * they can be differentiated by a stream id, starting split # and split increment.<p>
+     *
+     * If there are multiple compression threads, then the maxRecordSize arg is used to determine
+     * the max size of each record in the internally created RecordSupply. If a single event,
+     * larger than this max size were to be written, a record's memory is expanded to
+     * accommodate it. However, if there is only 1 compression/writing thread, this argument
+     * is not used and the record will be a max size given by the bufferSize arg. If a single
+     * event larger than this were then to be written, an exception would be thrown.
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
@@ -993,7 +1000,8 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param maxRecordSize max number of uncompressed data bytes each record can hold.
      *                      Value of &lt; 8MB results in default of 8MB.
      *                      The size of the record will not be larger than this size
-     *                      unless a single event itself is larger.
+     *                      unless a single event itself is larger. Used only if compressionThreads
+     *                      &gt; 1.
      * @param maxEventCount max number of events each record can hold.
      *                      Value &lt;= O means use default (1M).
      * @param byteOrder     the byte order in which to write the file. This is ignored
@@ -1010,13 +1018,15 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param splitIncrement amount to increment split number each time another file is created.
      * @param streamCount    total number of streams in DAQ.
      * @param compressionType    type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
-     * @param compressionThreads number of threads doing compression simultaneously.
+     * @param compressionThreads number of threads doing compression simultaneously. Defaults to
+     *                      1 if = 0 or 1. If 1, just uses the main thread to do compression,
+     *                      if any, and handling of writing to file.
      * @param ringSize      number of records in supply ring. If set to &lt; compressionThreads,
      *                      it is forced to equal that value and is also forced to be a multiple of
      *                      2, rounded up.
      * @param bufferSize    number of bytes to make each internal buffer which will
      *                      be storing events before writing them to a file.
-     *                      9MB = default if bufferSize = 0.
+     *                      9MB = default if bufferSize = 0. Used only if compresstionThreads = 1.
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
      *                       if streamCount &gt; 1 and streamId &lt; 0;
@@ -1332,6 +1342,8 @@ final public class EventWriterUnsync implements AutoCloseable {
      *                        Value of &lt; 8MB results in default of 8MB.
      *                        The size of the record will not be larger than this size
      *                        unless a single event itself is larger.
+     *                        <b>Currently this arg is unused. Only 1 record will be
+     *                        used in the given buffer.</b>
      * @param maxEventCount   max number of events each record can hold.
      *                        Value &lt;= O means use default (1M).
      * @param xmlDictionary   dictionary in xml format or null if none.
@@ -1551,6 +1563,68 @@ final public class EventWriterUnsync implements AutoCloseable {
         // Get buffer ready for reading
         buf.flip();
         return buf;
+    }
+
+
+    /**
+     * <p>
+     * Increase internal buffer size when writing to a file with a single
+     * compression thread. Design to accommodate a single event which
+     * exceeds the current memory limit. This happens automatically for
+     * multiple compression threads, but with only one such thread,
+     * code get excercised in the constructor in which
+     * this object creates buffers "by hand" and passes one to the constructor
+     * for RecordOutputStream. Since it's not created by the constructor, it
+     * cannot be automatically increased in size for a large event. Thus, we do
+     * it here instead.</p>
+     *
+     * This method can only be called if all events have been written to file
+     * and so record is empty.
+     *
+     * @param bytes size in bytes of new internal buffers.
+     */
+    private void expandInternalBuffers(int bytes) {
+
+        if ((bytes <= bufferSize) || !toFile || !singleThreadedCompression) {
+            return;
+        }
+
+        // Give it 20% more than asked for
+        bufferSize = bytes / 10 * 12;
+
+        internalBuffers[0] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[1] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[2] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[0].order(byteOrder);
+        internalBuffers[1].order(byteOrder);
+        internalBuffers[2].order(byteOrder);
+        buffer = internalBuffers[0];
+
+        if (future1 != null) {
+            try {
+                // Wait for last write to end before we continue
+                future1.get();
+            }
+            catch (Exception e) {}
+        }
+
+        if (future2 != null) {
+            try {
+                future2.get();
+            }
+            catch (Exception e) {}
+        }
+
+        // Start over
+        future1 = null;
+        future2 = null;
+        usedBuffers[0] = null;
+        usedBuffers[1] = null;
+
+        currentRecord.setBuffer(buffer);
+
+//        System.out.println("expandInternalBuffers: buffer cap = " + buffer.capacity() +
+//                ", lim = " + buffer.limit() + ", pos = " + buffer.position());
     }
 
 
@@ -2999,17 +3073,49 @@ final public class EventWriterUnsync implements AutoCloseable {
             fitInRecord = currentRecord.addEvent(bank);
         }
 
+//System.out.println("writeEvent: fit in record = "  + fitInRecord);
+
         // If no room or too many events ...
         if (!fitInRecord) {
             if (singleThreadedCompression) {
-                try {
-                    compressAndWriteToFile(false);
+                // Only try to write what we have if there's something to write
+                if (currentRecord.getEventCount() > 0) {
+                    try {
+                        compressAndWriteToFile(false);
+                    }
+                    catch (InterruptedException e) {
+                        return false;
+                    }
+                    catch (ExecutionException e) {
+                        throw new IOException(e);
+                    }
+
+                    // Try add eventing to it (1 very big event many not fit)
+                    if (bankBuffer != null) {
+                        fitInRecord = currentRecord.addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord.addEvent(bank);
+                    }
                 }
-                catch (InterruptedException e) {
-                    return false;
-                }
-                catch (ExecutionException e) {
-                    throw new IOException(e);
+
+                // Since we're here, we have a single event too big to fit in the
+                // allocated buffers. So expand buffers and try again.
+                if (!fitInRecord) {
+//System.out.println("writeEvent: expand buffers to " + (currentEventBytes/10*12) + " bytes");
+                    expandInternalBuffers(currentEventBytes);
+
+                    if (bankBuffer != null) {
+                        fitInRecord = currentRecord.addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord.addEvent(bank);
+                    }
+
+                    if (!fitInRecord) {
+                        throw new EvioException("cannot fit event into buffer");
+                    }
+//System.out.println("writeEvent: EVENT FINALLY FIT!");
                 }
             }
             else {
@@ -3020,14 +3126,14 @@ final public class EventWriterUnsync implements AutoCloseable {
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
                 currentRecord.getHeader().setRecordNumber(recordNumber++);
-            }
 
-            // Add event to it (guaranteed to fit)
-            if (bankBuffer != null) {
-                currentRecord.addEvent(bankBuffer);
-            }
-            else {
-                currentRecord.addEvent(bank);
+                // Add event to it (guaranteed to fit)
+                if (bankBuffer != null) {
+                    currentRecord.addEvent(bankBuffer);
+                }
+                else {
+                    currentRecord.addEvent(bank);
+                }
             }
         }
 
@@ -3251,12 +3357,16 @@ final public class EventWriterUnsync implements AutoCloseable {
 
         // Try adding event to current record.
         // One event is guaranteed to fit in a record no matter the size.
+        // But if record's memory is expanded to fit the one big event,
+        // every subsequent record written using this object will be
+        // bigger as well.
         if (bankBuffer != null) {
             fitInRecord = currentRecord.addEvent(bankBuffer);
         }
         else {
             fitInRecord = currentRecord.addEvent(bank);
         }
+//System.out.println("writeEventToFile: fit in record = "  + fitInRecord);
 
         // If no room or too many events in record, write out current record first,
         // then start working on a new record with this event.
@@ -3269,22 +3379,56 @@ final public class EventWriterUnsync implements AutoCloseable {
             // just been set to 0.
 
             if (singleThreadedCompression) {
-                try {
-                    // This might be the first write after the file split.
-                    // If so, return false if disk is full,
-                    // otherwise write what we already have first.
-                    if (!tryCompressAndWriteToFile(force)) {
-                        // Undo stuff since we're no longer writing
-                        splitEventCount--;
-                        splitEventBytes -= currentEventBytes;
+                // Only try to write what we have if there's something to write
+                if (currentRecord.getEventCount() > 0) {
+//System.out.println("writeEventToFile: single threaded compression, force = " + force);
+                    try {
+                        // This might be the first write after the file split.
+                        // If so, return false if disk is full,
+                        // otherwise write what we already have first.
+                        if (!tryCompressAndWriteToFile(force)) {
+                            // Undo stuff since we're no longer writing
+                            splitEventCount--;
+                            splitEventBytes -= currentEventBytes;
+//System.out.println("writeEventToFile: did NOT write existing record to disk");
+                            return false;
+                        }
+//System.out.println("writeEventToFile: wrote existing record to disk");
+                    }
+                    catch (InterruptedException e) {
                         return false;
                     }
+                    catch (ExecutionException e) {
+                        throw new IOException(e);
+                    }
+
+                    // Add event to it which will fit -- unless buffer is provided
+                    // by user and single event is bigger than available memory.
+                    if (bankBuffer != null) {
+                        fitInRecord = currentRecord.addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord.addEvent(bank);
+                    }
                 }
-                catch (InterruptedException e) {
-                    return false;
-                }
-                catch (ExecutionException e) {
-                    throw new IOException(e);
+
+                // Since we're here, we have a single event too big to fit in the
+                // allocated buffers. So expand buffers and try again.
+                if (!fitInRecord) {
+//System.out.println("writeEventToFile: expand buffers to " + (currentEventBytes/10*12) + " bytes");
+                    expandInternalBuffers(currentEventBytes);
+
+                    if (bankBuffer != null) {
+                        fitInRecord = currentRecord.addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord.addEvent(bank);
+                    }
+
+                    if (!fitInRecord) {
+                        throw new EvioException("cannot fit event into buffer");
+                    }
+//System.out.println("writeEventToFile: EVENT FINALLY FIT!");
                 }
             }
             else {
@@ -3293,14 +3437,14 @@ final public class EventWriterUnsync implements AutoCloseable {
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
                 currentRecord.getHeader().setRecordNumber(recordNumber++);
-            }
 
-            // Add event to it (guaranteed to fit)
-            if (bankBuffer != null) {
-                currentRecord.addEvent(bankBuffer);
-            }
-            else {
-                currentRecord.addEvent(bank);
+                // Add event to it which is guaranteed to fit
+                if (bankBuffer != null) {
+                    currentRecord.addEvent(bankBuffer);
+                }
+                else {
+                    currentRecord.addEvent(bank);
+                }
             }
         }
 
