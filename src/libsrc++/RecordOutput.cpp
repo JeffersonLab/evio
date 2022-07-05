@@ -221,11 +221,10 @@ namespace evio {
         userBufferSize = buf->capacity() - startingPosition;
         buf->limit(buf->capacity());
 
-        MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
-        RECORD_BUFFER_SIZE = userBufferSize;
-
         // Only re-allocate memory if current buffers are too small
         if (userBufferSize > RECORD_BUFFER_SIZE) {
+            MAX_BUFFER_SIZE = userBufferSize/100*91;
+            RECORD_BUFFER_SIZE = userBufferSize;
             allocate();
         }
 
