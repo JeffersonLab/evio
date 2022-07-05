@@ -35,6 +35,7 @@ var classevio_1_1_event_writer =
     [ "writeEvent", "d9/dcd/classevio_1_1_event_writer.html#a595414de42940f18240adf0e2a9d3c50", null ],
     [ "writeEvent", "d9/dcd/classevio_1_1_event_writer.html#a47547ed508b344b5732a0f505bdb34c9", null ],
     [ "writeEvent", "d9/dcd/classevio_1_1_event_writer.html#a2749ea0d2f5f47eb9c952a730aa897d4", null ],
+    [ "writeEventToFile", "d9/dcd/classevio_1_1_event_writer.html#a6d78d2d7c1d797caa32925c26e233638", null ],
     [ "writeEventToFile", "d9/dcd/classevio_1_1_event_writer.html#afbbc80c92b06698c0917b364911c9094", null ],
     [ "writingToFile", "d9/dcd/classevio_1_1_event_writer.html#a9314950dbd90b4d776549376c56160ea", null ]
 ];

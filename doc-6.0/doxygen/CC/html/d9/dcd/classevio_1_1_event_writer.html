@@ -195,6 +195,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afbbc80c92b06698c0917b364911c9094"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#afbbc80c92b06698c0917b364911c9094">writeEventToFile</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, bool force, bool duplicate)</td></tr>
 <tr class="memdesc:afbbc80c92b06698c0917b364911c9094"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an event (bank) into a record and eventually to a file in evio/hipo version 6 format.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#afbbc80c92b06698c0917b364911c9094">More...</a><br /></td></tr>
 <tr class="separator:afbbc80c92b06698c0917b364911c9094"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d78d2d7c1d797caa32925c26e233638"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a6d78d2d7c1d797caa32925c26e233638">writeEventToFile</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;bb, bool force, bool duplicate)</td></tr>
+<tr class="memdesc:a6d78d2d7c1d797caa32925c26e233638"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an event (bank) into a record and eventually to a file in evio/hipo version 6 format.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#a6d78d2d7c1d797caa32925c26e233638">More...</a><br /></td></tr>
+<tr class="separator:a6d78d2d7c1d797caa32925c26e233638"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff933fe4fe3fdad14f3e6e9ca92702c4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#aff933fe4fe3fdad14f3e6e9ca92702c4">writeEvent</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;bankBuffer)</td></tr>
 <tr class="memdesc:aff933fe4fe3fdad14f3e6e9ca92702c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an event (bank) into a record in evio/hipo version 6 format.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#aff933fe4fe3fdad14f3e6e9ca92702c4">More...</a><br /></td></tr>
 <tr class="separator:aff933fe4fe3fdad14f3e6e9ca92702c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1657,8 +1660,66 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a6d78d2d7c1d797caa32925c26e233638"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d78d2d7c1d797caa32925c26e233638">&#9670;&nbsp;</a></span>writeEventToFile() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool evio::EventWriter::writeEventToFile </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>bb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>force</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>duplicate</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Write an event (bank) into a record and eventually to a file in evio/hipo version 6 format. </p>
+<p>Once the record is full and if writing with multiple compression threads, the record will be sent to a thread which may compress the data, then it will be sent to a thread to write the record to file. If there is only 1 compression thread, it's all done in the thread which call this method.</p>
+<p><b> If splitting files, this method returns false if disk partition is too full to write the complete, next split file. If force arg is true, write anyway. DO NOT mix calling this method with calling <a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a47547ed508b344b5732a0f505bdb34c9">writeEvent()</a> (all variants). Results are unpredictable as it messes up the logic used to quit writing to full disk. </b></p>
+<p>The buffer must contain only the event's data (event header and event data) and must <b>not</b> be in complete evio file format. Do not call this while simultaneously calling close, flush, setFirstEvent, or getByteBuffer.</p>
+<p>Be warned that injudicious use of a true 2nd arg, the force flag, will <b>kill</b> performance when writing to a file. A true 3rd arg can be used when the backing buffer of the node is accessed by multiple threads simultaneously. This allows that buffer's limit and position to be changed without interfering with the other threads.</p>
+<p>This method is not used to write the dictionary or the first event which are both placed in the common record which, in turn, is the user header part of the file header.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bb</td><td><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> representing the event. </td></tr>
+    <tr><td class="paramname">force</td><td>if writing to disk, force it to write event to the disk. </td></tr>
+    <tr><td class="paramname">duplicate</td><td>if true, duplicate bb so its position and limit can be changed without issue. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if event was added to record. If splitting files, false if disk partition too full to write the complete, next split file. False if interrupted. If force arg is true, write anyway.</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if error writing file if event is opposite byte order of internal buffer; if <a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a2c9c8685d17f142d95e03e8037375c76" title="This method flushes any remaining data to file and disables this object.">close()</a> already called; if bad eventBuffer format; if file could not be opened for writing; if file exists but user requested no over-writing; </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#afbbc80c92b06698c0917b364911c9094">writeEventToFile()</a>.</p>
+
+</div>
+</div>
 <a id="afbbc80c92b06698c0917b364911c9094"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afbbc80c92b06698c0917b364911c9094">&#9670;&nbsp;</a></span>writeEventToFile()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afbbc80c92b06698c0917b364911c9094">&#9670;&nbsp;</a></span>writeEventToFile() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1710,6 +1771,8 @@ Protected Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+<p class="reference">Referenced by <a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a6d78d2d7c1d797caa32925c26e233638">writeEventToFile()</a>.</p>
 
 </div>
 </div>
