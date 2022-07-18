@@ -803,6 +803,9 @@ namespace evio {
         // File related members
         //-----------------------
 
+        /** Total size of the internal buffers in bytes. */
+        int internalBufSize;
+
         /** Variable used to stop accepting events to be included in the inner buffer
          *  holding the current block. Used when disk space is inadequate. */
         bool diskIsFull = false;
@@ -1024,24 +1027,29 @@ namespace evio {
 
         bool hasRoom(uint32_t bytes);
 
-        bool writeEvent(std::shared_ptr<EvioNode> & node, bool force);
-        bool writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
+        bool writeEvent(std::shared_ptr<EvioNode> & node, bool force = false,
+                        bool duplicate = true, bool ownRecord = false);
 
-        bool writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
-        bool writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force, bool duplicate);
+        bool writeEventToFile(std::shared_ptr<EvioNode> & node, bool force = false,
+                              bool duplicate = true, bool ownRecord = false);
 
-        bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer);
-        bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force);
+        bool writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force = false,
+                              bool duplicate = true, bool ownRecord = false);
 
-        bool writeEvent(std::shared_ptr<EvioBank> bank);
-        bool writeEvent(std::shared_ptr<EvioBank> bank, bool force);
+        bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force = false , bool ownRecord = false);
+
+        bool writeEvent(std::shared_ptr<EvioBank> bank, bool force = false, bool ownRecord = false);
+
+        bool writeEventToFile(std::shared_ptr<EvioBank> bank, bool force = false, bool ownRecord = false);
 
     private:
 
         bool writeEvent(std::shared_ptr<EvioBank> bank,
-                        std::shared_ptr<ByteBuffer> bankBuffer, bool force);
+                        std::shared_ptr<ByteBuffer> bankBuffer,
+                        bool force, bool ownRecord);
         bool writeEventToFile(std::shared_ptr<EvioBank> bank,
-                              std::shared_ptr<ByteBuffer> bankBuffer, bool force);
+                              std::shared_ptr<ByteBuffer> bankBuffer,
+                              bool force, bool ownRecord);
 
         bool fullDisk();
 

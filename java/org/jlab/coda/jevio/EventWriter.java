@@ -688,6 +688,9 @@ final public class EventWriter implements AutoCloseable {
     // File related members
     //-----------------------
 
+    /** Total size of the internal buffers in bytes. */
+    private int internalBufSize;
+
     /** Variable used to stop accepting events to be included in the inner buffer
      * holding the current block. Used when disk space is inadequate. */
     private boolean diskIsFull;
@@ -1108,6 +1111,12 @@ final public class EventWriter implements AutoCloseable {
                                             + currentFile.getPath());
         }
 
+        // There are some inefficiencies below. It appears (7/2022) that
+        // the buffers created immediately following are only necessary
+        // for the case where singleThreadedCompression = true;
+        // However, I'm reluctant to make any more major changes in the code
+        // at this point, so we'll just let things sit as they are.
+
         // Create internal storage buffers.
         // Since we're doing I/O to a file, a direct buffer is more efficient.
         // Besides, the JVM will convert a non-direct to a direct one anyway
@@ -1120,20 +1129,17 @@ final public class EventWriter implements AutoCloseable {
         // Allow the user to set the size of the internal buffers up to a point.
         // Value of 0 means use default of 9MB. This value is consistent with
         // RecordOutputStream's own default. Won't use any size < 1MB.
-        // One downside of the following constructor of currentRecord (supplying
-        // an external buffer), is that trying to write a single event of over
-        // bufferSize will fail. C. Timmer
         if (bufferSize < 1) {
-            bufferSize = 9437184;
+            internalBufSize = 9437184;
         }
         else {
-            bufferSize = bufferSize < 1000000 ? 1000000 : bufferSize;
+            internalBufSize = bufferSize < 1000000 ? 1000000 : bufferSize;
         }
         usedBuffers     = new ByteBuffer[2];
         internalBuffers = new ByteBuffer[3];
-        internalBuffers[0] = ByteBuffer.allocateDirect(bufferSize);
-        internalBuffers[1] = ByteBuffer.allocateDirect(bufferSize);
-        internalBuffers[2] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[0] = ByteBuffer.allocateDirect(internalBufSize);
+        internalBuffers[1] = ByteBuffer.allocateDirect(internalBufSize);
+        internalBuffers[2] = ByteBuffer.allocateDirect(internalBufSize);
         internalBuffers[0].order(byteOrder);
         internalBuffers[1].order(byteOrder);
         internalBuffers[2].order(byteOrder);
@@ -1537,16 +1543,16 @@ System.out.println("EventWriter contr: Disk is FULL");
      */
     private void expandInternalBuffers(int bytes) {
 
-        if ((bytes <= bufferSize) || !toFile || !singleThreadedCompression) {
+        if ((bytes <= internalBufSize) || !toFile || !singleThreadedCompression) {
             return;
         }
 
         // Give it 20% more than asked for
-        bufferSize = bytes / 10 * 12;
+        internalBufSize = bytes / 10 * 12;
 
-        internalBuffers[0] = ByteBuffer.allocateDirect(bufferSize);
-        internalBuffers[1] = ByteBuffer.allocateDirect(bufferSize);
-        internalBuffers[2] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[0] = ByteBuffer.allocateDirect(internalBufSize);
+        internalBuffers[1] = ByteBuffer.allocateDirect(internalBufSize);
+        internalBuffers[2] = ByteBuffer.allocateDirect(internalBufSize);
         internalBuffers[0].order(byteOrder);
         internalBuffers[1].order(byteOrder);
         internalBuffers[2].order(byteOrder);
@@ -1851,7 +1857,7 @@ System.out.println("EventWriter contr: Disk is FULL");
         createCommonRecord(xmlDictionary, null, null, buffer);
 
         if ((recordsWritten > 0) && (buffer != null) && (buffer.remaining() > 7)) {
-            writeEvent(buffer, false);
+            writeEvent(buffer, false, false);
         }
     }
 
@@ -1905,7 +1911,7 @@ System.out.println("EventWriter contr: Disk is FULL");
         createCommonRecord(xmlDictionary, bank, null, null);
 
         if ((recordsWritten > 0) && (bank != null)) {
-            writeEvent(bank, null, false);
+            writeEvent(bank, null, false, false);
         }
     }
 
@@ -2112,9 +2118,13 @@ System.out.println("EventWriter contr: Disk is FULL");
         else {
             // Write record to file
             if (singleThreadedCompression) {
-                try {compressAndWriteToFile(false);}
-                catch (Exception e) {
-                    e.printStackTrace();
+                if (currentRecord.getEventCount() > 0) {
+                    try {
+                        compressAndWriteToFile(false);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 // In compressAndWriteToFile, asyncFileChannel will have been created if not before
             }
@@ -2531,7 +2541,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      */
     public boolean writeEvent(EvioNode node, boolean force) throws EvioException, IOException {
         // Duplicate buffer so we can set pos & limit without messing others up
-        return writeEvent(node, force, true);
+        return writeEvent(node, force, true, false);
     }
 
     /**
@@ -2566,6 +2576,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         record event count limit exceeded, or bank and bankBuffer args are both null.
      *
@@ -2577,7 +2590,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      *                       if file exists but user requested no over-writing;
      *                       if null node arg;
      */
-    public boolean writeEvent(EvioNode node, boolean force, boolean duplicate)
+    public boolean writeEvent(EvioNode node, boolean force, boolean duplicate, boolean ownRecord)
             throws EvioException, IOException {
 
         if (node == null) {
@@ -2599,7 +2612,7 @@ System.out.println("EventWriter contr: Disk is FULL");
 
         int pos = node.getPosition();
         eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
-        return writeEvent(null, eventBuffer, force);
+        return writeEvent(null, eventBuffer, force, ownRecord);
 
         // Shouldn't the pos & lim be reset for non-duplicate?
         // It don't think it matters since node knows where to
@@ -2622,7 +2635,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
-     * {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
+     * {@link #writeEvent(EvioBank, ByteBuffer, boolean, boolean)}
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
@@ -2677,8 +2690,9 @@ System.out.println("EventWriter contr: Disk is FULL");
 
         int pos = node.getPosition();
         eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
-        return writeEventToFile(null, eventBuffer, force);
+        return writeEventToFile(null, eventBuffer, force, false);
     }
+
 
     /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
@@ -2713,8 +2727,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      *                       if file exists but user requested no over-writing.
      */
     public boolean writeEvent(ByteBuffer bankBuffer) throws EvioException, IOException {
-        return writeEvent(null, bankBuffer, false);
+        return writeEvent(null, bankBuffer, false, false);
     }
+
 
     /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
@@ -2742,6 +2757,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      *
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         record event count limit exceeded, or bank and bankBuffer args are both null.
      *
@@ -2752,9 +2770,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing.
      */
-    public boolean writeEvent(ByteBuffer bankBuffer, boolean force)
+    public boolean writeEvent(ByteBuffer bankBuffer, boolean force, boolean ownRecord)
             throws EvioException, IOException {
-        return writeEvent(null, bankBuffer, force);
+        return writeEvent(null, bankBuffer, force, ownRecord);
     }
 
 
@@ -2788,7 +2806,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      */
     public boolean writeEvent(EvioBank bank)
             throws EvioException, IOException {
-        return writeEvent(bank, null, false);
+        return writeEvent(bank, null, false, false);
     }
 
 
@@ -2816,6 +2834,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      *
      * @param bank   the bank to write.
      * @param force  if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         record event count limit exceeded, or bank and bankBuffer args are both null.
      *
@@ -2824,9 +2845,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;.
      */
-    public boolean writeEvent(EvioBank bank, boolean force)
+    public boolean writeEvent(EvioBank bank, boolean force, boolean ownRecord)
             throws EvioException, IOException {
-        return writeEvent(bank, null, force);
+        return writeEvent(bank, null, force, ownRecord);
     }
 
 
@@ -2858,6 +2879,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         record event count limit exceeded, or bank and bankBuffer args are both null.
      *
@@ -2868,7 +2892,8 @@ System.out.println("EventWriter contr: Disk is FULL");
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing.
      */
-    synchronized private boolean writeEvent(EvioBank bank, ByteBuffer bankBuffer, boolean force)
+    synchronized private boolean writeEvent(EvioBank bank, ByteBuffer bankBuffer,
+                                            boolean force, boolean ownRecord)
             throws EvioException, IOException {
 
         if (closed) {
@@ -2980,9 +3005,14 @@ System.out.println("EventWriter contr: Disk is FULL");
             splitEventCount = 0;
         }
 
+        // If event to be written in its own record
+        if (ownRecord) {
+            fitInRecord = false;
+        }
         // Try adding event to current record.
-        // One event is guaranteed to fit in a record no matter the size.
-        if (bankBuffer != null) {
+        // One event is guaranteed to fit in a record no matter the size,
+        // IFF using multithreaded compression.
+        else if (bankBuffer != null) {
             fitInRecord = currentRecord.addEvent(bankBuffer);
         }
         else {
@@ -3035,13 +3065,16 @@ System.out.println("EventWriter contr: Disk is FULL");
                 }
             }
             else {
-                // Send current record back to ring without adding event
-                supply.publish(currentRingItem);
+                // This "if" is only needed since we may want event in its own record
+                if (currentRecord.getEventCount() > 0) {
+                    // Send current record back to ring without adding event
+                    supply.publish(currentRingItem);
 
-                // Get another empty record from ring
-                currentRingItem = supply.get();
-                currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(recordNumber++);
+                    // Get another empty record from ring
+                    currentRingItem = supply.get();
+                    currentRecord = currentRingItem.getRecord();
+                    currentRecord.getHeader().setRecordNumber(recordNumber++);
+                }
 
                 // Add event to it (guaranteed to fit)
                 if (bankBuffer != null) {
@@ -3053,11 +3086,12 @@ System.out.println("EventWriter contr: Disk is FULL");
             }
         }
 
-        // If event must be physically written to disk ...
-        if (force) {
+        // If event must be physically written to disk,
+        // or the event must be written in its own record ...
+        if (force || ownRecord) {
             if (singleThreadedCompression) {
                 try {
-                    compressAndWriteToFile(true);
+                    compressAndWriteToFile(force);
                 }
                 catch (InterruptedException e) {
                     return false;
@@ -3067,8 +3101,8 @@ System.out.println("EventWriter contr: Disk is FULL");
                 }
             }
             else {
-                // Tell writer to force this record to disk
-                currentRingItem.forceToDisk(true);
+                // Tell writer to force this record to disk if necessary
+                currentRingItem.forceToDisk(force);
                 // Send current record back to ring
                 supply.publish(currentRingItem);
 
@@ -3081,6 +3115,7 @@ System.out.println("EventWriter contr: Disk is FULL");
 
         return true;
     }
+
 
     /**
      * Write an event (bank) into a record and eventually to a file in evio/hipo
@@ -3095,7 +3130,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
-     * {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
+     * {@link #writeEvent(EvioBank, ByteBuffer, boolean, boolean)}
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
@@ -3117,6 +3152,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return true if event was added to record. If splitting files, false if disk
      *         partition too full to write the complete, next split file.
      *         False if interrupted. If force arg is true, write anyway.
@@ -3130,7 +3168,8 @@ System.out.println("EventWriter contr: Disk is FULL");
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing.
      */
-    synchronized public boolean writeEventToFile(EvioBank bank, ByteBuffer bankBuffer, boolean force)
+    synchronized public boolean writeEventToFile(EvioBank bank, ByteBuffer bankBuffer,
+                                                 boolean force, boolean ownRecord)
             throws EvioException, IOException {
 
         if (closed) {
@@ -3269,12 +3308,17 @@ System.out.println("EventWriter contr: Disk is FULL");
 //System.out.println("Will split, reset splitEventBytes = "  + splitEventBytes);
         }
 
+        // If event to be written in its own record
+        if (ownRecord) {
+            fitInRecord = false;
+        }
         // Try adding event to current record.
-        // One event is guaranteed to fit in a record no matter the size.
-        // But if record's memory is expanded to fit the one big event,
-        // every subsequent record written using this object will be
+        // One event is guaranteed to fit in a record no matter the size,
+        // IFF using multithreaded compression.
+        // If record's memory is expanded to fit the one big event,
+        // every subsequent record written using this object may be
         // bigger as well.
-        if (bankBuffer != null) {
+        else if (bankBuffer != null) {
             fitInRecord = currentRecord.addEvent(bankBuffer);
         }
         else {
@@ -3317,8 +3361,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                         throw new IOException(e);
                     }
 
-                    // Add event to it which will fit -- unless buffer is provided
-                    // by user and single event is bigger than available memory.
+                    // Try add eventing to it (1 very big event many not fit)
                     if (bankBuffer != null) {
                         fitInRecord = currentRecord.addEvent(bankBuffer);
                     }
@@ -3347,11 +3390,14 @@ System.out.println("EventWriter contr: Disk is FULL");
                 }
             }
             else {
-                currentRingItem.setCheckDisk(true);
-                supply.publish(currentRingItem);
-                currentRingItem = supply.get();
-                currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(recordNumber++);
+                // This "if" is only needed since we may want event in its own record
+                if (currentRecord.getEventCount() > 0) {
+                    currentRingItem.setCheckDisk(true);
+                    supply.publish(currentRingItem);
+                    currentRingItem = supply.get();
+                    currentRecord = currentRingItem.getRecord();
+                    currentRecord.getHeader().setRecordNumber(recordNumber++);
+                }
 
                 // Add event to it which is guaranteed to fit
                 if (bankBuffer != null) {
@@ -3363,11 +3409,12 @@ System.out.println("EventWriter contr: Disk is FULL");
             }
         }
 
-        // If event must be physically written to disk ...
-        if (force) {
+        // If event must be physically written to disk,
+        // or the event must be written in its own record ...
+        if (force || ownRecord) {
             if (singleThreadedCompression) {
                 try {
-                    if (!tryCompressAndWriteToFile(true)) {
+                    if (!tryCompressAndWriteToFile(force)) {
                         splitEventCount--;
                         splitEventBytes -= currentEventBytes;
                         return false;
@@ -3381,14 +3428,16 @@ System.out.println("EventWriter contr: Disk is FULL");
                 }
             }
             else {
-                // Force things to disk by telling the writing
-                // thread which record started the force to disk.
-                // This will force this record, along with all preceeding records in
-                // the pipeline, to the file.
-                // Once it's written, we can go back to the normal of not
-                // forcing things to disk.
-                currentRingItem.setId(++idCounter);
-                recordWriterThread.setForcedRecordId(idCounter);
+                if (force) {
+                    // Force things to disk by telling the writing
+                    // thread which record started the force to disk.
+                    // This will force this record, along with all preceeding records in
+                    // the pipeline, to the file.
+                    // Once it's written, we can go back to the normal of not
+                    // forcing things to disk.
+                    currentRingItem.setId(++idCounter);
+                    recordWriterThread.setForcedRecordId(idCounter);
+                }
 
                 supply.publish(currentRingItem);
                 currentRingItem = supply.get();
@@ -4090,8 +4139,10 @@ System.out.println("EventWriter contr: Disk is FULL");
             }
 
             try {
-                RecordHeader.writeTrailer(buffer, (int)bytesWritten,
-                                          recordNumber, recordLengths);
+                int bytes = RecordHeader.writeTrailer(buffer, (int)bytesWritten,
+                                                      recordNumber, recordLengths);
+                bytesWritten += bytes;
+                buffer.limit((int)bytesWritten);
             }
             catch (HipoException e) {/* never happen */}
         }
@@ -4108,8 +4159,10 @@ System.out.println("EventWriter contr: Disk is FULL");
 
             try {
                 // Place data into buffer - both header and index
-                RecordHeader.writeTrailer(buffer, (int) bytesWritten,
-                                          recordNumber, recordLengths);
+                int bytes = RecordHeader.writeTrailer(buffer, (int) bytesWritten,
+                                                      recordNumber, recordLengths);
+                bytesWritten += bytes;
+                buffer.limit((int)bytesWritten);
             }
             catch (HipoException e) {/* never happen */}
         }

@@ -415,10 +415,10 @@ System.out.println("FileTest, write to file " + fileName + "\n");
 //                         int ringSize, int bufferSize)
 
             // Write prestart event, force to file
-            writer.writeEvent(prestartBuf, true);
+            writer.writeEvent(prestartBuf, true, false);
 
             // Write go event, do NOT force to file
-            writer.writeEvent(goBuf, true);
+            writer.writeEvent(goBuf, true, false);
 
             ts += 10;
 
@@ -427,13 +427,13 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                 ByteBuffer event = createEventBuffer(ts);
                 ts += 10;
                 // Write event to file
-                writer.writeEvent(event, false);
+                writer.writeEvent(event, false, false);
                 System.out.println("Wrote event w/ ts = " + ts);
             }
 
             // Write end event, do NOT force to file
             ByteBuffer endBuf = createEndBuffer(ts, 4);
-            writer.writeEvent(endBuf, false);
+            writer.writeEvent(endBuf, false, false);
 
             // All done writing
             System.out.println("FileTest, call close()\n\n");

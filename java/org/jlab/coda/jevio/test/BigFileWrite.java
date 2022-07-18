@@ -254,7 +254,7 @@ if (debug) System.out.println("buf: pos = " + buf.position() + ", cap = " + buf.
                     t1 = System.currentTimeMillis();
 
                     for (int j=0; j < loops; j++) {
-                        eventWriter.writeEvent(buf, forceToDisk);
+                        eventWriter.writeEvent(buf, forceToDisk, false);
                         buf.clear();
                     }
 

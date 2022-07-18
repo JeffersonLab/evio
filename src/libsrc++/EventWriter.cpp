@@ -277,15 +277,15 @@ namespace evio {
         // an external buffer), is that trying to write a single event of over
         // bufferSize will fail. C. Timmer
         if (bufferSize < 1) {
-            bufferSize = 9437184;
+            internalBufSize = 9437184;
         }
         else {
-            bufferSize = bufferSize < 1000000 ? 1000000 : bufferSize;
+            internalBufSize = bufferSize < 1000000 ? 1000000 : bufferSize;
         }
 
         internalBuffers.reserve(2);
-        internalBuffers.push_back(std::make_shared<ByteBuffer>(bufferSize));
-        internalBuffers.push_back(std::make_shared<ByteBuffer>(bufferSize));
+        internalBuffers.push_back(std::make_shared<ByteBuffer>(internalBufSize));
+        internalBuffers.push_back(std::make_shared<ByteBuffer>(internalBufSize));
         internalBuffers[0]->order(byteOrder);
         internalBuffers[1]->order(byteOrder);
         buffer = internalBuffers[0];
@@ -733,17 +733,17 @@ namespace evio {
      */
     void EventWriter::expandInternalBuffers(int bytes) {
 
-        if ((bytes <= bufferSize) || !toFile || !singleThreadedCompression) {
+        if ((bytes <= internalBufSize) || !toFile || !singleThreadedCompression) {
             return;
         }
 
         // Give it 20% more than asked for
-        bufferSize = bytes / 10 * 12;
+        internalBufSize = bytes / 10 * 12;
 
         internalBuffers.clear();
 
-        internalBuffers.push_back(std::make_shared<ByteBuffer>(bufferSize));
-        internalBuffers.push_back(std::make_shared<ByteBuffer>(bufferSize));
+        internalBuffers.push_back(std::make_shared<ByteBuffer>(internalBufSize));
+        internalBuffers.push_back(std::make_shared<ByteBuffer>(internalBufSize));
         internalBuffers[0]->order(byteOrder);
         internalBuffers[1]->order(byteOrder);
         buffer = internalBuffers[0];
@@ -1039,7 +1039,7 @@ namespace evio {
         createCommonRecord(xmlDictionary, nullptr, nullptr, buf);
 
         if ((recordsWritten > 0) && (buf->remaining() > 7)) {
-            writeEvent(buf, false);
+            writeEvent(buf, false, false);
         }
     }
 
@@ -1091,7 +1091,7 @@ namespace evio {
         createCommonRecord(xmlDictionary, bank, nullptr, nullptr);
 
         if (recordsWritten > 0) {
-            writeEvent(bank, nullptr, false);
+            writeEvent(bank, nullptr, false, false);
         }
     }
 
@@ -1306,9 +1306,11 @@ namespace evio {
         else {
             // Write record to file
             if (singleThreadedCompression) {
-                try {compressAndWriteToFile(false);}
-                catch (std::exception & e) {
-                    std::cout << e.what() << std::endl;
+               if (currentRecord->getEventCount() > 0) {
+                    try {compressAndWriteToFile(false);}
+                    catch (std::exception & e) {
+                        std::cout << e.what() << std::endl;
+                    }
                 }
             }
             else {
@@ -1704,47 +1706,6 @@ namespace evio {
                                     bytesWritten - trailerBytes()) >= bytes);
     }
 
-    /**
-     * Write an event (bank) into a record in evio/hipo version 6 format.
-     * Once the record is full and if writing to a file (for multiple compression
-     * threads), the record will be sent to a thread which may compress the data,
-     * then it will be sent to a thread to write the record to file.
-     * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
-     * If writing to a buffer, once the record is full this method returns
-     * false - indicating that the last event was NOT written to the record.
-     * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
-     * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
-     * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
-     *
-     * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     *<b>kill</b> performance when writing to a file.<p>
-     *
-     * This method is not used to write the dictionary or the first event
-     * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
-     *
-     * @param node       object representing the event to write in buffer form
-     * @param force      if writing to disk, force it to write event to the disk.
-     * @return if writing to buffer: true if event was added to record, false if buffer full,
-     *         or record event count limit exceeded.
-     *
-     * @throws EvioException if error writing file
-     *                       if event is opposite byte order of internal buffer;
-     *                       if close() already called;
-     *                       if bad eventBuffer format;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing;
-     *                       if null node arg;
-     */
-    bool EventWriter::writeEvent(std::shared_ptr<EvioNode> & node, bool force) {
-        // Duplicate buffer so we can set pos & limit without messing others up
-        return writeEvent(node, force, true);
-    }
 
     /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
@@ -1778,6 +1739,9 @@ namespace evio {
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         or record event count limit exceeded.
      *
@@ -1788,7 +1752,7 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriter::writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate) {
+    bool EventWriter::writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate, bool ownRecord) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
         auto bb = node->getBuffer();
@@ -1804,7 +1768,7 @@ namespace evio {
 
         uint32_t pos = node->getPosition();
         eventBuffer->limit(pos + node->getTotalBytes()).position(pos);
-        return writeEvent(nullptr, eventBuffer, force);
+        return writeEvent(nullptr, eventBuffer, force, ownRecord);
     }
 
     /**
@@ -1845,6 +1809,9 @@ namespace evio {
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return true if event was added to record. If splitting files, false if disk
      *         partition too full to write the complete, next split file.
      *         False if interrupted. If force arg is true, write anyway.
@@ -1856,7 +1823,8 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriter::writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate) {
+    bool EventWriter::writeEventToFile(std::shared_ptr<EvioNode> & node, bool force,
+                                       bool duplicate, bool ownRecord) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
         auto bb = node->getBuffer();
@@ -1872,7 +1840,7 @@ namespace evio {
 
         uint32_t pos = node->getPosition();
         eventBuffer->limit(pos + node->getTotalBytes()).position(pos);
-        return writeEventToFile(nullptr, eventBuffer, force);
+        return writeEventToFile(nullptr, eventBuffer, force, ownRecord);
     }
 
     /**
@@ -1913,6 +1881,9 @@ namespace evio {
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate bb so its position and limit
      *                   can be changed without issue.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return true if event was added to record. If splitting files, false if disk
      *         partition too full to write the complete, next split file.
      *         False if interrupted. If force arg is true, write anyway.
@@ -1924,7 +1895,8 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriter::writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force, bool duplicate) {
+    bool EventWriter::writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force,
+                                       bool duplicate, bool ownRecord) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
 
@@ -1937,44 +1909,9 @@ namespace evio {
             eventBuffer = bb;
         }
 
-        return writeEventToFile(nullptr, eventBuffer, force);
+        return writeEventToFile(nullptr, eventBuffer, force, ownRecord);
     }
 
-    /**
-     * Write an event (bank) into a record in evio/hipo version 6 format.
-     * Once the record is full and if writing to a file (for multiple compression
-     * threads), the record will be sent to a thread which may compress the data,
-     * then it will be sent to a thread to write the record to file.
-     * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
-     * If writing to a buffer, once the record is full this method returns
-     * false - indicating that the last event was NOT written to the record.
-     * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
-     * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
-     * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
-     *
-     * This method is not used to write the dictionary or the first event
-     * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
-     *
-     * @param bankBuffer the bank (as a ByteBuffer object) to write.
-     * @return if writing to buffer: true if event was added to record, false if buffer full,
-     *         or record event count limit exceeded.
-     *
-     * @throws EvioException if error writing file
-     *                       if event is opposite byte order of internal buffer;
-     *                       if close() already called;
-     *                       if bad eventBuffer format;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing.
-     */
-    bool EventWriter::writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer) {
-        return writeEvent(nullptr, bankBuffer, false);
-    }
 
     /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
@@ -2002,6 +1939,9 @@ namespace evio {
      *
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         or record event count limit exceeded.
      *
@@ -2012,41 +1952,8 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing.
      */
-    bool EventWriter::writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force) {
-        return writeEvent(nullptr, bankBuffer, force);
-    }
-
-
-    /**
-     * Write an event (bank) into a record in evio/hipo version 6 format.
-     * Once the record is full and if writing to a file (for multiple compression
-     * threads), the record will be sent to a thread which may compress the data,
-     * then it will be sent to a thread to write the record to file.
-     * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
-     * If writing to a buffer, once the record is full this method returns
-     * false - indicating that the last event was NOT written to the record.
-     * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
-     * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
-     *
-     * This method is not used to write the dictionary or the first event
-     * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
-     *
-     * @param bank   the bank to write.
-     * @return if writing to buffer: true if event was added to record, false if buffer full,
-     *         or record event count limit exceeded.
-     *
-     * @throws EvioException if error writing file
-     *                       if close() already called;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing;.
-     */
-    bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank) {
-        return writeEvent(bank, nullptr, false);
+    bool EventWriter::writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force, bool ownRecord) {
+        return writeEvent(nullptr, bankBuffer, force, ownRecord);
     }
 
 
@@ -2082,8 +1989,59 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;.
      */
-    bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank, bool force) {
-        return writeEvent(bank, nullptr, force);
+    bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank, bool force, bool ownRecord) {
+        return writeEvent(bank, nullptr, force, ownRecord);
+    }
+
+
+    /**
+     * Write an event (bank) into a record and eventually to a file in evio/hipo
+     * version 6 format.
+     * Once the record is full and if writing with multiple compression
+     * threads, the record will be sent to a thread which may compress the data,
+     * then it will be sent to a thread to write the record to file.
+     * If there is only 1 compression thread, it's all done in the thread which
+     * call this method.<p>
+     *
+     * <b>
+     * If splitting files, this method returns false if disk partition is too full
+     * to write the complete, next split file. If force arg is true, write anyway.
+     * DO NOT mix calling this method with calling
+     * {@link #writeEvent()} (all variants).
+     * Results are unpredictable as it messes up the
+     * logic used to quit writing to full disk.
+     * </b>
+     *
+     * Do not call this while simultaneously calling
+     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * Be warned that injudicious use of a true 2nd arg, the force flag, will
+     * <b>kill</b> performance when writing to a file.<p>
+     *
+     * This method is not used to write the dictionary or the first event
+     * which are both placed in the common record which, in turn, is the
+     * user header part of the file header.<p>
+     *
+     * @param bb         ByteBuffer representing the event.
+     * @param force      if writing to disk, force it to write event to the disk.
+     * @param duplicate  if true, duplicate bb so its position and limit
+     *                   can be changed without issue.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
+     * @return true if event was added to record. If splitting files, false if disk
+     *         partition too full to write the complete, next split file.
+     *         False if interrupted. If force arg is true, write anyway.
+     *
+     * @throws EvioException if error writing file
+     *                       if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     */
+    bool EventWriter::writeEventToFile(std::shared_ptr<EvioBank> bank, bool force, bool ownRecord) {
+        return writeEventToFile(bank, nullptr, force, ownRecord);
     }
 
 
@@ -2117,6 +2075,9 @@ namespace evio {
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         record event count limit exceeded, or bank and bankBuffer args are both null.
      *
@@ -2128,7 +2089,8 @@ namespace evio {
      *                       if file exists but user requested no over-writing.
      */
     bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank,
-                                 std::shared_ptr<ByteBuffer> bankBuffer, bool force) {
+                                 std::shared_ptr<ByteBuffer> bankBuffer,
+                                 bool force, bool ownRecord) {
 
         if (closed) {
             throw EvioException("close() has already been called");
@@ -2248,9 +2210,14 @@ namespace evio {
             splitEventCount = 0;
         }
 
+        // If event to be written in its own record
+        if (ownRecord) {
+            fitInRecord = false;
+        }
         // Try adding event to current record.
-        // One event is guaranteed to fit in a record no matter the size.
-        if (bankBuffer != nullptr) {
+        // One event is guaranteed to fit in a record no matter the size,
+        // IFF using multithreaded compression.
+        else if (bankBuffer != nullptr) {
             fitInRecord = currentRecord->addEvent(bankBuffer);
         }
         else {
@@ -2260,41 +2227,75 @@ namespace evio {
         // If no room or too many events ...
         if (!fitInRecord) {
             if (singleThreadedCompression) {
-                try {
-                    compressAndWriteToFile(false);
+                // Only try to write what we have if there's something to write
+                if (currentRecord->getEventCount() > 0) {
+                    try {
+                        compressAndWriteToFile(false);
+                    }
+                    catch (boost::thread_interrupted &e) {
+                        return false;
+                    }
+                    catch (std::exception &e) {
+                        throw EvioException(e);
+                    }
+
+                    // Try add eventing to it (1 very big event many not fit)
+                    if (bankBuffer != nullptr) {
+                        fitInRecord = currentRecord->addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord->addEvent(bank);
+                    }
                 }
-                catch (boost::thread_interrupted & e) {
-                    return false;
-                }
-                catch (std::exception & e) {
-                    throw EvioException(e);
+
+                // Since we're here, we have a single event too big to fit in the
+                // allocated buffers. So expand buffers and try again.
+                if (!fitInRecord) {
+//std::cout << "writeEventToFile: expand buffers to " << (currentEventBytes/10*12) << "  bytes" << std::endl;
+                    expandInternalBuffers(currentEventBytes);
+
+                    if (bankBuffer != nullptr) {
+                        fitInRecord = currentRecord->addEvent(bankBuffer);
+                    }
+                    else {
+                        fitInRecord = currentRecord->addEvent(bank);
+                    }
+
+                    if (!fitInRecord) {
+                        throw EvioException("cannot fit event into buffer");
+                    }
+//std::cout << "writeEventToFile: EVENT FINALLY FIT!" << std::endl;
                 }
             }
             else {
-                // Send current record back to ring without adding event
-                supply->publish(currentRingItem);
+                // This "if" is only needed since we may want event in its own record
+                if (currentRecord->getEventCount() > 0) {
+                    // Send current record back to ring without adding event
+                    supply->publish(currentRingItem);
 
-                // Get another empty record from ring
-                currentRingItem = supply->get();
-                currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //std::cout << "writeEvent: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
-            }
+                    // Get another empty record from ring
+                    currentRingItem = supply->get();
+                    currentRecord = currentRingItem->getRecord();
+                    currentRecord->getHeader()->setRecordNumber(recordNumber++);
+//std::cout << "writeEvent: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
+                }
 
-            // Add event to it (guaranteed to fit)
-            if (bankBuffer != nullptr) {
-                currentRecord->addEvent(bankBuffer);
-            }
-            else {
-                currentRecord->addEvent(bank);
+                // Add event to it (guaranteed to fit)
+                if (bankBuffer != nullptr) {
+                    currentRecord->addEvent(bankBuffer);
+                }
+                else {
+                    currentRecord->addEvent(bank);
+                }
             }
         }
 
-        // If event must be physically written to disk ...
-        if (force) {
+        // If event must be physically written to disk,
+        // or the event must be written in its own record ...
+        if (force || ownRecord) {
             if (singleThreadedCompression) {
                 try {
-                    compressAndWriteToFile(true);
+                    compressAndWriteToFile(force);
                 }
                 catch (boost::thread_interrupted & e) {
                     return false;
@@ -2305,7 +2306,7 @@ namespace evio {
             }
             else {
                 // Tell writer to force this record to disk
-                currentRingItem->forceToDisk(true);
+                currentRingItem->forceToDisk(force);
                 // Send current record back to ring
                 supply->publish(currentRingItem);
 
@@ -2313,7 +2314,7 @@ namespace evio {
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //std::cout << "writeEvent: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
+//std::cout << "writeEvent: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
             }
         }
 
@@ -2357,6 +2358,9 @@ namespace evio {
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return true if event was added to record. If splitting files, false if disk
      *         partition too full to write the complete, next split file.
      *         False if interrupted. If force arg is true, write anyway.
@@ -2371,7 +2375,8 @@ namespace evio {
      *                       if file exists but user requested no over-writing.
      */
     bool EventWriter::writeEventToFile(std::shared_ptr<EvioBank> bank,
-                                       std::shared_ptr<ByteBuffer> bankBuffer, bool force) {
+                                       std::shared_ptr<ByteBuffer> bankBuffer,
+                                       bool force, bool ownRecord) {
 
         if (closed) {
             throw EvioException("close() has already been called");
@@ -2512,9 +2517,17 @@ namespace evio {
             //cout << "Will split, reset splitEventBytes = "  << splitEventBytes << endl;
         }
 
+        // If event to be written in its own record
+        if (ownRecord) {
+            fitInRecord = false;
+        }
         // Try adding event to current record.
-        // One event is guaranteed to fit in a record no matter the size.
-        if (bankBuffer != nullptr) {
+        // One event is guaranteed to fit in a record no matter the size,
+        // IFF using multithreaded compression.
+        // If record's memory is expanded to fit the one big event,
+        // every subsequent record written using this object may be
+        // bigger as well.
+        else if (bankBuffer != nullptr) {
             fitInRecord = currentRecord->addEvent(bankBuffer);
         }
         else {
@@ -2588,12 +2601,15 @@ namespace evio {
                 }
             }
             else {
-                currentRingItem->setCheckDisk(true);
-                supply->publish(currentRingItem);
-                currentRingItem = supply->get();
-                currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader()->setRecordNumber(recordNumber++);
+                // This "if" is only needed since we may want event in its own record
+                if (currentRecord->getEventCount() > 0) {
+                    currentRingItem->setCheckDisk(true);
+                    supply->publish(currentRingItem);
+                    currentRingItem = supply->get();
+                    currentRecord = currentRingItem->getRecord();
+                    currentRecord->getHeader()->setRecordNumber(recordNumber++);
 //std::cout << "writeEventToFile: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
+                }
 
                 // Add event to it (guaranteed to fit)
                 if (bankBuffer != nullptr) {
@@ -2605,8 +2621,9 @@ namespace evio {
             }
         }
 
-        // If event must be physically written to disk ...
-        if (force) {
+        // If event must be physically written to disk,
+        // or the event must be written in its own record ...
+        if (force || ownRecord) {
             if (singleThreadedCompression) {
                 try {
                     if (!tryCompressAndWriteToFile(true)) {
@@ -2623,14 +2640,16 @@ namespace evio {
                 }
             }
             else {
-                // Force things to disk by telling the writing
-                // thread which record started the force to disk.
-                // This will force this record, along with all preceeding records in
-                // the pipeline, to the file.
-                // Once it's written, we can go back to the normal of not
-                // forcing things to disk.
-                currentRingItem->setId(++idCounter);
-                recordWriterThread[0].setForcedRecordId(idCounter);
+                if (force) {
+                    // Force things to disk by telling the writing
+                    // thread which record started the force to disk.
+                    // This will force this record, along with all preceeding records in
+                    // the pipeline, to the file.
+                    // Once it's written, we can go back to the normal of not
+                    // forcing things to disk.
+                    currentRingItem->setId(++idCounter);
+                    recordWriterThread[0].setForcedRecordId(idCounter);
+                }
 
                 supply->publish(currentRingItem);
                 currentRingItem = supply->get();
@@ -3256,8 +3275,10 @@ namespace evio {
                 throw EvioException("not enough room in buffer");
             }
 
-            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber);
-        }
+            int bytes = RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber);
+            bytesWritten += bytes;
+            buffer->limit(bytesWritten);
+   }
         else {
             // Create the index of record lengths in proper byte order
             uint32_t arraySize = 4*recordLengths->size();
@@ -3276,7 +3297,9 @@ namespace evio {
 
             // Place data into buffer - both header and index
             //std::cout << "writeTrailerToBuffer: start writing at pos = " << bytesWritten << std::endl;
-            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber, recordLengths);
+            int bytes = RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber, recordLengths);
+            bytesWritten += bytes;
+            buffer->limit(bytesWritten);
         }
     }
 
