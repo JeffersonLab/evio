@@ -4,6 +4,6 @@ var searchData=
   ['notificationactive_1925',['notificationActive',['../d7/d5d/classevio_1_1_event_parser.html#a020d1c4bf00e6e945a88fb4d0ffcf7da',1,'evio::EventParser']]],
   ['number_1926',['number',['../db/dfb/classevio_1_1_base_structure_header.html#a770f7ab1ceaacffe9eace5ef54405df5',1,'evio::BaseStructureHeader::number()'],['../da/de6/classevio_1_1_block_header_v4.html#af74f05d4dd1a7c87c45c570471994a44',1,'evio::BlockHeaderV4::number()']]],
   ['numberdataitems_1927',['numberDataItems',['../d9/ddd/classevio_1_1_base_structure.html#a5ff899f399d825ee358ddcc9d65a354b',1,'evio::BaseStructure']]],
-  ['nvalue_1928',['NVALUE',['../d5/d23/classevio_1_1_data_type.html#a594dff401ed927c25cae6147977bf0b4',1,'evio::DataType']]],
-  ['nvalue_1929',['nVALUE',['../d5/d23/classevio_1_1_data_type.html#a8aeecc0417a67fb853c0e7508bc890f5',1,'evio::DataType']]]
+  ['nvalue_1928',['nVALUE',['../d5/d23/classevio_1_1_data_type.html#a8aeecc0417a67fb853c0e7508bc890f5',1,'evio::DataType']]],
+  ['nvalue_1929',['NVALUE',['../d5/d23/classevio_1_1_data_type.html#a594dff401ed927c25cae6147977bf0b4',1,'evio::DataType']]]
 ];
