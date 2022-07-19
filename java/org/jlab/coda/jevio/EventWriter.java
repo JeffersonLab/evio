@@ -2659,6 +2659,9 @@ System.out.println("EventWriter contr: Disk is FULL");
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
+     *
      * @return true if event was added to record. If splitting files, false if disk
      *         partition too full to write the complete, next split file.
      *         False if interrupted. If force arg is true, write anyway.
@@ -2671,7 +2674,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      *                       if file exists but user requested no over-writing;
      *                       if null node arg;
      */
-    public boolean writeEventToFile(EvioNode node, boolean force, boolean duplicate)
+    public boolean writeEventToFile(EvioNode node, boolean force, boolean duplicate, boolean ownRecord)
             throws EvioException, IOException {
 
         if (node == null) {
@@ -2690,7 +2693,7 @@ System.out.println("EventWriter contr: Disk is FULL");
 
         int pos = node.getPosition();
         eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
-        return writeEventToFile(null, eventBuffer, force, false);
+        return writeEventToFile(null, eventBuffer, force, ownRecord);
     }
 
 
