@@ -2620,6 +2620,7 @@ final public class EventWriterUnsync implements AutoCloseable {
         return writeEvent(node, force, true, false);
     }
 
+
     /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
@@ -2652,8 +2653,6 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
-     * @param ownRecord  if true, write event in its own record regardless
-     *                   of event count and record size limits.
      *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         record event count limit exceeded, or bank and bankBuffer args are both null.
@@ -2666,6 +2665,58 @@ final public class EventWriterUnsync implements AutoCloseable {
      *                       if file exists but user requested no over-writing;
      *                       if null node arg;
      */
+    public boolean writeEvent(EvioNode node, boolean force, boolean duplicate)
+            throws EvioException, IOException {
+        return writeEvent(node, force, true, false);
+    }
+
+
+   /**
+    * Write an event (bank) into a record in evio/hipo version 6 format.
+    * Once the record is full and if writing to a file (for multiple compression
+    * threads), the record will be sent to a thread which may compress the data,
+    * then it will be sent to a thread to write the record to file.
+    * If there is only 1 compression thread, it's all done in the thread which
+    * call this method.<p>
+    * If writing to a buffer, once the record is full this method returns
+    * false - indicating that the last event was NOT written to the record.
+    * To finish the writing process, call {@link #close()}. This will
+    * compress the data if desired and then write it to the buffer.<p>
+    *
+    * The buffer must contain only the event's data (event header and event data)
+    * and must <b>not</b> be in complete evio file format.
+    * Do not call this while simultaneously calling
+    * close, flush, setFirstEvent, or getByteBuffer.<p>
+    *
+    * Be warned that injudicious use of a true 2nd arg, the force flag, will
+    *<b>kill</b> performance when writing to a file.
+    * A true 3rd arg can be used when the backing buffer
+    * of the node is accessed by multiple threads simultaneously. This allows
+    * that buffer's limit and position to be changed without interfering
+    * with the other threads.<p>
+    *
+    * This method is not used to write the dictionary or the first event
+    * which are both placed in the common record which, in turn, is the
+    * user header part of the file header.<p>
+    *
+    * @param node       object representing the event to write in buffer form
+    * @param force      if writing to disk, force it to write event to the disk.
+    * @param duplicate  if true, duplicate node's buffer so its position and limit
+    *                   can be changed without issue.
+    * @param ownRecord  if true, write event in its own record regardless
+    *                   of event count and record size limits.
+    *
+    * @return if writing to buffer: true if event was added to record, false if buffer full,
+    *         record event count limit exceeded, or bank and bankBuffer args are both null.
+    *
+    * @throws IOException   if error writing file
+    * @throws EvioException if event is opposite byte order of internal buffer;
+    *                       if close() already called;
+    *                       if bad eventBuffer format;
+    *                       if file could not be opened for writing;
+    *                       if file exists but user requested no over-writing;
+    *                       if null node arg;
+    */
     public boolean writeEvent(EvioNode node, boolean force, boolean duplicate, boolean ownRecord)
             throws EvioException, IOException {
 
@@ -2697,6 +2748,7 @@ final public class EventWriterUnsync implements AutoCloseable {
 //            bb.limit(origLim).position(origPos);
 //        }
     }
+
 
     /**
      * Write an event (bank) into a record and eventually to a file in evio/hipo
@@ -2811,6 +2863,50 @@ final public class EventWriterUnsync implements AutoCloseable {
         return writeEvent(null, bankBuffer, false, false);
     }
 
+
+    /**
+     * Write an event (bank) into a record in evio/hipo version 6 format.
+     * Once the record is full and if writing to a file (for multiple compression
+     * threads), the record will be sent to a thread which may compress the data,
+     * then it will be sent to a thread to write the record to file.
+     * If there is only 1 compression thread, it's all done in the thread which
+     * call this method.<p>
+     * If writing to a buffer, once the record is full this method returns
+     * false - indicating that the last event was NOT written to the record.
+     * To finish the writing process, call {@link #close()}. This will
+     * compress the data if desired and then write it to the buffer.<p>
+     *
+     * The buffer must contain only the event's data (event header and event data)
+     * and must <b>not</b> be in complete evio file format.
+     * Do not call this while simultaneously calling
+     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * Be warned that injudicious use of a true 2nd arg, the force flag, will
+     * <b>kill</b> performance when writing to a file.
+     *
+     * This method is not used to write the dictionary or the first event
+     * which are both placed in the common record which, in turn, is the
+     * user header part of the file header.<p>
+     *
+     * @param bankBuffer the bank (as a ByteBuffer object) to write.
+     * @param force      if writing to disk, force it to write event to the disk.
+     *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         record event count limit exceeded, or bank and bankBuffer args are both null.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing.
+     */
+    public boolean writeEvent(ByteBuffer bankBuffer, boolean force)
+            throws EvioException, IOException {
+        return writeEvent(null, bankBuffer, force, false);
+    }
+
+
     /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
@@ -2887,6 +2983,45 @@ final public class EventWriterUnsync implements AutoCloseable {
     public boolean writeEvent(EvioBank bank)
             throws EvioException, IOException {
         return writeEvent(bank, null, false, false);
+    }
+
+
+    /**
+     * Write an event (bank) into a record in evio/hipo version 6 format.
+     * Once the record is full and if writing to a file (for multiple compression
+     * threads), the record will be sent to a thread which may compress the data,
+     * then it will be sent to a thread to write the record to file.
+     * If there is only 1 compression thread, it's all done in the thread which
+     * call this method.<p>
+     * If writing to a buffer, once the record is full this method returns
+     * false - indicating that the last event was NOT written to the record.
+     * To finish the writing process, call {@link #close()}. This will
+     * compress the data if desired and then write it to the buffer.<p>
+     *
+     * Do not call this while simultaneously calling
+     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * This method is not used to write the dictionary or the first event
+     * which are both placed in the common record which, in turn, is the
+     * user header part of the file header.<p>
+     *
+     * Be warned that injudicious use of the 2nd arg, the force flag, will
+     * <b>kill</b> performance when writing to a file.
+     *
+     * @param bank   the bank to write.
+     * @param force  if writing to disk, force it to write event to the disk.
+     *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         record event count limit exceeded, or bank and bankBuffer args are both null.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if close() already called;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;.
+     */
+    public boolean writeEvent(EvioBank bank, boolean force)
+            throws EvioException, IOException {
+        return writeEvent(bank, null, force, false);
     }
 
 
