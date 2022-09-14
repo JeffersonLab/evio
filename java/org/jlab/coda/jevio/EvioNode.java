@@ -1155,7 +1155,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
     }
 
     /**
-     * Get the padding of this evio structure.
+     * Get the padding in bytes of this evio structure.
      * Will be zero for segments and tagsegments.
      * @return padding of this evio structure
      */
