@@ -635,7 +635,6 @@ final public class Utilities {
         int origLim = buf.limit();
         // set pos = 0, lim = cap
         buf.clear();
-        buf.position(position);
 
         bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
 
@@ -649,7 +648,7 @@ final public class Utilities {
                 System.out.print("  ");
             }
 
-            System.out.print(String.format("%02x", buf.get(i)) + " ");
+            System.out.print(String.format("%02x", buf.get(i + position)) + " ");
         }
         System.out.println();
         System.out.println();
