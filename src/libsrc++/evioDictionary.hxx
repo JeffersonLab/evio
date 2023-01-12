@@ -67,12 +67,12 @@ public:
 
 public:
   bool parseDictionary(const string &dictionaryXML);
-  tagNum getTagNum(const string &name) const throw(evioException);
-  string getName(tagNum tn) const throw(evioException);
+  tagNum getTagNum(const string &name) const ;
+  string getName(tagNum tn) const ;
   string getDictionaryXML(void) const;
   void setSeparator(const string &sep);
   string getSeparator(void) const;
-  string toString(void) const throw(evioException);
+  string toString(void) const ;
 
 
 private:

@@ -34,7 +34,7 @@ class evioDictionary;
 class evioChannelBufferizable {
 
 public:
-  virtual int toEVIOBuffer(uint32_t *buf, int size) const throw(evioException) = 0;
+  virtual int toEVIOBuffer(uint32_t *buf, int size) const  = 0;
   virtual ~evioChannelBufferizable() {}
 };
 
@@ -59,25 +59,25 @@ public:
   evioChannel(evioDictionary *dict) : dictionary(dict) {}
   virtual ~evioChannel(void) {};
 
-  virtual void open(void) throw(evioException) = 0;
+  virtual void open(void)  = 0;
 
-  virtual bool read(void) throw(evioException) = 0;
-  virtual bool read(uint32_t *myBuf, int length) throw(evioException) = 0;
-  virtual bool readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioException) = 0;
-  virtual bool readNoCopy(void) throw(evioException) = 0;
-  virtual bool readRandom(uint32_t eventNumber) throw(evioException) {
+  virtual bool read(void)  = 0;
+  virtual bool read(uint32_t *myBuf, int length)  = 0;
+  virtual bool readAlloc(uint32_t **buffer, uint32_t *bufLen)  = 0;
+  virtual bool readNoCopy(void)  = 0;
+  virtual bool readRandom(uint32_t eventNumber)  {
     throw(evioException(0,"?evioChannel::readRandom...unsupported method"));
   }
 
-  virtual void write(void) throw(evioException) = 0;
-  virtual void write(const uint32_t* myBuf) throw(evioException) = 0;
-  virtual void write(const evioChannel &channel) throw(evioException) = 0;
-  virtual void write(const evioChannel *channel) throw(evioException) = 0;
-  virtual void write(const evioChannelBufferizable &o) throw(evioException) = 0;
-  virtual void write(const evioChannelBufferizable *o) throw(evioException) = 0;
+  virtual void write(void)  = 0;
+  virtual void write(const uint32_t* myBuf)  = 0;
+  virtual void write(const evioChannel &channel)  = 0;
+  virtual void write(const evioChannel *channel)  = 0;
+  virtual void write(const evioChannelBufferizable &o)  = 0;
+  virtual void write(const evioChannelBufferizable *o)  = 0;
 
-  virtual void close(void) throw(evioException) = 0;
-  virtual int ioctl(const string &request, void *argp) throw(evioException) = 0;
+  virtual void close(void)  = 0;
+  virtual int ioctl(const string &request, void *argp)  = 0;
 
 
 protected:
@@ -87,15 +87,15 @@ protected:
 public:
   virtual const evioDictionary *getDictionary(void) const {return(dictionary);}
 
-  virtual const uint32_t *getBuffer(void) const throw(evioException) = 0;
+  virtual const uint32_t *getBuffer(void) const  = 0;
   virtual int getBufSize(void) const = 0;
-  virtual const uint32_t *getNoCopyBuffer(void) const throw(evioException) = 0;
+  virtual const uint32_t *getNoCopyBuffer(void) const  = 0;
 
-  virtual const uint32_t *getRandomBuffer(void) const throw(evioException) {
+  virtual const uint32_t *getRandomBuffer(void) const  {
     return(NULL);
     //    throw(evioException(0,"?evioChannel::getRandomBuffer...unsupported method"));
   }
-  virtual void getRandomAccessTable(uint32_t *** const table, uint32_t *len) const throw(evioException) {
+  virtual void getRandomAccessTable(uint32_t *** const table, uint32_t *len) const  {
     throw(evioException(0,"?evioChannel::getRandomAccessTable...unsupported method"));
   }
 

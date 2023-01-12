@@ -30,42 +30,42 @@ namespace evio {
 class evioBufferChannel : public evioChannel {
 
 public:
-  evioBufferChannel(uint32_t *streamBuf, int bufLen, const string &mode = "r", int size=100000) throw(evioException);
-  evioBufferChannel(uint32_t *streamBuf, int bufLen, evioDictionary *dict, const string &mode = "r", int size=100000) throw(evioException);
+  evioBufferChannel(uint32_t *streamBuf, int bufLen, const string &mode = "r", int size=100000) ;
+  evioBufferChannel(uint32_t *streamBuf, int bufLen, evioDictionary *dict, const string &mode = "r", int size=100000) ;
   virtual ~evioBufferChannel(void);
 
 
-  void open(void) throw(evioException);
+  void open(void) ;
 
-  bool read(void) throw(evioException);
-  bool read(uint32_t *myEventBuf, int length) throw(evioException);
-  bool readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioException);
-  bool readNoCopy(void) throw(evioException);
-  bool readRandom(uint32_t bufferNumber) throw(evioException);
+  bool read(void) ;
+  bool read(uint32_t *myEventBuf, int length) ;
+  bool readAlloc(uint32_t **buffer, uint32_t *bufLen) ;
+  bool readNoCopy(void) ;
+  bool readRandom(uint32_t bufferNumber) ;
 
-  void write(void) throw(evioException);
-  void write(const uint32_t *myEventBuf) throw(evioException);
-  void write(const evioChannel &channel) throw(evioException);
-  void write(const evioChannel *channel) throw(evioException);
-  void write(const evioChannelBufferizable &o) throw(evioException);
-  void write(const evioChannelBufferizable *o) throw(evioException);
+  void write(void) ;
+  void write(const uint32_t *myEventBuf) ;
+  void write(const evioChannel &channel) ;
+  void write(const evioChannel *channel) ;
+  void write(const evioChannelBufferizable &o) ;
+  void write(const evioChannelBufferizable *o) ;
 
-  void close(void) throw(evioException);
-  int ioctl(const string &request, void *argp) throw(evioException);
+  void close(void) ;
+  int ioctl(const string &request, void *argp) ;
 
 
-  const uint32_t *getBuffer(void) const throw(evioException);
+  const uint32_t *getBuffer(void) const ;
   int getBufSize(void) const;
-  const uint32_t *getNoCopyBuffer(void) const throw(evioException);
+  const uint32_t *getNoCopyBuffer(void) const ;
 
-  const uint32_t *getRandomBuffer(void) const throw(evioException);
-  void getRandomAccessTable(uint32_t *** const table, uint32_t *len) const throw(evioException);
+  const uint32_t *getRandomBuffer(void) const ;
+  void getRandomAccessTable(uint32_t *** const table, uint32_t *len) const ;
 
 
-  const uint32_t *getStreamBuffer(void) const throw(evioException);
+  const uint32_t *getStreamBuffer(void) const ;
   int getStreamBufSize(void) const;
   string getMode(void) const;
-  uint32_t getEVIOBufferLength(void) const throw(evioException);
+  uint32_t getEVIOBufferLength(void) const ;
   string getBufferXMLDictionary(void) const;
 
 

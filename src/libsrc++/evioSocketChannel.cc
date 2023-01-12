@@ -25,7 +25,7 @@ using namespace evio;
  * @param m I/O mode, "r" or "w"
  * @param size Internal event buffer size
  */
-evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size) throw(evioException) 
+evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size)
   : evioChannel(), sockFD(sockFD), mode(m), handle(0), bufSize(size), socketXMLDictionary(""), createdSocketDictionary(false)  {
   if(sockFD==0)throw(evioException(0,"?evioSocketChannel constructor...zero socket file descriptor",__FILE__,__FUNCTION__,__LINE__));
 
@@ -48,7 +48,7 @@ evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size) thro
  * @param m I/O mode, "r" or "w"
  * @param size Internal event buffer size
  */
-evioSocketChannel::evioSocketChannel(int sockFD, evioDictionary *dict, const string &m, int size) throw(evioException) 
+evioSocketChannel::evioSocketChannel(int sockFD, evioDictionary *dict, const string &m, int size)
   : evioChannel(dict), sockFD(sockFD), mode(m), handle(0), bufSize(size), socketXMLDictionary(""), createdSocketDictionary(false)  {
   if(sockFD==0)throw(evioException(0,"?evioSocketChannel constructor...zero socket file descriptor",__FILE__,__FUNCTION__,__LINE__));
 
@@ -81,7 +81,7 @@ evioSocketChannel::~evioSocketChannel(void) {
  * Opens channel for reading or writing.
  * For read, user-supplied dictionary overrides one received from socket.
  */
-void evioSocketChannel::open(void) throw(evioException) {
+void evioSocketChannel::open(void)  {
 
   int stat;
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
@@ -125,7 +125,7 @@ void evioSocketChannel::open(void) throw(evioException) {
  * Reads from socket.
  * @return true if successful, false on EOF or other evRead error condition
  */
-bool evioSocketChannel::read(void) throw(evioException) {
+bool evioSocketChannel::read(void)  {
   noCopyBuf=NULL;
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -142,7 +142,7 @@ bool evioSocketChannel::read(void) throw(evioException) {
  * @parem length Length of buffer in 4-byte words.
  * @return true if successful, false on EOF or other evRead error condition
  */
-bool evioSocketChannel::read(uint32_t *myBuf, int length) throw(evioException) {
+bool evioSocketChannel::read(uint32_t *myBuf, int length)  {
   noCopyBuf=NULL;
   if(myBuf==NULL)throw(evioException(0,"evioSocketChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -161,7 +161,7 @@ bool evioSocketChannel::read(uint32_t *myBuf, int length) throw(evioException) {
  *
  * Note:  user MUST free the allocated buffer!
  */
-bool evioSocketChannel::readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioException) {
+bool evioSocketChannel::readAlloc(uint32_t **buffer, uint32_t *bufLen)  {
   noCopyBuf=NULL;
   if(handle==0)throw(evioException(0,"evioSocketChannel::readAlloc...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
@@ -185,7 +185,7 @@ bool evioSocketChannel::readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evi
  * Reads from socket using no copy mechanism.
  * @return true if successful, false on EOF, throws exception for other error.
  */
-bool evioSocketChannel::readNoCopy(void) throw(evioException) {
+bool evioSocketChannel::readNoCopy(void)  {
   if(handle==0)throw(evioException(0,"evioSocketChannel::readNoCopy...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
   uint32_t bufLen;
@@ -203,7 +203,7 @@ bool evioSocketChannel::readNoCopy(void) throw(evioException) {
 /**
  * Writes to socket from internal buffer.
  */
-void evioSocketChannel::write(void) throw(evioException) {
+void evioSocketChannel::write(void)  {
   int stat;
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::write...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -219,7 +219,7 @@ void evioSocketChannel::write(void) throw(evioException) {
  * Writes to socket from user-supplied buffer.
  * @param myBuf Buffer containing event
  */
-void evioSocketChannel::write(const uint32_t *myBuf) throw(evioException) {
+void evioSocketChannel::write(const uint32_t *myBuf)  {
   int stat;
   if(myBuf==NULL)throw(evioException(0,"evioSocketChannel::write...null myBuf",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -235,7 +235,7 @@ void evioSocketChannel::write(const uint32_t *myBuf) throw(evioException) {
  * Writes to socket from internal buffer of another evioChannel object.
  * @param channel Channel object
  */
-void evioSocketChannel::write(const evioChannel &channel) throw(evioException) {
+void evioSocketChannel::write(const evioChannel &channel)  {
   int stat;
   if(handle==0)throw(evioException(0,"evioSocketChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
   if((stat=evWrite(handle,channel.getBuffer()))!=0) throw(evioException(stat,"?evioSocketChannel::write...unable to write from buffer: "
@@ -251,7 +251,7 @@ void evioSocketChannel::write(const evioChannel &channel) throw(evioException) {
  * Writes from internal buffer of another evioChannel object.
  * @param channel Pointer to channel object
  */
-void evioSocketChannel::write(const evioChannel *channel) throw(evioException) {
+void evioSocketChannel::write(const evioChannel *channel)  {
   if(channel==NULL)throw(evioException(0,"evioSocketChannel::write...null channel",__FILE__,__FUNCTION__,__LINE__));
   evioSocketChannel::write(*channel);
 }
@@ -264,7 +264,7 @@ void evioSocketChannel::write(const evioChannel *channel) throw(evioException) {
  * Writes from contents of evioChannelBufferizable object.
  * @param o evioChannelBufferizable object that can serialize to socket
  */
-void evioSocketChannel::write(const evioChannelBufferizable &o) throw(evioException) {
+void evioSocketChannel::write(const evioChannelBufferizable &o)  {
   if(handle==0)throw(evioException(0,"evioSocketChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
   o.toEVIOBuffer(buf,bufSize);
   evioSocketChannel::write();
@@ -278,7 +278,7 @@ void evioSocketChannel::write(const evioChannelBufferizable &o) throw(evioExcept
  * Writes from contents of evioChannelBufferizable object.
  * @param o Pointer to evioChannelBufferizable object that can serialize to socket
  */
-void evioSocketChannel::write(const evioChannelBufferizable *o) throw(evioException) {
+void evioSocketChannel::write(const evioChannelBufferizable *o)  {
   if(o==NULL)throw(evioException(0,"evioSocketChannel::write...null evioChannelBufferizable pointer",__FILE__,__FUNCTION__,__LINE__));
   evioSocketChannel::write(*o);
 }
@@ -292,7 +292,7 @@ void evioSocketChannel::write(const evioChannelBufferizable *o) throw(evioExcept
  * @param request String containing evIoctl parameters
  * @param argp Additional evIoctl parameter
  */
-int evioSocketChannel::ioctl(const string &request, void *argp) throw(evioException) {
+int evioSocketChannel::ioctl(const string &request, void *argp)  {
   int stat;
   if(handle==0)throw(evioException(0,"evioSocketChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
   stat=evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0;
@@ -308,7 +308,7 @@ int evioSocketChannel::ioctl(const string &request, void *argp) throw(evioExcept
 /**
  * Closes channel.
  */
-void evioSocketChannel::close(void) throw(evioException) {
+void evioSocketChannel::close(void)  {
   if(handle==0)throw(evioException(0,"evioSocketChannel::close...0 handle",__FILE__,__FUNCTION__,__LINE__));
   evClose(handle);
   handle=0;
@@ -334,7 +334,7 @@ string evioSocketChannel::getMode(void) const {
  * Returns pointer to internal channel buffer.
  * @return Pointer to internal buffer
  */
-const uint32_t *evioSocketChannel::getBuffer(void) const throw(evioException) {
+const uint32_t *evioSocketChannel::getBuffer(void) const  {
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::getBuffer...null buffer",__FILE__,__FUNCTION__,__LINE__));
   return(buf);
 }
@@ -359,7 +359,7 @@ int evioSocketChannel::getBufSize(void) const {
  * Returns pointer to no copy buffer
  * @return Returs pointer to internal buffer since there is noCopy buffer does not exist
  */
-const uint32_t *evioSocketChannel::getNoCopyBuffer(void) const throw(evioException) {
+const uint32_t *evioSocketChannel::getNoCopyBuffer(void) const  {
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::getNoCopyBuffer...null internal buffer",__FILE__,__FUNCTION__,__LINE__));
   return(buf);
 }
@@ -372,7 +372,7 @@ const uint32_t *evioSocketChannel::getNoCopyBuffer(void) const throw(evioExcepti
  * Returns socket file descriptor.
  * @return socket file descriptor
  */
- int evioSocketChannel::getSocketFD(void) const throw(evioException) {
+ int evioSocketChannel::getSocketFD(void) const  {
   return(sockFD);
 }
 

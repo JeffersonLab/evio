@@ -25,7 +25,7 @@ using namespace evio;
  * @param m I/O mode, "r" or "ra" or "w" or "a"
  * @param size Internal buffer size
  */
-evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
+evioFileChannel::evioFileChannel(const string &f, const string &m, int size)
   : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL), 
     fileXMLDictionary(""), createdFileDictionary(false) {
 
@@ -49,7 +49,7 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  * @param m I/O mode, "r" or "ra" or "w" or "a"
  * @param size Internal buffer size
  */
-evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const string &m, int size) throw(evioException) 
+evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const string &m, int size)
   : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL),
     fileXMLDictionary(""), createdFileDictionary(false) {
 
@@ -82,7 +82,7 @@ evioFileChannel::~evioFileChannel(void) {
  * Opens channel for reading or writing.
  * For read, user-supplied dictionary overrides one found in file.
  */
-void evioFileChannel::open(void) throw(evioException) {
+void evioFileChannel::open(void)  {
 
   int stat;
 
@@ -127,7 +127,7 @@ void evioFileChannel::open(void) throw(evioException) {
  * Reads from file into internal buffer.
  * @return true if successful, false on EOF or other evRead error condition
  */
-bool evioFileChannel::read(void) throw(evioException) {
+bool evioFileChannel::read(void)  {
   noCopyBuf=NULL;
   if(buf==NULL)throw(evioException(0,"evioFileChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -151,7 +151,7 @@ bool evioFileChannel::read(void) throw(evioException) {
  * @parem length Length of buffer in 4-byte words.
  * @return true if successful, false on EOF or other evRead error condition
  */
-bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
+bool evioFileChannel::read(uint32_t *myBuf, int length)  {
   noCopyBuf=NULL;
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -177,7 +177,7 @@ bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
  *
  * Note:  user MUST free the allocated buffer!
  */
-bool evioFileChannel::readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioException) {
+bool evioFileChannel::readAlloc(uint32_t **buffer, uint32_t *bufLen)  {
   noCopyBuf=NULL;
   if(handle==0)throw(evioException(0,"evioFileChannel::readAlloc...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
@@ -201,7 +201,7 @@ bool evioFileChannel::readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioE
  * Reads from file using no copy mechanism.
  * @return true if successful, false on EOF, throws exception for other error.
  */
-bool evioFileChannel::readNoCopy(void) throw(evioException) {
+bool evioFileChannel::readNoCopy(void)  {
   if(handle==0)throw(evioException(0,"evioFileChannel::readNoCopy...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
   uint32_t bufLen;
@@ -221,7 +221,7 @@ bool evioFileChannel::readNoCopy(void) throw(evioException) {
  * @param bufferNumber Buffer to return
  * @return true if successful, false on EOF, throws exception for other error.
  */
-bool evioFileChannel::readRandom(uint32_t bufferNumber) throw(evioException) {
+bool evioFileChannel::readRandom(uint32_t bufferNumber)  {
   noCopyBuf=NULL;
   if(handle==0)throw(evioException(0,"evioFileChannel::readRandom...0 handle",__FILE__,__FUNCTION__,__LINE__));
   
@@ -240,7 +240,7 @@ bool evioFileChannel::readRandom(uint32_t bufferNumber) throw(evioException) {
 /**
  * Writes to file from internal buffer.
  */
-void evioFileChannel::write(void) throw(evioException) {
+void evioFileChannel::write(void)  {
   int stat;
   if(buf==NULL)throw(evioException(0,"evioFileChannel::write...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -256,7 +256,7 @@ void evioFileChannel::write(void) throw(evioException) {
  * Writes to file from user-supplied buffer.
  * @param myBuf Buffer containing event
  */
-void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
+void evioFileChannel::write(const uint32_t *myBuf)  {
   int stat;
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
@@ -272,7 +272,7 @@ void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
  * Writes to file from internal buffer of another evioChannel object.
  * @param channel Channel object
  */
-void evioFileChannel::write(const evioChannel &channel) throw(evioException) {
+void evioFileChannel::write(const evioChannel &channel)  {
   int stat;
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
   if((stat=evWrite(handle,channel.getBuffer()))!=0) throw(evioException(stat,
@@ -288,7 +288,7 @@ void evioFileChannel::write(const evioChannel &channel) throw(evioException) {
  * Writes from internal buffer of another evioChannel object.
  * @param channel Pointer to channel object
  */
-void evioFileChannel::write(const evioChannel *channel) throw(evioException) {
+void evioFileChannel::write(const evioChannel *channel)  {
   if(channel==NULL)throw(evioException(0,"evioFileChannel::write...null channel",__FILE__,__FUNCTION__,__LINE__));
   evioFileChannel::write(*channel);
 }
@@ -301,7 +301,7 @@ void evioFileChannel::write(const evioChannel *channel) throw(evioException) {
  * Writes from contents of evioChannelBufferizable object.
  * @param o evioChannelBufferizable object that can serialze to buffer
  */
-void evioFileChannel::write(const evioChannelBufferizable &o) throw(evioException) {
+void evioFileChannel::write(const evioChannelBufferizable &o)  {
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
   o.toEVIOBuffer(buf,bufSize);
   evioFileChannel::write();
@@ -315,7 +315,7 @@ void evioFileChannel::write(const evioChannelBufferizable &o) throw(evioExceptio
  * Writes from contents of evioChannelBufferizable object.
  * @param o Pointer to evioChannelBufferizable object that can serialize to buffer
  */
-void evioFileChannel::write(const evioChannelBufferizable *o) throw(evioException) {
+void evioFileChannel::write(const evioChannelBufferizable *o)  {
   if(o==NULL)throw(evioException(0,"evioFileChannel::write...null evioChannel Bufferizable pointer",__FILE__,__FUNCTION__,__LINE__));
   evioFileChannel::write(*o);
 }
@@ -329,7 +329,7 @@ void evioFileChannel::write(const evioChannelBufferizable *o) throw(evioExceptio
  * @param request String containing evIoctl parameters
  * @param argp Additional evIoctl parameter
  */
-int evioFileChannel::ioctl(const string &request, void *argp) throw(evioException) {
+int evioFileChannel::ioctl(const string &request, void *argp)  {
   int stat;
   if(handle==0)throw(evioException(0,"evioFileChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
   stat=evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0;
@@ -345,7 +345,7 @@ int evioFileChannel::ioctl(const string &request, void *argp) throw(evioExceptio
 /**
  * Closes channel.
  */
-void evioFileChannel::close(void) throw(evioException) {
+void evioFileChannel::close(void)  {
   if(handle==0)throw(evioException(0,"evioFileChannel::close...0 handle",__FILE__,__FUNCTION__,__LINE__));
   evClose(handle);
   handle=0;
@@ -383,7 +383,7 @@ string evioFileChannel::getMode(void) const {
  * Returns pointer to internal channel buffer.
  * @return Pointer to internal buffer
  */
-const uint32_t *evioFileChannel::getBuffer(void) const throw(evioException) {
+const uint32_t *evioFileChannel::getBuffer(void) const  {
   if(buf==NULL)throw(evioException(0,"evioFileChannel::getbuffer...null buffer",__FILE__,__FUNCTION__,__LINE__));
   return(buf);
 }
@@ -408,7 +408,7 @@ int evioFileChannel::getBufSize(void) const {
  * Returns pointer to no copy buffer.
  * @return Pointer to no copy buffer
  */
-const uint32_t *evioFileChannel::getNoCopyBuffer(void) const throw(evioException) {
+const uint32_t *evioFileChannel::getNoCopyBuffer(void) const  {
   return(noCopyBuf);
 }
 
@@ -420,7 +420,7 @@ const uint32_t *evioFileChannel::getNoCopyBuffer(void) const throw(evioException
  * Returns pointer to random buffer.
  * @return Pointer to random buffer
  */
-const uint32_t *evioFileChannel::getRandomBuffer(void) const throw(evioException) {
+const uint32_t *evioFileChannel::getRandomBuffer(void) const  {
   return(randomBuf);
 }
 
@@ -445,7 +445,7 @@ string evioFileChannel::getFileXMLDictionary(void) const {
  * @param table Pointer to table
  * @param len Length of table
  */
-void evioFileChannel::getRandomAccessTable(uint32_t *** const table, uint32_t *len) const throw(evioException) {
+void evioFileChannel::getRandomAccessTable(uint32_t *** const table, uint32_t *len) const  {
   if(handle==0)throw(evioException(0,"evioFileChannel::getRandomAccessTable...0 handle",__FILE__,__FUNCTION__,__LINE__));
   evGetRandomAccessTable(handle,table,len);
 }

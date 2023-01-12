@@ -184,7 +184,7 @@ bankIndexRange evioBankIndex::getRange(const tagNum& tn) const {
  * @param tn tagNum
  * @return bankIndex for tagNum
  */
-bankIndex evioBankIndex::getBankIndex(const tagNum &tn) const throw(evioException) {
+bankIndex evioBankIndex::getBankIndex(const tagNum &tn) const {
 
   bankIndexMap::const_iterator iter = tagNumMap.find(tn);
   if(iter!=tagNumMap.end()) {

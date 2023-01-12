@@ -77,7 +77,7 @@ public:
   bool tagNumExists(const tagNum& tn) const;
   int tagNumCount(const tagNum& tn) const;
   bankIndexRange getRange(const tagNum& tn) const;
-  bankIndex getBankIndex(const tagNum &tn) const throw(evioException);
+  bankIndex getBankIndex(const tagNum &tn) const ;
   int getMaxDepth();
 
 
@@ -96,7 +96,7 @@ public:
    * @param pLen Pointer to int to receive data length, set to 0 upon error
    * @return Pointer to data, NULL on error
    */
-  template <typename T> const T* getData(const tagNum &tn, int *pLen) throw (evioException) {
+  template <typename T> const T* getData(const tagNum &tn, int *pLen)  {
 
     bankIndexMap::const_iterator iter = tagNumMap.find(tn);
 
@@ -117,7 +117,7 @@ public:
    * @param pLen Pointer to int to receive data length, set to 0 for bad type
    * @return Pointer to data, NULL on bad type
    */
-  template <typename T> const T* getData(const bankIndex &bi, int *pLen) throw (evioException) {
+  template <typename T> const T* getData(const bankIndex &bi, int *pLen)  {
 
     if(bi.contentType==evioUtil<T>::evioContentType()) {
       *pLen=(bi.dataLength);
