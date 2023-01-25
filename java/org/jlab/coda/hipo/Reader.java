@@ -1342,7 +1342,8 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
          recordNumberExpected = 1;
 
          // Try to allocate this only once
-         int[] eventLengths = new int[2000];
+// TODO: This uses memory & garbage collection
+//         int[] eventLengths = new int[2000];
 
          while (bytesLeft >= RecordHeader.HEADER_SIZE_BYTES) {
              // Read record header
@@ -1393,21 +1394,21 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
              // Track # of events in this record for event index handling
              eventIndex.addEventSize(eventCount);
 
-             // Find & store the index of event sizes (words)
-             if (eventCount > 0) {
-                 // allocate more memory if we need it
-                 if (eventCount > eventLengths.length) {
-                     eventLengths = new int[2*eventCount];
-                 }
-
-                 // Place in buffer to start reading event lengths (
-                 int lenIndex = position + recordHeaderLen;
-
-                 for (int i=0; i < eventCount; i++) {
-                     eventLengths[i] = buffer.getInt(lenIndex);
-                     lenIndex += 4;
-                 }
-             }
+//             // Find & store the index of event sizes (words)
+//             if (eventCount > 0) {
+//                 // allocate more memory if we need it
+//                 if (eventCount > eventLengths.length) {
+//                     eventLengths = new int[2*eventCount];
+//                 }
+//
+//                 // Place in buffer to start reading event lengths (
+//                 int lenIndex = position + recordHeaderLen;
+//
+//                 for (int i=0; i < eventCount; i++) {
+//                     eventLengths[i] = buffer.getInt(lenIndex);
+//                     lenIndex += 4;
+//                 }
+//             }
 
              // Hop over record header, user header, and index to events
              int byteLen = recordHeader.getHeaderLength() +
@@ -1420,11 +1421,17 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
              buffer.position(position);
  //System.out.println("    hopped to data, pos = " + position);
 
+             int eventLength;
+             int lenIndex = position + recordHeaderLen;
+
              // For each event in record, store its location
              for (int i=0; i < eventCount; i++) {
+                 eventLength = buffer.getInt(lenIndex);
+                 lenIndex += 4;
+
                  // Is the length we get from the first word of an evio bank/event (bytes)
                  // the same as the length we got from the record header? If not, it's not evio.
-                 boolean isEvio = 4*(buffer.getInt(position) + 1) == eventLengths[i];
+                 boolean isEvio = 4*(buffer.getInt(position) + 1) == eventLength;
                  //EvioNode node;
 
 
@@ -1449,7 +1456,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                          // handle normal logic flow. But not sure what else can be done.
                          // This should only happen very, very seldom.
 
-                         byteLen = eventLengths[i];
+                         byteLen = eventLength;
                          evioFormat = false;
 //System.out.println("      event (binary, exception)" + i + ", bytes = " + byteLen);
                      }
@@ -1457,13 +1464,13 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                  else {
                      // If we're here, the event is not in evio format, so just use the length we got
                      // previously from the record index.
-                     byteLen = eventLengths[i];
+                     byteLen = eventLength;
                      evioFormat = false;
 //System.out.println( "      event (binary, regular logic)" + i + ", bytes = " + byteLen);
                  }
 
 
-                // Hop over event
+                 // Hop over event
                  position  += byteLen;
                  bytesLeft -= byteLen;
 
