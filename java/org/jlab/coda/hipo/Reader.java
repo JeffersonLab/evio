@@ -1409,6 +1409,8 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
 //                     lenIndex += 4;
 //                 }
 //             }
+             int eventLength;
+             int lenIndex = position + recordHeaderLen;
 
              // Hop over record header, user header, and index to events
              int byteLen = recordHeader.getHeaderLength() +
@@ -1421,8 +1423,6 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
              buffer.position(position);
  //System.out.println("    hopped to data, pos = " + position);
 
-             int eventLength;
-             int lenIndex = position + recordHeaderLen;
 
              // For each event in record, store its location
              for (int i=0; i < eventCount; i++) {
