@@ -309,6 +309,7 @@ public class Reader {
         headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
         headerBuffer = ByteBuffer.wrap(headerBytes);
         recordHeader = new RecordHeader();
+        firstRecordHeader = new RecordHeader();
 
         ByteBuffer bb = scanBuffer();
         if (compressed) {
@@ -1150,8 +1151,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
         boolean isArrayBacked = (bigEnoughBuf.hasArray() && buffer.hasArray());
         boolean haveFirstRecordHeader = false;
 
-        RecordHeader recordHeader = new RecordHeader(HeaderType.EVIO_RECORD);
-
+        recordHeader.setHeaderType(HeaderType.EVIO_RECORD);
         // Start at the buffer's initial position
         int position  = bufferOffset;
         int recordPos = bufferOffset;
@@ -1196,7 +1196,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 buffer.order(byteOrder);
                 bigEnoughBuf.order(byteOrder);
                 evioVersion = recordHeader.getVersion();
-                firstRecordHeader = new RecordHeader(recordHeader);
+                firstRecordHeader.copy(recordHeader);
                 haveFirstRecordHeader = true;
             }
 
@@ -1365,7 +1365,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 byteOrder = recordHeader.getByteOrder();
                 buffer.order(byteOrder);
                 evioVersion = recordHeader.getVersion();
-                firstRecordHeader = new RecordHeader(recordHeader);
+                firstRecordHeader.copy(recordHeader);
                 compressed = recordHeader.getCompressionType() != CompressionType.RECORD_UNCOMPRESSED;
                 haveFirstRecordHeader = true;
             }
@@ -1485,8 +1485,6 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
     public void forceScanFile() throws IOException, HipoException {
         
         FileChannel channel;
-        byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
-        ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
 
         // Read and parse file header if we have't already done so in scanFile()
         if (fileHeader == null) {
@@ -1509,7 +1507,6 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
         eventIndex.clear();
         recordPositions.clear();
         recordNumberExpected = 1;
-        RecordHeader recordHeader = new RecordHeader();
         boolean haveFirstRecordHeader = false;
 
         // Scan file by reading each record header and
@@ -1553,7 +1550,7 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
 
             // Save the first record header
             if (!haveFirstRecordHeader) {
-                firstRecordHeader = new RecordHeader(recordHeader);
+                firstRecordHeader.copy(recordHeader);
                 compressed = firstRecordHeader.getCompressionType().isCompressed();
                 haveFirstRecordHeader = true;
             }
@@ -1580,6 +1577,12 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
      */
     public void scanFile(boolean force) throws IOException, HipoException {
 
+        // For garbage-free parsing
+        headerBytes  = new byte[RecordHeader.HEADER_SIZE_BYTES];
+        headerBuffer = ByteBuffer.wrap(headerBytes);
+        recordHeader = new RecordHeader();
+        firstRecordHeader = new RecordHeader();
+
         if (force) {
             forceScanFile();
             return;
@@ -1588,11 +1591,6 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
         eventIndex.clear();
         recordPositions.clear();
 //        recordNumberExpected = 1;
-
-        // For garbage-free parsing
-        headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
-        headerBuffer = ByteBuffer.wrap(headerBytes);
-        recordHeader = new RecordHeader();
 
         //System.out.println("[READER] ---> scanning the file");
 
@@ -1648,7 +1646,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
         // Move to first record and save the header
         channel.position(recordPosition);
         inStreamRandom.read(headerBytes);
-        firstRecordHeader = new RecordHeader(recordHeader);
+        firstRecordHeader.copy(recordHeader);
         firstRecordHeader.readHeader(headerBuffer);
         compressed = firstRecordHeader.getCompressionType().isCompressed();
 
