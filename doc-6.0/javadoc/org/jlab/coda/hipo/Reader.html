@@ -1490,7 +1490,8 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;void&nbsp;scanUncompressedBuffer()
                             throws <a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></pre>
 <div class="block">Scan buffer to find all records and store their position, length, and event count.
- Also finds all events and then creates and stores their associated EvioNode objects.</div>
+ Also finds all events and then creates and stores their associated EvioNode objects.
+ Be warned that this method generates garbage.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></code> - if buffer too small, not in the proper format, or earlier than version 6;
