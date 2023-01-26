@@ -430,7 +430,7 @@ public class Reader {
         buffer = buf;
         bufferLimit = buffer.limit();
         bufferOffset = buffer.position();
-        eventIndex = new FileEventIndex();
+        eventIndex.clear();
 
         eventNodes.clear();
         recordPositions.clear();
