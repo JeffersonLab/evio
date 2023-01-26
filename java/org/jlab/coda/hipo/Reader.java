@@ -120,14 +120,91 @@ public class Reader {
         public RecordPosition setPosition(long _pos){ position = _pos; return this; }
         public RecordPosition setLength(int _len)   { length = _len;   return this; }
         public RecordPosition setCount( int _cnt)   { count = _cnt;    return this; }
+        public void setAll(long pos, int len, int cnt)   {
+            position = pos; length = len; count = cnt;
+        }
 
         public long getPosition(){ return position;}
         public int  getLength(){   return   length;}
         public int  getCount(){    return    count;}
+        public void clear() {position = length = count = 0;}
 
         @Override
         public String toString(){
             return String.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
+        }
+    }
+
+    /** Internal ArrayList-based pool of RecordPosition objects. Use this to avoid generating garbage.  */
+    public class RecPosPool {
+
+        /** Index into object array of the next pool object to use. */
+        private int poolIndex;
+        /** Total size of the pool. */
+        private int size;
+        /** Pool of objects. */
+        private ArrayList<RecordPosition> objectPool;
+
+
+        /**
+         * Constructor.
+         * @param initialSize number of EvioNode objects in pool initially.
+         */
+        public RecPosPool(int initialSize) {
+            if (initialSize < 1) {
+                initialSize = 1;
+            }
+            size = initialSize;
+            objectPool = new ArrayList<RecordPosition>(size);
+
+            // Initially create pool objects
+            for (int i = 0; i < size; i++) {
+                objectPool.add(new RecordPosition(0));
+            }
+        }
+
+        /**
+         * Get the number of objects taken from pool.
+         * @return number of objects taken from pool.
+         */
+        public int getUsed() {return poolIndex;}
+
+        /**
+         * Get the number of objects in the pool.
+         * @return number of objects in the pool.
+         */
+        public int getSize() {return size;}
+
+        /** {@inheritDoc} */
+        public RecordPosition getObject() {
+            int currentIndex = poolIndex;
+            if (poolIndex++ >= size) {
+                increasePool();
+            }
+            return objectPool.get(currentIndex);
+        }
+
+
+        /** {@inheritDoc} */
+        public void reset() {
+//            for (int i=0; i < poolIndex; i++) {
+//                objectPool.get(i).clear();
+//            }
+            poolIndex = 0;
+        }
+
+
+        /** Increase the size of the pool by 20% or at least 1. */
+        private void increasePool() {
+            // Grow it by 20% at a shot
+            int newPoolSize = size + (size + 4)/5;
+            objectPool.ensureCapacity(newPoolSize);
+
+            for (int i = size; i < newPoolSize; i++) {
+                objectPool.add(new RecordPosition(0));
+            }
+
+            size = newPoolSize;
         }
     }
 
@@ -177,6 +254,7 @@ public class Reader {
     protected byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
     protected ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
     protected RecordHeader recordHeader = new RecordHeader();
+    protected RecPosPool recPosPool = new RecPosPool(20000);
 
     /** Files may have an xml format dictionary in the user header of the file header. */
     protected String dictionaryXML;
@@ -434,6 +512,7 @@ public class Reader {
 
         eventNodes.clear();
         recordPositions.clear();
+        recPosPool.reset();
         
         fromFile = false;
         compressed = false;
@@ -1212,7 +1291,9 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             }
 
             // Header is now describing the uncompressed buffer, bigEnoughBuf
-            RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
+            RecordPosition rp = recPosPool.getObject();
+            rp.setAll(position, recordBytes, eventCount);
+            //RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
             recordPositions.add(rp);
             // Track # of events in this record for event index handling
             eventIndex.addEventSize(eventCount);
@@ -1382,8 +1463,9 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             //System.out.println(">>>>>==============================================");
             //System.out.println(recordHeader.toString());
 
-            // TODO: This generates garbage
-            RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
+            RecordPosition rp = recPosPool.getObject();
+            rp.setAll(position, recordBytes, eventCount);
+            //RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
             //System.out.println(" RECORD HEADER ENTRIES = " + eventsInRecord);
             recordPositions.add(rp);
             // Track # of events in this record for event index handling
@@ -1550,8 +1632,10 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
             }
 
             recordLen = recordHeader.getLength();
-            RecordPosition pos = new RecordPosition(recordPosition, recordLen,
-                                                    recordHeader.getEntries());
+            RecordPosition pos = recPosPool.getObject();
+            pos.setAll(recordPosition, recordLen, recordHeader.getEntries());
+//            RecordPosition pos = new RecordPosition(recordPosition, recordLen,
+//                                                    recordHeader.getEntries());
             recordPositions.add(pos);
             // Track # of events in this record for event index handling
             eventIndex.addEventSize(recordHeader.getEntries());
@@ -1672,7 +1756,9 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
                 len = intData[i];
                 count = intData[i+1];
 //System.out.println("scanFile: record pos = " + recordPosition + ", len = " + len + ", count = " + count);
-                RecordPosition pos = new RecordPosition(recordPosition, len, count);
+                RecordPosition pos = recPosPool.getObject();
+                pos.setAll(recordPosition, len, count);
+                //RecordPosition pos = new RecordPosition(recordPosition, len, count);
                 recordPositions.add(pos);
                 // Track # of events in this record for event index handling
 //System.out.println("scanFile: add record's event count (" + count + ") to eventIndex");
