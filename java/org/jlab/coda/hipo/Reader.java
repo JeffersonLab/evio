@@ -165,7 +165,7 @@ public class Reader {
     /** Number or position of last record to be read. */
     protected int currentRecordLoaded;
     /** First record's header. */
-    protected RecordHeader firstRecordHeader;
+    protected RecordHeader firstRecordHeader = new RecordHeader();
     /** Record number expected when reading. Used to check sequence of records. */
     protected int recordNumberExpected = 1;
     /** If true, throw an exception if record numbers are out of sequence. */
@@ -174,9 +174,9 @@ public class Reader {
     protected FileEventIndex eventIndex = new FileEventIndex();
 
     // For garbage-free parsing
-    protected byte[] headerBytes;
-    protected ByteBuffer headerBuffer;
-    protected RecordHeader recordHeader;
+    protected byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
+    protected ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
+    protected RecordHeader recordHeader = new RecordHeader();
 
     /** Files may have an xml format dictionary in the user header of the file header. */
     protected String dictionaryXML;
@@ -304,12 +304,6 @@ public class Reader {
         nodePool = pool;
         fromFile = false;
         checkRecordNumberSequence = checkRecordNumSeq;
-
-        // For garbage-free parsing
-        headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
-        headerBuffer = ByteBuffer.wrap(headerBytes);
-        recordHeader = new RecordHeader();
-        firstRecordHeader = new RecordHeader();
 
         ByteBuffer bb = scanBuffer();
         if (compressed) {
@@ -1575,12 +1569,6 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
      * @throws HipoException if file is not in the proper format or earlier than version 6
      */
     public void scanFile(boolean force) throws IOException, HipoException {
-
-        // For garbage-free parsing
-        headerBytes  = new byte[RecordHeader.HEADER_SIZE_BYTES];
-        headerBuffer = ByteBuffer.wrap(headerBytes);
-        recordHeader = new RecordHeader();
-        firstRecordHeader = new RecordHeader();
 
         if (force) {
             forceScanFile();
