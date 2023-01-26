@@ -696,6 +696,8 @@
 <dd>
 <div class="block">Clear the entire object.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#clear--">clear()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/CompositeData.Data.html#clear--">clear()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/CompositeData.Data.html" title="class in org.jlab.coda.jevio">CompositeData.Data</a></dt>
 <dd>
 <div class="block">Clear all existing data in this object to prepare for reuse.</div>
@@ -3387,6 +3389,7 @@
 <dd>
 <div class="block">This method gets a list of all the n values of the data items inside the composite.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecPosPool.html#getObject--">getObject()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo">Reader.RecPosPool</a></dt>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordRingItem.html#getOrder--">getOrder()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordRingItem.html" title="class in org.jlab.coda.hipo">RecordRingItem</a></dt>
 <dd>
 <div class="block">Get the byte order used to build record.</div>
@@ -3656,6 +3659,10 @@
 <div class="block">Calculates the sixth word of this header which has the version number
  in the lowest 8 bits and the bit info in the highest 24 bits.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecPosPool.html#getSize--">getSize()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo">Reader.RecPosPool</a></dt>
+<dd>
+<div class="block">Get the number of objects in the pool.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#getSize--">getSize()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>
 <div class="block">Get the size of the block (record) in 32 bit words.</div>
@@ -3902,6 +3909,10 @@
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordOutputStream.html#getUncompressedSize--">getUncompressedSize()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordOutputStream.html" title="class in org.jlab.coda.hipo">RecordOutputStream</a></dt>
 <dd>
 <div class="block">Get the current uncompressed size of the record in bytes.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecPosPool.html#getUsed--">getUsed()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo">Reader.RecPosPool</a></dt>
+<dd>
+<div class="block">Get the number of objects taken from pool.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EvioNodePool.html#getUsed--">getUsed()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EvioNodePool.html" title="class in org.jlab.coda.jevio">EvioNodePool</a></dt>
 <dd>
@@ -5177,6 +5188,10 @@
 <dd>
 <div class="block">Internal class to keep track of the records in the file/buffer.</div>
 </dd>
+<dt><a href="org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Reader.RecPosPool</span></a> - Class in <a href="org/jlab/coda/hipo/package-summary.html">org.jlab.coda.hipo</a></dt>
+<dd>
+<div class="block">Internal ArrayList-based pool of RecordPosition objects.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileHeader.html#readHeader-java.nio.ByteBuffer-int-">readHeader(ByteBuffer, int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileHeader.html" title="class in org.jlab.coda.hipo">FileHeader</a></dt>
 <dd>
 <div class="block">Reads the file header information from a byte buffer and validates
@@ -5331,6 +5346,10 @@
 <dd>&nbsp;</dd>
 <dt><a href="org/jlab/coda/hipo/RecordViewer.RecordTableModel.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">RecordViewer.RecordTableModel</span></a> - Class in <a href="org/jlab/coda/hipo/package-summary.html">org.jlab.coda.hipo</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecPosPool.html#RecPosPool-int-">RecPosPool(int)</a></span> - Constructor for class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo">Reader.RecPosPool</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileHeader.html#REGISTER1_OFFSET">REGISTER1_OFFSET</a></span> - Static variable in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileHeader.html" title="class in org.jlab.coda.hipo">FileHeader</a></dt>
 <dd>
 <div class="block">Byte offset from beginning of header to the user register #1.</div>
@@ -5412,6 +5431,7 @@
 <dd>
 <div class="block">Reset most internal variables (not file id and header type).</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecPosPool.html#reset--">reset()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo">Reader.RecPosPool</a></dt>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Record.html#reset--">reset()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Record.html" title="class in org.jlab.coda.hipo">Record</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
@@ -5566,6 +5586,8 @@
 <dd>
 <div class="block">Constructor.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#setAll-long-int-int-">setAll(long, int, int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BaseStructure.html#setAllHeaderLengths--">setAllHeaderLengths()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a></dt>
 <dd>
 <div class="block">Compute and set length of all header fields for this structure and all its descendants.</div>

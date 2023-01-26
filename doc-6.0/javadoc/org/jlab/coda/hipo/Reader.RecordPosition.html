@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -53,7 +53,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jlab/coda/hipo/Reader.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../org/jlab/coda/hipo/ReadWriteTest.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jlab/coda/hipo/Reader.RecordPosition.html" target="_top">Frames</a></li>
@@ -140,30 +140,40 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getCount--">getCount</a></span>()</code>&nbsp;</td>
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#clear--">clear</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getLength--">getLength</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getCount--">getCount</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getLength--">getLength</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getPosition--">getPosition</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setCount-int-">setCount</a></span>(int&nbsp;_cnt)</code>&nbsp;</td>
-</tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setLength-int-">setLength</a></span>(int&nbsp;_len)</code>&nbsp;</td>
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setAll-long-int-int-">setAll</a></span>(long&nbsp;pos,
+      int&nbsp;len,
+      int&nbsp;cnt)</code>&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setPosition-long-">setPosition</a></span>(long&nbsp;_pos)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setCount-int-">setCount</a></span>(int&nbsp;_cnt)</code>&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setLength-int-">setLength</a></span>(int&nbsp;_len)</code>&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setPosition-long-">setPosition</a></span>(long&nbsp;_pos)</code>&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#toString--">toString</a></span>()</code>&nbsp;</td>
 </tr>
@@ -216,6 +226,17 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;<a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a>&nbsp;setCount(int&nbsp;_cnt)</pre>
 </li>
 </ul>
+<a name="setAll-long-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAll</h4>
+<pre>public&nbsp;void&nbsp;setAll(long&nbsp;pos,
+                   int&nbsp;len,
+                   int&nbsp;cnt)</pre>
+</li>
+</ul>
 <a name="getPosition--">
 <!--   -->
 </a>
@@ -241,6 +262,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getCount</h4>
 <pre>public&nbsp;int&nbsp;getCount()</pre>
+</li>
+</ul>
+<a name="clear--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clear</h4>
+<pre>public&nbsp;void&nbsp;clear()</pre>
 </li>
 </ul>
 <a name="toString--">
@@ -285,7 +315,7 @@ extends java.lang.Object</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jlab/coda/hipo/Reader.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../org/jlab/coda/hipo/ReadWriteTest.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../org/jlab/coda/hipo/Reader.RecPosPool.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jlab/coda/hipo/Reader.RecordPosition.html" target="_top">Frames</a></li>
