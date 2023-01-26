@@ -1382,6 +1382,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             //System.out.println(">>>>>==============================================");
             //System.out.println(recordHeader.toString());
 
+            // TODO: This generates garbage
             RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
             //System.out.println(" RECORD HEADER ENTRIES = " + eventsInRecord);
             recordPositions.add(rp);
