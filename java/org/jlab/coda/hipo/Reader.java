@@ -446,7 +446,6 @@ public class Reader {
         firstEvent = null;
         dictionaryXML = null;
         sequentialIndex = 0;
-        firstRecordHeader = null;
         currentRecordLoaded = 0;
 
         ByteBuffer bb = scanBuffer();
