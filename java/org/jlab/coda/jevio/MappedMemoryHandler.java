@@ -198,6 +198,31 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
 
 
     /**
+     * Clear this object and get it ready for reuse with new buffer.
+     * @param evioBuf buffer to analyze.
+     */
+    public void setBuffer(ByteBuffer evioBuf) {
+        // Reset variables
+        regions.clear();
+        eventPositions.clear();
+        evioErrorCondition = false;
+        blockCount = eventCount = 0;
+        regionCount = 1;
+
+        try {
+            // Generate position info
+            generateEventPositions(evioBuf, 0);
+        }
+        catch (EvioException e) {
+            evioErrorCondition = true;
+        }
+
+        // Store the map
+        regions.add(evioBuf);
+    }
+
+
+    /**
      * Generate a table (ArrayList) of positions of events in file/buffer.
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Only called if there are at least 32 bytes available.

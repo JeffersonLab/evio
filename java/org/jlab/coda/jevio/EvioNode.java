@@ -61,7 +61,7 @@ public class EvioNode implements Cloneable {
      *  then this object is obsolete. */
     boolean obsolete;
 
-    /** Block containing this node. */
+    /** Block containing this node which may be null. */
     public BlockNode blockNode;
 
     /** ByteBuffer that this node is associated with. */
@@ -279,7 +279,7 @@ public class EvioNode implements Cloneable {
      * placing into EvioNode obtained from an EvioNodeSource.
      * @param parent parent of the object.
      */
-    final private void copyParentForScan(EvioNode parent) {
+    private void copyParentForScan(EvioNode parent) {
         blockNode  = parent.blockNode;
         buffer     = parent.buffer;
         allNodes   = parent.allNodes;
@@ -415,7 +415,7 @@ public class EvioNode implements Cloneable {
      * @return EvioNode object containing evio event information
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractEventNode(ByteBuffer buffer,
+    static public EvioNode extractEventNode(ByteBuffer buffer,
                                                   EvioNodeSource pool,
                                                   BlockNode blockNode,
                                                   int position, int place)
@@ -457,7 +457,7 @@ public class EvioNode implements Cloneable {
      * @return EvioNode object containing evio event information
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractEventNode(ByteBuffer buffer, EvioNodeSource pool,
+    static public EvioNode extractEventNode(ByteBuffer buffer, EvioNodeSource pool,
                                                   int recPosition, int position, int place)
             throws EvioException {
 
@@ -492,7 +492,7 @@ public class EvioNode implements Cloneable {
      * @return EvioNode bankNode arg filled with appropriate data.
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractNode(EvioNode bankNode, int position)
+    static public EvioNode extractNode(EvioNode bankNode, int position)
             throws EvioException {
 
         // Make sure there is enough data to at least read evio header
@@ -555,7 +555,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
      *
      * @param node node being scanned
      */
-    static final void scanStructure(EvioNode node) {
+    static void scanStructure(EvioNode node) {
 
         int dType = node.dataType;
 
@@ -983,7 +983,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
     }
 
     /**
-     * Get the object representing the block header.
+     * Get the object representing the block header (might be null).
      * @return object representing the block header.
      */
     final BlockNode getBlockNode() {

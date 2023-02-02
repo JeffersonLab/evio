@@ -203,22 +203,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
      *                       failure to read first block header
      */
     public EvioCompactReaderV4(ByteBuffer byteBuffer) throws EvioException {
-
-        if (byteBuffer == null) {
-            throw new EvioException("Buffer arg is null");
-        }
-
-        initialPosition = byteBuffer.position();
-        this.byteBuffer = byteBuffer;
-
-        // Read first block header and find the file's endianness & evio version #.
-        // If there's a dictionary, read that too.
-        if (readFirstHeader() != ReadStatus.SUCCESS) {
-            throw new EvioException("Failed reading first block header/dictionary");
-        }
-
-        // Generate a table of all event positions in buffer for random access.
-        generateEventPositionTable();
+        this (byteBuffer, null);
     }
 
 

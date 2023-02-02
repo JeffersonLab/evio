@@ -173,26 +173,37 @@ public final class BlockHeaderV2 implements Cloneable, IEvioWriter, IBlockHeader
     }
 
 
-    /**
-     * This copy constructor creates an evio version 1-3 BlockHeader
-     * from another object of this class.
-     * @param blkHeader block header object to copy
-     */
-    public BlockHeaderV2(BlockHeaderV2 blkHeader) {
-        if (blkHeader == null) {
-            return;
-        }
-        size         = blkHeader.size;
-        number       = blkHeader.number;
-        headerLength = blkHeader.headerLength;
-        version      = blkHeader.version;
-        end          = blkHeader.end;
-        start        = blkHeader.start;
-        reserved1    = blkHeader.reserved1;
+	/**
+	 * This copy constructor creates an evio version 1-3 BlockHeader
+	 * from another object of this class.
+	 * @param blkHeader block header object to copy
+	 */
+	public BlockHeaderV2(BlockHeaderV2 blkHeader) {
+		copy(blkHeader);
+	}
+
+
+	/**
+	 * This copies an evio version 1-3 BlockHeader
+	 * from another object of this class.
+	 * @param blkHeader block header object to copy
+	 */
+	public void copy(BlockHeaderV2 blkHeader) {
+		if (blkHeader == null) {
+			return;
+		}
+		size         = blkHeader.size;
+		number       = blkHeader.number;
+		headerLength = blkHeader.headerLength;
+		version      = blkHeader.version;
+		end          = blkHeader.end;
+		start        = blkHeader.start;
+		reserved1    = blkHeader.reserved1;
 		byteOrder    = blkHeader.byteOrder;
 		magicNumber  = blkHeader.magicNumber;
-        bufferStartingPosition = blkHeader.bufferStartingPosition;
-    }
+		bufferStartingPosition = blkHeader.bufferStartingPosition;
+	}
+
 
 	/*** {@inheritDoc}  */
 	public Object clone() {

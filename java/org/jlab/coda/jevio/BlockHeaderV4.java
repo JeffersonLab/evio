@@ -214,6 +214,15 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
      * @param blkHeader block header object to copy
      */
     public BlockHeaderV4(BlockHeaderV4 blkHeader) {
+        copy(blkHeader);
+    }
+
+    /**
+     * This copies an evio version 4 BlockHeader
+     * from another object of this class.
+     * @param blkHeader block header object to copy
+     */
+    public void copy(BlockHeaderV4 blkHeader) {
         if (blkHeader == null) {
             return;
         }

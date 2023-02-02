@@ -144,6 +144,28 @@ public class EvioCompactReader implements IEvioCompactReader {
      *                       unsupported evio version.
      */
     public EvioCompactReader(ByteBuffer byteBuffer, EvioNodeSource pool, boolean synced) throws EvioException {
+        this(byteBuffer, null, synced, true);
+    }
+
+
+    /**
+     * Constructor for reading a buffer with the option of removing synchronization
+     * for much greater speed and for not generating BlockNode objects.
+     * @param byteBuffer the buffer that contains events.
+     * @param pool       the object pool to get EvioNode objects from.
+     * @param synced     if true, methods are synchronized for thread safety, else false.
+     * @param useBlockNodeObjects  if false, some methods are optimized for garbage reduction.
+     *                             In this case it only concerns the evio V4 unsynced compact reader.
+     *                             For this reader the removeEvent, removeStructure, and addStructure
+     *                             methods cannot be called (since they need the block header info).
+     * @see EventWriter
+     * @throws BufferUnderflowException if not enough buffer data;
+     * @throws EvioException if buffer arg is null;
+     *                       failure to parse first block header;
+     *                       unsupported evio version.
+     */
+    public EvioCompactReader(ByteBuffer byteBuffer, EvioNodeSource pool,
+                             boolean synced, boolean useBlockNodeObjects) throws EvioException {
 
         if (byteBuffer == null) {
             throw new EvioException("Buffer arg is null");
@@ -164,8 +186,7 @@ public class EvioCompactReader implements IEvioCompactReader {
                 reader = new EvioCompactReaderV4(byteBuffer, pool);
             }
             else {
-System.out.println("     EvioCompactReader const: call evio version 4, unsynced");
-                reader = new EvioCompactReaderUnsyncV4(byteBuffer, pool);
+                reader = new EvioCompactReaderUnsyncV4(byteBuffer, pool, useBlockNodeObjects);
             }
         }
         else if (evioVersion == 6) {

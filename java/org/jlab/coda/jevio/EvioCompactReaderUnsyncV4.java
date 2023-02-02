@@ -54,11 +54,24 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
     /** Stores info of all the (top-level) events. */
     private final ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
 
+    /**
+     * Are we using & storing block header objects or not? If user will be calling the
+     * {@link #addStructure(int, ByteBuffer)} or {@link #removeEvent(int)}, or
+     * {@link #removeEvent(int)} methods, then block header objects need to be
+     * created and stored.
+     * For fast parsing of streamed data, because the storage of block headers
+     * generates garbage, it's performant to turn it off. Can't be messing with
+     * the structure of events though.
+     * Keep it on by default to avoid surprises.
+     */
+    private boolean usingBlockHdrs = true;
+
     /** Store info of all block headers. */
     private final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
 
     /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
     private EvioNodeSource nodePool;
+
 
     /**
      * This is the number of events in the file. It is not computed unless asked for,
@@ -128,22 +141,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
      *                       failure to read first block header
      */
     public EvioCompactReaderUnsyncV4(ByteBuffer byteBuffer) throws EvioException {
-
-        if (byteBuffer == null) {
-            throw new EvioException("Buffer arg is null");
-        }
-
-        initialPosition = byteBuffer.position();
-        this.byteBuffer = byteBuffer;
-
-        // Read first block header and find the file's endianness & evio version #.
-        // If there's a dictionary, read that too.
-        if (readFirstHeader() != ReadStatus.SUCCESS) {
-            throw new EvioException("Failed reading first block header/dictionary");
-        }
-
-        // Generate a table of all event positions in buffer for random access.
-        generateEventPositionTable();
+        this(byteBuffer, null, true);
     }
 
 
@@ -158,6 +156,27 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
      *                       failure to read first block header
      */
     public EvioCompactReaderUnsyncV4(ByteBuffer byteBuffer, EvioNodeSource pool) throws EvioException {
+        this(byteBuffer, pool, true);
+    }
+
+
+    /**
+     * Constructor for reading a buffer.
+     * Turning off the use of BlockNode objects results in NOT being able to call the
+     * {@link #addStructure(int, ByteBuffer)} {@link #removeEvent(int)}, or
+     * {@link #removeEvent(int)} methods. It does reduce garbage generation for
+     * applications that do not need to call these (e.g streaming data in CODA).
+     *
+     * @param byteBuffer the buffer that contains events.
+     * @param pool pool of EvioNode objects to use when parsing buf.
+     * @param useBlockHeaders if false, do not create and store BlockNode objects.
+     *
+     * @see EventWriter
+     * @throws EvioException if buffer arg is null;
+     *                       failure to read first block header
+     */
+    public EvioCompactReaderUnsyncV4(ByteBuffer byteBuffer, EvioNodeSource pool, boolean useBlockHeaders)
+            throws EvioException {
 
         if (byteBuffer == null) {
             throw new EvioException("Buffer arg is null");
@@ -166,6 +185,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
         initialPosition = byteBuffer.position();
         this.byteBuffer = byteBuffer;
         nodePool = pool;
+        usingBlockHdrs = useBlockHeaders;
 
         // Read first block header and find the file's endianness & evio version #.
         // If there's a dictionary, read that too.
@@ -454,7 +474,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
         blockCount = 0;
         eventCount = 0;
         validDataWords = 0;
-        BlockNode blockNode, previousBlockNode=null;
+        BlockNode blockNode = null;
 
 //        int blockCounter = 0;
 //        System.out.println("generateEventPositionTable:");
@@ -500,18 +520,19 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
                     throw new EvioException("Bad evio format: not enough data to read block");
                 }
 
-                // File is now positioned before block header.
-                // Look at block header to get info.
-                blockNode = new BlockNode();
+                if (usingBlockHdrs) {
+                    // File is now positioned before block header.
+                    // Look at block header to get info.
+                    blockNode = new BlockNode();
 
-                blockNode.pos = position;
-                blockNode.len   = blockSize;
-                blockNode.count = blockEventCount;
+                    blockNode.pos = position;
+                    blockNode.len = blockSize;
+                    blockNode.count = blockEventCount;
 
-                blockNodes.put(blockCount, blockNode);
+                    blockNodes.put(blockCount, blockNode);
 //                bufferNode.blockNodes.add(blockNode);
 
-                blockNode.place = blockCount++;
+                    blockNode.place = blockCount;
 
 //                // Make linked list of blocks
 //                if (previousBlockNode != null) {
@@ -520,6 +541,8 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
 //                else {
 //                    previousBlockNode = blockNode;
 //                }
+                }
+                blockCount++;
 
                 validDataWords += blockSize;
                 if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(byteInfo);
@@ -557,7 +580,9 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
 //System.out.println("      event "+i+" in block: pos = " + node.pos +
 //                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
                     eventNodes.add(node);
-                    //blockNode.allEventNodes.add(node);
+//                    if (storeBlockHdrs) {
+//                        blockNode.allEventNodes.add(node);
+//                    }
 
                     // Hop over header + data
                     byteLen = 8 + 4*node.dataLen;
@@ -909,7 +934,8 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
      *                       if event number does not correspond to existing event;
      *                       if object closed;
      *                       if node was not found in any event;
-     *                       if internal programming error
+     *                       if internal programming error;
+     *                       if not using block header objects
      */
     public  ByteBuffer removeEvent(int eventNumber) throws EvioException {
 
@@ -942,9 +968,14 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
      * @return ByteBuffer updated to reflect the node removal
      * @throws EvioException if object closed;
      *                       if node was not found in any event;
-     *                       if internal programming error
+     *                       if internal programming error;
+     *                       if not using block header objects
      */
     public  ByteBuffer removeStructure(EvioNode removeNode) throws EvioException {
+
+        if (!usingBlockHdrs) {
+            throw new EvioException("need to be using block headers to call this method");
+        }
 
         // If we're removing nothing, then DO nothing
         if (removeNode == null) {
@@ -1067,7 +1098,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         }
 
         place = eventNode.blockNode.place;
-        for (int i=0; i < blockCount; i++) {
+        for (int i = 0; i < blockCount; i++) {
             if (i > place) {
                 blockNodes.get(i).pos -= removeDataLen;
             }
@@ -1175,7 +1206,8 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
      *                       if added data is not the proper length (i.e. multiple of 4 bytes);
      *                       if the event number does not correspond to an existing event;
      *                       if there is an internal programming error;
-     *                       if object closed
+     *                       if object closed;
+     *                       if not using block header objects.
      */
     public  ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
 
@@ -1193,6 +1225,10 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
         if (closed) {
             throw new EvioException("object closed");
+        }
+
+        if (!usingBlockHdrs) {
+            throw new EvioException("need to be using block headers to call this method");
         }
 
         EvioNode eventNode;
