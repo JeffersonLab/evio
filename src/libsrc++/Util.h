@@ -1035,6 +1035,7 @@ namespace evio {
         /**
          * Substitute environmental variables in a given string
          * when they come in the form, $(env).
+         * @see https://stackoverflow.com/questions/1902681/expand-file-names-that-have-environment-variables-in-their-path
          * @param text string to analyze.
          */
         static void expandEnvironmentalVariables(std::string & text) {
@@ -1043,8 +1044,9 @@ namespace evio {
             while ( std::regex_search(text, match, env) ) {
                 char * s = getenv(match[1].str().c_str());
                 std::string var(s == nullptr ? "" : s);
-                text.replace(match[0].first, match[0].second, var);
-                //text.replace(match.prefix().length(), match[0].length(), var);
+                // Next line doesn't compile on linux gcc
+                //text.replace(match[0].first, match[0].second, var);
+                text.replace( match.position(0), match.length(0), var );
             }
         }
 
@@ -1078,10 +1080,19 @@ namespace evio {
 
                 std::smatch match = *i;
                 std::string specWidth = match[1].str();
+
                 // Make sure any number preceding "x" or "d" starts with a 0 or else
                 // there will be empty spaces in the resulting string (i.e. file name).
                 if (specWidth.length() > 0 && specWidth[0] != '0') {
-                    text.replace(match[1].first, match[1].second, "0" + specWidth);
+                    // Does not compile on linux gcc
+                    // text.replace(match[1].first, match[1].second, "0" + specWidth);
+
+                    // So try this:
+                    // This first sub match occurs at the beginning of the match
+                    auto pos = match.position();
+                    auto len = specWidth.length();
+
+                    text.replace(pos, len, "0" + specWidth);
                 }
             }
 
@@ -1220,8 +1231,8 @@ namespace evio {
                                     "." + std::to_string(splitNumber);
                     }
                 }
-                    // For 1 specifier: insert run # at specified location,
-                    // then tack stream id and split # onto end of file name
+                // For 1 specifier: insert run # at specified location,
+                // then tack stream id and split # onto end of file name
                 else if (specifierCount == 1) {
                     char tempChar[fileName.length() + 1024];
                     int err = std::sprintf(tempChar, fileName.c_str(), runNumber);
@@ -1237,8 +1248,8 @@ namespace evio {
                                     "." + std::to_string(splitNumber);
                     }
                 }
-                    // For 2 specifiers: insert run # and split # at specified locations
-                    // and place stream id immediately before split #.
+                // For 2 specifiers: insert run # and split # at specified locations
+                // and place stream id immediately before split #.
                 else if (specifierCount == 2) {
                     if (!oneStream) {
                         // In order to place streamId before split#, place a %d in the filename
@@ -1249,7 +1260,11 @@ namespace evio {
                         // Go to 2nd match
                         it++;
                         std::smatch match = *it;
-                        fileName.replace(match[0].first, match[0].second, "%d." + match.str());
+                        auto pos = match.position();
+                        auto len = match.length();
+                        fileName.replace(pos, len, "%d." + match.str());
+                        // won't compile in linux gcc
+                        //fileName.replace(match[0].first, match[0].second, "%d." + match.str());
 
                         char tempChar[fileName.length() + 1024];
                         int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId, splitNumber);
@@ -1265,7 +1280,7 @@ namespace evio {
                         fileName = temp;
                     }
                 }
-                    // For 3 specifiers: insert run #, stream id, and split # at specified locations
+                // For 3 specifiers: insert run #, stream id, and split # at specified locations
                 else if (specifierCount == 3) {
                     char tempChar[fileName.length() + 1024];
                     int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId, splitNumber);
@@ -1275,8 +1290,8 @@ namespace evio {
                 }
 
             }
-                // If we're not splitting files, then CODA isn't being used and stream id is
-                // probably meaningless.
+            // If we're not splitting files, then CODA isn't being used and stream id is
+            // probably meaningless.
             else {
                 // For no specifiers:  tack stream id onto end of file name
                 if (specifierCount < 1) {
@@ -1303,7 +1318,11 @@ namespace evio {
                     // Go to 2nd match
                     it++;
                     std::smatch match = *it;
-                    fileName.replace(match[0].first, match[0].second, "");
+                    auto pos = match.position();
+                    auto len = match.length();
+                    fileName.replace(pos, len, "");
+                    // won't compile in linux gcc
+                    // fileName.replace(match[0].first, match[0].second, "");
 
                     // Insert runNumber into first specifier
                     char tempChar[fileName.length() + 1024];
@@ -1323,7 +1342,11 @@ namespace evio {
                     // Go to 3rd match
                     it++; it++;
                     std::smatch match = *it;
-                    fileName.replace(match[0].first, match[0].second, "");
+                    auto pos = match.position();
+                    auto len = match.length();
+                    fileName.replace(pos, len, "");
+                    // won't compile in linux gcc
+                    // fileName.replace(match[0].first, match[0].second, "");
 
                     // Insert runNumber into first specifier, stream id into 2nd
                     char tempChar[fileName.length() + 1024];
