@@ -135,34 +135,30 @@
  */
 #define EV_BLOCKSIZE_MAX 33554432
 
-/** In version 4&6, lowest 8 bits are version, rest is bit info */
+/** In version 4 & 6, lowest 8 bits are version, rest is bit info */
 #define EV_VERSION_MASK 0xFF
 
-/** In version 4&6, dictionary presence is 9th bit in version/info word */
+/** In version 4 & 6, dictionary presence is 9th bit in version/info word */
 #define EV_DICTIONARY_MASK 0x100
 
-/** In version 4, "last block" is 10th bit in version/info word. */
+/** In version 4 & 6, "last block" is 10th bit in version/info word. */
 #define EV_LASTBLOCK_MASK 0x200
-/** In version 6, "last block" is 11th bit in version/info word. */
-#define EV_LASTBLOCK_MASK_V6 0x400
 
-/** In version 4, "first event" is 15th bit in version/info word */
+/** In version 4 & 6, "first event" is 15th bit in version/info word */
 #define EV_FIRSTEVENT_MASK 0x4000
-/** In version 6, "first event" is 10th bit in version/info word */
-#define EV_FIRSTEVENT_MASK_V6 0x200
 
 /** In version 6, number of bits to shift compression word right to get type of compression. */
 #define EV_COMPRESSED_SHIFT 28
 /** In version 6, # of bits in record's compression word that specifies type of compression after shift right. */
 #define EV_COMPRESSED_MASK 0xf
 
-/** In version 4%6, upper limit on maximum max number of events per block */
+/** In versions 4 & 6, upper limit on maximum max number of events per block */
 #define EV_EVENTS_MAX 100000
 
-/** In version 4%6, default max number of events per block */
+/** In versions 4 & 6, default max number of events per block */
 #define EV_EVENTS_MAX_DEF 10000
 
-/** In version 4&6, if splitting file, default split size in bytes (2GB) */
+/** In versions 4 & 6, if splitting file, default split size in bytes (2GB) */
 #define EV_SPLIT_SIZE 2000000000L
 
 /** In versions 1-3, default size for a single file read in bytes.
@@ -615,23 +611,18 @@
 
 /** Turn on bit to indicate last block of file/transmission */
 #define setLastBlockBit(a)       ((a)[EV_HD_VER] |= EV_LASTBLOCK_MASK)
-#define setLastBlockBit_V6(a)    ((a)[EV_HD_VER] |= EV_LASTBLOCK_MASK_V6)
 
 /** Turn off bit to indicate last block of file/transmission */
 #define clearLastBlockBit(a)     ((a)[EV_HD_VER] &= ~EV_LASTBLOCK_MASK)
-#define clearLastBlockBit_V6(a)  ((a)[EV_HD_VER] &= ~EV_LASTBLOCK_MASK_V6)
 
 /** Turn off bit to indicate last block of file/transmission */
 #define clearLastBlockBitInt(i)    (i &= ~EV_LASTBLOCK_MASK)
-#define clearLastBlockBitInt_V6(i) (i &= ~EV_LASTBLOCK_MASK_V6)
 
 /** Is this the last block of file/transmission? */
 #define isLastBlock(a)          (((a)[EV_HD_VER] & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
-#define isLastBlock_V6(a)       (((a)[EV_HD_VER] & EV_LASTBLOCK_MASK_V6) > 0 ? 1 : 0)
 
 /** Is this the last block of file/transmission? */
 #define isLastBlockInt(i)       ((i & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
-#define isLastBlockInt_V6(i)    ((i & EV_LASTBLOCK_MASK_V6) > 0 ? 1 : 0)
 
 /** Is the record data compressed (version 6, 10th header word)? */
 #define isCompressed(i) (((i >> 28) && 0xf) == 0 ? 0 : 1)
@@ -863,9 +854,6 @@ int evioctl_
  * @return 1 of this is the last block, else 0
  */
 int evIsLastBlock(uint32_t sixthWord) {
-    if (EV_VERSION >= 6) {
-        return (sixthWord & EV_LASTBLOCK_MASK_V6) > 0 ? 1 : 0;
-    }
     return (sixthWord & EV_LASTBLOCK_MASK) > 0 ? 1 : 0;
 }
 
@@ -3113,7 +3101,7 @@ printf("ERROR retrieving DICTIONARY, status = %#.8x\n", status);
 //printf("evOpen: a->next = a->buf + 0x%x, a->eventLengthsLen = %u\n", (EV_HDSIZ_V6 + a->eventLengthsLen), a->eventLengthsLen);
 //printf("evOpen: value at a->next = 0x%x\n", *(a->next));
                 a->left = (a->buf)[EV_HD_BLKSIZ] - EV_HDSIZ_V6 - a->eventLengthsLen;
-                a->isLastBlock = isLastBlock_V6(a->buf);
+                a->isLastBlock = isLastBlock(a->buf);
                 // Ignore dictionary
             }
 
@@ -3602,7 +3590,7 @@ static int getEventCount(EVFILE *a, uint32_t *count) {
         a->eventCount += blockEventCount;
 
         /* Stop at the last block */
-        if (a->version > 5 && isLastBlockInt_V6(i)) {
+        if (a->version > 5 && isLastBlockInt(i)) {
             break;
         }
         else if (isLastBlockInt(i)) {
@@ -3820,7 +3808,7 @@ static int generatePointerTableV6(EVFILE *a) {
             indexLen         = EVIO_SWAP32(indexLen);
             usrHdrLen        = EVIO_SWAP32(usrHdrLen);
         }
-        lastRecord = isLastBlockInt_V6(i);
+        lastRecord = isLastBlockInt(i);
 
 //        printf("generatePointerTable:\n");
 //        printf("  ver word = 0x%x\n", i);
@@ -4057,7 +4045,7 @@ static int toAppendPosition(EVFILE *a) {
         // Stop at the last record. The file may not have a last record if
         // improperly terminated. Running into an End-Of-File will flag
         // this condition.
-        if (isLastBlockInt_V6(recordBitInfo) || readEOF) {
+        if (isLastBlockInt(recordBitInfo) || readEOF) {
             break;
         }
 
@@ -5214,7 +5202,7 @@ if (debug) printf("HEADER IS TOO BIG, reading an extra %lu bytes\n", bytesToRead
 
     /* Check to see if we just read in the last block (v4,6) */
     if ( (a->version == 4 && isLastBlock(a->buf)) ||
-         (a->version > 4 && isLastBlock_V6(a->buf))) {
+         (a->version > 4 && isLastBlock(a->buf))) {
         a->isLastBlock = 1;
     }
 
@@ -5270,16 +5258,8 @@ if (debug) printf("HEADER IS TOO BIG, reading an extra %lu bytes\n", bytesToRead
  */
 static int generateSixthWord(int version, int hasDictionary, int isEnd, int eventType) {
     version = hasDictionary ? (version | EV_DICTIONARY_MASK) : version;
-
-    if (version > 4) {
-        version = isEnd ? (version | EV_LASTBLOCK_MASK_V6) : version;
-        version |= ((eventType & 0xf) << 11);
-    }
-    else {
-        version = isEnd ? (version | EV_LASTBLOCK_MASK) : version;
-        version |= ((eventType & 0xf) << 10);
-    }
-
+    version = isEnd ? (version | EV_LASTBLOCK_MASK) : version;
+    version |= ((eventType & 0xf) << 10);
     return version;
 }
 
@@ -5511,10 +5491,10 @@ static int writeEventToBufferV6(EVFILE *a, const uint32_t *buffer, uint32_t word
 
     /* If we're writing over the last empty block header for the
      * first time (first write after opening file or flush), clear last block bit */
-    if (isLastBlock_V6(a->currentHeader)) {
+    if (isLastBlock(a->currentHeader)) {
         /* Always end up here if writing a dictionary */
 if (debug) printf("    writeEventToBufferV6: IS LAST BLOCK\n");
-        clearLastBlockBit_V6(a->currentHeader);
+        clearLastBlockBit(a->currentHeader);
         ///* Here is where blknum goes from 1 to 2 */
         //a->blknum++;
     }
