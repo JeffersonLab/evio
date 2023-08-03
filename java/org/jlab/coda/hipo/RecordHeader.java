@@ -1521,7 +1521,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
      */
     private String eventTypeToString() {
         switch (eventType) {
-            case 0:/.
+            case 0:
                 return "RocRaw";
             case 1:
                 return "Physics";
