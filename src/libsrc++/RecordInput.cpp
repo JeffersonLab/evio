@@ -186,6 +186,7 @@ namespace evio {
      * @return byte array containing event.
      */
     std::shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index, uint32_t * len) {
+// TODO: INDEX ARRARY: Here is where we read index array size
 
         uint32_t firstPosition = 0;
 
@@ -222,6 +223,7 @@ namespace evio {
      *         does not coresspond to a valid event.
      */
     uint32_t RecordInput::getEventLength(uint32_t index) const {
+// TODO: INDEX ARRARY: Here is where we read index array size
 
         if (index >= getEntries()) return 0;
 
@@ -272,6 +274,7 @@ namespace evio {
      *                       contain event (buffer.capacity() < event size).
      */
     ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, uint32_t index, size_t bufOffset) {
+// TODO: INDEX ARRARY: Here is where we read index array
 
         uint32_t firstPosition = 0;
         if (index > 0) {
@@ -490,6 +493,7 @@ namespace evio {
 
         // Number of entries in index
         nEntries = header->getEntries();
+// TODO: INDEX ARRARY: Here is where we skip over assumed index array size & write offsets there below
         // Offset from just past header to user header (past index)
         userHeaderOffset = nEntries*4;
         // Offset from just past header to data (past index + user header)
@@ -581,6 +585,7 @@ namespace evio {
 
         // Number of entries in index
         nEntries = header->getEntries();
+// TODO: INDEX ARRARY: Here is where we skip over assumed index array size & write offsets there below
         // Offset from just past header to user header (past index)
         userHeaderOffset = nEntries*4;
         // Offset from just past header to data (past index + user header)
@@ -714,8 +719,8 @@ namespace evio {
         // Reset the compression type and length in header to 0
         dstBuf.putInt(dstOff + RecordHeader::COMPRESSION_TYPE_OFFSET, 0);
         hdr.setCompressionType(Compressor::UNCOMPRESSED).setCompressedDataLength(0);
-        // The previous call updated the bitinfo word in hdr. Write this into buf:
-        dstBuf.putInt(dstOff + RecordHeader::BIT_INFO_OFFSET, hdr.getBitInfoWord());
+//        // The previous call updated the bitinfo word in hdr. Write this into buf:
+//        dstBuf.putInt(dstOff + RecordHeader::BIT_INFO_OFFSET, hdr.getBitInfoWord());
 
         // Reset the header length
         dstBuf.putInt(dstOff + RecordHeader::RECORD_LENGTH_OFFSET, uncompressedRecordLength/4);
