@@ -112,8 +112,17 @@ public class RecordInputStream {
     /** General header of this record. */
     private RecordHeader  header;
 
-    /** This buffer contains uncompressed data consisting of, in order,
-     *  1) index array, 2) user header, 3) events. */
+    /**
+     * This buffer contains uncompressed data consisting of, in order,
+     *      1) index array, 2) user header, 3) events.
+     *  It's important to know that the index array is rewritten in readRecord().
+     *  Initially each word int the array contained the size of the next event.
+     *  It was overwritten to berthe offset to the next event so the position of
+     *  each event does not have to be calculated each time is data is accessed.
+     *  This offset is from the beginning of event data (after record header,
+     *  index array, and user header + padding). First offset = 0.
+     *  The second offset = # of bytes to beginning of second event, etc.
+     */
     private ByteBuffer  dataBuffer;
 
     /** This buffer contains compressed data. */
@@ -213,6 +222,7 @@ public class RecordInputStream {
      * @return byte array containing event.
      */
     public byte[] getEvent(int index) {
+// TODO: INDEX ARRARY: Here is where we read index array size
 
         int firstPosition = 0;
 
@@ -255,6 +265,7 @@ public class RecordInputStream {
      * @return length of the data in bytes.
      */
     public int getEventLength(int index) {
+// TODO: INDEX ARRARY: Here is where we read index array size
         if (index < 0 || index >= getEntries()) return 0;
 
         int firstPosition = 0;
@@ -304,6 +315,7 @@ public class RecordInputStream {
      */
     public ByteBuffer getEvent(ByteBuffer buffer, int bufOffset, int index) throws HipoException {
 
+// TODO: INDEX ARRARY: Here is where we read index array
         int firstPosition = 0;
         if (index > 0) {
             if (index >= header.getEntries()) {
@@ -546,6 +558,7 @@ public class RecordInputStream {
 
             // Number of entries in index
             nEntries = header.getEntries();
+// TODO: INDEX ARRARY: Here is where we skip over assumed index array size & write offsets there below
             // Offset from just past header to user header (past index)
             userHeaderOffset = nEntries*4;
             // Offset from just past header to data (past index + user header)
@@ -644,6 +657,7 @@ public class RecordInputStream {
 
             // Number of entries in index
             nEntries = header.getEntries();
+// TODO: INDEX ARRARY: Here is where we skip over assumed index array size & write offsets there below
             // Offset from just past header to user header (past index)
             userHeaderOffset = nEntries*4;
             // Offset from just past header to data (past index + user header)
@@ -771,8 +785,8 @@ public class RecordInputStream {
         // Reset the compression type and length in header to 0
         dstBuf.putInt(dstOff + RecordHeader.COMPRESSION_TYPE_OFFSET, 0);
         header.setCompressionType(CompressionType.RECORD_UNCOMPRESSED).setCompressedDataLength(0);
-        // The previous call updated the bitinfo word in header. Write this into buf:
-        dstBuf.putInt(dstOff + RecordHeader.BIT_INFO_OFFSET, header.getBitInfoWord());
+//        // The previous call updated the bitinfo word in header. Write this into buf:
+//        dstBuf.putInt(dstOff + RecordHeader.BIT_INFO_OFFSET, header.getBitInfoWord());
 
         // Reset the header length
         dstBuf.putInt(dstOff + RecordHeader.RECORD_LENGTH_OFFSET, uncompressedRecordLength/4);

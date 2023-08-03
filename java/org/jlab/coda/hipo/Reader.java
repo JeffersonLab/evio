@@ -1298,6 +1298,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             // Track # of events in this record for event index handling
             eventIndex.addEventSize(eventCount);
 
+// TODO: INDEX ARRAY: Here is where we read event length from index array
             // Find & store the index of event sizes (words)
             if (eventCount > 0) {
                 // allocate more memory if we need it
@@ -1489,6 +1490,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
 
             // For each event in record, store its location
             for (int i=0; i < eventCount; i++) {
+// TODO: INDEX ARRAY: Reading from index array!!!!
                 eventLength = buffer.getInt(lenIndex);
                 lenIndex += 4;
 

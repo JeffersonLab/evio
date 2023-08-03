@@ -128,8 +128,17 @@ namespace evio {
         /** General header of this record. */
         std::shared_ptr<RecordHeader> header;
 
-        /** This buffer contains uncompressed data consisting of, in order,
-         *  1) index array, 2) user header, 3) events. */
+        /**
+         * This buffer contains uncompressed data consisting of, in order,
+         *      1) index array, 2) user header, 3) events.
+         *  It's important to know that the index array is rewritten in readRecord().
+         *  Initially each word int the array contained the size of the next event.
+         *  It was overwritten to be the offset to the next event so the position of
+         *  each event does not have to be calculated each time is data is accessed.
+         *  This offset is from the beginning of event data (after record header,
+         *  index array, and user header + padding). First offset = 0.
+         *  The second offset = # of bytes to beginning of second event, etc.
+         */
         std::shared_ptr<ByteBuffer> dataBuffer;
 
         /** This buffer contains compressed data. */
