@@ -1064,7 +1064,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         // change pos/limit of buffer. Results returned in headerInfo[0] & [1].
         // All other values in headerInfo reflect the LAST record (ususally trailer).
         uint32_t headerInfo[headerInfoLen];
-        uint32_t totalUncompressedBytes = getTotalByteCounts(buf, headerInfo, headerInfoLen);; // padded
+        uint32_t totalUncompressedBytes = getTotalByteCounts(buf, headerInfo, headerInfoLen); // padded
 
 //std::cout << "  scanBuffer: total UNcompressed bytes = " << totalUncompressedBytes <<
 //             " >? cap - off = " << (buf.capacity() - bufferOffset) << std::endl;
@@ -1147,6 +1147,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Track # of events in this record for event index handling
             eventIndex.addEventSize(eventCount);
 
+// TODO: INDEX ARRAY: Here is where we read event length from index array
             // Find & store the index of event sizes (words)
             int eventLengths[eventCount];
             if (eventCount > 0) {
@@ -1319,18 +1320,9 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Track # of events in this record for event index handling
             eventIndex.addEventSize(eventCount);
 
-            // Find & store the index of event sizes (words)
-            std::vector<uint32_t> eventLengths;
-            if (eventCount > 0) {
-                // Place in buffer to start reading event lengths (
-                uint32_t lenIndex = position + recordHeaderLen;
-
-                for (int i=0; i < eventCount; i++) {
-                    uint32_t evLen = buffer->getUInt(lenIndex);
-                    eventLengths.push_back(evLen);
-                    lenIndex += 4;
-                }
-            }
+            uint32_t eventLength;
+            // Place in buffer to start reading event lengths
+            uint32_t lenIndex = position + recordHeaderLen;
 
             // Hop over record header, user header, and index to events
             uint32_t byteLen =   recordHeader.getHeaderLength() +
@@ -1344,10 +1336,13 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
             // For each event in record, store its location
             for (int i=0; i < eventCount; i++) {
+// TODO: INDEX ARRAY: Reading from index array!!!!
+                eventLength = buffer->getUInt(lenIndex);
+                lenIndex += 4;
 
                 // Is the length we get from the first word of an evio bank/event (bytes)
                 // the same as the length we got from the record header? If not, it's not evio.
-                bool isEvio = 4*(buffer->getUInt(position) + 1) == eventLengths[i];
+                bool isEvio = 4*(buffer->getUInt(position) + 1) == eventLength;
 
                 std::shared_ptr<EvioNode> node;
 
@@ -1368,14 +1363,14 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                         // handle normal logic flow. But not sure what else can be done.
                         // This should only happen very, very seldom.
 
-                        byteLen = eventLengths[i];
+                        byteLen = eventLength;
                         evioFormat = false;
                     }
                 }
                 else {
                     // If we're here, the event is not in evio format, so just use the length we got
                     // previously from the record index.
-                    byteLen = eventLengths[i];
+                    byteLen = eventLength;
                     evioFormat = false;
                 }
 
