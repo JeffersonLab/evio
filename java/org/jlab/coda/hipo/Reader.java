@@ -1192,7 +1192,8 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
      *         one originally scanned if the data was compressed and the uncompressed length
      *         is greater than the original buffer could hold.
      * @throws HipoException if buffer not in the proper format or earlier than version 6;
-     *                       if checkRecordNumberSequence is true and records are out of sequence.
+     *                       if checkRecordNumberSequence is true and records are out of sequence;
+     *                       if index_array_len != 4*event_count.
      * @throws BufferUnderflowException if not enough data in buffer.
      */
     public ByteBuffer scanBuffer() throws HipoException, BufferUnderflowException {
@@ -1239,9 +1240,6 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
         // TODO: this should NOT change in records in 1 buffer, only BETWEEN buffers!!!!!!!!!!!!
         recordNumberExpected = 1;
 
-        // Try to allocate this only once
-        int[] eventLengths = new int[2000];
-
         // Go through data record-by-record
         do {
             // If this is not the first record anymore, then the limit of bigEnoughBuf,
@@ -1260,6 +1258,13 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             int eventCount = recordHeader.getEntries();
             int recordHeaderLen = recordHeader.getHeaderLength();
             int recordBytes = recordHeader.getLength();
+            int indexArrayLen = recordHeader.getIndexLength();  // bytes
+
+            // Consistency check, index array length reflects # of events properly?
+            if (indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
+                throw new HipoException("index array len (" + indexArrayLen +
+                        ") and 4*eventCount (" + (4*eventCount) + ") contradict each other");
+            }
 
             // uncompressRecord(), above, read the header. Save the first header.
             if (!haveFirstRecordHeader) {
@@ -1290,7 +1295,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 throw new HipoException("Bad evio format: not enough data to read record");
             }
 
-            // Header is now describing the uncompressed buffer, bigEnoughBuf
+            // Create a new RecordPosition object and store in list
             RecordPosition rp = recPosPool.getObject();
             rp.setAll(position, recordBytes, eventCount);
             //RecordPosition rp = new RecordPosition(position, recordBytes, eventCount);
@@ -1298,22 +1303,14 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             // Track # of events in this record for event index handling
             eventIndex.addEventSize(eventCount);
 
-// TODO: INDEX ARRAY: Here is where we read event length from index array
-            // Find & store the index of event sizes (words)
-            if (eventCount > 0) {
-                // allocate more memory if we need it
-                if (eventCount > eventLengths.length) {
-                    eventLengths = new int[2*eventCount];
-                }
-
-                // Place in buffer to start reading event lengths (
-                int lenIndex = position + recordHeaderLen;
-
-                for (int i=0; i < eventCount; i++) {
-                    eventLengths[i] = bigEnoughBuf.getInt(lenIndex);
-                    lenIndex += 4;
-                }
-            }
+            // If existing, use each event size in index array
+            // as a check against the lengths found in the
+            // first word in evio banks (their len) - must be identical for evio.
+            // Unlike previously, this code handles 0 length index array.
+            int hdrEventLen = 0, evioEventLen = 0;
+            // Position in buffer to start reading event lengths, if any ...
+            int lenIndex = position + recordHeaderLen;
+            boolean haveHdrEventLengths = (indexArrayLen > 0) && (eventCount > 0);
 
             // How many bytes left in the newly expanded buffer
             bytesLeft -= recordHeader.getUncompressedRecordLength();
@@ -1321,6 +1318,10 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             // After calling uncompressRecord(), bigEnoughBuf will be positioned
             // right before where the events start.
             position = bigEnoughBuf.position();
+
+            // End position of record is right after event data including padding.
+            // Remember it has been uncompressed.
+            int recordEndPos = position + 4*recordHeader.getDataLengthWords();
 
             //-----------------------------------------------------
             // For each event in record, store its location.
@@ -1331,7 +1332,31 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             for (int i=0; i < eventCount; i++) {
                 // Is the length we get from the first word of an evio bank/event (bytes)
                 // the same as the length we got from the record header? If not, it's not evio.
-                boolean isEvio = 4*(bigEnoughBuf.getInt(position) + 1) == eventLengths[i];
+
+                // Assume it's evio unless proven otherwise.
+                boolean isEvio = true;
+                evioEventLen = 4 * (bigEnoughBuf.getInt(position) + 1);
+
+                if (haveHdrEventLengths) {
+                    hdrEventLen = bigEnoughBuf.getInt(lenIndex);
+                    isEvio = (evioEventLen == hdrEventLen);
+                    lenIndex += 4;
+
+//                    if (!isEvio) {
+//                        System.out.println("  *** scanBuffer: event " + i + " not evio format");
+//                        System.out.println("  *** scanBuffer:   evio event len = " + evioEventLen);
+//                        System.out.println("  *** scanBuffer:   hdr  event len = " + hdrEventLen);
+//                    }
+                }
+                else {
+                    // Check event len validity on upper bound as much as possible.
+                    // Cannot extend beyond end of record, taking minimum len (headers)
+                    // of remaining events into account.
+                    int remainingEvioHdrBytes = 4*(2*(eventCount - (i + 1)));
+                    if ((evioEventLen + position) > (recordEndPos - remainingEvioHdrBytes)) {
+                        throw new HipoException("Bad evio format: invalid event byte length, " + evioEventLen);
+                    }
+                }
 
                 if (isEvio) {
                     try {
@@ -1340,6 +1365,11 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                                                                   position, eventPlace + i);
                         byteLen = node.getTotalBytes();
                         eventNodes.add(node);
+
+                        if (byteLen < 8) {
+                            throw new HipoException("Bad evio format: bad bank length " + byteLen);
+                        }
+
 //System.out.println("\n      scanUncompressedBuffer: extracted node : " + node.toString());
 //System.out.println("      event (evio)" + i + ", pos = " + node.getPosition() +
 //                   ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventPlace + i + 1) +
@@ -1348,32 +1378,35 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                     catch (EvioException e) {
                         // If we're here, the event is not in evio format
 
-                        // The problem with doing things in the following way
-                        // (throwing an exception if the event is NOT is evio format)
+                        // The problem with throwing an exception if the event is NOT is evio format,
                         // is that the exception throwing mechanism is not a good way to
                         // handle normal logic flow. But not sure what else can be done.
                         // This should only happen very, very seldom.
 
-                        byteLen = eventLengths[i];
+                        // Assume parsing in extractEventNode is faulty and go with hdr len if available.
+                        // If not, go with len from first bank word.
+
+                        if (haveHdrEventLengths) {
+                            byteLen = hdrEventLen;
+                        }
+                        else {
+                            byteLen = evioEventLen;
+                        }
                         evioFormat = false;
 //System.out.println("      event (binary, exception)" + i + ", bytes = " + byteLen);
                     }
                 }
                 else {
                     // If we're here, the event is not in evio format, so just use the length we got
-                    // previously from the record index.
-                    byteLen = eventLengths[i];
+                    // previously from the record index (which, if we're here, exists).
+                    byteLen = hdrEventLen;
                     evioFormat = false;
-//System.out.println( "      event (binary, regular logic)" + i + ", bytes = " + byteLen);
+//System.out.println( "      event " + i + ", bytes = " + byteLen + ", has bad evio format");
                 }
 
                 // Hop over event
                 position += byteLen;
-
-                if (byteLen < 8) {
-                    throw new HipoException("Bad evio format: bad bank length");
-                }
-//System.out.println("        hopped event " + i + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
+//System.out.println("  *** scanBuffer: after event, set position to " + position);
             }
 
             bigEnoughBuf.position(position);
