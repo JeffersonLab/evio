@@ -1146,8 +1146,8 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             }
 
             // Check to see if the whole record is there
-            if (recordHeader.getLength() > bytesLeft) {
-                std::cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
+            if (recordBytes > bytesLeft) {
+                std::cout << "    record size = " << recordBytes << " >? bytesLeft = " << bytesLeft <<
                      ", pos = " << buf.position() << std::endl;
                 throw std::underflow_error("Bad hipo format: not enough data to read record");
             }
@@ -1316,7 +1316,6 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         recordNumberExpected = 1;
 
         while (bytesLeft >= RecordHeader::HEADER_SIZE_BYTES) {
-
             // Read record header
             buffer->position(position);
             // This moves the buffer's position
@@ -1326,6 +1325,13 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             uint32_t eventCount = recordHeader.getEntries();
             uint32_t recordHeaderLen = recordHeader.getHeaderLength();
             uint32_t recordBytes = recordHeader.getLength();
+            uint32_t indexArrayLen = recordHeader.getIndexLength();  // bytes
+
+            // Consistency check, index array length reflects # of events properly?
+            if (indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
+                throw EvioException("index array len (" + std::to_string(indexArrayLen) +
+                                    ") and 4*eventCount (" + std::to_string(4*eventCount) + ") contradict each other");
+            }
 
             // Save the first record header
             if (!haveFirstRecordHeader) {
@@ -1348,8 +1354,8 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             }
 
             // Check to see if the whole record is there
-            if (recordHeader.getLength() > bytesLeft) {
-                std::cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
+            if (recordBytes > bytesLeft) {
+                std::cout << "    record size = " << recordBytes << " >? bytesLeft = " << bytesLeft <<
                      ", pos = " << buffer->position() << std::endl;
                 throw EvioException("Bad hipo format: not enough data to read record");
             }
@@ -1358,65 +1364,106 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Track # of events in this record for event index handling
             eventIndex.addEventSize(eventCount);
 
-            uint32_t eventLength;
-            // Place in buffer to start reading event lengths
+            // If existing, use each event size in index array
+            // as a check against the lengths found in the
+            // first word in evio banks (their len) - must be identical for evio.
+            // Unlike previously, this code handles 0 length index array.
+            uint32_t hdrEventLen = 0, evioEventLen = 0;
+            // Position in buffer to start reading event lengths, if any ...
             uint32_t lenIndex = position + recordHeaderLen;
+            bool haveHdrEventLengths = (indexArrayLen > 0) && (eventCount > 0);
 
             // Hop over record header, user header, and index to events
-            uint32_t byteLen =   recordHeader.getHeaderLength() +
-                               4*recordHeader.getUserHeaderLengthWords() + // This takes padding into account
-                                 recordHeader.getIndexLength();
+            uint32_t byteLen = recordHeaderLen +
+                               4*recordHeader.getUserHeaderLengthWords() + // takes padding into account
+                               indexArrayLen;
             position  += byteLen;
             bytesLeft -= byteLen;
 
             // Do this because extractEventNode uses the buffer position
             buffer->position(position);
 
+            // End position of record is right after event data including padding.
+            // Remember it has been uncompressed.
+            uint32_t recordEndPos = position + 4*recordHeader.getDataLengthWords();
+
             // For each event in record, store its location
             for (int i=0; i < eventCount; i++) {
-// TODO: INDEX ARRAY: Reading from index array!!!!
-                eventLength = buffer->getUInt(lenIndex);
-                lenIndex += 4;
-
                 // Is the length we get from the first word of an evio bank/event (bytes)
                 // the same as the length we got from the record header? If not, it's not evio.
-                bool isEvio = 4*(buffer->getUInt(position) + 1) == eventLength;
 
-                std::shared_ptr<EvioNode> node;
+                // Assume it's evio unless proven otherwise.
+                bool isEvio = true;
+                evioEventLen = 4 * (buffer->getUInt(position) + 1);
+
+                if (haveHdrEventLengths) {
+                    hdrEventLen = buffer->getUInt(lenIndex);
+                    isEvio = (evioEventLen == hdrEventLen);
+                    lenIndex += 4;
+
+//                    if (!isEvio) {
+//                        std::cout << "  *** scanBuffer: event " << i << " not evio format" << std::endl;
+//                        std::cout << "  *** scanBuffer:   evio event len = " << evioEventLen << std::endl;
+//                        std::cout << "  *** scanBuffer:   hdr  event len = " << hdrEventLen << std::endl;
+//                    }
+                }
+                else {
+                    // Check event len validity on upper bound as much as possible.
+                    // Cannot extend beyond end of record, taking minimum len (headers)
+                    // of remaining events into account.
+                    uint32_t remainingEvioHdrBytes = 4*(2*(eventCount - (i + 1)));
+                    if ((evioEventLen + position) > (recordEndPos - remainingEvioHdrBytes)) {
+                        throw EvioException("Bad evio format: invalid event byte length, " +
+                                            std::to_string(evioEventLen));
+                    }
+                }
 
                 if (isEvio) {
                     try {
                         // If the event is in evio format, parse it a bit
-                        node = EvioNode::extractEventNode(buffer, recordPos,
-                                                      position, eventPlace + i);
+                        auto node = EvioNode::extractEventNode(buffer, recordPos,
+                                                               position, eventPlace + i);
                         byteLen = node->getTotalBytes();
                         eventNodes.push_back(node);
+
+                        if (byteLen < 8) {
+                            throw EvioException("Bad evio format: bad bank byte length, " +
+                                                std::to_string(byteLen));
+                        }
                     }
                     catch (std::exception & e) {
                         // If we're here, the event is not in evio format
 
-                        // The problem with doing things in the following way
-                        // (throwing an exception if the event is NOT is evio format)
+                        // The problem with throwing an exception if the event is NOT is evio format,
                         // is that the exception throwing mechanism is not a good way to
                         // handle normal logic flow. But not sure what else can be done.
                         // This should only happen very, very seldom.
 
-                        byteLen = eventLength;
+                        // Assume parsing in extractEventNode is faulty and go with hdr len if available.
+                        // If not, go with len from first bank word.
+
+                        if (haveHdrEventLengths) {
+                            byteLen = hdrEventLen;
+                        }
+                        else {
+                            byteLen = evioEventLen;
+                        }
                         evioFormat = false;
                     }
                 }
                 else {
                     // If we're here, the event is not in evio format, so just use the length we got
-                    // previously from the record index.
-                    byteLen = eventLength;
+                    // previously from the record index (which, if we're here, exists).
+                    byteLen = hdrEventLen;
                     evioFormat = false;
                 }
 
                 // Hop over event
                 position  += byteLen;
                 bytesLeft -= byteLen;
-                if (byteLen < 8 || bytesLeft < 0) {
-                    throw EvioException("Bad evio format: bad bank length");
+
+                if (bytesLeft < 0) {
+                    throw EvioException("Bad data format: bad length");
                 }
             }
 
