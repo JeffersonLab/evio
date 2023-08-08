@@ -1190,6 +1190,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 // the same as the length we got from the record header? If not, it's not evio.
 
                 // Assume it's evio unless proven otherwise.
+                // If index array missing, evio is the only option!
                 bool isEvio = true;
                 evioEventLen = 4 * (bigEnoughBuf->getUInt(position) + 1);
 
@@ -1393,6 +1394,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 // the same as the length we got from the record header? If not, it's not evio.
 
                 // Assume it's evio unless proven otherwise.
+                // If index array missing, evio is the only option!
                 bool isEvio = true;
                 evioEventLen = 4 * (buffer->getUInt(position) + 1);
 

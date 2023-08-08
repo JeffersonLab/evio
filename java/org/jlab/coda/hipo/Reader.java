@@ -1334,6 +1334,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 // the same as the length we got from the record header? If not, it's not evio.
 
                 // Assume it's evio unless proven otherwise.
+                // If index array missing, evio is the only option!
                 boolean isEvio = true;
                 evioEventLen = 4 * (bigEnoughBuf.getInt(position) + 1);
 
@@ -1432,7 +1433,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
     /**
      * Scan buffer to find all records and store their position, length, and event count.
      * Also finds all events and then creates and stores their associated EvioNode objects.
-     * Be warned that this method generates garbage.
+     * Be warned that this method can generate garbage.
      * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6;
      *                       if checkRecordNumberSequence is true and records are out of sequence.
      */
@@ -1534,6 +1535,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 // the same as the length we got from the record header? If not, it's not evio.
 
                 // Assume it's evio unless proven otherwise.
+                // If index array missing, evio is the only option!
                 boolean isEvio = true;
                 evioEventLen = 4 * (buffer.getInt(position) + 1);
 
