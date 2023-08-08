@@ -222,7 +222,7 @@ public class RecordInputStream {
      * @return byte array containing event.
      */
     public byte[] getEvent(int index) {
-// TODO: INDEX ARRARY: Here is where we read index array size
+// TODO: INDEX ARRAY: Here is where we read index array size
 
         int firstPosition = 0;
 
@@ -487,6 +487,8 @@ public class RecordInputStream {
      * First the header is read, then the length of
      * the record is read from header, then
      * following bytes are read and decompressed.
+     * Handles the case in which index array length = 0.
+     *
      * @param file opened file descriptor
      * @param position position in the file
      * @throws HipoException if file not in hipo format or if bad argument(s)
@@ -510,17 +512,34 @@ public class RecordInputStream {
 
             int recordLengthBytes = header.getLength();
             int headerLength      = header.getHeaderLength();
+            nEntries              = header.getEntries();     // # of events
+            int indexLen          = header.getIndexLength(); // bytes
             int cLength           = header.getCompressedDataLength();
+            int userHdrLen        = 4*header.getUserHeaderLengthWords(); // bytes + padding
+
+            // Handle the case of len = 0 for index array in header:
+            // The necessary memory to hold such an index = 4*nEntries bytes.
+            // In this case it must be reconstructed here by scanning the record.
+            boolean findEvLens = false;
+            if (indexLen == 0) {
+                findEvLens = true;
+                indexLen = 4*nEntries;
+            }
+            else if (indexLen != 4*nEntries) {
+                // Header info is goofed up
+                throw new HipoException("Record header index array len " + indexLen +
+                        " does not match 4*(event cnt) " + (4*nEntries));
+            }
 
             // How many bytes will the expanded record take?
             // Just data:
             uncompressedEventsLength = 4*header.getDataLengthWords();
             // Everything except the header & don't forget padding:
-            int neededSpace =   header.getIndexLength() +
-                              4*header.getUserHeaderLengthWords() +
-                                uncompressedEventsLength;
+            int neededSpace = indexLen + userHdrLen + uncompressedEventsLength;
 
-            // Handle rare situation in which compressed data takes up more room
+            // Handle rare situation in which compressed data takes up more room.
+            // This also determines size of recordBuffer in which compressed
+            // data is first read.
             neededSpace = neededSpace < cLength ? cLength : neededSpace;
 
             // Make room to handle all data to be read & uncompressed
@@ -528,6 +547,10 @@ public class RecordInputStream {
                 allocate(neededSpace);
             }
             dataBuffer.clear();
+            if (findEvLens) {
+                // Leave room in front for reconstructed index array
+                dataBuffer.position(indexLen);
+            }
 
             // Go here to read rest of record
             channel.position(position + headerLength);
@@ -551,30 +574,47 @@ public class RecordInputStream {
 
                 case RECORD_UNCOMPRESSED:
                 default:
-                    // None
                     // Read uncompressed data - rest of record
-                    file.read(dataBuffer.array(), 0, (recordLengthBytes - headerLength));
+                    int len = recordLengthBytes - headerLength;
+                    if (findEvLens) {
+                        // If we still have to find event lengths to reconstruct missing index array,
+                        // leave room for it in dataBuffer.
+                        file.read(dataBuffer.array(), indexLen, len);
+                    }
+                    else {
+                        file.read(dataBuffer.array(), 0, len);
+                    }
             }
 
-            // Number of entries in index
-            nEntries = header.getEntries();
-// TODO: INDEX ARRARY: Here is where we skip over assumed index array size & write offsets there below
-            // Offset from just past header to user header (past index)
-            userHeaderOffset = nEntries*4;
-            // Offset from just past header to data (past index + user header)
-            eventsOffset = userHeaderOffset + header.getUserHeaderLengthWords()*4;
+            // Offset in dataBuffer past index array, to user header
+            userHeaderOffset = indexLen;
+            // Offset in dataBuffer just past index + user header, to events
+            eventsOffset = indexLen + userHdrLen;
 
-            // Overwrite event lengths with event offsets
-            int event_pos = 0;
-            for(int i = 0; i < nEntries; i++){
-                int   size = dataBuffer.getInt(i*4);
+// TODO: How do we handle trailers???
+
+            // Overwrite event lengths with event offsets.
+            // First offset is to beginning of 2nd (starting at 1) event, etc.
+            int event_pos = 0, read_pos = eventsOffset;
+
+            for (int i = 0; i < nEntries; i++) {
+                int size;
+                if (findEvLens) {
+                    // In the case there is no index array, evio MUST be the format!
+                    // Reconstruct index - the first bank word = len - 1 words.
+                    size = 4*(dataBuffer.getInt(read_pos) + 1);
+                    read_pos += size;
+                }
+                else {
+                    // ev size in index array
+                    size = dataBuffer.getInt(i * 4);
+                }
                 event_pos += size;
                 dataBuffer.putInt(i*4, event_pos);
             }
 
-        } catch (IOException ex) {
-            Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (HipoException ex) {
+        }
+        catch (IOException | HipoException ex) {
             Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -583,6 +623,8 @@ public class RecordInputStream {
      * Reads a record from the buffer at the given offset. Call this method or
      * {@link #readRecord(RandomAccessFile, long)} before calling any other.
      * Any compressed data is decompressed. Memory is allocated as needed.
+     * Handles the case in which index array length = 0.
+     *
      * @param buffer buffer containing record data.
      * @param offset offset into buffer to beginning of record data.
      * @throws HipoException if buffer not in hipo format or if bad argument(s)
@@ -603,23 +645,42 @@ public class RecordInputStream {
 
             int recordLengthBytes = header.getLength();
             int headerLength      = header.getHeaderLength();
+            nEntries              = header.getEntries();     // # of events
+            int indexLen          = header.getIndexLength(); // bytes
             int cLength           = header.getCompressedDataLength();
+            int userHdrLen        = 4*header.getUserHeaderLengthWords(); // bytes + padding
 
-            int compDataOffset = offset + headerLength;
+            int compDataOffset    = offset + headerLength;
+
+            // Handle the case of len = 0 for index array in header:
+            // The necessary memory to hold such an index = 4*nEntries bytes.
+            // In this case it must be reconstructed here by scanning the record.
+            boolean findEvLens = false;
+            if (indexLen == 0) {
+                findEvLens = true;
+                indexLen = 4*nEntries;
+            }
+            else if (indexLen != 4*nEntries) {
+                // Header info is goofed up
+                throw new HipoException("Record header index array len " + indexLen +
+                        " does not match 4*(event cnt) " + (4*nEntries));
+            }
 
             // How many bytes will the expanded record take?
             // Just data:
             uncompressedEventsLength = 4*header.getDataLengthWords();
             // Everything except the header & don't forget padding:
-            int neededSpace =   header.getIndexLength() +
-                              4*header.getUserHeaderLengthWords() +
-                                uncompressedEventsLength;
+            int neededSpace = indexLen + userHdrLen + uncompressedEventsLength;
 
             // Make room to handle all data to be read & uncompressed
             if (dataBuffer.capacity() < neededSpace) {
                 allocate(neededSpace);
             }
             dataBuffer.clear();
+            if (findEvLens) {
+                // Leave room in front for reconstructed index array
+                dataBuffer.position(indexLen);
+            }
 
             // Decompress data
             switch (header.getCompressionType()) {
@@ -646,8 +707,16 @@ public class RecordInputStream {
 //System.out.println("readRecord: start reading at buffer pos = " + (buffer.arrayOffset() + compDataOffset) +
 //        ", buffer limit = " + buffer.limit() + ", databuf limit = " + dataBuffer.limit() +
 //        ", dataBuf pos = " + dataBuffer.position() + ", LEN ==== " + len);
-                        System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
-                                         dataBuffer.array(), 0, len);
+                        if (findEvLens) {
+                            // If we still have to find event lengths to reconstruct missing index array,
+                            // leave room for it in dataBuffer.
+                            System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
+                                    dataBuffer.array(), indexLen, len);
+                        }
+                        else {
+                            System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
+                                    dataBuffer.array(), 0, len);
+                        }
                     }
                     else {
                         buffer.limit(compDataOffset + len).position(compDataOffset);
@@ -655,19 +724,29 @@ public class RecordInputStream {
                     }
             }
 
-            // Number of entries in index
-            nEntries = header.getEntries();
-// TODO: INDEX ARRARY: Here is where we skip over assumed index array size & write offsets there below
-            // Offset from just past header to user header (past index)
-            userHeaderOffset = nEntries*4;
-            // Offset from just past header to data (past index + user header)
-            eventsOffset = userHeaderOffset + header.getUserHeaderLengthWords()*4;
+            // Offset in dataBuffer past index array, to user header
+            userHeaderOffset = indexLen;
+            // Offset in dataBuffer just past index + user header, to events
+            eventsOffset = indexLen + userHdrLen;
 
 // TODO: How do we handle trailers???
-            // Overwrite event lengths with event offsets
-            int event_pos = 0;
-            for(int i = 0; i < nEntries; i++){
-                int   size = dataBuffer.getInt(i*4);
+
+            // Overwrite event lengths with event offsets.
+            // First offset is to beginning of 2nd (starting at 1) event, etc.
+            int event_pos = 0, read_pos = eventsOffset;
+
+            for (int i = 0; i < nEntries; i++) {
+                int size;
+                if (findEvLens) {
+                    // In the case there is no index array, evio MUST be the format!
+                    // Reconstruct index - the first bank word = len - 1 words.
+                    size = 4*(dataBuffer.getInt(read_pos) + 1);
+                    read_pos += size;
+                }
+                else {
+                    // ev size in index array
+                    size = dataBuffer.getInt(i * 4);
+                }
                 event_pos += size;
                 dataBuffer.putInt(i*4, event_pos);
             }
