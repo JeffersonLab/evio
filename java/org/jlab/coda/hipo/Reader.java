@@ -1840,7 +1840,10 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
     /**
      * This method removes the data, represented by the given node, from the buffer.
      * It also marks all nodes taken from that buffer as obsolete.
-     * They must not be used anymore.<p>
+     * They must not be used anymore.
+     * <p>
+     * I don't think this method works since it does not change evio header lengths
+     * recursively, it doesn't change record headers, and it doesn't move records!
      *
      * @param  removeNode  evio structure to remove from buffer
      * @return ByteBuffer updated to reflect the node removal
@@ -1958,7 +1961,8 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
      * structure contained in an event. It is the responsibility of the caller to make
      * sure that the buffer argument contains valid evio data (only data representing
      * the structure to be added - not in file format with record header and the like)
-     * which is compatible with the type of data stored in the given event.<p>
+     * which is compatible with the type of data stored in the given event.
+     * No changes are made to record headers.<p>
      *
      * To produce such evio data use {@link EvioBank#write(ByteBuffer)},
      * {@link EvioSegment#write(ByteBuffer)} or
@@ -1966,7 +1970,10 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
      * a bank, seg, or tagseg is being added.<p>
      *
      * The given buffer argument must be ready to read with its position and limit
-     * defining the limits of the data to copy.
+     * defining the limits of the data to copy.<p>
+     *
+     * I don't think this method works since it does not change evio header lengths
+     * recursively, it doesn't change record headers, and it doesn't move records!
      *
      * @param eventNumber number of event to which addBuffer is to be added
      * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,

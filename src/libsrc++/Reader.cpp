@@ -1706,6 +1706,10 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      * It also marks all nodes taken from that buffer as obsolete.
      * They must not be used anymore.<p>
      *
+     * I don't think this method works since it does not change evio header lengths
+     * recursively, it doesn't change record headers, and it doesn't move records!
+     *
+     * @deprecated has not been correctly programmed.
      * @param  removeNode  evio structure to remove from buffer
      * @return ByteBuffer updated to reflect the node removal
      * @throws EvioException if object closed;
@@ -1822,8 +1826,12 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      * a bank, seg, or tagseg is being added.<p>
      *
      * The given buffer argument must be ready to read with its position and limit
-     * defining the limits of the data to copy.
+     * defining the limits of the data to copy.<p>
      *
+     * I don't think this method works since it does not change evio header lengths
+     * recursively, it doesn't change record headers, and it doesn't move records!
+     *
+     * @deprecated has not been correctly programmed.
      * @param eventNumber number of event to which addBuffer is to be added
      * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,
      *                  i.e. no record headers)
