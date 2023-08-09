@@ -8,6 +8,7 @@ package org.jlab.coda.hipo;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -217,13 +218,15 @@ public class RecordInputStream {
 
     /**
      * Get the event at the given index and return it in an allocated array.
+     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * but are unchanged on return.
+     * This method allocates memory and thus creates garbage.
+     *
      * @param index  index of event starting at 0. If index too large, it's
      *               set to last index. If negative, it's set to 0.
      * @return byte array containing event.
      */
     public byte[] getEvent(int index) {
-// TODO: INDEX ARRAY: Here is where we read index array size
-
         int firstPosition = 0;
 
         if (index > 0) {
@@ -240,23 +243,91 @@ public class RecordInputStream {
 
         int lastPosition = dataBuffer.getInt(index*4);
         int length = lastPosition - firstPosition;
+        int offset = eventsOffset + firstPosition;
 
-// TODO: Allocating memory here!!!
+        // Allocating memory here!!!
         byte[] event = new byte[length];
-        int   offset = eventsOffset + firstPosition;
 
         if (dataBuffer.hasArray()) {
             // NOTE: dataBuffer.arrayOffset() is always 0
             System.arraycopy(dataBuffer.array(), offset, event, 0, length);
         }
         else {
-// TODO: Do changing limit & pos affect other things???
+            // To be consistent, whether dataBuffer has a backing array or not,
+            // the position & limit should remain unchanged. This is done, HOWEVER,
+            // the method will not be threadsafe.
+            int lim = dataBuffer.limit();
+            int pos = dataBuffer.position();
+
             dataBuffer.limit(length+offset).position(offset);
             dataBuffer.get(event, 0, length);
+
+            // Set things back to the way they were
+            dataBuffer.limit(lim).position(pos);
         }
 
 //System.out.println("RecordInputStream: getEvent: reading from " + offset + "  length = " + event.length);
         return event;
+    }
+
+    /**
+     * Get the event at the given index and return it in the given array.
+     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * but are unchanged on return.
+     *
+     * @param event byte array in which to place event.
+     * @param off   offset in event to place event. Negative values set to 0.
+     * @param index index of event starting at 0. If index too large, it's
+     *              set to last index. If negative, it's set to 0.
+     * @return number of data bytes written into event array.
+     * @throws BufferOverflowException if event array too small.
+     *
+     */
+    public int getEvent(byte[] event, int off, int index) throws BufferOverflowException {
+        int firstPosition = 0;
+
+        if (index > 0) {
+            if (index >= header.getEntries()) {
+                index = header.getEntries() - 1;
+            }
+            // Remember, the index array of events lengths (at beginning of dataBuffer)
+            // was overwritten in readRecord() to contain offsets to events.
+            firstPosition = dataBuffer.getInt( (index-1)*4 );
+        }
+        else {
+            index = 0;
+        }
+
+        if (off < 0) off = 0;
+
+        int lastPosition = dataBuffer.getInt(index*4);
+        int length = lastPosition - firstPosition;
+        int offset = eventsOffset + firstPosition;
+
+        if (length + off > event.length) {
+            // not enough mem to store event
+            throw new BufferOverflowException();
+        }
+
+        if (dataBuffer.hasArray()) {
+            // NOTE: dataBuffer.arrayOffset() is always 0
+            System.arraycopy(dataBuffer.array(), offset, event, off, length);
+        }
+        else {
+            // To be consistent, whether dataBuffer has a backing array or not,
+            // the position & limit should remain unchanged. This is done, HOWEVER,
+            // the method will not be threadsafe.
+            int lim = dataBuffer.limit();
+            int pos = dataBuffer.position();
+
+            dataBuffer.limit(length+offset).position(offset);
+            dataBuffer.get(event, off, length);
+
+            // Set things back to the way they were
+            dataBuffer.limit(lim).position(pos);
+        }
+
+        return length;
     }
 
     /**
@@ -265,7 +336,6 @@ public class RecordInputStream {
      * @return length of the data in bytes.
      */
     public int getEventLength(int index) {
-// TODO: INDEX ARRARY: Here is where we read index array size
         if (index < 0 || index >= getEntries()) return 0;
 
         int firstPosition = 0;
@@ -288,6 +358,9 @@ public class RecordInputStream {
      * but the buffer.limit() is ignored and reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
+     * Buffer pos & lim are ready to read on return.
+     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * but are unchanged on return.
      *
      * @param buffer buffer to be filled with event starting at position = 0
      * @param index  index of event starting at 0. Negative value = 0.
@@ -305,6 +378,9 @@ public class RecordInputStream {
      * but the buffer.limit() is ignored and reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
+     * Buffer pos & lim are ready to read on return.
+     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * but are unchanged on return.
      *
      * @param buffer    buffer to be filled with event.
      * @param bufOffset offset into buffer to place event.
@@ -314,8 +390,6 @@ public class RecordInputStream {
      *                       (buffer.capacity() - bufOffset &lt; event size).
      */
     public ByteBuffer getEvent(ByteBuffer buffer, int bufOffset, int index) throws HipoException {
-
-// TODO: INDEX ARRARY: Here is where we read index array
         int firstPosition = 0;
         if (index > 0) {
             if (index >= header.getEntries()) {
@@ -346,12 +420,21 @@ public class RecordInputStream {
                              buffer.arrayOffset() + bufOffset, length);
         }
         else {
+            // To be consistent, whether arrays have backing arrays or not,
+            // the position & limit should remain unchanged. This is done, HOWEVER,
+            // the method will not be threadsafe.
+            int lim = dataBuffer.limit();
+            int pos = dataBuffer.position();
+
             // Read data starting at offset for length # of bytes
             dataBuffer.limit(offset + length).position(offset);
             // Reset limit to capacity
             buffer.clear();
             buffer.position(bufOffset);
             buffer.put(dataBuffer);
+
+            // Set things back to the way they were
+            dataBuffer.limit(lim).position(pos);
         }
 
         // Make buffer ready to read.
