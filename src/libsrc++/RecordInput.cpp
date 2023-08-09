@@ -186,8 +186,6 @@ namespace evio {
      * @return byte array containing event.
      */
     std::shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index, uint32_t * len) {
-// TODO: INDEX ARRAY: Here is where we read index array size
-
         uint32_t firstPosition = 0;
 
         if (index > 0) {
@@ -217,14 +215,49 @@ namespace evio {
 
 
     /**
+     * Get the event at the given index and return it in the provided array.
+     *
+     * @param event  pointer at which to write event.
+     * @param index  index of event starting at 0. If index too large, it's set to largest valid index.
+     * @param evLen  available memory for writing event in bytes.
+     * @return length of data written in bytes.
+     * @throws std::overflow_error if provided mem is too small to hold event.
+     */
+    uint32_t RecordInput::getEvent(uint8_t *event, uint32_t index, uint32_t evLen) {
+        uint32_t firstPosition = 0;
+
+        if (index > 0) {
+            if (index >= header->getEntries()) {
+                index = header->getEntries() - 1;
+            }
+            // Remember, the index array of events lengths (at beginning of dataBuffer)
+            // was overwritten in readRecord() to contain offsets to next event.
+            firstPosition = dataBuffer->getInt( (index-1)*4 );
+        }
+
+        uint32_t lastPosition = dataBuffer->getUInt(index*4);
+        uint32_t length = lastPosition - firstPosition;
+        uint32_t offset = eventsOffset + firstPosition;
+
+        if (length > evLen) {
+            // not enough mem to store event
+            throw std::overflow_error("event mem (" + std::to_string(evLen) +
+                                      " bytes) is too small to hold data (" +
+                                      std::to_string(length) + ")");
+        }
+
+        std::memcpy((void *)event, (const void *)(dataBuffer->array() + offset), length);
+        return length;
+    }
+
+
+    /**
      * Returns the length of the event with given index.
      * @param index index of the event
      * @return length of the data in bytes or zero if index
      *         does not coresspond to a valid event.
      */
     uint32_t RecordInput::getEventLength(uint32_t index) const {
-// TODO: INDEX ARRARY: Here is where we read index array size
-
         if (index >= getEntries()) return 0;
 
         uint32_t firstPosition = 0;
@@ -244,19 +277,40 @@ namespace evio {
      * Get the event at the given index and write it into the given byte buffer.
      * The given byte buffer has to be large enough to receive all the event's data,
      * but the buffer->limit() is ignored & reset.
+     * Buffer pos & lim are ready to read on return.
      * Buffer's byte order is set to that of the internal buffers.
+     * Data written at buffer's position.
      *
      * @param buffer    buffer to be filled with event.
      * @param index     index of event starting at 0.
+     * @return buffer   buffer arg.
+     * @throws EvioException if index too large, or buffer has insufficient space to
+     *                       contain event (buffer->capacity() < event size).
+     */
+    std::shared_ptr<ByteBuffer> RecordInput::getEvent(std::shared_ptr<ByteBuffer> & buffer, uint32_t index) {
+        getEvent(*(buffer.get()), buffer->position(), index);
+        return buffer;
+    }
+
+
+    /**
+     * Get the event at the given index and write it into the given byte buffer.
+     * The given byte buffer has to be large enough to receive all the event's data,
+     * but the buffer->limit() is ignored & reset.
+     * Buffer pos & lim are ready to read on return.
+     * Buffer's byte order is set to that of the internal buffers.
+     *
+     * @param buffer    buffer to be filled with event.
      * @param bufOffset offset into buffer to place event.
+     * @param index     index of event starting at 0.
      * @return buffer   buffer arg.
      * @throws EvioException if index too large, or buffer has insufficient space to
      *                       contain event (buffer->capacity() < event size).
      */
     std::shared_ptr<ByteBuffer> RecordInput::getEvent(std::shared_ptr<ByteBuffer> & buffer,
-                                                      uint32_t index, size_t bufOffset) {
-       getEvent(*(buffer.get()), bufOffset, index);
-       return buffer;
+                                                      size_t bufOffset, uint32_t index) {
+        getEvent(*(buffer.get()), bufOffset, index);
+        return buffer;
     }
 
 
@@ -264,7 +318,9 @@ namespace evio {
      * Get the event at the given index and write it into the given byte buffer.
      * The given byte buffer has to be large enough to receive all the event's data,
      * but the buffer.limit() is ignored & reset.
+     * Buffer pos & lim are ready to read on return.
      * Buffer's byte order is set to that of the internal buffers.
+     * Data written at buffer's position.
      *
      * @param buffer    buffer to be filled with event.
      * @param index     index of event starting at 0.
@@ -273,9 +329,26 @@ namespace evio {
      * @throws EvioException if index too large, or buffer has insufficient space to
      *                       contain event (buffer.capacity() < event size).
      */
-    ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, uint32_t index, size_t bufOffset) {
-// TODO: INDEX ARRARY: Here is where we read index array
+    ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, uint32_t index) {
+        return getEvent(buffer, buffer.position(), index);
+    }
 
+
+    /**
+     * Get the event at the given index and write it into the given byte buffer.
+     * The given byte buffer has to be large enough to receive all the event's data,
+     * but the buffer.limit() is ignored & reset.
+     * Buffer pos & lim are ready to read on return.
+     * Buffer's byte order is set to that of the internal buffers.
+     *
+     * @param buffer    buffer to be filled with event.
+     * @param bufOffset offset into buffer to place event.
+     * @param index     index of event starting at 0.
+     * @return buffer   buffer arg.
+     * @throws EvioException if index too large, or buffer has insufficient space to
+     *                       contain event (buffer.capacity() < event size).
+     */
+    ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32_t index) {
         uint32_t firstPosition = 0;
         if (index > 0) {
             if (index >= header->getEntries()) {
