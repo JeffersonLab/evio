@@ -1308,6 +1308,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         size_t position  = bufferOffset;
         size_t recordPos = bufferOffset;
         ssize_t bytesLeft = bufferLimit - bufferOffset;
+//        std::cout << "scanUncompressedBuffer: " << "pos = " << position << ", bufLim = " << bufferLimit << std::endl;
 
         // Keep track of the # of records, events, and valid words in file/buffer
         uint32_t eventPlace = 0;
@@ -1323,6 +1324,9 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             buffer->getBytes(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
             // Only sets the byte order of headerBuffer
             recordHeader.readHeader(headerBuffer);
+
+//std::cout << "Record Header:\n" << recordHeader.toString() << std::endl;
+
             uint32_t eventCount = recordHeader.getEntries();
             uint32_t recordHeaderLen = recordHeader.getHeaderLength();
             uint32_t recordBytes = recordHeader.getLength();
@@ -1465,7 +1469,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 bytesLeft -= byteLen;
 
                 if (bytesLeft < 0) {
-                    throw EvioException("Bad data format: bad length");
+                    throw EvioException("Bad data format: bytes left = " + std::to_string(bytesLeft));
                 }
             }
 

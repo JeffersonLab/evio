@@ -504,6 +504,8 @@ namespace evio {
         // This will switch headerBuffer to proper byte order
         header->readHeader(headerBuffer);
 
+//std::cout << "readRecord: header = \n" << header->toString() << std::endl;
+
         // Make sure all internal buffers have the same byte order
         setByteOrder(headerBuffer.order());
 
@@ -637,6 +639,7 @@ namespace evio {
         header->readHeader(buffer, offset);
 
 //std::cout << "readRecord: header = \n" << header->toString() << std::endl;
+
         // Make sure all internal buffers have the same byte order
         setByteOrder(buffer.order());
 
