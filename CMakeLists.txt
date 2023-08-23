@@ -240,12 +240,12 @@ else()
     # This is where it is on my system.
     find_path(LZ4_INCLUDE_DIR
             NAMES lz4.h
-            PATHS /usr/include
+            PATHS /usr/local/include /usr/include
             )
 
     find_library(LZ4_LIBRARY
-            NAMES lz4
-            PATHS /usr/lib64
+            NAMES lz4 liblz4
+            PATHS /usr/local/lib /usr/lib64 /usr/lib
             )
 
     if(NOT DEFINED C_ONLY)
