@@ -1236,10 +1236,10 @@ namespace evio {
         blockNumberExpected = 1;
 
         if (evioVersion < 4) {
-            blockHeader = blockHeader4 = std::make_shared<BlockHeaderV4>(firstBlockHeader4);
+            blockHeader = blockHeader2 = std::make_shared<BlockHeaderV2>(firstBlockHeader2);
         }
         else {
-            blockHeader = blockHeader2 = std::make_shared<BlockHeaderV2>(firstBlockHeader2);
+            blockHeader = blockHeader4 = std::make_shared<BlockHeaderV4>(firstBlockHeader4);
         }
 
         blockHeader->setBufferStartingPosition(initialPosition);
