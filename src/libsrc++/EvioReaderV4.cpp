@@ -102,6 +102,9 @@ namespace evio {
         synchronized = synced;
         sequentialRead = true;
         initialPosition = 0;
+        blockHeader4 = std::make_shared<BlockHeaderV4>();
+        blockHeader2 = std::make_shared<BlockHeaderV2>();
+
 
         // Look at the first block header to get various info like endianness and version.
         // Store it for later reference in blockHeader2,4 and in other variables.
@@ -163,6 +166,8 @@ namespace evio {
 
         checkBlockNumSeq = checkBlkNumSeq;
         synchronized = synced;
+        blockHeader4 = std::make_shared<BlockHeaderV4>();
+        blockHeader2 = std::make_shared<BlockHeaderV2>();
         byteBuffer = bb->slice(); // remove necessity to track initial position
 
         // Look at the first block header to get various info like endianness and version.
@@ -581,7 +586,6 @@ namespace evio {
      * @throws EvioException if file access problems
      */
     void EvioReaderV4::prepareForSequentialRead() {
-        // Create a buffer to hold a chunk of data.
         size_t bytesToRead;
 
         // Evio format version 4 or greater has a large enough default block size
@@ -597,7 +601,12 @@ namespace evio {
                           DEFAULT_READ_BYTES : bytesLeftInFile;
         }
 
-        if (byteBuffer->capacity() < bytesToRead) {
+
+        std::cout << "prepareForSequentialRead: bytesToRead = " << bytesToRead << std::endl;
+
+
+        // Create/expand a buffer to hold a chunk of data
+        if ((byteBuffer == nullptr) || (byteBuffer->capacity() < bytesToRead)) {
             byteBuffer = std::make_shared<ByteBuffer>(bytesToRead);
             byteBuffer->order(byteOrder);
         }
@@ -1000,7 +1009,7 @@ namespace evio {
             throw EvioException("object closed");
         }
 
-        std::shared_ptr<BankHeader> header;
+        auto header = std::make_shared<BankHeader>();
         auto event = EvioEvent::getInstance(header);
         size_t currentPosition = byteBuffer->position();
 
