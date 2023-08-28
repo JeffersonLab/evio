@@ -731,11 +731,14 @@ namespace evio {
 
                     // Read len of block in 32 bit words
                     uint32_t blkSize;
-                    file >> blkSize;
+                    file.read(reinterpret_cast<char*>(&blkSize), sizeof(blkSize));
                     if (file.fail()) {
                         throw EvioException("file read failure");
                     }
                     if (swap) blkSize = SWAP_32(blkSize);
+
+                    std::cout << "block size =  " << std::to_string(blkSize) << std::endl;
+
                     // Change to bytes
                     uint32_t blkBytes = 4 * blkSize;
 
