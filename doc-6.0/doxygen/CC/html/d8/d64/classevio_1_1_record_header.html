@@ -443,41 +443,47 @@ Static Public Attributes</h2></td></tr>
 <tr class="memdesc:a4b2b8d0940219944a8d3ba9467e79824"><td class="mdescLeft">&#160;</td><td class="mdescRight">Byte offset from beginning of header to the user register #2.  <a href="../../d8/d64/classevio_1_1_record_header.html#a4b2b8d0940219944a8d3ba9467e79824">More...</a><br /></td></tr>
 <tr class="separator:a4b2b8d0940219944a8d3ba9467e79824"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0acd86bd77c7a853b56ecfd981161469"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a0acd86bd77c7a853b56ecfd981161469">DICTIONARY_BIT</a> = 0x100</td></tr>
-<tr class="memdesc:a0acd86bd77c7a853b56ecfd981161469"><td class="mdescLeft">&#160;</td><td class="mdescRight">8th bit set in bitInfo word in header means contains dictionary.  <a href="../../d8/d64/classevio_1_1_record_header.html#a0acd86bd77c7a853b56ecfd981161469">More...</a><br /></td></tr>
+<tr class="memdesc:a0acd86bd77c7a853b56ecfd981161469"><td class="mdescLeft">&#160;</td><td class="mdescRight">8th bit (starting at 0) set in bitInfo word in header means contains dictionary.  <a href="../../d8/d64/classevio_1_1_record_header.html#a0acd86bd77c7a853b56ecfd981161469">More...</a><br /></td></tr>
 <tr class="separator:a0acd86bd77c7a853b56ecfd981161469"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c56d638839bb1a7c065b460fb20d3fe"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a3c56d638839bb1a7c065b460fb20d3fe">FIRSTEVENT_BIT</a> = 0x200</td></tr>
-<tr class="memdesc:a3c56d638839bb1a7c065b460fb20d3fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">9th bit set in bitInfo word in header means contains first event.  <a href="../../d8/d64/classevio_1_1_record_header.html#a3c56d638839bb1a7c065b460fb20d3fe">More...</a><br /></td></tr>
-<tr class="separator:a3c56d638839bb1a7c065b460fb20d3fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7ddde1d360d02cf22ba9790bf70c6b7"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ac7ddde1d360d02cf22ba9790bf70c6b7">LAST_RECORD_BIT</a> = 0x400</td></tr>
-<tr class="memdesc:ac7ddde1d360d02cf22ba9790bf70c6b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">10th bit set in bitInfo word in header means is last in stream or file.  <a href="../../d8/d64/classevio_1_1_record_header.html#ac7ddde1d360d02cf22ba9790bf70c6b7">More...</a><br /></td></tr>
+<tr class="memitem:ac7ddde1d360d02cf22ba9790bf70c6b7"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ac7ddde1d360d02cf22ba9790bf70c6b7">LAST_RECORD_BIT</a> = 0x200</td></tr>
+<tr class="memdesc:ac7ddde1d360d02cf22ba9790bf70c6b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">9th bit set in bitInfo word in header means is last in stream or file.  <a href="../../d8/d64/classevio_1_1_record_header.html#ac7ddde1d360d02cf22ba9790bf70c6b7">More...</a><br /></td></tr>
 <tr class="separator:ac7ddde1d360d02cf22ba9790bf70c6b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c56d638839bb1a7c065b460fb20d3fe"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a3c56d638839bb1a7c065b460fb20d3fe">FIRSTEVENT_BIT</a> = 0x4000</td></tr>
+<tr class="memdesc:a3c56d638839bb1a7c065b460fb20d3fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">14th bit set in bitInfo word in header means contains first event.  <a href="../../d8/d64/classevio_1_1_record_header.html#a3c56d638839bb1a7c065b460fb20d3fe">More...</a><br /></td></tr>
+<tr class="separator:a3c56d638839bb1a7c065b460fb20d3fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5740099aa9816824f9c28240d10c4104"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a5740099aa9816824f9c28240d10c4104">DATA_ROC_RAW_BITS</a> = 0x000</td></tr>
-<tr class="memdesc:a5740099aa9816824f9c28240d10c4104"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0.  <a href="../../d8/d64/classevio_1_1_record_header.html#a5740099aa9816824f9c28240d10c4104">More...</a><br /></td></tr>
+<tr class="memdesc:a5740099aa9816824f9c28240d10c4104"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in header for CODA data type, ROC raw = 0.  <a href="../../d8/d64/classevio_1_1_record_header.html#a5740099aa9816824f9c28240d10c4104">More...</a><br /></td></tr>
 <tr class="separator:a5740099aa9816824f9c28240d10c4104"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae471e5df8fd97c256bc8b63ff97f4de5"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ae471e5df8fd97c256bc8b63ff97f4de5">DATA_PHYSICS_BITS</a> = 0x800</td></tr>
-<tr class="memdesc:ae471e5df8fd97c256bc8b63ff97f4de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in header for CODA data type, physics = 1.  <a href="../../d8/d64/classevio_1_1_record_header.html#ae471e5df8fd97c256bc8b63ff97f4de5">More...</a><br /></td></tr>
+<tr class="memitem:ae471e5df8fd97c256bc8b63ff97f4de5"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ae471e5df8fd97c256bc8b63ff97f4de5">DATA_PHYSICS_BITS</a> = 0x400</td></tr>
+<tr class="memdesc:ae471e5df8fd97c256bc8b63ff97f4de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in header for CODA data type, physics = 1.  <a href="../../d8/d64/classevio_1_1_record_header.html#ae471e5df8fd97c256bc8b63ff97f4de5">More...</a><br /></td></tr>
 <tr class="separator:ae471e5df8fd97c256bc8b63ff97f4de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57c866e62d930b5ad4b6a977cf6eff4b"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a57c866e62d930b5ad4b6a977cf6eff4b">DATA_PARTIAL_BITS</a> = 0x1000</td></tr>
-<tr class="memdesc:a57c866e62d930b5ad4b6a977cf6eff4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in header for CODA data type, partial physics = 2.  <a href="../../d8/d64/classevio_1_1_record_header.html#a57c866e62d930b5ad4b6a977cf6eff4b">More...</a><br /></td></tr>
+<tr class="memitem:a57c866e62d930b5ad4b6a977cf6eff4b"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a57c866e62d930b5ad4b6a977cf6eff4b">DATA_PARTIAL_BITS</a> = 0x800</td></tr>
+<tr class="memdesc:a57c866e62d930b5ad4b6a977cf6eff4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in header for CODA data type, partial physics = 2.  <a href="../../d8/d64/classevio_1_1_record_header.html#a57c866e62d930b5ad4b6a977cf6eff4b">More...</a><br /></td></tr>
 <tr class="separator:a57c866e62d930b5ad4b6a977cf6eff4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac91d9c4b40dfe746ed015799870b7dd3"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ac91d9c4b40dfe746ed015799870b7dd3">DATA_DISENTANGLED_BITS</a> = 0x1800</td></tr>
-<tr class="memdesc:ac91d9c4b40dfe746ed015799870b7dd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in header for CODA data type, disentangled = 3.  <a href="../../d8/d64/classevio_1_1_record_header.html#ac91d9c4b40dfe746ed015799870b7dd3">More...</a><br /></td></tr>
+<tr class="memitem:ac91d9c4b40dfe746ed015799870b7dd3"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ac91d9c4b40dfe746ed015799870b7dd3">DATA_DISENTANGLED_BITS</a> = 0xC00</td></tr>
+<tr class="memdesc:ac91d9c4b40dfe746ed015799870b7dd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in header for CODA data type, disentangled = 3.  <a href="../../d8/d64/classevio_1_1_record_header.html#ac91d9c4b40dfe746ed015799870b7dd3">More...</a><br /></td></tr>
 <tr class="separator:ac91d9c4b40dfe746ed015799870b7dd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3de06a9ab2b0231d9e17554b606c95b3"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a3de06a9ab2b0231d9e17554b606c95b3">DATA_USER_BITS</a> = 0x2000</td></tr>
-<tr class="memdesc:a3de06a9ab2b0231d9e17554b606c95b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in header for CODA data type, user = 4.  <a href="../../d8/d64/classevio_1_1_record_header.html#a3de06a9ab2b0231d9e17554b606c95b3">More...</a><br /></td></tr>
+<tr class="memitem:a3de06a9ab2b0231d9e17554b606c95b3"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a3de06a9ab2b0231d9e17554b606c95b3">DATA_USER_BITS</a> = 0x1000</td></tr>
+<tr class="memdesc:a3de06a9ab2b0231d9e17554b606c95b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in header for CODA data type, user = 4.  <a href="../../d8/d64/classevio_1_1_record_header.html#a3de06a9ab2b0231d9e17554b606c95b3">More...</a><br /></td></tr>
 <tr class="separator:a3de06a9ab2b0231d9e17554b606c95b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d79799c4b5b39454015f6be834e55aa"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a3d79799c4b5b39454015f6be834e55aa">DATA_CONTROL_BITS</a> = 0x2800</td></tr>
-<tr class="memdesc:a3d79799c4b5b39454015f6be834e55aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in record header for CODA data type, control = 5.  <a href="../../d8/d64/classevio_1_1_record_header.html#a3d79799c4b5b39454015f6be834e55aa">More...</a><br /></td></tr>
+<tr class="memitem:a3d79799c4b5b39454015f6be834e55aa"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a3d79799c4b5b39454015f6be834e55aa">DATA_CONTROL_BITS</a> = 0x1400</td></tr>
+<tr class="memdesc:a3d79799c4b5b39454015f6be834e55aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in record header for CODA data type, control = 5.  <a href="../../d8/d64/classevio_1_1_record_header.html#a3d79799c4b5b39454015f6be834e55aa">More...</a><br /></td></tr>
 <tr class="separator:a3d79799c4b5b39454015f6be834e55aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa79aabcabbbad053f77fb9a43999cc17"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aa79aabcabbbad053f77fb9a43999cc17">DATA_OTHER_BITS</a> = 0x7800</td></tr>
-<tr class="memdesc:aa79aabcabbbad053f77fb9a43999cc17"><td class="mdescLeft">&#160;</td><td class="mdescRight">11-14th bits in bitInfo word in record header for CODA data type, other = 15.  <a href="../../d8/d64/classevio_1_1_record_header.html#aa79aabcabbbad053f77fb9a43999cc17">More...</a><br /></td></tr>
+<tr class="memitem:a0a9afd391c1d6dbcbb4c64c662f4fef3"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a0a9afd391c1d6dbcbb4c64c662f4fef3">DATA_MIXED_BITS</a> = 0x1800</td></tr>
+<tr class="memdesc:a0a9afd391c1d6dbcbb4c64c662f4fef3"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in record header for CODA data type, mixed = 6.  <a href="../../d8/d64/classevio_1_1_record_header.html#a0a9afd391c1d6dbcbb4c64c662f4fef3">More...</a><br /></td></tr>
+<tr class="separator:a0a9afd391c1d6dbcbb4c64c662f4fef3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5689cafee5d96518a85827ad9f8428d5"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a5689cafee5d96518a85827ad9f8428d5">DATA_ROCRAW_STREAM_BITS</a> = 0x2000</td></tr>
+<tr class="memdesc:a5689cafee5d96518a85827ad9f8428d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in record header for CODA data type, Roc Raw Streaming = 8.  <a href="../../d8/d64/classevio_1_1_record_header.html#a5689cafee5d96518a85827ad9f8428d5">More...</a><br /></td></tr>
+<tr class="separator:a5689cafee5d96518a85827ad9f8428d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3a99b66b2ed20a1c881dd0dc6aea88a"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ad3a99b66b2ed20a1c881dd0dc6aea88a">DATA_PHYSICS_STREAM_BITS</a> = 0x2400</td></tr>
+<tr class="memdesc:ad3a99b66b2ed20a1c881dd0dc6aea88a"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in record header for CODA data type, Physics Streaming = 9.  <a href="../../d8/d64/classevio_1_1_record_header.html#ad3a99b66b2ed20a1c881dd0dc6aea88a">More...</a><br /></td></tr>
+<tr class="separator:ad3a99b66b2ed20a1c881dd0dc6aea88a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa79aabcabbbad053f77fb9a43999cc17"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aa79aabcabbbad053f77fb9a43999cc17">DATA_OTHER_BITS</a> = 0x3C00</td></tr>
+<tr class="memdesc:aa79aabcabbbad053f77fb9a43999cc17"><td class="mdescLeft">&#160;</td><td class="mdescRight">10-13th bits in bitInfo word in record header for CODA data type, other = 15.  <a href="../../d8/d64/classevio_1_1_record_header.html#aa79aabcabbbad053f77fb9a43999cc17">More...</a><br /></td></tr>
 <tr class="separator:aa79aabcabbbad053f77fb9a43999cc17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad19ddc97493261aaf446ac33991987b7"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ad19ddc97493261aaf446ac33991987b7">VERSION_MASK</a> = 0xff</td></tr>
 <tr class="memdesc:ad19ddc97493261aaf446ac33991987b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask to get version number from 6th int in header.  <a href="../../d8/d64/classevio_1_1_record_header.html#ad19ddc97493261aaf446ac33991987b7">More...</a><br /></td></tr>
 <tr class="separator:ad19ddc97493261aaf446ac33991987b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e75aee4fcc5abe4fa8f3a9fef7bba18"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a3e75aee4fcc5abe4fa8f3a9fef7bba18">LAST_RECORD_MASK</a> = 0x400</td></tr>
-<tr class="memdesc:a3e75aee4fcc5abe4fa8f3a9fef7bba18"><td class="mdescLeft">&#160;</td><td class="mdescRight">"Last record" is 11th bit in bitInfo word.  <a href="../../d8/d64/classevio_1_1_record_header.html#a3e75aee4fcc5abe4fa8f3a9fef7bba18">More...</a><br /></td></tr>
-<tr class="separator:a3e75aee4fcc5abe4fa8f3a9fef7bba18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5f22d640a8987649db4fd4c8c699cb7"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d6e/classevio_1_1_i_block_header.html#ac5f22d640a8987649db4fd4c8c699cb7">MAGIC_NUMBER</a> = 0xc0da0100</td></tr>
 <tr class="memdesc:ac5f22d640a8987649db4fd4c8c699cb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The magic number, should be the value of <code>magicNumber</code>.  <a href="../../d5/d6e/classevio_1_1_i_block_header.html#ac5f22d640a8987649db4fd4c8c699cb7">More...</a><br /></td></tr>
 <tr class="separator:ac5f22d640a8987649db4fd4c8c699cb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -530,16 +536,18 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 -------------------
     0-7  = version
     8    = true if dictionary is included (relevant for first record only)
-    9    = true if this record has "first" event (to be in every split file)
-   10    = true if this record is the last in file or stream
-   11-14 = type of events contained: 0 = ROC Raw,
+    9    = true if this record is the last in file or stream
+   10-13 = type of events contained: 0 = ROC Raw,
                                      1 = Physics
                                      2 = PartialPhysics
                                      3 = DisentangledPhysics
                                      4 = User
                                      5 = Control
                                      6 = Mixed
+                                     8 = RocRawStreaming
+                                     9 = PhysicsStreaming
                                     15 = Other
+   14    = true if this record has "first" event (to be in every split file)
 
    16-19 = reserved
    20-21 = pad 1
@@ -592,9 +600,9 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 -------------------
     0-7  = 6
     8    = 0
-    9    = 0
-   10    = 1
-   11-14 = 0
+    9    = 1
+   10-13 = 0
+   14    = 0
    15-19 = 0
    20-21 = 0
    22-23 = 0
@@ -1033,7 +1041,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </div><div class="memdoc">
 
 <p>Calculates the sixth word of this header which has the version number (4) in the lowest 8 bits and the set in the upper 24 bits. </p>
-<p>The arg isDictionary is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int (event type) are set in bits 11-14. Four bits of this header type are set in bits 28-31 (defaults to 0 which is an evio record header).</p>
+<p>The arg isDictionary is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int (event type) are set in bits 10-13. Four bits of this header type are set in bits 28-31 (defaults to 0 which is an evio record header).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">set</td><td>reference to bitset containing all bits to be set </td></tr>
@@ -1096,7 +1104,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </div><div class="memdoc">
 
 <p>Calculates the sixth word of this header which has the version number in the lowest 8 bits. </p>
-<p>The arg hasDictionary is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int (event type) are set in bits 11-14.</p>
+<p>The arg hasDictionary is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int (event type) are set in bits 10-13.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">version</td><td>evio version number </td></tr>
@@ -1127,8 +1135,6 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 <p>Get the bit info word. </p>
 <p>Will initialize if not already done. </p><dl class="section return"><dt>Returns</dt><dd>bit info word. </dd></dl>
-
-<p class="reference">Referenced by <a class="el" href="../../de/da2/classevio_1_1_record_input.html#a13b22f107be73ebb28d7ffc907ba81fc">evio::RecordInput::uncompressRecord()</a>.</p>
 
 </div>
 </div>
@@ -1381,7 +1387,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 <p>Get the length of the uncompressed data in words (padded). </p>
 <dl class="section return"><dt>Returns</dt><dd>length of the uncompressed data in words (padded). </dd></dl>
 
-<p class="reference">Referenced by <a class="el" href="../../de/da2/classevio_1_1_record_input.html#a13b22f107be73ebb28d7ffc907ba81fc">evio::RecordInput::uncompressRecord()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a2df955f07faf6a4cd92cc8184eaa5d04">evio::Reader::scanBuffer()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a703075aab48cc798dbccc8cb14d74725">evio::Reader::scanUncompressedBuffer()</a>, and <a class="el" href="../../de/da2/classevio_1_1_record_input.html#a13b22f107be73ebb28d7ffc907ba81fc">evio::RecordInput::uncompressRecord()</a>.</p>
 
 </div>
 </div>
@@ -1527,7 +1533,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 <p>Get the length of the index array in bytes. </p>
 <dl class="section return"><dt>Returns</dt><dd>length of the index array in bytes. </dd></dl>
 
-<p class="reference">Referenced by <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a7a3c02dd9c1c87a57f4b73076071bced">evio::Reader::scanFile()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a703075aab48cc798dbccc8cb14d74725">evio::Reader::scanUncompressedBuffer()</a>, and <a class="el" href="../../de/da2/classevio_1_1_record_input.html#a13b22f107be73ebb28d7ffc907ba81fc">evio::RecordInput::uncompressRecord()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a2df955f07faf6a4cd92cc8184eaa5d04">evio::Reader::scanBuffer()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a7a3c02dd9c1c87a57f4b73076071bced">evio::Reader::scanFile()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a703075aab48cc798dbccc8cb14d74725">evio::Reader::scanUncompressedBuffer()</a>, and <a class="el" href="../../de/da2/classevio_1_1_record_input.html#a13b22f107be73ebb28d7ffc907ba81fc">evio::RecordInput::uncompressRecord()</a>.</p>
 
 </div>
 </div>
@@ -2842,7 +2848,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 <p>Set the bit info of a record header for a specified CODA event type. </p>
 <p>Must be called AFTER <a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a06e3d10739f8cb6f2b8afbdb4ec6cc22">setBitInfo(bool, bool)</a> or <a class="el" href="../../d8/d64/classevio_1_1_record_header.html#acbd14b3e5c1cd26c7b5d8a734aca59b5">setBitInfoWord(uint32_t)</a> in order to have change preserved. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">type</td><td>event type (0=ROC raw, 1=Physics, 2=Partial Physics, 3=Disentangled, 4=User, 5=Control, 15=Other, else = nothing set). </td></tr>
+    <tr><td class="paramname">type</td><td>event type (0=ROC raw, 1=Physics, 2=Partial Physics, 3=Disentangled, 4=User, 5=Control, 6=Mixed, 8=RocRawStreaming, 9=PhysicsStreaming, 15=Other, else = nothing set). </td></tr>
   </table>
   </dd>
 </dl>
@@ -3816,7 +3822,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 <p>Byte offset from beginning of header to bit info word. </p>
 
-<p class="reference">Referenced by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a8f01bf28c0d2910947fca9a841a1fc7b">evio::Writer::close()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#ab9934d70bae0210536661c0a478dee03">evio::Reader::findRecordInfo()</a>, and <a class="el" href="../../de/da2/classevio_1_1_record_input.html#a13b22f107be73ebb28d7ffc907ba81fc">evio::RecordInput::uncompressRecord()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a8f01bf28c0d2910947fca9a841a1fc7b">evio::Writer::close()</a>, and <a class="el" href="../../d3/d56/classevio_1_1_reader.html#ab9934d70bae0210536661c0a478dee03">evio::Reader::findRecordInfo()</a>.</p>
 
 </div>
 </div>
@@ -3856,7 +3862,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::DATA_CONTROL_BITS = 0x2800</td>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_CONTROL_BITS = 0x1400</td>
         </tr>
       </table>
   </td>
@@ -3866,7 +3872,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>11-14th bits in bitInfo word in record header for CODA data type, control = 5. </p>
+<p>10-13th bits in bitInfo word in record header for CODA data type, control = 5. </p>
 
 </div>
 </div>
@@ -3880,7 +3886,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::DATA_DISENTANGLED_BITS = 0x1800</td>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_DISENTANGLED_BITS = 0xC00</td>
         </tr>
       </table>
   </td>
@@ -3890,7 +3896,31 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>11-14th bits in bitInfo word in header for CODA data type, disentangled = 3. </p>
+<p>10-13th bits in bitInfo word in header for CODA data type, disentangled = 3. </p>
+
+</div>
+</div>
+<a id="a0a9afd391c1d6dbcbb4c64c662f4fef3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a9afd391c1d6dbcbb4c64c662f4fef3">&#9670;&nbsp;</a></span>DATA_MIXED_BITS</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_MIXED_BITS = 0x1800</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>10-13th bits in bitInfo word in record header for CODA data type, mixed = 6. </p>
 
 </div>
 </div>
@@ -3904,7 +3934,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::DATA_OTHER_BITS = 0x7800</td>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_OTHER_BITS = 0x3C00</td>
         </tr>
       </table>
   </td>
@@ -3914,7 +3944,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>11-14th bits in bitInfo word in record header for CODA data type, other = 15. </p>
+<p>10-13th bits in bitInfo word in record header for CODA data type, other = 15. </p>
 
 </div>
 </div>
@@ -3928,7 +3958,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::DATA_PARTIAL_BITS = 0x1000</td>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_PARTIAL_BITS = 0x800</td>
         </tr>
       </table>
   </td>
@@ -3938,7 +3968,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>11-14th bits in bitInfo word in header for CODA data type, partial physics = 2. </p>
+<p>10-13th bits in bitInfo word in header for CODA data type, partial physics = 2. </p>
 
 </div>
 </div>
@@ -3952,7 +3982,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::DATA_PHYSICS_BITS = 0x800</td>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_PHYSICS_BITS = 0x400</td>
         </tr>
       </table>
   </td>
@@ -3962,7 +3992,31 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>11-14th bits in bitInfo word in header for CODA data type, physics = 1. </p>
+<p>10-13th bits in bitInfo word in header for CODA data type, physics = 1. </p>
+
+</div>
+</div>
+<a id="ad3a99b66b2ed20a1c881dd0dc6aea88a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3a99b66b2ed20a1c881dd0dc6aea88a">&#9670;&nbsp;</a></span>DATA_PHYSICS_STREAM_BITS</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_PHYSICS_STREAM_BITS = 0x2400</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>10-13th bits in bitInfo word in record header for CODA data type, Physics Streaming = 9. </p>
 
 </div>
 </div>
@@ -3986,7 +4040,31 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. </p>
+<p>10-13th bits in bitInfo word in header for CODA data type, ROC raw = 0. </p>
+
+</div>
+</div>
+<a id="a5689cafee5d96518a85827ad9f8428d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5689cafee5d96518a85827ad9f8428d5">&#9670;&nbsp;</a></span>DATA_ROCRAW_STREAM_BITS</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_ROCRAW_STREAM_BITS = 0x2000</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>10-13th bits in bitInfo word in record header for CODA data type, Roc Raw Streaming = 8. </p>
 
 </div>
 </div>
@@ -4000,7 +4078,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::DATA_USER_BITS = 0x2000</td>
+          <td class="memname">const uint32_t evio::RecordHeader::DATA_USER_BITS = 0x1000</td>
         </tr>
       </table>
   </td>
@@ -4010,7 +4088,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>11-14th bits in bitInfo word in header for CODA data type, user = 4. </p>
+<p>10-13th bits in bitInfo word in header for CODA data type, user = 4. </p>
 
 </div>
 </div>
@@ -4034,7 +4112,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>8th bit set in bitInfo word in header means contains dictionary. </p>
+<p>8th bit (starting at 0) set in bitInfo word in header means contains dictionary. </p>
 
 </div>
 </div>
@@ -4074,7 +4152,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::FIRSTEVENT_BIT = 0x200</td>
+          <td class="memname">const uint32_t evio::RecordHeader::FIRSTEVENT_BIT = 0x4000</td>
         </tr>
       </table>
   </td>
@@ -4084,7 +4162,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>9th bit set in bitInfo word in header means contains first event. </p>
+<p>14th bit set in bitInfo word in header means contains first event. </p>
 
 </div>
 </div>
@@ -4228,7 +4306,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::LAST_RECORD_BIT = 0x400</td>
+          <td class="memname">const uint32_t evio::RecordHeader::LAST_RECORD_BIT = 0x200</td>
         </tr>
       </table>
   </td>
@@ -4238,31 +4316,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 </table>
 </div><div class="memdoc">
 
-<p>10th bit set in bitInfo word in header means is last in stream or file. </p>
-
-</div>
-</div>
-<a id="a3e75aee4fcc5abe4fa8f3a9fef7bba18"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3e75aee4fcc5abe4fa8f3a9fef7bba18">&#9670;&nbsp;</a></span>LAST_RECORD_MASK</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const uint32_t evio::RecordHeader::LAST_RECORD_MASK = 0x400</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>"Last record" is 11th bit in bitInfo word. </p>
+<p>9th bit set in bitInfo word in header means is last in stream or file. </p>
 
 </div>
 </div>

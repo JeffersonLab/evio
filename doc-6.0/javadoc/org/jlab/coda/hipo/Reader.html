@@ -1482,7 +1482,8 @@ extends java.lang.Object</pre>
          is greater than the original buffer could hold.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></code> - if buffer not in the proper format or earlier than version 6;
-                       if checkRecordNumberSequence is true and records are out of sequence.</dd>
+                       if checkRecordNumberSequence is true and records are out of sequence;
+                       if index_array_len != 4*event_count.</dd>
 <dd><code>java.nio.BufferUnderflowException</code> - if not enough data in buffer.</dd>
 </dl>
 </li>
@@ -1497,7 +1498,7 @@ extends java.lang.Object</pre>
                             throws <a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></pre>
 <div class="block">Scan buffer to find all records and store their position, length, and event count.
  Also finds all events and then creates and stores their associated EvioNode objects.
- Be warned that this method generates garbage.</div>
+ Be warned that this method can generate garbage.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></code> - if buffer too small, not in the proper format, or earlier than version 6;
@@ -1555,7 +1556,10 @@ extends java.lang.Object</pre>
                                     throws <a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></pre>
 <div class="block">This method removes the data, represented by the given node, from the buffer.
  It also marks all nodes taken from that buffer as obsolete.
- They must not be used anymore.<p></div>
+ They must not be used anymore.
+ <p>
+ I don't think this method works since it does not change evio header lengths
+ recursively, it doesn't change record headers, and it doesn't move records!</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>removeNode</code> - evio structure to remove from buffer</dd>
@@ -1582,7 +1586,8 @@ extends java.lang.Object</pre>
  structure contained in an event. It is the responsibility of the caller to make
  sure that the buffer argument contains valid evio data (only data representing
  the structure to be added - not in file format with record header and the like)
- which is compatible with the type of data stored in the given event.<p>
+ which is compatible with the type of data stored in the given event.
+ No changes are made to record headers.<p>
 
  To produce such evio data use <a href="../../../../org/jlab/coda/jevio/BaseStructure.html#write-java.nio.ByteBuffer-"><code>BaseStructure.write(ByteBuffer)</code></a>,
  <a href="../../../../org/jlab/coda/jevio/BaseStructure.html#write-java.nio.ByteBuffer-"><code>BaseStructure.write(ByteBuffer)</code></a> or
@@ -1590,7 +1595,10 @@ extends java.lang.Object</pre>
  a bank, seg, or tagseg is being added.<p>
 
  The given buffer argument must be ready to read with its position and limit
- defining the limits of the data to copy.</div>
+ defining the limits of the data to copy.<p>
+
+ I don't think this method works since it does not change evio header lengths
+ recursively, it doesn't change record headers, and it doesn't move records!</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventNumber</code> - number of event to which addBuffer is to be added</dd>

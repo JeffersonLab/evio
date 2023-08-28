@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['open_20_26_20close_20routines_679',['open &amp; close routines',['../da/d4c/group__open.html',1,'']]]
+  ['open_20_26_20close_20routines_665',['open &amp; close routines',['../da/d4c/group__open.html',1,'']]]
 ];

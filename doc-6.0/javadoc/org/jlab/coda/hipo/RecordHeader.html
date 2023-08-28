@@ -169,16 +169,18 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
  -------------------
      0-7  = version
      8    = true if dictionary is included (relevant for first record only)
-     9    = true if this record has "first" event (to be in every split file)
-    10    = true if this record is the last in file or stream
-    11-14 = type of events contained: 0 = ROC Raw,
+     9    = true if this record is the last in file or stream
+    10-13 = type of events contained: 0 = ROC Raw,
                                       1 = Physics
                                       2 = PartialPhysics
                                       3 = DisentangledPhysics
                                       4 = User
                                       5 = Control
                                       6 = Mixed
+                                      8 = RocRawStreaming
+                                      9 = PhysicsStreaming
                                      15 = Other
+    14    = true if this record has "first" event (to be in every split file)
 
     16-19 = reserved
     20-21 = pad 1
@@ -232,9 +234,9 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
  -------------------
      0-7  = 6
      8    = 0
-     9    = 0
-    10    = 1
-    11-14 = 0
+     9    = 1
+    10-13 = 0
+    14    = 0
     15-19 = 0
     20-21 = 0
     22-23 = 0
@@ -321,53 +323,47 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#LAST_RECORD_MASK">LAST_RECORD_MASK</a></span></code>
-<div class="block">"Last record" is 11th bit in bitInfo word.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#MAGIC_OFFSET">MAGIC_OFFSET</a></span></code>
 <div class="block">Byte offset from beginning of header to the record length.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#RECORD_LENGTH_OFFSET">RECORD_LENGTH_OFFSET</a></span></code>
 <div class="block">Byte offset from beginning of header to the record length.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#RECORD_NUMBER_OFFSET">RECORD_NUMBER_OFFSET</a></span></code>
 <div class="block">Byte offset from beginning of header to the record number.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#REGISTER1_OFFSET">REGISTER1_OFFSET</a></span></code>
 <div class="block">Byte offset from beginning of header to the user register #1.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#REGISTER2_OFFSET">REGISTER2_OFFSET</a></span></code>
 <div class="block">Byte offset from beginning of header to the user register #2.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#UNCOMPRESSED_LENGTH_OFFSET">UNCOMPRESSED_LENGTH_OFFSET</a></span></code>
 <div class="block">Byte offset from beginning of header to the uncompressed data length.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#USER_LENGTH_OFFSET">USER_LENGTH_OFFSET</a></span></code>
 <div class="block">Byte offset from beginning of header to the user header length.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/RecordHeader.html#VERSION_MASK">VERSION_MASK</a></span></code>
 <div class="block">Mask to get version number from 6th int in header.</div>
@@ -1223,7 +1219,7 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 <a name="VERSION_MASK">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>VERSION_MASK</h4>
 <pre>public static final&nbsp;int VERSION_MASK</pre>
@@ -1231,20 +1227,6 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#org.jlab.coda.hipo.RecordHeader.VERSION_MASK">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="LAST_RECORD_MASK">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>LAST_RECORD_MASK</h4>
-<pre>public static final&nbsp;int LAST_RECORD_MASK</pre>
-<div class="block">"Last record" is 11th bit in bitInfo word.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#org.jlab.coda.hipo.RecordHeader.LAST_RECORD_MASK">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -1789,7 +1771,7 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 <div class="block">Calculates the sixth word of this header which has the version number
  in the lowest 8 bits. The arg hasDictionary
  is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
- (event type) are set in bits 11-14.</div>
+ (event type) are set in bits 10-13.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>version</code> - evio version number</dd>
@@ -1815,7 +1797,7 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 <div class="block">Calculates the sixth word of this header which has the version number (4)
  in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
  is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
- (event type) are set in bits 11-14.</div>
+ (event type) are set in bits 10-13.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bSet</code> - Bitset containing all bits to be set</dd>
@@ -1935,6 +1917,22 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 <dd><code>bitInfo</code> - bitInfo word.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true this is the header of the last record, else false.</dd>
+</dl>
+</li>
+</ul>
+<a name="clearLastRecordBit-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearLastRecordBit</h4>
+<pre>public static&nbsp;int&nbsp;clearLastRecordBit(int&nbsp;i)</pre>
+<div class="block">Clear the bit in the given arg to indicate it is NOT the last record.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>i</code> - integer in which to clear the last-record bit</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>arg with last-record bit cleared</dd>
 </dl>
 </li>
 </ul>
@@ -2074,22 +2072,6 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 </dl>
 </li>
 </ul>
-<a name="clearLastRecordBit-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>clearLastRecordBit</h4>
-<pre>public static&nbsp;int&nbsp;clearLastRecordBit(int&nbsp;i)</pre>
-<div class="block">Clear the bit in the given arg to indicate it is NOT the last record.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>i</code> - integer in which to clear the last-record bit</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>arg with last-record bit cleared</dd>
-</dl>
-</li>
-</ul>
 <a name="setBitInfoEventType-int-">
 <!--   -->
 </a>
@@ -2103,7 +2085,8 @@ implements <a href="../../../../org/jlab/coda/jevio/IBlockHeader.html" title="in
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>type</code> - event type (0=ROC raw, 1=Physics, 2=Partial Physics,
-             3=Disentangled, 4=User, 5=Control, 6=Mixed, 15=Other,
+             3=Disentangled, 4=User, 5=Control, 6=Mixed,
+             8=RocRawStreaming, 9=PhysicsStreaming, 15=Other,
              else = nothing set).</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new bit info word.</dd>
