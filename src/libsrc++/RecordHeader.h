@@ -83,16 +83,18 @@ namespace evio {
      * -------------------
      *     0-7  = version
      *     8    = true if dictionary is included (relevant for first record only)
-     *     9    = true if this record has "first" event (to be in every split file)
-     *    10    = true if this record is the last in file or stream
-     *    11-14 = type of events contained: 0 = ROC Raw,
+     *     9    = true if this record is the last in file or stream
+     *    10-13 = type of events contained: 0 = ROC Raw,
      *                                      1 = Physics
      *                                      2 = PartialPhysics
      *                                      3 = DisentangledPhysics
      *                                      4 = User
      *                                      5 = Control
      *                                      6 = Mixed
+     *                                      8 = RocRawStreaming
+     *                                      9 = PhysicsStreaming
      *                                     15 = Other
+     *    14    = true if this record has "first" event (to be in every split file)
      *
      *    16-19 = reserved
      *    20-21 = pad 1
@@ -145,9 +147,9 @@ namespace evio {
      * -------------------
      *     0-7  = 6
      *     8    = 0
-     *     9    = 0
-     *    10    = 1
-     *    11-14 = 0
+     *     9    = 1
+     *    10-13 = 0
+     *    14    = 0
      *    15-19 = 0
      *    20-21 = 0
      *    22-23 = 0
@@ -224,36 +226,40 @@ namespace evio {
         /** Byte offset from beginning of header to the user register #2. */
         static const uint32_t   REGISTER2_OFFSET = 48;
 
-        // Bits in bit info word
+        // Bits in bit info word (starting at 0)
 
-        /** 8th bit set in bitInfo word in header means contains dictionary. */
+        /** 8th bit (starting at 0) set in bitInfo word in header means contains dictionary. */
         static const uint32_t   DICTIONARY_BIT = 0x100;
-        /** 9th bit set in bitInfo word in header means contains first event. */
-        static const uint32_t   FIRSTEVENT_BIT  = 0x200;
-        /** 10th bit set in bitInfo word in header means is last in stream or file. */
-        static const uint32_t   LAST_RECORD_BIT = 0x400;
+        /** 9th bit set in bitInfo word in header means is last in stream or file. */
+        static const uint32_t   LAST_RECORD_BIT = 0x200;
+        /** 14th bit set in bitInfo word in header means contains first event. */
+        static const uint32_t   FIRSTEVENT_BIT  = 0x4000;
 
-        /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
+        /** 10-13th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
         static const uint32_t   DATA_ROC_RAW_BITS = 0x000;
-        /** 11-14th bits in bitInfo word in header for CODA data type, physics = 1. */
-        static const uint32_t   DATA_PHYSICS_BITS = 0x800;
-        /** 11-14th bits in bitInfo word in header for CODA data type, partial physics = 2. */
-        static const uint32_t   DATA_PARTIAL_BITS = 0x1000;
-        /** 11-14th bits in bitInfo word in header for CODA data type, disentangled = 3. */
-        static const uint32_t   DATA_DISENTANGLED_BITS = 0x1800;
-        /** 11-14th bits in bitInfo word in header for CODA data type, user = 4. */
-        static const uint32_t   DATA_USER_BITS    = 0x2000;
-        /** 11-14th bits in bitInfo word in record header for CODA data type, control = 5. */
-        static const uint32_t   DATA_CONTROL_BITS = 0x2800;
-        /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
-        static const uint32_t   DATA_OTHER_BITS   = 0x7800;
+        /** 10-13th bits in bitInfo word in header for CODA data type, physics = 1. */
+        static const uint32_t   DATA_PHYSICS_BITS = 0x400;
+        /** 10-13th bits in bitInfo word in header for CODA data type, partial physics = 2. */
+        static const uint32_t   DATA_PARTIAL_BITS = 0x800;
+        /** 10-13th bits in bitInfo word in header for CODA data type, disentangled = 3. */
+        static const uint32_t   DATA_DISENTANGLED_BITS = 0xC00;
+        /** 10-13th bits in bitInfo word in header for CODA data type, user = 4. */
+        static const uint32_t   DATA_USER_BITS    = 0x1000;
+        /** 10-13th bits in bitInfo word in record header for CODA data type, control = 5. */
+        static const uint32_t   DATA_CONTROL_BITS = 0x1400;
+        /** 10-13th bits in bitInfo word in record header for CODA data type, mixed = 6. */
+        static const uint32_t   DATA_MIXED_BITS = 0x1800;
+        /** 10-13th bits in bitInfo word in record header for CODA data type, Roc Raw Streaming = 8. */
+        static const uint32_t   DATA_ROCRAW_STREAM_BITS = 0x2000;
+        /** 10-13th bits in bitInfo word in record header for CODA data type, Physics Streaming = 9. */
+        static const uint32_t   DATA_PHYSICS_STREAM_BITS = 0x2400;
+        /** 10-13th bits in bitInfo word in record header for CODA data type, other = 15. */
+        static const uint32_t   DATA_OTHER_BITS   = 0x3C00;
 
         // Bit masks
 
         /** Mask to get version number from 6th int in header. */
         static const uint32_t VERSION_MASK = 0xff;
-        /** "Last record" is 11th bit in bitInfo word. */
-        static const uint32_t LAST_RECORD_MASK = 0x400;
 
     private:
 
@@ -288,8 +294,8 @@ namespace evio {
         uint32_t  bitInfo = 0;
         /**
          * Type of events in record, encoded in bitInfo word
-         * (0=ROC raw, 1=Physics, 2=Partial Physics, 3=Disentangled,
-         * 4=User, 5=Control, 15=Other).
+         * (0=RocRaw, 1=Physics, 2=Partial Physics, 3=Disentangled,
+         * 4=User, 5=Control, 6=Mixed, 8=RocRawStream, 9=PhysicsStream, 15=Other).
          */
         uint32_t  eventType = 0;
         /** Length of this header NOT including user header or index (bytes). */

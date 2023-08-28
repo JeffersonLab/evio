@@ -18,8 +18,8 @@
  */
 
 
-#ifndef __EVIO_h__
-#define __EVIO_h__
+#ifndef EVIO_H
+#define EVIO_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +40,7 @@ extern "C" {
 
 #ifndef S_SUCCESS
 #define S_SUCCESS 0
-#define S_FAILURE -1
+#define S_FAILURE (-1)
 #endif
 
 /* see "Programming with POSIX threads' by Butenhof */

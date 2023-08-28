@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <stdexcept>
 
 
 #include "ByteOrder.h"
@@ -128,8 +129,17 @@ namespace evio {
         /** General header of this record. */
         std::shared_ptr<RecordHeader> header;
 
-        /** This buffer contains uncompressed data consisting of, in order,
-         *  1) index array, 2) user header, 3) events. */
+        /**
+         * This buffer contains uncompressed data consisting of, in order,
+         *      1) index array, 2) user header, 3) events.
+         *  It's important to know that the index array is rewritten in readRecord().
+         *  Initially each word int the array contained the size of the next event.
+         *  It was overwritten to be the offset to the next event so the position of
+         *  each event does not have to be calculated each time is data is accessed.
+         *  This offset is from the beginning of event data (after record header,
+         *  index array, and user header + padding). First offset = 0.
+         *  The second offset = # of bytes to beginning of second event, etc.
+         */
         std::shared_ptr<ByteBuffer> dataBuffer;
 
         /** This buffer contains compressed data. */
@@ -164,13 +174,21 @@ namespace evio {
         bool hasIndex() const;
         bool hasUserHeader() const;
 
-        std::shared_ptr<ByteBuffer> getEvent(std::shared_ptr<ByteBuffer> & buffer, uint32_t index, size_t bufOffset = 0);
-        ByteBuffer & getEvent(ByteBuffer & buffer, uint32_t index, size_t bufOffset = 0);
+
+        std::shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t *len);
+        uint32_t getEvent(uint8_t *event, uint32_t index, uint32_t evLen);
+
+        std::shared_ptr<ByteBuffer> getEvent(std::shared_ptr<ByteBuffer> & buffer, uint32_t index);
+        std::shared_ptr<ByteBuffer> getEvent(std::shared_ptr<ByteBuffer> & buffer, size_t bufOffset, uint32_t index);
+
+        ByteBuffer & getEvent(ByteBuffer & buffer, uint32_t index);
+        ByteBuffer & getEvent(ByteBuffer & buffer, size_t bufOffset, uint32_t index);
+
+
         std::shared_ptr<uint8_t> getUserHeader();
         std::shared_ptr<ByteBuffer> getUserHeader(std::shared_ptr<ByteBuffer> & buffer, size_t bufOffset = 0);
         ByteBuffer & getUserHeader(ByteBuffer & buffer, size_t bufOffset = 0);
 
-        std::shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
         uint32_t getEventLength(uint32_t index) const;
         uint32_t getEntries() const;
 

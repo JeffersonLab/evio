@@ -69,16 +69,18 @@ import java.util.List;
  * -------------------
  *     0-7  = version
  *     8    = true if dictionary is included (relevant for first record only)
- *     9    = true if this record has "first" event (to be in every split file)
- *    10    = true if this record is the last in file or stream
- *    11-14 = type of events contained: 0 = ROC Raw,
+ *     9    = true if this record is the last in file or stream
+ *    10-13 = type of events contained: 0 = ROC Raw,
  *                                      1 = Physics
  *                                      2 = PartialPhysics
  *                                      3 = DisentangledPhysics
  *                                      4 = User
  *                                      5 = Control
  *                                      6 = Mixed
+ *                                      8 = RocRawStreaming
+ *                                      9 = PhysicsStreaming
  *                                     15 = Other
+ *    14    = true if this record has "first" event (to be in every split file)
  *
  *    16-19 = reserved
  *    20-21 = pad 1
@@ -132,9 +134,9 @@ import java.util.List;
  * -------------------
  *     0-7  = 6
  *     8    = 0
- *     9    = 0
- *    10    = 1
- *    11-14 = 0
+ *     9    = 1
+ *    10-13 = 0
+ *    14    = 0
  *    15-19 = 0
  *    20-21 = 0
  *    22-23 = 0
@@ -190,39 +192,41 @@ public class RecordHeader implements IBlockHeader {
     /** Byte offset from beginning of header to the user register #2. */
     public final static int   REGISTER2_OFFSET = 48;
 
-    // Bits in bit info word
+    // Bits in bit info word (starting at 0)
 
-    /** 8th bit set in bitInfo word in header means contains dictionary. */
+    /** 8th bit (starting at 0) set in bitInfo word in header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
-    /** 9th bit set in bitInfo word in header means contains first event. */
-    final static int   FIRSTEVENT_BIT = 0x200;
-    /** 10th bit set in bitInfo word in header means is last in stream or file. */
-    final static int   LAST_RECORD_BIT = 0x400;
+    /** 9th bit set in bitInfo word in header means is last in stream or file. */
+    final static int   LAST_RECORD_BIT = 0x200;
+    /** 14th bit set in bitInfo word in header means contains first event. */
+    final static int   FIRSTEVENT_BIT = 0x4000;
 
-    /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
+    /** 10-13th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
     final static int   DATA_ROC_RAW_BITS = 0x000;
-    /** 11-14th bits in bitInfo word in header for CODA data type, physics = 1. */
-    final static int   DATA_PHYSICS_BITS = 0x800;
-    /** 11-14th bits in bitInfo word in header for CODA data type, partial physics = 2. */
-    final static int   DATA_PARTIAL_BITS = 0x1000;
-    /** 11-14th bits in bitInfo word in header for CODA data type, disentangled = 3. */
-    final static int   DATA_DISENTANGLED_BITS = 0x1800;
-    /** 11-14th bits in bitInfo word in header for CODA data type, user = 4. */
-    final static int   DATA_USER_BITS    = 0x2000;
-    /** 11-14th bits in bitInfo word in record header for CODA data type, control = 5. */
-    final static int   DATA_CONTROL_BITS = 0x2800;
-    /** 11-14th bits in bitInfo word in record header for CODA data type, mixed = 6. */
-    final static int   DATA_MIXED_BITS = 0x3000;
-    /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
-    final static int   DATA_OTHER_BITS   = 0x7800;
+    /** 10-13th bits in bitInfo word in header for CODA data type, physics = 1. */
+    final static int   DATA_PHYSICS_BITS = 0x400;
+    /** 10-13th bits in bitInfo word in header for CODA data type, partial physics = 2. */
+    final static int   DATA_PARTIAL_BITS = 0x800;
+    /** 10-13th bits in bitInfo word in header for CODA data type, disentangled = 3. */
+    final static int   DATA_DISENTANGLED_BITS = 0xC00;
+    /** 10-13th bits in bitInfo word in header for CODA data type, user = 4. */
+    final static int   DATA_USER_BITS    = 0x1000;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, control = 5. */
+    final static int   DATA_CONTROL_BITS = 0x1400;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, mixed = 6. */
+    final static int   DATA_MIXED_BITS = 0x1800;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, Roc Raw Streaming = 8. */
+    final static int   DATA_ROCRAW_STREAM_BITS = 0x2000;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, Physics Streaming = 9. */
+    final static int   DATA_PHYSICS_STREAM_BITS = 0x2400;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, other = 15. */
+    final static int   DATA_OTHER_BITS   = 0x3C00;
 
 
     // Bit masks
 
     /** Mask to get version number from 6th int in header. */
     public final static int VERSION_MASK = 0xff;
-    /** "Last record" is 11th bit in bitInfo word. */
-    public static final int LAST_RECORD_MASK = 0x400;
 
     /** Compressed data padding mask. */
     private static final int COMP_PADDING_MASK = 0x03000000;
@@ -255,8 +259,8 @@ public class RecordHeader implements IBlockHeader {
     private int  bitInfo = -1;
     /**
      * Type of events in record, encoded in bitInfo word
-     * (0=ROC raw, 1=Physics, 2=Partial Physics, 3=Disentangled,
-     * 4=User, 5=Control, 15=Other).
+     * (0=RocRaw, 1=Physics, 2=Partial Physics, 3=Disentangled,
+     * 4=User, 5=Control, 6=Mixed, 8=RocRawStream, 9=PhysicsStream, 15=Other).
      */
     private int  eventType;
     /** Length of this header NOT including user header or index (bytes). */
@@ -682,7 +686,7 @@ public class RecordHeader implements IBlockHeader {
      * Calculates the sixth word of this header which has the version number
      * in the lowest 8 bits. The arg hasDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-     * (event type) are set in bits 11-14.
+     * (event type) are set in bits 10-13.
      *
      * @param version evio version number
      * @param hasDictionary does this block include an evio xml dictionary as the first event?
@@ -701,7 +705,7 @@ public class RecordHeader implements IBlockHeader {
       * Calculates the sixth word of this header which has the version number (4)
       * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
       * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-      * (event type) are set in bits 11-14.
+      * (event type) are set in bits 10-13.
       *
       * @param bSet Bitset containing all bits to be set
       * @param version evio version number
@@ -726,8 +730,8 @@ public class RecordHeader implements IBlockHeader {
              }
          }
 
-         v =  hasDictionary ? (v | 0x100) : v;
-         v =  isEnd ? (v | 0x200) : v;
+         v =  hasDictionary ? (v | DICTIONARY_BIT) : v;
+         v =  isEnd ? (v | LAST_RECORD_BIT) : v;
          v |= ((eventType & 0xf) << 10);
 
          return v;
@@ -754,7 +758,7 @@ public class RecordHeader implements IBlockHeader {
         }
 
         // Data type
-        eventType = (word >> 11) & 0xf;
+        eventType = (word >> 10) & 0xf;
     }
 
 
@@ -827,6 +831,13 @@ public class RecordHeader implements IBlockHeader {
     static public boolean isLastRecord(int bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
 
     /**
+     * Clear the bit in the given arg to indicate it is NOT the last record.
+     * @param i integer in which to clear the last-record bit
+     * @return arg with last-record bit cleared
+     */
+    static public int clearLastRecordBit(int i) {return (i & ~LAST_RECORD_BIT);}
+
+    /**
      * Does this header indicate compressed data?
      * @return true if header indicates compressed data, else false.
      */
@@ -895,56 +906,51 @@ public class RecordHeader implements IBlockHeader {
 
 
     /**
-     * Clear the bit in the given arg to indicate it is NOT the last record.
-     * @param i integer in which to clear the last-record bit
-     * @return arg with last-record bit cleared
-     */
-    static public int clearLastRecordBit(int i) {return (i & ~LAST_RECORD_MASK);}
-
-    /**
      * Set the bit info of a record header for a specified CODA event type.
      * Must be called AFTER {@link #setBitInfo(boolean, boolean)} or
      * {@link #setBitInfoWord(int)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
-     *             3=Disentangled, 4=User, 5=Control, 6=Mixed, 15=Other,
+     *             3=Disentangled, 4=User, 5=Control, 6=Mixed,
+     *             8=RocRawStreaming, 9=PhysicsStreaming, 15=Other,
      *             else = nothing set).
      * @return new bit info word.
      */
     public int  setBitInfoEventType (int type) {
+        eventType = type;
+
         switch(type) {
             case 0:
                 bitInfo |= DATA_ROC_RAW_BITS;
-                eventType = type;
                 break;
             case 1:
                 bitInfo |= DATA_PHYSICS_BITS;
-                eventType = type;
                 break;
             case 2:
                 bitInfo |= DATA_PARTIAL_BITS;
-                eventType = type;
                 break;
             case 3:
                 bitInfo |= DATA_DISENTANGLED_BITS;
-                eventType = type;
                 break;
             case 4:
                 bitInfo |= DATA_USER_BITS;
-                eventType = type;
                 break;
             case 5:
                 bitInfo |= DATA_CONTROL_BITS;
-                eventType = type;
                 break;
             case 6:
                 bitInfo |= DATA_MIXED_BITS;
-                eventType = type;
+                break;
+            case 8:
+                bitInfo |= DATA_ROCRAW_STREAM_BITS;
+                break;
+            case 9:
+                bitInfo |= DATA_PHYSICS_STREAM_BITS;
                 break;
             case 15:
-                bitInfo |= DATA_OTHER_BITS;
-                eventType = type;
-                break;
             default:
+                bitInfo |= DATA_OTHER_BITS;
+                eventType = 15;
+                break;
         }
         return bitInfo;
     }
@@ -1516,17 +1522,23 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
     private String eventTypeToString() {
         switch (eventType) {
             case 0:
-                return "ROC Raw";
+                return "RocRaw";
             case 1:
                 return "Physics";
             case 2:
-                return "Partial Physics";
+                return "PartialPhysics";
             case 3:
                 return "Disentangled";
             case 4:
                 return "User";
             case 5:
                 return "Control";
+            case 6:
+                return "Mixed";
+            case 8:
+                return "RocRawStreaming";
+            case 9:
+                return "PhysicsStreaming";
             case 15:
                 return "Other";
             default:

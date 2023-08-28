@@ -495,7 +495,7 @@ namespace evio {
      * Calculates the sixth word of this header which has the version number
      * in the lowest 8 bits. The arg hasDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-     * (event type) are set in bits 11-14.
+     * (event type) are set in bits 10-13.
      *
      * @param version evio version number
      * @param hasDictionary does this block include an evio xml dictionary as the first event?
@@ -514,7 +514,7 @@ namespace evio {
      * Calculates the sixth word of this header which has the version number (4)
      * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-     * (event type) are set in bits 11-14.
+     * (event type) are set in bits 10-13.
      * Four bits of this header type are set in bits 28-31
      * (defaults to 0 which is an evio record header).
      *
@@ -540,8 +540,8 @@ namespace evio {
             }
         }
 
-        v =  hasDictionary ? (v | 0x100) : v;
-        v =  isEnd ? (v | 0x200) : v;
+        v =  hasDictionary ? (v | DICTIONARY_BIT) : v;
+        v =  isEnd ? (v | LAST_RECORD_BIT) : v;
         v |= ((eventType & 0xf) << 10);
         v |= ((headerType & 0xf) << 28);
 
@@ -569,7 +569,7 @@ namespace evio {
         }
 
         // Data type
-        eventType = (word >> 11) & 0xf;
+        eventType = (word >> 10) & 0xf;
     }
 
 
@@ -656,7 +656,7 @@ namespace evio {
      * @param i integer in which to clear the last-record bit
      * @return arg with last-record bit cleared
      */
-    uint32_t RecordHeader::clearLastRecordBit(uint32_t i) {return (i & ~LAST_RECORD_MASK);}
+    uint32_t RecordHeader::clearLastRecordBit(uint32_t i) {return (i & ~LAST_RECORD_BIT);}
 
 
     /**
@@ -742,40 +742,43 @@ namespace evio {
      * Must be called AFTER {@link #setBitInfo(bool, bool)} or
      * {@link #setBitInfoWord(uint32_t)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
-     *             3=Disentangled, 4=User, 5=Control, 15=Other,
+     *             3=Disentangled, 4=User, 5=Control, 6=Mixed,
+     *             8=RocRawStreaming, 9=PhysicsStreaming, 15=Other,
      *             else = nothing set).
      * @return new bit info word.
      */
     uint32_t  RecordHeader::setBitInfoEventType (uint32_t type) {
+        eventType = type;
+
         switch(type) {
             case 0:
                 bitInfo |= DATA_ROC_RAW_BITS;
-                eventType = type;
                 break;
             case 1:
                 bitInfo |= DATA_PHYSICS_BITS;
-                eventType = type;
                 break;
             case 2:
                 bitInfo |= DATA_PARTIAL_BITS;
-                eventType = type;
                 break;
             case 3:
                 bitInfo |= DATA_DISENTANGLED_BITS;
-                eventType = type;
                 break;
             case 4:
                 bitInfo |= DATA_USER_BITS;
-                eventType = type;
                 break;
             case 5:
                 bitInfo |= DATA_CONTROL_BITS;
-                eventType = type;
+                break;
+            case 6:
+                bitInfo |= DATA_MIXED_BITS;
+                break;
+            case 8:
+                bitInfo |= DATA_ROCRAW_STREAM_BITS;
+                break;
+            case 9:
+                bitInfo |= DATA_PHYSICS_STREAM_BITS;
                 break;
             case 15:
-                bitInfo |= DATA_OTHER_BITS;
-                eventType = type;
-                break;
             default:
                 bitInfo |= DATA_OTHER_BITS;
                 eventType = 15;
@@ -1596,6 +1599,12 @@ namespace evio {
                 return "User";
             case 5:
                 return "Control";
+            case 6:
+                return "Mixed";
+            case 8:
+                return "RocRawStreaming";
+            case 9:
+                return "PhysicsStreaming";
             case 15:
                 return "Other";
             default:
