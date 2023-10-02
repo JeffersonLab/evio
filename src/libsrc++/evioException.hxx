@@ -40,9 +40,9 @@ class evioException : public std::exception {
 public:
   evioException(int typ = 0, const std::string &txt = "", const std::string &aux = "");
   evioException(int typ, const std::string &txt, const std::string &file, const std::string &func, int line);
-  virtual ~evioException(void) throw() {};
-  virtual std::string toString(void) const throw();
-  virtual const char *what(void) const throw();
+  virtual ~evioException() noexcept {};
+  virtual std::string toString() const noexcept;
+  virtual const char *what() const noexcept;
 
 
 public:

@@ -69,7 +69,7 @@ class evioBankIndex {
 public:
   evioBankIndex(int maxDepth=0);
   evioBankIndex(const uint32_t *buffer, int maxDepth=0);
-  virtual ~evioBankIndex();
+  virtual ~evioBankIndex() = default;
 
 
 public:
@@ -77,7 +77,7 @@ public:
   bool tagNumExists(const evioDictEntry & tn) const;
   int tagNumCount(const evioDictEntry & tn) const;
   bankIndexRange getRange(const evioDictEntry & tn) const;
-  bankIndex getBankIndex(const evioDictEntry &tn) const throw(evioException);
+  bankIndex getBankIndex(const evioDictEntry &tn) const ;
   int getMaxDepth();
 
 
@@ -96,7 +96,7 @@ public:
    * @param pLen Pointer to int to receive data length, set to 0 upon error
    * @return Pointer to data, NULL on error
    */
-  template <typename T> const T* getData(const evioDictEntry &tn, int *pLen) throw (evioException) {
+  template <typename T> const T* getData(const evioDictEntry &tn, int *pLen) {
 
     bankIndexMap::const_iterator iter = tagNumMap.find(tn);
 
@@ -105,7 +105,7 @@ public:
       return(static_cast<const T*>(((*iter).second).data));
     } else {
       *pLen=0;
-      return(NULL);
+      return(nullptr);
     }
   }
 
@@ -117,14 +117,14 @@ public:
    * @param pLen Pointer to int to receive data length, set to 0 for bad type
    * @return Pointer to data, NULL on bad type
    */
-  template <typename T> const T* getData(const bankIndex &bi, int *pLen) throw (evioException) {
+  template <typename T> const T* getData(const bankIndex &bi, int *pLen)  {
 
     if(bi.contentType==evioUtil<T>::evioContentType()) {
       *pLen=(bi.dataLength);
       return(static_cast<const T*>(bi.data));
     } else {
       *pLen=0;
-      return(NULL);
+      return(nullptr);
     }
   }
 

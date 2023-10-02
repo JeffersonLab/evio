@@ -174,30 +174,30 @@ evioDictEntry::~evioDictEntry() {}
 // Getters
 
 /** Get the tag value of this entry. @return tag. */
-uint16_t      evioDictEntry::getTag(void)         const {return tag;}
+uint16_t      evioDictEntry::getTag()         const {return tag;}
 /** Get the ending value of a tag range defined by this entry. @since 5.2 @return tagEnd. */
-uint16_t      evioDictEntry::getTagEnd(void)      const {return tagEnd;}
+uint16_t      evioDictEntry::getTagEnd()      const {return tagEnd;}
 /** Get the num value of this entry. @return num. */
-uint8_t       evioDictEntry::getNum(void)         const {return num;}
+uint8_t       evioDictEntry::getNum()         const {return num;}
 /** Get the string describing the data format of this entry. @since 5.2 @return format. */
-string        evioDictEntry::getFormat(void)      const {return format;}
+string        evioDictEntry::getFormat()      const {return format;}
 /** Get the string describing the data of this entry. @since 5.2 @return description. */
-string        evioDictEntry::getDescription(void) const {return description;}
+string        evioDictEntry::getDescription() const {return description;}
 /** Get whether num is undefined.  @since 5.2 @return true if tag-only or tag-range, else false. */
-bool          evioDictEntry::isNumUndefined(void) const {return numIsUndefined;}
+bool          evioDictEntry::isNumUndefined() const {return numIsUndefined;}
 /** Get the data type of this entry. @since 5.2 @return DataType enum describing type of data. */
-DataType      evioDictEntry::getType(void)        const {return type;}
+DataType      evioDictEntry::getType()        const {return type;}
 /** Get the type of this entry. @since 5.2 @return DictEntryType enum specify a tag & num, only a tag, or a tag range. */
-DictEntryType evioDictEntry::getEntryType(void)   const {return entryType;}
+DictEntryType evioDictEntry::getEntryType()   const {return entryType;}
 
 /** Get the tag of parent entry if any. @return parent tag. */
-uint16_t evioDictEntry::getParentTag(void) const {return parentTag;}
+uint16_t evioDictEntry::getParentTag() const {return parentTag;}
 /** Get the tagEnd of parent entry if any. @return parent tagEnd. */
-uint16_t evioDictEntry::getParentTagEnd(void) const {return parentTagEnd;}
+uint16_t evioDictEntry::getParentTagEnd() const {return parentTagEnd;}
 /** Get the num of parent entry if any. @return parent num. */
-uint8_t  evioDictEntry::getParentNum(void) const {return parentNum;}
+uint8_t  evioDictEntry::getParentNum() const {return parentNum;}
 /** Does this entry have a valid parent entry? @return true if valid parent entry, else false. */
-bool     evioDictEntry::hasParent(void) const {return gotParent;}
+bool     evioDictEntry::hasParent() const {return gotParent;}
 
 // Setters
 
@@ -215,7 +215,7 @@ void evioDictEntry::setDescription(const char *d)   {description = string(d);}
 
 /** Create a string representation of this object.
  *  @return string representation of this object. */
-string evioDictEntry::toString(void) const throw(evioException) {
+string evioDictEntry::toString() const {
     string eType[] = {"TAG_NUM", "TAG_ONLY", "TAG_RANGE"};
 
     ostringstream ss;

@@ -101,26 +101,26 @@ namespace evio {
                        bool hasParent, uint16_t parentTag, uint8_t parentNum, uint16_t parentTagEnd);
 
     public:
-        uint16_t getTag(void) const;
-        uint16_t getTagEnd(void) const;
-        uint8_t getNum(void) const;
-        bool isNumUndefined(void) const;
-        DataType getType(void) const;
-        DictEntryType getEntryType(void) const;
-        string getFormat(void) const;
-        string getDescription(void) const;
+        uint16_t getTag() const;
+        uint16_t getTagEnd() const;
+        uint8_t getNum() const;
+        bool isNumUndefined() const;
+        DataType getType() const;
+        DictEntryType getEntryType() const;
+        string getFormat() const;
+        string getDescription() const;
 
         // Parent entry methods
 
-        uint16_t getParentTag(void) const;
-        uint16_t getParentTagEnd(void) const;
-        uint8_t  getParentNum(void) const;
-        bool     hasParent(void) const;
+        uint16_t getParentTag() const;
+        uint16_t getParentTagEnd() const;
+        uint8_t  getParentNum() const;
+        bool     hasParent() const;
 
         // General
 
         static DataType getDataType(const char *type);
-        string toString(void) const throw(evioException);
+        string toString() const;
         bool inRange(uint16_t tagArg);
 
     private:

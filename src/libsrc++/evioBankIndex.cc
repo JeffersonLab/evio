@@ -21,7 +21,7 @@ using namespace std;
 class myHandler : public evioStreamParserHandler {
   
 public:
-  myHandler(int maxDepth) : maxDepth(maxDepth) {}
+  explicit myHandler(int maxDepth) : maxDepth(maxDepth) {}
 
   void *containerNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, 
                              int depth, const uint32_t *bankPointer, int dataLength, const uint32_t *data, void *userArg) {
@@ -33,7 +33,7 @@ public:
 
 
     // adds bank index to map
-    evioBankIndex *bi = static_cast<evioBankIndex*>(userArg);
+    auto *bi = static_cast<evioBankIndex*>(userArg);
   
     bankIndex b;
     b.containerType=containerType;
@@ -62,7 +62,7 @@ public:
 
 
     // adds bank index to map
-    evioBankIndex *bi = static_cast<evioBankIndex*>(userArg);
+    auto *bi = static_cast<evioBankIndex*>(userArg);
 
     bankIndex b;
     b.containerType=containerType;
@@ -111,16 +111,6 @@ evioBankIndex::evioBankIndex(const uint32_t *buffer, int maxDepth) : maxDepth(ma
 
 
 /**
- * Destructor.
- */
-evioBankIndex::~evioBankIndex() {
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
  * Indexes buffer and fills map.
  * @param buffer Buffer containing serialized event
  * @return true if indexing succeeded
@@ -145,7 +135,7 @@ bool evioBankIndex::parseBuffer(const uint32_t *buffer, int maxDepth) {
  * @return true if evioDictEntry is in map
  */
 bool evioBankIndex::tagNumExists(const evioDictEntry & tn) const {
-  bankIndexMap::const_iterator iter = tagNumMap.find(tn);
+  auto iter = tagNumMap.find(tn);
   return(iter!=tagNumMap.end());
 }
 
@@ -184,9 +174,9 @@ bankIndexRange evioBankIndex::getRange(const evioDictEntry & tn) const {
  * @param tn evioDictEntry
  * @return bankIndex for evioDictEntry
  */
-bankIndex evioBankIndex::getBankIndex(const evioDictEntry &tn) const throw(evioException) {
+bankIndex evioBankIndex::getBankIndex(const evioDictEntry &tn) const  {
 
-  bankIndexMap::const_iterator iter = tagNumMap.find(tn);
+  auto iter = tagNumMap.find(tn);
   if(iter!=tagNumMap.end()) {
     return((*iter).second);
   } else {

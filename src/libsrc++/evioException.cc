@@ -38,7 +38,7 @@ namespace evio {
       // find first '(' and '+'
       char *ppar = strchr(messages[i],'(');
       char *pplus = strchr(messages[i],'+');
-      if((ppar!=NULL)&&(pplus!=NULL)) {
+      if((ppar!=nullptr)&&(pplus!=nullptr)) {
         
         // replace '+' with nul, then get demangled name
         *pplus='\0';
@@ -106,10 +106,10 @@ evioException::evioException(int typ, const string &txt, const string &file, con
  * Returns XML string listing exception object contents.
  * @return XML string listing contents
  */
-string evioException::toString(void) const throw() {
+string evioException::toString() const noexcept {
   ostringstream oss;
   oss << "?evioException type = " << hex << "0x" << type << "    text = " << text << endl << endl << auxText << dec;
-  if(trace.size()>0) oss << endl << endl << endl << "Stack trace:" << endl << endl << trace << endl;
+  if(!trace.empty()) oss << endl << endl << endl << "Stack trace:" << endl << endl << trace << endl;
   return(oss.str());
 }
 
@@ -121,7 +121,7 @@ string evioException::toString(void) const throw() {
  * Returns char * listing exception object contents.
  * @return char * listing contents
  */
-const char *evioException::what(void) const throw() {
+const char *evioException::what() const noexcept {
   return(toString().c_str());
 }
 

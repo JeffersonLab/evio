@@ -30,34 +30,34 @@ namespace evio {
 class evioSocketChannel : public evioChannel {
 
 public:
-  evioSocketChannel(int socFd, const string &mode = "r", int size=100000) throw(evioException);
-  evioSocketChannel(int socFd, evioDictionary *dict, const string &mode = "r", int size=100000) throw(evioException);
-  virtual ~evioSocketChannel(void);
+  evioSocketChannel(int socFd, const string &mode = "r", int size=100000) ;
+  evioSocketChannel(int socFd, evioDictionary *dict, const string &mode = "r", int size=100000) ;
+  virtual ~evioSocketChannel();
 
-  void open(void) throw(evioException);
+  void open() ;
 
-  bool read(void) throw(evioException);
-  bool read(uint32_t *myEventBuf, int length) throw(evioException);
-  bool readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioException);
-  bool readNoCopy(void) throw(evioException);
+  bool read() ;
+  bool read(uint32_t *myEventBuf, int length) ;
+  bool readAlloc(uint32_t **buffer, uint32_t *bufLen) ;
+  bool readNoCopy() ;
 
-  void write(void) throw(evioException);
-  void write(const uint32_t *myEventBuf) throw(evioException);
-  void write(const evioChannel &channel) throw(evioException);
-  void write(const evioChannel *channel) throw(evioException);
-  void write(const evioChannelBufferizable &o) throw(evioException);
-  void write(const evioChannelBufferizable *o) throw(evioException);
+  void write() ;
+  void write(const uint32_t *myEventBuf) ;
+  void write(const evioChannel &channel) ;
+  void write(const evioChannel *channel) ;
+  void write(const evioChannelBufferizable &o) ;
+  void write(const evioChannelBufferizable *o) ;
 
-  void close(void) throw(evioException);
-  int ioctl(const string &request, void *argp) throw(evioException);
+  void close() ;
+  int ioctl(const string &request, void *argp) ;
 
-  const uint32_t *getBuffer(void) const throw(evioException);
-  int getBufSize(void) const;
-  const uint32_t *getNoCopyBuffer(void) const throw(evioException);
+  const uint32_t *getBuffer() const ;
+  int getBufSize() const;
+  const uint32_t *getNoCopyBuffer() const ;
 
-  string getMode(void) const;
-  int getSocketFD(void) const throw(evioException);
-  string getSocketXMLDictionary(void) const;
+  string getMode() const;
+  int getSocketFD() const ;
+  string getSocketXMLDictionary() const;
 
 
 private:

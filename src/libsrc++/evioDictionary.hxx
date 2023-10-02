@@ -71,15 +71,15 @@ public:
 
 public:
     bool parseDictionary(const string &dictionaryXML);
-    evioDictEntry getEntry(const string &name) const throw(evioException);
-    string getName(evioDictEntry &entry) const throw(evioException);
+    evioDictEntry getEntry(const string &name) const;
+    string getName(evioDictEntry &entry) const;
     string getName(uint16_t tag, uint8_t num, uint16_t tagEnd=0, bool haveParent=false,
-                   uint16_t parentTag=0, uint8_t parentNum=0, uint16_t parentTagEnd=0) const throw(evioException);
+                   uint16_t parentTag=0, uint8_t parentNum=0, uint16_t parentTagEnd=0) const;
 
-    string getDictionaryXML(void) const;
+    string getDictionaryXML() const;
     void setSeparator(const string &sep);
-    string getSeparator(void) const;
-    string toString(void) const throw(evioException);
+    string getSeparator() const;
+    string toString() const;
 
 
 public:

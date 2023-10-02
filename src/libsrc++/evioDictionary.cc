@@ -31,7 +31,7 @@ static string insertNumVal(string name, int n) {
     size_t found = name.find("%n");
 
     // All this in C++ just to add an int to a string!
-    string numStr = "";
+    string numStr;
     stringstream Stream(numStr);
     Stream << n;
     numStr = Stream.str();
@@ -50,7 +50,7 @@ static string insertNumVal(string name, int n) {
  * @param name  reference to string containing %n - generally name of a dictionary entry.
  * @param val   string to substitute for all occurrences of %n.
  */
-static void insertNumVal(string &name, string val) {
+static void insertNumVal(string &name, const string &val) {
     size_t found = name.find("%n");
     while (found != string::npos) {
         name.replace(found, 2, val);
@@ -65,7 +65,7 @@ static void insertNumVal(string &name, string val) {
  * @param name  reference to string containing %t - generally name of a dictionary entry.
  * @param val   string to substitute for all occurrences of %t.
  */
-static void insertTagVal(string &name, string val) {
+static void insertTagVal(string &name, const string &val) {
     size_t found = name.find("%t");
 
     while (found != string::npos) {
@@ -110,7 +110,7 @@ evioDictionary::evioDictionary(ifstream &dictIFS, const string &sep) :
       string s;
       while((dictIFS.good())&&(!dictIFS.eof())) {
         getline(dictIFS,s);
-        if(s.size()>0)dictionaryXML += s + "\n";
+        if(!s.empty()) dictionaryXML += s + "\n";
       }
       dictIFS.close();
     } else {
@@ -138,7 +138,7 @@ evioDictionary::~evioDictionary() {
  * Gets dictionary XML
  * @return dictionary XML
  */
-string evioDictionary::getDictionaryXML(void) const {
+string evioDictionary::getDictionaryXML() const {
   return(dictionaryXML);
 }
 
@@ -154,7 +154,7 @@ string evioDictionary::getDictionaryXML(void) const {
 bool evioDictionary::parseDictionary(const string &dictionaryXML) {
 
     // init string parser and start element handler
-    XML_Parser xmlParser = XML_ParserCreate(NULL);
+    XML_Parser xmlParser = XML_ParserCreate(nullptr);
     XML_SetElementHandler(xmlParser,startElementHandler,endElementHandler);
     XML_SetUserData(xmlParser,reinterpret_cast<void*>(this));
     XML_SetCharacterDataHandler(xmlParser, charDataHandler);
@@ -185,13 +185,13 @@ bool evioDictionary::parseDictionary(const string &dictionaryXML) {
 void evioDictionary::charDataHandler(void *userData, const char *s, int len) {
 
     // userData points to dictionary
-    if (userData == NULL) {
+    if (userData == nullptr) {
         cerr << "?evioDictionary::startElementHandler...NULL userData" << endl;
         return;
     }
 
     // Get dictionary from user data
-    evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
+    auto *d = reinterpret_cast<evioDictionary*>(userData);
 
     // Only look at data if we're processing a "description" element ...
     if (d->readingDescription) {
@@ -295,13 +295,13 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
     //cout << "Start element " << xmlname << endl;
 
     // userData points to dictionary
-    if (userData == NULL) {
+    if (userData == nullptr) {
         cerr << "?evioDictionary::startElementHandler...NULL userData" << endl;
         return;
     }
 
     // get dictionary from user data
-    evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
+    auto *d = reinterpret_cast<evioDictionary*>(userData);
 
     // only process dictionary entries, make xml name lower case
     string xmlnameLC = xmlname;
@@ -412,7 +412,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
     }
 
     // init variables
-    string name = "";
+    string name;
 
     int tag = 0, num = 0, tagEnd = 0, numEnd = 0, isTagRange = 0, isNumRange = 0;
     bool numIsDefined = false, nameIsDefined = false, tagIsDefined = false, typeIsDefined = false;
@@ -430,7 +430,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
             tag = atoi(atts[i+1]);
             // Go past any "-"
             const char *minus = strstr(atts[i+1], "-");
-            if (minus != NULL) {
+            if (minus != nullptr) {
                 // Get last integer of range
                 tagEnd = atoi(minus + 1);
                 isTagRange = 1;
@@ -442,7 +442,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
             num = atoi(atts[i+1]);
             // Go past any "-"
             const char *minus = strstr(atts[i+1], "-");
-            if (minus != NULL) {
+            if (minus != nullptr) {
                 // Get last integer of range
                 numEnd = atoi(minus + 1);
                 isNumRange = 1;
@@ -505,7 +505,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
     }
     else {
         // All this in C++ just to add an int to a string!
-        string tagStr = "";
+        string tagStr;
         stringstream Stream(tagStr);
         Stream << tag;
         tagStr = Stream.str();
@@ -677,7 +677,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
 void evioDictionary::endElementHandler(void *userData, const char *xmlname) {
     //cout << "End element " << xmlname << endl;
 
-    evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
+    auto *d = reinterpret_cast<evioDictionary*>(userData);
 
     string xmlnameLC = xmlname;
     std::transform(xmlnameLC.begin(), xmlnameLC.end(), xmlnameLC.begin(), (int(*)(int)) tolower);  // magic
@@ -713,8 +713,8 @@ void evioDictionary::endElementHandler(void *userData, const char *xmlname) {
  * @return dictionary entry
  * @throws evioException if entry not found
  */
-evioDictEntry evioDictionary::getEntry(const string &name) const throw(evioException) {
-    map<string, evioDictEntry>::const_iterator iter = getTagNumMap.find(name);
+evioDictEntry evioDictionary::getEntry(const string &name) const {
+    auto iter = getTagNumMap.find(name);
     if (iter != getTagNumMap.end()) {
         return iter->second;
     }
@@ -735,9 +735,9 @@ evioDictEntry evioDictionary::getEntry(const string &name) const throw(evioExcep
  * @return name associated with entry
  * @throws evioException if entry not found
  */
-string evioDictionary::getName(evioDictEntry &entry) const throw(evioException) {
+string evioDictionary::getName(evioDictEntry &entry) const  {
     // First, see if there is an exact match in map which contains all entries
-    map<evioDictEntry, string>::const_iterator iter = getNameMap.find(entry);
+    auto iter = getNameMap.find(entry);
     if (iter != getNameMap.end()) {
         return iter->second;
     }
@@ -769,8 +769,7 @@ string evioDictionary::getName(evioDictEntry &entry) const throw(evioException) 
  * @throws evioException if entry not found
  */
 string evioDictionary::getName(uint16_t tag, uint8_t num, uint16_t tagEnd, bool haveParent,
-                               uint16_t parentTag, uint8_t parentNum, uint16_t parentTagEnd)
-                                                                        const throw(evioException) {
+                               uint16_t parentTag, uint8_t parentNum, uint16_t parentTagEnd) const {
 
     // The generated key below is equivalent to the key existing in the map. Use it to find the value.
     evioDictEntry key, key1, key2;
@@ -778,7 +777,7 @@ string evioDictionary::getName(uint16_t tag, uint8_t num, uint16_t tagEnd, bool 
                                       parentTag, parentNum, parentTagEnd, EVIO_UNKNOWN32);
     DictEntryType entryType = key.getEntryType();
 
-    string name = "";
+    string name;
     map<evioDictEntry, string>::const_iterator pos;
 
     switch (entryType) {
@@ -872,7 +871,7 @@ void evioDictionary::setSeparator(const string &sep) {
  * Gets separator character.
  * @return Separator character
  */
-string evioDictionary::getSeparator(void) const {
+string evioDictionary::getSeparator() const {
   return(separator);
 }
 
@@ -885,7 +884,7 @@ string evioDictionary::getSeparator(void) const {
  * Converts dictionary into string.
  * @return String containing dictionary keys and values
  */
-string evioDictionary::toString(void) const throw(evioException) {
+string evioDictionary::toString() const {
 
   stringstream ss;
 
