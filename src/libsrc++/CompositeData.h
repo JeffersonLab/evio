@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <climits>
+#include <limits>
 #include <ios>
 #include <iomanip>
 #include <exception>
