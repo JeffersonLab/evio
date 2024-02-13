@@ -1702,8 +1702,9 @@ namespace evio {
         //      ") - trailer (" << trailerBytes() <<  ") = (" <<
         //         ((currentRecord->getInternalBufferCapacity() - bytesWritten) >= bytes + RecordHeader::HEADER_SIZE_BYTES) <<
         //      ") >= ? " << bytes << std::endl;
-        return writingToFile() || ((currentRecord->getInternalBufferCapacity() -
-                                    bytesWritten - trailerBytes()) >= bytes);
+        return writingToFile() || (((currentRecord->getInternalBufferCapacity() -
+                                    bytesWritten - trailerBytes()) >= bytes) &&
+                                    !currentRecord->oneTooMany());
     }
 
 

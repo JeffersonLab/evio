@@ -2498,8 +2498,10 @@ System.out.println("EventWriter contr: Disk is FULL");
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
     public boolean hasRoom(int bytes) {
-        return toFile() || ((currentRecord.getInternalBufferCapacity() -
-                             bytesWritten - trailerBytes()) >= bytes);
+        return toFile() ||
+                (((currentRecord.getInternalBufferCapacity() -
+                        bytesWritten - trailerBytes()) >= bytes) &&
+                        !currentRecord.oneTooMany());
     }
 
 
