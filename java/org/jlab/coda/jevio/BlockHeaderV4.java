@@ -177,7 +177,7 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
 		size = 0;
 		number = 1;
 		headerLength = 0;
-		version = 0;
+		version = 4;
 		eventCount = 0;
         reserved1 = 0;
         reserved2 = 0;
