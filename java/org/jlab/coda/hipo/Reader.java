@@ -1261,7 +1261,8 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             int indexArrayLen = recordHeader.getIndexLength();  // bytes
 
             // Consistency check, index array length reflects # of events properly?
-            if (indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
+            if (!recordHeader.getHeaderType().isTrailer() &&
+                    indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
                 throw new HipoException("index array len (" + indexArrayLen +
                         ") and 4*eventCount (" + (4*eventCount) + ") contradict each other");
             }
@@ -1462,13 +1463,15 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
             // Only sets the byte order of headerBuffer
             recordHeader.readHeader(headerBuffer);
+//System.out.println("  scanUncompressedBuffer: record hdr pos = " + recordHeader.toString());
             int eventCount = recordHeader.getEntries();
             int recordHeaderLen = recordHeader.getHeaderLength();
             int recordBytes = recordHeader.getLength();
             int indexArrayLen = recordHeader.getIndexLength();  // bytes
 
             // Consistency check, index array length reflects # of events properly?
-            if (indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
+            if (!recordHeader.getHeaderType().isTrailer() &&
+                    indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
                 throw new HipoException("index array len (" + indexArrayLen +
                         ") and 4*eventCount (" + (4*eventCount) + ") contradict each other");
             }
