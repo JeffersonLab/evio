@@ -2566,6 +2566,8 @@ final public class EventWriterUnsync implements AutoCloseable {
     /**
      * Is there room to write this many bytes to an output buffer as a single event?
      * Will always return true when writing to a file.
+     * Note, when writing to a buffer, only 1 record is used. If it's full or has the
+     * max number of events written, then nothing more can be added.
      * @param bytes number of bytes to write
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
@@ -2574,8 +2576,10 @@ final public class EventWriterUnsync implements AutoCloseable {
 //      ") - trailer (" + trailerBytes() +  ") = (" +
 //         ((currentRecord.getInternalBufferCapacity() - bytesWritten) >= bytes + RecordHeader.HEADER_SIZE_BYTES) +
 //      ") >= ? " + bytes);
-        return toFile() || ((currentRecord.getInternalBufferCapacity() -
-                             bytesWritten - trailerBytes()) >= bytes);
+        return toFile() ||
+                (((currentRecord.getInternalBufferCapacity() -
+                        bytesWritten - trailerBytes()) >= bytes) &&
+                !currentRecord.oneTooMany());
     }
 
     /**
@@ -3154,7 +3158,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
-     * @param ownRecord  if true, write event in its own record regardless
+     * @param ownRecord  if true and writing to file, write event in its own record regardless
      *                   of event count and record size limits.
      *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
