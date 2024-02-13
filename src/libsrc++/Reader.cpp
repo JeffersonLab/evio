@@ -1118,7 +1118,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             uint32_t indexArrayLen = recordHeader.getIndexLength();  // bytes
 
             // Consistency check, index array length reflects # of events properly?
-            if (indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
+            if (!recordHeader.getHeaderType().isTrailer() && indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
                 throw EvioException("index array len (" + std::to_string(indexArrayLen) +
                     ") and 4*eventCount (" + std::to_string(4*eventCount) + ") contradict each other");
             }
@@ -1333,7 +1333,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             uint32_t indexArrayLen = recordHeader.getIndexLength();  // bytes
 
             // Consistency check, index array length reflects # of events properly?
-            if (indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
+            if (!recordHeader.getHeaderType().isTrailer() && indexArrayLen > 0 && (indexArrayLen != 4*eventCount)) {
                 throw EvioException("index array len (" + std::to_string(indexArrayLen) +
                                     ") and 4*eventCount (" + std::to_string(4*eventCount) + ") contradict each other");
             }
