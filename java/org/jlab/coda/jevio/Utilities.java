@@ -577,7 +577,7 @@ final public class Utilities {
     /**
      * This method takes a byte buffer and prints out the desired number of words
      * from the given position. Will <b>not</b> print out the extra 1, 2, or 3
-     * bytes left at the end of the buffer.
+     * bytes left at the end of the buffer. NOT thread-safe.
      *
      * @param buf       buffer to print out
      * @param position  position of data (bytes) in buffer to start printing
@@ -588,6 +588,11 @@ final public class Utilities {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
+            return;
+        }
+
+        if (position >= buf.capacity()) {
+            System.out.println("position is at or past buffer's capacity");
             return;
         }
 
@@ -628,6 +633,11 @@ final public class Utilities {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
+            return;
+        }
+
+        if (position >= buf.capacity()) {
+            System.out.println("position is at or past buffer's capacity");
             return;
         }
 
