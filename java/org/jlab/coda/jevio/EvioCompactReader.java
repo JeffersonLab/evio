@@ -144,7 +144,7 @@ public class EvioCompactReader implements IEvioCompactReader {
      *                       unsupported evio version.
      */
     public EvioCompactReader(ByteBuffer byteBuffer, EvioNodeSource pool, boolean synced) throws EvioException {
-        this(byteBuffer, null, synced, true);
+        this(byteBuffer, pool, synced, true);
     }
 
 
