@@ -117,6 +117,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae1747733934521fe070db71fa3a920b3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#ae1747733934521fe070db71fa3a920b3">EventWriter</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;buf, uint32_t maxRecordSize, uint32_t maxEventCount, const std::string &amp;xmlDictionary, uint32_t recordNumber, <a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747">Compressor::CompressionType</a> compressionType)</td></tr>
 <tr class="memdesc:ae1747733934521fe070db71fa3a920b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a>.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#ae1747733934521fe070db71fa3a920b3">More...</a><br /></td></tr>
 <tr class="separator:ae1747733934521fe070db71fa3a920b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b0eca31ac0a6749c97259715735486c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a9b0eca31ac0a6749c97259715735486c">EventWriter</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;buf, uint32_t maxRecordSize, uint32_t maxEventCount, const std::string &amp;xmlDictionary, uint32_t recordNumber, <a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747">Compressor::CompressionType</a> compressionType, int eventType)</td></tr>
+<tr class="memdesc:a9b0eca31ac0a6749c97259715735486c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a>.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#a9b0eca31ac0a6749c97259715735486c">More...</a><br /></td></tr>
+<tr class="separator:a9b0eca31ac0a6749c97259715735486c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74140e35e3c934cf63e095d4d2ac73f5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a74140e35e3c934cf63e095d4d2ac73f5">isDiskFull</a> ()</td></tr>
 <tr class="memdesc:a74140e35e3c934cf63e095d4d2ac73f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">If writing file, is the partition it resides on full? Not full, in this context, means there's enough space to write a full split file + a full record + an extra 10MB as a safety factor.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#a74140e35e3c934cf63e095d4d2ac73f5">More...</a><br /></td></tr>
 <tr class="separator:a74140e35e3c934cf63e095d4d2ac73f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -294,7 +297,7 @@ Protected Member Functions</h2></td></tr>
 <dl class="section author"><dt>Author</dt><dd>timmer </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a17225fd6d6a7fdfa9d20a75966f5c11a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a17225fd6d6a7fdfa9d20a75966f5c11a">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[1/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a17225fd6d6a7fdfa9d20a75966f5c11a">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[1/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -354,7 +357,7 @@ Protected Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a92be16234de2fd45d4c19a710fdac9be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a92be16234de2fd45d4c19a710fdac9be">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[2/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a92be16234de2fd45d4c19a710fdac9be">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[2/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -413,7 +416,7 @@ Protected Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a5271d9b38e1e974be98f3ff98d5ed602"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5271d9b38e1e974be98f3ff98d5ed602">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[3/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5271d9b38e1e974be98f3ff98d5ed602">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[3/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -589,7 +592,7 @@ Protected Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a93b4acef57cfd15dcc5844c385824c90"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a93b4acef57cfd15dcc5844c385824c90">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[4/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a93b4acef57cfd15dcc5844c385824c90">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[4/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -630,7 +633,7 @@ Protected Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a66db745e2ef5e1fcca14eae4683dc160"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a66db745e2ef5e1fcca14eae4683dc160">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[5/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a66db745e2ef5e1fcca14eae4683dc160">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[5/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -674,7 +677,7 @@ Protected Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ae1747733934521fe070db71fa3a920b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae1747733934521fe070db71fa3a920b3">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[6/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1747733934521fe070db71fa3a920b3">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[6/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -733,6 +736,85 @@ Protected Member Functions</h2></td></tr>
     <tr><td class="paramname">xmlDictionary</td><td>dictionary in xml format or null if none. </td></tr>
     <tr><td class="paramname">recordNumber</td><td>number at which to start record number counting. </td></tr>
     <tr><td class="paramname">compressionType</td><td>type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if maxRecordSize or maxEventCount exceed limits; </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a9b0eca31ac0a6749c97259715735486c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b0eca31ac0a6749c97259715735486c">&#9670;&nbsp;</a></span>EventWriter() <span class="overload">[7/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">evio::EventWriter::EventWriter </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>maxRecordSize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>maxEventCount</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>xmlDictionary</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>recordNumber</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747">Compressor::CompressionType</a>&#160;</td>
+          <td class="paramname"><em>compressionType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>eventType</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a>. </p>
+<p>The buffer's position is set to 0 before writing. Any dictionary will be put in a commonRecord and that record will be placed in the user header associated with the single record.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buf</td><td>the buffer to write to starting at position = 0. </td></tr>
+    <tr><td class="paramname">maxRecordSize</td><td>max number of data bytes each record can hold. Value of &lt; 8MB results in default of 8MB. The size of the record will not be larger than this size unless a single event itself is larger. </td></tr>
+    <tr><td class="paramname">maxEventCount</td><td>max number of events each record can hold. Value &lt;= O means use default (1M). </td></tr>
+    <tr><td class="paramname">xmlDictionary</td><td>dictionary in xml format or null if none. </td></tr>
+    <tr><td class="paramname">recordNumber</td><td>number at which to start record number counting. </td></tr>
+    <tr><td class="paramname">compressionType</td><td>type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip) </td></tr>
+    <tr><td class="paramname">eventType</td><td>first record header holds the following type of event encoded in bitInfo, (0=RocRaw, 1=Physics, 2=Partial Physics, 3=Disentangled, 4=User, 5=Control, 6=Mixed, 8=RocRawStream, 9=PhysicsStream, 15=Other). If &lt; 0 or &gt; 15, this arg is ignored.</td></tr>
   </table>
   </dd>
 </dl>

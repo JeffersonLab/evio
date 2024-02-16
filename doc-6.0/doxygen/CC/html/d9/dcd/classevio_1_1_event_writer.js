@@ -6,6 +6,7 @@ var classevio_1_1_event_writer =
     [ "EventWriter", "d9/dcd/classevio_1_1_event_writer.html#a93b4acef57cfd15dcc5844c385824c90", null ],
     [ "EventWriter", "d9/dcd/classevio_1_1_event_writer.html#a66db745e2ef5e1fcca14eae4683dc160", null ],
     [ "EventWriter", "d9/dcd/classevio_1_1_event_writer.html#ae1747733934521fe070db71fa3a920b3", null ],
+    [ "EventWriter", "d9/dcd/classevio_1_1_event_writer.html#a9b0eca31ac0a6749c97259715735486c", null ],
     [ "close", "d9/dcd/classevio_1_1_event_writer.html#a2c9c8685d17f142d95e03e8037375c76", null ],
     [ "examineFileHeader", "d9/dcd/classevio_1_1_event_writer.html#a5835bcebb4cecd9c912816bdf2169045", null ],
     [ "flush", "d9/dcd/classevio_1_1_event_writer.html#a13b6eb0308e7be80a816e42a1f02e415", null ],
