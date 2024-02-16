@@ -1210,7 +1210,7 @@ final public class EventWriter implements AutoCloseable {
 
             // AND must be power of 2
             ringSize = Utilities.powerOfTwo(ringSize, true);
-            System.out.println("EventWriter constr: record ring size set to " + ringSize);
+// System.out.println("EventWriter constr: record ring size set to " + ringSize);
 
             supply = new RecordSupply(ringSize, byteOrder,
                                       compressionThreads,
@@ -1296,6 +1296,9 @@ System.out.println("EventWriter contr: Disk is FULL");
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
      * The buffer's position is set to 0 before writing.
+     * When writing a buffer, only 1 record is used.
+     * Any dictionary will be put in a commonRecord and that record will be
+     * placed in the user header associated with the single record.
      *
      * @param buf             the buffer to write to starting at position = 0.
      * @param maxRecordSize   max number of data bytes each record can hold.
@@ -1516,10 +1519,9 @@ System.out.println("EventWriter contr: Disk is FULL");
         ByteBuffer buf;
         synchronized (this) {
             buf = buffer.duplicate().order(buffer.order());
+            buf.limit((int)bytesWritten);
         }
 
-        // Get buffer ready for reading
-        buf.flip();
         return buf;
     }
 
@@ -2494,6 +2496,8 @@ System.out.println("EventWriter contr: Disk is FULL");
     /**
      * Is there room to write this many bytes to an output buffer as a single event?
      * Will always return true when writing to a file.
+     * Note, when writing to a buffer, only 1 record is used. If it's full or has the
+     * max number of events written, then nothing more can be added.
      * @param bytes number of bytes to write
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
@@ -3075,7 +3079,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
-     * @param ownRecord  if true, write event in its own record regardless
+     * @param ownRecord  if true and writing to file, write event in its own record regardless
      *                   of event count and record size limits.
      *
      * @return if writing to buffer: true if event was added to record, false if buffer full,
@@ -4392,7 +4396,7 @@ System.out.println("EventWriter contr: Disk is FULL");
 
             try {
                 int bytes = RecordHeader.writeTrailer(buffer, (int)bytesWritten,
-                                                      recordNumber, recordLengths);
+                                                      recordNumber, null);
                 bytesWritten += bytes;
                 buffer.limit((int)bytesWritten);
             }

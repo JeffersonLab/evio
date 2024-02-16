@@ -1373,7 +1373,6 @@ final public class EventWriterUnsync implements AutoCloseable {
         this.buffer          = buf;
         this.byteOrder       = buf.order();
         this.recordNumber    = recordNumber;
-//System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
 
         this.xmlDictionary   = xmlDictionary;
         this.compressionType = compressionType;
@@ -1454,7 +1453,6 @@ final public class EventWriterUnsync implements AutoCloseable {
         if (!useCurrentBitInfo) {
             header.setBitInfoWord(bitInfo);
         }
-//System.out.println("reInitializeBuffer: after reset, record # -> " + recordNumber);
 
         // Only necessary to do this when using EventWriter in EMU's
         // RocSimulation module. Only the ROC sends sourceId in header.
@@ -1497,7 +1495,6 @@ final public class EventWriterUnsync implements AutoCloseable {
             throw new EvioException("Close EventWriter before changing buffers");
         }
 
-//System.out.println("setBuffer: call reInitializeBuf with INPUT record # " + recordNumber);
         reInitializeBuffer(buf, bitInfo, recordNumber, false);
     }
 
@@ -1522,7 +1519,6 @@ final public class EventWriterUnsync implements AutoCloseable {
             throw new EvioException("Close EventWriter before changing buffers");
         }
 
-//System.out.println("setBuffer: call reInitializeBuf with local record # " + recordNumber);
         reInitializeBuffer(buf, null, recordNumber, true);
     }
 
@@ -1566,8 +1562,6 @@ final public class EventWriterUnsync implements AutoCloseable {
         ByteBuffer buf = buffer.duplicate().order(buffer.order());
         buf.limit((int)bytesWritten);
 
-        // Get buffer ready for reading
-        buf.flip();
         return buf;
     }
 
@@ -1758,8 +1752,6 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @return number of events written to a file/buffer.
      */
     public int getEventsWritten() {
-//        System.out.println("getEventsWritten: eventsWrittenTotal = " + eventsWrittenTotal +
-//                ", curRec.getEvCount = " + currentRecord.getEventCount());
 //        return eventsWrittenTotal + currentRecord.getEventCount();
         return eventsWrittenTotal;
     }
@@ -1782,7 +1774,6 @@ final public class EventWriterUnsync implements AutoCloseable {
         // If events have been written already, forget about it
         if (eventsWrittenTotal > 0) return;
         recordNumber = startingRecordNumber;
-//System.out.println("setStartingBLOCKNumber: set to " + recordNumber);
     }
 
 
@@ -1795,7 +1786,6 @@ final public class EventWriterUnsync implements AutoCloseable {
         // If events have been written already, forget about it
         if (eventsWrittenTotal > 0) return;
         recordNumber = startingRecordNumber;
-//System.out.println("setStartingRecordNumber: set to " + recordNumber);
     }
 
 
@@ -2171,7 +2161,6 @@ final public class EventWriterUnsync implements AutoCloseable {
             flushCurrentRecordToBuffer();
             // Write empty last header
             try {
-// System.out.println("EventWriterUnsync: writing trailer to buffer");
                 writeTrailerToBuffer(addTrailerIndex);
             }
             catch (EvioException e) {
@@ -2203,13 +2192,10 @@ final public class EventWriterUnsync implements AutoCloseable {
 
                 // Since the writer thread is the last to process each record,
                 // wait until it's done with the last item, then exit the thread.
-//System.out.println("EventWriterUnsync: close waiting for writing thd");
                 recordWriterThread.waitForLastItem();
-//System.out.println("EventWriterUnsync: close done waiting for writing thd");
 
                 // Stop all compressing threads which by now are stuck on get
                 for (RecordCompressor rc : recordCompressorThreads) {
-//System.out.println("EventWriterUnsync: interrupt compress thd");
                     rc.interrupt();
                 }
             }
@@ -2465,7 +2451,6 @@ final public class EventWriterUnsync implements AutoCloseable {
             eventsWrittenTotal += eventCount;
 
             recordNumber++;
-//System.out.println("                 record # = " + recordNumber);
 
             // Stop at the last record. The file may not have a last record if
             // improperly terminated. Running into an End-Of-File will flag
@@ -2510,7 +2495,6 @@ final public class EventWriterUnsync implements AutoCloseable {
             // It turns out we need to do nothing. The constructor that
             // calls this method will write out the next record header.
             recordNumber--;
-//System.out.println("                 record # = " + recordNumber);
         }
         // else if last record or has NO data in it ...
         else if (isTrailer || eventCount < 1) {
@@ -2572,10 +2556,6 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
     public boolean hasRoom(int bytes) {
-//System.out.println("User buffer size (" + currentRecord.getInternalBufferCapacity() + ") - bytesWritten (" + bytesWritten +
-//      ") - trailer (" + trailerBytes() +  ") = (" +
-//         ((currentRecord.getInternalBufferCapacity() - bytesWritten) >= bytes + RecordHeader.HEADER_SIZE_BYTES) +
-//      ") >= ? " + bytes);
         return toFile() ||
                 (((currentRecord.getInternalBufferCapacity() -
                         bytesWritten - trailerBytes()) >= bytes) &&
@@ -4198,7 +4178,6 @@ final public class EventWriterUnsync implements AutoCloseable {
         // This actually creates the file so do it only once
         if (bytesWritten < 1) {
             try {
-                //System.out.println("Creating channel to " + currentFilePath);
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
                                                                 StandardOpenOption.CREATE,
@@ -4446,8 +4425,6 @@ final public class EventWriterUnsync implements AutoCloseable {
         recordsWritten      = 0;
         bytesWritten        = 0L;
         eventsWrittenToFile = 0;
-
-//System.out.println("    splitFile: generated file name = " + fileName + ", record # = " + recordNumber);
     }
 
 
@@ -4566,11 +4543,7 @@ final public class EventWriterUnsync implements AutoCloseable {
         RecordHeader header = currentRecord.getHeader();
         // Get/set record info before building
         header.setRecordNumber(recordNumber);
-
-//        System.out.println("flushCurrentRecordToBuffer: comp size = " + header.getCompressedDataLength() +
-//                ", comp words = " + header.getCompressedDataLengthWords() + ", padding = " +
-//                header.getCompressedDataLengthPadding());
-
+        
         int bytesToWrite = header.getLength();
         // Store length & count for possible trailer index
 
@@ -4656,8 +4629,10 @@ final public class EventWriterUnsync implements AutoCloseable {
 //System.out.println("writeTrailerToBuffer: bytesToWrite = " + bytesToWrite + ", record index len = " + recordLengths.size());
 //System.out.println("writeTrailerToBuffer: bytesWritten = " + (int)bytesWritten);
 //System.out.println("writeTrailerToBuffer: write trailer without index, buf limit so far = " + buffer.limit());
+//                int bytes = RecordHeader.writeTrailer(buffer, (int)bytesWritten,
+//                                                      recordNumber, recordLengths);
                 int bytes = RecordHeader.writeTrailer(buffer, (int)bytesWritten,
-                                                      recordNumber, recordLengths);
+                                                      recordNumber, null);
                 bytesWritten += bytes;
                 buffer.limit((int)bytesWritten);
             }

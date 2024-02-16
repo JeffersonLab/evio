@@ -705,11 +705,8 @@ namespace evio {
 
         auto buf = buffer->duplicate();
         buf->order(buffer->order());
-        //TODO: valid??
-        // buf->limit(bytesWritten);
+        buf->limit(bytesWritten);
 
-        // Get buffer ready for reading
-        buf->flip();
         return buf;
     }
 
