@@ -1339,7 +1339,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
      * The buffer's position is set to 0 before writing.
-     * When writing a buffer, only 1 record is used.
+     * <b>When writing a buffer, only 1 record is used.</b>
      * Any dictionary will be put in a commonRecord and that record will be
      * placed in the user header associated with the single record.
      *
@@ -1362,6 +1362,43 @@ final public class EventWriterUnsync implements AutoCloseable {
     public EventWriterUnsync(ByteBuffer buf, int maxRecordSize, int maxEventCount,
                              String xmlDictionary, int recordNumber,
                              CompressionType compressionType)
+            throws EvioException {
+
+        this(buf, maxRecordSize, maxEventCount, xmlDictionary, recordNumber, compressionType, -1);
+    }
+
+
+
+    /**
+     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * The buffer's position is set to 0 before writing.
+     * <b>When writing a buffer, only 1 record is used.</b>
+     * Any dictionary will be put in a commonRecord and that record will be
+     * placed in the user header associated with the single record.
+     *
+     * @param buf             the buffer to write to starting at position = 0.
+     * @param maxRecordSize   max number of data bytes each record can hold.
+     *                        Value of &lt; 8MB results in default of 8MB.
+     *                        The size of the record will not be larger than this size
+     *                        unless a single event itself is larger.
+     *                        <b>Currently this arg is unused. Only 1 record will be
+     *                        used in the given buffer.</b>
+     * @param maxEventCount   max number of events each record can hold.
+     *                        Value &lt;= O means use default (1M).
+     * @param xmlDictionary   dictionary in xml format or null if none.
+     * @param recordNumber    number at which to start record number counting.
+     * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
+     * @param eventType       first record header holds the following type of event encoded in bitInfo,
+     *                        (0=RocRaw, 1=Physics, 2=Partial Physics, 3=Disentangled,
+     *                         4=User, 5=Control, 6=Mixed, 8=RocRawStream, 9=PhysicsStream, 15=Other).
+     *                        If &lt; 0 or &gt; 15, this arg is ignored.
+     *
+     * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
+     *                       if buf arg is null;
+     */
+    public EventWriterUnsync(ByteBuffer buf, int maxRecordSize, int maxEventCount,
+                             String xmlDictionary, int recordNumber,
+                             CompressionType compressionType, int eventType)
             throws EvioException {
 
         if (buf == null) {
@@ -1411,6 +1448,9 @@ final public class EventWriterUnsync implements AutoCloseable {
 
         RecordHeader header = currentRecord.getHeader();
         header.setBitInfo(false, xmlDictionary != null);
+        if (eventType >=0 && eventType <= 15) {
+            header.setBitInfoEventType(eventType);
+        }
     }
 
 
@@ -1421,7 +1461,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * {@link #setBuffer(ByteBuffer, BitSet, int)}.
      *
      * @param buf            the buffer to write to.
-     * @param bitInfo        set of bits to include in first record header.
+     * @param bitInfo        set of bits to include in 6th word of first record header.
      * @param recordNumber   number at which to start record number counting.
      * @param useCurrentBitInfo   regardless of bitInfo arg's value, use the
      *                            current value of bitInfo in the reinitialized buffer.

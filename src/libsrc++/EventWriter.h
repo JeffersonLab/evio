@@ -955,6 +955,9 @@ namespace evio {
         EventWriter(std::shared_ptr<ByteBuffer> & buf, uint32_t maxRecordSize, uint32_t maxEventCount,
                     const std::string & xmlDictionary, uint32_t recordNumber,
                     Compressor::CompressionType compressionType);
+        EventWriter(std::shared_ptr<ByteBuffer> & buf, uint32_t maxRecordSize, uint32_t maxEventCount,
+                    const std::string & xmlDictionary, uint32_t recordNumber,
+                    Compressor::CompressionType compressionType, int eventType);
 
     private:
 
