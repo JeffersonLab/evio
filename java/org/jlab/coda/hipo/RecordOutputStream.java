@@ -944,7 +944,7 @@ public class RecordOutputStream {
             else {
                 recordBinary.position(recBinPastHdr);
                 recordBinary.put(recordIndex.array(), 0, indexSize);
-//System.out.println("build: recordBinary pos = " + recBinPos +
+//System.out.println("build: recordBinary pos = " + recBinPastHdr +
 //                   ", eventSize = " + eventSize + ", recordEvents.array().len = " +
 //                   recordEvents.array().length);
                 recordBinary.put(recordEvents.array(), 0, eventSize);
