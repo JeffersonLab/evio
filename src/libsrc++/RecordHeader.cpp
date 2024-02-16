@@ -750,6 +750,9 @@ namespace evio {
     uint32_t  RecordHeader::setBitInfoEventType (uint32_t type) {
         eventType = type;
 
+        // First clear those 4 event type bits
+        bitInfo &= 0xffffc3ff;  // ff ff 1100 0011 ff
+
         switch(type) {
             case 0:
                 bitInfo |= DATA_ROC_RAW_BITS;
