@@ -7,9 +7,7 @@
 
 package org.jlab.coda.hipo;
 
-import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioBank;
-import org.jlab.coda.jevio.EvioException;
 import org.jlab.coda.jevio.EvioNode;
 
 import java.io.IOException;
