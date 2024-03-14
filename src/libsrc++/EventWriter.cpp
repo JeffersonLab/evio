@@ -563,7 +563,7 @@ namespace evio {
         auto & header = currentRecord->getHeader();
         header->setBitInfo(false, !xmlDictionary.empty());
         if (eventType >=0 && eventType <= 15) {
-            header.setBitInfoEventType(eventType);
+            header->setBitInfoEventType(eventType);
         }
     }
 
