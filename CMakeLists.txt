@@ -28,8 +28,8 @@ project(evio VERSION 6.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
-set(CMAKE_BUILD_TYPE Debug)
-add_compile_options(-g)
+#set(CMAKE_BUILD_TYPE Debug)
+#add_compile_options(-g)
 
 
 # Place libs & binaries in build/lib and bin (this is not for installation)
