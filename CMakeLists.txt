@@ -3,6 +3,11 @@
 cmake_minimum_required(VERSION 3.16)
 project(EvioProject)
 
+# Optional: Set C++ standard
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Add the evio library
 set(EVIO_SRC
     src/libsrc/evio.c
@@ -35,10 +40,6 @@ target_include_directories(evio++ PUBLIC
                            $<INSTALL_INTERFACE:include/evio>)
 target_link_libraries(evio++ PUBLIC evio expat)
 
-# Optional: Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 # Install the evio library
