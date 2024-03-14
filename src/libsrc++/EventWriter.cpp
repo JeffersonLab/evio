@@ -1357,9 +1357,9 @@ namespace evio {
 
                 // Since the writer thread is the last to process each record,
                 // wait until it's done with the last item, then exit the thread.
-                std::cout << "Close: waiting 4 writing thd" << std::endl;
+// std::cout << "Close: waiting 4 writing thd" << std::endl;
                 recordWriterThread[0].waitForLastItem();
-                std::cout << "Close: done waiting 4 writing thd" << std::endl;
+// std::cout << "Close: done waiting 4 writing thd" << std::endl;
 
                 // Stop all compressing threads which by now are stuck on get
                 for (RecordCompressor &thd : recordCompressorThreads) {
