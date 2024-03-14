@@ -769,6 +769,42 @@ public class RecordHeader implements IBlockHeader {
     public boolean hasFirstEvent() {return false;}
 
     /**
+     * Encode the "is first event" into the bit info word
+     * which will be in CODA evio block header.
+     * Used in CODA's emu.
+     *
+     * @param bSet bit set which will become part of the bit info word
+     *             starting at 2nd byte.
+     */
+    static public void setFirstEvent(BitSet bSet) {
+        // check arg
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+
+        // Encoding words 15th bit (7th in set)
+        bSet.set(6, true);
+    }
+
+
+    /**
+     * Encode the "is NOT first event" into the bit info word
+     * which will be in CODA evio block header.
+     * 7th bit of bitinfo, but 15th bit of header bitInfo word.
+     * Used in CODA's emu.
+     *
+     * @param bSet bit set which will become part of the bit info word
+     *             starting at 2nd byte.
+     */
+    static public void unsetFirstEvent(BitSet bSet) {
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+        bSet.set(6, false);
+    }
+
+    
+    /**
      * Set the bit which says record has a dictionary in the user header.
      * @param hasFirst  true if record has a dictionary in the user header.
      * @return new bitInfo word.
@@ -906,7 +942,34 @@ public class RecordHeader implements IBlockHeader {
 
 
     /**
-     * Set the bit info of a record header for a specified CODA event type.
+     * Help encode the CODA event type into the bitInfo word
+     * which will be in each evio block header.
+     * In the BitSet arg, place the event type into bits 2-5 (starting at 0).
+     * Since version is in the first 8 bits of the bitInfo word, this bitSet
+     * corresponds to bits 10-13 of that word.
+     * Used in CODA's emu.
+     *
+     * @param bSet bit set which will become part of the bit info word
+     * @param type integer value of event type to be encoded
+     */
+    static public void setEventType(BitSet bSet, int type) {
+        // check args
+        if (type < 0) type = 0;
+        else if (type > 15) type = 15;
+
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+        // do the encoding (BitSet index starts at 0)
+        int startingBit = 2;
+        for (int i=startingBit; i < 7; i++) {
+            bSet.set(i, ((type >>> (i - startingBit)) & 0x1) > 0);
+        }
+    }
+
+
+    /**
+     * Set the bit info of a CODA record header for a specified CODA event type.
      * Must be called AFTER {@link #setBitInfo(boolean, boolean)} or
      * {@link #setBitInfoWord(int)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
