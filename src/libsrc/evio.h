@@ -207,6 +207,12 @@ typedef struct evfilestruct {
 extern "C" {
 #endif
 
+/* entry points */
+extern void evioswap(uint32_t *buffer, int tolocal, uint32_t*dest);
+extern int32_t swap_int32_t_value(int32_t val);
+extern uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest);
+
+
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
 

@@ -25,6 +25,8 @@
 #include <netinet/in.h>
 #include <sys/errno.h>
 #include <netinet/tcp.h> /* TCP_NODELAY def */
+#include <arpa/inet.h>
+
 #include "evio.h"
 
 #if defined sun || defined linux || defined VXWORKS
