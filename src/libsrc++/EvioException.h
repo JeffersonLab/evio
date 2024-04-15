@@ -36,6 +36,7 @@ namespace evio {
         EvioException(const std::string & msg, const char *file, int line) noexcept : std::runtime_error(msg) {
             std::ostringstream o;
             o << file << ":" << line << ":" << msg;
+            std::cerr << o.str() << std::endl;
         }
 
     };
