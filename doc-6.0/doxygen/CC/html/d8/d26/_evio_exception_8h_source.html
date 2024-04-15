@@ -119,15 +119,16 @@ $(document).ready(function(){initNavTree('d8/d26/_evio_exception_8h_source.html'
 <div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="../../d0/d0b/classevio_1_1_evio_exception.html#ab5078f5b4f98d35a5dcb64a3d37e7c88">   36</a></span>&#160;        <a class="code" href="../../d0/d0b/classevio_1_1_evio_exception.html#ab5078f5b4f98d35a5dcb64a3d37e7c88">EvioException</a>(<span class="keyword">const</span> std::string &amp; msg, <span class="keyword">const</span> <span class="keywordtype">char</span> *file, <span class="keywordtype">int</span> line) noexcept : std::runtime_error(msg) {</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;            std::ostringstream o;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;            o &lt;&lt; file &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; line &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; msg;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        }</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    };</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="../../d8/d26/_evio_exception_8h.html#a2e2c24f4a58e1cf35ab7fab80e69025a">   43</a></span>&#160;<span class="preprocessor">#define throwEvioLine(arg) throw EvioException(arg, __FILE__, __LINE__);</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;}</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//EVIO_6_0_EVIOEXCEPTION_H</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            std::cerr &lt;&lt; o.str() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        }</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    };</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="../../d8/d26/_evio_exception_8h.html#a2e2c24f4a58e1cf35ab7fab80e69025a">   44</a></span>&#160;<span class="preprocessor">#define throwEvioLine(arg) throw EvioException(arg, __FILE__, __LINE__);</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//EVIO_6_0_EVIOEXCEPTION_H</span></div>
 <div class="ttc" id="aclassevio_1_1_evio_exception_html"><div class="ttname"><a href="../../d0/d0b/classevio_1_1_evio_exception.html">evio::EvioException</a></div><div class="ttdoc">Exception class for Evio software package.</div><div class="ttdef"><b>Definition:</b> EvioException.h:29</div></div>
 <div class="ttc" id="aclassevio_1_1_evio_exception_html_a1d902c4db33f9eef7665323a98cbf902"><div class="ttname"><a href="../../d0/d0b/classevio_1_1_evio_exception.html#a1d902c4db33f9eef7665323a98cbf902">evio::EvioException::EvioException</a></div><div class="ttdeci">EvioException(const std::exception &amp;ex) noexcept</div><div class="ttdef"><b>Definition:</b> EvioException.h:34</div></div>
 <div class="ttc" id="aclassevio_1_1_evio_exception_html_ab5078f5b4f98d35a5dcb64a3d37e7c88"><div class="ttname"><a href="../../d0/d0b/classevio_1_1_evio_exception.html#ab5078f5b4f98d35a5dcb64a3d37e7c88">evio::EvioException::EvioException</a></div><div class="ttdeci">EvioException(const std::string &amp;msg, const char *file, int line) noexcept</div><div class="ttdef"><b>Definition:</b> EvioException.h:36</div></div>
