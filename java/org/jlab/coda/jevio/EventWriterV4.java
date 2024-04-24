@@ -2913,19 +2913,23 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @param node   object representing the event to write in buffer form
      * @param force  if writing to disk, force it to write event to the disk.
+     *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         or bank and bankBuffer args are both null.
+     *         If there is an InterruptedException.
+     *
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioNode node, boolean force)
+    public boolean writeEvent(EvioNode node, boolean force)
             throws EvioException, IOException {
 
         // Duplicate buffer so we can set pos & limit without messing others up
-        writeEvent(node, force, true);
+        return writeEvent(node, force, true);
     }
 
     /**
@@ -2937,16 +2941,20 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
+     *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         or bank and bankBuffer args are both null.
+     *         If there is an InterruptedException.
+     *
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if no room when writing to user-given buffer;
      *                       if null node arg;
      */
-    public void writeEvent(EvioNode node, boolean force, boolean duplicate)
+    public boolean writeEvent(EvioNode node, boolean force, boolean duplicate)
             throws EvioException, IOException {
 
         if (node == null) {
@@ -2968,7 +2976,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
         int pos = node.getPosition();
         eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
-        writeEvent(null, eventBuffer, force);
+        return writeEvent(null, eventBuffer, force);
 
         // Shouldn't the pos & lim be reset for non-duplicate?
         // It don't think it matters since node knows where to
@@ -3054,17 +3062,21 @@ System.err.println("ERROR endOfBuffer " + a);
      * Otherwise an exception will be thrown.
      *
      * @param eventBuffer the event (bank) to write in buffer form
+     *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         or bank and bankBuffer args are both null.
+     *         If there is an InterruptedException.
+     *
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(ByteBuffer eventBuffer)
+    public boolean writeEvent(ByteBuffer eventBuffer)
             throws EvioException, IOException {
-        writeEvent(null, eventBuffer, false);
+        return writeEvent(null, eventBuffer, false);
     }
 
     /**
@@ -3074,17 +3086,21 @@ System.err.println("ERROR endOfBuffer " + a);
      * If writing to a file, each full buffer is written - one at a time -
      * and may contain multiple blocks. Dictionary is never written with
      * this method.
-     *
+     * 
      * @param bank the bank to write.
+     *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         or bank and bankBuffer args are both null.
+     *         If there is an InterruptedException.
+     *
      * @throws IOException   if error writing file
      * @throws EvioException if close() already called;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioBank bank)
+    public boolean writeEvent(EvioBank bank)
             throws EvioException, IOException {
-        writeEvent(bank, null, false);
+        return writeEvent(bank, null, false);
     }
 
 
@@ -3100,17 +3116,20 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
      *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         or bank and bankBuffer args are both null.
+     *         If there is an InterruptedException.
+     *
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(ByteBuffer bankBuffer, boolean force)
+    public boolean writeEvent(ByteBuffer bankBuffer, boolean force)
             throws EvioException, IOException {
-        writeEvent(null, bankBuffer, force);
+        return writeEvent(null, bankBuffer, force);
     }
 
 
@@ -3127,15 +3146,18 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param bank   the bank to write.
      * @param force  if writing to disk, force it to write event to the disk.
      *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         or bank and bankBuffer args are both null.
+     *         If there is an InterruptedException.
+     *
      * @throws IOException   if error writing file
      * @throws EvioException if close() already called;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioBank bank, boolean force)
+    public boolean writeEvent(EvioBank bank, boolean force)
             throws EvioException, IOException {
-        writeEvent(bank, null, force);
+        return writeEvent(bank, null, force);
     }
 
 
@@ -3157,15 +3179,19 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
      *
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         or bank and bankBuffer args are both null.
+     *         If there is an InterruptedException.
+     *
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if bad bankBuffer format;
      *                       if close() already called;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if no room when writing to user-given buffer;
      */
-    synchronized private void writeEvent(EvioBank bank, ByteBuffer bankBuffer, boolean force)
+    synchronized private boolean writeEvent(EvioBank bank, ByteBuffer bankBuffer,
+                                            boolean force)
             throws EvioException, IOException {
 
         if (closed) {
@@ -3209,7 +3235,7 @@ System.err.println("ERROR endOfBuffer " + a);
             currentEventBytes = bank.getTotalBytes();
         }
         else {
-            return;
+            return false;
         }
 
 //        if (split > 0) {
@@ -3315,7 +3341,7 @@ System.err.println("ERROR endOfBuffer " + a);
                  ( writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + 2*headerBytes)))  {
 
             if (!toFile) {
-                throw new EvioException("Buffer too small to write event");
+                return false;
             }
 
 //            if (debug) {
@@ -3360,7 +3386,7 @@ System.err.println("ERROR endOfBuffer " + a);
                 flushToFile(false, false);
             }
             catch (InterruptedException e) {
-                return;
+                return false;
             }
             catch (ExecutionException e) {
                 throw new IOException(e);
@@ -3449,7 +3475,7 @@ System.err.println("ERROR endOfBuffer " + a);
                 flushToFile(true, false);
             }
             catch (InterruptedException e) {
-                return;
+                return false;
             }
             catch (ExecutionException e) {
                 throw new IOException(e);
@@ -3458,6 +3484,8 @@ System.err.println("ERROR endOfBuffer " + a);
             // Start a new block
             resetBuffer(false);
         }
+
+        return true;
     }
 
 
