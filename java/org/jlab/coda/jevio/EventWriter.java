@@ -1526,7 +1526,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      * this class's internals. The {@link #getByteBuffer()} method is much more
      * useful to the user.
      *
-     * @return buffer being written into
+     * @return buffer being written into, null if using file.
      */
     private ByteBuffer getBuffer() {
         if (toFile()) return null;
