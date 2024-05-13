@@ -131,12 +131,10 @@ namespace evio {
         // can be slower than conventional reads.
         if (evioVersion < 4) {
             // Remember, no dictionaries exist for these early versions
-//dataStream = new DataInputStream(fileInputStream);
              prepareForSequentialRead();
         }
         // For version 4 ...
         else {
-//dataStream = new DataInputStream(fileInputStream);
             prepareForSequentialRead();
             if (blockHeader4->hasDictionary()) {
                 // Dictionary is always the first event
