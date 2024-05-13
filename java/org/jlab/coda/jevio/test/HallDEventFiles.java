@@ -4,8 +4,6 @@ import org.jlab.coda.jevio.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 
 /**
  * Test program.
