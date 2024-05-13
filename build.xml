@@ -12,7 +12,7 @@
     <property name="javac.debug" value="on" />
     
     <!-- Directories/Files -->
-    <property name="src.dir"       value="java" />
+    <property name="src.dir"       value="java/org/jlab/coda" />
     <property name="build.dir"     value="jbuild" />
     <property name="build.classes" value="${build.dir}/classes" />
     <property name="build.lib"     value="${build.dir}/lib" />
@@ -29,8 +29,11 @@
     <property name="compJarName"     value="AHACompressionAPI.jar" />
     <property name="compJarPath"     value="${local.jars}/${compJarName}" />
 
-    <property name="disruptorJarName"  value="disruptor-3.4.3.jar" />
-    <property name="disruptorJarPath"  value="${local.jars}/${disruptorJarName}" />
+    <property name="disruptorJarName8"   value="disruptor-3.4.3.jar" />
+    <property name="disruptorJarName15"  value="disruptor-4.0.0.jar" />
+    <property name="disruptorJarPath8"   value="${local.jars}/${disruptorJarName8}" />
+    <property name="disruptorJarPath15"  value="${local.jars}/${disruptorJarName15}" />
+
 
     <!-- Set Classpath, ignore caller's classpath -->
     <property name="build.sysclasspath" value="ignore" />
@@ -205,7 +208,7 @@
 
     <!-- Create Jar file -->
     <target name="jar" depends="compile" description="Generates jar file.">
-        <jar jarfile="${jarPath}" manifest="${src.dir}/org/jlab/coda/jevio/manifest.mf">
+        <jar jarfile="${jarPath}" manifest="${src.dir}/jevio/manifest.mf">
             <fileset dir="${build.classes}" excludes="*.class" />
         </jar>
     </target>
@@ -227,14 +230,16 @@
         <echo>Install ${jarName} into ${prefix}</echo>
         <echo>Install ${lz4JarName} into ${prefix}</echo>
         <echo>Install ${compJarName} into ${prefix}</echo>
-        <echo>Install ${disruptorJarName} into ${prefix}</echo>
+        <echo>Install ${disruptorJarName8} into ${prefix}</echo>
+        <echo>Install ${disruptorJarName15} into ${prefix}</echo>
         <delete>
             <fileset dir="${prefix}/jar" includes="${allJarNames}" />
         </delete>
         <copy file="${jarPath}" todir="${prefix}/jar"/>
         <copy file="${lz4JarPath}" todir="${prefix}/jar"/>
         <copy file="${compJarPath}" todir="${prefix}/jar"/>
-        <copy file="${disruptorJarPath}" todir="${prefix}/jar"/>
+        <copy file="${disruptorJarPath8}"  todir="${prefix}/jar" failonerror="false" />
+        <copy file="${disruptorJarPath15}" todir="${prefix}/jar" failonerror="false" />
     </target>
 
     <!-- Install in $CODA -->
@@ -242,14 +247,16 @@
         <echo>Install ${jarName} into ${env.CODA}/common/jar</echo>
         <echo>Install ${lz4JarName} into ${env.CODA}/common/jar</echo>
         <echo>Install ${compJarName} into ${env.CODA}/common/jar</echo>
-        <echo>Install ${disruptorJarName} into ${env.CODA}/common/jar</echo>
+        <echo>Install ${disruptorJarName8} into ${env.CODA}/common/jar</echo>
+        <echo>Install ${disruptorJarName15} into ${env.CODA}/common/jar</echo>
         <delete>
             <fileset dir="${env.CODA}/common/jar" includes="${allJarNames}" />
         </delete>
         <copy file="${jarPath}" todir="${env.CODA}/common/jar"/>
         <copy file="${lz4JarPath}" todir="${env.CODA}/common/jar"/>
         <copy file="${compJarPath}" todir="${env.CODA}/common/jar"/>
-        <copy file="${disruptorJarPath}" todir="${env.CODA}/common/jar"/>
+        <copy file="${disruptorJarPath8}"  todir="${env.CODA}/common/jar" failonerror="false" />
+        <copy file="${disruptorJarPath15}" todir="${env.CODA}/common/jar" failonerror="false" />
     </target>
 
     <!-- No installation directory defined -->
@@ -271,11 +278,13 @@
         <echo>Remove ${jarName} from ${prefix}</echo>
         <echo>Remove ${lz4JarName} from ${prefix}</echo>
         <echo>Remove ${compJarName} from ${prefix}</echo>
-        <echo>Remove ${disruptorJarName} from ${prefix}</echo>
+        <echo>Remove ${disruptorJarName8} from ${prefix}</echo>
+        <echo>Remove ${disruptorJarName15} from ${prefix}</echo>
         <delete file="${prefix}/jar/${jarName}"/>
         <delete file="${prefix}/jar/${lz4JarName}"/>
         <delete file="${prefix}/jar/${compJarName}"/>
-        <delete file="${prefix}/jar/${disruptorJarName}"/>
+        <delete file="${prefix}/jar/${disruptorJarName8}"  failonerror="false" />
+        <delete file="${prefix}/jar/${disruptorJarName15}" failonerror="false" />
     </target>
 
     <!-- Uninstall from $CODA -->
@@ -283,11 +292,13 @@
         <echo>Remove ${jarName} from ${env.CODA}/common/jar</echo>
         <echo>Remove ${lz4JarName} from ${env.CODA}/common/jar</echo>
         <echo>Remove ${compJarName} from ${env.CODA}/common/jar</echo>
-        <echo>Remove ${disruptorJarName} from ${env.CODA}/common/jar</echo>
+        <echo>Remove ${disruptorJarName8} from ${env.CODA}/common/jar</echo>
+        <echo>Remove ${disruptorJarName15} from ${env.CODA}/common/jar</echo>
         <delete file="${env.CODA}/common/jar/${jarName}"/>
         <delete file="${env.CODA}/common/jar/${lz4JarName}"/>
         <delete file="${env.CODA}/common/jar/${compJarName}"/>
-        <delete file="${env.CODA}/common/jar/${disruptorJarName}"/>
+        <delete file="${env.CODA}/common/jar/${disruptorJarName8}"  failonerror="false" />
+        <delete file="${env.CODA}/common/jar/${disruptorJarName15}" failonerror="false" />
     </target>
 
     <!-- No installation directory defined to uninstall from -->
