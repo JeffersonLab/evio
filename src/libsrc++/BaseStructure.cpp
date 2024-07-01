@@ -2687,24 +2687,41 @@ namespace evio {
     }
 
 
-   /**
-    * Write myself into a ByteBuffer as evio format data
-    * in the data's current byte order given by {@link #getByteOrder()}.
-    * This method is much more efficient than using {@link #write(ByteBuffer &)}.<p>
-    * <b>However, be warned that this method is only useful when this structure has
-    * just been read from a file or buffer. Once the user adds data (and does not call
-    * the appropriate update method) or children
-    * to this structure, this method does NOT produce correct results.</b>
-    *
-    * @param dest destination ByteBuffer to contain evio format data
-    *             of this bank in currently set byte order.
-    * @return the number of bytes written.
-    */
+    /**
+     * Write myself into a ByteBuffer as evio format data
+     * in the data's current byte order given by {@link #getByteOrder()}.
+     * This method is much more efficient than using {@link #write(ByteBuffer &)}.<p>
+     * <b>However, be warned that this method is only useful when this structure has
+     * just been read from a file or buffer. Once the user adds data (and does not call
+     * the appropriate update method) or children
+     * to this structure, this method does NOT produce correct results.</b>
+     *
+     * @param dest shared ptr of destination ByteBuffer to contain evio format data
+     *             of this bank in currently set byte order.
+     * @return the number of bytes written.
+     */
+    size_t BaseStructure::writeQuick(std::shared_ptr<ByteBuffer> dest) {
+        return writeQuick(*dest);
+    }
+
+    /**
+     * Write myself into a ByteBuffer as evio format data
+     * in the data's current byte order given by {@link #getByteOrder()}.
+     * This method is much more efficient than using {@link #write(ByteBuffer &)}.<p>
+     * <b>However, be warned that this method is only useful when this structure has
+     * just been read from a file or buffer. Once the user adds data (and does not call
+     * the appropriate update method) or children
+     * to this structure, this method does NOT produce correct results.</b>
+     *
+     * @param dest destination ByteBuffer to contain evio format data
+     *             of this bank in currently set byte order.
+     * @return the number of bytes written.
+     */
     size_t BaseStructure::writeQuick(ByteBuffer & dest) {
         header->write(dest);
         dest.put(rawBytes.data(), rawBytes.size());
         dest.order(getByteOrder());
-       return rawBytes.size() + 4*header->getHeaderLength();
+        return rawBytes.size() + 4*header->getHeaderLength();
     }
 
 
@@ -2874,6 +2891,18 @@ namespace evio {
         } // not leaf
 
         return curPos - dest;
+    }
+
+
+    /**
+     * Write myself out into a byte buffer with fastest algorithm I could find.
+     *
+     * @param byteBuffer shared ptr of the byteBuffer to write to.
+     * @return the number of bytes written.
+     * @throws overflow_error if too little space in byteBuffer.
+     */
+    size_t BaseStructure::write(std::shared_ptr<ByteBuffer> byteBuffer) {
+        return write(*byteBuffer);
     }
 
 

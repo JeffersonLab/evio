@@ -653,10 +653,12 @@ namespace evio {
         std::shared_ptr<BaseStructureHeader> getHeader() const;
 
         size_t write(ByteBuffer & dest);
+        size_t write(std::shared_ptr<ByteBuffer> dest);
         size_t write(uint8_t *dest, ByteOrder const & order);
 
         size_t writeQuick(uint8_t *dest);
         size_t writeQuick(ByteBuffer & dest);
+        size_t writeQuick(std::shared_ptr<ByteBuffer> dest);
 
         uint32_t getNumberDataItems();
 
