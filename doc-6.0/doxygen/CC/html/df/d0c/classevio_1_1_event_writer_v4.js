@@ -18,7 +18,7 @@ var classevio_1_1_event_writer_v4 =
     [ "getSplitCount", "df/d0c/classevio_1_1_event_writer_v4.html#a54e306e78aafb16378748608e8a8d5e2", null ],
     [ "getSplitNumber", "df/d0c/classevio_1_1_event_writer_v4.html#af2127029f34c77d41fbaa5142c31336d", null ],
     [ "hasRoom", "df/d0c/classevio_1_1_event_writer_v4.html#a28f6baf115a4c861f6bad88b2d84cda1", null ],
-    [ "isClosed", "df/d0c/classevio_1_1_event_writer_v4.html#a81f92a99b11d6ac510adf4e9cf42208b", null ],
+    [ "isClosed", "df/d0c/classevio_1_1_event_writer_v4.html#a82e51d7875f3b98e97f0bd09b72ddfed", null ],
     [ "isDiskFull", "df/d0c/classevio_1_1_event_writer_v4.html#a03b07d5885fc446ec0a3ad775a5b093a", null ],
     [ "setBuffer", "df/d0c/classevio_1_1_event_writer_v4.html#aae79ae27ceb3617cc2c487aa5fcd11b5", null ],
     [ "setBuffer", "df/d0c/classevio_1_1_event_writer_v4.html#a47c24bd00d778d2a5c5280bc66c39100", null ],
