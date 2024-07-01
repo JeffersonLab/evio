@@ -640,6 +640,45 @@ namespace evio {
 
 
         /**
+          * Calculates the sixth word of this header which has the version number (4)
+          * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
+          * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+          * (event type) are set in bits 11-14.
+          *
+          * @param bSet pointer to Bitset containing all bits to be set
+          * @param version evio version number
+          * @param hasDictionary does this block include an evio xml dictionary as the first event?
+          * @param isEnd is this the last block of a file or a buffer?
+          * @param eventType 4 bit type of events header is containing
+          * @return generated sixth word of this header.
+          */
+        static uint32_t generateSixthWord(std::bitset<24> *bSet, uint32_t version,
+                                          bool hasDictionary,
+                                          bool isEnd, uint32_t eventType) {
+
+            uint32_t v = version; // version
+            v =  hasDictionary ? (v | 0x100) : v;
+            v =  isEnd ? (v | 0x200) : v;
+            v |= ((eventType & 0xf) << 10);
+
+            if (bSet == nullptr) {
+                return v;
+            }
+
+            for (int i=0; i < bSet->size(); i++) {
+                if (i > 23) {
+                    break;
+                }
+                if ((*bSet)[i]) {
+                    v |= (0x1 << (8+i));
+                }
+            }
+
+            return v;
+        }
+
+
+        /**
          * Parses the argument into the bit info fields.
          * This ignores the version in the lowest 8 bits.
          * @param word integer to parse into bit info fields
