@@ -769,6 +769,8 @@ namespace evio {
         // most probably won't contain the full file contents.
         if (toFile2()) return nullptr;
 
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+
         // TODO: We synchronize here so we do not write/close in the middle
         //  of our messing with the buffer.
         std::shared_ptr<ByteBuffer> buf = buffer->duplicate();
@@ -794,7 +796,10 @@ namespace evio {
      *
      * @return {@code true} if this object closed, else {@code false}.
      */
-    bool EventWriterV4::isClosed() const {return closed;}
+    bool EventWriterV4::isClosed() {
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+        return closed;
+    }
 
 
     /**
@@ -920,6 +925,8 @@ namespace evio {
      */
     void EventWriterV4::setFirstEvent(std::shared_ptr<EvioNode> node) {
 
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+
         // If getting rid of the first event ...
         if (node == nullptr) {
             if (!xmlDictionary.empty()) {
@@ -1006,6 +1013,8 @@ namespace evio {
     /*synchronized*/
     void EventWriterV4::setFirstEvent(std::shared_ptr<ByteBuffer> buffer) {
 
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+
         // If getting rid of the first event ...
         if (buffer == nullptr) {
             if (!xmlDictionary.empty()) {
@@ -1084,27 +1093,12 @@ namespace evio {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    void EventWriterV4::setFirstEvent(std::shared_ptr<EvioBank> bank)
-    {
+    void EventWriterV4::setFirstEvent(std::shared_ptr<EvioBank> bank) {
 
-            // If getting rid of the first event ...
-            if (bank == nullptr) {
-                if (!xmlDictionary.empty()) {
-                    commonBlockCount = 1;
-                    commonBlockByteSize = dictionaryBytes;
-                }
-                else {
-                    commonBlockCount = 0;
-                    commonBlockByteSize = 0;
-                }
-                firstEventBytes = 0;
-                firstEventByteArray.clear();
-                haveFirstEvent = false;
-                return;
-            }
+        std::lock_guard<std::recursive_mutex> lock(mtx);
 
-            // Find the first event's bytes and the memory size needed
-            // to contain the common events (dictionary + first event).
+        // If getting rid of the first event ...
+        if (bank == nullptr) {
             if (!xmlDictionary.empty()) {
                 commonBlockCount = 1;
                 commonBlockByteSize = dictionaryBytes;
@@ -1113,22 +1107,38 @@ namespace evio {
                 commonBlockCount = 0;
                 commonBlockByteSize = 0;
             }
+            firstEventBytes = 0;
+            firstEventByteArray.clear();
+            haveFirstEvent = false;
+            return;
+        }
 
-            firstEventBytes = bank->getTotalBytes();
-            std::shared_ptr<ByteBuffer> firstEventBuf = std::make_shared<ByteBuffer>(firstEventBytes);
-            firstEventBuf->order(byteOrder);
-            bank->write(firstEventBuf);
-            firstEventBuf->flip();
-            uint8_t* data = firstEventBuf->array();
-            firstEventByteArray.assign(data, data + firstEventBytes);
-            commonBlockByteSize += firstEventBytes;
-            commonBlockCount++;
-            haveFirstEvent = true;
+        // Find the first event's bytes and the memory size needed
+        // to contain the common events (dictionary + first event).
+        if (!xmlDictionary.empty()) {
+            commonBlockCount = 1;
+            commonBlockByteSize = dictionaryBytes;
+        }
+        else {
+            commonBlockCount = 0;
+            commonBlockByteSize = 0;
+        }
 
-            // Write it to the file/buffer now. In this case it may not be the
-            // first event written and some splits may not even have it
-            // (depending on how many events have been written so far).
-            writeEvent(nullptr, firstEventBuf, false);
+        firstEventBytes = bank->getTotalBytes();
+        std::shared_ptr<ByteBuffer> firstEventBuf = std::make_shared<ByteBuffer>(firstEventBytes);
+        firstEventBuf->order(byteOrder);
+        bank->write(firstEventBuf);
+        firstEventBuf->flip();
+        uint8_t* data = firstEventBuf->array();
+        firstEventByteArray.assign(data, data + firstEventBytes);
+        commonBlockByteSize += firstEventBytes;
+        commonBlockCount++;
+        haveFirstEvent = true;
+
+        // Write it to the file/buffer now. In this case it may not be the
+        // first event written and some splits may not even have it
+        // (depending on how many events have been written so far).
+        writeEvent(nullptr, firstEventBuf, false);
     }
 
 
@@ -1141,6 +1151,9 @@ namespace evio {
      *  Calling this can kill performance. May not call this when simultaneously
      *  calling writeEvent, close, setFirstEvent, or getByteBuffer. */
     void EventWriterV4::flush() {
+
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+
         // If lastEmptyBlockHeaderExists is true, then resetBuffer
         // has been called and no events have been written into buffer yet.
         // In other words, no need to flush an empty, last block header.
@@ -1166,6 +1179,9 @@ namespace evio {
      *  May not call this when simultaneously calling
      *  writeEvent, flush, setFirstEvent, or getByteBuffer. */
     void EventWriterV4::close() {
+
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+
         if (closed) {
             return;
         }
@@ -1218,6 +1234,8 @@ namespace evio {
      *                       if file has bad format;
      */
     void EventWriterV4::examineFirstBlockHeader() {
+
+        std::lock_guard<std::recursive_mutex> lock(mtx);
 
         // Only for append mode
         if (!append) {
@@ -2161,6 +2179,8 @@ namespace evio {
     bool EventWriterV4::writeEvent(std::shared_ptr<EvioBank> bank,
                                    std::shared_ptr<ByteBuffer> bankBuffer, bool force) {
 
+        std::lock_guard<std::recursive_mutex> lock(mtx);
+
             if (closed) {
                 throw EvioException("close() has already been called");
             }
@@ -2487,6 +2507,8 @@ namespace evio {
      */
     bool EventWriterV4::writeEventToFile(std::shared_ptr<EvioBank> bank,
                                          std::shared_ptr<ByteBuffer> bankBuffer, bool force) {
+
+        std::lock_guard<std::recursive_mutex> lock(mtx);
 
             if (closed) {
                 throw EvioException("close() has already been called");

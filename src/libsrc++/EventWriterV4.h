@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <stdexcept>
+#include <mutex>
 
 
 #ifdef USE_FILESYSTEMLIB
@@ -124,6 +125,11 @@ namespace evio {
 
             private:
 
+            /**
+             * Mutex to protect close, flush, isClosed, writeEvent, getByteBuffer, setFirstEvent,
+             * and examineFirstBlockHeader from stepping on each other's toes.
+             */
+            std::recursive_mutex mtx;
 
             /**
              * Offset to where the block length is written in the byte buffer,
@@ -538,7 +544,7 @@ namespace evio {
             void setBuffer(std::shared_ptr<ByteBuffer> buf);
             std::shared_ptr<ByteBuffer> getByteBuffer();
             bool toFile2() const;
-            bool isClosed() const;
+            bool isClosed();
             std::string getCurrentFilename() const;
             std::string getCurrentFilePath() const;
             uint32_t getSplitNumber() const;
