@@ -8,6 +8,7 @@ var classevio_1_1_block_header_v4 =
     [ "clearLastBlockBit", "da/de6/classevio_1_1_block_header_v4.html#aea4ab5a6e6e04aae085247e29a56c826", null ],
     [ "copy", "da/de6/classevio_1_1_block_header_v4.html#a94cba4a2d72ec0764f1e90bc194a6c6a", null ],
     [ "firstEventStartingPosition", "da/de6/classevio_1_1_block_header_v4.html#a9266b5dd5bd9a2c54dbac5ad66544016", null ],
+    [ "generateSixthWord", "da/de6/classevio_1_1_block_header_v4.html#a880682f88f3c27536c785db2a7ddcac6", null ],
     [ "generateSixthWord", "da/de6/classevio_1_1_block_header_v4.html#a7665443fe50d6b0c914790bd31b6a1ba", null ],
     [ "generateSixthWord", "da/de6/classevio_1_1_block_header_v4.html#ada14ded5c83f123a6ef653aea706b268", null ],
     [ "generateSixthWord", "da/de6/classevio_1_1_block_header_v4.html#a08de309f7e31a3a465d40efbc45f1f2e", null ],

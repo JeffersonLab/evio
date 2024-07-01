@@ -330,6 +330,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a7665443fe50d6b0c914790bd31b6a1ba"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a7665443fe50d6b0c914790bd31b6a1ba">generateSixthWord</a> (std::bitset&lt; 24 &gt; bSet, uint32_t <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a2308090f61291575a2715e4b8bb53e6d">version</a>, bool <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a3eac678cb0bef51557c366e0e8226687">hasDictionary</a>, bool isEnd, uint32_t eventType)</td></tr>
 <tr class="memdesc:a7665443fe50d6b0c914790bd31b6a1ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the sixth word of this header which has the version number (4) in the lowest 8 bits and the set in the upper 24 bits.  <a href="../../da/de6/classevio_1_1_block_header_v4.html#a7665443fe50d6b0c914790bd31b6a1ba">More...</a><br /></td></tr>
 <tr class="separator:a7665443fe50d6b0c914790bd31b6a1ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a880682f88f3c27536c785db2a7ddcac6"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a880682f88f3c27536c785db2a7ddcac6">generateSixthWord</a> (std::bitset&lt; 24 &gt; *bSet, uint32_t <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a2308090f61291575a2715e4b8bb53e6d">version</a>, bool <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a3eac678cb0bef51557c366e0e8226687">hasDictionary</a>, bool isEnd, uint32_t eventType)</td></tr>
+<tr class="memdesc:a880682f88f3c27536c785db2a7ddcac6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the sixth word of this header which has the version number (4) in the lowest 8 bits and the set in the upper 24 bits.  <a href="../../da/de6/classevio_1_1_block_header_v4.html#a880682f88f3c27536c785db2a7ddcac6">More...</a><br /></td></tr>
+<tr class="separator:a880682f88f3c27536c785db2a7ddcac6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -806,8 +809,78 @@ timmer </dd></dl>
 
 </div>
 </div>
+<a id="a880682f88f3c27536c785db2a7ddcac6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a880682f88f3c27536c785db2a7ddcac6">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[1/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint32_t evio::BlockHeaderV4::generateSixthWord </td>
+          <td>(</td>
+          <td class="paramtype">std::bitset&lt; 24 &gt; *&#160;</td>
+          <td class="paramname"><em>bSet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>version</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>hasDictionary</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>isEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>eventType</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calculates the sixth word of this header which has the version number (4) in the lowest 8 bits and the set in the upper 24 bits. </p>
+<p>The arg isDictionary is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int (event type) are set in bits 11-14.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bSet</td><td>pointer to Bitset containing all bits to be set </td></tr>
+    <tr><td class="paramname">version</td><td>evio version number </td></tr>
+    <tr><td class="paramname">hasDictionary</td><td>does this block include an evio xml dictionary as the first event? </td></tr>
+    <tr><td class="paramname">isEnd</td><td>is this the last block of a file or a buffer? </td></tr>
+    <tr><td class="paramname">eventType</td><td>4 bit type of events header is containing </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>generated sixth word of this header. </dd></dl>
+
+<p class="reference">References <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#abc0c1d6d1a27c74236526107da15d131">hasDictionary()</a>, and <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a2308090f61291575a2715e4b8bb53e6d">version</a>.</p>
+
+</div>
+</div>
 <a id="a7665443fe50d6b0c914790bd31b6a1ba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7665443fe50d6b0c914790bd31b6a1ba">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[1/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7665443fe50d6b0c914790bd31b6a1ba">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[2/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -877,7 +950,7 @@ timmer </dd></dl>
 </div>
 </div>
 <a id="ada14ded5c83f123a6ef653aea706b268"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ada14ded5c83f123a6ef653aea706b268">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[2/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ada14ded5c83f123a6ef653aea706b268">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[3/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -933,7 +1006,7 @@ timmer </dd></dl>
 </div>
 </div>
 <a id="a08de309f7e31a3a465d40efbc45f1f2e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a08de309f7e31a3a465d40efbc45f1f2e">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a08de309f7e31a3a465d40efbc45f1f2e">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[4/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -968,7 +1041,7 @@ timmer </dd></dl>
 </div>
 </div>
 <a id="ace409c4bafec61f4126398116da9ef31"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ace409c4bafec61f4126398116da9ef31">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[4/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ace409c4bafec61f4126398116da9ef31">&#9670;&nbsp;</a></span>generateSixthWord() <span class="overload">[5/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1638,7 +1711,7 @@ timmer </dd></dl>
 
 <p class="reference">References <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#aa7ae35ad07d52b54d35e879075fa401b">bitInfo</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#ada14ded5c83f123a6ef653aea706b268">generateSixthWord()</a>, and <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#ab50eacb16950ff1a82689d2070667d03">toString()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a0f99e38765850c6b751d34d4dbe792a5">evio::EventWriterV4::examineFirstBlockHeader()</a>, <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#ada14ded5c83f123a6ef653aea706b268">generateSixthWord()</a>, and <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#ab50eacb16950ff1a82689d2070667d03">toString()</a>.</p>
 
 </div>
 </div>
@@ -3110,7 +3183,7 @@ timmer </dd></dl>
 
 <p>The magic number, should be the value of <code>magicNumber</code>. </p>
 
-<p class="reference">Referenced by <a class="el" href="../../d3/d87/classevio_1_1_util.html#a480d33b2eeef523ab4d2109d88d5f323">evio::Util::findEvioVersion()</a>, <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ab851d0a680a06875f14cbeee08c62c62">evio::EvioReaderV4::parseFirstHeader()</a>, <a class="el" href="../../d7/d9e/classevio_1_1_block_header_v2.html#a0fc718e078e962ca590de71d8a03c308">evio::BlockHeaderV2::setMagicNumber()</a>, and <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#aea332a5d6321b9fdd23958356f49ffff">setMagicNumber()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a0f99e38765850c6b751d34d4dbe792a5">evio::EventWriterV4::examineFirstBlockHeader()</a>, <a class="el" href="../../d3/d87/classevio_1_1_util.html#a480d33b2eeef523ab4d2109d88d5f323">evio::Util::findEvioVersion()</a>, <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ab851d0a680a06875f14cbeee08c62c62">evio::EvioReaderV4::parseFirstHeader()</a>, <a class="el" href="../../d7/d9e/classevio_1_1_block_header_v2.html#a0fc718e078e962ca590de71d8a03c308">evio::BlockHeaderV2::setMagicNumber()</a>, and <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#aea332a5d6321b9fdd23958356f49ffff">setMagicNumber()</a>.</p>
 
 </div>
 </div>

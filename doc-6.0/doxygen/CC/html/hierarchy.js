@@ -27,6 +27,7 @@ var hierarchy =
     [ "evio::EventHeaderParser", "dd/d62/classevio_1_1_event_header_parser.html", null ],
     [ "evio::EventParser", "d7/d5d/classevio_1_1_event_parser.html", null ],
     [ "evio::EventWriter", "d9/dcd/classevio_1_1_event_writer.html", null ],
+    [ "evio::EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html", null ],
     [ "evio::EvioDictionaryEntry", "d2/d4a/classevio_1_1_evio_dictionary_entry.html", null ],
     [ "evio::EvioSwap", "df/d7a/classevio_1_1_evio_swap.html", null ],
     [ "evio::EvioXMLDictionary", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html", null ],
@@ -35,6 +36,8 @@ var hierarchy =
         [ "evio::EvioException", "d0/d0b/classevio_1_1_evio_exception.html", null ]
       ] ]
     ] ],
+    [ "evio::FileCloser", "d3/d68/classevio_1_1_file_closer.html", null ],
+    [ "evio::FileCloserV4", "dc/db3/classevio_1_1_file_closer_v4.html", null ],
     [ "evio::FileEventIndex", "df/dbf/classevio_1_1_file_event_index.html", null ],
     [ "evio::FileHeader", "d1/da6/classevio_1_1_file_header.html", null ],
     [ "evio::HeaderType", "df/dd8/classevio_1_1_header_type.html", null ],

@@ -60,6 +60,11 @@ var files_dup =
     [ "EventWriter.h", "d6/d12/_event_writer_8h.html", [
       [ "EventWriter", "d9/dcd/classevio_1_1_event_writer.html", "d9/dcd/classevio_1_1_event_writer" ]
     ] ],
+    [ "EventWriterV4.cpp", "db/d68/_event_writer_v4_8cpp.html", null ],
+    [ "EventWriterV4.h", "d5/d76/_event_writer_v4_8h.html", [
+      [ "FileCloserV4", "dc/db3/classevio_1_1_file_closer_v4.html", "dc/db3/classevio_1_1_file_closer_v4" ],
+      [ "EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html", "df/d0c/classevio_1_1_event_writer_v4" ]
+    ] ],
     [ "EvioBank.h", "dd/d6f/_evio_bank_8h.html", [
       [ "EvioBank", "de/de3/classevio_1_1_evio_bank.html", "de/de3/classevio_1_1_evio_bank" ]
     ] ],
@@ -119,6 +124,9 @@ var files_dup =
     [ "FileHeader.cpp", "de/d46/_file_header_8cpp.html", null ],
     [ "FileHeader.h", "d2/d66/_file_header_8h.html", [
       [ "FileHeader", "d1/da6/classevio_1_1_file_header.html", "d1/da6/classevio_1_1_file_header" ]
+    ] ],
+    [ "FileWritingSupport.h", "df/d79/_file_writing_support_8h.html", [
+      [ "FileCloser", "d3/d68/classevio_1_1_file_closer.html", "d3/d68/classevio_1_1_file_closer" ]
     ] ],
     [ "HeaderType.cpp", "d6/d50/_header_type_8cpp.html", null ],
     [ "HeaderType.h", "d5/d98/_header_type_8h.html", [
