@@ -76,6 +76,7 @@ set(C_LIB_FILES
         )
 
 set(CPP_HEADER_FILES
+        src/libsrc++/FileWritingSupport.h
         src/libsrc++/FileEventIndex.h
         src/libsrc++/EvioException.h
         src/libsrc++/ByteOrder.h
@@ -97,6 +98,7 @@ set(CPP_HEADER_FILES
         src/libsrc++/RecordRingItem.h
         src/libsrc++/Util.h
         src/libsrc++/EventWriter.h
+        src/libsrc++/EventWriterV4.h
         src/libsrc++/RecordCompressor.h
         src/libsrc++/BaseStructure.h
         src/libsrc++/BaseStructureHeader.h
@@ -155,6 +157,7 @@ set(CPP_LIB_FILES
         src/libsrc++/RecordSupply.cpp
         src/libsrc++/RecordRingItem.cpp
         src/libsrc++/EventWriter.cpp
+        src/libsrc++/EventWriterV4.cpp
         src/libsrc++/BaseStructure.cpp
         src/libsrc++/BaseStructureHeader.cpp
         src/libsrc++/CompositeData.cpp
