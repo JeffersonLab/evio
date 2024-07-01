@@ -106,9 +106,9 @@ namespace evio {
      * the runType is null.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be difcompressionferentiated by a stream id, starting split # and split increment.
+     * they can be differentiated by a stream id, starting split # and split increment.
      *
-     * @param baseName      base file name used to generate complete file name (may not be null)
+     * @param baseName      base file name used to generate complete file name (may not be empty)
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
@@ -123,14 +123,14 @@ namespace evio {
      *                      Value &lt;= O means use default (1M).
      * @param byteOrder     the byte order in which to write the file. This is ignored
      *                      if appending to existing file. Defaults to Big Endian if null.
-     * @param xmlDictionary dictionary in xml format or null if none.
+     * @param xmlDictionary dictionary in xml format or empty if none.
      * @param overWriteOK   if <code>false</code> and the file already exists,
      *                      an exception is thrown rather than overwriting it.
      * @param append        if <code>true</code> append written data to given file.
      * @param firstEvent    the first event written into each file (after any dictionary)
      *                      including all split files; may be null. Useful for adding
      *                      common, static info into each split file.
-     * @param streamId      streamId number (100 > id > -1) for file name
+     * @param streamId      streamId number (100 &gt; id &gt; -1) for file name
      * @param splitNumber   number at which to start the split numbers
      * @param splitIncrement amount to increment split number each time another file is created.
      * @param streamCount    total number of streams in DAQ.
@@ -144,15 +144,13 @@ namespace evio {
      *                      9MB = default if bufferSize = 0.
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
-     *                       if streamCount &gt; 1 and streamId &lt; 0;
      *                       if defined dictionary or first event while appending;
      *                       if splitting file while appending;
-     *                       if file name arg is null;
+     *                       if file name arg is empty;
      *                       if file could not be opened, positioned, or written to;
-     *                       if file exists but user requested no over-writing or appending;
-     *                       if streamId < 0, splitNumber < 0, or splitIncrement < 1.
+     *                       if file exists but user requested no over-writing or appending.
      */
-    EventWriter::EventWriter(std::string baseName, const std::string & directory, const std::string & runType,
+    EventWriter::EventWriter(std::string & baseName, const std::string & directory, const std::string & runType,
                              uint32_t runNumber, uint64_t split,
                              uint32_t maxRecordSize, uint32_t maxEventCount,
                              const ByteOrder & byteOrder, const std::string & xmlDictionary,
@@ -167,7 +165,7 @@ namespace evio {
         }
 
         if (splitIncrement < 1) {
-            throw EvioException("splitIncrement < 1");
+            splitIncrement = 1;
         }
 
         if (runNumber < 1) {
@@ -348,12 +346,15 @@ namespace evio {
         else {
             // Number of ring items must be >= # of compressionThreads, plus 1 which
             // is being written, plus 1 being filled - all simultaneously.
-            ringSize = 16;
+            if (ringSize < 16) {
+                ringSize = 16;
+            }
+
             if (ringSize < compressionThreads + 2) {
                 ringSize = compressionThreads + 2;
             }
 
-            // AND must be power of 2
+            // AND must be power of 2, round up
             ringSize = Util::powerOfTwo(ringSize, true);
             //cout << "EventWriter constr: record ring size set to " << ringSize << endl;
 
@@ -868,13 +869,14 @@ namespace evio {
 
 
     /**
-     * Get the full name or path of the current file being written to.
+     * Get the full or absolute name or path of the current file being written to.
      * Returns empty string if no file.
      * @return the full name or path of the current file being written to.
      */
     std::string EventWriter::getCurrentFilePath() const {
 #ifdef USE_FILESYSTEMLIB
-        return currentFilePath.generic_string();
+        fs::path absolutePath = fs::absolute(currentFilePath);
+        return absolutePath.generic_string();
 #else
         char *actualPath = realpath(currentFileName.c_str(), nullptr);
         if (actualPath != nullptr) {
@@ -1519,7 +1521,6 @@ namespace evio {
 
         bool lastRecord, isTrailer, readEOF = false;
         uint32_t recordLen, eventCount, nBytes, bitInfo, headerPosition;
-        std::future<void> future;
 
         uint64_t bytesLeftInFile = fileSize;
 
@@ -2896,9 +2897,7 @@ namespace evio {
         record->setBuffer(buffer);
         record->reset();
 
-        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
-        // but don't bother writing the metadata (arg to force()) since that slows it
-        // down even more.
+        // Force it to write to physical disk (KILLS PERFORMANCE!!!)
         // TODO: This may not work since data may NOT have been written yet!
         if (force) asyncFileChannel->sync();
 
@@ -3077,7 +3076,6 @@ namespace evio {
 
 #ifdef USE_FILESYSTEMLIB
         currentFilePath = fs::path(fileName);
-        currentFileName = currentFilePath.generic_string();
         bool fileExists = fs::exists(currentFilePath);
         bool isRegularFile = fs::is_regular_file(currentFilePath);
 #else
@@ -3092,7 +3090,7 @@ namespace evio {
                 std::string errMsg("file exists but user requested no over-writing");
                 supply->setError(errMsg);
             }
-            throw EvioException("file " + currentFileName + " exists, but user requested no over-writing");
+            throw EvioException("file " + fileName + " exists, but user requested no over-writing");
         }
         currentFileName = fileName;
 
@@ -3312,7 +3310,7 @@ namespace evio {
             int bytes = RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber);
             bytesWritten += bytes;
             buffer->limit(bytesWritten);
-   }
+        }
         else {
             // Create the index of record lengths in proper byte order
             uint32_t arraySize = 4*recordLengths->size();
