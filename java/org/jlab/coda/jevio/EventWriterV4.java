@@ -39,21 +39,6 @@ import java.util.concurrent.Future;
 public class EventWriterV4 {
 
     /**
-	 * This <code>enum</code> denotes the status of a read. <br>
-	 * SUCCESS indicates a successful read/write. <br>
-	 * END_OF_FILE indicates that we cannot read because an END_OF_FILE has occurred. Technically this means that what
-	 * ever we are trying to read is larger than the buffer's unread bytes.<br>
-	 * EVIO_EXCEPTION indicates that an EvioException was thrown during a read, possibly due to out of range values,
-	 * such as a negative start position.<br>
-     * CANNOT_OPEN_FILE  that we cannot write because the destination file cannot be opened.<br>
-	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
-	 */
-	public enum IOStatus {
-		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, CANNOT_OPEN_FILE, UNKNOWN_ERROR
-	}
-
-
-    /**
      * Offset to where the block length is written in the byte buffer,
      * which always has a physical record header at the top.
      */
@@ -433,7 +418,8 @@ public class EventWriterV4 {
      *                 all events to be written will be appended to the
      *                 end of the file.
      *
-     * @throws EvioException file cannot be created
+     * @throws EvioException file cannot be created, or
+     *                       if appending and file is too small to be evio format;
      */
     public EventWriterV4(File file, boolean append) throws EvioException {
         this(file, DEFAULT_BLOCK_SIZE, DEFAULT_BLOCK_COUNT,
@@ -451,7 +437,8 @@ public class EventWriterV4 {
      *                   all events to be written will be appended to the
      *                   end of the file.
      *
-     * @throws EvioException file cannot be created
+     * @throws EvioException file cannot be created, or
+     *                       if appending and file is too small to be evio format;
      */
     public EventWriterV4(File file, String dictionary, boolean append) throws EvioException {
         this(file, DEFAULT_BLOCK_SIZE, DEFAULT_BLOCK_COUNT,
@@ -480,7 +467,8 @@ public class EventWriterV4 {
      *                 all events to be written will be appended to the
      *                 end of the file.
      *
-     * @throws EvioException file cannot be created
+     * @throws EvioException file cannot be created, or
+     *                       if appending and file is too small to be evio format;
      */
     public EventWriterV4(String filename, boolean append) throws EvioException {
         this(new File(filename), DEFAULT_BLOCK_SIZE, DEFAULT_BLOCK_COUNT,
@@ -499,7 +487,8 @@ public class EventWriterV4 {
      *                  end of the file.
      * @param byteOrder the byte order in which to write the file.
      *
-     * @throws EvioException file cannot be created
+     * @throws EvioException file cannot be created, or
+     *                       if appending and file is too small to be evio format;
      */
     public EventWriterV4(String filename, boolean append, ByteOrder byteOrder) throws EvioException {
         this(new File(filename), DEFAULT_BLOCK_SIZE, DEFAULT_BLOCK_COUNT,
@@ -593,6 +582,7 @@ public class EventWriterV4 {
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary while appending;
+     *                       if appending and file is too small to be evio format;
      *                       if file arg is null;
      *                       if file could not be opened or positioned;
      *                       if file exists but user requested no over-writing or appending.
@@ -766,6 +756,7 @@ public class EventWriterV4 {
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary while appending;
+     *                       if appending and file is too small to be evio format;
      *                       if splitting file while appending;
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
@@ -847,6 +838,7 @@ public class EventWriterV4 {
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary while appending;
+     *                       if appending and file is too small to be evio format;
      *                       if splitting file while appending;
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
@@ -935,6 +927,7 @@ public class EventWriterV4 {
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary or first event while appending;
+     *                       if appending and file is too small to be evio format;
      *                       if splitting file while appending;
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
@@ -1120,6 +1113,7 @@ public class EventWriterV4 {
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary or first event while appending;
+     *                       if appending and file is too small to be evio format;
      *                       if splitting file while appending;
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
@@ -1273,7 +1267,7 @@ public class EventWriterV4 {
                 // If we have an empty file, that's OK.
                 // Otherwise we have to examine it for compatibility
                 // and position ourselves for the first write.
-                if (asyncFileChannel.size() > 0) {
+                if (asyncFileChannel.size() >= 32) {
                     // Look at first block header to find endianness & version.
                     // Endianness given in constructor arg, when appending, is ignored.
                     examineFirstBlockHeader();
@@ -1295,6 +1289,10 @@ public class EventWriterV4 {
                     // Reset the buffer which has been used to read the header
                     // and to prepare the file for event writing.
                     buffer.clear();
+                }
+                else {
+                    // File is too small to be in proper evio format, exit now
+                    throw new EvioException("File too small to be evio format, cannot append");
                 }
             }
             // If not appending, file is created when data is flushed for the first time
@@ -1956,6 +1954,9 @@ public class EventWriterV4 {
      * By its nature this method is not useful for writing to a buffer since
      * it is never split and the event can be written to it as any other.<p>
      *
+     * Data is transferred byte for byte, so data better be in an endian
+     * compatible with the output of this writer.<p>
+     *
      * The method {@link #writeEvent} calls writeCommonBlock() which, in turn,
      * only gets called when synchronized. So synchronizing this method will
      * make sure firstEvent only gets set while nothing is being written.
@@ -2034,6 +2035,9 @@ public class EventWriterV4 {
      *
      * By its nature this method is not useful for writing to a buffer since
      * it is never split and the event can be written to it as any other.<p>
+     *
+     * Data is transferred byte for byte, so data better be in an endian
+     * compatible with the output of this writer.<p>
      *
      * The method {@link #writeEvent} calls writeCommonBlock() which, in turn,
      * only gets called when synchronized. So synchronizing this method will
@@ -2277,13 +2281,12 @@ public class EventWriterV4 {
      * the evio version # and endianness of the file or buffer in question. These things
      * do <b>not</b> need to be examined in subsequent block headers.
      *
-     * @return status of read attempt
-     * @throws IOException   if error reading file
-     * @throws EvioException if not in append mode;
-     *                       if file has bad format;
+     * @throws EvioException if error reading file/buffer;
+     *                       if not in append mode;
+     *                       if data has bad format, wrong version;
      */
-    protected synchronized IOStatus examineFirstBlockHeader()
-            throws IOException, EvioException {
+    protected synchronized void examineFirstBlockHeader()
+            throws EvioException {
 
         // Only for append mode
         if (!append) {
@@ -2303,7 +2306,7 @@ public class EventWriterV4 {
                 nBytes = f.get();
             }
             catch (Exception e) {
-                throw new IOException(e);
+                throw new EvioException(e);
             }
 
             // Check to see if we read the whole header
@@ -2315,7 +2318,7 @@ public class EventWriterV4 {
         else {
             // Have enough remaining bytes to read?
             if (buffer.remaining() < 32) {
-                return IOStatus.END_OF_FILE;
+                throw new EvioException("not enough data in buffer");
             }
             currentPosition = buffer.position();
         }
@@ -2328,7 +2331,7 @@ public class EventWriterV4 {
             // once we figure out what it is (buffer defaults to big endian).
             byteOrder = buffer.order();
             int magicNumber = buffer.getInt(currentPosition + MAGIC_OFFSET);
-//System.out.println("ERROR: magic # = " + Integer.toHexString(magicNumber));
+//System.out.println("magic # = " + Integer.toHexString(magicNumber));
 
             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
                 if (byteOrder == ByteOrder.BIG_ENDIAN) {
@@ -2343,22 +2346,22 @@ public class EventWriterV4 {
                 magicNumber = buffer.getInt(currentPosition + MAGIC_OFFSET);
 //System.out.println("Re read magic # = " + Integer.toHexString(magicNumber));
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-System.out.println("ERROR: reread magic # (" + magicNumber + ") & still not right");
-                    return IOStatus.EVIO_EXCEPTION;
+System.out.println("ERROR: reread magic # (" + Integer.toHexString(magicNumber) +
+                   ") & still not right");
+                    throw new EvioException("magic number bad value");
                 }
             }
 
             // Check the version number
-            int bitInfo = buffer.getInt(currentPosition + BIT_INFO_OFFSET);
-            int evioVersion = bitInfo & VERSION_MASK;
-            if (evioVersion < 4)  {
+            int bitInfoWord = buffer.getInt(currentPosition + BIT_INFO_OFFSET);
+            int evioVersion = bitInfoWord & VERSION_MASK;
+            if (evioVersion != 4)  {
 System.out.println("ERROR: evio version# = " + evioVersion);
-                return IOStatus.EVIO_EXCEPTION;
+                throw new EvioException("wrong evio version data, " + evioVersion);
             }
 
             // Is there a dictionary?
-            hasAppendDictionary = BlockHeaderV4.hasDictionary(bitInfo);
-
+            hasAppendDictionary = BlockHeaderV4.hasDictionary(bitInfoWord);
 
 //            int blockLen   = buffer.getInt(currentPosition + BLOCK_LENGTH_OFFSET);
 //            int headerLen  = buffer.getInt(currentPosition + HEADER_LENGTH_OFFSET);
@@ -2372,16 +2375,14 @@ System.out.println("ERROR: evio version# = " + evioVersion);
 //            System.out.println("headerLength    = " + headerLen);
 //            System.out.println("blockEventCount = " + eventCount);
 //            System.out.println("lastBlock       = " + lastBlock);
-//            System.out.println("bit info        = " + Integer.toHexString(bitInfo));
+//            System.out.println("bit info        = " + Integer.toHexString(bitInfoWord));
 //            System.out.println();
 
         }
         catch (BufferUnderflowException a) {
-System.err.println("ERROR endOfBuffer " + a);
-            return IOStatus.UNKNOWN_ERROR;
+System.err.println("ERROR endOfBuffer: " + a);
+            throw new EvioException("not enough data");
         }
-
-        return IOStatus.SUCCESS;
     }
 
 
@@ -2570,6 +2571,8 @@ System.err.println("ERROR endOfBuffer " + a);
                 catch (Exception e) {
                     throw new IOException(e);
                 }
+
+                buffer.clear();
 
                 // Hop over the entire block
 //System.out.println("toAppendPosition: wrote over last block's 6th word, hop over %d words" +
@@ -3758,7 +3761,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
     /**
      * Check if disk is able to store 1 full split, 1 max block, and 10MB buffer zone.
-     * @return  false if disk is not able to accommodate needs, else true.
+     * @return  true if disk is full and not able to accommodate needs, else false.
      */
     private boolean fullDisk() {
         // How much free space is available on the disk?
@@ -3944,6 +3947,9 @@ System.err.println("ERROR endOfBuffer " + a);
         bytesWrittenToFile  += bytesWritten;
         //bytesWrittenToFile  += 20;
         eventsWrittenToFile += eventsWrittenToBuffer;
+
+        //             // TODO: from C++ code, see if correct!: Look at this from the C code, it may be necessary!!
+        eventsWrittenTotal  += eventsWrittenToBuffer;
 
 //        if (debug) {
 //            System.out.println("    flushToFile: after last header written, Events written to:");
