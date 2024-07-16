@@ -2033,9 +2033,8 @@ public class EventWriterUnsyncV4 {
      * By its nature this method is not useful for writing to a buffer since
      * it is never split and the event can be written to it as any other.<p>
      *
-     * The method {@link #writeEvent} calls writeCommonBlock() which, in turn,
-     * only gets called when synchronized. So synchronizing this method will
-     * make sure firstEvent only gets set while nothing is being written.
+     * Do not call this while simultaneously calling
+     * close, flush, writeEvent, or getByteBuffer.
      *
      * @param buffer buffer containing event to be placed first in each file written
      *               including all splits. If null, no more first events are written
@@ -2048,7 +2047,7 @@ public class EventWriterUnsyncV4 {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    synchronized public void setFirstEvent(ByteBuffer buffer)
+    public void setFirstEvent(ByteBuffer buffer)
             throws EvioException, IOException {
 
         // If getting rid of the first event ...
@@ -3001,12 +3000,7 @@ System.err.println("ERROR endOfBuffer " + a);
         // It don't think it matters since node knows where to
         // go inside the buffer.
 //        if (!duplicate) {
-//            if (pos > origLim) {
-//                bb.position(origPos).limit(origLim);
-//            }
-//            else {
-//                bb.limit(origLim).position(origPos);
-//            }
+//            bb.limit(origLim).position(origPos);
 //        }
     }
 
