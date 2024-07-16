@@ -12,19 +12,10 @@
  */
 
 
-#include <string>
 #include <cstdint>
-#include <cstdlib>
-#include <cstdio>
 #include <memory>
 #include <limits>
-#include <cstdio>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <fstream>
-#include <sys/mman.h>
-#include <chrono>
 
 #include "eviocc.h"
 
@@ -62,25 +53,51 @@ namespace evio {
         uint32_t targetRecordBytes = 900000; // 900KB
         uint32_t bufferBytes = 1000000; // 1MB
 
-        EventWriter writer("./codaFileTestCC.ev", "", "", 1, 0, targetRecordBytes,
-                           100000, ByteOrder::ENDIAN_LOCAL, "", true, false,
-                           nullptr, 0, 0, 1, 1, Compressor::CompressionType::UNCOMPRESSED,
-                           0, 0, bufferBytes);
+        std::string fname = "./codaFileTestCC.ev";
 
-        std::cout << "Write little event 1" << std::endl;
-        writer.writeEventToFile(littleEvt, false, false);
-        // Delay between writes
-        //std::this_thread::sleep_for(std::chrono::seconds(2));
-        std::cout << "Write BIG event 1" << std::endl;
-        writer.writeEventToFile(bigEvt, false, false);
-        //std::this_thread::sleep_for(std::chrono::seconds(2));
-        std::cout << "Write little event 2" << std::endl;
-        writer.writeEventToFile(littleEvt, false, true);
-        //std::this_thread::sleep_for(std::chrono::seconds(2));
-        std::cout << "Write BIG event 2" << std::endl;
-        writer.writeEventToFile(bigEvt, false, true);
-        std::cout << "WRTER CLOSE" << std::endl;
-        writer.close();
+        int evioVersion = 4;
+
+        if (evioVersion == 4) {
+            EventWriterV4 writer(fname, "", "", 1, 0, targetRecordBytes,
+                                 100000, ByteOrder::ENDIAN_LOCAL, "", true, false,
+                                 nullptr, 0, 0, 1, 1, bufferBytes);
+
+            std::cout << "Write little event 1" << std::endl;
+            writer.writeEvent(littleEvt, false);
+            // Delay between writes
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::cout << "Write BIG event 1" << std::endl;
+            writer.writeEvent(bigEvt, false);
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::cout << "Write little event 2" << std::endl;
+            writer.writeEvent(littleEvt, true);
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::cout << "Write BIG event 2" << std::endl;
+            writer.writeEvent(bigEvt, true);
+            std::cout << "WRTER CLOSE" << std::endl;
+            writer.close();
+        }
+        else {
+            EventWriter writer(fname, "", "", 1, 0, targetRecordBytes,
+                                100000, ByteOrder::ENDIAN_LOCAL, "", true, false,
+                                nullptr, 1, 0, 1, 1, Compressor::CompressionType::UNCOMPRESSED,
+                                0, 0, bufferBytes);
+
+            std::cout << "Write little event 1" << std::endl;
+            writer.writeEventToFile(littleEvt, false, false);
+            // Delay between writes
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::cout << "Write BIG event 1" << std::endl;
+            writer.writeEventToFile(bigEvt, false, false);
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::cout << "Write little event 2" << std::endl;
+            writer.writeEventToFile(littleEvt, false, true);
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::cout << "Write BIG event 2" << std::endl;
+            writer.writeEventToFile(bigEvt, false, true);
+            std::cout << "WRTER CLOSE" << std::endl;
+            writer.close();
+        }
     }
 
 }
