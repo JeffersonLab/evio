@@ -6,9 +6,15 @@ import org.jlab.coda.jevio.*;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
+
 
 /**
  * Test program.
@@ -17,8 +23,53 @@ import java.util.List;
  */
 public class FileTest {
 
+
+
+    /**
+     * Test how the AsynchronousFileChannel affect its ByteBuffer arg
+     * when reading and writing. Does buffer position advance on write?
+     * on read?
+     *
+     * @param args
+     */
+    public static void main(String args[]) throws IOException {
+        String fileName = "/tmp/fileTest";
+
+        Path currentFilePath = Paths.get(fileName);
+        File currentFile = currentFilePath.toFile();
+
+        ByteBuffer buffer = ByteBuffer.allocate(64);
+
+        buffer.putInt(1);
+        buffer.flip();
+
+        System.out.println("Before write pos = " + buffer.position() + ", remaining = " + buffer.remaining());
+
+        // For reading existing file and preparing for stream writes
+        AsynchronousFileChannel asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                StandardOpenOption.READ,
+                StandardOpenOption.WRITE);
+
+
+        Future<Integer> future = asyncFileChannel.write(buffer, 0);
+
+        try {
+            int partial = future.get();
+        }
+        catch (Exception e) {
+            throw new IOException(e);
+        }
+
+        asyncFileChannel.write(buffer, 0);
+        asyncFileChannel.close();
+
+        System.out.println("After write pos = " + buffer.position());
+    }
+
+
+
     /** For WRITING a local file. */
-    public static void main1(String args[]) {
+    public static void main4(String args[]) {
         File f = new File("/dev/shm/someTestFile");
         long freeSpace = f.getFreeSpace();
         File f2 = new File("/dev/shm");
@@ -35,7 +86,7 @@ public class FileTest {
     /**
      * For WRITING an event too large for the desired record size.
      */
-    public static void main(String args[]) {
+    public static void main5(String args[]) {
 
         // String fileName  = "./myData.ev";
         String fileName  = "./codaFileTest.ev";
@@ -90,12 +141,10 @@ public class FileTest {
     }
 
 
-
-
     /**
      * For WRITING an event too large for the desired record size.
      */
-    public static void main0(String args[]) {
+    public static void main6(String args[]) {
 
         // String fileName  = "./myData.ev";
         String fileName  = "./codaFileTest.ev";
@@ -213,7 +262,7 @@ public class FileTest {
      * For WRITING a single event repeatedly to a local file in order to
      * test the file structure to see if record sizes are correct.
      */
-    public static void main11(String args[]) {
+    public static void main7(String args[]) {
 
         // String fileName  = "./myData.ev";
         String fileName  = "./codaFileTest.ev";
@@ -266,7 +315,7 @@ public class FileTest {
 
 
     /** For WRITING a local file. */
-    public static void main2(String args[]) {
+    public static void main8(String args[]) {
 
         // String fileName  = "./myData.ev";
         String fileName  = "/home/timmer/fileTestSmall.ev";
