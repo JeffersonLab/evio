@@ -192,6 +192,7 @@ set(TEST
         src/test/Writer_Reader_Test.cpp
         src/test/hallDEventFiles.cpp
         src/test/FileWriteTest.cpp
+        src/test/WriteV4Test.cpp
         )
 
 
