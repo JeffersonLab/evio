@@ -27,6 +27,7 @@
 #include "EventHeaderParser.h"
 #include "EventParser.h"
 #include "EventWriter.h"
+#include "EventWriterV4.h"
 
 #include "EvioBank.h"
 #include "EvioCompactReader.h"
