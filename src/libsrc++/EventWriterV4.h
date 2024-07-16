@@ -503,7 +503,7 @@ namespace evio {
                           const std::string & xmlDictionary = "",
                           bool overWriteOK = true, bool append = false,
                           std::shared_ptr<EvioBank> firstEvent = nullptr,
-                          uint32_t streamId = 1, uint32_t splitNumber = 0,
+                          uint32_t streamId = 0, uint32_t splitNumber = 0,
                           uint32_t splitIncrement = 1, uint32_t streamCount = 1,
                           uint32_t bufferSize = DEFAULT_BUFFER_SIZE,
                           std::bitset<24> *bitInfo = nullptr);
@@ -543,7 +543,7 @@ namespace evio {
             void setBuffer(std::shared_ptr<ByteBuffer> buf, std::bitset < 24 > *bitInfo, int blockNumber);
             void setBuffer(std::shared_ptr<ByteBuffer> buf);
             std::shared_ptr<ByteBuffer> getByteBuffer();
-            bool toFile2() const;
+            bool isToFile() const;
             bool isClosed();
             std::string getCurrentFilename() const;
             std::string getCurrentFilePath() const;
@@ -553,16 +553,15 @@ namespace evio {
             uint32_t getEventsWritten() const;
             ByteOrder getByteOrder() const;
             void setStartingBlockNumber(int startingBlockNumber);
+
             void setFirstEvent(std::shared_ptr<EvioNode> node);
-
-            // TODO: this synchronized appears in EventWriterUnsyncV4 ????
-
-            /*synchronized*/       void setFirstEvent(std::shared_ptr<ByteBuffer> buffer);
-
+            void setFirstEvent(std::shared_ptr<ByteBuffer> buffer);
             void setFirstEvent(std::shared_ptr<EvioBank> bank);
+
             void flush();
             void close();
             bool hasRoom(int bytes);
+
             bool writeEvent(std::shared_ptr<EvioNode> node, bool force);
             bool writeEvent(std::shared_ptr<EvioNode> node, bool force, bool duplicate);
             bool writeEventToFile(std::shared_ptr<EvioNode> node, bool force, bool duplicate);

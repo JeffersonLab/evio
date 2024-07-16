@@ -767,7 +767,7 @@ namespace evio {
         // It does NOT make sense to give the caller the internal buffer
         // used in writing to files. That buffer may contain nothing and
         // most probably won't contain the full file contents.
-        if (toFile2()) return nullptr;
+        if (isToFile()) return nullptr;
 
         std::lock_guard<std::recursive_mutex> lock(mtx);
 
@@ -787,7 +787,7 @@ namespace evio {
      * Is this object writing to file?
      * @return {@code true} if writing to file, else {@code false}.
      */
-    bool EventWriterV4::toFile2() const {return toFile;}
+    bool EventWriterV4::isToFile() const {return toFile;}
 
 
     /**
@@ -1882,7 +1882,7 @@ namespace evio {
     bool EventWriterV4::hasRoom(int bytes) {
         //System.out.println("Buffer size = " + bufferSize + ", bytesWritten = " + bytesWrittenToBuffer +
         //        ", <? " + (bytes + headerBytes));
-        return toFile2() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
+        return isToFile() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
     }
 
     /**
@@ -1949,8 +1949,8 @@ namespace evio {
             }
             else {
                 eventBuffer = bb;
-                //            origLim = bb.limit();
-                //            origPos = bb.position();
+                //            origLim = bb->limit();
+                //            origPos = bb->position();
             }
 
             int pos = node->getPosition();
@@ -1961,12 +1961,7 @@ namespace evio {
             // It don't think it matters since node knows where to
             // go inside the buffer.
             //        if (!duplicate) {
-            //            if (pos > origLim) {
-            //                bb->position(origPos).limit(origLim);
-            //            }
-            //            else {
-            //                bb->limit(origLim).position(origPos);
-            //            }
+            //            bb->limit(origLim).position(origPos);
             //        }
     }
 
