@@ -185,7 +185,7 @@ namespace evio {
         bool operator==(const EvioNode& src) const;
 
         EvioNode & shift(int deltaPos);
-        std::string toString();
+        std::string toString() const;
 
         void clearLists();
         void clear();

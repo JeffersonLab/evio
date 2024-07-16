@@ -194,7 +194,9 @@ namespace evio {
      * @return left side object.
      */
     EvioNode & EvioNode::operator=(const EvioNode& src) {
-        copy(src);
+        if (this != &src) {
+            copy(src);
+        }
         return *this;
     }
 
@@ -240,7 +242,7 @@ namespace evio {
      * Get a string representation of this object.
      * @return a string representation of this object.
      */
-    std::string EvioNode::toString() {
+    std::string EvioNode::toString() const {
         std::stringstream ss;
 
         ss << "tag = "          << tag;
