@@ -21,7 +21,7 @@ namespace evio {
      * bank. Often an event is a bank of banks, so typically this will be DataType.BANK, or 0xe (14).
      * @param num often an ordinal enumeration.
      */
-    EventBuilder::EventBuilder(uint16_t tag, DataType const dataType, uint8_t num) {
+    EventBuilder::EventBuilder(uint16_t tag, DataType const & dataType, uint8_t num) {
         // create an event with the correct header data
         event = EvioEvent::getInstance(tag, dataType, num);
     }
