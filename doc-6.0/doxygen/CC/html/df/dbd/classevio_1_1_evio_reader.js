@@ -26,7 +26,7 @@ var classevio_1_1_evio_reader =
     [ "getFirstBlockHeader", "df/dbd/classevio_1_1_evio_reader.html#aded1f68d418ccb54f353643a62c14faf", null ],
     [ "getFirstEvent", "df/dbd/classevio_1_1_evio_reader.html#af7c31b6e809f3bcedb96a511da2f1349", null ],
     [ "getNumEventsRemaining", "df/dbd/classevio_1_1_evio_reader.html#ac131179b4f5f81a5f9ec1488a1e496ef", null ],
-    [ "getParser", "df/dbd/classevio_1_1_evio_reader.html#aabdb4f66fe0e0abed96f77b3c7aa4076", null ],
+    [ "getParser", "df/dbd/classevio_1_1_evio_reader.html#ac704be85fb4af5b28a4b29d4ab36f3f7", null ],
     [ "getPath", "df/dbd/classevio_1_1_evio_reader.html#a1ea744a04271cd8ab73c5a9bfd2a7937", null ],
     [ "gotoEventNumber", "df/dbd/classevio_1_1_evio_reader.html#a826eddabec339a7ce8db233cac4f57b4", null ],
     [ "hasDictionaryXML", "df/dbd/classevio_1_1_evio_reader.html#a154cbf270dd4e877a87d7bc159055f80", null ],
@@ -39,6 +39,8 @@ var classevio_1_1_evio_reader =
     [ "parseNextEvent", "df/dbd/classevio_1_1_evio_reader.html#ab05dbae2179ab093e95ba3bb610f9af8", null ],
     [ "position", "df/dbd/classevio_1_1_evio_reader.html#a22dbfd15bd8796cb6d4e969ee6237c53", null ],
     [ "rewind", "df/dbd/classevio_1_1_evio_reader.html#a7bbc59a18c152d62fd22e685c76a7ede", null ],
-    [ "setBuffer", "df/dbd/classevio_1_1_evio_reader.html#afed8ca62161373d9429747cd44f923ad", null ],
-    [ "setParser", "df/dbd/classevio_1_1_evio_reader.html#a29afb006cfc6bbca0e92ca85a8cd2724", null ]
+    [ "setBuffer", "df/dbd/classevio_1_1_evio_reader.html#a1018ab2d476c0638970ef40a7fb5e45f", null ],
+    [ "setBuffer", "df/dbd/classevio_1_1_evio_reader.html#a1bc46b1f0c20379d11d93bd2591f9640", null ],
+    [ "setParser", "df/dbd/classevio_1_1_evio_reader.html#a906861412ddde5f377d529e2ce691a71", null ],
+    [ "setParser", "df/dbd/classevio_1_1_evio_reader.html#a692705d90733d66d13e6afa81f24679e", null ]
 ];
