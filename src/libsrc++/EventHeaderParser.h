@@ -102,7 +102,7 @@ namespace evio {
             int padding = dt >> 6;
             header->setDataType(type);
             header->setPadding(padding);
-            header->setTag(word >> 24);
+            header->setTag((word >> 24) & 0xff);
 
             return header;
         }
@@ -128,7 +128,7 @@ namespace evio {
             uint32_t len = word & 0xffff;
             header->setLength(len);
             header->setDataType((word >> 16) & 0xf);
-            header->setTag(word >> 20);
+            header->setTag((word >> 20) & 0xfff);
 
             return header;
         }
