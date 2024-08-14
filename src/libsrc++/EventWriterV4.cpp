@@ -359,6 +359,7 @@ namespace evio {
             firstEventBuf->order(byteOrder);
             firstEvent->write(firstEventBuf);
             // copy data into vector
+            firstEventByteArray.resize(firstEventBytes);
             std::copy(firstEventBuf->array(), firstEventBuf->array() + firstEventBytes, firstEventByteArray.begin());
             commonBlockByteSize += firstEventBytes;
             commonBlockCount++;
