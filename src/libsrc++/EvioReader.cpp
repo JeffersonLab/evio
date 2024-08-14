@@ -116,7 +116,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioReader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {reader->setBuffer(buf);}
+    void EvioReader::setBuffer(std::shared_ptr<ByteBuffer> buf) {reader->setBuffer(buf);}
 
     /** {@inheritDoc} */
     /*synchronized*/ bool EvioReader::isClosed() {return reader->isClosed();}
@@ -134,10 +134,10 @@ namespace evio {
     std::string EvioReader::getPath() {return reader->getPath();}
 
     /** {@inheritDoc} */
-    std::shared_ptr<EventParser> & EvioReader::getParser() {return reader->getParser();}
+    std::shared_ptr<EventParser> EvioReader::getParser() {return reader->getParser();}
 
     /** {@inheritDoc} */
-    void EvioReader::setParser(std::shared_ptr<EventParser> & evParser) {reader->setParser(evParser);}
+    void EvioReader::setParser(std::shared_ptr<EventParser> evParser) {reader->setParser(evParser);}
 
     /** {@inheritDoc} */
     std::string EvioReader::getDictionaryXML() {return reader->getDictionaryXML();}
@@ -219,7 +219,7 @@ namespace evio {
 
         // Read and parse second header word
         int word = Util::toInt(src + 4, order);
-        header->setTag((word >> 16) & 0xfff);
+        header->setTag(word >> 16);
         int dt = (word >> 8) & 0xff;
         header->setDataType(dt & 0x3f);
         header->setPadding(dt >> 6);
