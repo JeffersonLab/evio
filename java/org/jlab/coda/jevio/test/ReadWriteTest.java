@@ -558,7 +558,7 @@ public class ReadWriteTest {
         ByteBuffer buffer = ByteBuffer.allocate(bufSize);
         buffer.order(order);
 
-        boolean compressed = true;
+        boolean compressed = false;
 
         if (!compressed) {
 
