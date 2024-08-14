@@ -123,13 +123,26 @@ namespace evio {
         class EventWriterV4 {
 
 
-            private:
+        public:
 
             /**
-             * Mutex to protect close, flush, isClosed, writeEvent, getByteBuffer, setFirstEvent,
-             * and examineFirstBlockHeader from stepping on each other's toes.
+              * The default maximum size, in bytes, for a single block used for writing.
+              * It's set to 16MB since that's an efficient number for writing to modern disks.
+              * It is a soft limit since a single event larger than this limit may need to be written.
+              */
+            static const int DEFAULT_BLOCK_SIZE = 16000000;
+
+            /** The default maximum event count for a single block used for writing. */
+            static const int DEFAULT_BLOCK_COUNT = 10000;
+
+            /**
+             * The default byte size of internal buffer.
+             * It's enforced to be, at a minimum, DEFAULT_BLOCK_SIZE + a little.
              */
-            std::recursive_mutex mtx;
+            static const int DEFAULT_BUFFER_SIZE = DEFAULT_BLOCK_SIZE + 1024;
+
+
+        private:
 
             /**
              * Offset to where the block length is written in the byte buffer,
@@ -176,23 +189,7 @@ namespace evio {
             /** Mask to get version number from 6th int in block. */
             static const int VERSION_MASK = 0xff;
 
-            /**
-             * The default maximum size, in bytes, for a single block used for writing.
-             * It's set to 16MB since that's an efficient number for writing to modern disks.
-             * It is a soft limit since a single event larger than this limit may need to be written.
-             */
-            static const int DEFAULT_BLOCK_SIZE = 16000000;
-
-            /** The default maximum event count for a single block used for writing. */
-            static const int DEFAULT_BLOCK_COUNT = 10000;
-
-            /**
-             * The default byte size of internal buffer.
-             * It's enforced to be, at a minimum, DEFAULT_BLOCK_SIZE + a little.
-             */
-            static const int DEFAULT_BUFFER_SIZE = DEFAULT_BLOCK_SIZE + 1024;
-
-            /**
+             /**
              * The upper limit of maximum size for a single block used for writing
              * is randomly chosen to be 10*16MB = 160MB.
              * It is a soft limit since a single event larger than this limit
@@ -220,6 +217,14 @@ namespace evio {
             /** Turn on or off the debug printout. */
             static const bool debug = false;
 
+
+        private:
+
+            /**
+             * Mutex to protect close, flush, isClosed, writeEvent, getByteBuffer, setFirstEvent,
+             * and examineFirstBlockHeader from stepping on each other's toes.
+             */
+            std::recursive_mutex mtx;
 
 
             /**
