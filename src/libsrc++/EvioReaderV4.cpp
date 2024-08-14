@@ -332,7 +332,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-   void EvioReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+   void EvioReaderV4::setBuffer(std::shared_ptr<ByteBuffer> buf) {
         close();
 
         if (buf == nullptr) {
@@ -391,11 +391,11 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<EventParser> & EvioReaderV4::getParser() {return parser;}
+    std::shared_ptr<EventParser> EvioReaderV4::getParser() {return parser;}
 
 
     /** {@inheritDoc} */
-    void EvioReaderV4::setParser(std::shared_ptr<EventParser> & evParser) {parser = evParser;}
+    void EvioReaderV4::setParser(std::shared_ptr<EventParser> evParser) {parser = evParser;}
 
 
     /** {@inheritDoc} */
@@ -953,7 +953,7 @@ namespace evio {
 
         // Read and parse second header word
         uint32_t word = byteBuffer->getUInt();
-        header->setTag((word >> 16) & 0xfff);
+        header->setTag(word >> 16);
         int dt = (word >> 8) & 0xff;
         // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
         // This regularly happens with composite data.
@@ -1074,7 +1074,7 @@ namespace evio {
 
         // Read and parse second header word
         uint32_t word = byteBuffer->getUInt();
-        header->setTag((word >> 16) & 0xfff);
+        header->setTag(word >> 16);
         int dt = (word >> 8) & 0xff;
         header->setDataType(dt & 0x3f);
         header->setPadding(dt >> 6);
