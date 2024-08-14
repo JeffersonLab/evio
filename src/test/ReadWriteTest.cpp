@@ -164,7 +164,9 @@ namespace evio {
 
         std::shared_ptr<ByteBuffer> generateEvioBuffer(ByteOrder & order, uint16_t tag, uint8_t num) {
 
-            CompactEventBuilder builder(buffer);
+            std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(200000);
+            buf->order(order);
+            CompactEventBuilder builder(buf);
 
             // add top/event level bank of banks
             builder.openBank(tag, DataType::BANK, num);
