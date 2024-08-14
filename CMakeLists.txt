@@ -185,6 +185,7 @@ set(TEST
         src/test/IndexArrayLenTest.cpp
         src/test/ReadTest.cpp
         src/test/ReadWriteTest.cpp
+        src/test/ReadWriteV4Test.cpp
         src/test/RecordSupplyTest.cpp
         src/test/RingBufferTest.cpp
         src/test/Tree_Buf_Composite_Builder_Test.cpp
