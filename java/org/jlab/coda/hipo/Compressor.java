@@ -84,66 +84,64 @@ public class Compressor {
         lz4_compressor_best = factory.highCompressor();
         lz4_decompressor = factory.safeDecompressor();
 
-        // Check for an AHA374 FPGA data compression board for hardware (de)compression.
-        // Only want to do this once. Need the jar which uses native methods,
-        // the C lib which it wraps using jni, and the C lib which does the compression.
-        // Both C libs must have their directory in LD_LIBRARY_PATH for this to work!
-        try {
-            // Call this instead of AHACompressionAPI.LoadAHALibrary("");
-            System.loadLibrary("aha_compression_api");
-
-            AHACompressionAPI apiObj = new AHACompressionAPI();
-            ByteBuffer as = ByteBuffer.allocateDirect(8);
-            as.order(ByteOrder.nativeOrder());
-            int rv = AHACompressionAPI.Open(apiObj, as, 0, 0);
-            System.out.println("rv = " + rv);
-
-             rv = 0;
-             String betaString;
-             ByteBuffer versionArg;
-             int versionArgSize = 89;
-             versionArg = ByteBuffer.allocateDirect(versionArgSize);
-             versionArg.order(ByteOrder.nativeOrder());
-
-             long longrv = AHACompressionAPI.Version(apiObj, as, versionArg);
-             if(longrv != 0){
-               rv = -1;
-             }
-
-             int loopMax = versionArg.get(8);
-             if(versionArg.get(0) != 0){
-               betaString = " Beta " + versionArg.get(0);
-             }else{
-                 betaString = "";
-             }
-
-            String receivedDriverVersion = (versionArg.get(3) + "." + versionArg.get(2) + "." + versionArg.get(1) + betaString);
-            String receivedReleaseDate = versionArg.get(5) + "/" + versionArg.get(4) + "/" + getYear(versionArg);
-            String receivedNumBoards = "" + versionArg.get(8);
-
-            System.out.println("driver version  = " + receivedDriverVersion);
-            System.out.println("release date    = " + receivedReleaseDate);
-            System.out.println("number of chips = " + receivedNumBoards);
-
-            for(int j = 0; j < loopMax; j++){
-                String receivedHwRevisionId = String.format("0x%02X", getRevisionId(versionArg, j));
-                String receivedHwSubsystemId = String.format("0x%04X", getSubsystemId(versionArg, j));
-                String receivedHwDeviceId = String.format("0x%04X", getDeviceId(versionArg, j));
-                System.out.println("revision  id (" + j + ")= " + receivedHwRevisionId);
-                System.out.println("subsystem id (" + j + ")= " + receivedHwSubsystemId);
-                System.out.println("device    id (" + j + ")= " + receivedHwDeviceId);
-            }
-
-
-
-            haveHardwareGzipCompression = true;
-            System.out.println("\nSuccessfully loaded aha3xx jni shared lib for gzip hardware compression available\n");
-        }
-        catch (Error e) {
-            // If the library cannot be found, we can still do compression -
-            // just not with the AHA374 compression board.
-            System.out.println("\nCannot load aha3xx jni shared lib so no gzip hardware compression available\n");
-        }
+//         // Check for an AHA374 FPGA data compression board for hardware (de)compression.
+//         // Only want to do this once. Need the jar which uses native methods,
+//         // the C lib which it wraps using jni, and the C lib which does the compression.
+//         // Both C libs must have their directory in LD_LIBRARY_PATH for this to work!
+//         try {
+//             // Call this instead of AHACompressionAPI.LoadAHALibrary("");
+//             System.loadLibrary("aha_compression_api");
+//
+//             AHACompressionAPI apiObj = new AHACompressionAPI();
+//             ByteBuffer as = ByteBuffer.allocateDirect(8);
+//             as.order(ByteOrder.nativeOrder());
+//             int rv = AHACompressionAPI.Open(apiObj, as, 0, 0);
+//             System.out.println("rv = " + rv);
+//
+//              rv = 0;
+//              String betaString;
+//              ByteBuffer versionArg;
+//              int versionArgSize = 89;
+//              versionArg = ByteBuffer.allocateDirect(versionArgSize);
+//              versionArg.order(ByteOrder.nativeOrder());
+//
+//              long longrv = AHACompressionAPI.Version(apiObj, as, versionArg);
+//              if(longrv != 0){
+//                rv = -1;
+//              }
+//
+//              int loopMax = versionArg.get(8);
+//              if(versionArg.get(0) != 0){
+//                betaString = " Beta " + versionArg.get(0);
+//              }else{
+//                  betaString = "";
+//              }
+//
+//             String receivedDriverVersion = (versionArg.get(3) + "." + versionArg.get(2) + "." + versionArg.get(1) + betaString);
+//             String receivedReleaseDate = versionArg.get(5) + "/" + versionArg.get(4) + "/" + getYear(versionArg);
+//             String receivedNumBoards = "" + versionArg.get(8);
+//
+//             System.out.println("driver version  = " + receivedDriverVersion);
+//             System.out.println("release date    = " + receivedReleaseDate);
+//             System.out.println("number of chips = " + receivedNumBoards);
+//
+//             for(int j = 0; j < loopMax; j++){
+//                 String receivedHwRevisionId = String.format("0x%02X", getRevisionId(versionArg, j));
+//                 String receivedHwSubsystemId = String.format("0x%04X", getSubsystemId(versionArg, j));
+//                 String receivedHwDeviceId = String.format("0x%04X", getDeviceId(versionArg, j));
+//                 System.out.println("revision  id (" + j + ")= " + receivedHwRevisionId);
+//                 System.out.println("subsystem id (" + j + ")= " + receivedHwSubsystemId);
+//                 System.out.println("device    id (" + j + ")= " + receivedHwDeviceId);
+//             }
+//
+//             haveHardwareGzipCompression = true;
+//             System.out.println("\nSuccessfully loaded aha3xx jni shared lib for gzip hardware compression available\n");
+//         }
+//         catch (Error e) {
+//             // If the library cannot be found, we can still do compression -
+//             // just not with the AHA374 compression board.
+//             System.out.println("\nCannot load aha3xx jni shared lib so no gzip hardware compression available\n");
+//         }
     }
 
     
