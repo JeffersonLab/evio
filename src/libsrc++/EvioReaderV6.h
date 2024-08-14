@@ -76,15 +76,15 @@ namespace evio {
         explicit EvioReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkRecNumSeq = false, bool synced = false);
 
 
-        void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
+        void setBuffer(std::shared_ptr<ByteBuffer> buf) override ;
         bool isClosed() override ;
         bool checkBlockNumberSequence() override ;
         ByteOrder & getByteOrder() override ;
         uint32_t getEvioVersion() override ;
         std::string getPath()override ;
 
-        std::shared_ptr<EventParser> & getParser() override ;
-        void setParser(std::shared_ptr<EventParser> & evParser) override ;
+        std::shared_ptr<EventParser> getParser() override ;
+        void setParser(std::shared_ptr<EventParser> evParser) override ;
 
         std::string getDictionaryXML() override ;
         bool hasDictionaryXML() override ;

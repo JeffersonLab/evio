@@ -65,7 +65,7 @@ namespace evio {
          * @throws EvioException if buf is null; buf not in proper format;
          *                       if first record/block number != 1 when checkRecNumSeq arg is true.
          */
-        virtual void setBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
+        virtual void setBuffer(std::shared_ptr<ByteBuffer> buf) = 0;
 
         /**
          * Has {@link #close()} been called (without reopening by calling
@@ -104,13 +104,13 @@ namespace evio {
          * Get the file/buffer parser.
          * @return file/buffer parser.
          */
-        virtual std::shared_ptr<EventParser> & getParser() = 0;
+        virtual std::shared_ptr<EventParser> getParser() = 0;
 
         /**
          * Set the file/buffer parser.
          * @param evParser file/buffer parser.
          */
-        virtual void setParser(std::shared_ptr<EventParser> & evParser) = 0;
+        virtual void setParser(std::shared_ptr<EventParser> evParser) = 0;
 
         /**
          * Get the XML format dictionary if there is one.
