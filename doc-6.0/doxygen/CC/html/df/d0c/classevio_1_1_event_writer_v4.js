@@ -34,5 +34,8 @@ var classevio_1_1_event_writer_v4 =
     [ "writeEvent", "df/d0c/classevio_1_1_event_writer_v4.html#a24fcc4733b8d41a9f22d65dc5658f814", null ],
     [ "writeEvent", "df/d0c/classevio_1_1_event_writer_v4.html#aac505c2214f2186d1ae0c3746ea5da32", null ],
     [ "writeEventToFile", "df/d0c/classevio_1_1_event_writer_v4.html#a91a60f2e6b593beb1b924d441daf1b7d", null ],
-    [ "writeEventToFile", "df/d0c/classevio_1_1_event_writer_v4.html#a7ded2b8346e365604451eb7bb3bfc09d", null ]
+    [ "writeEventToFile", "df/d0c/classevio_1_1_event_writer_v4.html#a7ded2b8346e365604451eb7bb3bfc09d", null ],
+    [ "DEFAULT_BLOCK_COUNT", "df/d0c/classevio_1_1_event_writer_v4.html#a62cee800a3d132f0c11e23393c236f7f", null ],
+    [ "DEFAULT_BLOCK_SIZE", "df/d0c/classevio_1_1_event_writer_v4.html#a17b6bc167b1261c0c06f0cc655715c95", null ],
+    [ "DEFAULT_BUFFER_SIZE", "df/d0c/classevio_1_1_event_writer_v4.html#abf442c2f2b3519599a538bb18bb5512c", null ]
 ];

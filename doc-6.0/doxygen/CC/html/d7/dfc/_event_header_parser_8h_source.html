@@ -162,7 +162,7 @@ $(document).ready(function(){initNavTree('d7/dfc/_event_header_parser_8h_source.
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;            <span class="keywordtype">int</span> padding = dt &gt;&gt; 6;</div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;            header-&gt;setDataType(type);</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;            header-&gt;setPadding(padding);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;            header-&gt;setTag(word &gt;&gt; 24);</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;            header-&gt;setTag((word &gt;&gt; 24) &amp; 0xff);</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;            <span class="keywordflow">return</span> header;</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;        }</div>
@@ -179,7 +179,7 @@ $(document).ready(function(){initNavTree('d7/dfc/_event_header_parser_8h_source.
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;            uint32_t len = word &amp; 0xffff;</div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;            header-&gt;setLength(len);</div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;            header-&gt;setDataType((word &gt;&gt; 16) &amp; 0xf);</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            header-&gt;setTag(word &gt;&gt; 20);</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            header-&gt;setTag((word &gt;&gt; 20) &amp; 0xfff);</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160; </div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;            <span class="keywordflow">return</span> header;</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;        }</div>

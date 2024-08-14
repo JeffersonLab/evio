@@ -19,11 +19,14 @@ var searchData=
   ['datatype_2ecpp_159',['DataType.cpp',['../de/ddd/_data_type_8cpp.html',1,'']]],
   ['datatype_2eh_160',['DataType.h',['../db/da7/_data_type_8h.html',1,'']]],
   ['dbl_161',['dbl',['../d3/dd7/unionevio_1_1_composite_data_1_1_single_member.html#a60ade2dc284aaa06115147af561128ea',1,'evio::CompositeData::SingleMember']]],
-  ['default_5fread_5fbytes_162',['DEFAULT_READ_BYTES',['../dd/db3/classevio_1_1_evio_reader_v4.html#a9baf7d5622c18daa125528639ffd8f27',1,'evio::EvioReaderV4']]],
-  ['deprecated_20list_163',['Deprecated List',['../da/d58/deprecated.html',1,'']]],
-  ['dictionary_5fbit_164',['DICTIONARY_BIT',['../d8/d64/classevio_1_1_record_header.html#a0acd86bd77c7a853b56ecfd981161469',1,'evio::RecordHeader::DICTIONARY_BIT()'],['../d1/da6/classevio_1_1_file_header.html#a1a268f67ad00710c9d815e25aff4c12c',1,'evio::FileHeader::DICTIONARY_BIT()']]],
-  ['difference_5ftype_165',['difference_type',['../d9/ddd/classevio_1_1_base_structure.html#a49ba916414823d231113d835a9b7620f',1,'evio::BaseStructure']]],
-  ['double64_166',['DOUBLE64',['../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812',1,'evio::DataType']]],
-  ['doubledata_167',['doubleData',['../d9/ddd/classevio_1_1_base_structure.html#a88f301e38ebcc137ed91b13ffbb7b6b1',1,'evio::BaseStructure']]],
-  ['duplicate_168',['duplicate',['../dc/d30/classevio_1_1_byte_buffer.html#a769cd08ef3d2320b1f21d33c528dc054',1,'evio::ByteBuffer::duplicate(ByteBuffer &amp;destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#a647bf609c9b5c19403938ef2bbe7f0bc',1,'evio::ByteBuffer::duplicate(std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#aab31b6bac664b8cf8bd9dbba1d319045',1,'evio::ByteBuffer::duplicate()']]]
+  ['default_5fblock_5fcount_162',['DEFAULT_BLOCK_COUNT',['../df/d0c/classevio_1_1_event_writer_v4.html#a62cee800a3d132f0c11e23393c236f7f',1,'evio::EventWriterV4']]],
+  ['default_5fblock_5fsize_163',['DEFAULT_BLOCK_SIZE',['../df/d0c/classevio_1_1_event_writer_v4.html#a17b6bc167b1261c0c06f0cc655715c95',1,'evio::EventWriterV4']]],
+  ['default_5fbuffer_5fsize_164',['DEFAULT_BUFFER_SIZE',['../df/d0c/classevio_1_1_event_writer_v4.html#abf442c2f2b3519599a538bb18bb5512c',1,'evio::EventWriterV4']]],
+  ['default_5fread_5fbytes_165',['DEFAULT_READ_BYTES',['../dd/db3/classevio_1_1_evio_reader_v4.html#a9baf7d5622c18daa125528639ffd8f27',1,'evio::EvioReaderV4']]],
+  ['deprecated_20list_166',['Deprecated List',['../da/d58/deprecated.html',1,'']]],
+  ['dictionary_5fbit_167',['DICTIONARY_BIT',['../d1/da6/classevio_1_1_file_header.html#a1a268f67ad00710c9d815e25aff4c12c',1,'evio::FileHeader::DICTIONARY_BIT()'],['../d8/d64/classevio_1_1_record_header.html#a0acd86bd77c7a853b56ecfd981161469',1,'evio::RecordHeader::DICTIONARY_BIT()']]],
+  ['difference_5ftype_168',['difference_type',['../d9/ddd/classevio_1_1_base_structure.html#a49ba916414823d231113d835a9b7620f',1,'evio::BaseStructure']]],
+  ['double64_169',['DOUBLE64',['../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812',1,'evio::DataType']]],
+  ['doubledata_170',['doubleData',['../d9/ddd/classevio_1_1_base_structure.html#a88f301e38ebcc137ed91b13ffbb7b6b1',1,'evio::BaseStructure']]],
+  ['duplicate_171',['duplicate',['../dc/d30/classevio_1_1_byte_buffer.html#a769cd08ef3d2320b1f21d33c528dc054',1,'evio::ByteBuffer::duplicate(ByteBuffer &amp;destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#a647bf609c9b5c19403938ef2bbe7f0bc',1,'evio::ByteBuffer::duplicate(std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#aab31b6bac664b8cf8bd9dbba1d319045',1,'evio::ByteBuffer::duplicate()']]]
 ];
