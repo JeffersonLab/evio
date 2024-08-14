@@ -105,10 +105,10 @@ public class EventWriterUnsyncV4 {
      * It is a soft limit since a single
      * event larger than this limit may need to be written.
      */
-    static final int DEFAULT_BLOCK_SIZE = 4194304;
+    public static final int DEFAULT_BLOCK_SIZE = 4194304;
 
     /** The default maximum event count for a single block used for writing. */
-    static final int DEFAULT_BLOCK_COUNT = 10000;
+    public static final int DEFAULT_BLOCK_COUNT = 10000;
 
     /**
      * The upper limit of maximum size for a single block used for writing
