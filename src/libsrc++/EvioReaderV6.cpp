@@ -65,7 +65,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioReaderV6::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+    void EvioReaderV6::setBuffer(std::shared_ptr<ByteBuffer> buf) {
         if (synchronized) {
             const std::lock_guard<std::mutex> lock(mtx);
         }
@@ -100,11 +100,11 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<EventParser> & EvioReaderV6::getParser() {return parser;}
+    std::shared_ptr<EventParser> EvioReaderV6::getParser() {return parser;}
 
 
     /** {@inheritDoc} */
-    void EvioReaderV6::setParser(std::shared_ptr<EventParser> & evParser) {
+    void EvioReaderV6::setParser(std::shared_ptr<EventParser> evParser) {
         if (evParser != nullptr) {
             this->parser = evParser;
         }
