@@ -39,8 +39,6 @@ var classevio_1_1_evio_reader =
     [ "parseNextEvent", "df/dbd/classevio_1_1_evio_reader.html#ab05dbae2179ab093e95ba3bb610f9af8", null ],
     [ "position", "df/dbd/classevio_1_1_evio_reader.html#a22dbfd15bd8796cb6d4e969ee6237c53", null ],
     [ "rewind", "df/dbd/classevio_1_1_evio_reader.html#a7bbc59a18c152d62fd22e685c76a7ede", null ],
-    [ "setBuffer", "df/dbd/classevio_1_1_evio_reader.html#a1018ab2d476c0638970ef40a7fb5e45f", null ],
     [ "setBuffer", "df/dbd/classevio_1_1_evio_reader.html#a1bc46b1f0c20379d11d93bd2591f9640", null ],
-    [ "setParser", "df/dbd/classevio_1_1_evio_reader.html#a906861412ddde5f377d529e2ce691a71", null ],
     [ "setParser", "df/dbd/classevio_1_1_evio_reader.html#a692705d90733d66d13e6afa81f24679e", null ]
 ];

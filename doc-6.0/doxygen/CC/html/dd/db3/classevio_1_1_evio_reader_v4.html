@@ -121,8 +121,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ada0fe4bdc542167bcaaccf7c220c0f44"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ada0fe4bdc542167bcaaccf7c220c0f44">EvioReaderV4</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;byteBuffer, bool checkBlkNumSeq=false, bool synced=false)</td></tr>
 <tr class="memdesc:ada0fe4bdc542167bcaaccf7c220c0f44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading a buffer.  <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ada0fe4bdc542167bcaaccf7c220c0f44">More...</a><br /></td></tr>
 <tr class="separator:ada0fe4bdc542167bcaaccf7c220c0f44"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8e9531e9f836cec9980ba88296f8ea6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ad8e9531e9f836cec9980ba88296f8ea6">setBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;buf) override</td></tr>
-<tr class="memdesc:ad8e9531e9f836cec9980ba88296f8ea6"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method can be used to avoid creating additional <a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html" title="This is a class of interest to the user.">EvioReader</a> objects by reusing this one with another buffer.The method <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> is called before anything else.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:a71400d08a6ec10b9e793e451dfd29974"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a71400d08a6ec10b9e793e451dfd29974">setBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf) override</td></tr>
+<tr class="memdesc:a71400d08a6ec10b9e793e451dfd29974"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method can be used to avoid creating additional <a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html" title="This is a class of interest to the user.">EvioReader</a> objects by reusing this one with another buffer.The method <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> is called before anything else.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">buf</td><td><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> to be read. </td></tr>
   </table>
@@ -135,10 +135,10 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-  <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ad8e9531e9f836cec9980ba88296f8ea6">More...</a><br /></td></tr>
-<tr class="separator:ad8e9531e9f836cec9980ba88296f8ea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+  <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a71400d08a6ec10b9e793e451dfd29974">More...</a><br /></td></tr>
+<tr class="separator:a71400d08a6ec10b9e793e451dfd29974"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a697baee61837fc5a935083d1b45a2e1b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a697baee61837fc5a935083d1b45a2e1b">isClosed</a> () override</td></tr>
-<tr class="memdesc:a697baee61837fc5a935083d1b45a2e1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a1018ab2d476c0638970ef40a7fb5e45f">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
+<tr class="memdesc:a697baee61837fc5a935083d1b45a2e1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
 </div><!-- fragment --> if this object closed, else<div class="fragment"><div class="line"><span class="keyword">false</span> </div>
 </div><!-- fragment --> .</dd></dl>
   <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a697baee61837fc5a935083d1b45a2e1b">More...</a><br /></td></tr>
@@ -159,19 +159,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ad809ffeda3b80606b4f2a76469a05f1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the path to the file.<dl class="section return"><dt>Returns</dt><dd>path to the file</dd></dl>
   <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ad809ffeda3b80606b4f2a76469a05f1d">More...</a><br /></td></tr>
 <tr class="separator:ad809ffeda3b80606b4f2a76469a05f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5611fcde6de0d545e86ebe9f5de5c4a2"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a5611fcde6de0d545e86ebe9f5de5c4a2">getParser</a> () override</td></tr>
-<tr class="memdesc:a5611fcde6de0d545e86ebe9f5de5c4a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the file/buffer parser.<dl class="section return"><dt>Returns</dt><dd>file/buffer parser.</dd></dl>
-  <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a5611fcde6de0d545e86ebe9f5de5c4a2">More...</a><br /></td></tr>
-<tr class="separator:a5611fcde6de0d545e86ebe9f5de5c4a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8855a45490b79bc50eb97ea4985c6efe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a8855a45490b79bc50eb97ea4985c6efe">setParser</a> (std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt; &amp;evParser) override</td></tr>
-<tr class="memdesc:a8855a45490b79bc50eb97ea4985c6efe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the file/buffer parser.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:a992d46f95ff76ad7755c39ccdf5b7ffe"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a992d46f95ff76ad7755c39ccdf5b7ffe">getParser</a> () override</td></tr>
+<tr class="memdesc:a992d46f95ff76ad7755c39ccdf5b7ffe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the file/buffer parser.<dl class="section return"><dt>Returns</dt><dd>file/buffer parser.</dd></dl>
+  <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a992d46f95ff76ad7755c39ccdf5b7ffe">More...</a><br /></td></tr>
+<tr class="separator:a992d46f95ff76ad7755c39ccdf5b7ffe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fd660e36b0b78693215d38a1ee9f20a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a4fd660e36b0b78693215d38a1ee9f20a">setParser</a> (std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt; evParser) override</td></tr>
+<tr class="memdesc:a4fd660e36b0b78693215d38a1ee9f20a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the file/buffer parser.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">evParser</td><td>file/buffer parser.</td></tr>
   </table>
   </dd>
 </dl>
-  <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a8855a45490b79bc50eb97ea4985c6efe">More...</a><br /></td></tr>
-<tr class="separator:a8855a45490b79bc50eb97ea4985c6efe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+  <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a4fd660e36b0b78693215d38a1ee9f20a">More...</a><br /></td></tr>
+<tr class="separator:a4fd660e36b0b78693215d38a1ee9f20a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1de85bc20f69676951af001a294d0ea8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a1de85bc20f69676951af001a294d0ea8">getDictionaryXML</a> () override</td></tr>
 <tr class="memdesc:a1de85bc20f69676951af001a294d0ea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the XML format dictionary if there is one.<dl class="section return"><dt>Returns</dt><dd>XML format dictionary, else null.</dd></dl>
   <a href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a1de85bc20f69676951af001a294d0ea8">More...</a><br /></td></tr>
@@ -630,7 +630,7 @@ timmer </dd></dl>
 
 <p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">evio::IEvioReader</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ad8e9531e9f836cec9980ba88296f8ea6">setBuffer()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a71400d08a6ec10b9e793e451dfd29974">setBuffer()</a>.</p>
 
 </div>
 </div>
@@ -1146,8 +1146,8 @@ timmer </dd></dl>
 
 </div>
 </div>
-<a id="a5611fcde6de0d545e86ebe9f5de5c4a2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5611fcde6de0d545e86ebe9f5de5c4a2">&#9670;&nbsp;</a></span>getParser()</h2>
+<a id="a992d46f95ff76ad7755c39ccdf5b7ffe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a992d46f95ff76ad7755c39ccdf5b7ffe">&#9670;&nbsp;</a></span>getParser()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1156,7 +1156,7 @@ timmer </dd></dl>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt; &amp; evio::EvioReaderV4::getParser </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt; evio::EvioReaderV4::getParser </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1172,7 +1172,7 @@ timmer </dd></dl>
 <p>Get the file/buffer parser.<dl class="section return"><dt>Returns</dt><dd>file/buffer parser.</dd></dl>
  </p>
 
-<p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#ad26dab3458bf03003a0cbbe84fefa567">evio::IEvioReader</a>.</p>
+<p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a3e8366cfcf43d45694136c9751a928c5">evio::IEvioReader</a>.</p>
 
 </div>
 </div>
@@ -1336,7 +1336,7 @@ timmer </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p>Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a1018ab2d476c0638970ef40a7fb5e45f">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
+<p>Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
 </div><!-- fragment --> if this object closed, else<div class="fragment"><div class="line"><span class="keyword">false</span> </div>
 </div><!-- fragment --> .</dd></dl>
  </p>
@@ -1515,7 +1515,7 @@ timmer </dd></dl>
 
 <p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a5240c7673d80d6e03e890b3472ac00d4">evio::ByteOrder::getOppositeEndian()</a>, <a class="el" href="../../da/de6/classevio_1_1_block_header_v4.html#a76120f781b57819705f163ada7103517">evio::BlockHeaderV4::HEADER_SIZE</a>, <a class="el" href="../../d5/d6e/classevio_1_1_i_block_header.html#ac5f22d640a8987649db4fd4c8c699cb7">evio::IBlockHeader::MAGIC_NUMBER</a>, <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a22e2e5f965d9524de528f242562dd62e">MAGIC_OFFSET</a>, <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ace3afa89ee55ec4976f6ff912af72083">VERSION_MASK</a>, and <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#adf98c863ffeffe19fa2e77d2db2d9698">VERSION_OFFSET</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#aaceaf45be3fe4156a280ab9f78f8697e">EvioReaderV4()</a>, and <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ad8e9531e9f836cec9980ba88296f8ea6">setBuffer()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#aaceaf45be3fe4156a280ab9f78f8697e">EvioReaderV4()</a>, and <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#a71400d08a6ec10b9e793e451dfd29974">setBuffer()</a>.</p>
 
 </div>
 </div>
@@ -1676,8 +1676,8 @@ timmer </dd></dl>
 
 </div>
 </div>
-<a id="ad8e9531e9f836cec9980ba88296f8ea6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8e9531e9f836cec9980ba88296f8ea6">&#9670;&nbsp;</a></span>setBuffer()</h2>
+<a id="a71400d08a6ec10b9e793e451dfd29974"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71400d08a6ec10b9e793e451dfd29974">&#9670;&nbsp;</a></span>setBuffer()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1688,7 +1688,7 @@ timmer </dd></dl>
         <tr>
           <td class="memname">void evio::EvioReaderV4::setBuffer </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>buf</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1715,14 +1715,14 @@ timmer </dd></dl>
 </dl>
  </p>
 
-<p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a1018ab2d476c0638970ef40a7fb5e45f">evio::IEvioReader</a>.</p>
+<p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a9ca85bd9c0616d9def93ba63e7a96bf8">evio::IEvioReader</a>.</p>
 
 <p class="reference">References <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#adc59efe016e7c5c57350d41fd9bfbd18">close()</a>, and <a class="el" href="../../dd/db3/classevio_1_1_evio_reader_v4.html#ab851d0a680a06875f14cbeee08c62c62">parseFirstHeader()</a>.</p>
 
 </div>
 </div>
-<a id="a8855a45490b79bc50eb97ea4985c6efe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8855a45490b79bc50eb97ea4985c6efe">&#9670;&nbsp;</a></span>setParser()</h2>
+<a id="a4fd660e36b0b78693215d38a1ee9f20a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fd660e36b0b78693215d38a1ee9f20a">&#9670;&nbsp;</a></span>setParser()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1733,7 +1733,7 @@ timmer </dd></dl>
         <tr>
           <td class="memname">void evio::EvioReaderV4::setParser </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html">EventParser</a> &gt;&#160;</td>
           <td class="paramname"><em>evParser</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1753,7 +1753,7 @@ timmer </dd></dl>
 </dl>
  </p>
 
-<p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a906861412ddde5f377d529e2ce691a71">evio::IEvioReader</a>.</p>
+<p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#afb8843c9dd054f57f78fd1dcef3c5739">evio::IEvioReader</a>.</p>
 
 </div>
 </div>
