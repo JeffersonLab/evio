@@ -500,7 +500,7 @@ public class EventParser {
         int word = ByteDataTransformer.toInt(bytes, byteOrder, offset);
 
         int len = word & 0xffff;
-        if ((len < 0) || (4*len + 4 + offset > bytes.length)) {
+        if (4*len + 4 + offset > bytes.length) {
             throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
         }
         header.setLength(len);
