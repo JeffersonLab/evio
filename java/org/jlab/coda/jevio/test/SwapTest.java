@@ -5,6 +5,7 @@ import org.jlab.coda.jevio.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 
@@ -333,12 +334,13 @@ public class SwapTest {
         // Create CompositeData array
         CompositeData[] cData = new CompositeData[5];
         try {
-            cData[0] = new CompositeData(format1, 1, myData1, 1, 1);
-            cData[1] = new CompositeData(format2, 2, myData2, 2, 2);
-            cData[2] = new CompositeData(format3, 3, myData3, 3, 3);
-//            cData[3] = new CompositeData(format4, 4, myData4, 4, 4);
-            cData[3] = new CompositeData(format5, 5, myData5, 5, 5);
-            cData[4] = new CompositeData(format6, 6, myData6, 6, 6);
+            ByteOrder order = ByteOrder.BIG_ENDIAN;
+            cData[0] = new CompositeData(format1, 1, myData1, 1, 1, order);
+            cData[1] = new CompositeData(format2, 2, myData2, 2, 2, order);
+            cData[2] = new CompositeData(format3, 3, myData3, 3, 3, order);
+//            cData[3] = new CompositeData(format4, 4, myData4, 4, 4, order);
+            cData[3] = new CompositeData(format5, 5, myData5, 5, 5, order);
+            cData[4] = new CompositeData(format6, 6, myData6, 6, 6, order);
         }
         catch (EvioException e) {
             e.printStackTrace();

@@ -255,7 +255,8 @@ namespace evio {
             myData.addFloat(2.0F);
 
             // Create CompositeData object
-            auto cData = CompositeData::getInstance(format, myData, 1, 1, 1, ByteOrder::ENDIAN_LOCAL.getOppositeEndian());
+            // Purposely create it in the opposite byte order so that when it's added below, it will be swapped
+            auto cData = CompositeData::getInstance(format, myData, 1, 1, 1, order);
             std::vector<std::shared_ptr<CompositeData>> cDataVec;
             cDataVec.push_back(cData);
 
@@ -368,7 +369,7 @@ namespace evio {
             EventWriterV4 writer(finalFilename, directory, runType, 1, 0,
                                  EventWriterV4::DEFAULT_BLOCK_SIZE,
                                  EventWriterV4::DEFAULT_BLOCK_COUNT,
-                                 order, dictionary,
+                                 outputOrder, dictionary,
                                  true, false,
                                  firstEvent);
 
@@ -388,7 +389,7 @@ namespace evio {
 
 
             // Create an event with lots of stuff in it
-            std::shared_ptr<ByteBuffer> evioDataBuf = generateEvioBuffer(order, 3, 4);
+            std::shared_ptr<ByteBuffer> evioDataBuf = generateEvioBuffer(outputOrder, 3, 4);
             // Create node from this buffer
             std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
 

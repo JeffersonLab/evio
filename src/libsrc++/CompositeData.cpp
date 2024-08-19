@@ -17,13 +17,16 @@ namespace evio {
     /**
      * Constructor used for creating this object from scratch.
      *
-     * @param format format string defining data.
-     * @param data data in given format.
+     * @param format    format string defining data.
+     * @param data      data in given format.
+     * @param order     byte order in which data is stored in internal buffer.
+     *                  Defaults to local endian.
      *
      * @throws EvioException if improper format string.
      */
-    CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data) :
-            CompositeData(format, data, data.formatTag, data.dataTag, data.dataNum) {}
+    CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data,
+                                 ByteOrder const & order) :
+            CompositeData(format, data, data.formatTag, data.dataTag, data.dataNum, order) {}
 
 
     /**
@@ -40,7 +43,8 @@ namespace evio {
      * @throws EvioException data or format arg = null,
      *                       if improper format string.
      */
-    CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data, uint16_t formatTag,
+    CompositeData::CompositeData(std::string const & format,
+                                 const CompositeData::Data & data, uint16_t formatTag,
                                  uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
 
         this->format = format;
@@ -71,7 +75,7 @@ namespace evio {
         std::vector<std::string> strings;
         strings.push_back(format);
 
-        tsHeader = std::make_shared<TagSegmentHeader>(0, format);
+        tsHeader = std::make_shared<TagSegmentHeader>(formatTag, format);
         bHeader  = std::make_shared<BankHeader>(dataTag, DataType::COMPOSITE, dataNum);
         bHeader->setPadding(data.getPadding());
 
@@ -446,10 +450,12 @@ namespace evio {
         for (auto const & cd : data) {
             len = cd->getRawBytes().size();
             if (cd->byteOrder != order) {
+//std::cout << "CompositeData::generateRawBytes call swapAll()" << std::endl;
                 // This CompositeData object has a rawBytes array of the wrong byte order, so swap it
                 swapAll(cd->getRawBytes().data(), rawBytes.data() + offset, len/4, cd->byteOrder.isLocalEndian());
             }
             else {
+//std::cout << "CompositeData::generateRawBytes call memcpy()" << std::endl;
                 std::memcpy(rawBytes.data() + offset, cd->rawBytes.data(), len);
             }
             offset += len;
@@ -1013,7 +1019,7 @@ namespace evio {
      * @param length   length of data array in 32 bit words.
      * @param srcIsLocal true if the byte order of src data is the same as the node's.
      *
-     * @throws EvioException if src = null; if len is too small
+     * @throws EvioException if src = nullptr; if len is too small
      */
     void CompositeData::swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal) {
 
@@ -1047,11 +1053,15 @@ namespace evio {
         // How many bytes taken for this CompositeData object?
         size_t dataOff = 0;
 
+        Util::printBytes(src, 32, "CD src bytes");
+
         while (srcBytesLeft > 0) {
+//std::cout << "start src offset = " << srcOff << std::endl;
             // First read the tag segment header
             auto tsegHeader = EventHeaderParser::createTagSegmentHeader(src + srcOff, srcOrder);
             uint32_t headerLen  = tsegHeader->getHeaderLength();
             uint32_t dataLength = tsegHeader->getDataLength();
+//std::cout << "tag len = " << tsegHeader->getLength() << ", dataLen = " << dataLength << std::endl;
 
             // Oops, no format data
             if (dataLength < 1) {
@@ -1097,6 +1107,12 @@ namespace evio {
             headerLen  = bnkHeader->getHeaderLength();
             dataLength = bnkHeader->getLength() - (headerLen - 1);
 
+//            std::cout << "swapAll: bank len = " << bnkHeader->getLength()<< ", dataLen = " << dataLength <<
+//                               ", tag = " << bnkHeader->getTag() <<
+//                               ", num = " << bnkHeader->getNumber() <<
+//                               ", type = " << bnkHeader->getDataTypeName() +
+//                               ", pad = " << bnkHeader->getPadding() << std::endl;
+
             // Oops, no data
             if (dataLength < 1) {
                 throw EvioException("no data");
@@ -1127,6 +1143,9 @@ namespace evio {
             dataOff += dataLength;
 
             srcBytesLeft = totalBytes - dataOff;
+
+//            std::cout << "bytes left = " << srcBytesLeft << ",offset = " << dataOff << ", padding = " << padding << std::endl;
+//            std::cout << "src pos = " << srcOff << ", dest pos = " << destOff << std::endl;
         }
 
         // Oops, things aren't coming out evenly

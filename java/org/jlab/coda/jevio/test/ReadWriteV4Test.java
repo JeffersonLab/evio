@@ -203,7 +203,8 @@ public class ReadWriteV4Test {
 
         // Create CompositeData object
         CompositeData[] cData = new CompositeData[1];
-        cData[0] = new CompositeData(format, 1, myData, 1, 1);
+        cData[0] = new CompositeData(format, 1, myData,
+                1, 1, order);
 
         // Add to bank
         builder.addCompositeData(cData);

@@ -697,7 +697,8 @@ namespace evio {
 
         CompositeData() = default;
 
-        CompositeData(std::string const & format, const Data & data);
+        CompositeData(std::string const & format, const Data & data,
+                      ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
         CompositeData(std::string const & format,
                       const Data & data,
@@ -705,9 +706,10 @@ namespace evio {
                       uint16_t dataTag, uint8_t dataNum,
                       ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
-        CompositeData(uint8_t *bytes, ByteOrder const & byteOrder);
+        explicit CompositeData(uint8_t *bytes,
+                               ByteOrder const & byteOrder = ByteOrder::ENDIAN_LOCAL);
 
-        CompositeData(ByteBuffer & bytes);
+        explicit CompositeData(ByteBuffer & bytes);
 
         static std::shared_ptr<CompositeData> getInstance();
 

@@ -100,7 +100,7 @@ System.out.println("CALL CompositeData.swapAll()");
 
 //            // Create composite object
 //System.out.println("Call CompositeData()");
-//            CompositeData cData2 = new CompositeData(byteArray, ByteOrder.LITTLE_ENDIAN);
+//            CompositeData cData2 = new CompositeData(byteArray, ByteOrder.BIG_ENDIAN);
 
 //            // print swapped data
 //            System.out.println("After making CompositeData object DATA:");
@@ -190,7 +190,8 @@ System.out.println("Call CompositeData.swapAll()");
         // Create CompositeData object
         CompositeData cData = null;
         try {
-            cData = new CompositeData(format, 1, myData, 0 ,0);
+            cData = new CompositeData(format, 1, myData, 0 ,0,
+                    ByteOrder.BIG_ENDIAN);
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -244,7 +245,8 @@ System.out.println("Call CompositeData.swapAll()");
         // Create CompositeData object
         CompositeData cData = null;
         try {
-            cData = new CompositeData(format, 1, myData, 0 ,0);
+            cData = new CompositeData(format, 1, myData, 0 ,0,
+                    ByteOrder.BIG_ENDIAN);
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -311,9 +313,12 @@ System.out.println("Create composite data objects");
         // Create CompositeData object
         CompositeData[] cData = new CompositeData[3];
         try {
-            cData[0] = new CompositeData(format, 1, myData1, 1 ,1);
-            cData[1] = new CompositeData(format, 2, myData2, 2 ,2);
-            cData[2] = new CompositeData(format, 3, myData3, 3 ,3);
+            cData[0] = new CompositeData(format, 1, myData1, 1 ,1,
+                    ByteOrder.BIG_ENDIAN);
+            cData[1] = new CompositeData(format, 2, myData2, 2 ,2,
+                    ByteOrder.BIG_ENDIAN);
+            cData[2] = new CompositeData(format, 3, myData3, 3 ,3,
+                    ByteOrder.BIG_ENDIAN);
         }
         catch (EvioException e) {
             e.printStackTrace();

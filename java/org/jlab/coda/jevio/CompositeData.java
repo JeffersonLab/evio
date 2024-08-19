@@ -124,13 +124,14 @@ public final class CompositeData implements Cloneable {
      *
      * @param format format String defining data
      * @param data data in given format
+     * @param byteOrder byte order of resulting data.
      *
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    public CompositeData(String format, CompositeData.Data data)
+    public CompositeData(String format, CompositeData.Data data, ByteOrder byteOrder)
                                 throws EvioException {
-        this(format, data.formatTag, data, data.dataTag, data.dataNum);
+        this(format, data.formatTag, data, data.dataTag, data.dataNum, byteOrder);
     }
 
 
@@ -142,18 +143,20 @@ public final class CompositeData implements Cloneable {
      * @param data data in given format
      * @param dataTag tag used in bank containing data
      * @param dataNum num used in bank containing data
+     * @param byteOrder byte order of resulting data.
      *
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
     public CompositeData(String format, int formatTag,
-                         CompositeData.Data data, int dataTag, int dataNum)
+                         CompositeData.Data data, int dataTag, int dataNum,
+                         ByteOrder byteOrder)
                                 throws EvioException {
 
         boolean debug = false;
 
         this.format = format;
-        byteOrder = ByteOrder.BIG_ENDIAN;
+        this.byteOrder = byteOrder;
 
         if (debug) System.out.println("Analyzing composite data:");
 
@@ -568,9 +571,11 @@ public final class CompositeData implements Cloneable {
             len = cd.getRawBytes().length;
             if (cd.byteOrder != order) {
                 // This CompositeData object has a rawBytes array of the wrong byte order, so swap it
-                swapAll(cd.getRawBytes(), 0, rawBytes, offset, len/4, order);
+//System.out.println("CompositeData::generateRawBytes call swapAll(), data in " + cd.byteOrder);
+                swapAll(cd.getRawBytes(), 0, rawBytes, offset, len/4, cd.byteOrder);
             }
             else {
+//System.out.println("CompositeData::generateRawBytes call arraycopy()");
                 System.arraycopy(cd.getRawBytes(), 0, rawBytes, offset, len);
             }
             offset += len;
@@ -1641,7 +1646,7 @@ public final class CompositeData implements Cloneable {
      * @param length   length of data array in 32 bit words
      * @param srcOrder the byte order of data in src
      *
-     * @throws EvioException if offsets or length &lt; 0; if src = null;
+     * @throws EvioException if offsets &lt; 0; if length &lt; 4; if src = null;
      *                       if src or dest is too small
      */
     public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
@@ -1658,21 +1663,24 @@ public final class CompositeData implements Cloneable {
             inPlace = true;
         }
 
-        if (srcOff < 0 || destOff < 0 || length < 0) {
-            throw new EvioException("offsets or length must be >= 0");
+        if (srcOff < 0 || destOff < 0) {
+            throw new EvioException("offsets must be >= 0");
+        }
+
+        if (length < 4) {
+            throw new EvioException("length must be >= 4");
         }
 
         // Byte order of swapped data
         ByteOrder destOrder = (srcOrder == ByteOrder.BIG_ENDIAN) ?
                                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
 
-
         // How many unused bytes are left in the src array?
         int totalBytes   = 4*length;
         int srcBytesLeft = totalBytes;
 
         // How many bytes taken for this CompositeData object?
-        int dataOffset = 0;
+        int dataOff = 0;
 
         // Wrap input & output arrays in ByteBuffers for convenience
         ByteBuffer  srcBuffer = ByteBuffer.wrap( src, srcOff,  4*length);
@@ -1682,11 +1690,13 @@ public final class CompositeData implements Cloneable {
         srcBuffer.order(srcOrder);
         destBuffer.order(destOrder);
 
+        Utilities.printBytes(src, srcOff, 32, "CD src bytes");
+
         while (srcBytesLeft > 0) {
-//System.out.println("start src offset = " + (srcOff + dataOffset));
+//System.out.println("start src offset = " + (srcOff + dataOff));
 
             // First read the tag segment header
-            TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOffset, srcOrder);
+            TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOff, srcOrder);
             int headerLen  = tsHeader.getHeaderLength();
             int dataLength = tsHeader.getLength() - (headerLen - 1);
 
@@ -1701,10 +1711,10 @@ public final class CompositeData implements Cloneable {
             tsHeader.write(destBuffer);
 
             // Move to beginning of string data
-            dataOffset += 4*headerLen;
+            dataOff += 4*headerLen;
 
             // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
+            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOff,
                                                                   4*(tsHeader.getLength()));
 
             if (strs.length < 1) {
@@ -1721,21 +1731,23 @@ public final class CompositeData implements Cloneable {
             // Char data does not get swapped but needs
             // to be copied if not swapping in place.
             if (!inPlace) {
-                System.arraycopy(src,   srcOff + dataOffset,
-                                 dest, destOff + dataOffset, 4*dataLength);
+                System.arraycopy(src,   srcOff + dataOff,
+                                 dest, destOff + dataOff, 4*dataLength);
             }
 
             // Move to beginning of bank header
-            dataOffset += 4*dataLength;
+            dataOff += 4*dataLength;
 
             // Read the data bank header
-            BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOffset, srcOrder);
+            BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOff, srcOrder);
             headerLen  = bHeader.getHeaderLength();
             dataLength = bHeader.getLength() - (headerLen - 1);
 
 //System.out.println("swapAll: bank len = " + bHeader.getLength() + ", dataLen = " + dataLength +
-//", tag = " + bHeader.getTag() + ", num = " + bHeader.getNumber() + ", type = " + bHeader.getDataTypeName() +
-//", pad = " + bHeader.getPadding());
+//        ", tag = " + bHeader.getTag() +
+//        ", num = " + bHeader.getNumber() +
+//        ", type = " + bHeader.getDataTypeName() +
+//        ", pad = " + bHeader.getPadding());
 
             // Oops, no data
             if (dataLength < 1) {
@@ -1748,25 +1760,25 @@ public final class CompositeData implements Cloneable {
             dataLength = 4*dataLength - padding;
 
             // Got all we needed from the bank header, now swap as it's written out.
-            destBuffer.position(destOff + dataOffset);
+            destBuffer.position(destOff + dataOff);
             bHeader.write(destBuffer);
 
             // Move to beginning of data
-            dataOffset += 4*headerLen;
-            srcBuffer.position(  srcOff + dataOffset);
-            destBuffer.position(destOff + dataOffset);
+            dataOff += 4*headerLen;
+            srcBuffer.position(  srcOff + dataOff);
+            destBuffer.position(destOff + dataOff);
 
             // Swap data
             swapData(srcBuffer, destBuffer, dataLength, formatInts);
 
             // Set buffer positions and offset
-            dataOffset += dataLength;
-            srcBuffer.position( srcOff + dataOffset);
-            destBuffer.position(srcOff + dataOffset);
+            dataOff += dataLength;
+            srcBuffer.position( srcOff + dataOff);
+            destBuffer.position(srcOff + dataOff);
 
-            srcBytesLeft = totalBytes - (dataOffset + padding);
+            srcBytesLeft = totalBytes - (dataOff + padding);
 
-//System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOffset + ", padding = " + padding);
+//System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOff + ", padding = " + padding);
 //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
         }
 
@@ -1811,10 +1823,10 @@ public final class CompositeData implements Cloneable {
         // Bytes to swap
         int totalBytes   = 4*len;
         int srcBytesLeft = totalBytes;
-        int dataOffset, byteLen;
+        int dataOff, byteLen;
 
         // Initialize
-        dataOffset = 0;
+        dataOff = 0;
 
         while (srcBytesLeft > 0) {
 
@@ -1825,7 +1837,7 @@ public final class CompositeData implements Cloneable {
             // Move to beginning of string data
             srcPos     += 4;
             destPos    += 4;
-            dataOffset += 4;
+            dataOff += 4;
 
             // Read the format string it contains
             String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, 4*node.dataLen);
@@ -1855,7 +1867,7 @@ public final class CompositeData implements Cloneable {
             // Move to beginning of bank header
             srcPos     += byteLen;
             destPos    += byteLen;
-            dataOffset += byteLen;
+            dataOff += byteLen;
 
             // Read & swap data bank header
             ByteDataTransformer.swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
@@ -1868,7 +1880,7 @@ public final class CompositeData implements Cloneable {
             // Move to beginning of bank data
             srcPos     += 8;
             destPos    += 8;
-            dataOffset += 8;
+            dataOff += 8;
 
             // Bank data length in bytes
             byteLen = 4*node.dataLen;
@@ -1879,8 +1891,8 @@ public final class CompositeData implements Cloneable {
             // Move past bank data
             srcPos       += byteLen;
             destPos      += byteLen;
-            dataOffset   += byteLen;
-            srcBytesLeft  = totalBytes - dataOffset;
+            dataOff   += byteLen;
+            srcBytesLeft  = totalBytes - dataOff;
 
             //System.out.println("bytes left = " + srcBytesLeft);
             //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());

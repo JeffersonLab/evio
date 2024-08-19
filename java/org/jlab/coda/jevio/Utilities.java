@@ -1522,7 +1522,8 @@ if (debug) System.out.println("    comp END_ELEMENT :" + name);
                     else if (name.equalsIgnoreCase("comp") && (cDataCount+1) >= level.nData) {
 //                        System.out.println("Got last CompositeData item");
                         for (int i=0; i < level.nData; i++) {
-                            cdArray[i] = new CompositeData(formats[i], cData[i]);
+                            cdArray[i] = new CompositeData(formats[i], cData[i],
+                                                           level.bs.byteOrder);
                         }
                         level.bs.appendCompositeData(cdArray);
                         return;
