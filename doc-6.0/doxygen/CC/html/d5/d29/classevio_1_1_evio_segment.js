@@ -23,7 +23,7 @@ var classevio_1_1_evio_segment =
     [ "getChildAt", "d5/d29/classevio_1_1_evio_segment.html#a5b2df8aed45cf4534cd655772a68af67", null ],
     [ "getChildBefore", "d5/d29/classevio_1_1_evio_segment.html#aa4f07fa81af0ad966ff6860d399cd92b", null ],
     [ "getChildCount", "d5/d29/classevio_1_1_evio_segment.html#a3f0a34f51bbc96c4faeef160eaed0996", null ],
-    [ "getChildren", "d5/d29/classevio_1_1_evio_segment.html#a1f2a6022fb0d1af1a8ccfa4c6c56655c", null ],
+    [ "getChildren", "d5/d29/classevio_1_1_evio_segment.html#a8a52c5cd18537b94f974854628b26f04", null ],
     [ "getCompositeData", "d5/d29/classevio_1_1_evio_segment.html#ac5e88c4f6a89a59851bf08a613d6ac42", null ],
     [ "getDepth", "d5/d29/classevio_1_1_evio_segment.html#a9b038ad8e9a6b35538890289ec4e065b", null ],
     [ "getDoubleData", "d5/d29/classevio_1_1_evio_segment.html#ac85e2171b9e2afb61ad572d015723fbf", null ],

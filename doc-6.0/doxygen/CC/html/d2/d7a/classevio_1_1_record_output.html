@@ -143,9 +143,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab75d3e5ba25945f61f6376f7096dee38"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#ab75d3e5ba25945f61f6376f7096dee38">getEventCount</a> () const</td></tr>
 <tr class="memdesc:ab75d3e5ba25945f61f6376f7096dee38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of events written so far into the buffer.  <a href="../../d2/d7a/classevio_1_1_record_output.html#ab75d3e5ba25945f61f6376f7096dee38">More...</a><br /></td></tr>
 <tr class="separator:ab75d3e5ba25945f61f6376f7096dee38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3644f5817bd565b0b6a07617da013f27"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a3644f5817bd565b0b6a07617da013f27">getHeader</a> ()</td></tr>
-<tr class="memdesc:a3644f5817bd565b0b6a07617da013f27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the general header of this record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a3644f5817bd565b0b6a07617da013f27">More...</a><br /></td></tr>
-<tr class="separator:a3644f5817bd565b0b6a07617da013f27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51fca284a448d6dfc946a90cbd86453f"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a51fca284a448d6dfc946a90cbd86453f">getHeader</a> ()</td></tr>
+<tr class="memdesc:a51fca284a448d6dfc946a90cbd86453f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the general header of this record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a51fca284a448d6dfc946a90cbd86453f">More...</a><br /></td></tr>
+<tr class="separator:a51fca284a448d6dfc946a90cbd86453f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d31fb593c433d6c5be6961a5b43d1da"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a7d31fb593c433d6c5be6961a5b43d1da">getByteOrder</a> () const</td></tr>
 <tr class="memdesc:a7d31fb593c433d6c5be6961a5b43d1da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the byte order of the record to be built.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a7d31fb593c433d6c5be6961a5b43d1da">More...</a><br /></td></tr>
 <tr class="separator:a7d31fb593c433d6c5be6961a5b43d1da"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,21 +179,21 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa6b6ad449487f4ed9305e3d6b75f7277"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#aa6b6ad449487f4ed9305e3d6b75f7277">addEvent</a> (const <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;event, uint32_t extraDataLen=0)</td></tr>
 <tr class="memdesc:aa6b6ad449487f4ed9305e3d6b75f7277"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#aa6b6ad449487f4ed9305e3d6b75f7277">More...</a><br /></td></tr>
 <tr class="separator:aa6b6ad449487f4ed9305e3d6b75f7277"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2625d56532619d8f027214de68e097d1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a2625d56532619d8f027214de68e097d1">addEvent</a> (const std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;event, uint32_t extraDataLen=0)</td></tr>
-<tr class="memdesc:a2625d56532619d8f027214de68e097d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a2625d56532619d8f027214de68e097d1">More...</a><br /></td></tr>
-<tr class="separator:a2625d56532619d8f027214de68e097d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24f2fda5179d75217d76e132852b8650"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a24f2fda5179d75217d76e132852b8650">addEvent</a> (const std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; event, uint32_t extraDataLen=0)</td></tr>
+<tr class="memdesc:a24f2fda5179d75217d76e132852b8650"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a24f2fda5179d75217d76e132852b8650">More...</a><br /></td></tr>
+<tr class="separator:a24f2fda5179d75217d76e132852b8650"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82938baf95da3faf5345af0a3a19c781"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a82938baf95da3faf5345af0a3a19c781">addEvent</a> (<a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &amp;node, uint32_t extraDataLen=0)</td></tr>
 <tr class="memdesc:a82938baf95da3faf5345af0a3a19c781"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a82938baf95da3faf5345af0a3a19c781">More...</a><br /></td></tr>
 <tr class="separator:a82938baf95da3faf5345af0a3a19c781"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93aa61e8347a47378ecbf1cb1510cc5a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a93aa61e8347a47378ecbf1cb1510cc5a">addEvent</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, uint32_t extraDataLen=0)</td></tr>
-<tr class="memdesc:a93aa61e8347a47378ecbf1cb1510cc5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a93aa61e8347a47378ecbf1cb1510cc5a">More...</a><br /></td></tr>
-<tr class="separator:a93aa61e8347a47378ecbf1cb1510cc5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab258ee7d53d2bf38d55ac63e860fc6ca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#ab258ee7d53d2bf38d55ac63e860fc6ca">addEvent</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node, uint32_t extraDataLen=0)</td></tr>
+<tr class="memdesc:ab258ee7d53d2bf38d55ac63e860fc6ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#ab258ee7d53d2bf38d55ac63e860fc6ca">More...</a><br /></td></tr>
+<tr class="separator:ab258ee7d53d2bf38d55ac63e860fc6ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae543847b42a7e97894d747a254c3a6c9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#ae543847b42a7e97894d747a254c3a6c9">addEvent</a> (<a class="el" href="../../de/de3/classevio_1_1_evio_bank.html">EvioBank</a> &amp;event, uint32_t extraDataLen)</td></tr>
 <tr class="memdesc:ae543847b42a7e97894d747a254c3a6c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#ae543847b42a7e97894d747a254c3a6c9">More...</a><br /></td></tr>
 <tr class="separator:ae543847b42a7e97894d747a254c3a6c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adaa4001ce8e4866b5915b3ba11897c7c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#adaa4001ce8e4866b5915b3ba11897c7c">addEvent</a> (std::shared_ptr&lt; <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html">EvioBank</a> &gt; &amp;event, uint32_t extraDataLen=0)</td></tr>
-<tr class="memdesc:adaa4001ce8e4866b5915b3ba11897c7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#adaa4001ce8e4866b5915b3ba11897c7c">More...</a><br /></td></tr>
-<tr class="separator:adaa4001ce8e4866b5915b3ba11897c7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37f077b4cb6167e48cee1d5076f7b12d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a37f077b4cb6167e48cee1d5076f7b12d">addEvent</a> (std::shared_ptr&lt; <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html">EvioBank</a> &gt; event, uint32_t extraDataLen=0)</td></tr>
+<tr class="memdesc:a37f077b4cb6167e48cee1d5076f7b12d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an event's <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> into the record.  <a href="../../d2/d7a/classevio_1_1_record_output.html#a37f077b4cb6167e48cee1d5076f7b12d">More...</a><br /></td></tr>
+<tr class="separator:a37f077b4cb6167e48cee1d5076f7b12d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc4221165d1626407280c56e7cc4ea70"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#abc4221165d1626407280c56e7cc4ea70">reset</a> ()</td></tr>
 <tr class="memdesc:abc4221165d1626407280c56e7cc4ea70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset internal buffers.  <a href="../../d2/d7a/classevio_1_1_record_output.html#abc4221165d1626407280c56e7cc4ea70">More...</a><br /></td></tr>
 <tr class="separator:abc4221165d1626407280c56e7cc4ea70"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -609,8 +609,8 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
 
 </div>
 </div>
-<a id="a2625d56532619d8f027214de68e097d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2625d56532619d8f027214de68e097d1">&#9670;&nbsp;</a></span>addEvent() <span class="overload">[2/9]</span></h2>
+<a id="a24f2fda5179d75217d76e132852b8650"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24f2fda5179d75217d76e132852b8650">&#9670;&nbsp;</a></span>addEvent() <span class="overload">[2/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -618,7 +618,7 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
         <tr>
           <td class="memname">bool evio::RecordOutput::addEvent </td>
           <td>(</td>
-          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>event</em>, </td>
         </tr>
         <tr>
@@ -884,8 +884,8 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
 
 </div>
 </div>
-<a id="adaa4001ce8e4866b5915b3ba11897c7c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adaa4001ce8e4866b5915b3ba11897c7c">&#9670;&nbsp;</a></span>addEvent() <span class="overload">[8/9]</span></h2>
+<a id="a37f077b4cb6167e48cee1d5076f7b12d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37f077b4cb6167e48cee1d5076f7b12d">&#9670;&nbsp;</a></span>addEvent() <span class="overload">[8/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -893,7 +893,7 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
         <tr>
           <td class="memname">bool evio::RecordOutput::addEvent </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html">EvioBank</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html">EvioBank</a> &gt;&#160;</td>
           <td class="paramname"><em>event</em>, </td>
         </tr>
         <tr>
@@ -927,8 +927,8 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
 
 </div>
 </div>
-<a id="a93aa61e8347a47378ecbf1cb1510cc5a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a93aa61e8347a47378ecbf1cb1510cc5a">&#9670;&nbsp;</a></span>addEvent() <span class="overload">[9/9]</span></h2>
+<a id="ab258ee7d53d2bf38d55ac63e860fc6ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab258ee7d53d2bf38d55ac63e860fc6ca">&#9670;&nbsp;</a></span>addEvent() <span class="overload">[9/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -936,7 +936,7 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
         <tr>
           <td class="memname">bool evio::RecordOutput::addEvent </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>node</em>, </td>
         </tr>
         <tr>
@@ -1150,14 +1150,14 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
 
 </div>
 </div>
-<a id="a3644f5817bd565b0b6a07617da013f27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3644f5817bd565b0b6a07617da013f27">&#9670;&nbsp;</a></span>getHeader()</h2>
+<a id="a51fca284a448d6dfc946a90cbd86453f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51fca284a448d6dfc946a90cbd86453f">&#9670;&nbsp;</a></span>getHeader()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt; &amp; evio::RecordOutput::getHeader </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt; evio::RecordOutput::getHeader </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1622,7 +1622,7 @@ GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
 
 <p>Header of this Record. </p>
 
-<p class="reference">Referenced by <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a232e28211cd5630b6bb43c8944ffe60e">RecordOutput()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a7c7cbf0f2bcc362662eea1fc4ff5d7ad">build()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#ae6fc04a6ad40782206a858489d822f74">getCompressionType()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a3644f5817bd565b0b6a07617da013f27">getHeader()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#af2894b6e7c23404c74d9f0bc2c602651">getHeaderType()</a>, and <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#abc4221165d1626407280c56e7cc4ea70">reset()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a232e28211cd5630b6bb43c8944ffe60e">RecordOutput()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a7c7cbf0f2bcc362662eea1fc4ff5d7ad">build()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#ae6fc04a6ad40782206a858489d822f74">getCompressionType()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#a51fca284a448d6dfc946a90cbd86453f">getHeader()</a>, <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#af2894b6e7c23404c74d9f0bc2c602651">getHeaderType()</a>, and <a class="el" href="../../d2/d7a/classevio_1_1_record_output.html#abc4221165d1626407280c56e7cc4ea70">reset()</a>.</p>
 
 </div>
 </div>

@@ -124,9 +124,9 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
 <div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#afa4f2b9a3ffb53c144a7b3cdb3996f52">   54</a></span>&#160;        <span class="keyword">static</span> std::shared_ptr&lt;EvioBank&gt; <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#afa4f2b9a3ffb53c144a7b3cdb3996f52">transform</a>(std::shared_ptr&lt;EvioSegment&gt; <span class="keyword">const</span> &amp; segment, uint8_t num) {</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;            <span class="comment">// Copy over header &amp; create new EvioBank</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader = segment-&gt;getHeader();</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> segHeader = segment-&gt;getHeader();</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            <span class="keyword">auto</span> bank = <a class="code" href="../../de/de3/classevio_1_1_evio_bank.html#a7a7ff84cf9b0a3f659663483c8081e73">EvioBank::getInstance</a>(segHeader-&gt;getTag(), segHeader-&gt;getDataType(), num);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            <span class="keyword">auto</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;            bankHeader-&gt;setLength(segHeader-&gt;getLength() + 1);</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;            bankHeader-&gt;setPadding(segHeader-&gt;getPadding());</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
@@ -140,8 +140,8 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;                         uint8_t num) {</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;            <span class="comment">// Copy over header</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader  = segment-&gt;getHeader();</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> segHeader  = segment-&gt;getHeader();</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;            <span class="keyword">auto</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            bankHeader-&gt;copy(segHeader);</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            bankHeader-&gt;setNumber(num);</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;            bankHeader-&gt;setLength(segHeader-&gt;getLength() + 1);</div>
@@ -154,9 +154,9 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        <span class="comment">// TagSegment --&gt; Bank</span></div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
 <div class="line"><a name="l00107"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#a4b79fbe0545d808384d8e904ea3fe4ba">  107</a></span>&#160;        <span class="keyword">static</span> std::shared_ptr&lt;EvioBank&gt; <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#a4b79fbe0545d808384d8e904ea3fe4ba">transform</a>(std::shared_ptr&lt;EvioTagSegment&gt; <span class="keyword">const</span> &amp; tagsegment, uint8_t num) {</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tagsegHeader = tagsegment-&gt;getHeader();</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> tagsegHeader = tagsegment-&gt;getHeader();</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            <span class="keyword">auto</span> bank = <a class="code" href="../../de/de3/classevio_1_1_evio_bank.html#a7a7ff84cf9b0a3f659663483c8081e73">EvioBank::getInstance</a>(tagsegHeader-&gt;getTag(), tagsegHeader-&gt;getDataType(), num);</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;            <span class="keyword">auto</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;            bankHeader-&gt;setLength(tagsegHeader-&gt;getLength() + 1);</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;            bank-&gt;transform(tagsegment);</div>
@@ -167,8 +167,8 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;                         std::shared_ptr&lt;EvioTagSegment&gt; <span class="keyword">const</span> &amp; tagsegment,</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;                         uint8_t num) {</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160; </div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tagsegHeader = tagsegment-&gt;getHeader();</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> tagsegHeader = tagsegment-&gt;getHeader();</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            <span class="keyword">auto</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;            bankHeader-&gt;copy(tagsegHeader);</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;            bankHeader-&gt;setNumber(num);</div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;            bankHeader-&gt;setLength(tagsegHeader-&gt;getLength() + 1);</div>
@@ -179,9 +179,9 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;        <span class="comment">// Segment --&gt; TagSegment</span></div>
 <div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160; </div>
 <div class="line"><a name="l00158"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#a726821c1aaeea163f426f4bc55a248e6">  158</a></span>&#160;        <span class="keyword">static</span> std::shared_ptr&lt;EvioTagSegment&gt; <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#a726821c1aaeea163f426f4bc55a248e6">transform</a>(std::shared_ptr&lt;EvioSegment&gt; <span class="keyword">const</span> &amp; segment) {</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader = segment-&gt;getHeader();</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> segHeader = segment-&gt;getHeader();</div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;            <span class="keyword">auto</span> ts = <a class="code" href="../../d7/d91/classevio_1_1_evio_tag_segment.html#a70327d9a4b433b55aeb3d78fef704af3">EvioTagSegment::getInstance</a>(segHeader-&gt;getTag(), segHeader-&gt;getDataType());</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tsHeader = ts-&gt;getHeader();</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;            <span class="keyword">auto</span> tsHeader = ts-&gt;getHeader();</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;            tsHeader-&gt;setLength(segHeader-&gt;getLength());</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;            tsHeader-&gt;setPadding(segHeader-&gt;getPadding());</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160; </div>
@@ -202,8 +202,8 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00192"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#ac61b68037bf610b0fc15df9fe69e7aed">  192</a></span>&#160;        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#ac61b68037bf610b0fc15df9fe69e7aed">copy</a>(std::shared_ptr&lt;EvioTagSegment&gt; <span class="keyword">const</span> &amp; tagsegment,</div>
 <div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;                         std::shared_ptr&lt;EvioSegment&gt; <span class="keyword">const</span> &amp; segment) {</div>
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160; </div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader = segment-&gt;getHeader();</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tsHeader  = tagsegment-&gt;getHeader();</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> segHeader = segment-&gt;getHeader();</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;            <span class="keyword">auto</span> tsHeader  = tagsegment-&gt;getHeader();</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;            tsHeader-&gt;copy(segHeader);</div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160; </div>
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            <span class="comment">// Change 6 bit content type to equivalent 4 bits</span></div>
@@ -221,9 +221,9 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        <span class="comment">// TagSegment --&gt; Segment</span></div>
 <div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160; </div>
 <div class="line"><a name="l00228"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#a9363e2205ead2f0646d37d073662db52">  228</a></span>&#160;        <span class="keyword">static</span> std::shared_ptr&lt;EvioSegment&gt; <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#a9363e2205ead2f0646d37d073662db52">transform</a>(std::shared_ptr&lt;EvioTagSegment&gt; <span class="keyword">const</span> &amp; tagsegment) {</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tsHeader = tagsegment-&gt;getHeader();</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> tsHeader = tagsegment-&gt;getHeader();</div>
 <div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;            <span class="keyword">auto</span> seg = <a class="code" href="../../d5/d29/classevio_1_1_evio_segment.html#a69247a8a943d8a1240843643bc606ca1">EvioSegment::getInstance</a>(tsHeader-&gt;getTag(), tsHeader-&gt;getDataType());</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader = seg-&gt;getHeader();</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;            <span class="keyword">auto</span> segHeader = seg-&gt;getHeader();</div>
 <div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;            segHeader-&gt;setLength(tsHeader-&gt;getLength());</div>
 <div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160; </div>
 <div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;            seg-&gt;transform(tagsegment);</div>
@@ -233,8 +233,8 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00252"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#aff7d4c908d3cf864baddd9b5a1aa0ac6">  252</a></span>&#160;        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#aff7d4c908d3cf864baddd9b5a1aa0ac6">copy</a>(std::shared_ptr&lt;EvioSegment&gt; <span class="keyword">const</span> &amp; segment,</div>
 <div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;                         std::shared_ptr&lt;EvioSegment&gt; <span class="keyword">const</span> &amp; tagsegment) {</div>
 <div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160; </div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tsHeader  = tagsegment-&gt;getHeader();</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader = segment-&gt;getHeader();</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> tsHeader  = tagsegment-&gt;getHeader();</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;            <span class="keyword">auto</span> segHeader = segment-&gt;getHeader();</div>
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;            segHeader-&gt;copy(tsHeader);</div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;            tagsegment-&gt;transform(segment);</div>
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;        }</div>
@@ -242,13 +242,13 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;        <span class="comment">// Bank -&gt; Segment</span></div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160; </div>
 <div class="line"><a name="l00284"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#a0ba78cdcfe1c699f3f21424182922687">  284</a></span>&#160;        <span class="keyword">static</span> std::shared_ptr&lt;EvioSegment&gt; <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#a0ba78cdcfe1c699f3f21424182922687">transform</a>(std::shared_ptr&lt;EvioBank&gt; <span class="keyword">const</span> &amp; bank) {</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;            <span class="keywordtype">size_t</span> bankLen = bankHeader-&gt;getLength();</div>
 <div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;            <span class="keywordflow">if</span> (bankLen &gt; 65535) {</div>
 <div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;                <span class="keywordflow">throw</span> <span class="keyword">new</span> <a class="code" href="../../d0/d0b/classevio_1_1_evio_exception.html">EvioException</a>(<span class="stringliteral">&quot;Bank is too long to transform into segment&quot;</span>);</div>
 <div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;            }</div>
 <div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;            <span class="keyword">auto</span> segment = <a class="code" href="../../d5/d29/classevio_1_1_evio_segment.html#a69247a8a943d8a1240843643bc606ca1">EvioSegment::getInstance</a>(bankHeader-&gt;getTag(), bankHeader-&gt;getDataType());</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader = segment-&gt;getHeader();</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;            <span class="keyword">auto</span> segHeader = segment-&gt;getHeader();</div>
 <div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;            segHeader-&gt;setLength(bankLen - 1);</div>
 <div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;            segHeader-&gt;setPadding(bankHeader-&gt;getPadding());</div>
 <div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;            segHeader-&gt;setNumber(bankHeader-&gt;getNumber());</div>
@@ -261,12 +261,12 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00321"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#a04b47aab6dd7688ae8899f7a1ec299da">  321</a></span>&#160;        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#a04b47aab6dd7688ae8899f7a1ec299da">copy</a>(std::shared_ptr&lt;EvioSegment&gt; <span class="keyword">const</span> &amp; segment,</div>
 <div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                         std::shared_ptr&lt;EvioBank&gt; <span class="keyword">const</span> &amp; bank) {</div>
 <div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160; </div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;            <span class="keywordtype">size_t</span> bankLen = bankHeader-&gt;getLength();</div>
 <div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;            <span class="keywordflow">if</span> (bankLen &gt; 65535) {</div>
 <div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;                <span class="keywordflow">throw</span> <span class="keyword">new</span> <a class="code" href="../../d0/d0b/classevio_1_1_evio_exception.html">EvioException</a>(<span class="stringliteral">&quot;Bank is too long to transform into segment&quot;</span>);</div>
 <div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;            }</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; segHeader = segment-&gt;getHeader();</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;            <span class="keyword">auto</span> segHeader = segment-&gt;getHeader();</div>
 <div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;            segHeader-&gt;copy(bankHeader);</div>
 <div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;            segHeader-&gt;setLength(bankLen - 1);</div>
 <div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160; </div>
@@ -277,12 +277,12 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160; </div>
 <div class="line"><a name="l00364"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#ac6044826be8ee84cbcffe439d72ae9aa">  364</a></span>&#160;        <span class="keyword">static</span> std::shared_ptr&lt;EvioTagSegment&gt; <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#ac6044826be8ee84cbcffe439d72ae9aa">transform</a>(std::shared_ptr&lt;EvioBank&gt; <span class="keyword">const</span> &amp; bank,</div>
 <div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;                                                         <span class="keywordtype">int</span> dummy) {</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;            <span class="keywordflow">if</span> (bankHeader-&gt;getLength() &gt; 65535) {</div>
 <div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;                <span class="keywordflow">throw</span> <span class="keyword">new</span> <a class="code" href="../../d0/d0b/classevio_1_1_evio_exception.html">EvioException</a>(<span class="stringliteral">&quot;Bank is too long to transform into segment&quot;</span>);</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;            }</div>
 <div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;            <span class="keyword">auto</span> ts = <a class="code" href="../../d7/d91/classevio_1_1_evio_tag_segment.html#a70327d9a4b433b55aeb3d78fef704af3">EvioTagSegment::getInstance</a>(bankHeader-&gt;getTag(), bankHeader-&gt;getDataType());</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tsHeader = ts-&gt;getHeader();</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;            <span class="keyword">auto</span> tsHeader = ts-&gt;getHeader();</div>
 <div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;            tsHeader-&gt;setLength(bankHeader-&gt;getLength() - 1);</div>
 <div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;            tsHeader-&gt;setPadding(bankHeader-&gt;getPadding());</div>
 <div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;            tsHeader-&gt;setNumber(bankHeader-&gt;getNumber());</div>
@@ -303,12 +303,12 @@ $(document).ready(function(){initNavTree('d1/d04/_structure_transformer_8h_sourc
 <div class="line"><a name="l00409"></a><span class="lineno"><a class="line" href="../../d2/da4/classevio_1_1_structure_transformer.html#ad0301266a49f6649cf0c248f07c912d3">  409</a></span>&#160;        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="../../d2/da4/classevio_1_1_structure_transformer.html#ad0301266a49f6649cf0c248f07c912d3">copy</a>(std::shared_ptr&lt;EvioTagSegment&gt; <span class="keyword">const</span> &amp; tagsegment,</div>
 <div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;                         std::shared_ptr&lt;EvioBank&gt; <span class="keyword">const</span> &amp; bank) {</div>
 <div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160; </div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; bankHeader = bank-&gt;getHeader();</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> bankHeader = bank-&gt;getHeader();</div>
 <div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;            <span class="keywordtype">size_t</span> bankLen = bankHeader-&gt;getLength();</div>
 <div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;            <span class="keywordflow">if</span> (bankLen &gt; 65535) {</div>
 <div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;                <span class="keywordflow">throw</span> <span class="keyword">new</span> <a class="code" href="../../d0/d0b/classevio_1_1_evio_exception.html">EvioException</a>(<span class="stringliteral">&quot;Bank is too long to transform into tagsegment&quot;</span>);</div>
 <div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;            }</div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;            <span class="keyword">auto</span> <span class="keyword">const</span> &amp; tsHeader = tagsegment-&gt;getHeader();</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;            <span class="keyword">auto</span> tsHeader = tagsegment-&gt;getHeader();</div>
 <div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;            tsHeader-&gt;copy(bankHeader);</div>
 <div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;            tsHeader-&gt;setLength(bankLen - 1);</div>
 <div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160; </div>

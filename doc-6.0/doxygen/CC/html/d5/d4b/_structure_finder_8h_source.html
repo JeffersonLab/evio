@@ -254,7 +254,7 @@ $(document).ready(function(){initNavTree('d5/d4b/_structure_finder_8h_source.htm
 <div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;                <span class="keywordtype">bool</span> accept(<a class="code" href="../../dd/da5/classevio_1_1_structure_type.html">StructureType</a> <span class="keyword">const</span> &amp; structureType,</div>
 <div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;                            std::shared_ptr&lt;BaseStructure&gt; struc)<span class="keyword"> override </span>{</div>
 <div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160; </div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;                    <span class="keyword">auto</span> children = struc-&gt;getChildren();</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;                    <span class="keyword">auto</span> &amp; children = struc-&gt;getChildren();</div>
 <div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;                    <span class="keywordflow">if</span> (children.empty()) {</div>
 <div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;                        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;                    }</div>

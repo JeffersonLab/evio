@@ -23,7 +23,7 @@ var classevio_1_1_evio_event =
     [ "getChildAt", "d4/d12/classevio_1_1_evio_event.html#a5b2df8aed45cf4534cd655772a68af67", null ],
     [ "getChildBefore", "d4/d12/classevio_1_1_evio_event.html#aa4f07fa81af0ad966ff6860d399cd92b", null ],
     [ "getChildCount", "d4/d12/classevio_1_1_evio_event.html#a3f0a34f51bbc96c4faeef160eaed0996", null ],
-    [ "getChildren", "d4/d12/classevio_1_1_evio_event.html#a1f2a6022fb0d1af1a8ccfa4c6c56655c", null ],
+    [ "getChildren", "d4/d12/classevio_1_1_evio_event.html#a8a52c5cd18537b94f974854628b26f04", null ],
     [ "getCompositeData", "d4/d12/classevio_1_1_evio_event.html#ac5e88c4f6a89a59851bf08a613d6ac42", null ],
     [ "getDepth", "d4/d12/classevio_1_1_evio_event.html#a9b038ad8e9a6b35538890289ec4e065b", null ],
     [ "getDictionaryXML", "d4/d12/classevio_1_1_evio_event.html#afc1c5cebe85b48a2f63e39e6b17dbc95", null ],

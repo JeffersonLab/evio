@@ -217,10 +217,10 @@ $(document).ready(function(){initNavTree('dd/db4/_writer_m_t_8h_source.html','..
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160; </div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;                            currentSeq = item-&gt;getSequence();</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;                            <span class="comment">// Pull record out of wrapping object</span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;                            std::shared_ptr&lt;RecordOutput&gt; &amp; record = item-&gt;getRecord();</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;                            std::shared_ptr&lt;RecordOutput&gt; record = item-&gt;getRecord();</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160; </div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;                            <span class="comment">// Do write</span></div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;                            <span class="keyword">auto</span> &amp; header = record-&gt;getHeader();</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;                            <span class="keyword">auto</span> header = record-&gt;getHeader();</div>
 <div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;                            <span class="keywordtype">int</span> bytesToWrite = header-&gt;getLength();</div>
 <div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;                            <span class="comment">// Record length of this record</span></div>
 <div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;                            writer-&gt;recordLengths-&gt;push_back(bytesToWrite);</div>
