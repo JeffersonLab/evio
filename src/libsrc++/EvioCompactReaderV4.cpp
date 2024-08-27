@@ -598,7 +598,7 @@ namespace evio {
         vec.reserve(100);
 
         // Scan the node
-        auto list = scanStructure(eventNumber)->getAllNodes();
+        auto & list = scanStructure(eventNumber)->getAllNodes();
 //std::cout << "searchEvent: ev# = " << eventNumber << ", list size = " << list.size() <<
 //" for tag/num = " << tag << "/" << num << std::endl;
 

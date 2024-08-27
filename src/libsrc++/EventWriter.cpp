@@ -561,7 +561,7 @@ namespace evio {
                                                        compressionType,
                                                        HeaderType::EVIO_RECORD);
 
-        auto & header = currentRecord->getHeader();
+        auto header = currentRecord->getHeader();
         header->setBitInfo(false, !xmlDictionary.empty());
         if (eventType >=0 && eventType <= 15) {
             header->setBitInfoEventType(eventType);
@@ -600,7 +600,7 @@ namespace evio {
         bufferSize = buffer->capacity();
 
         // Deal with bitInfo
-        auto & header = currentRecord->getHeader();
+        auto header = currentRecord->getHeader();
 
         // This will reset the record - header and all buffers (including buf)
         currentRecord->setBuffer(buffer);
@@ -815,7 +815,7 @@ namespace evio {
      */
     void EventWriter::setSourceId(int sId) {
         sourceId = sId;
-        auto & header = currentRecord->getHeader();
+        auto header = currentRecord->getHeader();
         header->setUserRegisterFirst(sId);
     }
 
@@ -831,7 +831,7 @@ namespace evio {
      *             else = nothing set).
      */
     void EventWriter::setEventType(int type) {
-        auto & header = currentRecord->getHeader();
+        auto header = currentRecord->getHeader();
         header->setBitInfoEventType(type);
     }
 
@@ -2747,7 +2747,7 @@ namespace evio {
      */
     void EventWriter::compressAndWriteToFile(bool force) {
 
-        auto & header = currentRecord->getHeader();
+        auto header = currentRecord->getHeader();
         header->setRecordNumber(recordNumber);
         header->setCompressionType(compressionType);
         currentRecord->build();
@@ -2774,7 +2774,7 @@ namespace evio {
      */
     bool EventWriter::tryCompressAndWriteToFile(bool force) {
 
-        auto & header = currentRecord->getHeader();
+        auto header = currentRecord->getHeader();
         header->setRecordNumber(recordNumber);
         header->setCompressionType(compressionType);
         currentRecord->build();
@@ -2860,7 +2860,7 @@ namespace evio {
 
         // Get record to write
         auto record = currentRecord;
-        auto & header = record->getHeader();
+        auto header = record->getHeader();
 
         // Length of this record
         int bytesToWrite = header->getLength();
@@ -2975,7 +2975,7 @@ namespace evio {
 
         // Get record to write
         auto record = item->getRecord();
-        auto & header = record->getHeader();
+        auto header = record->getHeader();
 
         // Length of this record
         int bytesToWrite = header->getLength();
@@ -3220,7 +3220,7 @@ namespace evio {
         }
 
         // Get record header
-        auto & header = currentRecord->getHeader();
+        auto header = currentRecord->getHeader();
         // Get/set record info before building
         header->setRecordNumber(recordNumber);
 

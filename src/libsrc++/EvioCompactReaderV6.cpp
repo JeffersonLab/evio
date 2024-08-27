@@ -203,7 +203,7 @@ namespace evio {
             return;
         }
 
-        auto list = node->getAllNodes();
+        auto & list = node->getAllNodes();
 //std::cout << "searchEvent: ev# = " << eventNumber << ", list size = " << list.size() <<
 //             " for tag/num = " << tag << "/" << +num << std::endl;
 

@@ -3226,7 +3226,7 @@ namespace evio {
             else if (typ == DataType::CHARSTAR8) {
                 ss << "a=" << getFloat();
 
-                auto strs = getStrings();
+                auto & strs = getStrings();
                 for (int j=0; j < strs.size(); j++) {
                     ss << strs[j];
                     if (j < strs.size() - 1) {

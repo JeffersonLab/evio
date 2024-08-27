@@ -230,7 +230,7 @@ namespace evio {
                 bool accept(StructureType const & structureType,
                             std::shared_ptr<BaseStructure> struc) override {
 
-                    auto children = struc->getChildren();
+                    auto & children = struc->getChildren();
                     if (children.empty()) {
                         return false;
                     }

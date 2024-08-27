@@ -162,7 +162,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::INT32);
 
-        auto vect = structure->getIntData();
+        auto & vect = structure->getIntData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -187,7 +187,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::UINT32);
 
-        auto vect = structure->getUIntData();
+        auto & vect = structure->getUIntData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -212,7 +212,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::SHORT16);
 
-        auto vect = structure->getShortData();
+        auto & vect = structure->getShortData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -237,7 +237,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::USHORT16);
 
-        auto vect = structure->getUShortData();
+        auto & vect = structure->getUShortData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -262,7 +262,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::LONG64);
 
-        auto vect = structure->getLongData();
+        auto & vect = structure->getLongData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -287,7 +287,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::ULONG64);
 
-        auto vect = structure->getULongData();
+        auto & vect = structure->getULongData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -312,7 +312,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::CHAR8);
 
-        auto vect = structure->getCharData();
+        auto & vect = structure->getCharData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -337,7 +337,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::UCHAR8);
 
-        auto vect = structure->getUCharData();
+        auto & vect = structure->getUCharData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -362,7 +362,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::FLOAT32);
 
-        auto vect = structure->getFloatData();
+        auto & vect = structure->getFloatData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -387,7 +387,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::DOUBLE64);
 
-        auto vect = structure->getDoubleData();
+        auto & vect = structure->getDoubleData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -412,7 +412,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::CHARSTAR8);
 
-        auto vect = structure->getStringData();
+        auto & vect = structure->getStringData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -438,7 +438,7 @@ namespace evio {
 
         structure->getHeader()->setDataType(DataType::COMPOSITE);
 
-        auto vect = structure->getCompositeData();
+        auto & vect = structure->getCompositeData();
         vect.clear();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
@@ -469,7 +469,7 @@ namespace evio {
                                 structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getIntData();
+        auto & vect = structure->getIntData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -495,7 +495,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getUIntData();
+        auto & vect = structure->getUIntData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -521,7 +521,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getShortData();
+        auto & vect = structure->getShortData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -547,7 +547,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getUShortData();
+        auto & vect = structure->getUShortData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -573,7 +573,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getLongData();
+        auto & vect = structure->getLongData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -599,7 +599,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getULongData();
+        auto & vect = structure->getULongData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -625,7 +625,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getCharData();
+        auto & vect = structure->getCharData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -651,7 +651,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getUCharData();
+        auto & vect = structure->getUCharData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -677,7 +677,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getFloatData();
+        auto & vect = structure->getFloatData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -703,7 +703,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getDoubleData();
+        auto & vect = structure->getDoubleData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -729,7 +729,7 @@ namespace evio {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getStringData();
+        auto & vect = structure->getStringData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
@@ -757,7 +757,7 @@ namespace evio {
                                 structure->getHeader()->getDataType().getName());
         }
 
-        auto vect = structure->getCompositeData();
+        auto & vect = structure->getCompositeData();
         for (int i=0; i < count; i++) {
             vect.push_back(data[i]);
         }

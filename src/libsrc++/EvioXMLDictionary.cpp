@@ -851,7 +851,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
             NO_NAME_STRING();
         }
 
-        auto const & header = structure->getHeader();
+        auto const header = structure->getHeader();
         DataType const & type = header->getDataType();
         uint16_t tag = header->getTag();
 

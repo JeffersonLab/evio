@@ -642,7 +642,7 @@ namespace evio {
         // Does this node contain other containers?
         if (node->getDataTypeObj().isStructure()) {
             // Iterate through list of children
-            auto kids = node->getChildNodes();
+            auto & kids = node->getChildNodes();
             if (kids.empty()) return;
             for (auto child : kids) {
                 writeNode(child, swapData);

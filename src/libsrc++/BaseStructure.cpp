@@ -452,7 +452,7 @@ namespace evio {
      * Get the children of this structure.
      * @return the children of this structure.
      */
-    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getChildren() const {return children;}
+    std::vector<std::shared_ptr<BaseStructure>> & BaseStructure::getChildren() {return children;}
 
 
     /**
@@ -1642,7 +1642,7 @@ namespace evio {
 
             // Special cases:
             if (type == DataType::CHARSTAR8) {
-                auto sd = getStringData();
+                auto & sd = getStringData();
                 numberDataItems = sd.size();
             }
             else if (type == DataType::COMPOSITE) {
@@ -2644,7 +2644,7 @@ namespace evio {
     uint32_t BaseStructure::setAllHeaderLengths() {
         // if length info is current, don't bother to recalculate it
         if (lengthsUpToDate) {
-                return header->getLength();
+            return header->getLength();
         }
 
         uint32_t datalen, len;
@@ -2652,7 +2652,7 @@ namespace evio {
         if (isLeaf()) {
             // # of 32 bit ints for leaves, 0 for empty containers (also considered leaves)
             datalen = dataLength();
-//std::cout << "    setAllHeaderLengths: is leaf, len = " << datalen << "\n";
+//std::cout << "  setAllHeaderLengths: is leaf, len = " << datalen << "\n";
         }
         else {
             datalen = 0;
@@ -2678,7 +2678,7 @@ namespace evio {
 
         // set the datalen for the header
 
-//std::cout << "setAllHeaderLengths: set data type " << header->getDataTypeName() <<
+//std::cout << "  setAllHeaderLengths: set data type " << header->getDataTypeName() <<
 //        " to len = " << datalen << "\n";
 
         header->setLength(datalen);

@@ -47,7 +47,7 @@ namespace  evio {
         // Does the present structure contain structures? (as opposed to a leaf, which contains primitives). If
         // it is a leaf we are done. That will leave the raw bytes in the "leaf" structures (e.g., a bank of ints)
         // --which will be interpreted by the various "get data" methods.
-        auto bytes = structure->getRawBytes();
+        auto & bytes = structure->getRawBytes();
         ByteOrder byteOrder = structure->getByteOrder();
 
         if (bytes.empty()) {
@@ -225,7 +225,7 @@ namespace  evio {
         // Does the present structure contain structures? (as opposed to a leaf, which contains primitives). If
         // it is a leaf we are done. That will leave the raw bytes in the "leaf" structures (e.g., a bank of ints)
         // --which will be interpreted by the various "get data" methods.
-        auto bytes = structure->getRawBytes();
+        auto & bytes = structure->getRawBytes();
         ByteOrder byteOrder = structure->getByteOrder();
 
         if (bytes.empty()) {

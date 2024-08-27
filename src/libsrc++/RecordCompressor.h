@@ -131,9 +131,9 @@ namespace evio {
                         boost::this_thread::disable_interruption d1;
 
                         // Pull record out of wrapping object
-                        std::shared_ptr<RecordOutput> & record = item->getRecord();
+                        std::shared_ptr<RecordOutput> record = item->getRecord();
                         // Set compression type
-                        auto & header = record->getHeader();
+                        auto header = record->getHeader();
                         header->setCompressionType(compressionType);
 //cout << "RecordCompressor thd " << threadNumber << ": got record, set rec # to " << header->getRecordNumber() << endl;
                         // Do compression

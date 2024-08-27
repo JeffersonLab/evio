@@ -1738,7 +1738,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         bool foundNode = false;
 
         // Locate the node to be removed ...
-        for (auto & ev : eventNodes) {
+        for (auto ev : eventNodes) {
             // See if it's an event ...
             if (removeNode == ev) {
                 foundNode = true;
@@ -1806,7 +1806,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen - removeDataLen);
 
         // Invalidate all nodes obtained from the last buffer scan
-        for (auto & ev : eventNodes) {
+        for (auto ev : eventNodes) {
             ev->setObsolete(true);
         }
 
@@ -1867,7 +1867,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             throw EvioException("object closed");
         }
 
-        auto & eventNode = eventNodes[eventNumber - 1];
+        auto eventNode = eventNodes[eventNumber - 1];
 
         // Position in byteBuffer just past end of event
         uint32_t endPos = eventNode->getDataPosition() + 4*eventNode->getDataLength();
@@ -1906,7 +1906,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         buffer = newBuffer;
 
         // Increase lengths of parent nodes
-        auto & addToNode = eventNodes[eventNumber];
+        auto addToNode = eventNodes[eventNumber];
         auto parent = addToNode->getParentNode();
         parent->updateLengths(appendDataLen);
 
@@ -1920,7 +1920,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen + appendDataLen);
 
         // Invalidate all nodes obtained from the last buffer scan
-        for (auto const & ev : eventNodes) {
+        for (auto ev : eventNodes) {
             ev->setObsolete(true);
         }
 

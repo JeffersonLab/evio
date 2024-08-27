@@ -104,13 +104,13 @@ namespace evio {
 
         void reset();
 
-        std::shared_ptr<RecordOutput> & getRecord();
+        std::shared_ptr<RecordOutput> getRecord();
         ByteOrder & getOrder();
         int64_t getSequence() const;
-        std::shared_ptr<Disruptor::ISequence> & getSequenceObj();
+        std::shared_ptr<Disruptor::ISequence> getSequenceObj();
 
         void fromProducer(int64_t seq);
-        void fromConsumer(int64_t seq, std::shared_ptr<Disruptor::ISequence> & seqObj);
+        void fromConsumer(int64_t seq, std::shared_ptr<Disruptor::ISequence> seqObj);
 
         bool splitFileAfterWrite();
         void splitFileAfterWrite(bool split);

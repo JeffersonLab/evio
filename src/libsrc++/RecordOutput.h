@@ -217,7 +217,7 @@ namespace evio {
         uint32_t getMaxEventCount() const;
         uint32_t getEventCount() const;
 
-        std::shared_ptr<RecordHeader> & getHeader();
+        std::shared_ptr<RecordHeader> getHeader();
         const ByteOrder & getByteOrder() const;
         const std::shared_ptr<ByteBuffer> getBinaryBuffer() const;
         const Compressor::CompressionType getCompressionType() const;
@@ -233,13 +233,13 @@ namespace evio {
         bool addEvent(const std::vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen = 0);
 
         bool addEvent(const ByteBuffer & event, uint32_t extraDataLen = 0);
-        bool addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen = 0);
+        bool addEvent(const std::shared_ptr<ByteBuffer> event, uint32_t extraDataLen = 0);
 
         bool addEvent(EvioNode & node, uint32_t extraDataLen = 0);
-        bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen = 0);
+        bool addEvent(std::shared_ptr<EvioNode> node, uint32_t extraDataLen = 0);
 
         bool addEvent(EvioBank & event, uint32_t extraDataLen);
-        bool addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen = 0);
+        bool addEvent(std::shared_ptr<EvioBank> event, uint32_t extraDataLen = 0);
 
         void reset();
 

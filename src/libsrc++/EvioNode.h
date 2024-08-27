@@ -144,40 +144,40 @@ namespace evio {
 
     private:
 
-        void copyParentForScan(std::shared_ptr<EvioNode> & parent);
-        void addChild(std::shared_ptr<EvioNode> & node);
-        void addToAllNodes(std::shared_ptr<EvioNode> & node);
-        void removeFromAllNodes(std::shared_ptr<EvioNode> & node);
-        void removeChild(std::shared_ptr<EvioNode> & node);
+        void copyParentForScan(std::shared_ptr<EvioNode> parent);
+        void addChild(std::shared_ptr<EvioNode> node);
+        void addToAllNodes(std::shared_ptr<EvioNode> node);
+        void removeFromAllNodes(std::shared_ptr<EvioNode> node);
+        void removeChild(std::shared_ptr<EvioNode> node);
         RecordNode & getRecordNode(); // public?
         void copy(const EvioNode & src);
 
     protected:
 
-        explicit EvioNode(std::shared_ptr<EvioNode> & firstNode, int dummy);
+        explicit EvioNode(std::shared_ptr<EvioNode> firstNode, int dummy);
         std::shared_ptr<EvioNode> getThis() {return shared_from_this();}
 
     public:
 
         EvioNode();
         EvioNode(const EvioNode & firstNode);
-        explicit EvioNode(const std::shared_ptr<EvioNode> & src);
+        explicit EvioNode(const std::shared_ptr<EvioNode> src);
         EvioNode(EvioNode && src) noexcept;
-        EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
-        EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> & buffer);
+        EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> buffer, RecordNode & blockNode);
+        EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> buffer);
         EvioNode(uint16_t tag, uint8_t num, size_t pos, size_t dataPos,
                  DataType const & type, DataType const & dataType,
                  std::shared_ptr<ByteBuffer> buffer);
 
         ~EvioNode() = default;
 
-        static void scanStructure(std::shared_ptr<EvioNode> & node);
+        static void scanStructure(std::shared_ptr<EvioNode> node);
 
-        static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, size_t position);
-        static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
+        static std::shared_ptr<EvioNode> extractNode(std::shared_ptr<EvioNode> bankNode, size_t position);
+        static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> buffer,
                                                           RecordNode & recNode,
                                                           size_t position, uint32_t place);
-        static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
+        static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> buffer,
                                                           size_t recPosition,
                                                           size_t position, uint32_t place);
 
@@ -192,9 +192,9 @@ namespace evio {
         void clearObjects();
         void clearIntArray();
 
-        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
-        void setData(size_t position, uint32_t plc, std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode);
-        void setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> & buf);
+        void setBuffer(std::shared_ptr<ByteBuffer> buf);
+        void setData(size_t position, uint32_t plc, std::shared_ptr<ByteBuffer> buf, RecordNode & recNode);
+        void setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> buf);
 
         // TODO: set many of these methods to CONST
 
@@ -234,7 +234,7 @@ namespace evio {
         void updateNum(uint8_t newNum);
 
         ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
-        std::shared_ptr<ByteBuffer> & getByteData(std::shared_ptr<ByteBuffer> & dest, bool copy);
+        std::shared_ptr<ByteBuffer> getByteData(std::shared_ptr<ByteBuffer> dest, bool copy);
         std::shared_ptr<ByteBuffer> getByteData(bool copy);
 
         std::vector<uint32_t> & getIntData();
@@ -242,7 +242,7 @@ namespace evio {
         void getLongData(std::vector<uint64_t> & longData);
         void getShortData(std::vector<uint16_t> & shortData);
         ByteBuffer & getStructureBuffer(ByteBuffer & dest, bool copy);
-        std::shared_ptr<ByteBuffer> & getStructureBuffer(std::shared_ptr<ByteBuffer> & dest, bool copy);
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<ByteBuffer> dest, bool copy);
     };
 
 }

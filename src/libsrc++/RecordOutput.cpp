@@ -360,7 +360,7 @@ namespace evio {
      * Get the general header of this record.
      * @return general header of this record.
      */
-    std::shared_ptr<RecordHeader> & RecordOutput::getHeader() {return header;}
+    std::shared_ptr<RecordHeader> RecordOutput::getHeader() {return header;}
 
 
     /**
@@ -630,7 +630,7 @@ namespace evio {
      *         count limit would be exceeded or the buffer is full and cannot be
      *         expanded since it's user-provided.
      */
-    bool RecordOutput::addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen) {
+    bool RecordOutput::addEvent(const std::shared_ptr<ByteBuffer> event, uint32_t extraDataLen) {
         return addEvent(*(event.get()), extraDataLen);
     }
 
@@ -719,7 +719,7 @@ namespace evio {
      *         expanded since it's user-provided.
      * @throws EvioException if node does not correspond to a bank.
      */
-    bool RecordOutput::addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen) {
+    bool RecordOutput::addEvent(std::shared_ptr<EvioNode> node, uint32_t extraDataLen) {
         return addEvent(*(node.get()), extraDataLen);
     }
 
@@ -790,7 +790,7 @@ namespace evio {
      *         count limit would be exceeded or the buffer is full and cannot be
      *         expanded since it's user-provided.
      */
-    bool RecordOutput::addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen) {
+    bool RecordOutput::addEvent(std::shared_ptr<EvioBank> event, uint32_t extraDataLen) {
         return addEvent(*(event.get()), extraDataLen);
     }
 

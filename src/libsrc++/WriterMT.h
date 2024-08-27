@@ -168,10 +168,10 @@ namespace evio {
 
                             currentSeq = item->getSequence();
                             // Pull record out of wrapping object
-                            std::shared_ptr<RecordOutput> & record = item->getRecord();
+                            std::shared_ptr<RecordOutput> record = item->getRecord();
 
                             // Do write
-                            auto & header = record->getHeader();
+                            auto header = record->getHeader();
                             int bytesToWrite = header->getLength();
                             // Record length of this record
                             writer->recordLengths->push_back(bytesToWrite);

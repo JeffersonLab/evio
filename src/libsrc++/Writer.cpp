@@ -293,8 +293,8 @@ namespace evio {
 
             headerArray   = other.headerArray;
             // Copy over the vector
-            auto & recLenVector = *(recordLengths.get());
-            recLenVector = *(other.recordLengths.get());
+            std::vector<uint32_t> & otherRecLen = *(other.recordLengths);
+            recordLengths->assign(otherRecLen.begin(), otherRecLen.end());
 
             compressionType = other.compressionType;
             writerBytesWritten = other.writerBytesWritten;
@@ -974,7 +974,7 @@ namespace evio {
         }
 
         // Make sure given record is consistent with this writer
-        auto & header = rec.getHeader();
+        auto header = rec.getHeader();
         header->setCompressionType(compressionType);
         header->setRecordNumber(recordNumber++);
         rec.build();
@@ -1148,7 +1148,7 @@ namespace evio {
 //            std::cout << "  ***  writeOutput: No future to wait for" << std::endl;
 //        }
 
-        auto & header = outputRecord->getHeader();
+        auto header = outputRecord->getHeader();
 
         header->setRecordNumber(recordNumber++);
         header->setCompressionType(compressionType);
@@ -1186,7 +1186,7 @@ namespace evio {
 
     /** Write internal record with incremented record # to buffer. */
     void Writer::writeOutputToBuffer() {
-        auto & header = outputRecord->getHeader();
+        auto header = outputRecord->getHeader();
         header->setRecordNumber(recordNumber++);
         header->setCompressionType(compressionType);
 

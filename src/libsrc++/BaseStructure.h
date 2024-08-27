@@ -427,7 +427,7 @@ namespace evio {
         void remove(size_t childIndex);
 
         std::shared_ptr<BaseStructure> getParent() const;
-        std::vector<std::shared_ptr<BaseStructure>> getChildren() const;
+        std::vector<std::shared_ptr<BaseStructure>> & getChildren();
         std::shared_ptr<BaseStructure> getChildAt(size_t index) const;
 
         size_t getChildCount() const;

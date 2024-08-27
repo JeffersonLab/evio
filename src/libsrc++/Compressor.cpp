@@ -312,7 +312,7 @@ uint8_t* Compressor::uncompressGZIP(uint8_t* gzipped, uint32_t off,
     }
 
     uint32_t destLen = *uncompLen;
-    auto ungzipped = new uint8_t[destLen];
+    auto *ungzipped = new uint8_t[destLen];
 
     int err = uncompressGZIP(ungzipped, &destLen, gzipped + off, &length, origUncompLen);
     if (err != Z_OK) {
@@ -462,7 +462,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
 
     // Max length of uncompressed data.
     uint32_t dstLen = *uncompLen;
-    auto ungzipped = new uint8_t[dstLen];
+    auto *ungzipped = new uint8_t[dstLen];
 
     int err = uncompressGZIP(ungzipped, &dstLen,
                      gzipped.array() + gzipped.arrayOffset() + gzipped.position(),
