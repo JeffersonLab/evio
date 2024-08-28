@@ -28,5 +28,5 @@ var searchData=
   ['difference_5ftype_168',['difference_type',['../d9/ddd/classevio_1_1_base_structure.html#a49ba916414823d231113d835a9b7620f',1,'evio::BaseStructure']]],
   ['double64_169',['DOUBLE64',['../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812',1,'evio::DataType']]],
   ['doubledata_170',['doubleData',['../d9/ddd/classevio_1_1_base_structure.html#a88f301e38ebcc137ed91b13ffbb7b6b1',1,'evio::BaseStructure']]],
-  ['duplicate_171',['duplicate',['../dc/d30/classevio_1_1_byte_buffer.html#a769cd08ef3d2320b1f21d33c528dc054',1,'evio::ByteBuffer::duplicate(ByteBuffer &amp;destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#a647bf609c9b5c19403938ef2bbe7f0bc',1,'evio::ByteBuffer::duplicate(std::shared_ptr&lt; ByteBuffer &gt; &amp;destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#aab31b6bac664b8cf8bd9dbba1d319045',1,'evio::ByteBuffer::duplicate()']]]
+  ['duplicate_171',['duplicate',['../dc/d30/classevio_1_1_byte_buffer.html#a769cd08ef3d2320b1f21d33c528dc054',1,'evio::ByteBuffer::duplicate(ByteBuffer &amp;destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#adf3809653426c9559eb5c77813582221',1,'evio::ByteBuffer::duplicate(std::shared_ptr&lt; ByteBuffer &gt; destBuf)'],['../dc/d30/classevio_1_1_byte_buffer.html#aab31b6bac664b8cf8bd9dbba1d319045',1,'evio::ByteBuffer::duplicate()']]]
 ];

@@ -116,9 +116,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0214facdecc8bc06896ba03d026d58e6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html#a0214facdecc8bc06896ba03d026d58e6">EvioReader</a> (std::string const &amp;path, bool checkRecNumSeq=false, bool synced=false)</td></tr>
 <tr class="memdesc:a0214facdecc8bc06896ba03d026d58e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading an event file.  <a href="../../df/dbd/classevio_1_1_evio_reader.html#a0214facdecc8bc06896ba03d026d58e6">More...</a><br /></td></tr>
 <tr class="separator:a0214facdecc8bc06896ba03d026d58e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad15fd3ef4661dc9f007991fb129a35b8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html#ad15fd3ef4661dc9f007991fb129a35b8">EvioReader</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;bb, bool checkRecNumSeq=false, bool synced=false)</td></tr>
-<tr class="memdesc:ad15fd3ef4661dc9f007991fb129a35b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading a buffer with option of removing synchronization for much greater speed.  <a href="../../df/dbd/classevio_1_1_evio_reader.html#ad15fd3ef4661dc9f007991fb129a35b8">More...</a><br /></td></tr>
-<tr class="separator:ad15fd3ef4661dc9f007991fb129a35b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09d092c3a6915e4539d5becd16b6d764"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html#a09d092c3a6915e4539d5becd16b6d764">EvioReader</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; bb, bool checkRecNumSeq=false, bool synced=false)</td></tr>
+<tr class="memdesc:a09d092c3a6915e4539d5becd16b6d764"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading a buffer with option of removing synchronization for much greater speed.  <a href="../../df/dbd/classevio_1_1_evio_reader.html#a09d092c3a6915e4539d5becd16b6d764">More...</a><br /></td></tr>
+<tr class="separator:a09d092c3a6915e4539d5becd16b6d764"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bc46b1f0c20379d11d93bd2591f9640"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html#a1bc46b1f0c20379d11d93bd2591f9640">setBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf) override</td></tr>
 <tr class="memdesc:a1bc46b1f0c20379d11d93bd2591f9640"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method can be used to avoid creating additional <a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html" title="This is a class of interest to the user.">EvioReader</a> objects by reusing this one with another buffer.The method <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> is called before anything else.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -136,7 +136,7 @@ Public Member Functions</h2></td></tr>
   <a href="../../df/dbd/classevio_1_1_evio_reader.html#a1bc46b1f0c20379d11d93bd2591f9640">More...</a><br /></td></tr>
 <tr class="separator:a1bc46b1f0c20379d11d93bd2591f9640"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1040f82394974dc379561ed43492f1c9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html#a1040f82394974dc379561ed43492f1c9">isClosed</a> () override</td></tr>
-<tr class="memdesc:a1040f82394974dc379561ed43492f1c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
+<tr class="memdesc:a1040f82394974dc379561ed43492f1c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a9ca85bd9c0616d9def93ba63e7a96bf8">setBuffer(std::shared_ptr&lt;ByteBuffer&gt;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
 </div><!-- fragment --> if this object closed, else<div class="fragment"><div class="line"><span class="keyword">false</span> </div>
 </div><!-- fragment --> .</dd></dl>
   <a href="../../df/dbd/classevio_1_1_evio_reader.html#a1040f82394974dc379561ed43492f1c9">More...</a><br /></td></tr>
@@ -490,8 +490,8 @@ timmer </dd></dl>
 
 </div>
 </div>
-<a id="ad15fd3ef4661dc9f007991fb129a35b8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad15fd3ef4661dc9f007991fb129a35b8">&#9670;&nbsp;</a></span>EvioReader() <span class="overload">[2/2]</span></h2>
+<a id="a09d092c3a6915e4539d5becd16b6d764"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09d092c3a6915e4539d5becd16b6d764">&#9670;&nbsp;</a></span>EvioReader() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -502,7 +502,7 @@ timmer </dd></dl>
         <tr>
           <td class="memname">evio::EvioReader::EvioReader </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>bb</em>, </td>
         </tr>
         <tr>
@@ -1361,7 +1361,7 @@ timmer </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p>Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
+<p>Has <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f">close()</a> been called (without reopening by calling <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a9ca85bd9c0616d9def93ba63e7a96bf8">setBuffer(std::shared_ptr&lt;ByteBuffer&gt;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
 </div><!-- fragment --> if this object closed, else<div class="fragment"><div class="line"><span class="keyword">false</span> </div>
 </div><!-- fragment --> .</dd></dl>
  </p>
@@ -1551,7 +1551,7 @@ timmer </dd></dl>
   </dd>
 </dl>
 
-<p class="reference">References <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#a09b0b1c53d32dee4746fa94981d3f6af">evio::EventParser::eventParse()</a>, and <a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html#a1440ceb92510aae8ef149ca60e2522ef">getEvent()</a>.</p>
+<p class="reference">References <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#af33a8db08affb527c26f13ff481cddad">evio::EventParser::eventParse()</a>, and <a class="el" href="../../df/dbd/classevio_1_1_evio_reader.html#a1440ceb92510aae8ef149ca60e2522ef">getEvent()</a>.</p>
 
 </div>
 </div>

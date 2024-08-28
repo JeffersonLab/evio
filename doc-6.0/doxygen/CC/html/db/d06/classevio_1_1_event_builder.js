@@ -1,7 +1,7 @@
 var classevio_1_1_event_builder =
 [
     [ "EventBuilder", "db/d06/classevio_1_1_event_builder.html#a0e26d4fe3581beb73c5e7cf0e406f364", null ],
-    [ "EventBuilder", "db/d06/classevio_1_1_event_builder.html#a3de3486becd4f5e2e477a17708c41e00", null ],
+    [ "EventBuilder", "db/d06/classevio_1_1_event_builder.html#ad8c097e1a4879161181f11eba2c79a33", null ],
     [ "addChild", "db/d06/classevio_1_1_event_builder.html#a6ff12a984286547c674032a532f844cf", null ],
     [ "appendCharData", "db/d06/classevio_1_1_event_builder.html#a8d314a968d19a7152c2c57b1798aafce", null ],
     [ "appendCompositeData", "db/d06/classevio_1_1_event_builder.html#a12a1e136528c944ae60635b50401266d", null ],
@@ -23,7 +23,7 @@ var classevio_1_1_event_builder =
     [ "setCharData", "db/d06/classevio_1_1_event_builder.html#a3dcbd8ae3c255b2e29198289e4bc3426", null ],
     [ "setCompositeData", "db/d06/classevio_1_1_event_builder.html#ae94057017b57044ff884cbe53b2dd79b", null ],
     [ "setDoubleData", "db/d06/classevio_1_1_event_builder.html#add5d4f0b4d35f9fcab3e7093b6fcc2fd", null ],
-    [ "setEvent", "db/d06/classevio_1_1_event_builder.html#a8d99ac14b19b7b609d8e3bd5013029f7", null ],
+    [ "setEvent", "db/d06/classevio_1_1_event_builder.html#a7f355b563d31e4f9909609b05375fb57", null ],
     [ "setFloatData", "db/d06/classevio_1_1_event_builder.html#a94c380a5efed46e884de4a89a61d9d27", null ],
     [ "setIntData", "db/d06/classevio_1_1_event_builder.html#a6b550b0b63ed484643820c007c7275ab", null ],
     [ "setLongData", "db/d06/classevio_1_1_event_builder.html#ac28e6dbf5d5fdf40ab8ca2f8706dcbd5", null ],

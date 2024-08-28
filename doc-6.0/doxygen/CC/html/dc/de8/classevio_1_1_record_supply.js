@@ -17,11 +17,11 @@ var classevio_1_1_record_supply =
     [ "haveError", "dc/de8/classevio_1_1_record_supply.html#a57f2867953160df90bd086c5a14383d8", null ],
     [ "haveError", "dc/de8/classevio_1_1_record_supply.html#af0186cf8e0547e4f6d4e804a0a0e88ec", null ],
     [ "isDiskFull", "dc/de8/classevio_1_1_record_supply.html#ac10918d77653c80b7ed9268d8621b8c2", null ],
-    [ "publish", "dc/de8/classevio_1_1_record_supply.html#a68fd39ed3f305468efa495962bf2b5a9", null ],
+    [ "publish", "dc/de8/classevio_1_1_record_supply.html#a519d162434d4aaf88afc8c47913436eb", null ],
     [ "release", "dc/de8/classevio_1_1_record_supply.html#aaa5d0c2544350e9e591205c9dd4d5016", null ],
-    [ "releaseCompressor", "dc/de8/classevio_1_1_record_supply.html#ac80bfbdf6f82fd10cc0631348d784fa6", null ],
-    [ "releaseWriter", "dc/de8/classevio_1_1_record_supply.html#a035753d88ac18275851d42bde9b53eb3", null ],
-    [ "releaseWriterSequential", "dc/de8/classevio_1_1_record_supply.html#a88283fcf1be35de2207549cbe8c00062", null ],
+    [ "releaseCompressor", "dc/de8/classevio_1_1_record_supply.html#aad26dd71d370bf4c1a1c3ecd845a5931", null ],
+    [ "releaseWriter", "dc/de8/classevio_1_1_record_supply.html#a40849be917d3403a039ca9237c614d6d", null ],
+    [ "releaseWriterSequential", "dc/de8/classevio_1_1_record_supply.html#a8dae076b2f526dbafae589db32fefce2", null ],
     [ "setDiskFull", "dc/de8/classevio_1_1_record_supply.html#a5b10f58e40cfaca7314ba8470de55b0e", null ],
     [ "setError", "dc/de8/classevio_1_1_record_supply.html#a7ae9f6d3176378de853730c79c56ea4b", null ]
 ];

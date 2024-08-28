@@ -2,7 +2,7 @@ var classevio_1_1_segment_header =
 [
     [ "SegmentHeader", "d1/d89/classevio_1_1_segment_header.html#a22eb560a7400c0566b69ba1d19cc813d", null ],
     [ "SegmentHeader", "d1/d89/classevio_1_1_segment_header.html#ae441e10b9da42c3e63b5f5f15f535d68", null ],
-    [ "copy", "d1/d89/classevio_1_1_segment_header.html#ab77654de79c4807d70223adfdfcd8ee2", null ],
+    [ "copy", "d1/d89/classevio_1_1_segment_header.html#ac4562377b82fbb376662f83be54b0b07", null ],
     [ "getDataLength", "d1/d89/classevio_1_1_segment_header.html#a087ac057344b157c2e46a460f1f12189", null ],
     [ "getDataType", "d1/d89/classevio_1_1_segment_header.html#aecc8cfa082206c87607c3e4df64f940d", null ],
     [ "getDataTypeName", "d1/d89/classevio_1_1_segment_header.html#a20ecfb1490d3928289ce7e90717d797c", null ],
@@ -20,7 +20,7 @@ var classevio_1_1_segment_header =
     [ "setTag", "d1/d89/classevio_1_1_segment_header.html#a0fd8e371d474551b449786da20b65df5", null ],
     [ "toString", "d1/d89/classevio_1_1_segment_header.html#a8858e2caef08e6ab1116de4f25155f2d", null ],
     [ "write", "d1/d89/classevio_1_1_segment_header.html#a2112b72784abcd6cf65257c1e137e913", null ],
-    [ "write", "d1/d89/classevio_1_1_segment_header.html#a0261659391e90001dd5ab3f640e1f1db", null ],
+    [ "write", "d1/d89/classevio_1_1_segment_header.html#a66826064714a24282bf9d4f2c4193e47", null ],
     [ "write", "d1/d89/classevio_1_1_segment_header.html#a8431fe65ab32bc72f25ae5584f07eb95", null ],
     [ "dataType", "d1/d89/classevio_1_1_segment_header.html#a6ef44d65bf94ac971d3af915180cec87", null ],
     [ "length", "d1/d89/classevio_1_1_segment_header.html#a2fe8b4dabff88791e9363b53e094eff6", null ],

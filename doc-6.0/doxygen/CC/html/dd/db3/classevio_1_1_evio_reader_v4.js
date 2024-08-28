@@ -8,7 +8,7 @@ var classevio_1_1_evio_reader_v4 =
       [ "UNKNOWN_ERROR", "dd/db3/classevio_1_1_evio_reader_v4.html#aeb9b24a83d7fc38eacf3f6b3b329f926a0c4ce2651b53b53a2e628c80bf3db456", null ]
     ] ],
     [ "EvioReaderV4", "dd/db3/classevio_1_1_evio_reader_v4.html#aaceaf45be3fe4156a280ab9f78f8697e", null ],
-    [ "EvioReaderV4", "dd/db3/classevio_1_1_evio_reader_v4.html#ada0fe4bdc542167bcaaccf7c220c0f44", null ],
+    [ "EvioReaderV4", "dd/db3/classevio_1_1_evio_reader_v4.html#ab0332860b64303e6b0d376fba4c06abe", null ],
     [ "checkBlockNumberSequence", "dd/db3/classevio_1_1_evio_reader_v4.html#a063a318617679c6456802a2f5a840915", null ],
     [ "close", "dd/db3/classevio_1_1_evio_reader_v4.html#adc59efe016e7c5c57350d41fd9bfbd18", null ],
     [ "fileSize", "dd/db3/classevio_1_1_evio_reader_v4.html#a316eddece193b0cde1a55265d37b8e10", null ],
@@ -34,7 +34,7 @@ var classevio_1_1_evio_reader_v4 =
     [ "nextEvent", "dd/db3/classevio_1_1_evio_reader_v4.html#a46655f6197c4f00a3a8a7dc38f15f162", null ],
     [ "parseEvent", "dd/db3/classevio_1_1_evio_reader_v4.html#a605bc27fbfa468057669a5a157478f78", null ],
     [ "parseEvent", "dd/db3/classevio_1_1_evio_reader_v4.html#ad64cac6bd49f60a3ad8ff0e621b5e391", null ],
-    [ "parseFirstHeader", "dd/db3/classevio_1_1_evio_reader_v4.html#ab851d0a680a06875f14cbeee08c62c62", null ],
+    [ "parseFirstHeader", "dd/db3/classevio_1_1_evio_reader_v4.html#a6ced5119dc5feace4df84e494e965cbb", null ],
     [ "parseNextEvent", "dd/db3/classevio_1_1_evio_reader_v4.html#afb69bdb4a8d522a4605a41505720633a", null ],
     [ "position", "dd/db3/classevio_1_1_evio_reader_v4.html#a788f6442710ea217855ba4c70787b5d5", null ],
     [ "processNextBlock", "dd/db3/classevio_1_1_evio_reader_v4.html#a8767111bda74f2c5b994aeeee4c2cefa", null ],

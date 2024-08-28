@@ -2,7 +2,7 @@ var classevio_1_1_record_output =
 [
     [ "RecordOutput", "d2/d7a/classevio_1_1_record_output.html#ac8c45b1555c4194aba1425bf36ca8f1b", null ],
     [ "RecordOutput", "d2/d7a/classevio_1_1_record_output.html#a232e28211cd5630b6bb43c8944ffe60e", null ],
-    [ "RecordOutput", "d2/d7a/classevio_1_1_record_output.html#a3308b373e210f9d4cc3f3f1faf50e544", null ],
+    [ "RecordOutput", "d2/d7a/classevio_1_1_record_output.html#aa27efc6a41c25b8b88a9114e5ac68e8a", null ],
     [ "RecordOutput", "d2/d7a/classevio_1_1_record_output.html#ab74c5e86b19c90156972a7b512d91182", null ],
     [ "RecordOutput", "d2/d7a/classevio_1_1_record_output.html#a2437148cfd6aba94169e6ca016aa2443", null ],
     [ "~RecordOutput", "d2/d7a/classevio_1_1_record_output.html#aeb9a1c12d7e3f84572644adaec37eabe", null ],
@@ -34,7 +34,7 @@ var classevio_1_1_record_output =
     [ "operator=", "d2/d7a/classevio_1_1_record_output.html#a7341c94d383583af26399f12dcedade0", null ],
     [ "reset", "d2/d7a/classevio_1_1_record_output.html#abc4221165d1626407280c56e7cc4ea70", null ],
     [ "roomForEvent", "d2/d7a/classevio_1_1_record_output.html#afcbb151999c6a2db36dbf06994756e0d", null ],
-    [ "setBuffer", "d2/d7a/classevio_1_1_record_output.html#a57adc95dceace9f15a5d4525587d346c", null ],
+    [ "setBuffer", "d2/d7a/classevio_1_1_record_output.html#a166f99d57939caf7d61be363ebb8115a", null ],
     [ "setStartingBufferPosition", "d2/d7a/classevio_1_1_record_output.html#acd8fcf62ec243383f68d558a6924c659", null ],
     [ "transferDataForReading", "d2/d7a/classevio_1_1_record_output.html#a962e99aa5e7234890e786fb9f4f0cd15", null ],
     [ "byteOrder", "d2/d7a/classevio_1_1_record_output.html#a8bc3bca719406f7b353facd7cfcf2ab4", null ],

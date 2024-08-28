@@ -100,9 +100,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1c0f4061dd974ee2053b795afc57c177"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a1c0f4061dd974ee2053b795afc57c177">EvioCompactReader</a> (std::string const &amp;path, bool sync=false)</td></tr>
 <tr class="memdesc:a1c0f4061dd974ee2053b795afc57c177"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading an event file.  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a1c0f4061dd974ee2053b795afc57c177">More...</a><br /></td></tr>
 <tr class="separator:a1c0f4061dd974ee2053b795afc57c177"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2332f7d7b8c29a102f173fc4c16ff5b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aa2332f7d7b8c29a102f173fc4c16ff5b">EvioCompactReader</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;byteBuffer, bool sync=false)</td></tr>
-<tr class="memdesc:aa2332f7d7b8c29a102f173fc4c16ff5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading a buffer with option of removing synchronization for much greater speed.  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aa2332f7d7b8c29a102f173fc4c16ff5b">More...</a><br /></td></tr>
-<tr class="separator:aa2332f7d7b8c29a102f173fc4c16ff5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56b5fe23f39eb20fdec93de24c764819"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a56b5fe23f39eb20fdec93de24c764819">EvioCompactReader</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; byteBuffer, bool sync=false)</td></tr>
+<tr class="memdesc:a56b5fe23f39eb20fdec93de24c764819"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading a buffer with option of removing synchronization for much greater speed.  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a56b5fe23f39eb20fdec93de24c764819">More...</a><br /></td></tr>
+<tr class="separator:a56b5fe23f39eb20fdec93de24c764819"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cdf3b28482436cb849f90fa877635c4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a2cdf3b28482436cb849f90fa877635c4">isFile</a> () override</td></tr>
 <tr class="memdesc:a2cdf3b28482436cb849f90fa877635c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is this reader reading a file?<dl class="section return"><dt>Returns</dt><dd>true if reading file, false if reading buffer</dd></dl>
   <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a2cdf3b28482436cb849f90fa877635c4">More...</a><br /></td></tr>
@@ -111,8 +111,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a0710c7fb3d2ffac3daa3136709e9d257"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is the data in the file/buffer compressed?<dl class="section return"><dt>Returns</dt><dd>true if data is compressed.</dd></dl>
   <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a0710c7fb3d2ffac3daa3136709e9d257">More...</a><br /></td></tr>
 <tr class="separator:a0710c7fb3d2ffac3daa3136709e9d257"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a535e5cb94d4ef53def1a9bc5c3d0d92d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a535e5cb94d4ef53def1a9bc5c3d0d92d">setBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;buf) override</td></tr>
-<tr class="memdesc:a535e5cb94d4ef53def1a9bc5c3d0d92d"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method can be used to avoid creating additional <a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html" title="This class is used to read an evio formatted file or buffer and extract specific evio containers (ban...">EvioCompactReader</a> objects by reusing this one with another buffer.The method <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a635056466c0cc68675733107dd09f68f">close()</a> should be called before calling this.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:aafbc678ea5eaa4ab50808006bfa63f67"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aafbc678ea5eaa4ab50808006bfa63f67">setBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf) override</td></tr>
+<tr class="memdesc:aafbc678ea5eaa4ab50808006bfa63f67"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method can be used to avoid creating additional <a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html" title="This class is used to read an evio formatted file or buffer and extract specific evio containers (ban...">EvioCompactReader</a> objects by reusing this one with another buffer.The method <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a635056466c0cc68675733107dd09f68f">close()</a> should be called before calling this.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">buf</td><td><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> to be read </td></tr>
   </table>
@@ -124,10 +124,10 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a535e5cb94d4ef53def1a9bc5c3d0d92d">More...</a><br /></td></tr>
-<tr class="separator:a535e5cb94d4ef53def1a9bc5c3d0d92d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aafbc678ea5eaa4ab50808006bfa63f67">More...</a><br /></td></tr>
+<tr class="separator:aafbc678ea5eaa4ab50808006bfa63f67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98b001c27102f2f80862825640a9a068"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a98b001c27102f2f80862825640a9a068">isClosed</a> () override</td></tr>
-<tr class="memdesc:a98b001c27102f2f80862825640a9a068"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a635056466c0cc68675733107dd09f68f">close()</a> been called (without reopening by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a93be1a5223b60c7e4413e66cf1bd9837">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
+<tr class="memdesc:a98b001c27102f2f80862825640a9a068"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a635056466c0cc68675733107dd09f68f">close()</a> been called (without reopening by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#adb19229896b8bfb142031febe71a4a6d">setBuffer(std::shared_ptr&lt;ByteBuffer&gt;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
 </div><!-- fragment --> if this object closed, else<div class="fragment"><div class="line"><span class="keyword">false</span> </div>
 </div><!-- fragment --> .</dd></dl>
   <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a98b001c27102f2f80862825640a9a068">More...</a><br /></td></tr>
@@ -222,8 +222,8 @@ Public Member Functions</h2></td></tr>
 </dl>
   <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a1434c49d5c787ea3e78fc475c0491a90">More...</a><br /></td></tr>
 <tr class="separator:a1434c49d5c787ea3e78fc475c0491a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6112806f3b0fb07444607312cbf4a1e3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a6112806f3b0fb07444607312cbf4a1e3">searchEvent</a> (size_t eventNumber, std::string const &amp;dictName, std::shared_ptr&lt; <a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html">EvioXMLDictionary</a> &gt; &amp;dictionary, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&gt; &amp;vec) override</td></tr>
-<tr class="memdesc:a6112806f3b0fb07444607312cbf4a1e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method searches the specified event in a file/buffer and returns a vector of objects each of which contain information about a single evio structure which matches the given dictionary entry name.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:a01c1be9775c012916407b73ac588a7d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a01c1be9775c012916407b73ac588a7d3">searchEvent</a> (size_t eventNumber, std::string const &amp;dictName, std::shared_ptr&lt; <a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html">EvioXMLDictionary</a> &gt; dictionary, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&gt; &amp;vec) override</td></tr>
+<tr class="memdesc:a01c1be9775c012916407b73ac588a7d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method searches the specified event in a file/buffer and returns a vector of objects each of which contain information about a single evio structure which matches the given dictionary entry name.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">eventNumber</td><td>place of event in buffer (starting with 1) </td></tr>
     <tr><td class="paramname">dictName</td><td>name of dictionary entry to search for </td></tr>
@@ -238,8 +238,8 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a6112806f3b0fb07444607312cbf4a1e3">More...</a><br /></td></tr>
-<tr class="separator:a6112806f3b0fb07444607312cbf4a1e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a01c1be9775c012916407b73ac588a7d3">More...</a><br /></td></tr>
+<tr class="separator:a01c1be9775c012916407b73ac588a7d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9a40c2790765fe7eccc73a57a4cd8f5"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#ad9a40c2790765fe7eccc73a57a4cd8f5">removeEvent</a> (size_t eventNumber) override</td></tr>
 <tr class="memdesc:ad9a40c2790765fe7eccc73a57a4cd8f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method removes the data of the given event from the buffer.It also marks any existing EvioNodes representing the event and its descendants as obsolete. They must not be used anymore.If the constructor of this reader read in data from a file, it will now switch to using a new, internal buffer which is returned by this method or can be retrieved by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a650a31173dcf00b233e3860f6ae38691">getByteBuffer()</a>. It will <b>not</b> change the file originally used. A new file can be created by calling either the <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a71a5ab4dbef5da04dcb2de4a7552dbaa">toFile(std::string const &amp;)</a> method.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -256,8 +256,8 @@ Public Member Functions</h2></td></tr>
 </dl>
   <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#ad9a40c2790765fe7eccc73a57a4cd8f5">More...</a><br /></td></tr>
 <tr class="separator:ad9a40c2790765fe7eccc73a57a4cd8f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8edc5bf18aafa15d67f06998f6e647c"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aa8edc5bf18aafa15d67f06998f6e647c">removeStructure</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;removeNode) override</td></tr>
-<tr class="memdesc:aa8edc5bf18aafa15d67f06998f6e647c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method removes the data, represented by the given node, from the buffer.It also marks the node and its descendants as obsolete. They must not be used anymore.If the constructor of this reader read in data from a file, it will now switch to using a new, internal buffer which is returned by this method or can be retrieved by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a650a31173dcf00b233e3860f6ae38691">getByteBuffer()</a>. It will <b>not</b> change the file originally used. A new file can be created by calling either the <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a71a5ab4dbef5da04dcb2de4a7552dbaa">toFile(std::string const &amp;)</a> method.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:aff0448d0686d9e2b5cfc5e11d7f6d70c"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aff0448d0686d9e2b5cfc5e11d7f6d70c">removeStructure</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; removeNode) override</td></tr>
+<tr class="memdesc:aff0448d0686d9e2b5cfc5e11d7f6d70c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method removes the data, represented by the given node, from the buffer.It also marks the node and its descendants as obsolete. They must not be used anymore.If the constructor of this reader read in data from a file, it will now switch to using a new, internal buffer which is returned by this method or can be retrieved by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a650a31173dcf00b233e3860f6ae38691">getByteBuffer()</a>. It will <b>not</b> change the file originally used. A new file can be created by calling either the <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a71a5ab4dbef5da04dcb2de4a7552dbaa">toFile(std::string const &amp;)</a> method.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">removeNode</td><td>evio structure to remove from buffer </td></tr>
   </table>
@@ -270,8 +270,8 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aa8edc5bf18aafa15d67f06998f6e647c">More...</a><br /></td></tr>
-<tr class="separator:aa8edc5bf18aafa15d67f06998f6e647c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aff0448d0686d9e2b5cfc5e11d7f6d70c">More...</a><br /></td></tr>
+<tr class="separator:aff0448d0686d9e2b5cfc5e11d7f6d70c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f14a17353707ea352dde6b3bd4ac69e"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a0f14a17353707ea352dde6b3bd4ac69e">addStructure</a> (size_t eventNumber, <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;addBuffer) override</td></tr>
 <tr class="memdesc:a0f14a17353707ea352dde6b3bd4ac69e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method adds an evio container (bank, segment, or tag segment) as the last structure contained in an event.It is the responsibility of the caller to make sure that the buffer argument contains valid evio data (only data representing the structure to be added - not in file format with block header and the like) which is compatible with the type of data stored in the given event.To produce such evio data use <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a216a3d4858d6280df0f42d397b2759dc">EvioBank#write(ByteBuffer &amp;)</a>, <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a216a3d4858d6280df0f42d397b2759dc">EvioSegment#write(ByteBuffer &amp;)</a> or <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a216a3d4858d6280df0f42d397b2759dc">EvioTagSegment#write(ByteBuffer &amp;)</a> depending on whether a bank, seg, or tagseg is being added.A note about files here. If the constructor of this reader read in data from a file, it will now switch to using a new, internal buffer which is returned by this method or can be retrieved by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a650a31173dcf00b233e3860f6ae38691">getByteBuffer()</a>. It will <b>not</b> expand the file originally used. A new file can be created by calling either the <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a71a5ab4dbef5da04dcb2de4a7552dbaa">toFile(std::string const &amp;)</a> method.The given buffer argument must be ready to read with its position and limit defining the limits of the data to copy. This method is synchronized due to the bulk, relative puts.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -289,8 +289,8 @@ Public Member Functions</h2></td></tr>
 </dl>
   <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a0f14a17353707ea352dde6b3bd4ac69e">More...</a><br /></td></tr>
 <tr class="separator:a0f14a17353707ea352dde6b3bd4ac69e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac8f9fcd180d76a0dd41f8e6ec197a581"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#ac8f9fcd180d76a0dd41f8e6ec197a581">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node) override</td></tr>
-<tr class="memdesc:ac8f9fcd180d76a0dd41f8e6ec197a581"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.The returned buffer is a view into this reader's buffer (no copy done). Changes in one will affect the other.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:ab1c7de0151f1274e38c508a27f4eb346"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#ab1c7de0151f1274e38c508a27f4eb346">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node) override</td></tr>
+<tr class="memdesc:ab1c7de0151f1274e38c508a27f4eb346"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.The returned buffer is a view into this reader's buffer (no copy done). Changes in one will affect the other.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">node</td><td>evio structure whose data is to be retrieved </td></tr>
   </table>
@@ -303,10 +303,10 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> filled with data.</dd></dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#ac8f9fcd180d76a0dd41f8e6ec197a581">More...</a><br /></td></tr>
-<tr class="separator:ac8f9fcd180d76a0dd41f8e6ec197a581"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af63a84bee6eb3f5210aa4b8fc8610397"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#af63a84bee6eb3f5210aa4b8fc8610397">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, bool copy) override</td></tr>
-<tr class="memdesc:af63a84bee6eb3f5210aa4b8fc8610397"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.Depending on the copy argument, the given/returned buffer will either be a copy of or a view into the data of this reader's buffer.This method is synchronized due to the bulk, relative gets &amp; puts.<dl class="params"><dt>Parameters</dt><dd>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#ab1c7de0151f1274e38c508a27f4eb346">More...</a><br /></td></tr>
+<tr class="separator:ab1c7de0151f1274e38c508a27f4eb346"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9921e2acb949db118504c45e23f01a0d"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a9921e2acb949db118504c45e23f01a0d">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node, bool copy) override</td></tr>
+<tr class="memdesc:a9921e2acb949db118504c45e23f01a0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.Depending on the copy argument, the given/returned buffer will either be a copy of or a view into the data of this reader's buffer.This method is synchronized due to the bulk, relative gets &amp; puts.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">node</td><td>evio structure whose data is to be retrieved </td></tr>
     <tr><td class="paramname">copy</td><td>if <code>true</code>, then return a copy as opposed to a view into this reader object's buffer. </td></tr>
@@ -320,10 +320,10 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> filled with data.</dd></dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#af63a84bee6eb3f5210aa4b8fc8610397">More...</a><br /></td></tr>
-<tr class="separator:af63a84bee6eb3f5210aa4b8fc8610397"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaa057d7c4fe9f5e3ec2a5380c3de0260"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aaa057d7c4fe9f5e3ec2a5380c3de0260">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;buf) override</td></tr>
-<tr class="memdesc:aaa057d7c4fe9f5e3ec2a5380c3de0260"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.The returned buffer is a view into this reader's buffer (no copy done). Changes in one will affect the other.<dl class="params"><dt>Parameters</dt><dd>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a9921e2acb949db118504c45e23f01a0d">More...</a><br /></td></tr>
+<tr class="separator:a9921e2acb949db118504c45e23f01a0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7290922550332efe0c305fc004351dcb"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a7290922550332efe0c305fc004351dcb">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf) override</td></tr>
+<tr class="memdesc:a7290922550332efe0c305fc004351dcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.The returned buffer is a view into this reader's buffer (no copy done). Changes in one will affect the other.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">node</td><td>evio structure whose data is to be retrieved </td></tr>
     <tr><td class="paramname">buf</td><td>user-supplied <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> to be filled with data. </td></tr>
@@ -337,10 +337,10 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>buf arg.</dd></dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aaa057d7c4fe9f5e3ec2a5380c3de0260">More...</a><br /></td></tr>
-<tr class="separator:aaa057d7c4fe9f5e3ec2a5380c3de0260"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b20d23858a62d24a92373dcebc335b1"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a2b20d23858a62d24a92373dcebc335b1">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;buf, bool copy) override</td></tr>
-<tr class="memdesc:a2b20d23858a62d24a92373dcebc335b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.Depending on the copy argument, the given/returned buffer will either be a copy of or a view into the data of this reader's buffer.This method is synchronized due to the bulk, relative gets &amp; puts.<dl class="params"><dt>Parameters</dt><dd>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a7290922550332efe0c305fc004351dcb">More...</a><br /></td></tr>
+<tr class="separator:a7290922550332efe0c305fc004351dcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ce521879bd81ead2ef7cbc047e969e6"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a3ce521879bd81ead2ef7cbc047e969e6">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf, bool copy) override</td></tr>
+<tr class="memdesc:a3ce521879bd81ead2ef7cbc047e969e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.Depending on the copy argument, the given/returned buffer will either be a copy of or a view into the data of this reader's buffer.This method is synchronized due to the bulk, relative gets &amp; puts.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">node</td><td>evio structure whose data is to be retrieved </td></tr>
     <tr><td class="paramname">buf</td><td>user-supplied <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> to be filled with data. </td></tr>
@@ -355,8 +355,8 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>buf arg.</dd></dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a2b20d23858a62d24a92373dcebc335b1">More...</a><br /></td></tr>
-<tr class="separator:a2b20d23858a62d24a92373dcebc335b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a3ce521879bd81ead2ef7cbc047e969e6">More...</a><br /></td></tr>
+<tr class="separator:a3ce521879bd81ead2ef7cbc047e969e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeeec162137e033d966b6a47392839b97"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#aeeec162137e033d966b6a47392839b97">getEventBuffer</a> (size_t eventNumber) override</td></tr>
 <tr class="memdesc:aeeec162137e033d966b6a47392839b97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an evio bank or event in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.The returned buffer is a view into the data of this reader's buffer.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -390,8 +390,8 @@ Public Member Functions</h2></td></tr>
 </dl>
   <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#ad379606af50a53e713278233ca38edb4">More...</a><br /></td></tr>
 <tr class="separator:ad379606af50a53e713278233ca38edb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc7e19833cc4677ac5b1c24c6ad2d3f9"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#adc7e19833cc4677ac5b1c24c6ad2d3f9">getStructureBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node) override</td></tr>
-<tr class="memdesc:adc7e19833cc4677ac5b1c24c6ad2d3f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an evio structure (bank, seg, or tagseg) in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.The returned buffer is a view into the data of this reader's buffer.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:a8bc19ed7c0bd8e8ad3c765e923789e4c"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a8bc19ed7c0bd8e8ad3c765e923789e4c">getStructureBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node) override</td></tr>
+<tr class="memdesc:a8bc19ed7c0bd8e8ad3c765e923789e4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an evio structure (bank, seg, or tagseg) in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.The returned buffer is a view into the data of this reader's buffer.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">node</td><td>node object representing evio structure of interest </td></tr>
   </table>
@@ -404,10 +404,10 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#adc7e19833cc4677ac5b1c24c6ad2d3f9">More...</a><br /></td></tr>
-<tr class="separator:adc7e19833cc4677ac5b1c24c6ad2d3f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a080813acf5f192748f8981b75409bfa0"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a080813acf5f192748f8981b75409bfa0">getStructureBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, bool copy) override</td></tr>
-<tr class="memdesc:a080813acf5f192748f8981b75409bfa0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an evio structure (bank, seg, or tagseg) in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.Depending on the copy argument, the returned buffer will either be a copy of or a view into the data of this reader's buffer.<dl class="params"><dt>Parameters</dt><dd>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a8bc19ed7c0bd8e8ad3c765e923789e4c">More...</a><br /></td></tr>
+<tr class="separator:a8bc19ed7c0bd8e8ad3c765e923789e4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b2360fea0c025b76d4d73683bb98881"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a6b2360fea0c025b76d4d73683bb98881">getStructureBuffer</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node, bool copy) override</td></tr>
+<tr class="memdesc:a6b2360fea0c025b76d4d73683bb98881"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an evio structure (bank, seg, or tagseg) in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.Depending on the copy argument, the returned buffer will either be a copy of or a view into the data of this reader's buffer.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">node</td><td>node object representing evio structure of interest </td></tr>
     <tr><td class="paramname">copy</td><td>if <code>true</code>, then return a copy as opposed to a view into this reader object's buffer. </td></tr>
@@ -421,8 +421,8 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a080813acf5f192748f8981b75409bfa0">More...</a><br /></td></tr>
-<tr class="separator:a080813acf5f192748f8981b75409bfa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a6b2360fea0c025b76d4d73683bb98881">More...</a><br /></td></tr>
+<tr class="separator:a6b2360fea0c025b76d4d73683bb98881"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c4ca98c20d0a49f21fab7b4191f699a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a4c4ca98c20d0a49f21fab7b4191f699a">close</a> () override</td></tr>
 <tr class="memdesc:a4c4ca98c20d0a49f21fab7b4191f699a"><td class="mdescLeft">&#160;</td><td class="mdescRight">This sets the position to its initial value and marks reader as closed.  <a href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a4c4ca98c20d0a49f21fab7b4191f699a">More...</a><br /></td></tr>
 <tr class="separator:a4c4ca98c20d0a49f21fab7b4191f699a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -505,8 +505,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa2332f7d7b8c29a102f173fc4c16ff5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2332f7d7b8c29a102f173fc4c16ff5b">&#9670;&nbsp;</a></span>EvioCompactReader() <span class="overload">[2/2]</span></h2>
+<a id="a56b5fe23f39eb20fdec93de24c764819"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56b5fe23f39eb20fdec93de24c764819">&#9670;&nbsp;</a></span>EvioCompactReader() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -514,7 +514,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">evio::EvioCompactReader::EvioCompactReader </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>bb</em>, </td>
         </tr>
         <tr>
@@ -757,8 +757,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ac8f9fcd180d76a0dd41f8e6ec197a581"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac8f9fcd180d76a0dd41f8e6ec197a581">&#9670;&nbsp;</a></span>getData() <span class="overload">[1/4]</span></h2>
+<a id="ab1c7de0151f1274e38c508a27f4eb346"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1c7de0151f1274e38c508a27f4eb346">&#9670;&nbsp;</a></span>getData() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -769,7 +769,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; evio::EvioCompactReader::getData </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>node</em></td><td>)</td>
           <td></td>
         </tr>
@@ -796,12 +796,12 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> filled with data.</dd></dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a270cdcdf01daf0e150cc8e6798e062ae">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a713aa9e5303f2350d4f30e496dde6274">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
-<a id="af63a84bee6eb3f5210aa4b8fc8610397"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af63a84bee6eb3f5210aa4b8fc8610397">&#9670;&nbsp;</a></span>getData() <span class="overload">[2/4]</span></h2>
+<a id="a9921e2acb949db118504c45e23f01a0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9921e2acb949db118504c45e23f01a0d">&#9670;&nbsp;</a></span>getData() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -812,7 +812,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; evio::EvioCompactReader::getData </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>node</em>, </td>
         </tr>
         <tr>
@@ -850,12 +850,12 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> filled with data.</dd></dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#ab9833f1f62df245e24c7c762312f0053">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a633e8a637016db157ec8903dda6d5690">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
-<a id="aaa057d7c4fe9f5e3ec2a5380c3de0260"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaa057d7c4fe9f5e3ec2a5380c3de0260">&#9670;&nbsp;</a></span>getData() <span class="overload">[3/4]</span></h2>
+<a id="a7290922550332efe0c305fc004351dcb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7290922550332efe0c305fc004351dcb">&#9670;&nbsp;</a></span>getData() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -866,13 +866,13 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; evio::EvioCompactReader::getData </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>node</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>buf</em>&#160;</td>
         </tr>
         <tr>
@@ -904,12 +904,12 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>buf arg.</dd></dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a6d6c9115914bde1523dd56ab2d5b4d36">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#ade89e525ab4ad955dc281a12b0c344fa">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
-<a id="a2b20d23858a62d24a92373dcebc335b1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2b20d23858a62d24a92373dcebc335b1">&#9670;&nbsp;</a></span>getData() <span class="overload">[4/4]</span></h2>
+<a id="a3ce521879bd81ead2ef7cbc047e969e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ce521879bd81ead2ef7cbc047e969e6">&#9670;&nbsp;</a></span>getData() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -920,13 +920,13 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; evio::EvioCompactReader::getData </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>node</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>buf</em>, </td>
         </tr>
         <tr>
@@ -965,7 +965,7 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>buf arg.</dd></dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a0da6a4eaf9e0e4a2fbf900d659eb9aed">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#aace682c46576bcf6575545033f5ea1ba">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
@@ -1362,8 +1362,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="adc7e19833cc4677ac5b1c24c6ad2d3f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc7e19833cc4677ac5b1c24c6ad2d3f9">&#9670;&nbsp;</a></span>getStructureBuffer() <span class="overload">[1/2]</span></h2>
+<a id="a8bc19ed7c0bd8e8ad3c765e923789e4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bc19ed7c0bd8e8ad3c765e923789e4c">&#9670;&nbsp;</a></span>getStructureBuffer() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1374,7 +1374,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; evio::EvioCompactReader::getStructureBuffer </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>node</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1401,12 +1401,12 @@ Public Member Functions</h2></td></tr>
 </dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a652ff446ccefb149d1f623ebff3d9ad1">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a29ad25caded54ec24f791585f4c41bde">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
-<a id="a080813acf5f192748f8981b75409bfa0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a080813acf5f192748f8981b75409bfa0">&#9670;&nbsp;</a></span>getStructureBuffer() <span class="overload">[2/2]</span></h2>
+<a id="a6b2360fea0c025b76d4d73683bb98881"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b2360fea0c025b76d4d73683bb98881">&#9670;&nbsp;</a></span>getStructureBuffer() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1417,7 +1417,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; evio::EvioCompactReader::getStructureBuffer </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>node</em>, </td>
         </tr>
         <tr>
@@ -1455,7 +1455,7 @@ Public Member Functions</h2></td></tr>
 </dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a29fde743bb82f0d2930a41a46714cca1">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a4d7474f4fe8f0abdfb546c099923d7e0">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
@@ -1512,7 +1512,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Has <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a635056466c0cc68675733107dd09f68f">close()</a> been called (without reopening by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a93be1a5223b60c7e4413e66cf1bd9837">setBuffer(std::shared_ptr&lt;ByteBuffer&gt; &amp;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
+<p>Has <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a635056466c0cc68675733107dd09f68f">close()</a> been called (without reopening by calling <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#adb19229896b8bfb142031febe71a4a6d">setBuffer(std::shared_ptr&lt;ByteBuffer&gt;)</a>)?<dl class="section return"><dt>Returns</dt><dd><div class="fragment"><div class="line"><span class="keyword">true</span> </div>
 </div><!-- fragment --> if this object closed, else<div class="fragment"><div class="line"><span class="keyword">false</span> </div>
 </div><!-- fragment --> .</dd></dl>
  </p>
@@ -1624,8 +1624,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa8edc5bf18aafa15d67f06998f6e647c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8edc5bf18aafa15d67f06998f6e647c">&#9670;&nbsp;</a></span>removeStructure()</h2>
+<a id="aff0448d0686d9e2b5cfc5e11d7f6d70c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff0448d0686d9e2b5cfc5e11d7f6d70c">&#9670;&nbsp;</a></span>removeStructure()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1636,7 +1636,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; evio::EvioCompactReader::removeStructure </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td>
           <td class="paramname"><em>removeNode</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1663,12 +1663,12 @@ Public Member Functions</h2></td></tr>
 </dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#aa61e6cbf099dfdfebdd1a0be0fe5a064">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#ab1667e5243de152c6b714fa04b23223e">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
-<a id="a6112806f3b0fb07444607312cbf4a1e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6112806f3b0fb07444607312cbf4a1e3">&#9670;&nbsp;</a></span>searchEvent() <span class="overload">[1/2]</span></h2>
+<a id="a01c1be9775c012916407b73ac588a7d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01c1be9775c012916407b73ac588a7d3">&#9670;&nbsp;</a></span>searchEvent() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1691,7 +1691,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html">EvioXMLDictionary</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html">EvioXMLDictionary</a> &gt;&#160;</td>
           <td class="paramname"><em>dictionary</em>, </td>
         </tr>
         <tr>
@@ -1730,7 +1730,7 @@ Public Member Functions</h2></td></tr>
 </dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a61124f790273357aac43763f3e60a89e">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a7d481b8f459f0cea057dfaa87dc73bb8">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>
@@ -1801,8 +1801,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a535e5cb94d4ef53def1a9bc5c3d0d92d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a535e5cb94d4ef53def1a9bc5c3d0d92d">&#9670;&nbsp;</a></span>setBuffer()</h2>
+<a id="aafbc678ea5eaa4ab50808006bfa63f67"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aafbc678ea5eaa4ab50808006bfa63f67">&#9670;&nbsp;</a></span>setBuffer()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1813,7 +1813,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void evio::EvioCompactReader::setBuffer </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>buf</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1839,7 +1839,7 @@ Public Member Functions</h2></td></tr>
 </dl>
  </p>
 
-<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a93be1a5223b60c7e4413e66cf1bd9837">evio::IEvioCompactReader</a>.</p>
+<p>Implements <a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#adb19229896b8bfb142031febe71a4a6d">evio::IEvioCompactReader</a>.</p>
 
 </div>
 </div>

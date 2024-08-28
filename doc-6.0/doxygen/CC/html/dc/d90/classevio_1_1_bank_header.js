@@ -2,7 +2,7 @@ var classevio_1_1_bank_header =
 [
     [ "BankHeader", "dc/d90/classevio_1_1_bank_header.html#aa82fb4274cad2039831c954f29396e2a", null ],
     [ "BankHeader", "dc/d90/classevio_1_1_bank_header.html#ac493605397f9247e192d9376caa23dcb", null ],
-    [ "copy", "dc/d90/classevio_1_1_bank_header.html#ab77654de79c4807d70223adfdfcd8ee2", null ],
+    [ "copy", "dc/d90/classevio_1_1_bank_header.html#ac4562377b82fbb376662f83be54b0b07", null ],
     [ "getDataLength", "dc/d90/classevio_1_1_bank_header.html#a44439f36d2f08b0760e6d9dbe1546403", null ],
     [ "getDataType", "dc/d90/classevio_1_1_bank_header.html#aecc8cfa082206c87607c3e4df64f940d", null ],
     [ "getDataTypeName", "dc/d90/classevio_1_1_bank_header.html#a20ecfb1490d3928289ce7e90717d797c", null ],
@@ -20,7 +20,7 @@ var classevio_1_1_bank_header =
     [ "setTag", "dc/d90/classevio_1_1_bank_header.html#a0fd8e371d474551b449786da20b65df5", null ],
     [ "toString", "dc/d90/classevio_1_1_bank_header.html#af941007bb8c0153b1d680dafe9b922e8", null ],
     [ "write", "dc/d90/classevio_1_1_bank_header.html#ab4bc6d2129f31cb036cab2eb4020d5aa", null ],
-    [ "write", "dc/d90/classevio_1_1_bank_header.html#a65f4a1d962a440fda7122d12e8baa466", null ],
+    [ "write", "dc/d90/classevio_1_1_bank_header.html#aba43bb1a4480a487aa7929e85c4192c5", null ],
     [ "write", "dc/d90/classevio_1_1_bank_header.html#af17d69932a1d6ebd14bcdfe7b9022db5", null ],
     [ "EvioReader", "dc/d90/classevio_1_1_bank_header.html#ae07a5e3cb75d21f1fdc5840f87adfc27", null ],
     [ "dataType", "dc/d90/classevio_1_1_bank_header.html#a6ef44d65bf94ac971d3af915180cec87", null ],

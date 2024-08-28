@@ -2,11 +2,11 @@ var classevio_1_1_block_header_v4 =
 [
     [ "BlockHeaderV4", "da/de6/classevio_1_1_block_header_v4.html#a0efcf032fe71cba6b07ee85e59a8ca99", null ],
     [ "BlockHeaderV4", "da/de6/classevio_1_1_block_header_v4.html#ab4c53d99789ec5a6543c59fa5214013f", null ],
-    [ "BlockHeaderV4", "da/de6/classevio_1_1_block_header_v4.html#a10466c7aab162f117379326f21fc3d8b", null ],
+    [ "BlockHeaderV4", "da/de6/classevio_1_1_block_header_v4.html#a355ae96d4b2fb8115f1a8c7906a1749f", null ],
     [ "bytesRemaining", "da/de6/classevio_1_1_block_header_v4.html#a03ad2993606e2cf26b773810880a2e0f", null ],
     [ "clearFirstEventBit", "da/de6/classevio_1_1_block_header_v4.html#ab29c8838c57859396a46708ddc8808bb", null ],
     [ "clearLastBlockBit", "da/de6/classevio_1_1_block_header_v4.html#aea4ab5a6e6e04aae085247e29a56c826", null ],
-    [ "copy", "da/de6/classevio_1_1_block_header_v4.html#a94cba4a2d72ec0764f1e90bc194a6c6a", null ],
+    [ "copy", "da/de6/classevio_1_1_block_header_v4.html#a5ae3cf847a6cd4c74135a0f704f5e5d9", null ],
     [ "firstEventStartingPosition", "da/de6/classevio_1_1_block_header_v4.html#a9266b5dd5bd9a2c54dbac5ad66544016", null ],
     [ "generateSixthWord", "da/de6/classevio_1_1_block_header_v4.html#a880682f88f3c27536c785db2a7ddcac6", null ],
     [ "generateSixthWord", "da/de6/classevio_1_1_block_header_v4.html#a7665443fe50d6b0c914790bd31b6a1ba", null ],

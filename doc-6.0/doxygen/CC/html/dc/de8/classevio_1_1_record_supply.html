@@ -128,24 +128,24 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af6ac986bb6d740afcbc0b9f4560e1564"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#af6ac986bb6d740afcbc0b9f4560e1564">get</a> ()</td></tr>
 <tr class="memdesc:af6ac986bb6d740afcbc0b9f4560e1564"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the next available record item from the ring buffer.  <a href="../../dc/de8/classevio_1_1_record_supply.html#af6ac986bb6d740afcbc0b9f4560e1564">More...</a><br /></td></tr>
 <tr class="separator:af6ac986bb6d740afcbc0b9f4560e1564"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68fd39ed3f305468efa495962bf2b5a9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a68fd39ed3f305468efa495962bf2b5a9">publish</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;item)</td></tr>
-<tr class="memdesc:a68fd39ed3f305468efa495962bf2b5a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell consumers that the record item is ready for consumption.  <a href="../../dc/de8/classevio_1_1_record_supply.html#a68fd39ed3f305468efa495962bf2b5a9">More...</a><br /></td></tr>
-<tr class="separator:a68fd39ed3f305468efa495962bf2b5a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a519d162434d4aaf88afc8c47913436eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a519d162434d4aaf88afc8c47913436eb">publish</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; item)</td></tr>
+<tr class="memdesc:a519d162434d4aaf88afc8c47913436eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell consumers that the record item is ready for consumption.  <a href="../../dc/de8/classevio_1_1_record_supply.html#a519d162434d4aaf88afc8c47913436eb">More...</a><br /></td></tr>
+<tr class="separator:a519d162434d4aaf88afc8c47913436eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a63190f0963f537c6fb6b29d8377beaa5"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a63190f0963f537c6fb6b29d8377beaa5">getToCompress</a> (uint32_t threadNumber)</td></tr>
 <tr class="memdesc:a63190f0963f537c6fb6b29d8377beaa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the next available record item from the ring buffer in order to compress the data already in it.  <a href="../../dc/de8/classevio_1_1_record_supply.html#a63190f0963f537c6fb6b29d8377beaa5">More...</a><br /></td></tr>
 <tr class="separator:a63190f0963f537c6fb6b29d8377beaa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada13c1639029905ae234fa384cadd82b"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ada13c1639029905ae234fa384cadd82b">getToWrite</a> ()</td></tr>
 <tr class="memdesc:ada13c1639029905ae234fa384cadd82b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the next available record item from the ring buffer in order to write data into it.  <a href="../../dc/de8/classevio_1_1_record_supply.html#ada13c1639029905ae234fa384cadd82b">More...</a><br /></td></tr>
 <tr class="separator:ada13c1639029905ae234fa384cadd82b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac80bfbdf6f82fd10cc0631348d784fa6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ac80bfbdf6f82fd10cc0631348d784fa6">releaseCompressor</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;item)</td></tr>
-<tr class="memdesc:ac80bfbdf6f82fd10cc0631348d784fa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">A compressing thread releases its claim on the given ring buffer item so it becomes available for use by writing thread behind the write barrier.  <a href="../../dc/de8/classevio_1_1_record_supply.html#ac80bfbdf6f82fd10cc0631348d784fa6">More...</a><br /></td></tr>
-<tr class="separator:ac80bfbdf6f82fd10cc0631348d784fa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88283fcf1be35de2207549cbe8c00062"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a88283fcf1be35de2207549cbe8c00062">releaseWriterSequential</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;item)</td></tr>
-<tr class="memdesc:a88283fcf1be35de2207549cbe8c00062"><td class="mdescLeft">&#160;</td><td class="mdescRight">A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by the producer.  <a href="../../dc/de8/classevio_1_1_record_supply.html#a88283fcf1be35de2207549cbe8c00062">More...</a><br /></td></tr>
-<tr class="separator:a88283fcf1be35de2207549cbe8c00062"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a035753d88ac18275851d42bde9b53eb3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a035753d88ac18275851d42bde9b53eb3">releaseWriter</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;item)</td></tr>
-<tr class="memdesc:a035753d88ac18275851d42bde9b53eb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by the producer.  <a href="../../dc/de8/classevio_1_1_record_supply.html#a035753d88ac18275851d42bde9b53eb3">More...</a><br /></td></tr>
-<tr class="separator:a035753d88ac18275851d42bde9b53eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad26dd71d370bf4c1a1c3ecd845a5931"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#aad26dd71d370bf4c1a1c3ecd845a5931">releaseCompressor</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; item)</td></tr>
+<tr class="memdesc:aad26dd71d370bf4c1a1c3ecd845a5931"><td class="mdescLeft">&#160;</td><td class="mdescRight">A compressing thread releases its claim on the given ring buffer item so it becomes available for use by writing thread behind the write barrier.  <a href="../../dc/de8/classevio_1_1_record_supply.html#aad26dd71d370bf4c1a1c3ecd845a5931">More...</a><br /></td></tr>
+<tr class="separator:aad26dd71d370bf4c1a1c3ecd845a5931"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dae076b2f526dbafae589db32fefce2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a8dae076b2f526dbafae589db32fefce2">releaseWriterSequential</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; item)</td></tr>
+<tr class="memdesc:a8dae076b2f526dbafae589db32fefce2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by the producer.  <a href="../../dc/de8/classevio_1_1_record_supply.html#a8dae076b2f526dbafae589db32fefce2">More...</a><br /></td></tr>
+<tr class="separator:a8dae076b2f526dbafae589db32fefce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40849be917d3403a039ca9237c614d6d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a40849be917d3403a039ca9237c614d6d">releaseWriter</a> (std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; item)</td></tr>
+<tr class="memdesc:a40849be917d3403a039ca9237c614d6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by the producer.  <a href="../../dc/de8/classevio_1_1_record_supply.html#a40849be917d3403a039ca9237c614d6d">More...</a><br /></td></tr>
+<tr class="separator:a40849be917d3403a039ca9237c614d6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa5d0c2544350e9e591205c9dd4d5016"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#aaa5d0c2544350e9e591205c9dd4d5016">release</a> (uint32_t threadNum, int64_t sequenceNum)</td></tr>
 <tr class="memdesc:aaa5d0c2544350e9e591205c9dd4d5016"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release claim on ring items up to sequenceNum for the given compressor thread.  <a href="../../dc/de8/classevio_1_1_record_supply.html#aaa5d0c2544350e9e591205c9dd4d5016">More...</a><br /></td></tr>
 <tr class="separator:aaa5d0c2544350e9e591205c9dd4d5016"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,9 +170,9 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This thread-safe, lock-free class is used to provide a very fast supply of RecordRingItems which are reused (using Disruptor software package). </p>
-<p>It is a supply of RecordRingItems in which a single producer does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#af6ac986bb6d740afcbc0b9f4560e1564">get()</a>, fills the record with data, and finally does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a68fd39ed3f305468efa495962bf2b5a9">publish(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</a> to let consumers know the data is ready.</p>
-<p>This class is setup to handle 2 types of consumers. The first type is a thread which compresses a record's data. The number of such consumers is set in the constructor. Each of these will call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a63190f0963f537c6fb6b29d8377beaa5">getToCompress(uint32_t)</a> to get a record and eventually call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ac80bfbdf6f82fd10cc0631348d784fa6">releaseCompressor(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</a> to indicate it is finished compressing and the record is available for writing to disk.</p>
-<p>The second type of consumer is a single thread which writes all compressed records to a file. This will call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ada13c1639029905ae234fa384cadd82b">getToWrite()</a> to get a record and eventually call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a035753d88ac18275851d42bde9b53eb3">releaseWriter(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</a> to indicate it is finished writing and the record is available for being filled with new data.</p>
+<p>It is a supply of RecordRingItems in which a single producer does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#af6ac986bb6d740afcbc0b9f4560e1564">get()</a>, fills the record with data, and finally does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a519d162434d4aaf88afc8c47913436eb">publish(std::shared_ptr&lt;RecordRingItem&gt;)</a> to let consumers know the data is ready.</p>
+<p>This class is setup to handle 2 types of consumers. The first type is a thread which compresses a record's data. The number of such consumers is set in the constructor. Each of these will call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a63190f0963f537c6fb6b29d8377beaa5">getToCompress(uint32_t)</a> to get a record and eventually call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#aad26dd71d370bf4c1a1c3ecd845a5931">releaseCompressor(std::shared_ptr&lt;RecordRingItem&gt;)</a> to indicate it is finished compressing and the record is available for writing to disk.</p>
+<p>The second type of consumer is a single thread which writes all compressed records to a file. This will call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ada13c1639029905ae234fa384cadd82b">getToWrite()</a> to get a record and eventually call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a40849be917d3403a039ca9237c614d6d">releaseWriter(std::shared_ptr&lt;RecordRingItem&gt;)</a> to indicate it is finished writing and the record is available for being filled with new data.</p>
 <p>Due to the multithreaded nature of writing files using this class, a mechanism for reporting errors that occur in the writing and compressing threads is provided. Also, and probably more importantly, one can call <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a5b0898bcf9761a1867eaa2b0c00b3f6a" title="Method to have sequence barriers throw a Disruptor&#39;s AlertException.">errorAlert()</a> to notify any compression or write threads that an error has occurred. That way these threads can clean up and exit.</p>
 <p>It transparently makes sure that all records are written in the proper order.</p>
 <pre><code>
@@ -180,16 +180,16 @@ Public Member Functions</h2></td></tr>
   This is a graphical representation of how our ring buffer is set up.
 
   (1) The producer who calls <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#af6ac986bb6d740afcbc0b9f4560e1564" title="Get the next available record item from the ring buffer.">get()</a> will get a ring item allowing a record to be
-      filled. That same user does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a68fd39ed3f305468efa495962bf2b5a9" title="Tell consumers that the record item is ready for consumption.">publish()</a> when done with the record.
+      filled. That same user does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a519d162434d4aaf88afc8c47913436eb" title="Tell consumers that the record item is ready for consumption.">publish()</a> when done with the record.
 
   (2) The consumer who calls <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a63190f0963f537c6fb6b29d8377beaa5" title="Get the next available record item from the ring buffer in order to compress the data already in it.">getToCompress()</a> will get that ring item and will
       compress its data. There may be any number of compression threads
       as long as <b># threads &lt;= # of ring items!!!</b>.
-      That same user does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ac80bfbdf6f82fd10cc0631348d784fa6" title="A compressing thread releases its claim on the given ring buffer item so it becomes available for use...">releaseCompressor()</a> when done with the record.
+      That same user does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#aad26dd71d370bf4c1a1c3ecd845a5931" title="A compressing thread releases its claim on the given ring buffer item so it becomes available for use...">releaseCompressor()</a> when done with the record.
 
   (3) The consumer who calls <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ada13c1639029905ae234fa384cadd82b" title="Get the next available record item from the ring buffer in order to write data into it.">getToWrite()</a> will get that ring item and will
       write its data to a file or another buffer. There may be only 1
-      such thread. This same user does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a035753d88ac18275851d42bde9b53eb3" title="A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by...">releaseWriter()</a> when done with the record.
+      such thread. This same user does a <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a40849be917d3403a039ca9237c614d6d" title="A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by...">releaseWriter()</a> when done with the record.
 
                         ||
                         ||  writeBarrier
@@ -643,8 +643,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a68fd39ed3f305468efa495962bf2b5a9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68fd39ed3f305468efa495962bf2b5a9">&#9670;&nbsp;</a></span>publish()</h2>
+<a id="a519d162434d4aaf88afc8c47913436eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a519d162434d4aaf88afc8c47913436eb">&#9670;&nbsp;</a></span>publish()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -652,7 +652,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void evio::RecordSupply::publish </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt;&#160;</td>
           <td class="paramname"><em>item</em></td><td>)</td>
           <td></td>
         </tr>
@@ -706,8 +706,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ac80bfbdf6f82fd10cc0631348d784fa6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac80bfbdf6f82fd10cc0631348d784fa6">&#9670;&nbsp;</a></span>releaseCompressor()</h2>
+<a id="aad26dd71d370bf4c1a1c3ecd845a5931"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad26dd71d370bf4c1a1c3ecd845a5931">&#9670;&nbsp;</a></span>releaseCompressor()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -715,7 +715,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void evio::RecordSupply::releaseCompressor </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt;&#160;</td>
           <td class="paramname"><em>item</em></td><td>)</td>
           <td></td>
         </tr>
@@ -733,8 +733,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a035753d88ac18275851d42bde9b53eb3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a035753d88ac18275851d42bde9b53eb3">&#9670;&nbsp;</a></span>releaseWriter()</h2>
+<a id="a40849be917d3403a039ca9237c614d6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40849be917d3403a039ca9237c614d6d">&#9670;&nbsp;</a></span>releaseWriter()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -742,7 +742,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">bool evio::RecordSupply::releaseWriter </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt;&#160;</td>
           <td class="paramname"><em>item</em></td><td>)</td>
           <td></td>
         </tr>
@@ -764,8 +764,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a88283fcf1be35de2207549cbe8c00062"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a88283fcf1be35de2207549cbe8c00062">&#9670;&nbsp;</a></span>releaseWriterSequential()</h2>
+<a id="a8dae076b2f526dbafae589db32fefce2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8dae076b2f526dbafae589db32fefce2">&#9670;&nbsp;</a></span>releaseWriterSequential()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -773,7 +773,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">bool evio::RecordSupply::releaseWriterSequential </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../db/dc8/classevio_1_1_record_ring_item.html">RecordRingItem</a> &gt;&#160;</td>
           <td class="paramname"><em>item</em></td><td>)</td>
           <td></td>
         </tr>
@@ -782,7 +782,7 @@ Public Member Functions</h2></td></tr>
 
 <p>A writer thread releases its claim on the given ring buffer item so it becomes available for reuse by the producer. </p>
 <p>To be used in conjunction with <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#ada13c1639029905ae234fa384cadd82b">getToWrite()</a>.</p>
-<p>Care must be taken to ensure thread-safety. This method may only be called if the writing is done IN THE SAME THREAD as the calling of this method so that items are released in sequence as ensured by the caller. Otherwise use <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a035753d88ac18275851d42bde9b53eb3">releaseWriter(std::shared_ptr&lt;RecordRingItem&gt; &amp;)</a>.</p>
+<p>Care must be taken to ensure thread-safety. This method may only be called if the writing is done IN THE SAME THREAD as the calling of this method so that items are released in sequence as ensured by the caller. Otherwise use <a class="el" href="../../dc/de8/classevio_1_1_record_supply.html#a40849be917d3403a039ca9237c614d6d">releaseWriter(std::shared_ptr&lt;RecordRingItem&gt;)</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">item</td><td>item in ring buffer to release for reuse. </td></tr>
