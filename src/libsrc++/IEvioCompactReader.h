@@ -64,11 +64,11 @@ namespace evio {
          *                       if failure to read first block header;
          *                       if buffer not in evio format.
          */
-        virtual void setBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
+        virtual void setBuffer(std::shared_ptr<ByteBuffer> buf) = 0;
 
         /**
          * Has {@link #close()} been called (without reopening by calling
-         * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)})?
+         * {@link #setBuffer(std::shared_ptr<ByteBuffer>)})?
          *
          * @return {@code true} if this object closed, else {@code false}.
          */
@@ -190,7 +190,7 @@ namespace evio {
          *                       if object closed
          */
         virtual void searchEvent(size_t eventNumber, std::string const & dictName,
-                                 std::shared_ptr<EvioXMLDictionary> & dictionary,
+                                 std::shared_ptr<EvioXMLDictionary> dictionary,
                                  std::vector<std::shared_ptr<EvioNode>> & vec) = 0;
 
         /**
@@ -231,7 +231,7 @@ namespace evio {
          *                       if node was not found in any event;
          *                       if internal programming error
          */
-        virtual std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) = 0;
+        virtual std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> removeNode) = 0;
 
         /**
          * This method adds an evio container (bank, segment, or tag segment) as the last
@@ -280,7 +280,7 @@ namespace evio {
          * @throws EvioException if object closed or node arg is null.
          * @return ByteBuffer filled with data.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> node) = 0;
 
         /**
          * Get the data associated with an evio structure in ByteBuffer form.
@@ -294,7 +294,7 @@ namespace evio {
          * @throws EvioException if object closed
          * @return ByteBuffer filled with data.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> node, bool copy) = 0;
 
         /**
          * Get the data associated with an evio structure in ByteBuffer form.
@@ -306,8 +306,8 @@ namespace evio {
          * @throws EvioException if object closed or node arg is null.
          * @return buf arg.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
-                                                    std::shared_ptr<ByteBuffer> & buf) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> node,
+                                                    std::shared_ptr<ByteBuffer> buf) = 0;
 
         /**
          * Get the data associated with an evio structure in ByteBuffer form.
@@ -322,8 +322,8 @@ namespace evio {
          * @throws EvioException if object closed
          * @return buf arg.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
-                                                    std::shared_ptr<ByteBuffer> & buf, bool copy) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> node,
+                                                    std::shared_ptr<ByteBuffer> buf, bool copy) = 0;
 
         /**
          * Get an evio bank or event in ByteBuffer form.
@@ -364,7 +364,7 @@ namespace evio {
          * @throws EvioException if node is null;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node) = 0;
+        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> node) = 0;
 
         /**
          * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
@@ -379,7 +379,7 @@ namespace evio {
          * @throws EvioException if node is null;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) = 0;
+        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> node, bool copy) = 0;
 
         /** This sets the position to its initial value and marks reader as closed. */
         virtual void close() = 0;

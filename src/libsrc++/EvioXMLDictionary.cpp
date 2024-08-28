@@ -846,7 +846,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param structure the structure to find the name of.
      * @return a descriptive name or ??? if none found
      */
-    std::string EvioXMLDictionary::getName(std::shared_ptr<BaseStructure> & structure) {
+    std::string EvioXMLDictionary::getName(std::shared_ptr<BaseStructure> structure) {
         if (structure == nullptr) {
             NO_NAME_STRING();
         }

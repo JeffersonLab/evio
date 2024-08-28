@@ -162,7 +162,7 @@ namespace evio {
      *
      * @param structure BaseStructure from which to copy data.
      */
-    void BaseStructure::transform(std::shared_ptr<BaseStructure> const & structure) {
+    void BaseStructure::transform(std::shared_ptr<BaseStructure> const structure) {
         DataType dataType = structure->getHeader()->getDataType();
 
         copyData(structure);
@@ -269,7 +269,7 @@ namespace evio {
      * Copy just the data of another structure.
      * @param other structure to copy data from.
      */
-    void BaseStructure::copyData(std::shared_ptr<BaseStructure> const & other) {
+    void BaseStructure::copyData(std::shared_ptr<BaseStructure> const other) {
         // Copy over raw data
         rawBytes = other->rawBytes;
 
@@ -367,7 +367,7 @@ namespace evio {
      *
      * @param newParent this node's new parent.
      */
-    void BaseStructure::setParent(const std::shared_ptr<BaseStructure> &newParent) {parent = newParent;}
+    void BaseStructure::setParent(const std::shared_ptr<BaseStructure> newParent) {parent = newParent;}
 
 
     /**
@@ -837,7 +837,7 @@ namespace evio {
      *         specified node.
      */
     std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot (
-            const std::shared_ptr<BaseStructure> & aNode, int depth) const {
+            const std::shared_ptr<BaseStructure> aNode, int depth) const {
 
         // Check for null, in case someone passed in a null node, or
         // they passed in an element that isn't rooted at root.

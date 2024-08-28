@@ -363,7 +363,7 @@ namespace evio {
 
     public:
 
-        void copy(std::shared_ptr<RecordHeader> const & head);
+        void copy(std::shared_ptr<RecordHeader> const head);
         void reset();
 
         static uint32_t getWords(uint32_t length);
@@ -453,31 +453,31 @@ namespace evio {
 
 
         void writeHeader(ByteBuffer & buf, size_t off = 0);
-        void writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off = 0);
+        void writeHeader(std::shared_ptr<ByteBuffer> buffer, size_t off = 0);
         void writeHeader(uint8_t *array, const ByteOrder & order);
 
 
         static int writeTrailer(uint8_t* array, size_t arrayLen,
                                 uint32_t recordNum, const ByteOrder & order,
-                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+                                const std::shared_ptr<std::vector<uint32_t>> recordLengths = nullptr);
 
         static int writeTrailer(std::vector<uint8_t> & array, size_t off,
                                 uint32_t recordNum, const ByteOrder & order,
-                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+                                const std::shared_ptr<std::vector<uint32_t>> recordLengths = nullptr);
 
         static int writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
-                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+                                const std::shared_ptr<std::vector<uint32_t>> recordLengths = nullptr);
 
-        static int writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
-                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths = nullptr);
+        static int writeTrailer(std::shared_ptr<ByteBuffer> buf, size_t off, uint32_t recordNum,
+                                const std::shared_ptr<std::vector<uint32_t>> recordLengths = nullptr);
 
 
         static bool isCompressed(ByteBuffer & buffer, size_t offset);
-        static bool isCompressed(std::shared_ptr<ByteBuffer> & buffer, size_t offset);
+        static bool isCompressed(std::shared_ptr<ByteBuffer> buffer, size_t offset);
 
 
         void readHeader(ByteBuffer & buffer, size_t offset = 0);
-        void readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset = 0);
+        void readHeader(std::shared_ptr<ByteBuffer> buffer, size_t offset = 0);
         void readHeader(uint8_t *src, ByteOrder order);
 
         std::string eventTypeToString() const;

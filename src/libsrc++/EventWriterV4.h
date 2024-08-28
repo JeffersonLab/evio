@@ -591,7 +591,7 @@ namespace evio {
             void expandBuffer(int newSize);
             void writeEventToBuffer(std::shared_ptr<EvioBank> bank, std::shared_ptr<ByteBuffer> bankBuffer,
                                     int currentEventBytes);
-            bool writeEvent(std::shared_ptr<EvioBank> bank, std::shared_ptr<ByteBuffer>bankBuffer, bool force);
+            bool writeEvent(std::shared_ptr<EvioBank> bank, std::shared_ptr<ByteBuffer> bankBuffer, bool force);
             bool fullDisk();
             bool flushToFile(bool force, bool checkDisk);
             void splitFile();

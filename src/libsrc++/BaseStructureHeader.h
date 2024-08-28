@@ -75,7 +75,7 @@ namespace evio {
     protected:
 
         void setPadding(uint8_t pad);
-        void copy(std::shared_ptr<BaseStructureHeader> const & head);
+        void copy(std::shared_ptr<BaseStructureHeader> const head);
 
     public:
 
@@ -104,7 +104,7 @@ namespace evio {
         virtual uint32_t getHeaderLength() {return 0;};
         virtual std::string   toString() {return "BaseStructureHeader";};
 
-        virtual size_t write(std::shared_ptr<ByteBuffer> & dest) {return 0;}
+        virtual size_t write(std::shared_ptr<ByteBuffer> dest) {return 0;}
         virtual size_t write(ByteBuffer & dest) {return 0;};
         virtual size_t write(uint8_t *dest, ByteOrder const & order) {return 0;};
 

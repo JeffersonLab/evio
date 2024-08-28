@@ -74,7 +74,7 @@ namespace evio {
         explicit EvioReader(std::string const & path, bool checkRecNumSeq = false, bool synced = false);
 
         //   Buffer constructor
-        explicit EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq = false, bool synced = false);
+        explicit EvioReader(std::shared_ptr<ByteBuffer> bb, bool checkRecNumSeq = false, bool synced = false);
 
         //------------------------------------------
 

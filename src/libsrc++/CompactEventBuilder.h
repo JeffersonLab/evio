@@ -165,8 +165,8 @@ namespace evio {
         void setCurrentHeaderLength(uint32_t len);
         void setCurrentHeaderPadding(uint32_t padding);
 
-        void writeHeader(std::shared_ptr<EvioNode> & node);
-        void writeNode(std::shared_ptr<EvioNode> & node, bool swapData);
+        void writeHeader(std::shared_ptr<EvioNode> node);
+        void writeNode(std::shared_ptr<EvioNode> node, bool swapData);
 
     public:
 

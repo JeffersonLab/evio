@@ -63,7 +63,7 @@ namespace evio {
          * @param recordSupply  supply of records to compress.
          */
         RecordCompressor(uint32_t thdNum, Compressor::CompressionType & type,
-                         std::shared_ptr<RecordSupply> & recordSupply) :
+                         std::shared_ptr<RecordSupply> recordSupply) :
                 threadNumber(thdNum),
                 compressionType(type),
                 supply(recordSupply) {

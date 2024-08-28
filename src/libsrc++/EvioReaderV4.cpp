@@ -160,7 +160,7 @@ namespace evio {
      * @throws EvioException if buffer arg is null;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
-    EvioReaderV4::EvioReaderV4(std::shared_ptr<ByteBuffer> & bb, bool checkBlkNumSeq, bool synced) {
+    EvioReaderV4::EvioReaderV4(std::shared_ptr<ByteBuffer> bb, bool checkBlkNumSeq, bool synced) {
 
         checkBlockNumSeq = checkBlkNumSeq;
         synchronized = synced;
@@ -209,7 +209,7 @@ namespace evio {
      *         contained in the given byte buffer.
      * @throws EvioException if bad file format
      */
-    size_t EvioReaderV4::generateEventPositions(std::shared_ptr<ByteBuffer> & bb) {
+    size_t EvioReaderV4::generateEventPositions(std::shared_ptr<ByteBuffer> bb) {
 
             uint32_t      blockSize, blockHdrSize, blockEventCount, magicNum;
             uint32_t      byteInfo, byteLen, bytesLeft, position;
@@ -455,7 +455,7 @@ namespace evio {
      * @throws EvioException if buffer too small, contains invalid data,
      *                       or bad block # sequence
      */
-    void EvioReaderV4::parseFirstHeader(std::shared_ptr<ByteBuffer> & headerBuf) {
+    void EvioReaderV4::parseFirstHeader(std::shared_ptr<ByteBuffer> headerBuf) {
 
         // Check buffer length
         headerBuf->position(0);
@@ -627,7 +627,7 @@ namespace evio {
      * Sets the proper buffer position for first-time read AFTER the first header.
      * @param buffer buffer to prepare
      */
-    void EvioReaderV4::prepareForBufferRead(std::shared_ptr<ByteBuffer> & buffer) const {
+    void EvioReaderV4::prepareForBufferRead(std::shared_ptr<ByteBuffer> buffer) const {
         // Position after header
         size_t pos = 32;
         buffer->position(pos);
@@ -863,7 +863,7 @@ namespace evio {
      * @throws EvioException if failed read due to bad buffer format;
      *                       if version 3 or earlier
      */
-    void EvioReaderV4::readDictionary(std::shared_ptr<ByteBuffer> & buffer) {
+    void EvioReaderV4::readDictionary(std::shared_ptr<ByteBuffer> buffer) {
 
         if (evioVersion < 4) {
             throw EvioException("Unsupported version (" + std::to_string(evioVersion) + ")");

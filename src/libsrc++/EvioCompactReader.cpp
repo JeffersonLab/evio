@@ -76,7 +76,7 @@ namespace evio {
      *                       failure to parse first block header;
      *                       unsupported evio version.
      */
-    EvioCompactReader::EvioCompactReader(std::shared_ptr<ByteBuffer> & bb, bool sync) :
+    EvioCompactReader::EvioCompactReader(std::shared_ptr<ByteBuffer> bb, bool sync) :
                             byteBuffer(bb), synced(sync) {
 
         initialPosition = byteBuffer->position();
@@ -110,7 +110,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioCompactReader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {reader->setBuffer(buf);}
+    void EvioCompactReader::setBuffer(std::shared_ptr<ByteBuffer> buf) {reader->setBuffer(buf);}
 
 
     /** {@inheritDoc} */
@@ -202,7 +202,7 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioCompactReader::searchEvent(size_t eventNumber, std::string const & dictName,
-                                        std::shared_ptr<EvioXMLDictionary> & dictionary,
+                                        std::shared_ptr<EvioXMLDictionary> dictionary,
                                         std::vector<std::shared_ptr<EvioNode>> & vec) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
@@ -223,7 +223,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::removeStructure(std::shared_ptr<EvioNode> & removeNode) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::removeStructure(std::shared_ptr<EvioNode> removeNode) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
             return reader->removeStructure(removeNode);
@@ -243,7 +243,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> node) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
             return reader->getData(node);
@@ -253,7 +253,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> & node,
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> node,
                                                            bool copy) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
@@ -264,8 +264,8 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> & node,
-                                                           std::shared_ptr<ByteBuffer> & buf) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> node,
+                                                           std::shared_ptr<ByteBuffer> buf) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
             return reader->getData(node, buf);
@@ -275,8 +275,8 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> & node,
-                                                           std::shared_ptr<ByteBuffer> & buf,
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> node,
+                                                           std::shared_ptr<ByteBuffer> buf,
                                                            bool copy) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
@@ -307,7 +307,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(std::shared_ptr<EvioNode> & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(std::shared_ptr<EvioNode> node) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
             return reader->getStructureBuffer(node);
@@ -317,7 +317,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(std::shared_ptr<EvioNode> node, bool copy) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
             return reader->getStructureBuffer(node, copy);

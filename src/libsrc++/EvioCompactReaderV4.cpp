@@ -74,7 +74,7 @@ namespace evio {
      * @throws EvioException if buffer arg is null;
      *                       failure to read first block header
      */
-    EvioCompactReaderV4::EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer) {
+    EvioCompactReaderV4::EvioCompactReaderV4(std::shared_ptr<ByteBuffer> byteBuffer) {
         if (byteBuffer == nullptr) {
             throw EvioException("Buffer arg is null");
         }
@@ -94,7 +94,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioCompactReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+    void EvioCompactReaderV4::setBuffer(std::shared_ptr<ByteBuffer> buf) {
         if (buf == nullptr) {
             throw EvioException("arg is null");
         }
@@ -264,7 +264,7 @@ namespace evio {
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Uses only absolute gets so byteBuffer position
      * does not change. Called only in constructors and
-     * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)}.
+     * {@link #setBuffer(std::shared_ptr<ByteBuffer>)}.
      *
      * @throws EvioException if bytes not in evio format
      */
@@ -617,7 +617,7 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioCompactReaderV4::searchEvent(size_t eventNumber, std::string const & dictName,
-                                          std::shared_ptr<EvioXMLDictionary> & dict,
+                                          std::shared_ptr<EvioXMLDictionary> dict,
                                           std::vector<std::shared_ptr<EvioNode>> & vec) {
         if (dictName.empty()) {
             throw EvioException("empty dictionary entry name");
@@ -671,7 +671,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::removeStructure(std::shared_ptr<EvioNode> & removeNode) {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::removeStructure(std::shared_ptr<EvioNode> removeNode) {
 
         // If we're removing nothing, then DO nothing
         if (removeNode == nullptr) {
@@ -803,7 +803,7 @@ namespace evio {
             int level = 0;
             nodeList = eventNodes[i]->getAllNodes();
 
-            for (std::shared_ptr<EvioNode> const & n : nodeList) {
+            for (std::shared_ptr<EvioNode> const n : nodeList) {
                 // For events that come after, move all contained nodes
                 if (i > place) {
                     n->pos -= removeDataLen;
@@ -1105,13 +1105,13 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> node) {
             return getData(node, false);
     }
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node,
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> node,
                                                              bool copy) {
         auto buff = std::make_shared<ByteBuffer>(4*node->getDataLength());
         return node->getByteData(buff, copy);
@@ -1119,15 +1119,15 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node,
-                                                             std::shared_ptr<ByteBuffer> & buf) {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> node,
+                                                             std::shared_ptr<ByteBuffer> buf) {
         return getData(node, buf, false);
     }
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node,
-                                                             std::shared_ptr<ByteBuffer> & buf,
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> node,
+                                                             std::shared_ptr<ByteBuffer> buf,
                                                              bool copy) {
         return node->getByteData(buf, copy);
     }
@@ -1157,13 +1157,13 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getStructureBuffer(std::shared_ptr<EvioNode> & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getStructureBuffer(std::shared_ptr<EvioNode> node) {
             return getStructureBuffer(node, false);
     }
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getStructureBuffer(std::shared_ptr<EvioNode> & node,
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getStructureBuffer(std::shared_ptr<EvioNode> node,
                                                                         bool copy) {
         if (closed) {
             throw EvioException("object closed");

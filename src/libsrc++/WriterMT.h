@@ -92,7 +92,7 @@ namespace evio {
              * @param pwriter pointer to WriterMT object which owns this thread.
              * @param recordSupply shared pointer to an object supplying compressed records that need to be written to file.
              */
-            RecordWriter(WriterMT * pwriter, std::shared_ptr<RecordSupply> & recordSupply) :
+            RecordWriter(WriterMT * pwriter, std::shared_ptr<RecordSupply> recordSupply) :
                     writer(pwriter), supply(recordSupply)  {
             }
 

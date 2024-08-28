@@ -178,7 +178,7 @@ namespace evio {
         int64_t getSequence = ringBuffer->next();
 
         // Get object in that position (sequence) of ring buffer
-        std::shared_ptr<RecordRingItem> & bufItem = (*ringBuffer.get())[getSequence];
+        std::shared_ptr<RecordRingItem> bufItem = (*ringBuffer.get())[getSequence];
 
         // This reset does not change compression type, fileId, or header type
         bufItem->reset();
@@ -195,7 +195,7 @@ namespace evio {
      * To be used in conjunction with {@link #get()}.
      * @param item record item available for consumers' use.
      */
-    void RecordSupply::publish(std::shared_ptr<RecordRingItem> & item) {
+    void RecordSupply::publish(std::shared_ptr<RecordRingItem> item) {
         ringBuffer->publish(item->getSequence());
     }
 
@@ -219,7 +219,7 @@ namespace evio {
             }
 
             // Get the item since we know it's available
-            std::shared_ptr<RecordRingItem> & item = (*ringBuffer.get())[nextCompressSeqs[threadNumber]];
+            std::shared_ptr<RecordRingItem> item = (*ringBuffer.get())[nextCompressSeqs[threadNumber]];
             // Store variables that will help free this item when release is called
             item->fromConsumer(nextCompressSeqs[threadNumber], compressSeqs[threadNumber]);
             // Set the next item we'll be trying to get.
@@ -250,7 +250,7 @@ namespace evio {
                 availableWriteSeq = writeBarrier->waitFor(nextWriteSeq);
             }
 
-            std::shared_ptr<RecordRingItem> & item = ((*ringBuffer.get())[nextWriteSeq]);
+            std::shared_ptr<RecordRingItem> item = ((*ringBuffer.get())[nextWriteSeq]);
             item->fromConsumer(nextWriteSeq++, writeSeqs[0]);
             return item;
         }
@@ -276,7 +276,7 @@ namespace evio {
      * To be used in conjunction with {@link #getToCompress(uint32_t)}.
      * @param item item in ring buffer to release for reuse.
      */
-    void RecordSupply::releaseCompressor(std::shared_ptr<RecordRingItem> & item) {
+    void RecordSupply::releaseCompressor(std::shared_ptr<RecordRingItem> item) {
         item->getSequenceObj()->setValue(item->getSequence() + compressionThreadCount - 1);
     }
 
@@ -290,12 +290,12 @@ namespace evio {
      * This method may only be called if the writing is done IN THE SAME THREAD
      * as the calling of this method so that items are released in sequence
      * as ensured by the caller.
-     * Otherwise use {@link #releaseWriter(std::shared_ptr<RecordRingItem> &)}.
+     * Otherwise use {@link #releaseWriter(std::shared_ptr<RecordRingItem>)}.
      *
      * @param item item in ring buffer to release for reuse.
      * @return false if item not released or item is null, else true.
      */
-    bool RecordSupply::releaseWriterSequential(std::shared_ptr<RecordRingItem> & item) {
+    bool RecordSupply::releaseWriterSequential(std::shared_ptr<RecordRingItem> item) {
         if (item == nullptr || item->isAlreadyReleased()) return false;
         item->getSequenceObj()->setValue(item->getSequence());
         return true;
@@ -329,7 +329,7 @@ namespace evio {
      * @param item item in ring buffer to release for reuse.
      * @return false if item or released since item is null, else true.
      */
-    bool RecordSupply::releaseWriter(std::shared_ptr<RecordRingItem> & item) {
+    bool RecordSupply::releaseWriter(std::shared_ptr<RecordRingItem> item) {
 
         if (item == nullptr || item->isAlreadyReleased()) {
             //cout << "RecordSupply: item already released!" << endl;

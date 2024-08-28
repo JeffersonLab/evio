@@ -50,7 +50,7 @@ namespace evio {
     public:
 
         EventBuilder(uint16_t tag, DataType const & dataType, uint8_t num) ;
-        EventBuilder(std::shared_ptr<EvioEvent> & event);
+        EventBuilder(std::shared_ptr<EvioEvent> event);
 
         void setAllHeaderLengths();
         void clearData(std::shared_ptr<BaseStructure> structure);
@@ -88,7 +88,7 @@ namespace evio {
                                  std::shared_ptr<CompositeData> *data, size_t count);
 
         std::shared_ptr<EvioEvent> getEvent();
-        void setEvent(std::shared_ptr<EvioEvent> & ev);
+        void setEvent(std::shared_ptr<EvioEvent> ev);
 
         static int main(int argc, char **argv);
 

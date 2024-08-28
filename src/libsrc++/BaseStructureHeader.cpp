@@ -30,7 +30,7 @@ namespace evio {
      * Method to copy data from the fiven header to this one.
      * @param head header to copy data from (source).
      */
-    void BaseStructureHeader::copy(std::shared_ptr<BaseStructureHeader> const & head) {
+    void BaseStructureHeader::copy(std::shared_ptr<BaseStructureHeader> const head) {
         tag      = head->tag;
         dataType = head->dataType;
         number   = head->number;

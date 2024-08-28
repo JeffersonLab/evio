@@ -18,7 +18,7 @@ namespace  evio {
 	 * Method for parsing the event which will drill down and uncover all structures.
 	 * @param evioEvent the event to parse.
 	 */
-    void EventParser::eventParse(std::shared_ptr<EvioEvent> & evioEvent) {
+    void EventParser::eventParse(std::shared_ptr<EvioEvent> evioEvent) {
         // The event itself is a structure (EvioEvent extends EvioBank) so just
         // parse it as such. The recursive drill down will take care of the rest.
         parseStruct(evioEvent);
@@ -131,7 +131,7 @@ namespace  evio {
    	 * @param evioEvent the event to parse.
    	 * @throws EvioException if arg is null or data not in evio format.
    	 */
-    void EventParser::parseEvent(std::shared_ptr<EvioEvent> & evioEvent) {
+    void EventParser::parseEvent(std::shared_ptr<EvioEvent> evioEvent) {
 
         auto lock = std::unique_lock<std::recursive_mutex>(mtx); // equivalent to mtx.lock();
 
@@ -168,7 +168,7 @@ namespace  evio {
      * @param synced    if true, mutex protect this method.
    	 * @throws EvioException if arg is null or data not in evio format.
    	 */
-    void EventParser::parseEvent(std::shared_ptr<EvioEvent> & evioEvent, bool synced) {
+    void EventParser::parseEvent(std::shared_ptr<EvioEvent> evioEvent, bool synced) {
 
         if (synced) {
             parseEvent(evioEvent);
@@ -312,8 +312,8 @@ namespace  evio {
      * @param evioEvent event being parsed
      * @param structure the structure encountered, which may be a Bank, Segment, or TagSegment.
      */
-    void EventParser::notifyEvioListeners(std::shared_ptr<EvioEvent> & evioEvent,
-                                          std::shared_ptr<BaseStructure> & structure) {
+    void EventParser::notifyEvioListeners(std::shared_ptr<EvioEvent> evioEvent,
+                                          std::shared_ptr<BaseStructure> structure) {
 
         // are notifications turned off?
         if (!notificationActive) {
@@ -342,7 +342,7 @@ namespace  evio {
      * Notify listeners we are starting to parse a new event
      * @param evioEvent the event in question;
      */
-    void EventParser::notifyStart(std::shared_ptr<EvioEvent> & evioEvent) {
+    void EventParser::notifyStart(std::shared_ptr<EvioEvent> evioEvent) {
 
         // are notifications turned off?
         if (!notificationActive) {
@@ -364,7 +364,7 @@ namespace  evio {
      * Notify listeners we are done to parsing a new event
      * @param evioEvent the event in question;
      */
-    void EventParser::notifyStop(std::shared_ptr<EvioEvent> & evioEvent) {
+    void EventParser::notifyStop(std::shared_ptr<EvioEvent> evioEvent) {
 
         // are notifications turned off?
         if (!notificationActive) {
@@ -461,8 +461,8 @@ namespace  evio {
      * @param structure  the structure to start scanning.
      * @param listener   an listener to notify as each structure is visited.
      */
-    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const & structure,
-                                        std::shared_ptr<IEvioListener> const & listener) {
+    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const structure,
+                                        std::shared_ptr<IEvioListener> const listener) {
         visitAllDescendants(structure, structure, listener, nullptr);
     }
 
@@ -478,9 +478,9 @@ namespace  evio {
      *               structures are passed. In this way, specific types of
      *               structures can be captured.
      */
-    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const & structure,
-                                        std::shared_ptr<IEvioListener> const & listener,
-                                        std::shared_ptr<IEvioFilter> const & filter) {
+    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const structure,
+                                        std::shared_ptr<IEvioListener> const listener,
+                                        std::shared_ptr<IEvioFilter> const filter) {
         visitAllDescendants(structure, structure, listener, filter);
     }
 
@@ -497,10 +497,10 @@ namespace  evio {
      *               structures are passed. In this way, specific types of
      *               structures can be captured.
      */
-    void EventParser::visitAllDescendants(std::shared_ptr<BaseStructure> const & topLevelStruct,
-                                          std::shared_ptr<BaseStructure> const & structure,
-                                          std::shared_ptr<IEvioListener> const & listener,
-                                          std::shared_ptr<IEvioFilter>   const & filter) {
+    void EventParser::visitAllDescendants(std::shared_ptr<BaseStructure> const topLevelStruct,
+                                          std::shared_ptr<BaseStructure> const structure,
+                                          std::shared_ptr<IEvioListener> const listener,
+                                          std::shared_ptr<IEvioFilter>   const filter) {
         if (listener != nullptr) {
             bool accept = true;
             if (filter != nullptr) {
@@ -528,8 +528,8 @@ namespace  evio {
      *               this will return all the structures.
      * @param structs vector to be filled with all structures that are accepted by filter.
      */
-    void EventParser::getMatchingStructures(std::shared_ptr<BaseStructure> const & structure,
-                                            std::shared_ptr<IEvioFilter> const & filter,
+    void EventParser::getMatchingStructures(std::shared_ptr<BaseStructure> const structure,
+                                            std::shared_ptr<IEvioFilter> const filter,
                                             std::vector<std::shared_ptr<BaseStructure>> & structs) {
         structs.clear();
         structs.reserve(25);

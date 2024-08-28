@@ -268,7 +268,7 @@ namespace evio {
 
         void setByteOrder(ByteOrder & order);
         static uint32_t getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLen);
-        static uint32_t getTotalByteCounts(std::shared_ptr<ByteBuffer> & buf, uint32_t* info, uint32_t infoLen);
+        static uint32_t getTotalByteCounts(std::shared_ptr<ByteBuffer> buf, uint32_t* info, uint32_t infoLen);
         //static std::string getStringArray(ByteBuffer & buffer, int wrap, int max);
         //static std::string getHexStringInt(int32_t value);
 
@@ -277,7 +277,7 @@ namespace evio {
         Reader();
         explicit Reader(std::string const & filename);
         Reader(std::string const & filename, bool forceScan);
-        explicit Reader(std::shared_ptr<ByteBuffer> & buffer, bool checkRecordNumSeq = false);
+        explicit Reader(std::shared_ptr<ByteBuffer> buffer, bool checkRecordNumSeq = false);
 
         ~Reader() = default;
 
@@ -290,12 +290,12 @@ namespace evio {
         std::string getFileName() const;
         size_t getFileSize() const;
 
-        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
+        void setBuffer(std::shared_ptr<ByteBuffer> buf);
         std::shared_ptr<ByteBuffer> getBuffer();
         size_t getBufferOffset() const;
 
         FileHeader & getFileHeader();
-        std::shared_ptr<RecordHeader> & getFirstRecordHeader();
+        std::shared_ptr<RecordHeader> getFirstRecordHeader();
 
         ByteOrder & getByteOrder();
         uint32_t getVersion() const;
@@ -304,7 +304,7 @@ namespace evio {
         std::string getDictionary();
         bool hasDictionary() const;
 
-        std::shared_ptr<uint8_t> & getFirstEvent(uint32_t *size);
+        std::shared_ptr<uint8_t> getFirstEvent(uint32_t *size);
         uint32_t getFirstEventSize();
         bool hasFirstEvent() const;
 
@@ -326,7 +326,7 @@ namespace evio {
 
         std::shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
         ByteBuffer & getEvent(ByteBuffer & buf, uint32_t index);
-        std::shared_ptr<ByteBuffer> getEvent(std::shared_ptr<ByteBuffer> & buf, uint32_t index);
+        std::shared_ptr<ByteBuffer> getEvent(std::shared_ptr<ByteBuffer> buf, uint32_t index);
         uint32_t getEventLength(uint32_t index);
         std::shared_ptr<EvioNode> getEventNode(uint32_t index);
 
@@ -346,7 +346,7 @@ namespace evio {
         void extractDictionaryFromFile();
 
 
-        static void findRecordInfo(std::shared_ptr<ByteBuffer> & buf, uint32_t offset,
+        static void findRecordInfo(std::shared_ptr<ByteBuffer> buf, uint32_t offset,
                                    uint32_t* info, uint32_t infoLen);
         static void findRecordInfo(ByteBuffer & buf, uint32_t offset,
                                    uint32_t* info, uint32_t infoLen);
@@ -362,8 +362,8 @@ namespace evio {
         // can use their APIs to call the new evio version 6 classes like this one.
         // These new classes were initially designed to be data format agnostic, but adding
         // these methods violates that.
-        std::shared_ptr<ByteBuffer> & addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
-        std::shared_ptr<ByteBuffer> & removeStructure(std::shared_ptr<EvioNode> & removeNode);
+        std::shared_ptr<ByteBuffer> addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
+        std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> removeNode);
 
         void show() const;
 

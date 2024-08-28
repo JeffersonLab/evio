@@ -1195,7 +1195,7 @@ namespace evio {
      * @throws std::out_of_range if srcPos or len too large; if len too small.
      * @throws EvioException if srcBuffer not in evio format;
      */
-    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & buf,
+    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> buf,
                                 uint32_t srcPos, uint32_t len) {
         swapAll(*(buf.get()), srcPos, len);
     }
@@ -1219,8 +1219,8 @@ namespace evio {
      *                       if destBuffer too small;
      *                       if bad values for srcPos/destPos/len args;
      */
-    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & srcBuf,
-                                std::shared_ptr<ByteBuffer> & destBuf,
+    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> srcBuf,
+                                std::shared_ptr<ByteBuffer> destBuf,
                                 uint32_t srcPos, uint32_t destPos, uint32_t len) {
         swapAll(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len);
     }
@@ -1390,8 +1390,8 @@ namespace evio {
      *                       srcBuf or destBuf limit/position combo too small;
      *                       if src & dest not identical but overlap.
      */
-    void CompositeData::swapData(std::shared_ptr<ByteBuffer> & srcBuf,
-                                 std::shared_ptr<ByteBuffer> & destBuf,
+    void CompositeData::swapData(std::shared_ptr<ByteBuffer> srcBuf,
+                                 std::shared_ptr<ByteBuffer> destBuf,
                                  size_t srcPos, size_t destPos, size_t nBytes,
                                  const std::vector<uint16_t> & ifmt) {
         swapData(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, nBytes, ifmt);

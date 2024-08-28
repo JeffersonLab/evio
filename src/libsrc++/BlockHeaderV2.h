@@ -165,7 +165,7 @@ namespace evio {
         * from another object of this class.
         * @param blkHeader block header object to copy
         */
-        explicit BlockHeaderV2(std::shared_ptr<BlockHeaderV2> & blkHeader) {
+        explicit BlockHeaderV2(std::shared_ptr<BlockHeaderV2> blkHeader) {
             copy(blkHeader);
         }
 
@@ -174,7 +174,7 @@ namespace evio {
         * This method copies another header's contents.
         * @param blkHeader block header object to copy
         */
-        void copy(std::shared_ptr<BlockHeaderV2> & blkHeader) {
+        void copy(std::shared_ptr<BlockHeaderV2> blkHeader) {
             size         = blkHeader->size;
             number       = blkHeader->number;
             headerLength = blkHeader->headerLength;

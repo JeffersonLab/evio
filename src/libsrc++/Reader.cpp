@@ -62,7 +62,7 @@ namespace evio {
      * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6;
      *                       if checkRecordNumSeq is true and records are out of sequence.
      */
-    Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, bool checkRecordNumSeq) {
+    Reader::Reader(std::shared_ptr<ByteBuffer> buffer, bool checkRecordNumSeq) {
         this->buffer = buffer;
         bufferOffset = buffer->position();
         bufferLimit  = buffer->limit();
@@ -141,7 +141,7 @@ namespace evio {
 
     /**
      * Has {@link #close()} been called (without reopening by calling
-     * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)})?
+     * {@link #setBuffer(std::shared_ptr<ByteBuffer>)})?
      *
      * @return {@code true} if this object closed, else {@code false}.
      */
@@ -167,7 +167,7 @@ namespace evio {
      * @throws EvioException if buf arg is null,
      *                       not in the proper format, or earlier than version 6
      */
-    void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+    void Reader::setBuffer(std::shared_ptr<ByteBuffer> buf) {
 
         if (buf == nullptr) {
             throw EvioException("null buf arg");
@@ -251,7 +251,7 @@ namespace evio {
      * Get the first record header from reading a file/buffer.
      * @return first record header from reading a file/buffer.
      */
-    std::shared_ptr<RecordHeader> & Reader::getFirstRecordHeader() {return firstRecordHeader;}
+    std::shared_ptr<RecordHeader> Reader::getFirstRecordHeader() {return firstRecordHeader;}
 
 
     /**
@@ -319,7 +319,7 @@ namespace evio {
      *             If null, this is ignored.
      * @return byte array representing the first event. Null if none.
      */
-    std::shared_ptr<uint8_t> & Reader::getFirstEvent(uint32_t *size) {
+    std::shared_ptr<uint8_t> Reader::getFirstEvent(uint32_t *size) {
         // Read in first event if necessary
         extractDictionaryAndFirstEvent();
         if (size != nullptr) {
@@ -629,7 +629,7 @@ namespace evio {
      *                       (buf.capacity() < event size), or
      *                       index too large.
      */
-    std::shared_ptr<ByteBuffer> Reader::getEvent(std::shared_ptr<ByteBuffer> & buf, uint32_t index) {
+    std::shared_ptr<ByteBuffer> Reader::getEvent(std::shared_ptr<ByteBuffer> buf, uint32_t index) {
         if (buf == nullptr) return nullptr;
         getEvent(*(buf.get()), index);
         return buf;
@@ -896,7 +896,7 @@ namespace evio {
      * @throws underflow_error if not enough data in buffer.
      * @throws EvioException null info arg or info.length &lt; 7.
      */
-    void Reader::findRecordInfo(std::shared_ptr<ByteBuffer> & buf, uint32_t offset,
+    void Reader::findRecordInfo(std::shared_ptr<ByteBuffer> buf, uint32_t offset,
                                 uint32_t* info, uint32_t infoLen) {
         findRecordInfo(*(buf.get()), offset, info, infoLen);
     }
@@ -1026,7 +1026,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      * @throws underflow_error if not enough data in buffer.
      * @throws EvioException null info arg or infoLen &lt; 7.
      */
-    uint32_t Reader::getTotalByteCounts(std::shared_ptr<ByteBuffer> & buf, uint32_t* info, uint32_t infoLen) {
+    uint32_t Reader::getTotalByteCounts(std::shared_ptr<ByteBuffer> buf, uint32_t* info, uint32_t infoLen) {
         return getTotalByteCounts(*(buf.get()), info, infoLen);
     }
 
@@ -1721,7 +1721,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      *                       if internal programming error;
      *                       if buffer has compressed data;
      */
-    std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> & removeNode) {
+    std::shared_ptr<ByteBuffer> Reader::removeStructure(std::shared_ptr<EvioNode> removeNode) {
 
         if (closed) {
             throw EvioException("object closed");
@@ -1745,7 +1745,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 break;
             }
 
-            for (std::shared_ptr<EvioNode> const & nd : ev->getAllNodes()) {
+            for (std::shared_ptr<EvioNode> const nd : ev->getAllNodes()) {
                 // The first node in allNodes is the event node
                 if (removeNode == nd) {
                     foundNode = true;
@@ -1849,7 +1849,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      *                       if there is an internal programming error;
      *                       if object closed
      */
-    std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
+    std::shared_ptr<ByteBuffer> Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
 
         if (addBuffer.remaining() < 8) {
             throw EvioException("empty or non-evio format buffer arg");

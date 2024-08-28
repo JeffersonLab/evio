@@ -94,7 +94,7 @@ namespace evio {
      * @throws underflow_error if too little data in bb to read.
      * @throws EvioException bad evio version #; failure to read first block header
      */
-    EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bool synced) {
+    EvioReader::EvioReader(std::shared_ptr<ByteBuffer> bb, bool checkRecNumSeq, bool synced) {
 
         byteBuffer = bb;
         initialPosition = byteBuffer->position();

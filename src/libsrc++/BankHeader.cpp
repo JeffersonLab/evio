@@ -65,7 +65,7 @@ namespace evio {
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written, which for a BankHeader is 8.
      */
-    size_t BankHeader::write(std::shared_ptr<ByteBuffer> & byteBuffer) {
+    size_t BankHeader::write(std::shared_ptr<ByteBuffer> byteBuffer) {
         return write(*(byteBuffer.get()));
     }
 

@@ -139,7 +139,7 @@ namespace evio {
      * Copy method.
      * @param head  header to copy.
      */
-    void RecordHeader::copy(std::shared_ptr<RecordHeader> const & head) {
+    void RecordHeader::copy(std::shared_ptr<RecordHeader> const head) {
 
         if (this != head.get()) {
             position                 = head->position;
@@ -1016,7 +1016,7 @@ namespace evio {
      * @param off  position in buffer to begin writing.
      * @throws EvioException if buffer contains too little room.
      */
-    void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off) {
+    void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> buffer, size_t off) {
         writeHeader(*(buffer.get()), off);
     }
 
@@ -1070,7 +1070,7 @@ namespace evio {
      */
     int RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen,
                                     uint32_t recordNum, const ByteOrder & order,
-                                    const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
+                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
 
         uint32_t indexLen = 0;
         uint32_t wholeLen = HEADER_SIZE_BYTES;
@@ -1127,7 +1127,7 @@ namespace evio {
      */
     int RecordHeader::writeTrailer(std::vector<uint8_t> & array, size_t off,
                                     uint32_t recordNum, const ByteOrder & order,
-                                    const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
+                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
 
         uint32_t indexLen = 0;
         uint32_t wholeLen = HEADER_SIZE_BYTES;
@@ -1180,7 +1180,7 @@ namespace evio {
      * @throws EvioException if buf too small to hold trailer + index.
      */
     int RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
-                                    const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
+                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
 
         uint32_t indexLen = 0;
         uint32_t wholeLen = HEADER_SIZE_BYTES;
@@ -1243,8 +1243,8 @@ namespace evio {
      * @return trailer bytes written into array.
      * @throws EvioException if buf too small to hold trailer + index.
      */
-    int RecordHeader::writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
-                                    const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
+    int RecordHeader::writeTrailer(std::shared_ptr<ByteBuffer> buf, size_t off, uint32_t recordNum,
+                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
         return writeTrailer(*(buf.get()), off, recordNum, recordLengths);
     }
 
@@ -1306,7 +1306,7 @@ namespace evio {
      * @throws EvioException if buffer contains too little data,
      *                       or is not in proper format.
      */
-    bool RecordHeader::isCompressed(std::shared_ptr<ByteBuffer> & buffer, size_t offset) {
+    bool RecordHeader::isCompressed(std::shared_ptr<ByteBuffer> buffer, size_t offset) {
         return isCompressed(*(buffer.get()), offset);
     }
 
@@ -1403,7 +1403,7 @@ namespace evio {
      * @throws EvioException if buffer contains too little data,
      *                       is not in proper format, or version earlier than 6.
      */
-    void RecordHeader::readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset) {
+    void RecordHeader::readHeader(std::shared_ptr<ByteBuffer> buffer, size_t offset) {
         readHeader(*(buffer.get()), offset);
     }
 

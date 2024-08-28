@@ -51,7 +51,7 @@ namespace evio {
          * @param num num of the created EvioBank.
          * @return the created EvioBank.
          */
-        static std::shared_ptr<EvioBank> transform(std::shared_ptr<EvioSegment> const & segment, uint8_t num) {
+        static std::shared_ptr<EvioBank> transform(std::shared_ptr<EvioSegment> const segment, uint8_t num) {
             // Copy over header & create new EvioBank
             auto const segHeader = segment->getHeader();
             auto bank = EvioBank::getInstance(segHeader->getTag(), segHeader->getDataType(), num);
@@ -73,8 +73,8 @@ namespace evio {
          * @param segment EvioSegment object to copy.
          * @param num num of the EvioBank.
          */
-        static void copy(std::shared_ptr<EvioBank> const & bank,
-                         std::shared_ptr<EvioSegment> const & segment,
+        static void copy(std::shared_ptr<EvioBank> const bank,
+                         std::shared_ptr<EvioSegment> const segment,
                          uint8_t num) {
 
             // Copy over header
@@ -104,7 +104,7 @@ namespace evio {
          * @param num num of the created EvioBank.
          * @return the created EvioBank.
          */
-        static std::shared_ptr<EvioBank> transform(std::shared_ptr<EvioTagSegment> const & tagsegment, uint8_t num) {
+        static std::shared_ptr<EvioBank> transform(std::shared_ptr<EvioTagSegment> const tagsegment, uint8_t num) {
             auto const tagsegHeader = tagsegment->getHeader();
             auto bank = EvioBank::getInstance(tagsegHeader->getTag(), tagsegHeader->getDataType(), num);
             auto bankHeader = bank->getHeader();
@@ -126,8 +126,8 @@ namespace evio {
          * @param tagsegment EvioTagSegment object to copy.
          * @param num num of the EvioBank.
          */
-        static void copy(std::shared_ptr<EvioBank> const & bank,
-                         std::shared_ptr<EvioTagSegment> const & tagsegment,
+        static void copy(std::shared_ptr<EvioBank> const bank,
+                         std::shared_ptr<EvioTagSegment> const tagsegment,
                          uint8_t num) {
 
             auto const tagsegHeader = tagsegment->getHeader();
@@ -155,7 +155,7 @@ namespace evio {
          * @param segment EvioSegment object to transform.
          * @return the created EvioTagSegment.
          */
-        static std::shared_ptr<EvioTagSegment> transform(std::shared_ptr<EvioSegment> const & segment) {
+        static std::shared_ptr<EvioTagSegment> transform(std::shared_ptr<EvioSegment> const segment) {
             auto const segHeader = segment->getHeader();
             auto ts = EvioTagSegment::getInstance(segHeader->getTag(), segHeader->getDataType());
             auto tsHeader = ts->getHeader();
@@ -189,8 +189,8 @@ namespace evio {
          * @param tagsegment EvioTagSegment object to copy into.
          * @param segment EvioSegment object to copy.
          */
-        static void copy(std::shared_ptr<EvioTagSegment> const & tagsegment,
-                         std::shared_ptr<EvioSegment> const & segment) {
+        static void copy(std::shared_ptr<EvioTagSegment> const tagsegment,
+                         std::shared_ptr<EvioSegment> const segment) {
 
             auto const segHeader = segment->getHeader();
             auto tsHeader  = tagsegment->getHeader();
@@ -225,7 +225,7 @@ namespace evio {
          * @param tagsegment EvioTagSegment object to transform.
          * @return the created EvioSegment.
          */
-        static std::shared_ptr<EvioSegment> transform(std::shared_ptr<EvioTagSegment> const & tagsegment) {
+        static std::shared_ptr<EvioSegment> transform(std::shared_ptr<EvioTagSegment> const tagsegment) {
             auto const tsHeader = tagsegment->getHeader();
             auto seg = EvioSegment::getInstance(tsHeader->getTag(), tsHeader->getDataType());
             auto segHeader = seg->getHeader();
@@ -249,8 +249,8 @@ namespace evio {
          * @param segment EvioSegment object to copy into.
          * @param tagsegment EvioTagSegment object to copy.
          */
-        static void copy(std::shared_ptr<EvioSegment> const & segment,
-                         std::shared_ptr<EvioSegment> const & tagsegment) {
+        static void copy(std::shared_ptr<EvioSegment> const segment,
+                         std::shared_ptr<EvioSegment> const tagsegment) {
 
             auto const tsHeader  = tagsegment->getHeader();
             auto segHeader = segment->getHeader();
@@ -281,7 +281,7 @@ namespace evio {
          * @return the created EvioSegment.
          * @throws EvioException if the bank is too long to change into a segment
          */
-        static std::shared_ptr<EvioSegment> transform(std::shared_ptr<EvioBank> const & bank) {
+        static std::shared_ptr<EvioSegment> transform(std::shared_ptr<EvioBank> const bank) {
             auto const bankHeader = bank->getHeader();
             size_t bankLen = bankHeader->getLength();
             if (bankLen > 65535) {
@@ -318,8 +318,8 @@ namespace evio {
          * @param bank EvioBank object to copy.
          * @throws EvioException if the bank is too long to change into a segment
          */
-        static void copy(std::shared_ptr<EvioSegment> const & segment,
-                         std::shared_ptr<EvioBank> const & bank) {
+        static void copy(std::shared_ptr<EvioSegment> const segment,
+                         std::shared_ptr<EvioBank> const bank) {
 
             auto const bankHeader = bank->getHeader();
             size_t bankLen = bankHeader->getLength();
@@ -357,11 +357,11 @@ namespace evio {
          * serializes 4, only 4 bits are needed to contain the equivalent type data.<p>
          *
          * @param bank EvioBank object to transform.
-         * @param dummy only used to distinguish this method from {@link #transform(std::shared_ptr<EvioBank> const &)}.
+         * @param dummy only used to distinguish this method from {@link #transform(std::shared_ptr<EvioBank> const)}.
          * @return the created EvioTagSegment.
          * @throws EvioException if the bank is too long to change into a tagsegment
          */
-        static std::shared_ptr<EvioTagSegment> transform(std::shared_ptr<EvioBank> const & bank,
+        static std::shared_ptr<EvioTagSegment> transform(std::shared_ptr<EvioBank> const bank,
                                                          int dummy) {
             auto const bankHeader = bank->getHeader();
             if (bankHeader->getLength() > 65535) {
@@ -406,8 +406,8 @@ namespace evio {
          * @param bank EvioBank object to copy.
          * @throws EvioException if the bank is too long to change into a segment
          */
-        static void copy(std::shared_ptr<EvioTagSegment> const & tagsegment,
-                         std::shared_ptr<EvioBank> const & bank) {
+        static void copy(std::shared_ptr<EvioTagSegment> const tagsegment,
+                         std::shared_ptr<EvioBank> const bank) {
 
             auto const bankHeader = bank->getHeader();
             size_t bankLen = bankHeader->getLength();

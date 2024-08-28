@@ -616,7 +616,7 @@ namespace evio {
      * @param off position in buffer to begin writing.
      * @throws EvioException if remaining buffer space (limit - off) is too small.
      */
-    void FileHeader::writeHeader(std::shared_ptr<ByteBuffer> & buf, size_t off) {
+    void FileHeader::writeHeader(std::shared_ptr<ByteBuffer> buf, size_t off) {
         return writeHeader(*(buf.get()), off);
     }
 
@@ -703,7 +703,7 @@ namespace evio {
      * @throws EvioException if remaining buffer space (limit - off) is too small,
      *                       data is not in proper format, or version earlier than 6.
      */
-    void FileHeader::readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset) {
+    void FileHeader::readHeader(std::shared_ptr<ByteBuffer> buffer, size_t offset) {
         readHeader(*(buffer.get()), offset);
     }
 

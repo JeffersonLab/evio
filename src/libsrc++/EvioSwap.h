@@ -182,8 +182,8 @@ namespace evio {
          *                       if bad values for srcPos and/or destPos;
          */
         static void swapLeafData(DataType const & type,
-                                 std::shared_ptr<ByteBuffer> & srcBuf,
-                                 std::shared_ptr<ByteBuffer> & destBuf,
+                                 std::shared_ptr<ByteBuffer> srcBuf,
+                                 std::shared_ptr<ByteBuffer> destBuf,
                                  size_t srcPos, size_t destPos, size_t len) {
             swapLeafData(type, *(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len);
         }

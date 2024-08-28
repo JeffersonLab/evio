@@ -552,7 +552,7 @@ namespace evio {
      *
      * @param node node whose header data must be written
      */
-    void CompactEventBuilder::writeHeader(std::shared_ptr<EvioNode> & node) {
+    void CompactEventBuilder::writeHeader(std::shared_ptr<EvioNode> node) {
 
         DataType const & type = currentStructure->type;
         bool isBigEndian = order.isBigEndian();
@@ -634,7 +634,7 @@ namespace evio {
      * @param swapData do we swap the primitive data or not?
      * @throws EvioException if data needs to, but cannot be swapped.
      */
-    void CompactEventBuilder::writeNode(std::shared_ptr<EvioNode> & node, bool swapData) {
+    void CompactEventBuilder::writeNode(std::shared_ptr<EvioNode> node, bool swapData) {
 
         // Write header in endianness of buffer
         writeHeader(node);

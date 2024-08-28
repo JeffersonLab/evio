@@ -40,19 +40,19 @@ namespace evio {
      * of RecordRingItems which are reused (using Disruptor software package).<p>
      *
      * It is a supply of RecordRingItems in which a single producer does a {@link #get()},
-     * fills the record with data, and finally does a {@link #publish(std::shared_ptr<RecordRingItem> &)}
+     * fills the record with data, and finally does a {@link #publish(std::shared_ptr<RecordRingItem>)}
      * to let consumers know the data is ready.<p>
      *
      * This class is setup to handle 2 types of consumers.
      * The first type is a thread which compresses a record's data.
      * The number of such consumers is set in the constructor.
      * Each of these will call {@link #getToCompress(uint32_t)} to get a record
-     * and eventually call {@link #releaseCompressor(std::shared_ptr<RecordRingItem> &)} to indicate it is
+     * and eventually call {@link #releaseCompressor(std::shared_ptr<RecordRingItem>)} to indicate it is
      * finished compressing and the record is available for writing to disk.<p>
      *
      * The second type of consumer is a single thread which writes all compressed
      * records to a file. This will call {@link #getToWrite()} to get a record
-     * and eventually call {@link #releaseWriter(std::shared_ptr<RecordRingItem> &)} to indicate it is
+     * and eventually call {@link #releaseWriter(std::shared_ptr<RecordRingItem>)} to indicate it is
      * finished writing and the record is available for being filled with new data.<p>
      *
      * Due to the multithreaded nature of writing files using this class, a mechanism
@@ -203,13 +203,13 @@ namespace evio {
         int64_t getLastSequence();
 
         std::shared_ptr<RecordRingItem> get();
-        void publish(std::shared_ptr<RecordRingItem> & item);
+        void publish(std::shared_ptr<RecordRingItem> item);
         std::shared_ptr<RecordRingItem> getToCompress(uint32_t threadNumber);
         std::shared_ptr<RecordRingItem> getToWrite();
 
-        void releaseCompressor(std::shared_ptr<RecordRingItem> & item);
-        bool releaseWriterSequential(std::shared_ptr<RecordRingItem> & item);
-        bool releaseWriter(std::shared_ptr<RecordRingItem> & item);
+        void releaseCompressor(std::shared_ptr<RecordRingItem> item);
+        bool releaseWriterSequential(std::shared_ptr<RecordRingItem> item);
+        bool releaseWriter(std::shared_ptr<RecordRingItem> item);
         void release(uint32_t threadNum, int64_t sequenceNum);
 
         bool haveError();

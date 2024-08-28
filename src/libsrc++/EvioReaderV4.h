@@ -212,12 +212,12 @@ namespace evio {
 
         //------------------------
 
-        size_t generateEventPositions(std::shared_ptr<ByteBuffer> & byteBuffer);
+        size_t generateEventPositions(std::shared_ptr<ByteBuffer> byteBuffer);
 
     public:
 
         explicit EvioReaderV4(std::string const & path, bool checkBlkNumSeq = false, bool synced = false);
-        explicit EvioReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkBlkNumSeq = false, bool synced = false);
+        explicit EvioReaderV4(std::shared_ptr<ByteBuffer> byteBuffer, bool checkBlkNumSeq = false, bool synced = false);
 
 
         void setBuffer(std::shared_ptr<ByteBuffer> buf) override;
@@ -242,15 +242,15 @@ namespace evio {
 
     protected:
 
-        void parseFirstHeader(std::shared_ptr<ByteBuffer> & headerBuf);
+        void parseFirstHeader(std::shared_ptr<ByteBuffer> headerBuf);
         IEvioReader::ReadWriteStatus processNextBlock();
 
     private:
 
         void prepareForSequentialRead();
-        void prepareForBufferRead(std::shared_ptr<ByteBuffer> & buffer) const;
+        void prepareForBufferRead(std::shared_ptr<ByteBuffer> buffer) const;
 
-        void readDictionary(std::shared_ptr<ByteBuffer> & buffer);
+        void readDictionary(std::shared_ptr<ByteBuffer> buffer);
         std::shared_ptr<EvioEvent> getEventV4(size_t index);
 
     public:

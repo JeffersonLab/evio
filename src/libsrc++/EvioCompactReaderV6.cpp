@@ -37,7 +37,7 @@ namespace evio {
      *                       buffer not in the proper format,
      *                       or earlier than version 6.
      */
-    EvioCompactReaderV6::EvioCompactReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer) {
+    EvioCompactReaderV6::EvioCompactReaderV6(std::shared_ptr<ByteBuffer> byteBuffer) {
         if (byteBuffer == nullptr) {
             throw EvioException("Buffer arg is null");
         }
@@ -52,7 +52,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioCompactReaderV6::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+    void EvioCompactReaderV6::setBuffer(std::shared_ptr<ByteBuffer> buf) {
         reader.setBuffer(buf);
         if (!reader.isEvioFormat()) {
             std::cout << "EvioCompactReaderV6: buffer is NOT in evio format" << std::endl;
@@ -221,7 +221,7 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioCompactReaderV6::searchEvent(size_t eventNumber, std::string const & dictName,
-                                          std::shared_ptr<EvioXMLDictionary> & dictionary,
+                                          std::shared_ptr<EvioXMLDictionary> dictionary,
                                           std::vector<std::shared_ptr<EvioNode>> & vec) {
 
         if (dictName.empty()) {
@@ -279,7 +279,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::removeStructure(std::shared_ptr<EvioNode> & removeNode) {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::removeStructure(std::shared_ptr<EvioNode> removeNode) {
         return reader.removeStructure(removeNode);
     }
 
@@ -291,13 +291,13 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> node) {
         return getData(node, false);
     }
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> & node,
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> node,
                                                              bool copy) {
         auto buff = std::make_shared<ByteBuffer>(4*node->getDataLength());
         return node->getByteData(buff, copy);
@@ -305,15 +305,15 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> & node,
-                                                             std::shared_ptr<ByteBuffer> & buf)  {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> node,
+                                                             std::shared_ptr<ByteBuffer> buf)  {
         return getData(node, buf, false);
     }
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> & node,
-                                                             std::shared_ptr<ByteBuffer> & buf,
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> node,
+                                                             std::shared_ptr<ByteBuffer> buf,
                                                              bool copy) {
         if (closed) {
             throw EvioException("object closed");
@@ -356,13 +356,13 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getStructureBuffer(std::shared_ptr<EvioNode> & node)  {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getStructureBuffer(std::shared_ptr<EvioNode> node)  {
         return getStructureBuffer(node, false);
     }
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getStructureBuffer(std::shared_ptr<EvioNode> & node,
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getStructureBuffer(std::shared_ptr<EvioNode> node,
                                                                         bool copy) {
 
         if (node == nullptr) {

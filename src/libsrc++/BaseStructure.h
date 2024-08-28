@@ -419,7 +419,7 @@ namespace evio {
 
     protected:
 
-        void setParent(const std::shared_ptr<BaseStructure> &newParent);
+        void setParent(const std::shared_ptr<BaseStructure> newParent);
 
     public:
 
@@ -461,7 +461,7 @@ namespace evio {
 
     protected:
 
-        std::vector<std::shared_ptr<BaseStructure>> getPathToRoot(const std::shared_ptr<BaseStructure> & aNode, int depth) const;
+        std::vector<std::shared_ptr<BaseStructure>> getPathToRoot(const std::shared_ptr<BaseStructure> aNode, int depth) const;
 
     public:
 
@@ -622,7 +622,7 @@ namespace evio {
 
         void clearData();
         void copyData(BaseStructure const & other);
-        void copyData(std::shared_ptr<BaseStructure> const & other);
+        void copyData(std::shared_ptr<BaseStructure> const other);
 
     protected:
 
@@ -637,7 +637,7 @@ namespace evio {
 
     public:
 
-        void transform(std::shared_ptr<BaseStructure> const & structure);
+        void transform(std::shared_ptr<BaseStructure> const structure);
 
         virtual StructureType getStructureType() const {return StructureType::STRUCT_UNKNOWN32;};
 

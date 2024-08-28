@@ -151,9 +151,9 @@ namespace evio {
          *                       if destBuffer is too small to contain swapped data;
          *                       srcBuffer and destBuffer have same byte order.
          */
-        static void swapBankHeader(std::shared_ptr<EvioNode> & node,
-                                   std::shared_ptr<ByteBuffer> & srcBuffer,
-                                   std::shared_ptr<ByteBuffer> & destBuffer,
+        static void swapBankHeader(std::shared_ptr<EvioNode> node,
+                                   std::shared_ptr<ByteBuffer> srcBuffer,
+                                   std::shared_ptr<ByteBuffer> destBuffer,
                                    uint32_t srcPos, uint32_t destPos) {
             swapBankHeader(*(node.get()), *(srcBuffer.get()), *(destBuffer.get()), srcPos, destPos);
         }
@@ -224,9 +224,9 @@ namespace evio {
          *                       if destBuffer is too small to contain swapped data;
          *                       srcBuffer and destBuffer have same byte order.
          */
-        static void swapSegmentHeader(std::shared_ptr<EvioNode> & node,
-                                      std::shared_ptr<ByteBuffer> & srcBuffer,
-                                      std::shared_ptr<ByteBuffer> & destBuffer,
+        static void swapSegmentHeader(std::shared_ptr<EvioNode> node,
+                                      std::shared_ptr<ByteBuffer> srcBuffer,
+                                      std::shared_ptr<ByteBuffer> destBuffer,
                                       uint32_t srcPos, uint32_t destPos) {
             swapSegmentHeader(*(node.get()), *(srcBuffer.get()), *(destBuffer.get()), srcPos, destPos);
         }
@@ -288,9 +288,9 @@ namespace evio {
          * @throws EvioException if srcBuffer is not properly formatted;
          *                       if destBuffer is too small to contain swapped data
          */
-        static void swapTagSegmentHeader(std::shared_ptr<EvioNode> & node,
-                                         std::shared_ptr<ByteBuffer> & srcBuffer,
-                                         std::shared_ptr<ByteBuffer> & destBuffer,
+        static void swapTagSegmentHeader(std::shared_ptr<EvioNode> node,
+                                         std::shared_ptr<ByteBuffer> srcBuffer,
+                                         std::shared_ptr<ByteBuffer> destBuffer,
                                          uint32_t srcPos, uint32_t destPos) {
             swapTagSegmentHeader(*(node.get()), *(srcBuffer.get()), *(destBuffer.get()), srcPos, destPos);
         }

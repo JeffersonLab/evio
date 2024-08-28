@@ -282,9 +282,9 @@ namespace evio {
 
         // Writing, reading, printing
         void writeHeader(ByteBuffer & buf, size_t off);
-        void writeHeader(std::shared_ptr<ByteBuffer> & buf, size_t off = 0);
+        void writeHeader(std::shared_ptr<ByteBuffer> buf, size_t off = 0);
         void readHeader(ByteBuffer & buffer, size_t offset = 0);
-        void readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset = 0);
+        void readHeader(std::shared_ptr<ByteBuffer> buffer, size_t offset = 0);
 
         std::string toString() const;
     };

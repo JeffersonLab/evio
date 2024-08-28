@@ -52,7 +52,7 @@ namespace evio {
      *                       if first record number != 1 when checkRecNumSeq arg is true;
      *                       if buffer data not in evio format.
      */
-    EvioReaderV6::EvioReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkRecNumSeq, bool synced) {
+    EvioReaderV6::EvioReaderV6(std::shared_ptr<ByteBuffer> byteBuffer, bool checkRecNumSeq, bool synced) {
         synchronized = synced;
         reader = std::make_shared<Reader>(byteBuffer);
         parser = std::make_shared<EventParser>();
@@ -124,7 +124,7 @@ namespace evio {
         }
 
         uint32_t len;
-        std::shared_ptr<uint8_t> & feBuf = reader->getFirstEvent(&len);
+        std::shared_ptr<uint8_t> feBuf = reader->getFirstEvent(&len);
         if (feBuf == nullptr) {
             return nullptr;
         }

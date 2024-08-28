@@ -185,7 +185,7 @@ namespace evio {
 
     public:
 
-        std::string getName(std::shared_ptr<BaseStructure> &structure);
+        std::string getName(std::shared_ptr<BaseStructure> structure);
         std::string getName(uint16_t tag);
         std::string getName(uint16_t tag, uint8_t num);
         std::string getName(uint16_t tag, uint8_t num, uint16_t tagEnd);

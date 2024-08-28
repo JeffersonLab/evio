@@ -63,7 +63,7 @@ namespace evio {
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written, which for a SegmentHeader is 4.
      */
-    size_t SegmentHeader::write(std::shared_ptr<ByteBuffer> & byteBuffer) {
+    size_t SegmentHeader::write(std::shared_ptr<ByteBuffer> byteBuffer) {
         return write(*(byteBuffer.get()));
     }
 

@@ -73,7 +73,7 @@ namespace evio {
 
 
         explicit EvioReaderV6(std::string const & path, bool checkRecNumSeq = false, bool synced = false);
-        explicit EvioReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkRecNumSeq = false, bool synced = false);
+        explicit EvioReaderV6(std::shared_ptr<ByteBuffer> byteBuffer, bool checkRecNumSeq = false, bool synced = false);
 
 
         void setBuffer(std::shared_ptr<ByteBuffer> buf) override ;

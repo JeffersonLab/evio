@@ -31,7 +31,7 @@ namespace evio {
      * This is the constructor to use when you want to manipulate an existing event.
      * @param ev the event to manipulate.
      */
-    EventBuilder::EventBuilder(std::shared_ptr<EvioEvent> & ev) : event(ev) {}
+    EventBuilder::EventBuilder(std::shared_ptr<EvioEvent> ev) : event(ev) {}
 
 
     /**
@@ -778,7 +778,7 @@ namespace evio {
      * the newly supplied event.
      * @param ev the new underlying event.
      */
-    void EventBuilder::setEvent(std::shared_ptr<EvioEvent> & ev) {event = ev;}
+    void EventBuilder::setEvent(std::shared_ptr<EvioEvent> ev) {event = ev;}
 
 
     //---------------------------------------------------------------------------------

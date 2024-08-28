@@ -74,7 +74,7 @@ namespace evio {
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      * @param hType           type of record header to use.
      */
-    RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEventCount,
+    RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> buffer, uint32_t maxEventCount,
                                Compressor::CompressionType compressionType, HeaderType hType) {
 
         try {
@@ -208,7 +208,7 @@ namespace evio {
      * The argument ByteBuffer can be retrieved by calling {@link #getBinaryBuffer()}.
      * @param buf buffer in which to build this record.
      */
-    void RecordOutput::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+    void RecordOutput::setBuffer(std::shared_ptr<ByteBuffer> buf) {
         if (buf->order() != byteOrder) {
             std::cout << "setBuffer(): warning, changing buffer's byte order!" << std::endl;
         }

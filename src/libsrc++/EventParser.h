@@ -69,10 +69,10 @@ namespace evio {
 
     public:
 
-        static void eventParse(std::shared_ptr<EvioEvent> & evioEvent);
+        static void eventParse(std::shared_ptr<EvioEvent> evioEvent);
 
-        void parseEvent(std::shared_ptr<EvioEvent> & evioEvent);
-        void parseEvent(std::shared_ptr<EvioEvent> & evioEvent, bool synced);
+        void parseEvent(std::shared_ptr<EvioEvent> evioEvent);
+        void parseEvent(std::shared_ptr<EvioEvent> evioEvent, bool synced);
 
     private:
 
@@ -85,10 +85,10 @@ namespace evio {
 
     protected:
 
-        void notifyEvioListeners(std::shared_ptr<EvioEvent> & event,
-                                 std::shared_ptr<BaseStructure> & structure);
-        void notifyStart(std::shared_ptr<EvioEvent> & event);
-        void notifyStop(std::shared_ptr<EvioEvent> & event);
+        void notifyEvioListeners(std::shared_ptr<EvioEvent> event,
+                                 std::shared_ptr<BaseStructure> structure);
+        void notifyStart(std::shared_ptr<EvioEvent> event);
+        void notifyStop(std::shared_ptr<EvioEvent> event);
 
     public:
 
@@ -103,20 +103,20 @@ namespace evio {
 
         // Scanning structures that have already been parsed
 
-        static void vistAllStructures(std::shared_ptr<BaseStructure> const & structure,
-                                      std::shared_ptr<IEvioListener> const & listener);
-        static void vistAllStructures(std::shared_ptr<BaseStructure> const & structure,
-                                      std::shared_ptr<IEvioListener> const & listener,
-                                      std::shared_ptr<IEvioFilter> const & filter);
-        static void getMatchingStructures(std::shared_ptr<BaseStructure> const & structure,
-                                          std::shared_ptr<IEvioFilter> const & filter,
+        static void vistAllStructures(std::shared_ptr<BaseStructure> const structure,
+                                      std::shared_ptr<IEvioListener> const listener);
+        static void vistAllStructures(std::shared_ptr<BaseStructure> const structure,
+                                      std::shared_ptr<IEvioListener> const listener,
+                                      std::shared_ptr<IEvioFilter> const filter);
+        static void getMatchingStructures(std::shared_ptr<BaseStructure> const structure,
+                                          std::shared_ptr<IEvioFilter> const filter,
                                           std::vector<std::shared_ptr<BaseStructure>> & structs);
     private:
 
-         static void visitAllDescendants(std::shared_ptr<BaseStructure> const & topLevelStruct,
-                                         std::shared_ptr<BaseStructure> const & structure,
-                                         std::shared_ptr<IEvioListener> const & listener,
-                                         std::shared_ptr<IEvioFilter>   const & filter);
+         static void visitAllDescendants(std::shared_ptr<BaseStructure> const topLevelStruct,
+                                         std::shared_ptr<BaseStructure> const structure,
+                                         std::shared_ptr<IEvioListener> const listener,
+                                         std::shared_ptr<IEvioFilter>   const filter);
 
 
     };
