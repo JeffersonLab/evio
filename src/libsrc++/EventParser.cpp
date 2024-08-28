@@ -513,7 +513,7 @@ namespace  evio {
         }
 
         if (!(structure->isLeaf())) {
-            for (auto const & child : structure->children) {
+            for (auto const child : structure->children) {
                 visitAllDescendants(topLevelStruct, child, listener, filter);
             }
         }

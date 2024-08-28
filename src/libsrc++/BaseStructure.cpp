@@ -170,7 +170,7 @@ namespace evio {
 
         if (dataType.isStructure()) {
             children.clear();
-            for (auto const & kid : structure->children) {
+            for (auto const kid : structure->children) {
                 children.push_back(kid);
             }
         }
@@ -1436,7 +1436,7 @@ namespace evio {
         }
 
         if (!(structure->isLeaf())) {
-            for (auto const & child : structure->getChildren()) {
+            for (auto const child : structure->getChildren()) {
                 visitAllDescendants(child, listener, filter);
             }
         }
@@ -2657,7 +2657,7 @@ namespace evio {
         else {
             datalen = 0;
 
-            for (auto const & child : children) {
+            for (auto const child : children) {
                 len = child->setAllHeaderLengths();
 //std::cout << "  setAllHeaderLengths: child len = " << len << "\n";
                 // Add this check to make sure structure is not being overfilled
@@ -2885,7 +2885,7 @@ namespace evio {
             }
         } // isLeaf
         else if (!children.empty()) {
-            for (auto const & child : children) {
+            for (auto const child : children) {
                 curPos += child->write(curPos, order);
             }
         } // not leaf
@@ -3376,7 +3376,7 @@ namespace evio {
             rawBytes.clear();
             // Get a rough idea of the size
             size_t sz = 0;
-            for (auto const & cd : compositeData) {
+            for (auto const cd : compositeData) {
                 size_t cdSz = cd->getRawBytes().size();
 //std::cout << "updateCompositeData: ADDing cd item of size = " << cdSz << "\n";
                 if (cdSz < 20) {

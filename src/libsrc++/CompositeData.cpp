@@ -437,7 +437,7 @@ namespace evio {
 
         // Get a total length (# bytes)
         size_t totalLen = 0, len;
-        for (auto const & cd : data) {
+        for (auto const cd : data) {
             len = cd->getRawBytes().size();
             totalLen += len;
         }
@@ -447,7 +447,7 @@ namespace evio {
 
         // Copy everything in
         int offset = 0;
-        for (auto const & cd : data) {
+        for (auto const cd : data) {
             len = cd->getRawBytes().size();
             if (cd->byteOrder != order) {
 //std::cout << "CompositeData::generateRawBytes call swapAll()" << std::endl;
