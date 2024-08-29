@@ -369,24 +369,6 @@ namespace evio {
 
     private:
 
-        /**
-         * The default maximum size for a single record used for writing in ints or words.
-         * This gives record sizes of 2^22 ints or 16MB.
-         * It is a soft limit since a single
-         * event larger than this limit may need to be written.
-         */
-        static const int DEFAULT_RECORD_SIZE = 4194304;
-
-        /** The default maximum event count for a single record used for writing. */
-        static const int DEFAULT_RECORD_COUNT = 10000;
-
-        /**
-         * The default byte size of internal buffer.
-         * It's enforced to be, at a minimum, 4*(DEFAULT_RECORD_SIZE + 32).
-         */
-        static const int DEFAULT_BUFFER_SIZE = 6*DEFAULT_RECORD_SIZE;
-
-
         /** Dictionary and first event are stored in user header part of file header.
          *  They're written as a record which allows multiple events. */
         std::shared_ptr<RecordOutput> commonRecord;
