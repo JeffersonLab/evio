@@ -568,7 +568,7 @@ namespace evio {
                 cout << "   Got dictionary = " << dict << endl;
 
                 uint32_t feBytes;
-                shared_ptr<uint8_t> &pFE = reader.getFirstEvent(&feBytes);
+                shared_ptr<uint8_t> pFE = reader.getFirstEvent(&feBytes);
                 if (pFE != nullptr) {
                     cout << "   First Event bytes = " << feBytes << endl;
                     cout << "   First Event values = " << endl << "   ";
@@ -1232,7 +1232,7 @@ namespace evio {
             cout << "   Got dictionary = " << dict << endl;
 
             uint32_t feBytes;
-            shared_ptr<uint8_t> & pFE = reader1.getFirstEvent(&feBytes);
+            shared_ptr<uint8_t> pFE = reader1.getFirstEvent(&feBytes);
             if (pFE != nullptr) {
                 cout << "   First Event bytes = " << feBytes << endl;
                 cout << "   First Event values = " << endl << "   ";
@@ -1282,7 +1282,7 @@ namespace evio {
             cout << "   Got dictionary = " << dict << endl;
 
             uint32_t feBytes;
-            shared_ptr<uint8_t> & pFE = reader1.getFirstEvent(&feBytes);
+            shared_ptr<uint8_t> pFE = reader1.getFirstEvent(&feBytes);
             if (pFE != nullptr) {
                 auto feData = reinterpret_cast<char *>(pFE.get());
                 string feString(feData, feBytes);
