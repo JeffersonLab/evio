@@ -203,7 +203,7 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a17b6bc167b1261c0c06f0cc655715c95"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a17b6bc167b1261c0c06f0cc655715c95">DEFAULT_BLOCK_SIZE</a> = 16000000</td></tr>
+<tr class="memitem:a17b6bc167b1261c0c06f0cc655715c95"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a17b6bc167b1261c0c06f0cc655715c95">DEFAULT_BLOCK_SIZE</a> = 16777216</td></tr>
 <tr class="memdesc:a17b6bc167b1261c0c06f0cc655715c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default maximum size, in bytes, for a single block used for writing.  <a href="../../df/d0c/classevio_1_1_event_writer_v4.html#a17b6bc167b1261c0c06f0cc655715c95">More...</a><br /></td></tr>
 <tr class="separator:a17b6bc167b1261c0c06f0cc655715c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62cee800a3d132f0c11e23393c236f7f"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a62cee800a3d132f0c11e23393c236f7f">DEFAULT_BLOCK_COUNT</a> = 10000</td></tr>
@@ -1656,7 +1656,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const int evio::EventWriterV4::DEFAULT_BLOCK_SIZE = 16000000</td>
+          <td class="memname">const int evio::EventWriterV4::DEFAULT_BLOCK_SIZE = 16777216</td>
         </tr>
       </table>
   </td>
@@ -1667,7 +1667,7 @@ Protected Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The default maximum size, in bytes, for a single block used for writing. </p>
-<p>It's set to 16MB since that's an efficient number for writing to modern disks. It is a soft limit since a single event larger than this limit may need to be written. </p>
+<p>It's set to 16MB (2^24) since that's an efficient number for writing to modern disks. And it is consistent with the java version of this class. It is a soft limit since a single event larger than this limit may need to be written. </p>
 
 </div>
 </div>
