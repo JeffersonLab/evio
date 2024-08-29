@@ -291,7 +291,7 @@ namespace evio {
             std::bitset<24> bitInfo;
 
             /** <code>True</code> if {@link #close()} was called, else <code>false</code>. */
-            bool closed;
+            bool closed = false;
 
             /** <code>True</code> if writing to file, else <code>false</code>. */
             bool toFile;
