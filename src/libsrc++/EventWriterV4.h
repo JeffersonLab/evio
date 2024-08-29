@@ -304,10 +304,10 @@ namespace evio {
             uint32_t targetBlockSize;
 
             /** Version 4 block header reserved int 1. Used by CODA for source ID in event building. */
-            uint32_t reserved1;
+            uint32_t reserved1 = 0;
 
             /** Version 4 block header reserved int 2. */
-            uint32_t reserved2;
+            uint32_t reserved2 = 0;
 
             /** Number of bytes written to the current buffer. */
             uint64_t bytesWrittenToBuffer;
