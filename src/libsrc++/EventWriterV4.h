@@ -127,10 +127,11 @@ namespace evio {
 
             /**
               * The default maximum size, in bytes, for a single block used for writing.
-              * It's set to 16MB since that's an efficient number for writing to modern disks.
+              * It's set to 16MB (2^24) since that's an efficient number for writing to modern disks.
+              * And it is consistent with the java version of this class.
               * It is a soft limit since a single event larger than this limit may need to be written.
               */
-            static const int DEFAULT_BLOCK_SIZE = 16000000;
+            static const int DEFAULT_BLOCK_SIZE = 16777216;
 
             /** The default maximum event count for a single block used for writing. */
             static const int DEFAULT_BLOCK_COUNT = 10000;
@@ -189,13 +190,14 @@ namespace evio {
             /** Mask to get version number from 6th int in block. */
             static const int VERSION_MASK = 0xff;
 
-             /**
+            /**
              * The upper limit of maximum size for a single block used for writing
-             * is randomly chosen to be 10*16MB = 160MB.
+             * is randomly chosen to be ~134MB (actually 2^27).
+             * Make this consistent with java implementation.
              * It is a soft limit since a single event larger than this limit
              * may need to be written.
              */
-            static const int MAX_BLOCK_SIZE = 160000000;
+            static const int MAX_BLOCK_SIZE = 134217728;
 
             /** The upper limit of maximum event count for a single block used for writing. */
             static const int MAX_BLOCK_COUNT = 1000000;
@@ -203,7 +205,7 @@ namespace evio {
             /**
              * The lower limit of maximum size for a single block used for writing, in bytes.
              */
-            static const int MIN_BLOCK_SIZE = 16000;
+            static const int MIN_BLOCK_SIZE = 32768;
 
             /** The lower limit of maximum event count for a single block used for writing. */
             static const int MIN_BLOCK_COUNT = 1;

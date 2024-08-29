@@ -123,9 +123,9 @@ public class EventWriterUnsyncV4 {
 
     /**
      * The lower limit of maximum size for a single block used for writing,
-     * in ints (words). This gives block sizes of about 32k bytes.
+     * in ints (words). This gives block sizes of 32768k (2^15) bytes.
      */
-    static final int MIN_BLOCK_SIZE = 16;
+    static final int MIN_BLOCK_SIZE = 8192;
 
     /** The lower limit of maximum event count for a single block used for writing. */
     static final int MIN_BLOCK_COUNT = 1;
@@ -133,7 +133,7 @@ public class EventWriterUnsyncV4 {
     /** Size of block header in bytes. */
     static final int headerBytes = 32;
 
-    /** Size of block header in bytes. */
+    /** Size of block header in words. */
     static final int headerWords = 8;
 
     /** Turn on or off the debug printout. */
