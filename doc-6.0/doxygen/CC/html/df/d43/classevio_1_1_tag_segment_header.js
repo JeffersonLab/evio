@@ -3,7 +3,7 @@ var classevio_1_1_tag_segment_header =
     [ "TagSegmentHeader", "df/d43/classevio_1_1_tag_segment_header.html#ab03614af48a56c3f9269b0c798c69840", null ],
     [ "TagSegmentHeader", "df/d43/classevio_1_1_tag_segment_header.html#a0c24096f3323c9df2d88acdce0ecec49", null ],
     [ "TagSegmentHeader", "df/d43/classevio_1_1_tag_segment_header.html#a2a8a8430edafaf5858b86ea6f6e9815d", null ],
-    [ "copy", "df/d43/classevio_1_1_tag_segment_header.html#ac4562377b82fbb376662f83be54b0b07", null ],
+    [ "copy", "df/d43/classevio_1_1_tag_segment_header.html#a214abec15f89e6419e8e975a74edc01a", null ],
     [ "getDataLength", "df/d43/classevio_1_1_tag_segment_header.html#a051d8b1070adc5662e610234d5cd9f15", null ],
     [ "getDataType", "df/d43/classevio_1_1_tag_segment_header.html#aecc8cfa082206c87607c3e4df64f940d", null ],
     [ "getDataTypeName", "df/d43/classevio_1_1_tag_segment_header.html#a20ecfb1490d3928289ce7e90717d797c", null ],

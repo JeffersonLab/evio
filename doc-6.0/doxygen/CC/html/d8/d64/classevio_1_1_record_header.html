@@ -112,9 +112,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a811ee974e1d1aadcf8485cb7132f8142"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94e631bc5534631bca120086b28f5452"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a94e631bc5534631bca120086b28f5452">operator=</a> (const <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &amp;head)</td></tr>
 <tr class="separator:a94e631bc5534631bca120086b28f5452"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a410bc10b652bbfbb7e6281320b209b06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a410bc10b652bbfbb7e6281320b209b06">copy</a> (std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt; const head)</td></tr>
-<tr class="memdesc:a410bc10b652bbfbb7e6281320b209b06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy method.  <a href="../../d8/d64/classevio_1_1_record_header.html#a410bc10b652bbfbb7e6281320b209b06">More...</a><br /></td></tr>
-<tr class="separator:a410bc10b652bbfbb7e6281320b209b06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a0cc91f59fdd1951103bd8ebd1a262e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a6a0cc91f59fdd1951103bd8ebd1a262e">copy</a> (std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt; head)</td></tr>
+<tr class="memdesc:a6a0cc91f59fdd1951103bd8ebd1a262e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy method.  <a href="../../d8/d64/classevio_1_1_record_header.html#a6a0cc91f59fdd1951103bd8ebd1a262e">More...</a><br /></td></tr>
+<tr class="separator:a6a0cc91f59fdd1951103bd8ebd1a262e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25b332a34f112a61e614a41dce5633c8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a25b332a34f112a61e614a41dce5633c8">reset</a> ()</td></tr>
 <tr class="memdesc:a25b332a34f112a61e614a41dce5633c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset generated data.  <a href="../../d8/d64/classevio_1_1_record_header.html#a25b332a34f112a61e614a41dce5633c8">More...</a><br /></td></tr>
 <tr class="separator:a25b332a34f112a61e614a41dce5633c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -376,18 +376,18 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aedd5cd2e0d2d70e8c58bfa14dcb356b6"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aedd5cd2e0d2d70e8c58bfa14dcb356b6">clearLastRecordBit</a> (uint32_t i)</td></tr>
 <tr class="memdesc:aedd5cd2e0d2d70e8c58bfa14dcb356b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the bit in the given arg to indicate it is NOT the last record.  <a href="../../d8/d64/classevio_1_1_record_header.html#aedd5cd2e0d2d70e8c58bfa14dcb356b6">More...</a><br /></td></tr>
 <tr class="separator:aedd5cd2e0d2d70e8c58bfa14dcb356b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89b7f3599a29d3c7231903109d9b265d"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a89b7f3599a29d3c7231903109d9b265d">writeTrailer</a> (uint8_t *array, size_t arrayLen, uint32_t recordNum, const <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> &amp;order, const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
-<tr class="memdesc:a89b7f3599a29d3c7231903109d9b265d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given byte array.  <a href="../../d8/d64/classevio_1_1_record_header.html#a89b7f3599a29d3c7231903109d9b265d">More...</a><br /></td></tr>
-<tr class="separator:a89b7f3599a29d3c7231903109d9b265d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6c9c70cb21aaba536ac28b068275472"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ab6c9c70cb21aaba536ac28b068275472">writeTrailer</a> (std::vector&lt; uint8_t &gt; &amp;array, size_t off, uint32_t recordNum, const <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> &amp;order, const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
-<tr class="memdesc:ab6c9c70cb21aaba536ac28b068275472"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given vector.  <a href="../../d8/d64/classevio_1_1_record_header.html#ab6c9c70cb21aaba536ac28b068275472">More...</a><br /></td></tr>
-<tr class="separator:ab6c9c70cb21aaba536ac28b068275472"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad87187ad4d70f2defdfb64aa01d1975c"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#ad87187ad4d70f2defdfb64aa01d1975c">writeTrailer</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;buf, size_t off, uint32_t recordNum, const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
-<tr class="memdesc:ad87187ad4d70f2defdfb64aa01d1975c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given buffer.  <a href="../../d8/d64/classevio_1_1_record_header.html#ad87187ad4d70f2defdfb64aa01d1975c">More...</a><br /></td></tr>
-<tr class="separator:ad87187ad4d70f2defdfb64aa01d1975c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af33254c020422e550fe15d83e3826211"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#af33254c020422e550fe15d83e3826211">writeTrailer</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf, size_t off, uint32_t recordNum, const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
-<tr class="memdesc:af33254c020422e550fe15d83e3826211"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given buffer.  <a href="../../d8/d64/classevio_1_1_record_header.html#af33254c020422e550fe15d83e3826211">More...</a><br /></td></tr>
-<tr class="separator:af33254c020422e550fe15d83e3826211"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44a656d8dc1554e060dd06258ee96f5b"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a44a656d8dc1554e060dd06258ee96f5b">writeTrailer</a> (uint8_t *array, size_t arrayLen, uint32_t recordNum, const <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> &amp;order, std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
+<tr class="memdesc:a44a656d8dc1554e060dd06258ee96f5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given byte array.  <a href="../../d8/d64/classevio_1_1_record_header.html#a44a656d8dc1554e060dd06258ee96f5b">More...</a><br /></td></tr>
+<tr class="separator:a44a656d8dc1554e060dd06258ee96f5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8423293beb07bdec724de13f5ba3622f"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a8423293beb07bdec724de13f5ba3622f">writeTrailer</a> (std::vector&lt; uint8_t &gt; &amp;array, size_t off, uint32_t recordNum, const <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> &amp;order, std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
+<tr class="memdesc:a8423293beb07bdec724de13f5ba3622f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given vector.  <a href="../../d8/d64/classevio_1_1_record_header.html#a8423293beb07bdec724de13f5ba3622f">More...</a><br /></td></tr>
+<tr class="separator:a8423293beb07bdec724de13f5ba3622f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d7401cfa5273b5408ec3c1e4c7e837f"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a4d7401cfa5273b5408ec3c1e4c7e837f">writeTrailer</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;buf, size_t off, uint32_t recordNum, std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
+<tr class="memdesc:a4d7401cfa5273b5408ec3c1e4c7e837f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given buffer.  <a href="../../d8/d64/classevio_1_1_record_header.html#a4d7401cfa5273b5408ec3c1e4c7e837f">More...</a><br /></td></tr>
+<tr class="separator:a4d7401cfa5273b5408ec3c1e4c7e837f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5653936cfabb5702a2b3e4cb30c94b8a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a5653936cfabb5702a2b3e4cb30c94b8a">writeTrailer</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf, size_t off, uint32_t recordNum, std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt; recordLengths=nullptr)</td></tr>
+<tr class="memdesc:a5653936cfabb5702a2b3e4cb30c94b8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a trailer with an optional index array into the given buffer.  <a href="../../d8/d64/classevio_1_1_record_header.html#a5653936cfabb5702a2b3e4cb30c94b8a">More...</a><br /></td></tr>
+<tr class="separator:a5653936cfabb5702a2b3e4cb30c94b8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b37e34188e374bb01a0e9c61dfece67"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a4b37e34188e374bb01a0e9c61dfece67">isCompressed</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;buffer, size_t offset)</td></tr>
 <tr class="memdesc:a4b37e34188e374bb01a0e9c61dfece67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Quickly check to see if this buffer contains compressed data or not.  <a href="../../d8/d64/classevio_1_1_record_header.html#a4b37e34188e374bb01a0e9c61dfece67">More...</a><br /></td></tr>
 <tr class="separator:a4b37e34188e374bb01a0e9c61dfece67"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -867,8 +867,8 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 </div>
 </div>
-<a id="a410bc10b652bbfbb7e6281320b209b06"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a410bc10b652bbfbb7e6281320b209b06">&#9670;&nbsp;</a></span>copy()</h2>
+<a id="a6a0cc91f59fdd1951103bd8ebd1a262e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a0cc91f59fdd1951103bd8ebd1a262e">&#9670;&nbsp;</a></span>copy()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -876,7 +876,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
         <tr>
           <td class="memname">void evio::RecordHeader::copy </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt; const&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../d8/d64/classevio_1_1_record_header.html">RecordHeader</a> &gt;&#160;</td>
           <td class="paramname"><em>head</em></td><td>)</td>
           <td></td>
         </tr>
@@ -3527,8 +3527,8 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 </div>
 </div>
-<a id="ad87187ad4d70f2defdfb64aa01d1975c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad87187ad4d70f2defdfb64aa01d1975c">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[1/4]</span></h2>
+<a id="a4d7401cfa5273b5408ec3c1e4c7e837f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d7401cfa5273b5408ec3c1e4c7e837f">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3557,7 +3557,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
           <td class="paramname"><em>recordLengths</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
@@ -3595,8 +3595,8 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 </div>
 </div>
-<a id="af33254c020422e550fe15d83e3826211"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af33254c020422e550fe15d83e3826211">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[2/4]</span></h2>
+<a id="a5653936cfabb5702a2b3e4cb30c94b8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5653936cfabb5702a2b3e4cb30c94b8a">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3625,7 +3625,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
           <td class="paramname"><em>recordLengths</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
@@ -3661,8 +3661,8 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 </div>
 </div>
-<a id="ab6c9c70cb21aaba536ac28b068275472"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab6c9c70cb21aaba536ac28b068275472">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[3/4]</span></h2>
+<a id="a8423293beb07bdec724de13f5ba3622f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8423293beb07bdec724de13f5ba3622f">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3697,7 +3697,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
           <td class="paramname"><em>recordLengths</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
@@ -3728,8 +3728,8 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
 
 </div>
 </div>
-<a id="a89b7f3599a29d3c7231903109d9b265d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89b7f3599a29d3c7231903109d9b265d">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[4/4]</span></h2>
+<a id="a44a656d8dc1554e060dd06258ee96f5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44a656d8dc1554e060dd06258ee96f5b">&#9670;&nbsp;</a></span>writeTrailer() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3764,7 +3764,7 @@ GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; std::vector&lt; uint32_t &gt;&gt;&#160;</td>
           <td class="paramname"><em>recordLengths</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>

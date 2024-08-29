@@ -142,9 +142,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a480d33b2eeef523ab4d2109d88d5f323"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a480d33b2eeef523ab4d2109d88d5f323">findEvioVersion</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;bb, size_t initialPos)</td></tr>
 <tr class="memdesc:a480d33b2eeef523ab4d2109d88d5f323"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a couple things in a block/record header in order to determine the evio version and endianness of a buffer/file.  <a href="../../d3/d87/classevio_1_1_util.html#a480d33b2eeef523ab4d2109d88d5f323">More...</a><br /></td></tr>
 <tr class="separator:a480d33b2eeef523ab4d2109d88d5f323"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6051f0bb6642d74ea674e5361b6994f8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a6051f0bb6642d74ea674e5361b6994f8">printBytes</a> (const std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf, uint32_t position, uint32_t bytes, const std::string &amp;label)</td></tr>
-<tr class="memdesc:a6051f0bb6642d74ea674e5361b6994f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method takes a byte buffer and prints out the desired number of bytes from the given position, in hex.  <a href="../../d3/d87/classevio_1_1_util.html#a6051f0bb6642d74ea674e5361b6994f8">More...</a><br /></td></tr>
-<tr class="separator:a6051f0bb6642d74ea674e5361b6994f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a010e647b8553d03811f1c48a9908904a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a010e647b8553d03811f1c48a9908904a">printBytes</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf, uint32_t position, uint32_t bytes, const std::string &amp;label)</td></tr>
+<tr class="memdesc:a010e647b8553d03811f1c48a9908904a"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method takes a byte buffer and prints out the desired number of bytes from the given position, in hex.  <a href="../../d3/d87/classevio_1_1_util.html#a010e647b8553d03811f1c48a9908904a">More...</a><br /></td></tr>
+<tr class="separator:a010e647b8553d03811f1c48a9908904a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66847f39ab5cf153f005866eb5332fce"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a66847f39ab5cf153f005866eb5332fce">printBytes</a> (const <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;buf, uint32_t position, uint32_t bytes, const std::string &amp;label)</td></tr>
 <tr class="memdesc:a66847f39ab5cf153f005866eb5332fce"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method takes a byte buffer and prints out the desired number of bytes from the given position, in hex.  <a href="../../d3/d87/classevio_1_1_util.html#a66847f39ab5cf153f005866eb5332fce">More...</a><br /></td></tr>
 <tr class="separator:a66847f39ab5cf153f005866eb5332fce"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -807,70 +807,8 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a6051f0bb6642d74ea674e5361b6994f8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6051f0bb6642d74ea674e5361b6994f8">&#9670;&nbsp;</a></span>printBytes() <span class="overload">[2/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void evio::Util::printBytes </td>
-          <td>(</td>
-          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
-          <td class="paramname"><em>buf</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>bytes</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>label</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This method takes a byte buffer and prints out the desired number of bytes from the given position, in hex. </p>
-<p>Prints all bytes.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">buf</td><td>buffer to print out </td></tr>
-    <tr><td class="paramname">position</td><td>position of data (bytes) in buffer to start printing </td></tr>
-    <tr><td class="paramname">bytes</td><td>number of bytes to print in hex </td></tr>
-    <tr><td class="paramname">label</td><td>a label to print as header </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="reference">Referenced by <a class="el" href="../../d3/d87/classevio_1_1_util.html#af69bace572e57dd144399015a87bcaef">printBytes()</a>, and <a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a91a60f2e6b593beb1b924d441daf1b7d">evio::EventWriterV4::writeEventToFile()</a>.</p>
-
-</div>
-</div>
 <a id="af69bace572e57dd144399015a87bcaef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af69bace572e57dd144399015a87bcaef">&#9670;&nbsp;</a></span>printBytes() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af69bace572e57dd144399015a87bcaef">&#9670;&nbsp;</a></span>printBytes() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -926,7 +864,69 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="reference">References <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#aa0e335238a57eaa0bffee8f968e5995f">evio::ByteBuffer::array()</a>, and <a class="el" href="../../d3/d87/classevio_1_1_util.html#a6051f0bb6642d74ea674e5361b6994f8">printBytes()</a>.</p>
+<p class="reference">References <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#aa0e335238a57eaa0bffee8f968e5995f">evio::ByteBuffer::array()</a>, and <a class="el" href="../../d3/d87/classevio_1_1_util.html#a010e647b8553d03811f1c48a9908904a">printBytes()</a>.</p>
+
+</div>
+</div>
+<a id="a010e647b8553d03811f1c48a9908904a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a010e647b8553d03811f1c48a9908904a">&#9670;&nbsp;</a></span>printBytes() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::Util::printBytes </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>bytes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>label</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This method takes a byte buffer and prints out the desired number of bytes from the given position, in hex. </p>
+<p>Prints all bytes.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buf</td><td>buffer to print out </td></tr>
+    <tr><td class="paramname">position</td><td>position of data (bytes) in buffer to start printing </td></tr>
+    <tr><td class="paramname">bytes</td><td>number of bytes to print in hex </td></tr>
+    <tr><td class="paramname">label</td><td>a label to print as header </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">Referenced by <a class="el" href="../../d3/d87/classevio_1_1_util.html#af69bace572e57dd144399015a87bcaef">printBytes()</a>, and <a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a91a60f2e6b593beb1b924d441daf1b7d">evio::EventWriterV4::writeEventToFile()</a>.</p>
 
 </div>
 </div>
