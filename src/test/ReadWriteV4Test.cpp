@@ -90,7 +90,8 @@ namespace evio {
                "</xmlDict>";
 
             dictionary = ss.str();
-            //std::cout << "Const: dictionary = " << dictionary << std::endl;
+            //std::cout << "Dictionary len = " << dictionary.size() << std::endl;
+            //std::cout << "Dictionary = \n" << dictionary << std::endl;
         }
 
 
@@ -175,7 +176,9 @@ namespace evio {
                 dData[i] = i + 1.;
             }
             builder.appendDoubleData(bank1, dData, 1000);
+            cout << "  generate Evio Bank, bank1 len = " << bank1->getTotalBytes() << endl;
             builder.addChild(ev, bank1);
+            cout << "  generate Evio Bank, ev len = " << ev->getTotalBytes() << endl;
 
             return static_cast<std::shared_ptr<EvioBank>>(ev);
         }
@@ -352,7 +355,7 @@ namespace evio {
 
         void writeFile(string finalFilename) {
 
-            ByteOrder outputOrder = ByteOrder::ENDIAN_BIG;
+            ByteOrder outputOrder = ByteOrder::ENDIAN_LITTLE;
 
             // Create a "first event"
             uint32_t firstEventData[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -400,10 +403,14 @@ namespace evio {
 
             // write as buffer
             writer.writeEvent(evioDataBuf, false);
+            cout << "  Wrote evio buffer, len = " << evioDataBuf->limit() << endl;
             // write as node
             writer.writeEvent(node, false);
+            cout << "  Wrote evio node, total bytes = " << node->getTotalBytes() << endl;
             // write as EvioBank
             writer.writeEvent(bank);
+            cout << "  Wrote evio bank, total bytes = " << bank->getTotalBytes() << endl;
+            cout << "  Wrote evio bank, header len in bytes = " << 4*(bank->getHeader()->getLength() + 1) << endl;
 
             writer.close();
             cout << "Finished writing file " << finalFilename << " now read it" << endl;
@@ -434,7 +441,7 @@ namespace evio {
 
             cout << "Print out regular events:" << endl;
 
-            for (int i=0; i < reader.getEventCount(); i++) {
+            for (int i=0; i < evCount; i++) {
                 auto ev = reader.getEvent(i+1);
                 cout << "\nEvent" << (i+1) << ":\n" << ev->toString() << endl;
             }
@@ -685,7 +692,8 @@ namespace evio {
 int main(int argc, char **argv) {
 
 
-    string filename   = "./evioTest.evio";
+    string filename     = "./evioTest.c.evio";
+    //string filename_j   = "./evioTest.java.evio";
 
     evio::ReadWriteTest tester;
 

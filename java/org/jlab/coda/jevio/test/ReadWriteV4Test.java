@@ -5,6 +5,7 @@ import org.jlab.coda.jevio.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.BitSet;
 
 public class ReadWriteV4Test {
 
@@ -33,7 +34,7 @@ public class ReadWriteV4Test {
             "  <bank name=\"Rangy\" tag=\"75 - 78\" >\n" +
             "      <leaf name=\"BigTag\" tag=\"76\" />\n" +
             "  </bank >\n" +
-            "</xmlDict>\n";
+            "</xmlDict>";
 
 //    static ByteBuffer buffer;
 
@@ -116,7 +117,9 @@ public class ReadWriteV4Test {
 
         try {
             builder.appendDoubleData(bank1, dData);
+System.out.println("  generate Evio Bank, bank1 len = " + bank1.getTotalBytes());
             builder.addChild(ev, bank1);
+System.out.println("  generate Evio Bank, ev len = " + ev.getTotalBytes());
         }
         catch (EvioException e) {/* never happen */}
 
@@ -305,7 +308,7 @@ public class ReadWriteV4Test {
 
         // Create a "first event"
         int[] firstEventData = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        EventBuilder builder = new EventBuilder(1, DataType.INT32, 2);
+        EventBuilder builder = new EventBuilder(1, DataType.UINT32, 2);
         EvioEvent firstEv = builder.getEvent();
         try {
             firstEv.appendIntData(firstEventData);
@@ -336,6 +339,9 @@ public class ReadWriteV4Test {
 //                    BitSet bitInfo, boolean overWriteOK, boolean append,
 //            EvioBank firstEvent)
 
+//            int streamId = 0, int splitNumber = 0,
+//            int splitIncrement= 1, int streamCount = 1)
+
 
             // Create an event with lots of stuff in it
             ByteBuffer evioDataBuf = generateEvioBuffer(order, 3, 4);
@@ -349,13 +355,17 @@ public class ReadWriteV4Test {
 
             // write as buffer
             writer.writeEvent(evioDataBuf, false);
+System.out.println("  Wrote evio buffer, len = " + evioDataBuf.limit());
             // write as node
             writer.writeEvent(node, false);
+System.out.println("  Wrote evio node, total bytes = " + node.getTotalBytes());
             // write as EvioBank
             writer.writeEvent(bank);
+System.out.println("  Wrote evio bank, total bytes = " + bank.getTotalBytes());
+System.out.println("  Wrote evio bank, header len in bytes = " + (4*(bank.getHeader().getLength() + 1)));
 
             writer.close();
-            System.out.println("Finished writing file "+ writer.getCurrentFilename() + ", now read it in");
+System.out.println("Finished writing file " + writer.getCurrentFilename() + ", now read it in");
         }
         catch (EvioException | IOException e) {
             e.printStackTrace();
@@ -627,7 +637,12 @@ public class ReadWriteV4Test {
     public static void main(String args[]) {
 
         try {
-            String filename   = "./evioTest.evio";
+
+            //System.out.println("Dictionary len = " + xmlDict.length());
+            //System.out.println("Dictionary = \n" + xmlDict);
+
+            //String filename_c = "./evioTest.c.evio";
+            String filename   = "./evioTest.java.evio";
             writeFile(filename);
             readFile(filename);
 
