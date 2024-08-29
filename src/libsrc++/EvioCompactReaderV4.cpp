@@ -803,7 +803,7 @@ namespace evio {
             int level = 0;
             nodeList = eventNodes[i]->getAllNodes();
 
-            for (std::shared_ptr<EvioNode> const n : nodeList) {
+            for (std::shared_ptr<EvioNode> n : nodeList) {
                 // For events that come after, move all contained nodes
                 if (i > place) {
                     n->pos -= removeDataLen;

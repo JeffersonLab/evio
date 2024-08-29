@@ -1745,7 +1745,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
                 break;
             }
 
-            for (std::shared_ptr<EvioNode> const nd : ev->getAllNodes()) {
+            for (std::shared_ptr<EvioNode> nd : ev->getAllNodes()) {
                 // The first node in allNodes is the event node
                 if (removeNode == nd) {
                     foundNode = true;

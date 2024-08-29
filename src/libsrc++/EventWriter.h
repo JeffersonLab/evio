@@ -725,9 +725,9 @@ namespace evio {
     private:
 
         void createCommonRecord(const std::string & xmlDict,
-                                std::shared_ptr<EvioBank> const firstBank,
-                                std::shared_ptr<EvioNode> const firstNode,
-                                std::shared_ptr<ByteBuffer> const firstBuf);
+                                std::shared_ptr<EvioBank> firstBank,
+                                std::shared_ptr<EvioNode> firstNode,
+                                std::shared_ptr<ByteBuffer> firstBuf);
 
         void writeFileHeader() ;
 

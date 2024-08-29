@@ -162,7 +162,7 @@ namespace evio {
      *
      * @param structure BaseStructure from which to copy data.
      */
-    void BaseStructure::transform(std::shared_ptr<BaseStructure> const structure) {
+    void BaseStructure::transform(std::shared_ptr<BaseStructure> structure) {
         DataType dataType = structure->getHeader()->getDataType();
 
         copyData(structure);
@@ -269,7 +269,7 @@ namespace evio {
      * Copy just the data of another structure.
      * @param other structure to copy data from.
      */
-    void BaseStructure::copyData(std::shared_ptr<BaseStructure> const other) {
+    void BaseStructure::copyData(std::shared_ptr<BaseStructure> other) {
         // Copy over raw data
         rawBytes = other->rawBytes;
 
@@ -385,7 +385,7 @@ namespace evio {
      *                            or this node does not allow children.
      * @see  #isNodeDescendant
      */
-    void BaseStructure::insert(const std::shared_ptr<BaseStructure> newChild, size_t childIndex) {
+    void BaseStructure::insert(std::shared_ptr<BaseStructure> newChild, size_t childIndex) {
         if (!allowsChildren) {
             throw EvioException("node does not allow children");
         }
@@ -488,7 +488,7 @@ namespace evio {
      *          array, or <code>-1</code> if the specified node is a not
      *          a child of this node.
      */
-    ssize_t BaseStructure::getIndex(const std::shared_ptr<BaseStructure> aChild) {
+    ssize_t BaseStructure::getIndex(std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
             throw EvioException("argument is null");
         }
@@ -587,7 +587,7 @@ namespace evio {
      * @param   aChild  a child of this node to remove
      * @throws  EvioException if <code>aChild</code> is not a child of this node
      */
-    void BaseStructure::remove(const std::shared_ptr<BaseStructure> aChild) {
+    void BaseStructure::remove(std::shared_ptr<BaseStructure> aChild) {
         if (!isNodeChild(aChild)) {
             throw EvioException("argument is not a child");
         }
@@ -643,7 +643,7 @@ namespace evio {
      * @param   anotherNode     node to test as an ancestor of this node
      * @return  true if this node is a descendant of <code>anotherNode</code>
      */
-    bool BaseStructure::isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode) const {
+    bool BaseStructure::isNodeAncestor(std::shared_ptr<BaseStructure> anotherNode) const {
         if (anotherNode == nullptr) {
             return false;
         }
@@ -837,7 +837,7 @@ namespace evio {
      *         specified node.
      */
     std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot (
-            const std::shared_ptr<BaseStructure> aNode, int depth) const {
+            std::shared_ptr<BaseStructure> aNode, int depth) const {
 
         // Check for null, in case someone passed in a null node, or
         // they passed in an element that isn't rooted at root.
@@ -977,7 +977,7 @@ namespace evio {
      * @return  true if <code>aNode</code> is a child of this node; false if
      *                  <code>aNode</code> is null.
      */
-    bool BaseStructure::isNodeChild(const std::shared_ptr<BaseStructure> aNode) const {
+    bool BaseStructure::isNodeChild(std::shared_ptr<BaseStructure> aNode) const {
         bool retval;
 
         if (aNode == nullptr) {
@@ -1044,7 +1044,7 @@ namespace evio {
      * @return  the child of this node that immediately follows
      *          <code>aChild</code>.
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getChildAfter(const std::shared_ptr<BaseStructure> aChild) {
+    std::shared_ptr<BaseStructure> BaseStructure::getChildAfter(std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
             throw EvioException("argument is null");
         }
@@ -1077,7 +1077,7 @@ namespace evio {
      *                        is not a child of this node.
      * @return  the child of this node that immediately precedes <code>aChild</code>.
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getChildBefore(const std::shared_ptr<BaseStructure> aChild) {
+    std::shared_ptr<BaseStructure> BaseStructure::getChildBefore(std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
             throw EvioException("argument is null");
         }
@@ -1112,7 +1112,7 @@ namespace evio {
      * @throws  EvioException if sibling has different parent.
      * @return  true if <code>anotherNode</code> is a sibling of this node.
      */
-    bool BaseStructure::isNodeSibling(const std::shared_ptr<BaseStructure> anotherNode) const {
+    bool BaseStructure::isNodeSibling(std::shared_ptr<BaseStructure> anotherNode) const {
         bool retval;
 
         if (anotherNode == nullptr) {

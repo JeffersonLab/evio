@@ -42,7 +42,7 @@ namespace evio {
          * Constructor.
          * @param head segment header.
          */
-        explicit EvioSegment(std::shared_ptr<SegmentHeader> const head) : BaseStructure(head) {}
+        explicit EvioSegment(std::shared_ptr<SegmentHeader> head) : BaseStructure(head) {}
 
     public:
 
@@ -51,7 +51,7 @@ namespace evio {
          * @param head segment header.
          * @return shared pointer to new EvioSegment.
          */
-        static std::shared_ptr<EvioSegment> getInstance(std::shared_ptr<SegmentHeader> const head) {
+        static std::shared_ptr<EvioSegment> getInstance(std::shared_ptr<SegmentHeader> head) {
             std::shared_ptr<EvioSegment> pNode(new EvioSegment(head));
             return pNode;
         }

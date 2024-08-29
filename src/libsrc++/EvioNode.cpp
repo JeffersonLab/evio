@@ -46,7 +46,7 @@ namespace evio {
 
 
     /** Copy constructor. */
-    EvioNode::EvioNode(const std::shared_ptr<EvioNode> src) {
+    EvioNode::EvioNode(std::shared_ptr<EvioNode> src) {
         copy(*(src.get()));
         //id = staticId++;
     }

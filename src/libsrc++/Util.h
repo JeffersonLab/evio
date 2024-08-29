@@ -455,7 +455,7 @@ namespace evio {
          * @param bytes     number of bytes to print in hex
          * @param label     a label to print as header
          */
-        static void printBytes(const std::shared_ptr<ByteBuffer> buf, uint32_t position, uint32_t bytes,
+        static void printBytes(std::shared_ptr<ByteBuffer> buf, uint32_t position, uint32_t bytes,
                                const std::string & label) {
             printBytes(*(buf.get()), position, bytes, label);
         }

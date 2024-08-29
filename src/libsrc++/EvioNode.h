@@ -161,7 +161,7 @@ namespace evio {
 
         EvioNode();
         EvioNode(const EvioNode & firstNode);
-        explicit EvioNode(const std::shared_ptr<EvioNode> src);
+        explicit EvioNode(std::shared_ptr<EvioNode> src);
         EvioNode(EvioNode && src) noexcept;
         EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> buffer, RecordNode & blockNode);
         EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> buffer);

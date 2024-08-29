@@ -1143,9 +1143,9 @@ namespace evio {
      * @throws EvioException if dictionary is in improper format
      */
     void EventWriter::createCommonRecord(const std::string & xmlDict,
-                                         std::shared_ptr<EvioBank> const firstBank,
-                                         std::shared_ptr<EvioNode> const firstNode,
-                                         std::shared_ptr<ByteBuffer> const firstBuf) {
+                                         std::shared_ptr<EvioBank> firstBank,
+                                         std::shared_ptr<EvioNode> firstNode,
+                                         std::shared_ptr<ByteBuffer> firstBuf) {
 
         // Create record if necessary, else clear it
         if (commonRecord == nullptr) {

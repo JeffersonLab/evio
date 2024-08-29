@@ -735,8 +735,6 @@ namespace evio {
                     }
                     if (swap) blkSize = SWAP_32(blkSize);
 
-                    std::cout << "block size =  " << std::to_string(blkSize) << std::endl;
-
                     // Change to bytes
                     uint32_t blkBytes = 4 * blkSize;
 
@@ -1123,6 +1121,7 @@ namespace evio {
 
             // Last (perhaps only) read
             byteBuffer->getBytes(bytes + offset, bytesToGo);
+std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::endl;
             event->setRawBytes(bytes, eventDataSizeBytes);
             event->setByteOrder(byteOrder); // add this to track endianness, timmer
             // Don't worry about dictionaries here as version must be 1-3

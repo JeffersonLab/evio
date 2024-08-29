@@ -45,7 +45,7 @@ namespace evio {
          * Constructor.
          * @param head bank header.
          */
-        explicit EvioBank(std::shared_ptr<BankHeader> const head) : BaseStructure(head) {}
+        explicit EvioBank(std::shared_ptr<BankHeader> head) : BaseStructure(head) {}
 
     public:
 
@@ -64,7 +64,7 @@ namespace evio {
          * @param head bank header.
          * @return shared pointer to new EvioBank.
          */
-        static std::shared_ptr<EvioBank> getInstance(std::shared_ptr<BankHeader> const head) {
+        static std::shared_ptr<EvioBank> getInstance(std::shared_ptr<BankHeader> head) {
             std::shared_ptr<EvioBank> pNode(new EvioBank(head));
             return pNode;
         }

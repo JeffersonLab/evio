@@ -75,7 +75,7 @@ namespace evio {
     protected:
 
         void setPadding(uint8_t pad);
-        void copy(std::shared_ptr<BaseStructureHeader> const head);
+        void copy(std::shared_ptr<BaseStructureHeader> head);
 
     public:
 

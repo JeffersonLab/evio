@@ -461,8 +461,8 @@ namespace  evio {
      * @param structure  the structure to start scanning.
      * @param listener   an listener to notify as each structure is visited.
      */
-    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const structure,
-                                        std::shared_ptr<IEvioListener> const listener) {
+    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> structure,
+                                        std::shared_ptr<IEvioListener> listener) {
         visitAllDescendants(structure, structure, listener, nullptr);
     }
 
@@ -478,9 +478,9 @@ namespace  evio {
      *               structures are passed. In this way, specific types of
      *               structures can be captured.
      */
-    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const structure,
-                                        std::shared_ptr<IEvioListener> const listener,
-                                        std::shared_ptr<IEvioFilter> const filter) {
+    void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> structure,
+                                        std::shared_ptr<IEvioListener> listener,
+                                        std::shared_ptr<IEvioFilter>   filter) {
         visitAllDescendants(structure, structure, listener, filter);
     }
 
@@ -497,10 +497,10 @@ namespace  evio {
      *               structures are passed. In this way, specific types of
      *               structures can be captured.
      */
-    void EventParser::visitAllDescendants(std::shared_ptr<BaseStructure> const topLevelStruct,
-                                          std::shared_ptr<BaseStructure> const structure,
-                                          std::shared_ptr<IEvioListener> const listener,
-                                          std::shared_ptr<IEvioFilter>   const filter) {
+    void EventParser::visitAllDescendants(std::shared_ptr<BaseStructure> topLevelStruct,
+                                          std::shared_ptr<BaseStructure> structure,
+                                          std::shared_ptr<IEvioListener> listener,
+                                          std::shared_ptr<IEvioFilter>   filter) {
         if (listener != nullptr) {
             bool accept = true;
             if (filter != nullptr) {
@@ -513,7 +513,7 @@ namespace  evio {
         }
 
         if (!(structure->isLeaf())) {
-            for (auto const child : structure->children) {
+            for (auto child : structure->children) {
                 visitAllDescendants(topLevelStruct, child, listener, filter);
             }
         }
@@ -528,8 +528,8 @@ namespace  evio {
      *               this will return all the structures.
      * @param structs vector to be filled with all structures that are accepted by filter.
      */
-    void EventParser::getMatchingStructures(std::shared_ptr<BaseStructure> const structure,
-                                            std::shared_ptr<IEvioFilter> const filter,
+    void EventParser::getMatchingStructures(std::shared_ptr<BaseStructure> structure,
+                                            std::shared_ptr<IEvioFilter>   filter,
                                             std::vector<std::shared_ptr<BaseStructure>> & structs) {
         structs.clear();
         structs.reserve(25);

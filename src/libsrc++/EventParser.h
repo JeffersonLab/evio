@@ -103,20 +103,20 @@ namespace evio {
 
         // Scanning structures that have already been parsed
 
-        static void vistAllStructures(std::shared_ptr<BaseStructure> const structure,
-                                      std::shared_ptr<IEvioListener> const listener);
-        static void vistAllStructures(std::shared_ptr<BaseStructure> const structure,
-                                      std::shared_ptr<IEvioListener> const listener,
-                                      std::shared_ptr<IEvioFilter> const filter);
-        static void getMatchingStructures(std::shared_ptr<BaseStructure> const structure,
-                                          std::shared_ptr<IEvioFilter> const filter,
+        static void vistAllStructures(std::shared_ptr<BaseStructure> structure,
+                                      std::shared_ptr<IEvioListener> listener);
+        static void vistAllStructures(std::shared_ptr<BaseStructure> structure,
+                                      std::shared_ptr<IEvioListener> listener,
+                                      std::shared_ptr<IEvioFilter> filter);
+        static void getMatchingStructures(std::shared_ptr<BaseStructure> structure,
+                                          std::shared_ptr<IEvioFilter> filter,
                                           std::vector<std::shared_ptr<BaseStructure>> & structs);
     private:
 
-         static void visitAllDescendants(std::shared_ptr<BaseStructure> const topLevelStruct,
-                                         std::shared_ptr<BaseStructure> const structure,
-                                         std::shared_ptr<IEvioListener> const listener,
-                                         std::shared_ptr<IEvioFilter>   const filter);
+         static void visitAllDescendants(std::shared_ptr<BaseStructure> topLevelStruct,
+                                         std::shared_ptr<BaseStructure> structure,
+                                         std::shared_ptr<IEvioListener> listener,
+                                         std::shared_ptr<IEvioFilter>   filter);
 
 
     };

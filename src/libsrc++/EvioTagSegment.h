@@ -41,7 +41,7 @@ namespace evio {
          * Constructor.
          * @param head tagsegment header.
          */
-        explicit EvioTagSegment(std::shared_ptr<TagSegmentHeader> const head) : BaseStructure(head) {}
+        explicit EvioTagSegment(std::shared_ptr<TagSegmentHeader> head) : BaseStructure(head) {}
 
     public:
 
@@ -50,7 +50,7 @@ namespace evio {
          * @param head tagsegment header.
          * @return shared pointer to new EvioTagSegment.
          */
-        static std::shared_ptr<EvioTagSegment> getInstance(std::shared_ptr<TagSegmentHeader> const head) {
+        static std::shared_ptr<EvioTagSegment> getInstance(std::shared_ptr<TagSegmentHeader> head) {
             std::shared_ptr<EvioTagSegment> pNode(new EvioTagSegment(head));
             return pNode;
         }

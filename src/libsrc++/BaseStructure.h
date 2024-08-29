@@ -419,11 +419,11 @@ namespace evio {
 
     protected:
 
-        void setParent(const std::shared_ptr<BaseStructure> newParent);
+        void setParent(std::shared_ptr<BaseStructure> newParent);
 
     public:
 
-        void insert(const std::shared_ptr<BaseStructure> newChild, size_t childIndex);
+        void insert(std::shared_ptr<BaseStructure> newChild, size_t childIndex);
         void remove(size_t childIndex);
 
         std::shared_ptr<BaseStructure> getParent() const;
@@ -431,7 +431,7 @@ namespace evio {
         std::shared_ptr<BaseStructure> getChildAt(size_t index) const;
 
         size_t getChildCount() const;
-        ssize_t getIndex(const std::shared_ptr<BaseStructure> aChild);
+        ssize_t getIndex(std::shared_ptr<BaseStructure> aChild);
         std::vector<std::shared_ptr<BaseStructure>>::iterator childrenBegin();
         std::vector<std::shared_ptr<BaseStructure>>::iterator childrenEnd();
 
@@ -443,7 +443,7 @@ namespace evio {
         //
 
         void removeFromParent();
-        void remove(const std::shared_ptr<BaseStructure> aChild);
+        void remove(std::shared_ptr<BaseStructure> aChild);
         void removeAllChildren();
         void add(std::shared_ptr<BaseStructure> newChild);
 
@@ -451,7 +451,7 @@ namespace evio {
         //  Tree Queries
         //
 
-        bool isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode) const;
+        bool isNodeAncestor(std::shared_ptr<BaseStructure> anotherNode) const;
         bool isNodeDescendant(std::shared_ptr<BaseStructure> anotherNode);
         std::shared_ptr<BaseStructure> getSharedAncestor(std::shared_ptr<BaseStructure> aNode);
         bool isNodeRelated(std::shared_ptr<BaseStructure> aNode);
@@ -461,7 +461,7 @@ namespace evio {
 
     protected:
 
-        std::vector<std::shared_ptr<BaseStructure>> getPathToRoot(const std::shared_ptr<BaseStructure> aNode, int depth) const;
+        std::vector<std::shared_ptr<BaseStructure>> getPathToRoot(std::shared_ptr<BaseStructure> aNode, int depth) const;
 
     public:
 
@@ -474,17 +474,17 @@ namespace evio {
         //  Child Queries
         //
 
-        bool isNodeChild(const std::shared_ptr<BaseStructure> aNode) const;
+        bool isNodeChild(std::shared_ptr<BaseStructure> aNode) const;
         std::shared_ptr<BaseStructure> getFirstChild() const;
         std::shared_ptr<BaseStructure> getLastChild() const;
-        std::shared_ptr<BaseStructure> getChildAfter(const std::shared_ptr<BaseStructure> aChild);
-        std::shared_ptr<BaseStructure> getChildBefore(const std::shared_ptr<BaseStructure> aChild);
+        std::shared_ptr<BaseStructure> getChildAfter(std::shared_ptr<BaseStructure> aChild);
+        std::shared_ptr<BaseStructure> getChildBefore(std::shared_ptr<BaseStructure> aChild);
 
         //
         //  Sibling Queries
         //
 
-        bool isNodeSibling(const std::shared_ptr<BaseStructure> anotherNode) const;
+        bool isNodeSibling(std::shared_ptr<BaseStructure> anotherNode) const;
         size_t getSiblingCount() const;
         std::shared_ptr<BaseStructure> getNextSibling();
         std::shared_ptr<BaseStructure> getPreviousSibling();
@@ -622,7 +622,7 @@ namespace evio {
 
         void clearData();
         void copyData(BaseStructure const & other);
-        void copyData(std::shared_ptr<BaseStructure> const other);
+        void copyData(std::shared_ptr<BaseStructure> other);
 
     protected:
 
@@ -637,7 +637,7 @@ namespace evio {
 
     public:
 
-        void transform(std::shared_ptr<BaseStructure> const structure);
+        void transform(std::shared_ptr<BaseStructure> structure);
 
         virtual StructureType getStructureType() const {return StructureType::STRUCT_UNKNOWN32;};
 

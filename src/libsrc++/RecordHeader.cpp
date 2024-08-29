@@ -139,7 +139,7 @@ namespace evio {
      * Copy method.
      * @param head  header to copy.
      */
-    void RecordHeader::copy(std::shared_ptr<RecordHeader> const head) {
+    void RecordHeader::copy(std::shared_ptr<RecordHeader> head) {
 
         if (this != head.get()) {
             position                 = head->position;
@@ -1070,7 +1070,7 @@ namespace evio {
      */
     int RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen,
                                     uint32_t recordNum, const ByteOrder & order,
-                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
+                                    std::shared_ptr<std::vector<uint32_t>> recordLengths) {
 
         uint32_t indexLen = 0;
         uint32_t wholeLen = HEADER_SIZE_BYTES;
@@ -1127,7 +1127,7 @@ namespace evio {
      */
     int RecordHeader::writeTrailer(std::vector<uint8_t> & array, size_t off,
                                     uint32_t recordNum, const ByteOrder & order,
-                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
+                                    std::shared_ptr<std::vector<uint32_t>> recordLengths) {
 
         uint32_t indexLen = 0;
         uint32_t wholeLen = HEADER_SIZE_BYTES;
@@ -1180,7 +1180,7 @@ namespace evio {
      * @throws EvioException if buf too small to hold trailer + index.
      */
     int RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
-                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
+                                    std::shared_ptr<std::vector<uint32_t>> recordLengths) {
 
         uint32_t indexLen = 0;
         uint32_t wholeLen = HEADER_SIZE_BYTES;
@@ -1244,7 +1244,7 @@ namespace evio {
      * @throws EvioException if buf too small to hold trailer + index.
      */
     int RecordHeader::writeTrailer(std::shared_ptr<ByteBuffer> buf, size_t off, uint32_t recordNum,
-                                    const std::shared_ptr<std::vector<uint32_t>> recordLengths) {
+                                   std::shared_ptr<std::vector<uint32_t>> recordLengths) {
         return writeTrailer(*(buf.get()), off, recordNum, recordLengths);
     }
 
