@@ -244,7 +244,7 @@ namespace evio {
             uint32_t maxEventCount;
 
             /** Running count of the block number. The next one to use starting with 1. */
-            uint32_t blockNumber;
+            uint32_t blockNumber = 1;
 
             /**
              * Dictionary to include in xml format in the first event of the first block
@@ -253,7 +253,7 @@ namespace evio {
             std::string xmlDictionary;
 
             /** True if wrote dictionary to a single file (not all splits taken together). */
-            bool wroteDictionary;
+            bool wroteDictionary = false;
 
             /** Byte array containing dictionary in evio format but <b>without</b> block header. */
             std::vector<uint8_t> dictionaryByteArray;
@@ -261,10 +261,10 @@ namespace evio {
             /** The number of bytes it takes to hold the dictionary
              *  in a bank of evio format. Basically the size of
              *  {@link #dictionaryByteArray} with the length of a bank header added. */
-            uint32_t dictionaryBytes;
+            uint32_t dictionaryBytes = 0;
 
             /** Has a first event been defined? */
-            bool haveFirstEvent;
+            bool haveFirstEvent = false;
 
             /** Byte array containing firstEvent in evio format but <b>without</b> block header. */
             std::vector<uint8_t> firstEventByteArray;
@@ -272,14 +272,14 @@ namespace evio {
             /** The number of bytes it takes to hold the first event
              *  in a bank of evio format. Basically the size of
              *  {@link #firstEventByteArray} with the length of a bank header added. */
-            uint32_t firstEventBytes;
+            uint32_t firstEventBytes = 0;
 
             /** The number of bytes it takes to hold both the dictionary and the first event
              *  in banks of evio format (evio headers, not block headers, included). */
-            uint32_t commonBlockByteSize;
+            uint32_t commonBlockByteSize = 0;
 
             /** Number of events in the common block. At most 2 - dictionary & firstEvent. */
-            uint32_t commonBlockCount;
+            uint32_t commonBlockCount = 0;
 
             /**
              * Bit information in the block headers:<p>
@@ -294,16 +294,16 @@ namespace evio {
             bool closed = false;
 
             /** <code>True</code> if writing to file, else <code>false</code>. */
-            bool toFile;
+            bool toFile = false;
 
             /** <code>True</code> if appending to file/buffer, <code>false</code> if (over)writing. */
-            bool append;
+            bool append = false;
 
             /** <code>True</code> if appending to file/buffer with dictionary, <code>false</code>. */
-            bool hasAppendDictionary;
+            bool hasAppendDictionary = false;
 
             /** Number of bytes of data to shoot for in a single block including header. */
-            uint32_t targetBlockSize;
+            uint32_t targetBlockSize = 0;
 
             /** Version 4 block header reserved int 1. Used by CODA for source ID in event building. */
             uint32_t reserved1 = 0;
@@ -312,11 +312,11 @@ namespace evio {
             uint32_t reserved2 = 0;
 
             /** Number of bytes written to the current buffer. */
-            uint64_t bytesWrittenToBuffer;
+            uint64_t bytesWrittenToBuffer = 0;
 
             /** Number of events written to final destination buffer or file's internal buffer
              * including dictionary (although may not be flushed yet). */
-            uint32_t eventsWrittenToBuffer;
+            uint32_t eventsWrittenToBuffer = 0;
 
             /**
              * Total number of events written to buffer or file (although may not be flushed yet).
@@ -324,16 +324,16 @@ namespace evio {
              * If the file being written to is split, this value refers to all split files
              * taken together. Does NOT include dictionary(ies).
              */
-            uint32_t eventsWrittenTotal;
+            uint32_t eventsWrittenTotal = 0;
 
             /** When writing to a buffer, keep tabs on the front of the last (non-ending) header written. */
-            uint32_t currentHeaderPosition;
+            uint32_t currentHeaderPosition = 0;
 
             /** Size in 32-bit words of the currently-being-used block (includes entire block header). */
-            uint32_t currentBlockSize;
+            uint32_t currentBlockSize = 0;
 
             /** Number of events written to the currently-being-used block (including dictionary if first blk). */
-            uint32_t currentBlockEventCount;
+            uint32_t currentBlockEventCount = 0;
 
             /** Total size of the buffer in bytes. */
             uint32_t bufferSize;
@@ -370,10 +370,8 @@ namespace evio {
             *  This is atomic and therefore works between threads. */
             std::atomic_bool diskIsFullVolatile{false};
 
+            /** File is open for writing or not. */
             bool fileOpen = false;
-
-            /** When forcing events to disk, this identifies which events for the writing thread. */
-            uint64_t idCounter = 0ULL;
 
             /** Header for file only. */
             FileHeader fileHeader;
@@ -586,7 +584,7 @@ namespace evio {
             std::shared_ptr<ByteBuffer> getBuffer();
             void toAppendPosition();
             void writeNewHeader(uint32_t eventCount, uint32_t blockNumber, std::bitset<24> *bitInfo,
-                                bool hasDictionary, bool isLast);
+                                bool hasDictionary, bool isLast, bool hasFirstEv = false);
 
             void writeCommonBlock();
             void resetBuffer(bool beforeDictionary);

@@ -370,10 +370,10 @@ namespace evio {
         // (size & count words are updated when writing event)
 
         if (xmlDictionary.empty()) {
-            writeNewHeader(0,blockNumber++,bitInfo,false,false);
+            writeNewHeader(0,blockNumber++,bitInfo,false,false,haveFirstEvent);
         }
         else {
-            writeNewHeader(0,blockNumber++,bitInfo,true,false);
+            writeNewHeader(0,blockNumber++,bitInfo,true,false,haveFirstEvent);
         }
 
         // Write out dictionary & firstEvent if any (currentBlockSize updated)
@@ -573,10 +573,10 @@ namespace evio {
             // (size & count words are updated when writing events).
             // currentHeaderPosition is set in writeNewHeader() below.
             if (xmlDictionary.empty()) {
-                writeNewHeader(0,this->blockNumber++,bitInfo,false,false);
+                writeNewHeader(0,this->blockNumber++,bitInfo,false,false,haveFirstEvent);
             }
             else {
-                writeNewHeader(0,this->blockNumber++,bitInfo,true,false);
+                writeNewHeader(0,this->blockNumber++,bitInfo,true,false,haveFirstEvent);
             }
 
             // Write out any dictionary & firstEvent (currentBlockSize updated)
@@ -620,10 +620,10 @@ namespace evio {
         // (size & count words are updated when writing events).
         // currentHeaderPosition is set in writeNewHeader() below.
         if (xmlDictionary.empty()) {
-            writeNewHeader(0,this->blockNumber++,bitInfo,false,false);
+            writeNewHeader(0,this->blockNumber++,bitInfo,false,false,haveFirstEvent);
         }
         else {
-            writeNewHeader(0,this->blockNumber++,bitInfo,true,false);
+            writeNewHeader(0,this->blockNumber++,bitInfo,true,false,haveFirstEvent);
         }
 
         // Write out any dictionary & firstEvent (currentBlockSize updated)
@@ -1584,12 +1584,13 @@ namespace evio {
      * @param bitInfo       set of bits to include in first block header
      * @param hasDictionary does this block have a dictionary?
      * @param isLast        is this the last block?
+     * @param hasFirstEv    does this block have a first event?
      *
      * @throws EvioException if no room in buffer to write this block header
      */
     void EventWriterV4::writeNewHeader(uint32_t eventCount,
                             uint32_t blockNumber, std::bitset<24> * bitInfo,
-                            bool hasDictionary, bool isLast)
+                            bool hasDictionary, bool isLast, bool hasFirstEv)
     {
 
             // If no room left for a header to be written ...
@@ -1604,8 +1605,8 @@ namespace evio {
             //System.out.println("writeNewHeader: set currentHeaderPos to " + currentHeaderPosition);
 
             // Calculate the 6th header word (ok if bitInfo == nullptr)
-            int sixthWord = BlockHeaderV4::generateSixthWord(bitInfo, 4,
-                                                             hasDictionary, isLast, 0);
+            int sixthWord = BlockHeaderV4::generateSixthWord(bitInfo, 4, hasDictionary,
+                                                             isLast, 0, hasFirstEv);
 
             //        System.out.println("EventWriter (header): words = " + words +
             //                ", block# = " + blockNumber + ", ev Cnt = " + eventCount +
@@ -1743,11 +1744,11 @@ namespace evio {
             if (beforeDictionary) {
                 //if (debug) System.out.println("      resetBuffer: as in constructor");
                 blockNumber = 1;
-                writeNewHeader(0, blockNumber++, nullptr, (!xmlDictionary.empty()), false);
+                writeNewHeader(0, blockNumber++, nullptr, (!xmlDictionary.empty()), false, haveFirstEvent);
             }
             else {
                 //if (debug) System.out.println("      resetBuffer: NOTTTT as in constructor");
-                writeNewHeader(0, blockNumber++, nullptr, false, false);
+                writeNewHeader(0, blockNumber++, nullptr, false, false, haveFirstEvent);
             }
         }
         catch (EvioException e) {/* never happen */}
