@@ -1,7 +1,5 @@
 var NAVTREEINDEX9 =
 {
-"de/d9e/_writer_8h.html":[3,0,89],
-"de/d9e/_writer_8h_source.html":[3,0,89],
 "de/da2/classevio_1_1_record_input.html":[2,0,0,46],
 "de/da2/classevio_1_1_record_input.html#a044fa9c5a513c479c8a80b4182c584bd":[2,0,0,46,18],
 "de/da2/classevio_1_1_record_input.html#a0e602f15ada66b078eb5dec6c0103167":[2,0,0,46,7],
@@ -249,5 +247,7 @@ var NAVTREEINDEX9 =
 "de/de3/classevio_1_1_evio_bank.html#ac91b87b457e9dfc0555202f4a534b3bc":[2,0,0,19,14],
 "de/de3/classevio_1_1_evio_bank.html#acad98d2d54e73731091c23f521488874":[2,0,0,19,86],
 "de/de3/classevio_1_1_evio_bank.html#acf9557af3d316538b7b0929c8ba80e51":[2,0,0,19,47],
-"de/de3/classevio_1_1_evio_bank.html#acf98ea08ba17e38d2c6b7b0af37293a9":[2,0,0,19,71]
+"de/de3/classevio_1_1_evio_bank.html#acf98ea08ba17e38d2c6b7b0af37293a9":[2,0,0,19,71],
+"de/de3/classevio_1_1_evio_bank.html#ad1e9d48dc5380e47df3e0080f2ab7955":[2,0,0,19,139],
+"de/de3/classevio_1_1_evio_bank.html#ad2f13cac7d47b222f31c71d797fd9ec1":[2,0,0,19,59]
 };
