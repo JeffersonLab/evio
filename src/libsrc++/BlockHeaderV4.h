@@ -502,8 +502,7 @@ namespace evio {
          * @param type event type as int
          */
         static void setEventType(std::bitset<24> & bSet, uint32_t type) {
-            if (type < 0) type = 0;
-            else if (type > 15) type = 15;
+            if (type > 15) type = 15;
 
             for (uint32_t i=2; i < 6; i++) {
                 bSet[i] = ((type >> (i-2)) & 0x1) > 0;
@@ -532,30 +531,7 @@ namespace evio {
 
         /**
          * Calculates the sixth word of this header which has the version number (4)
-         * in the lowest 8 bits and the set in the upper 24 bits.
-         *
-         * @param set Bitset containing all bits to be set
-         * @return generated sixth word of this header.
-         */
-        static uint32_t generateSixthWord(std::bitset<24> const & set) {
-            uint32_t v = 4; // version
-
-            for (uint32_t i=0; i < set.size(); i++) {
-                if (i > 23) {
-                    break;
-                }
-                if (set[i]) {
-                    v |= (0x1 << (8+i));
-                }
-            }
-
-            return v;
-        }
-
-
-        /**
-         * Calculates the sixth word of this header which has the version number (4)
-         * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
+         * in the lowest 8 bits and the set in the upper 24 bits. The arg hasDictionary
          * is set in the 9th bit and isEnd is set in the 10th bit.
          *
          * @param bSet Bitset containing all bits to be set
@@ -564,63 +540,34 @@ namespace evio {
          * @return generated sixth word of this header.
          */
         static uint32_t generateSixthWord(std::bitset<24> const & bSet, bool hasDictionary, bool isEnd) {
-            uint32_t v = 4; // version
-
-            for (uint32_t i=0; i < bSet.size(); i++) {
-                if (i > 23) {
-                    break;
-                }
-                if (bSet[i]) {
-                    v |= (0x1 << (8+i));
-                }
-            }
-
-            v =  hasDictionary ? (v | 0x100) : v;
-            v =  isEnd ? (v | 0x200) : v;
-
-            return v;
+            return generateSixthWord(bSet, 4, hasDictionary, isEnd);
         }
 
 
         /**
-         * Calculates the sixth word of this header which has the version number
-         * in the lowest 8 bits. The arg hasDictionary
+         * Calculates the sixth word of this header which has the version number (4)
+         * in the lowest 8 bits and the set in the upper 24 bits. The arg hasDictionary
          * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-         * (event type) are set in bits 11-14.
+         * (event type) are set in bits 11-14. The hasFirstEv arg is set in the 15th bit
+         * and the isStreaming is set in the 16th bit.
          *
+         * @param bSet ref to Bitset containing all bits to be set
          * @param version evio version number
-         * @param hasDictionary does this block include an evio xml dictionary as the first event?
-         * @param isEnd is this the last block of a file or a buffer?
-         * @param eventType 4 bit type of events header is containing
+         * @param hasDictionary true if this block includes an evio xml dictionary.
+         * @param isEnd true if this the last block of a file or a buffer.
+         * @param eventType 4 bit type of events header is containing.
+         * @param hasFirstEv true if this block includes a first event
+         *                   (after dictionary, first in each split file).
+         *                   Note this is only relevant for the first block in file/buf.
+         * @param isStreaming true if the context of this block header a streaming DAQ.
          * @return generated sixth word of this header.
          */
-        static uint32_t generateSixthWord(uint32_t version, bool hasDictionary,
-                                          bool isEnd, uint32_t eventType) {
+        static uint32_t generateSixthWord(std::bitset<24> const & bSet, uint32_t version = 4,
+                                          bool hasDictionary = false,
+                                          bool isEnd = false, uint32_t eventType = 0,
+                                          bool hasFirstEv = false, bool isStreaming = false) {
+
             uint32_t v = version;
-            v =  hasDictionary ? (v | 0x100) : v;
-            v =  isEnd ? (v | 0x200) : v;
-            v |= ((eventType & 0xf) << 10);
-            return v;
-        }
-
-
-        /**
-          * Calculates the sixth word of this header which has the version number (4)
-          * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
-          * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-          * (event type) are set in bits 11-14.
-          *
-          * @param bSet Bitset containing all bits to be set
-          * @param version evio version number
-          * @param hasDictionary does this block include an evio xml dictionary as the first event?
-          * @param isEnd is this the last block of a file or a buffer?
-          * @param eventType 4 bit type of events header is containing
-          * @return generated sixth word of this header.
-          */
-        static uint32_t generateSixthWord(std::bitset<24> bSet, uint32_t version,
-                                          bool hasDictionary,
-                                          bool isEnd, uint32_t eventType) {
-            uint32_t v = version; // version
 
             for (int i=0; i < bSet.size(); i++) {
                 if (i > 23) {
@@ -634,32 +581,42 @@ namespace evio {
             v =  hasDictionary ? (v | 0x100) : v;
             v =  isEnd ? (v | 0x200) : v;
             v |= ((eventType & 0xf) << 10);
+            v =  hasFirstEv ? (v | 0x4000) : v;
+            v =  isStreaming ? (v | 0x8000) : v;
 
             return v;
         }
 
 
         /**
-          * Calculates the sixth word of this header which has the version number (4)
-          * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
-          * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-          * (event type) are set in bits 11-14.
-          *
-          * @param bSet pointer to Bitset containing all bits to be set
-          * @param version evio version number
-          * @param hasDictionary does this block include an evio xml dictionary as the first event?
-          * @param isEnd is this the last block of a file or a buffer?
-          * @param eventType 4 bit type of events header is containing
-          * @return generated sixth word of this header.
-          */
-        static uint32_t generateSixthWord(std::bitset<24> *bSet, uint32_t version,
-                                          bool hasDictionary,
-                                          bool isEnd, uint32_t eventType) {
+         * Calculates the sixth word of this header which has the version number (4)
+         * in the lowest 8 bits and the set in the upper 24 bits. The hasDictionary arg
+         * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+         * (event type) are set in bits 11-14. The hasFirstEv arg is set in the 15th bit
+         * and the isStreaming is set in the 16th bit.
+         *
+         * @param bSet pointer to Bitset containing all bits to be set (nullptr if none).
+         * @param version evio version number
+         * @param hasDictionary true if this block includes an evio xml dictionary.
+         * @param isEnd true if this the last block of a file or a buffer.
+         * @param eventType 4 bit type of events header is containing.
+         * @param hasFirstEv true if this block includes a first event
+         *                   (after dictionary, first in each split file).
+         *                   Note this is only relevant for the first block in file/buf.
+         * @param isStreaming true if the context of this block header a streaming DAQ.
+         * @return generated sixth word of this header.
+         */
+        static uint32_t generateSixthWord(std::bitset<24> *bSet, uint32_t version = 4,
+                                          bool hasDictionary = false,
+                                          bool isEnd = false, uint32_t eventType = 0,
+                                          bool hasFirstEv = false, bool isStreaming = false) {
 
-            uint32_t v = version; // version
+            uint32_t v = version;
             v =  hasDictionary ? (v | 0x100) : v;
             v =  isEnd ? (v | 0x200) : v;
             v |= ((eventType & 0xf) << 10);
+            v =  hasFirstEv ? (v | 0x4000) : v;
+            v =  isStreaming ? (v | 0x8000) : v;
 
             if (bSet == nullptr) {
                 return v;
