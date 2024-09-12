@@ -10,8 +10,6 @@
 
 package org.jlab.coda.jevio;
 
-import org.jlab.coda.hipo.HipoException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -142,7 +140,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
      *
      * @param path the full path to the file that contains events.
      *             For writing event files, use an <code>EventWriter</code> object.
-     * @see org.jlab.coda.jevio.EventWriter
+     * @see EventWriter
      * @throws java.io.IOException   if read failure
      * @throws org.jlab.coda.jevio.EvioException if file arg is null
      */

@@ -51,7 +51,7 @@ public class EvioCompactReader implements IEvioCompactReader {
      *
      * @param path the full path to the file that contains events.
      *             For writing event files, use an <code>EventWriter</code> object.
-     * @see org.jlab.coda.jevio.EventWriter
+     * @see EventWriter
      * @throws java.io.IOException   if read failure
      * @throws org.jlab.coda.jevio.EvioException if file arg is null
      */
