@@ -110,7 +110,7 @@ import java.util.concurrent.*;
  *
  * @author timmer
  */
-final public class EventWriterUnsync implements AutoCloseable {
+public class EventWriterUnsync implements AutoCloseable {
 
     /**
      * Class used to take data-filled record from supply, compress it,
@@ -340,7 +340,7 @@ final public class EventWriterUnsync implements AutoCloseable {
 
     /** Class used to close files in order received, each in its own thread,
      *  to avoid slowing down while file splitting. */
-    private final class FileCloser {
+    final class FileCloser {
 
         /** Thread pool with 1 thread. */
         private final ExecutorService threadPool;
@@ -592,59 +592,59 @@ final public class EventWriterUnsync implements AutoCloseable {
 
     /** Dictionary and first event are stored in user header part of file header.
      *  They're written as a record which allows multiple events. */
-    private RecordOutputStream commonRecord;
+    protected RecordOutputStream commonRecord;
 
     /** Record currently being filled. */
-    private RecordOutputStream currentRecord;
+    protected RecordOutputStream currentRecord;
 
     /** Record supply item from which current record comes from. */
-    private RecordRingItem currentRingItem;
+    protected RecordRingItem currentRingItem;
 
     /** Fast supply of record items for filling, compressing and writing. */
-    private RecordSupply supply;
+    protected RecordSupply supply;
 
     /** Max number of bytes held by all records in the supply. */
-    private int maxSupplyBytes;
+    protected int maxSupplyBytes;
 
     /** Type of compression being done on data
      *  (0=none, 1=LZ4fastest, 2=LZ4best, 3=gzip). */
-    private CompressionType compressionType;
+    protected CompressionType compressionType;
 
     /** The estimated ratio of compressed to uncompressed data.
      *  (Used to figure out when to split a file). Percentage of original size. */
-    private int compressionFactor;
+    protected int compressionFactor;
 
     /** List of record length followed by count to be optionally written in trailer. */
-    private ArrayList<Integer> recordLengths = new ArrayList<>(1500);
+    protected ArrayList<Integer> recordLengths = new ArrayList<>(1500);
 
     /** Number of uncompressed bytes written to the current file/buffer at the moment,
      * including ending header and NOT the total in all split files. */
 //TODO: DOES THIS NEED TO BE VOLATILE IF MT write????????????????????????????????
-    private long bytesWritten;
+    protected long bytesWritten;
 
     /** Do we add a last header or trailer to file/buffer? */
-    private boolean addingTrailer = true;
+    protected boolean addingTrailer = true;
 
     /** Do we add a record index to the trailer? */
-    private boolean addTrailerIndex;
+    protected boolean addTrailerIndex;
 
     /** Byte array large enough to hold a header/trailer. */
-    private byte[] headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
+    protected byte[] headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
 
     /** ByteBuffer large enough to hold a header/trailer. */
-    private ByteBuffer headerBuffer = ByteBuffer.wrap(headerArray);
+    protected ByteBuffer headerBuffer = ByteBuffer.wrap(headerArray);
 
     /** Threads used to compress data. */
-    private RecordCompressor[] recordCompressorThreads;
+    protected RecordCompressor[] recordCompressorThreads;
 
     /** Thread used to write data to file/buffer. */
-    private RecordWriter recordWriterThread;
+    protected RecordWriter recordWriterThread;
 
     /** Number of records written to split-file/buffer at current moment. */
-    private int recordsWritten;
+    protected int recordsWritten;
 
     /** Running count of the record number. The next one to use starting with 1. */
-    private int recordNumber;
+    protected int recordNumber;
 
 
 
@@ -652,25 +652,25 @@ final public class EventWriterUnsync implements AutoCloseable {
      * Dictionary to include in xml format in the first event of the first record
      * when writing the file.
      */
-    private String xmlDictionary;
+    protected String xmlDictionary;
 
     /** Byte array containing dictionary in evio format but <b>without</b> record header. */
-    private byte[] dictionaryByteArray;
+    protected byte[] dictionaryByteArray;
 
     /** Byte array containing firstEvent in evio format but <b>without</b> record header. */
-    private byte[] firstEventByteArray;
+    protected byte[] firstEventByteArray;
 
     /** <code>True</code> if {@link #close()} was called, else <code>false</code>. */
-    private boolean closed;
+    protected boolean closed;
 
     /** <code>True</code> if writing to file, else <code>false</code>. */
-    private boolean toFile;
+    protected boolean toFile;
 
     /** <code>True</code> if appending to file, <code>false</code> if (over)writing. */
-    private boolean append;
+    protected boolean append;
 
     /** <code>True</code> if appending to file/buffer with dictionary, <code>false</code>. */
-    private boolean hasAppendDictionary;
+    protected boolean hasAppendDictionary;
 
     /**
      * Total number of events written to buffer or file (although may not be flushed yet).
@@ -678,20 +678,20 @@ final public class EventWriterUnsync implements AutoCloseable {
      * If the file being written to is split, this value refers to all split files
      * taken together. Does NOT include dictionary(ies).
      */
-    private int eventsWrittenTotal;
+    protected int eventsWrittenTotal;
 
     /** The byte order in which to write a file or buffer. */
-    private ByteOrder byteOrder;
+    protected ByteOrder byteOrder;
 
     //-----------------------
     // Buffer related members
     //-----------------------
 
     /** CODA id of buffer sender. */
-    private int sourceId;
+    protected int sourceId;
 
     /** Total size of the buffer in bytes. */
-    private int bufferSize;
+    protected int bufferSize;
 
     /**
      * The output buffer when writing to a buffer.
@@ -701,148 +701,148 @@ final public class EventWriterUnsync implements AutoCloseable {
      * initially used to read in record headers before appending data
      * to an existing file and such.
      */
-    private ByteBuffer buffer;
+    protected ByteBuffer buffer;
 
     /** Two internal buffers, first element last used in the future1 write,
      * the second last used in future2 write. */
-    private ByteBuffer[] usedBuffers;
+    protected ByteBuffer[] usedBuffers;
 
     /** Three internal buffers used for writing to a file. */
-    private ByteBuffer[] internalBuffers;
+    protected ByteBuffer[] internalBuffers;
 
     /** Number of bytes written to the current buffer for the common record. */
-    private int commonRecordBytesToBuffer;
+    protected int commonRecordBytesToBuffer;
 
     /** Number of events written to final destination buffer or file's current record
      * NOT including dictionary (& first event?). */
-    private int eventsWrittenToBuffer;
+    protected int eventsWrittenToBuffer;
 
     //-----------------------
     // File related members
     //-----------------------
 
     /** Total size of the internal buffers in bytes. */
-    private int internalBufSize;
+    protected int internalBufSize;
 
     /** Variable used to stop accepting events to be included in the inner buffer
      * holding the current block. Used when disk space is inadequate. */
-    private boolean diskIsFull;
+    protected boolean diskIsFull;
 
     /** Variable used to stop accepting events to be included in the inner buffer
      * holding the current block. Used when disk space is inadequate.
      * This is volatile and therefore works between threads. */
-    private volatile boolean diskIsFullVolatile;
+    protected volatile boolean diskIsFullVolatile;
 
     /** When forcing events to disk, this identifies which events for the writing thread. */
-    private long idCounter = 0;
+    protected long idCounter = 0;
 
     /** Header for file only. */
-    private FileHeader fileHeader;
+    protected FileHeader fileHeader;
 
     /** Header of file being appended to. */
-    private FileHeader appendFileHeader;
+    protected FileHeader appendFileHeader;
 
     /** File currently being written to. */
-    private File currentFile;
+    protected File currentFile;
 
     /** Path object corresponding to file currently being written. */
-    private Path currentFilePath;
+    protected Path currentFilePath;
 
     /** Objects to allow efficient, asynchronous file writing. */
-    private Future<Integer> future1, future2;
+    protected Future<Integer> future1, future2;
 
     /** Objects to allow efficient, asynchronous file writing. */
-    private Future<Integer> prevFuture1, prevFuture2;
+    protected Future<Integer> prevFuture1, prevFuture2;
 
     /** RingItem1 is associated with future1, etc. When a write is finished,
      * the associated ring item need to be released - but not before! */
-    private RecordRingItem ringItem1, ringItem2;
+    protected RecordRingItem ringItem1, ringItem2;
 
     /** Index for selecting which future (1 or 2) to use for next file write. */
-    private int futureIndex;
+    protected int futureIndex;
 
     /** The asynchronous file channel, used for writing a file. */
-    private AsynchronousFileChannel asyncFileChannel;
+    protected AsynchronousFileChannel asyncFileChannel;
 
     /** The location of the next write in the file. */
-   private long fileWritingPosition;
+    protected long fileWritingPosition;
 
     /** Split number associated with output file to be written next. */
-    private int splitNumber;
+    protected int splitNumber;
 
     /** Number of split files produced by this writer. */
-    private int splitCount;
+    protected int splitCount;
 
     /** Part of filename without run or split numbers. */
-    private String baseFileName;
+    protected String baseFileName;
 
     /** Number of C-style int format specifiers contained in baseFileName. */
-    private int specifierCount;
+    protected int specifierCount;
 
     /** Run number possibly used in naming split files. */
-    private int runNumber;
+    protected int runNumber;
 
     /**
      * Do we split the file into several smaller ones (val > 0)?
      * If so, this gives the maximum number of bytes to make each file in size.
      */
-    private long split;
+    protected long split;
 
     /**
      * If splitting file, the amount to increment the split number each time another
      * file is written.
      */
-    private int splitIncrement;
+    protected int splitIncrement;
 
     /** Track bytes written to help split a file. */
-    private long splitEventBytes;
+    protected long splitEventBytes;
 
     /** Track events written to help split a file. */
-    private int splitEventCount;
+    protected int splitEventCount;
 
     /**
      * Id of this specific data stream.
      * In CODA, a data stream is a chain of ROCS and EBs ending in a single specific ER.
      */
-    private int streamId;
+    protected int streamId;
 
     /** The total number of data streams in DAQ. */
-    private int streamCount;
+    protected int streamCount;
 
     /** Writing to file with single thread? */
-    private boolean singleThreadedCompression;
+    protected boolean singleThreadedCompression;
 
     /** Is it OK to overwrite a previously existing file? */
-    private boolean overWriteOK;
+    protected boolean overWriteOK;
 
     /** Number of events actually written to the current file - not the total in
      * all split files - including dictionary. */
-    private int eventsWrittenToFile;
+    protected int eventsWrittenToFile;
 
     /** Does file have a trailer with record indexes? */
-    private boolean hasTrailerWithIndex;
+    protected boolean hasTrailerWithIndex;
 
     /** File header's user header length in bytes. */
-    private int userHeaderLength;
+    protected int userHeaderLength;
 
     /** File header's user header's padding in bytes. */
-    private int userHeaderPadding;
+    protected int userHeaderPadding;
 
     /** File header's index array length in bytes. */
-    private int indexLength;
+    protected int indexLength;
 
     //-----------------------
     /**
      * Flag to do everything except the actual writing of data to file.
      * Set true for testing purposes ONLY.
      */
-    private boolean noFileWriting = false;
+    protected boolean noFileWriting = false;
 
     //-----------------------
 
     /** Object used to close files in a separate thread when splitting
      *  so as to allow writing speed not to dip so low. */
-    private FileCloser fileCloser;
+    protected FileCloser fileCloser;
 
 
     //---------------------------------------------
@@ -850,7 +850,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     //---------------------------------------------
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -862,7 +862,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -878,7 +878,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in NATIVE byte order.
+     * Creates an object for writing to a file in NATIVE byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -900,7 +900,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -912,7 +912,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in NATIVE byte order.
+     * Creates an object for writing to a file in NATIVE byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -928,7 +928,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in the
+     * Creates an object for writing to a file in the
      * specified byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
@@ -950,7 +950,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -1310,7 +1310,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     //---------------------------------------------
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Uses the default number and size of records in buffer.
      * Will overwrite any existing data in buffer!
      *
@@ -1323,7 +1323,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Uses the default number and size of records in buffer.
      *
      * @param buf            the buffer to write to.
@@ -1337,7 +1337,7 @@ final public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * The buffer's position is set to 0 before writing.
      * <b>When writing a buffer, only 1 record is used.</b>
      * Any dictionary will be put in a commonRecord and that record will be
@@ -1370,7 +1370,7 @@ final public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * The buffer's position is set to 0 before writing.
      * <b>When writing a buffer, only 1 record is used.</b>
      * Any dictionary will be put in a commonRecord and that record will be
@@ -1466,7 +1466,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param useCurrentBitInfo   regardless of bitInfo arg's value, use the
      *                            current value of bitInfo in the reinitialized buffer.
      */
-    private void reInitializeBuffer(ByteBuffer buf, BitSet bitInfo, int recordNumber,
+    protected void reInitializeBuffer(ByteBuffer buf, BitSet bitInfo, int recordNumber,
                                     boolean useCurrentBitInfo) {
 
         this.buffer       = buf;
@@ -1573,7 +1573,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * @return buffer being written into
      */
-    private ByteBuffer getBuffer() {
+    protected ByteBuffer getBuffer() {
         if (toFile()) return null;
         return buffer;
     }
@@ -1587,8 +1587,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      * ready to be read from. The returned buffer shares data with the
      * original buffer but has separate limit, position, and mark.
      * Useful if trying to send buffer over the network.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or writeEvent.
+     * close, flush, setFirstEvent, writeEventToFile, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * @return buffer being written into, made ready for reading;
      *         null if writing to file
@@ -1623,7 +1627,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * @param bytes size in bytes of new internal buffers.
      */
-    private void expandInternalBuffers(int bytes) {
+    protected void expandInternalBuffers(int bytes) {
 
         if ((bytes <= internalBufSize) || !toFile || !singleThreadedCompression) {
             return;
@@ -1850,8 +1854,11 @@ final public class EventWriterUnsync implements AutoCloseable {
      * By its nature this method is not all that useful for writing to a buffer since
      * the buffer is never split. For that reason it throws an exception.<p>
      *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, writeEvent, or getByteBuffer.
+     * close, flush, getByteBuffer, writeEventToFile, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * @param node node representing event to be placed first in each file written
      *             including all splits. If null, no more first events are written
@@ -1914,8 +1921,11 @@ final public class EventWriterUnsync implements AutoCloseable {
      * By its nature this method is not all that useful for writing to a buffer since
      * the buffer is never split. For that reason it throws an exception.<p>
      *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, writeEvent, or getByteBuffer.
+     * close, flush, getByteBuffer, writeEventToFile, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * @param buffer buffer containing event to be placed first in each file written
      *               including all splits. If null, no more first events are written
@@ -1972,8 +1982,11 @@ final public class EventWriterUnsync implements AutoCloseable {
      * By its nature this method is not all that useful for writing to a buffer since
      * the buffer is never split. For that reason it throws an exception.<p>
      *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, writeEvent, or getByteBuffer.
+     * close, flush, getByteBuffer, writeEventToFile, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
@@ -2018,7 +2031,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param firstBuf       first event as ByteBuffer
      * @throws EvioException if dictionary is in improper format
      */
-    private void createCommonRecord(String xmlDictionary, EvioBank firstBank,
+    protected void createCommonRecord(String xmlDictionary, EvioBank firstBank,
                                     EvioNode firstNode, ByteBuffer firstBuf)
                             throws EvioException {
 
@@ -2082,7 +2095,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * Call this method AFTER file split or, in constructor, after the file
      * name is created in order to ensure a consistent value for file split number.
      */
-    private void writeFileHeader() {
+    protected void writeFileHeader() {
         // For the file header, our "user header" will be the common record,
         // which is a record containing the dictionary and first event.
 
@@ -2149,8 +2162,13 @@ final public class EventWriterUnsync implements AutoCloseable {
      * events at such a low rate that it takes an inordinate amount of time
      * for internally buffered data to be written to the file.<p>
      *
-     * Calling this may easily kill performance. May not call this when simultaneously
-     * calling writeEvent, close, setFirstEvent, or getByteBuffer.
+     * Calling this may easily kill performance.
+     *
+     * <p>
+     * Do not call this while simultaneously calling
+     * close, getByteBuffer, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      */
     public void flush() {
 
@@ -2188,8 +2206,12 @@ final public class EventWriterUnsync implements AutoCloseable {
 
     /**
      * This method flushes any remaining data to file and disables this object.
-     * May not call this when simultaneously calling
-     * writeEvent, flush, setFirstEvent, or getByteBuffer.
+     *
+     * <p>
+     * Do not call this while simultaneously calling
+     * flush, getByteBuffer, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      */
     public void close() {
         if (closed) {
@@ -2377,7 +2399,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @throws IOException     if file reading/writing problems
      * @throws EvioException   if bad file/buffer format; if not in append mode
      */
-    private void toAppendPosition() throws EvioException, IOException {
+    protected void toAppendPosition() throws EvioException, IOException {
 
         // Only for append mode
         if (!append) {
@@ -2616,8 +2638,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance when writing to a file.<p>
@@ -2659,8 +2685,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance when writing to a file.
@@ -2709,8 +2739,12 @@ final public class EventWriterUnsync implements AutoCloseable {
     *
     * The buffer must contain only the event's data (event header and event data)
     * and must <b>not</b> be in complete evio file format.
+    *
+    * <p>
     * Do not call this while simultaneously calling
-    * close, flush, setFirstEvent, or getByteBuffer.<p>
+    * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+    * Automatically taken care of in EventWriter.
+    * </p>
     *
     * Be warned that injudicious use of a true 2nd arg, the force flag, will
     *<b>kill</b> performance when writing to a file.
@@ -2795,8 +2829,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
@@ -2853,8 +2891,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
@@ -2923,8 +2965,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
@@ -2960,8 +3006,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
@@ -3003,8 +3053,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
@@ -3046,8 +3100,11 @@ final public class EventWriterUnsync implements AutoCloseable {
      * To finish the writing process, call {@link #close()}. This will
      * compress the data if desired and then write it to the buffer.<p>
      *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
@@ -3080,8 +3137,11 @@ final public class EventWriterUnsync implements AutoCloseable {
      * To finish the writing process, call {@link #close()}. This will
      * compress the data if desired and then write it to the buffer.<p>
      *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
@@ -3119,8 +3179,11 @@ final public class EventWriterUnsync implements AutoCloseable {
      * To finish the writing process, call {@link #close()}. This will
      * compress the data if desired and then write it to the buffer.<p>
      *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
@@ -3165,8 +3228,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
      * The first non-null of the bank arguments will be written.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance when writing to a file.<p>
@@ -3191,7 +3258,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing.
      */
-    private boolean writeEvent(EvioBank bank, ByteBuffer bankBuffer,
+    protected boolean writeEvent(EvioBank bank, ByteBuffer bankBuffer,
                                boolean force, boolean ownRecord)
             throws EvioException, IOException {
 
@@ -3444,8 +3511,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
      * The first non-null of the bank arguments will be written.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance when writing to a file.<p>
@@ -3501,8 +3572,12 @@ final public class EventWriterUnsync implements AutoCloseable {
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
      * The first non-null of the bank arguments will be written.
+     *
+     * <p>
      * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriter.
+     * </p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance when writing to a file.<p>
@@ -3818,7 +3893,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * Two variables are set, one volatile and one not, depending on needs.
      * @return  true if full, else false.
      */
-    private boolean fullDisk() {
+    protected boolean fullDisk() {
         // How much free space is available on the disk?
         long freeBytes = currentFile.getParentFile().getFreeSpace();
         // If there isn't enough free space to write the complete, projected size file
@@ -3845,7 +3920,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @throws InterruptedException   if this thread was interrupted while waiting
      *                                for file write to complete.
      */
-    private void compressAndWriteToFile(boolean force)
+    protected void compressAndWriteToFile(boolean force)
                         throws EvioException, IOException,
                                InterruptedException, ExecutionException {
 
@@ -3877,7 +3952,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @throws InterruptedException   if this thread was interrupted while waiting
      *                                for file write to complete.
      */
-    private boolean tryCompressAndWriteToFile(boolean force)
+    protected boolean tryCompressAndWriteToFile(boolean force)
                         throws EvioException, IOException,
                                InterruptedException, ExecutionException {
 
@@ -3914,7 +3989,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @throws InterruptedException if this thread was interrupted while waiting
      *                              for file write to complete.
      */
-    private boolean writeToFile(boolean force, boolean checkDisk)
+    protected boolean writeToFile(boolean force, boolean checkDisk)
             throws EvioException, IOException,
                    InterruptedException, ExecutionException {
         if (closed) {
@@ -4088,7 +4163,7 @@ final public class EventWriterUnsync implements AutoCloseable {
 //     *                       if file exists but user requested no over-writing;
 //     * @throws IOException   if error writing file
 //     */
-//    private void writeToFileMT_OneAsyncWrite(RecordRingItem item, boolean force)
+//    protected void writeToFileMT_OneAsyncWrite(RecordRingItem item, boolean force)
 //                                throws EvioException, IOException {
 //        if (closed) {
 //            throw new EvioException("close() has already been called");
@@ -4208,7 +4283,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @throws ExecutionException   if error writing file.
      * @throws InterruptedException if this thread was interrupted while waiting
      */
-    private void writeToFileMT(RecordRingItem item, boolean force)
+    protected void writeToFileMT(RecordRingItem item, boolean force)
                       throws EvioException, IOException,
                              InterruptedException, ExecutionException {
         if (closed) {
@@ -4416,7 +4491,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @throws EvioException if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    private void splitFile() throws EvioException {
+    protected void splitFile() throws EvioException {
 
         if (asyncFileChannel != null) {
             // Finish writing data & trailer and then close existing file -
@@ -4476,7 +4551,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param writeIndex if true, write an index of all record lengths in trailer.
      * @throws IOException if problems writing to file.
      */
-    private void writeTrailerToFile(boolean writeIndex) throws IOException {
+    protected void writeTrailerToFile(boolean writeIndex) throws IOException {
 
         // Keep track of where we are right now which is just before trailer
         long trailerPosition = bytesWritten;
@@ -4563,7 +4638,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * could contain an index of all events in the buffer, although this is never
      * done when transferring evio data in buffers over the network.
      */
-    private void flushCurrentRecordToBuffer() {
+    protected void flushCurrentRecordToBuffer() {
 
         int eventCount = currentRecord.getEventCount();
         // If nothing in current record, return
@@ -4611,7 +4686,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @return true if event was added to buffer, false if the buffer is full or
      *         event count limit exceeded.
      */
-    private boolean writeToBuffer(EvioBank bank, ByteBuffer bankBuffer) {
+    protected boolean writeToBuffer(EvioBank bank, ByteBuffer bankBuffer) {
         boolean fitInRecord;
 
         if (bankBuffer != null) {
@@ -4638,7 +4713,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * How many bytes make up the desired trailer?
      * @return  number of bytes that make up the desired trailer.
      */
-    private int trailerBytes() {
+    protected int trailerBytes() {
         int len = 0;
         if (addingTrailer) len += RecordHeader.HEADER_SIZE_BYTES;
         if (addTrailerIndex) len += 4 * recordLengths.size();
@@ -4652,7 +4727,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param writeIndex if true, write an index of all record lengths in trailer.
      * @throws EvioException if not enough room in buffer to hold trailer.
      */
-    private void writeTrailerToBuffer(boolean writeIndex) throws EvioException {
+    protected void writeTrailerToBuffer(boolean writeIndex) throws EvioException {
 
 //System.out.println("writeTrailerToBuffer: internal buf, lim = " + buffer.limit() +
 //                ", pos = " + buffer.position());

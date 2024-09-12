@@ -40,21 +40,6 @@ import java.util.concurrent.Future;
 public class EventWriterUnsyncV4 {
 
     /**
-	 * This <code>enum</code> denotes the status of a read. <br>
-	 * SUCCESS indicates a successful read/write. <br>
-	 * END_OF_FILE indicates that we cannot read because an END_OF_FILE has occurred. Technically this means that what
-	 * ever we are trying to read is larger than the buffer's unread bytes.<br>
-	 * EVIO_EXCEPTION indicates that an EvioException was thrown during a read, possibly due to out of range values,
-	 * such as a negative start position.<br>
-     * CANNOT_OPEN_FILE  that we cannot write because the destination file cannot be opened.<br>
-	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
-	 */
-	public enum IOStatus {
-		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, CANNOT_OPEN_FILE, UNKNOWN_ERROR
-	}
-
-
-    /**
      * Offset to where the block length is written in the byte buffer,
      * which always has a physical record header at the top.
      */
@@ -105,10 +90,10 @@ public class EventWriterUnsyncV4 {
      * It is a soft limit since a single
      * event larger than this limit may need to be written.
      */
-    public static final int DEFAULT_BLOCK_SIZE = 4194304;
+    static public final int DEFAULT_BLOCK_SIZE = 4194304;
 
     /** The default maximum event count for a single block used for writing. */
-    public static final int DEFAULT_BLOCK_COUNT = 10000;
+    static public final int DEFAULT_BLOCK_COUNT = 10000;
 
     /**
      * The upper limit of maximum size for a single block used for writing
@@ -147,51 +132,51 @@ public class EventWriterUnsyncV4 {
      * event exceeds this limit.
      * Default is {@link #DEFAULT_BLOCK_SIZE}.
      */
-    private int blockSizeMax;
+    protected int blockSizeMax;
 
     /**
      * Maximum number of events in a block (events following a block header).
      * Default is {@link #DEFAULT_BLOCK_COUNT}.
      */
-    private int blockCountMax;
+    protected int blockCountMax;
 
     /** Running count of the block number. The next one to use starting with 1. */
-    private int blockNumber;
+    protected int blockNumber;
 
     /**
      * Dictionary to include in xml format in the first event of the first block
      * when writing the file.
      */
-    private String xmlDictionary;
+    protected String xmlDictionary;
 
     /** True if wrote dictionary to a single file (not all splits taken together). */
-    private boolean wroteDictionary;
+    protected boolean wroteDictionary;
 
     /** Byte array containing dictionary in evio format but <b>without</b> block header. */
-    private byte[] dictionaryByteArray;
+    protected byte[] dictionaryByteArray;
 
     /** The number of bytes it takes to hold the dictionary
      *  in a bank of evio format. Basically the size of
      *  {@link #dictionaryByteArray} with the length of a bank header added. */
-    private int dictionaryBytes;
+    protected int dictionaryBytes;
 
     /** Has a first event been defined? */
-    private boolean haveFirstEvent;
+    protected boolean haveFirstEvent;
 
     /** Byte array containing firstEvent in evio format but <b>without</b> block header. */
-    private byte[] firstEventByteArray;
+    protected byte[] firstEventByteArray;
 
     /** The number of bytes it takes to hold the first event
      *  in a bank of evio format. Basically the size of
      *  {@link #firstEventByteArray} with the length of a bank header added. */
-    private int firstEventBytes;
+    protected int firstEventBytes;
 
     /** The number of bytes it takes to hold both the dictionary and the first event
      *  in banks of evio format (evio headers, not block headers, included). */
-    private int commonBlockByteSize;
+    protected int commonBlockByteSize;
 
     /** Number of events in the common block. At most 2 - dictionary & firstEvent. */
-    private int commonBlockCount;
+    protected int commonBlockCount;
 
     /**
      * Bit information in the block headers:<p>
@@ -200,35 +185,35 @@ public class EventWriterUnsyncV4 {
      * <li>Bit two: is this the last block?
      * </ul>
      */
-    private BitSet bitInfo;
+    protected BitSet bitInfo;
 
     /** <code>True</code> if {@link #close()} was called, else <code>false</code>. */
-    private boolean closed;
+    protected boolean closed;
 
     /** <code>True</code> if writing to file, else <code>false</code>. */
-    private boolean toFile;
+    protected boolean toFile;
 
     /** <code>True</code> if appending to file/buffer, <code>false</code> if (over)writing. */
-    private boolean append;
+    protected boolean append;
 
     /** <code>True</code> if appending to file/buffer with dictionary, <code>false</code>. */
-    private boolean hasAppendDictionary;
+    protected boolean hasAppendDictionary;
 
     /** Number of bytes of data to shoot for in a single block including header. */
-    private int targetBlockSize;
+    protected int targetBlockSize;
 
     /** Version 4 block header reserved int 1. Used by CODA for source ID in event building. */
-    private int reserved1;
+    protected int reserved1;
 
     /** Version 4 block header reserved int 2. */
-    private int reserved2;
+    protected int reserved2;
 
     /** Number of bytes written to the current buffer. */
-    private long bytesWrittenToBuffer;
+    protected long bytesWrittenToBuffer;
 
     /** Number of events written to final destination buffer or file's internal buffer
      * including dictionary (although may not be flushed yet). */
-    private int eventsWrittenToBuffer;
+    protected int eventsWrittenToBuffer;
 
     /**
      * Total number of events written to buffer or file (although may not be flushed yet).
@@ -236,36 +221,36 @@ public class EventWriterUnsyncV4 {
      * If the file being written to is split, this value refers to all split files
      * taken together. Does NOT include dictionary(ies).
      */
-    private int eventsWrittenTotal;
+    protected int eventsWrittenTotal;
 
     /** When writing to a buffer, keep tabs on the front of the last (non-ending) header written. */
-    private int currentHeaderPosition;
+    protected int currentHeaderPosition;
 
     /** Size in 32-bit words of the currently-being-used block (includes entire block header). */
-    private int currentBlockSize;
+    protected int currentBlockSize;
 
     /** Number of events written to the currently-being-used block (including dictionary if first blk). */
-    private int currentBlockEventCount;
+    protected int currentBlockEventCount;
 
     /** Total size of the buffer in bytes. */
-    private int bufferSize;
+    protected int bufferSize;
 
     /**
      * The output buffer when writing to a buffer.
      * The internal buffer when writing to a file which is
      * a reference to one of the internalBuffers.
      */
-    private ByteBuffer buffer;
+    protected ByteBuffer buffer;
 
     /** Two internal buffers, first element last used in the future1 write,
      * the second last used in future2 write. */
-    private ByteBuffer[] usedBuffers;
+    protected ByteBuffer[] usedBuffers;
 
     /** Three internal buffers used for writing to a file. */
-    private ByteBuffer[] internalBuffers;
+    protected ByteBuffer[] internalBuffers;
 
     /** The byte order in which to write a file or buffer. */
-    private ByteOrder byteOrder;
+    protected ByteOrder byteOrder;
 
     //-----------------------
     // File related members
@@ -273,76 +258,76 @@ public class EventWriterUnsyncV4 {
 
     /** Variable used to stop accepting events to be included in the inner buffer
      * holding the current block. Used when disk space is inadequate. */
-    private boolean diskIsFull;
+    protected boolean diskIsFull;
 
     /** File object corresponding to file currently being written. */
-    private File currentFile;
+    protected File currentFile;
 
     /** Path object corresponding to file currently being written. */
-    private Path currentFilePath;
+    protected Path currentFilePath;
 
     /** Objects to allow efficient, asynchronous file writing. */
-    private Future<Integer> future1, future2;
+    protected Future<Integer> future1, future2;
 
     /** Index for selecting which future (1 or 2) to use for next file write. */
-    private int futureIndex;
+    protected int futureIndex;
 
     /** The asynchronous file channel, used for writing a file. */
-    private AsynchronousFileChannel asyncFileChannel;
+    protected AsynchronousFileChannel asyncFileChannel;
 
     /** The location of the next write in the file. */
-    private long fileWritingPosition;
+    protected long fileWritingPosition;
 
     /** Split number associated with output file to be written next. */
-    private int splitNumber;
+    protected int splitNumber;
 
     /** Number of split files produced by this writer. */
-    private int splitCount;
+    protected int splitCount;
 
     /** Part of filename without run or split numbers. */
-    private String baseFileName;
+    protected String baseFileName;
 
     /** Number of C-style int format specifiers contained in baseFileName. */
-    private int specifierCount;
+    protected int specifierCount;
 
     /** Run number possibly used in naming split files. */
-    private int runNumber;
+    protected int runNumber;
 
     /**
      * Do we split the file into several smaller ones (val > 0)?
      * If so, this gives the maximum number of bytes to make each file in size.
      */
-    private long split;
+    protected long split;
 
     /**
      * If splitting file, the amount to increment the split number each time another
      * file is written.
      */
-    private int splitIncrement;
+    protected int splitIncrement;
 
     /**
      * Id of this specific data stream.
      * In CODA, a data stream is a chain of ROCS and EBs ending in a final EB (SEB or PEB).
      */
-    private int streamId;
+    protected int streamId;
 
     /** The total number of data streams in DAQ. */
-    private int streamCount;
+    protected int streamCount;
 
     /** Is it OK to overwrite a previously existing file? */
-    private boolean overWriteOK;
+    protected boolean overWriteOK;
 
     /** Number of bytes written to the current file (including ending header),
      *  not the total in all split files. */
-    private long bytesWrittenToFile;
+    protected long bytesWrittenToFile;
 
     /** Number of events actually written to the current file - not the total in
      * all split files - including dictionary. */
-    private int eventsWrittenToFile;
+    protected int eventsWrittenToFile;
 
     /** <code>True</code> if internal buffer has the last empty block header
      * written and buffer position is immediately after it, else <code>false</code>. */
-    private boolean lastEmptyBlockHeaderExists;
+    protected boolean lastEmptyBlockHeaderExists;
 
 
 
@@ -351,7 +336,7 @@ public class EventWriterUnsyncV4 {
 
     /** Class used to close files in order received, each in its own thread,
      *  to avoid slowing down while file splitting. */
-    private final class FileCloser {
+    protected final class FileCloser {
 
         /** Thread pool with 1 thread. */
         private final ExecutorService threadPool;
@@ -405,7 +390,7 @@ public class EventWriterUnsyncV4 {
 
     /** Object used to close files in a separate thread when splitting
      *  so as to allow writing speed not to dip so low. */
-    private FileCloser fileCloser;
+    protected FileCloser fileCloser;
 
 
     //---------------------------------------------
@@ -413,7 +398,7 @@ public class EventWriterUnsyncV4 {
     //---------------------------------------------
 
     /**
-     * Creates an <code>EventWriterUnsyncV4</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -425,7 +410,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Creates an <code>EventWriterUnsyncV4</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -443,7 +428,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Creates an <code>EventWriterUnsyncV4</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -462,7 +447,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Creates an <code>EventWriterUnsyncV4</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -474,7 +459,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Creates an <code>EventWriterUnsyncV4</code> for writing to a file in native byte order.
+     * Creates an object for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -492,7 +477,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Creates an <code>EventWriterUnsyncV4</code> for writing to a file in the
+     * Creates an object for writing to a file in the
      * specified byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
@@ -512,7 +497,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -539,7 +524,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. If it doesn't exist,
@@ -571,7 +556,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -615,7 +600,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * This constructor is useful when splitting and automatically naming
      * the split files. If any of the generated files already exist,
      * it will <b>NOT</b> be overwritten. Byte order defaults to big endian.
@@ -647,7 +632,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * This constructor is useful when splitting and automatically naming
      * the split files. If any of the generated files already exist,
      * it will <b>NOT</b> be overwritten. Byte order defaults to big endian.
@@ -680,7 +665,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * This constructor is useful when splitting and automatically naming
      * the split files. Byte order defaults to big endian.
      *
@@ -713,7 +698,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -792,7 +777,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -875,7 +860,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -965,7 +950,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a file.
+     * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -1269,7 +1254,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Uses the default number and size of blocks in buffer.
      * Will overwrite any existing data in buffer!
      *
@@ -1282,7 +1267,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Uses the default number and size of blocks in buffer.
      *
      * @param buf            the buffer to write to.
@@ -1296,7 +1281,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Uses the default number and size of blocks in buffer.
      *
      * @param buf            the buffer to write to.
@@ -1311,7 +1296,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Will overwrite any existing data in buffer!
      *
      * @param buf            the buffer to write to.
@@ -1332,7 +1317,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
@@ -1359,7 +1344,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Will overwrite any existing data in buffer!
      *
      * @param buf            the buffer to write to.
@@ -1385,7 +1370,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
@@ -1415,7 +1400,7 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
-     * Create an <code>EventWriterUnsyncV4</code> for writing events to a ByteBuffer.
+     * Create an object for writing events to a ByteBuffer.
      *
      * @param buf            the buffer to write to.
      * @param blockSizeMax   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
@@ -1475,7 +1460,7 @@ public class EventWriterUnsyncV4 {
      *                       if buf arg is null;
      *                       if defined dictionary while appending;
      */
-    private void initializeBuffer(ByteBuffer buf, int blockSizeMax, int blockCountMax,
+    protected void initializeBuffer(ByteBuffer buf, int blockSizeMax, int blockCountMax,
                                   String xmlDictionary, BitSet bitInfo, int reserved1,
                                   int blockNumber, boolean append, EvioBank firstEvent)
             throws EvioException {
@@ -1607,7 +1592,7 @@ public class EventWriterUnsyncV4 {
      *
      * @throws EvioException not enough memory in buf for writing.
      */
-    private void reInitializeBuffer(ByteBuffer buf, BitSet bitInfo, int blockNumber)
+    protected void reInitializeBuffer(ByteBuffer buf, BitSet bitInfo, int blockNumber)
             throws EvioException {
 
         this.buffer      = buf;
@@ -1672,7 +1657,7 @@ public class EventWriterUnsyncV4 {
 
     /**
      * Set the buffer being written into (initially set in constructor).
-     * This method allows the user to avoid having to create a new EventWriterUnsyncV4
+     * This method allows the user to avoid having to create a new writer object
      * each time a bank needs to be written to a different buffer.
      * This does nothing if writing to a file. Not for use if appending.<p>
      * Do <b>not</b> use this method unless you know what you are doing.
@@ -1737,7 +1722,7 @@ public class EventWriterUnsyncV4 {
      *
      * @return buffer being written into
      */
-    private ByteBuffer getBuffer() {return buffer;}
+    protected ByteBuffer getBuffer() {return buffer;}
 
 
     /**
@@ -1748,8 +1733,10 @@ public class EventWriterUnsyncV4 {
      * ready to be read from. The returned buffer shares data with the
      * original buffer but has separate limit, position, and mark.
      * Useful if trying to send buffer over the network.
-     * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or writeEvent.
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @return buffer being written into, made ready for reading;
      *         null if writing to file
@@ -1890,8 +1877,9 @@ public class EventWriterUnsyncV4 {
      * Data is transferred byte for byte, so data better be in an endian
      * compatible with the output of this writer.<p>
      *
-     * Do not call this while simultaneously calling
-     * close, flush, writeEvent, or getByteBuffer.
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @param node node representing event to be placed first in each file written
      *             including all splits. If null, no more first events are written
@@ -1971,8 +1959,9 @@ public class EventWriterUnsyncV4 {
      * Data is transferred byte for byte, so data better be in an endian
      * compatible with the output of this writer.<p>
      *
-     * Do not call this while simultaneously calling
-     * close, flush, writeEvent, or getByteBuffer.
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @param buffer buffer containing event to be placed first in each file written
      *               including all splits. If null, no more first events are written
@@ -2053,8 +2042,9 @@ public class EventWriterUnsyncV4 {
      * By its nature this method is not useful for writing to a buffer since
      * it is never split and the event can be written to it as any other.<p>
      *
-     * Do not call this while simultaneously calling
-     * close, flush, writeEvent, or getByteBuffer.
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or writeEvent.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
@@ -2119,8 +2109,12 @@ public class EventWriterUnsyncV4 {
      *  events at such a low rate that it takes an inordinate amount of time
      *  for internally buffered data to be written to the file.<p>
      *
-     *  Calling this can kill performance. May not call this when simultaneously
-     *  calling writeEvent, close, setFirstEvent, or getByteBuffer. */
+     *  Calling this can kill performance.<p>
+     *
+     *  <p>Do not call this while simultaneously calling
+     *  close, writeEventToFile, setFirstEvent, writeEvent, or getByteBuffer.
+     *  Automatically taken care of in EventWriterV4.</p>
+     */
     public void flush() {
         // If lastEmptyBlockHeaderExists is true, then resetBuffer
         // has been called and no events have been written into buffer yet.
@@ -2147,8 +2141,10 @@ public class EventWriterUnsyncV4 {
 
 
     /** This method flushes any remaining data to file and disables this object.
-     *  May not call this when simultaneously calling
-     *  writeEvent, flush, setFirstEvent, or getByteBuffer. */
+     * <p>Do not call this while simultaneously calling
+     * flush, writeEventToFile, setFirstEvent, writeEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
+     */
     public void close() {
         if (closed) {
             return;
@@ -2211,13 +2207,12 @@ public class EventWriterUnsyncV4 {
      * the evio version # and endianness of the file or buffer in question. These things
      * do <b>not</b> need to be examined in subsequent block headers.
      *
-     * @return status of read attempt
-     * @throws IOException   if error reading file
-     * @throws EvioException if not in append mode;
-     *                       if file has bad format;
+     * @throws EvioException if error reading file/buffer;
+     *                       if not in append mode;
+     *                       if data has bad format, wrong version;
      */
-    protected IOStatus examineFirstBlockHeader()
-            throws IOException, EvioException {
+    protected synchronized void examineFirstBlockHeader()
+            throws EvioException {
 
         // Only for append mode
         if (!append) {
@@ -2237,7 +2232,7 @@ public class EventWriterUnsyncV4 {
                 nBytes = f.get();
             }
             catch (Exception e) {
-                throw new IOException(e);
+                throw new EvioException(e);
             }
 
             // Check to see if we read the whole header
@@ -2249,7 +2244,7 @@ public class EventWriterUnsyncV4 {
         else {
             // Have enough remaining bytes to read?
             if (buffer.remaining() < 32) {
-                return IOStatus.END_OF_FILE;
+                throw new EvioException("not enough data in buffer");
             }
             currentPosition = buffer.position();
         }
@@ -2262,7 +2257,7 @@ public class EventWriterUnsyncV4 {
             // once we figure out what it is (buffer defaults to big endian).
             byteOrder = buffer.order();
             int magicNumber = buffer.getInt(currentPosition + MAGIC_OFFSET);
-//System.out.println("ERROR: magic # = " + Integer.toHexString(magicNumber));
+//System.out.println("magic # = " + Integer.toHexString(magicNumber));
 
             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
                 if (byteOrder == ByteOrder.BIG_ENDIAN) {
@@ -2277,22 +2272,22 @@ public class EventWriterUnsyncV4 {
                 magicNumber = buffer.getInt(currentPosition + MAGIC_OFFSET);
 //System.out.println("Re read magic # = " + Integer.toHexString(magicNumber));
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-System.out.println("ERROR: reread magic # (" + magicNumber + ") & still not right");
-                    return IOStatus.EVIO_EXCEPTION;
+                    System.out.println("ERROR: reread magic # (" + Integer.toHexString(magicNumber) +
+                            ") & still not right");
+                    throw new EvioException("magic number bad value");
                 }
             }
 
             // Check the version number
-            int bitInfo = buffer.getInt(currentPosition + BIT_INFO_OFFSET);
-            int evioVersion = bitInfo & VERSION_MASK;
-            if (evioVersion < 4)  {
-System.out.println("ERROR: evio version# = " + evioVersion);
-                return IOStatus.EVIO_EXCEPTION;
+            int bitInfoWord = buffer.getInt(currentPosition + BIT_INFO_OFFSET);
+            int evioVersion = bitInfoWord & VERSION_MASK;
+            if (evioVersion != 4)  {
+                System.out.println("ERROR: evio version# = " + evioVersion);
+                throw new EvioException("wrong evio version data, " + evioVersion);
             }
 
             // Is there a dictionary?
-            hasAppendDictionary = BlockHeaderV4.hasDictionary(bitInfo);
-
+            hasAppendDictionary = BlockHeaderV4.hasDictionary(bitInfoWord);
 
 //            int blockLen   = buffer.getInt(currentPosition + BLOCK_LENGTH_OFFSET);
 //            int headerLen  = buffer.getInt(currentPosition + HEADER_LENGTH_OFFSET);
@@ -2306,16 +2301,14 @@ System.out.println("ERROR: evio version# = " + evioVersion);
 //            System.out.println("headerLength    = " + headerLen);
 //            System.out.println("blockEventCount = " + eventCount);
 //            System.out.println("lastBlock       = " + lastBlock);
-//            System.out.println("bit info        = " + Integer.toHexString(bitInfo));
+//            System.out.println("bit info        = " + Integer.toHexString(bitInfoWord));
 //            System.out.println();
 
         }
         catch (BufferUnderflowException a) {
-System.err.println("ERROR endOfBuffer " + a);
-            return IOStatus.UNKNOWN_ERROR;
+            System.err.println("ERROR endOfBuffer: " + a);
+            throw new EvioException("not enough data");
         }
-
-        return IOStatus.SUCCESS;
     }
 
 
@@ -2326,7 +2319,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException     if file reading/writing problems
      * @throws EvioException   if bad file/buffer format; if not in append mode
      */
-    private void toAppendPosition() throws EvioException, IOException {
+    protected void toAppendPosition() throws EvioException, IOException {
 
         // Only for append mode
         if (!append) {
@@ -2567,7 +2560,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @throws EvioException if no room in buffer to write this block header
      */
-    private void writeNewHeader(int eventCount,
+    protected void writeNewHeader(int eventCount,
                                 int blockNumber, BitSet bitInfo,
                                 boolean hasDictionary, boolean isLast,
                                 boolean hasFirstEv)
@@ -2627,7 +2620,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @throws EvioException if not enough room in buffer
      */
-    private void writeCommonBlock() throws EvioException {
+    protected void writeCommonBlock() throws EvioException {
 
         // No common events to write
         if (xmlDictionary == null && !haveFirstEvent) return;
@@ -2705,7 +2698,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param beforeDictionary is this to reset buffer as it was before the
      *                         writing of the dictionary?
      */
-    private void resetBuffer(boolean beforeDictionary) {
+    protected void resetBuffer(boolean beforeDictionary) {
         // Go back to the beginning of the buffer & set limit to cap
         buffer.clear();
 
@@ -2739,7 +2732,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @param newSize size in bytes to make the new buffers
      */
-    private void expandBuffer(int newSize) {
+    protected void expandBuffer(int newSize) {
         // No need to increase it
         if (newSize <= bufferSize) {
 //System.out.println("    expandBuffer: buffer is big enough");
@@ -2768,7 +2761,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @param currentEventBytes  number of bytes to write from buffer
      */
-    private void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes) {
+    protected void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes) {
 
 //if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = " +
 //                bytesWrittenToBuffer);
@@ -2849,8 +2842,11 @@ System.err.println("ERROR endOfBuffer " + a);
     /**
      * Write an event (bank) to the buffer in evio version 4 format.
      * If the internal buffer is full, it will be flushed to the file if writing to a file.
-     * Otherwise an exception will be thrown. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.
+     * Otherwise an exception will be thrown.
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @param node   object representing the event to write in buffer form
      * @param force  if writing to disk, force it to write event to the disk.
@@ -2876,8 +2872,11 @@ System.err.println("ERROR endOfBuffer " + a);
     /**
      * Write an event (bank) to the buffer in evio version 4 format.
      * If the internal buffer is full, it will be flushed to the file if writing to a file.
-     * Otherwise an exception will be thrown. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.
+     * Otherwise an exception will be thrown.
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @param node       object representing the event to write in buffer form
      * @param force      if writing to disk, force it to write event to the disk.
@@ -2945,8 +2944,10 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * The buffer must contain only the event's data (event header and event data)
      * and must <b>not</b> be in complete evio file format.
-     * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, setFirstEvent, writeEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
@@ -3002,8 +3003,11 @@ System.err.println("ERROR endOfBuffer " + a);
      * The given event buffer must contain only the event's data (event header
      * and event data) and must <b>not</b> be in complete evio file format.
      * If the internal buffer is full, it will be flushed to the file if writing to a file.
-     * Otherwise an exception will be thrown. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.
+     * Otherwise an exception will be thrown.
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @param eventBuffer the event (bank) to write in buffer form
      *
@@ -3029,8 +3033,11 @@ System.err.println("ERROR endOfBuffer " + a);
      * number of events in each block and the total size of each block.
      * If writing to a file, each full buffer is written - one at a time -
      * and may contain multiple blocks. Dictionary is never written with
-     * this method. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.
+     * this method.
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * @param bank the bank to write.
      *
@@ -3055,8 +3062,11 @@ System.err.println("ERROR endOfBuffer " + a);
      * and event data) and must <b>not</b> be in complete evio file format.
      * If the internal buffer is full, it will be flushed to the file if
      * writing to a file. Otherwise an exception will be thrown.
-     *  Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
+     *
      * Be warned that injudicious use of the 2nd arg, the force flag, will
      * <b>kill</b> performance.
      *
@@ -3086,8 +3096,12 @@ System.err.println("ERROR endOfBuffer " + a);
      * number of events in each block and the total size of each block.
      * If writing to a file, each full buffer is written - one at a time -
      * and may contain multiple blocks. Dictionary is never written with
-     * this method. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     * this method.
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
+     *
      * Be warned that injudicious use of the 2nd arg, the force flag, will
      * <b>kill</b> performance.
      *
@@ -3116,8 +3130,10 @@ System.err.println("ERROR endOfBuffer " + a);
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
      * The first non-null of the bank arguments will be written.
-     * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance.<p>
@@ -3140,7 +3156,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    private boolean writeEvent(EvioBank bank, ByteBuffer bankBuffer,
+    protected boolean writeEvent(EvioBank bank, ByteBuffer bankBuffer,
                                             boolean force)
             throws EvioException, IOException {
 
@@ -3458,8 +3474,10 @@ System.err.println("ERROR endOfBuffer " + a);
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
      * The first non-null of the bank arguments will be written.
-     * Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.<p>
+     *
+     * <p>Do not call this while simultaneously calling
+     * close, flush, setFirstEvent, writeEvent, or getByteBuffer.
+     * Automatically taken care of in EventWriterV4.</p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance.<p>
@@ -3718,7 +3736,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * Check if disk is able to store 1 full split, 1 max block, and 10MB buffer zone.
      * @return  true if disk is full and not able to accommodate needs, else false.
      */
-    private boolean fullDisk() {
+    protected boolean fullDisk() {
         // How much free space is available on the disk?
         long freeBytes = currentFile.getParentFile().getFreeSpace();
 
@@ -3757,7 +3775,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws InterruptedException   if this thread was interrupted while waiting
      *                                for file write to complete.
      */
-    private boolean flushToFile(boolean force, boolean checkDisk)
+    protected boolean flushToFile(boolean force, boolean checkDisk)
                         throws EvioException, IOException,
                                InterruptedException, ExecutionException {
         if (closed) {
@@ -3931,7 +3949,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
      */
-    private void splitFile() throws EvioException {
+    protected void splitFile() throws EvioException {
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
         if (asyncFileChannel != null) {
