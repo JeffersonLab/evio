@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import java.io.IOException;
@@ -325,7 +326,34 @@ System.out.println("  generate Evio Bank, ev len = " + ev.getTotalBytes());
         int bufSize = 0;
 
         try {
-            EventWriterUnsyncV4 writer = new EventWriterUnsyncV4(
+
+
+// Evio v6
+//            EventWriter writer = new EventWriter (
+//                    filename, directory, runType, runNum, split,
+//                    0,
+//                    10000,
+//                    order, xmlDict,
+//                    overWriteOK, append,
+//                    firstEv, 0,
+//                    1, 1, 1,
+//                    CompressionType.RECORD_UNCOMPRESSED, 1,
+//                    4, bufSize);
+//
+// Evio v6
+//       public EventWriter(String baseName, String directory, String runType,
+//            int runNumber, long split,
+//            int maxRecordSize, int maxEventCount,
+//            ByteOrder byteOrder, String xmlDictionary,
+//            boolean overWriteOK, boolean append,
+//            EvioBank firstEvent, int streamId,
+//            int splitNumber, int splitIncrement, int streamCount,
+//            CompressionType compressionType, int compressionThreads,
+//            int ringSize, int bufferSize)
+//            throws EvioException {
+
+
+            EventWriterV4 writer = new EventWriterV4 (
                     filename, directory, runType, runNum, split,
                     EventWriterUnsyncV4.DEFAULT_BLOCK_SIZE,
                     EventWriterUnsyncV4.DEFAULT_BLOCK_COUNT,
@@ -393,6 +421,9 @@ System.out.println("Finished writing file " + writer.getCurrentFilename() + ", n
         EvioEvent pFE = reader.getFirstEvent();
         if (pFE != null) {
             System.out.println("\nFirst Event:\n" + pFE.toString());
+        }
+        else {
+            System.out.println("\nNo first event");
         }
 
         System.out.println("Print out regular events:");
