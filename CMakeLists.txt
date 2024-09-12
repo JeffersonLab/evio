@@ -1,7 +1,7 @@
 # To use this, do the following the first time:
 #   % mkdir build
 #   % cd build
-#   % cmake .. -DCMAKE_BUILD_TYPE=release
+#   % cmake .. -DCMAKE_BUILD_TYPE=release -DMAKE_EXAMPLES=1
 #   % make (install)
 #
 # To only build C libraries and executables, replace the 3rd cammand above with
