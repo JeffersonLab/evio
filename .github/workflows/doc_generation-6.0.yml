@@ -13,7 +13,7 @@ jobs:
 
     steps:
       # checkout the evio-6.0 branch
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # generate the C doxygen files
       - name: Doxygen Action C
@@ -31,7 +31,7 @@ jobs:
 
       # generate the javadoc files
       - name: Set up JDK 8
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'adopt'
@@ -48,7 +48,7 @@ jobs:
 
       # store the doc files
       - name: Upload Output Directory
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: evio-doc-files
           path: doc
@@ -61,13 +61,13 @@ jobs:
 
     steps:
       # checkout the gh-pages branch
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: gh-pages
 
       # download the doc files, most of which are generated above
       - name: Download Output Directory
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: evio-doc-files
           path: doc-6.0
