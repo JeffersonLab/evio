@@ -85,7 +85,7 @@ import java.nio.ByteOrder;
  */
 public class RecordOutputStream {
     
-    /** Maximum number of events per record. */
+    /** Define constant. */
     private static final int ONE_MEG = 1024*1024;
 
 
