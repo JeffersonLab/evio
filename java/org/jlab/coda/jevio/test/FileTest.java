@@ -407,7 +407,7 @@ public class FileTest {
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
                 //myBuf.order(ByteOrder.LITTLE_ENDIAN);
-                writer = new  EventWriter(myBuf, 4*28, 1000, null, 1,
+                writer = new EventWriter(myBuf, 4*28, 1000, null, 1,
                                           CompressionType.RECORD_UNCOMPRESSED);
             }
 

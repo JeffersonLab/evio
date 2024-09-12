@@ -6,12 +6,10 @@ import org.jlab.coda.jevio.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
-import java.util.BitSet;
 
 /**
  * Test program for writing and reading evio version 6 files.

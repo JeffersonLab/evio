@@ -3,13 +3,7 @@ package org.jlab.coda.jevio.test;
 import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Test program.
@@ -156,7 +150,7 @@ public class BufferTest {
             ev.appendIntData(dat);
 
             // create writer with max block size of 256 ints
-            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*256, 20, null, 1,
+            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 4*256, 20, null, 1,
                                                     CompressionType.RECORD_UNCOMPRESSED);
             evWriter.close();
 
@@ -210,7 +204,7 @@ public class BufferTest {
             double[] da = new double[] {1., 2., 3.};
             ev.appendDoubleData(da);
 
-            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1,
+            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1,
                                                     CompressionType.RECORD_UNCOMPRESSED);
             evWriter.close();
 

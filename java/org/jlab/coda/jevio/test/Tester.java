@@ -3,12 +3,10 @@ package org.jlab.coda.jevio.test;
 import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
-import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.*;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -701,7 +699,7 @@ System.out.println("Tag, int = " + tag + ", str = " + tagStr + ", bad entry = " 
                 dbanks = new EvioBank(3, DataType.DOUBLE64, 3);
                 dbanks.appendDoubleData(da);
                 eb.addChild(ev, dbanks);
-                EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(32), 4*550000, 200, null, 1,
+                EventWriter evWriter = new EventWriter(ByteBuffer.allocate(32), 4*550000, 200, null, 1,
                                                         CompressionType.RECORD_UNCOMPRESSED);
                 evWriter.close();
 
