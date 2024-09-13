@@ -44,16 +44,16 @@ import java.nio.ByteOrder;
 public class EvioReaderUnsyncV6 implements IEvioReader {
 
     /** The reader object which does all the work. */
-    private Reader reader;
+    protected Reader reader;
 
     /** Is this object currently closed? */
-    private boolean closed;
+    protected boolean closed;
 
     /** Root element tag for XML file */
-    private static final String ROOT_ELEMENT = "evio-data";
+    protected static final String ROOT_ELEMENT = "evio-data";
 
     /** Parser object for file/buffer. */
-    private EventParser parser;
+    protected EventParser parser;
 
 
     //------------------------
