@@ -55,6 +55,7 @@ public interface IEvioCompactReader {
      *
      * @param buf ByteBuffer to be read
      * @throws EvioException if arg is null;
+     *                       buf too small (if evio v6);
      *                       if failure to read first block header;
      *                       buf not in evio format.
      */
@@ -70,6 +71,7 @@ public interface IEvioCompactReader {
      * @param buf  ByteBuffer to be read
      * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
      * @throws EvioException if arg is null;
+     *                       buf too small (if evio V6);
      *                       if failure to read first block header;
      *                       buf not in evio format.
      */
@@ -90,8 +92,8 @@ public interface IEvioCompactReader {
     ByteOrder getByteOrder();
 
     /**
-     * Get the evio version number.
-     * @return evio version number.
+     * Get the evio version number of file/buffer being read.
+     * @return evio version number of file/buffer being read.
      */
     int getEvioVersion();
 
