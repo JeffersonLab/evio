@@ -119,7 +119,7 @@ var activeTableTab = "activeTableTab";
 <pre>public class <span class="typeNameLabel">EvioCompactReader</span>
 extends java.lang.Object
 implements <a href="../../../../org/jlab/coda/jevio/IEvioCompactReader.html" title="interface in org.jlab.coda.jevio">IEvioCompactReader</a></pre>
-<div class="block">This class is used to read an evio version 4 formatted file or buffer
+<div class="block">This class is used to read an evio formatted file or buffer
  and extract specific evio containers (bank, seg, or tagseg)
  with actual data in them given a tag/num pair. It is theoretically thread-safe
  if synced is true. It is designed to be fast and does <b>NOT</b> do a full deserialization
@@ -306,7 +306,7 @@ implements <a href="../../../../org/jlab/coda/jevio/IEvioCompactReader.html" tit
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EvioCompactReader.html#getEvioVersion--">getEvioVersion</a></span>()</code>
-<div class="block">Get the evio version number.</div>
+<div class="block">Get the evio version number of file/buffer being read.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
@@ -682,6 +682,7 @@ implements <a href="../../../../org/jlab/coda/jevio/IEvioCompactReader.html" tit
 <dd><code>buf</code> - ByteBuffer to be read</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if arg is null;
+                       buf too small (if evio v6);
                        if failure to read first block header;
                        buf not in evio format.</dd>
 </dl>
@@ -709,6 +710,7 @@ implements <a href="../../../../org/jlab/coda/jevio/IEvioCompactReader.html" tit
 <dd><code>pool</code> - pool of EvioNode objects to use when parsing buf to avoid garbage collection.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if arg is null;
+                       buf too small (if evio V6);
                        if failure to read first block header;
                        buf not in evio format.</dd>
 </dl>
@@ -754,12 +756,12 @@ implements <a href="../../../../org/jlab/coda/jevio/IEvioCompactReader.html" tit
 <li class="blockList">
 <h4>getEvioVersion</h4>
 <pre>public&nbsp;int&nbsp;getEvioVersion()</pre>
-<div class="block">Get the evio version number.</div>
+<div class="block">Get the evio version number of file/buffer being read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/jevio/IEvioCompactReader.html#getEvioVersion--">getEvioVersion</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jlab/coda/jevio/IEvioCompactReader.html" title="interface in org.jlab.coda.jevio">IEvioCompactReader</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>evio version number.</dd>
+<dd>evio version number of file/buffer being read.</dd>
 </dl>
 </li>
 </ul>
