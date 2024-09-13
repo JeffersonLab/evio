@@ -134,7 +134,12 @@ implements <a href="../../../../org/jlab/coda/jevio/IEvioReader.html" title="int
 
  As an alternative to stream processing, after an event is parsed, the user can use the events treeModel
  for access to the structures. For those familiar with XML, the event is processed DOM-like.
- <p></div>
+ <p>
+
+ This class is a NOT thread safe version of EvioReaderV6, but presumably faster.<p>
+
+ Although this class can be used directly, it's generally used by
+ using <a href="../../../../org/jlab/coda/jevio/EvioCompactReader.html" title="class in org.jlab.coda.jevio"><code>EvioCompactReader</code></a> which, in turn, uses this class.<p></div>
 <dl>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>version 6</dd>
