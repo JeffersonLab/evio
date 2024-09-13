@@ -11,6 +11,7 @@
 package org.jlab.coda.jevio;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
@@ -27,6 +28,9 @@ import java.util.List;
  * and extract specific evio containers (bank, seg, or tagseg)
  * with actual data in them given a tag/num pair. It is NOT thread-safe since
  * all synchronization is removed in order to gain speed.<p>
+ *
+ * For a list of methods that cannot be run simultaneously, look at
+ * the synchronized methods in EvioCompactReaderV4.
  *
  * @author timmer
  */
@@ -52,7 +56,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
 
 
     /** Stores info of all the (top-level) events. */
-    private final ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
+    protected final ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
 
     /**
      * Are we using & storing block header objects or not? If user will be calling the
@@ -64,75 +68,147 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
      * the structure of events though.
      * Keep it on by default to avoid surprises.
      */
-    private boolean usingBlockHdrs = true;
+    protected boolean usingBlockHdrs = true;
 
     /** Store info of all block headers. */
-    private final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
+    protected final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
 
     /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
-    private EvioNodeSource nodePool;
+    protected EvioNodeSource nodePool;
 
 
     /**
      * This is the number of events in the file. It is not computed unless asked for,
      * and if asked for it is computed and cached in this variable.
      */
-    private int eventCount = -1;
+    protected int eventCount = -1;
 
     /** Evio version number (1-4). Obtain this by reading first block header. */
-    private int evioVersion;
+    protected int evioVersion;
 
     /**
      * Endianness of the data being read, either
      * {@link ByteOrder#BIG_ENDIAN} or
      * {@link ByteOrder#LITTLE_ENDIAN}.
      */
-    private ByteOrder byteOrder;
+    protected ByteOrder byteOrder;
 
     /**
      * This is the number of blocks in the file including the empty block at the
      * end of the version 4 files. It is not computed unless asked for,
      * and if asked for it is computed and cached in this variable.
      */
-    private int blockCount = -1;
+    protected int blockCount = -1;
 
     /** Size of the first block header in 32-bit words. Used to read dictionary. */
-    private int firstBlockHeaderWords;
+    protected int firstBlockHeaderWords;
 
     /** The current block header. */
-    private BlockHeaderV4 blockHeader = new BlockHeaderV4();
+    protected BlockHeaderV4 blockHeader = new BlockHeaderV4();
 
     /** Does the file/buffer have a dictionary? */
-    private boolean hasDictionary;
+    protected boolean hasDictionary;
 
     /**
      * Version 4 files may have an xml format dictionary in the
      * first event of the first block.
      */
-    private String dictionaryXML;
+    protected String dictionaryXML;
 
     /** Dictionary object created from dictionaryXML string. */
-    private EvioXMLDictionary dictionary;
+    protected EvioXMLDictionary dictionary;
 
     /** The buffer being read. */
-    private ByteBuffer byteBuffer;
+    protected ByteBuffer byteBuffer;
 
     /** Initial position of buffer (mappedByteBuffer if reading a file). */
-    private int initialPosition;
+    protected int initialPosition;
 
     /** How much of the buffer being read is valid evio data (in 32bit words)?
      *  The valid data begins at initialPosition and ends after this length.*/
-    private int validDataWords;
+    protected int validDataWords;
 
     /** Is this object currently closed? */
-    private boolean closed;
-
+    protected boolean closed;
 
     //------------------------
+    // File specific members
+    //------------------------
+
+    /** Are we reading a file or buffer? */
+    protected boolean isFile;
+
+    /**
+     * The buffer representing a map of the input file which is also
+     * accessed through {@link #byteBuffer}.
+     */
+    protected MappedByteBuffer mappedByteBuffer;
+
+    /** Absolute path of the underlying file. */
+    protected String path;
+
+    /** File size in bytes. */
+    protected long fileSize;
+
 
 
     /**
-     * Constructor for reading a buffer.
+     * Constructor for reading an event file.
+     *
+     * @param path the full path to the file that contains events.
+     *             For writing event files, use an <code>EventWriter</code> object.
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null
+     */
+    public EvioCompactReaderUnsyncV4(String path) throws EvioException, IOException {
+        this(new File(path));
+    }
+
+    /**
+     * Constructor for reading an event file.
+     *
+     * @param file the file that contains events.
+     *
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null; file is too large;
+     */
+    public EvioCompactReaderUnsyncV4(File file) throws EvioException, IOException {
+        if (file == null) {
+            throw new EvioException("File arg is null");
+        }
+
+        FileInputStream fileInputStream = new FileInputStream(file);
+        path = file.getAbsolutePath();
+        FileChannel fileChannel = fileInputStream.getChannel();
+        fileSize = fileChannel.size();
+
+        // Is the file byte size > max int value?
+        // If so we cannot use a memory mapped file.
+        if (fileSize > Integer.MAX_VALUE) {
+            throw new EvioException("file too large (must be < 2.1475GB)");
+        }
+
+        mapFile(fileChannel);
+        fileChannel.close(); // this object is no longer needed since we have the map
+
+        initialPosition = 0;
+
+        // Read first block header and find the file's endianness & evio version #.
+        // If there's a dictionary, read that too.
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new IOException("Failed reading first block header/dictionary");
+        }
+
+        // Generate a table of all event positions in buffer for random access.
+        generateEventPositionTable();
+
+        isFile = true;
+    }
+
+    /**
+     * Constructor for reading an event file.
      *
      * @param byteBuffer the buffer that contains events.
      *
@@ -269,11 +345,8 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
         return buf;
     }
 
-    /**
-     * Is this reader reading a file? Always false for this class.
-     * @return false.
-     */
-    public boolean isFile() {return false;}
+    /** {@inheritDoc} */
+    public boolean isFile() {return isFile;}
 
     /** {@inheritDoc} */
     public boolean isCompressed() {return false;}
@@ -372,21 +445,32 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
     }
 
     /**
-     * Get the byte buffer being read directly or corresponding to the event file.
-     * @return the byte buffer being read directly or corresponding to the event file.
-     */
-    public ByteBuffer getByteBuffer() {
-        return byteBuffer;
-    }
-
-
+ 	 * Maps the file into memory. The data are not actually loaded in memory-- subsequent reads will read
+ 	 * random-access-like from the file.
+ 	 *
+      * @param inputChannel the input channel.
+      * @throws IOException if file cannot be opened
+ 	 */
+ 	protected void mapFile(FileChannel inputChannel) throws IOException {
+ 		long sz = inputChannel.size();
+ 		mappedByteBuffer = inputChannel.map(FileChannel.MapMode.READ_ONLY, 0L, sz);
+        byteBuffer = mappedByteBuffer;
+ 	}
 
     /**
      * Get the memory mapped buffer corresponding to the event file.
      * @return the memory mapped buffer corresponding to the event file.
      */
     public MappedByteBuffer getMappedByteBuffer() {
-        return null;
+        return mappedByteBuffer;
+    }
+
+    /**
+     * Get the byte buffer being read directly or corresponding to the event file.
+     * @return the byte buffer being read directly or corresponding to the event file.
+     */
+    public ByteBuffer getByteBuffer() {
+        return byteBuffer;
     }
 
     /**
@@ -395,7 +479,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
      * @return the file size in bytes
      */
     public long fileSize() {
-        return 0L;
+        return fileSize;
     }
 
     /**
@@ -619,7 +703,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
      *
      * @return status of read attempt
      */
-    private ReadStatus readFirstHeader() {
+    protected ReadStatus readFirstHeader() {
         // Get first block header
         int pos = initialPosition;
 
@@ -726,7 +810,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
      *
      * @throws EvioException if failed read due to bad buffer format
      */
-     private void readDictionary() throws EvioException {
+     protected void readDictionary() throws EvioException {
 
          // Where are we?
          int originalPos = byteBuffer.position();
@@ -777,7 +861,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
      * @param eventNumber number of the event to be scanned starting at 1
      * @return the EvioNode object corresponding to the given event number
      */
-    private EvioNode scanStructure(int eventNumber) {
+    protected EvioNode scanStructure(int eventNumber) {
 
         // Node corresponding to event
         EvioNode node = eventNodes.get(eventNumber - 1);
@@ -806,7 +890,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
      * @param nodeSource  source of EvioNode objects to use while parsing evio data.
      * @return the EvioNode object corresponding to the given event number
      */
-    private EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
+    protected EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
 
         // Node corresponding to event
         EvioNode node = eventNodes.get(eventNumber - 1);
@@ -1032,6 +1116,30 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         // so the node will be obsolete along with all its descendants.
         removeNode.setObsolete(true);
 
+        // If we started out by reading a file, now we switch to using a buffer
+        if (isFile) {
+            isFile = false;
+            mappedByteBuffer = null;
+
+            // Create a new buffer by duplicating existing one
+            ByteBuffer newBuffer = ByteBuffer.allocate(byteBuffer.capacity());
+            newBuffer.order(byteOrder).position(byteBuffer.position()).limit(byteBuffer.limit());
+
+            // Copy data into new buffer
+            newBuffer.put(byteBuffer);
+            newBuffer.position(initialPosition);
+
+            // Use new buffer from now on
+            byteBuffer = newBuffer;
+
+            // All nodes need to use this new buffer
+            for (EvioNode ev : eventNodes) {
+                for (EvioNode n : ev.allNodes) {
+                    n.setBuffer(byteBuffer);
+                }
+            }
+        }
+
         //---------------------------------------------------
         // Remove structure. Keep using current buffer.
         // We'll move all data that came after removed node
@@ -1046,6 +1154,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         int startPos = removeNode.pos + removeDataLen;
         // Length of data to move in bytes
         int moveLen = initialPosition + 4*validDataWords - startPos;
+
 
         // Can't use duplicate(), must copy the backing buffer
         ByteBuffer moveBuffer = ByteBuffer.allocate(moveLen).order(byteBuffer.order());
@@ -1098,7 +1207,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         }
 
         place = eventNode.blockNode.place;
-        for (int i = 0; i < blockCount; i++) {
+        for (int i=0; i < blockCount; i++) {
             if (i > place) {
                 blockNodes.get(i).pos -= removeDataLen;
             }
@@ -1178,6 +1287,8 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         return byteBuffer;
     }
 
+// TODO: This method will change a memory mapped buffer into one this is NOT!!!
+// Map is opened as READ_ONLY
 
     /**
      * This method adds an evio container (bank, segment, or tag segment) as the last
@@ -1335,6 +1446,12 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         initialPosition = newBuffer.position();
         validDataWords += appendDataWordLen;
 
+        // If we started out by reading a file, now we are using the new buffer.
+        if (isFile) {
+            isFile = false;
+            mappedByteBuffer = null;
+        }
+
         //--------------------------------------------
         // Adjust event and block header sizes in both
         // block/event node objects and in new buffer.
@@ -1426,9 +1543,9 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get the data associated with an evio structure in ByteBuffer form.
+     * <p>Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
+     * a copy of or a view into the data of this reader's buffer.</p>
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1450,8 +1567,8 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio bank or event in ByteBuffer form.
-     * The returned buffer is a view into the data of this reader's buffer.<p>
+     * <p>Get an evio bank or event in ByteBuffer form.
+     * The returned buffer is a view into the data of this reader's buffer.</p>
      *
      * @param eventNumber number of event of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1466,9 +1583,9 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio bank or event in ByteBuffer form.
+     * <p>Get an evio bank or event in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
+     * a copy of or a view into the data of this reader's buffer.</p>
      *
      * @param eventNumber number of event of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1503,8 +1620,8 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
-     * The returned buffer is a view into the data of this reader's buffer.<p>
+     * <p>Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
+     * The returned buffer is a view into the data of this reader's buffer.</p>
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1518,9 +1635,9 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
 
     /**
-     * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
+     * <p>Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
+     * a copy of or a view into the data of this reader's buffer.</p>
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
