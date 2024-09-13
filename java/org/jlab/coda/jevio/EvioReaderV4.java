@@ -35,6 +35,12 @@ import java.nio.ByteBuffer;
  * for access to the structures. For those familiar with XML, the event is processed DOM-like.
  * <p>
  *
+ * This class is identical to EvioReaderUnsyncV4 except that critical methods are synchronized,
+ * therefore it is thread safe.<p>
+ *
+ * Although this class can be used directly, it's generally used by
+ * using {@link EvioCompactReader} which, in turn, uses this class.<p>
+ *
  * This class is a thread safe version of EvioReaderUnsync4.
  *
  * @author heddle

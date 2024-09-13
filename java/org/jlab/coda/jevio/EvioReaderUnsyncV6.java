@@ -38,6 +38,11 @@ import java.nio.ByteOrder;
  * for access to the structures. For those familiar with XML, the event is processed DOM-like.
  * <p>
  *
+ * This class is a NOT thread safe version of EvioReaderV6, but presumably faster.<p>
+ *
+ * Although this class can be used directly, it's generally used by
+ * using {@link EvioCompactReader} which, in turn, uses this class.<p>
+ *
  * @since version 6
  * @author timmer
  */

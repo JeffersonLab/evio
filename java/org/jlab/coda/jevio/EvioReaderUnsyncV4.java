@@ -47,6 +47,9 @@ import java.nio.channels.FileChannel;
  * therefore it's not thread safe.
  * <p>
  *
+ * Although this class can be used directly, it's generally used by
+ * using {@link EvioReader} which, in turn, uses this class.<p>
+ *
  * @author heddle
  * @author timmer
  *

@@ -24,10 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * This class is used to read an evio format version 4 formatted file or buffer
+ * <p>This class is used to read an evio format version 4 formatted file or buffer
  * and extract specific evio containers (bank, seg, or tagseg)
  * with actual data in them given a tag/num pair. It is NOT thread-safe since
- * all synchronization is removed in order to gain speed.<p>
+ * all synchronization is removed in order to gain speed.</p>
+ *
+ * <p>Although this class can be used directly, it's generally used by
+ * using {@link EvioCompactReader} which, in turn, uses this class.</p>
  *
  * For a list of methods that cannot be run simultaneously, look at
  * the synchronized methods in EvioCompactReaderV4.

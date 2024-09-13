@@ -24,9 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is used to read an evio format version 6 formatted file or buffer.
+ * <p>This class is used to read an evio format version 6 formatted file or buffer.
  * It's essentially a wrapper for the hipo.Reader class so the user can have
- * access to the EvioCompactReader methods. It is NOT thread-safe.<p>
+ * access to the EvioCompactReader methods. It is NOT thread-safe.</p>
+ *
+ * <p>Although this class can be used directly, it's generally used by
+ * using {@link EvioCompactReader} which, in turn, uses this class.</p>
  *
  * @author timmer
  */
