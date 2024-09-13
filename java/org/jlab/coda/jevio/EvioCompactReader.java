@@ -183,7 +183,7 @@ public class EvioCompactReader implements IEvioCompactReader {
 
         if (evioVersion == 4) {
             if (synced) {
-                reader = new EvioCompactReaderV4(byteBuffer, pool);
+                reader = new EvioCompactReaderV4(byteBuffer, pool, useBlockNodeObjects);
             }
             else {
                 reader = new EvioCompactReaderUnsyncV4(byteBuffer, pool, useBlockNodeObjects);
