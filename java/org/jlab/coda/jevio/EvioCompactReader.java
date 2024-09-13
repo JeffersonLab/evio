@@ -13,7 +13,7 @@ import java.nio.*;
 import java.util.List;
 
 /**
- * This class is used to read an evio version 4 formatted file or buffer
+ * This class is used to read an evio formatted file or buffer
  * and extract specific evio containers (bank, seg, or tagseg)
  * with actual data in them given a tag/num pair. It is theoretically thread-safe
  * if synced is true. It is designed to be fast and does <b>NOT</b> do a full deserialization
