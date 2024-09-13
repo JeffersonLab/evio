@@ -881,23 +881,8 @@ public class EventWriterV4 extends EventWriterUnsyncV4 {
 
 
     /** {@inheritDoc} */
-    public ByteBuffer getByteBuffer() {
-        // It does NOT make sense to give the caller the internal buffer
-        // used in writing to files. That buffer may contain nothing and
-        // most probably won't contain the full file contents.
-        if (toFile()) return null;
-
-        // We synchronize here so we do not write/close in the middle
-        // of our messing with the buffer.
-        ByteBuffer buf;
-        synchronized (this) {
-            buf = buffer.duplicate().order(buffer.order());
-        }
-
-        // Get buffer ready for reading
-        buf.flip();
-
-        return buf;
+    synchronized public ByteBuffer getByteBuffer() {
+        return super.getByteBuffer();
     }
 
 
