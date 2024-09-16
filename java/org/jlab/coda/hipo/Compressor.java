@@ -14,7 +14,7 @@ import java.nio.ByteOrder;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.aha.compression.AHACompressionAPI;
+//import com.aha.compression.AHACompressionAPI;
 import net.jpountz.lz4.*;
 
 /**
