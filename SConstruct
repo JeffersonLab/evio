@@ -73,7 +73,8 @@ else:
 # Command line options (view with "scons -h")
 #############################################
 
-Help('\n-D                  build from subdirectory of package\n')
+Help('\n-D                  build from subdirectory of package')
+Help('\n-c                  clean dir\n')
 Help('\nlocal scons OPTIONS:\n')
 
 # C compilation only option
@@ -215,6 +216,7 @@ if (incdir == None):
 # If we going to install ...
 if 'install' in COMMAND_LINE_TARGETS:
     # Determine installation directories
+    print ("\Call getInstallationDirs with prefix = ", prefix)
     installDirs = coda.getInstallationDirs(osname, prefix, incdir, libdir, bindir)
     
     mainInstallDir    = installDirs[0]
@@ -284,12 +286,12 @@ Help('tar                 create tar file (in ./tar)\n')
 Export('env platform archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix disruptorHome')
 
 # Run lower level build files
-env.SConscript('src/libsrc/SConscript', variant_dir='src/libCsrc/'+archDir,   duplicate=0)
+env.SConscript('src/libsrc/SConscript', variant_dir='src/libsrc/'+archDir,   duplicate=0)
 
 if not onlyC:
-    env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc/'+archDir,   duplicate=0)
-    #env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
-    #env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
-    env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
+    env.SConscript('src/libsrc++/SConscript',  variant_dir='src/libsrc++/'+archDir, duplicate=0)
+    #env.SConscript('src/execsrc/SConscript',   variant_dir='src/execsrc/'+archDir,  duplicate=0)
+    #env.SConscript('src/examples/SConscript',  variant_dir='src/examples/'+archDir, duplicate=0)
+    env.SConscript('src/test/SConscript',      variant_dir='src/test/'+archDir,     duplicate=0)
 
 env.SConscript('src/testC/SConscript',     variant_dir='src/testC/'+archDir,     duplicate=0)
