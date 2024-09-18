@@ -1235,7 +1235,7 @@ namespace evio {
                 // then tack stream id and split # onto end of file name
                 else if (specifierCount == 1) {
                     char tempChar[fileName.length() + 1024];
-                    int err = std::sprintf(tempChar, fileName.c_str(), runNumber);
+                    int err = std::snprintf(tempChar, fileName.length() + 1024, fileName.c_str(), runNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
                     std::string temp(tempChar);
                     fileName = temp;
@@ -1267,14 +1267,14 @@ namespace evio {
                         //fileName.replace(match[0].first, match[0].second, "%d." + match.str());
 
                         char tempChar[fileName.length() + 1024];
-                        int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId, splitNumber);
+                        int err = std::snprintf(tempChar, fileName.length() + 1024, fileName.c_str(), runNumber, streamId, splitNumber);
                         if (err < 0) throw EvioException("badly formatted file name");
                         std::string temp(tempChar);
                         fileName = temp;
                     }
                     else {
                         char tempChar[fileName.length() + 1024];
-                        int err = std::sprintf(tempChar, fileName.c_str(), runNumber, splitNumber);
+                        int err = std::snprintf(tempChar, fileName.length() + 1024, fileName.c_str(), runNumber, splitNumber);
                         if (err < 0) throw EvioException("badly formatted file name");
                         std::string temp(tempChar);
                         fileName = temp;
@@ -1283,7 +1283,7 @@ namespace evio {
                 // For 3 specifiers: insert run #, stream id, and split # at specified locations
                 else if (specifierCount == 3) {
                     char tempChar[fileName.length() + 1024];
-                    int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId, splitNumber);
+                    int err = std::snprintf(tempChar, fileName.length() + 1024, fileName.c_str(), runNumber, streamId, splitNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
                     std::string temp(tempChar);
                     fileName = temp;
@@ -1302,7 +1302,7 @@ namespace evio {
                 else if (specifierCount == 1) {
                     // Insert runNumber
                     char tempChar[fileName.length() + 1024];
-                    int err = std::sprintf(tempChar, fileName.c_str(), runNumber);
+                    int err = std::snprintf(tempChar, fileName.length() + 1024, fileName.c_str(), runNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
                     std::string temp(tempChar);
                     fileName = temp;
@@ -1326,7 +1326,7 @@ namespace evio {
 
                     // Insert runNumber into first specifier
                     char tempChar[fileName.length() + 1024];
-                    int err = std::sprintf(tempChar, fileName.c_str(), runNumber);
+                    int err = std::snprintf(tempChar, fileName.length() + 1024, fileName.c_str(), runNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
                     std::string temp(tempChar);
                     fileName = temp;
@@ -1350,7 +1350,7 @@ namespace evio {
 
                     // Insert runNumber into first specifier, stream id into 2nd
                     char tempChar[fileName.length() + 1024];
-                    int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId);
+                    int err = std::snprintf(tempChar, fileName.length() + 1024, fileName.c_str(), runNumber, streamId);
                     if (err < 0) throw EvioException("badly formatted file name");
                     std::string temp(tempChar);
                     fileName = temp;
