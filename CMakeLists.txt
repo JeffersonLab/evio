@@ -21,6 +21,7 @@
 # This call must be placed BEFORE "project" command
 cmake_minimum_required(VERSION 3.3)
 
+cmake_policy(SET CMP0167 NEW)
 
 project(evio VERSION 6.0)
 
@@ -219,12 +220,13 @@ include(FindPackageHandleStandardArgs)
 
 
 # search for boost libs
-find_package(Boost REQUIRED system thread chrono)
+find_package(Boost REQUIRED COMPONENTS system thread chrono CONFIG)
 
 
 if (Boost_FOUND)
     message(STATUS "Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
+    include_directories(${Boost_INCLUDE_DIRS})
 elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Boost cannot be found, cmake will exit." )
 endif()
