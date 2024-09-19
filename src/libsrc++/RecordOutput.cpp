@@ -903,7 +903,6 @@ namespace evio {
         // Uncompressed data length is NOT padded, but the record length is.
         uint32_t uncompressedDataSize = indexSize + eventSize;
         uint32_t compressedSize = 0;
-        uint8_t* gzippedData;
 //std::cout << "build: writing index of size " << indexSize << ", events of size " <<
 //             eventSize << ", total = " << uncompressedDataSize << std::endl;
 
@@ -953,7 +952,7 @@ namespace evio {
                 case 3:
                     // GZIP compression
 #ifdef USE_GZIP
-                    gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
+                uint8_t* gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
                                                                  uncompressedDataSize, &compressedSize);
                 recordBinary->position(recBinPastHdr);
                 recordBinary->put(gzippedData, compressedSize);
@@ -1100,7 +1099,6 @@ namespace evio {
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
         uint32_t compressedSize = 0;
-        uint8_t* gzippedData;
 
         try {
             switch (compressionType) {
@@ -1133,7 +1131,7 @@ namespace evio {
                 case 3:
                     // GZIP compression
 #ifdef USE_GZIP
-                    gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
+                uint8_t* gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
                                                                      uncompressedDataSize, &compressedSize);
                 recordBinary->position(recBinPastHdr);
                 recordBinary->put(gzippedData, compressedSize);

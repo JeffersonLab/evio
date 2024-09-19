@@ -603,7 +603,7 @@ namespace evio {
 //" for tag/num = " << tag << "/" << num << std::endl;
 
         // Now look for matches in this event
-        for (auto const enode: list) {
+        for (auto enode: list) {
 //            std::cout << "searchEvent: desired tag = " << tag << " found " << enode->getTag() << std::endl;
 //            std::cout << "           : desired num = " << num << " found " << enode->getNum() << std::endl;
             if (enode->getTag() == tag && enode->getNum() == num) {
@@ -695,7 +695,7 @@ namespace evio {
         uint32_t removeNodePlace = 0;
 
         // Locate the node to be removed ...
-        for (auto const ev : eventNodes) {
+        for (auto ev : eventNodes) {
             removeNodePlace = 0;
 
             // See if it's an event ...
@@ -706,7 +706,7 @@ namespace evio {
                 break;
             }
 
-            for (auto const n : ev->getAllNodes()) {
+            for (auto n : ev->getAllNodes()) {
                 // The first node in allNodes is the event node,
                 // so do not increment removeNodePlace now.
 
@@ -747,8 +747,8 @@ namespace evio {
             byteBuffer = newBuffer;
 
             // All nodes need to use this new buffer
-            for (auto const ev : eventNodes) {
-                for (auto const n : ev->getAllNodes()) {
+            for (auto ev : eventNodes) {
+                for (auto n : ev->getAllNodes()) {
                     n->setBuffer(byteBuffer);
                 }
             }
@@ -988,7 +988,7 @@ namespace evio {
         uint32_t place = eventNode->place;
 
         for (int i=0; i < eventCount; i++) {
-            for (auto const n : eventNodes[i]->getAllNodes()) {
+            for (auto n : eventNodes[i]->getAllNodes()) {
                 // Make sure nodes are using the new buffer
                 n->setBuffer(newBuffer);
 

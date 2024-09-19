@@ -49,7 +49,7 @@ namespace evio {
      * @author timmer
      * @date 6/16/2020
      */
-    class EvioReaderV6 : public IEvioReader {
+    class EvioReaderV6 final : public IEvioReader {
 
     private:
 

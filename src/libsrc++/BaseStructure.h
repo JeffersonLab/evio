@@ -637,6 +637,8 @@ namespace evio {
 
     public:
 
+        virtual ~BaseStructure() = default;
+
         void transform(std::shared_ptr<BaseStructure> structure);
 
         virtual StructureType getStructureType() const {return StructureType::STRUCT_UNKNOWN32;};

@@ -34,7 +34,11 @@ namespace evio {
      *                        Value <= O means use default (1M).
      * @param maxBufferSize   max number of uncompressed data bytes each record can hold.
      *                        Value of < 8MB results in default of 8MB.
-     * @param compressionType type of data compression to do.
+     * @param compressionType type of data compression to do :
+     *                         (Compressor::UNCOMPRESSED = 0 = none,
+     *                          Compressor::LZ4 = 1 = lz4 fast,
+     *                          Compressor::LZ4_BEST = 2 = lz4 best,
+     *                          Compressor::GZIP = 3 = gzip).
      * @throws EvioException if args < 1, ringSize not power of 2,
      *                                  threadCount > ringSize.
      */
@@ -42,8 +46,7 @@ namespace evio {
                                uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize,
                                Compressor::CompressionType & compressionType) :
 
-            order(order), maxEventCount(maxEventCount), maxBufferSize(maxBufferSize),
-            compressionType(compressionType)
+            order(order), maxBufferSize(maxBufferSize)
     {
 
         if (!Disruptor::Util::isPowerOf2(ringSize)) {

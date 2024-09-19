@@ -35,8 +35,10 @@ namespace evio {
      */
     class EvioBank : public BaseStructure {
 
+    public:
 
-    protected:
+        // These constructors should be protected, but on the Mac clang will not allow getInstance
+        // to create shared pointers with protected constructors.
 
         /** Constructor. */
         EvioBank() : BaseStructure() {}
@@ -47,6 +49,8 @@ namespace evio {
          */
         explicit EvioBank(std::shared_ptr<BankHeader> head) : BaseStructure(head) {}
 
+        virtual ~EvioBank() = default;
+
     public:
 
         /**
@@ -55,8 +59,7 @@ namespace evio {
          * @return shared pointer to new EvioBank.
          */
         static std::shared_ptr<EvioBank> getInstance() {
-            std::shared_ptr<EvioBank> pNode(new EvioBank());
-            return pNode;
+            return std::make_shared<EvioBank>();
         }
 
         /**
@@ -65,8 +68,7 @@ namespace evio {
          * @return shared pointer to new EvioBank.
          */
         static std::shared_ptr<EvioBank> getInstance(std::shared_ptr<BankHeader> head) {
-            std::shared_ptr<EvioBank> pNode(new EvioBank(head));
-            return pNode;
+            return std::make_shared<EvioBank>(head);
         }
 
         /**
@@ -77,9 +79,8 @@ namespace evio {
          * @return shared pointer to new EvioBank.
          */
         static std::shared_ptr<EvioBank> getInstance(uint16_t tag, DataType const & typ, uint8_t num) {
-            std::shared_ptr<BankHeader> head(new BankHeader(tag, typ, num));
-            std::shared_ptr<EvioBank> pNode(new EvioBank(head));
-            return pNode;
+            auto head = std::make_shared<BankHeader>(tag, typ, num);
+            return std::make_shared<EvioBank>(head);
         }
 
         /**

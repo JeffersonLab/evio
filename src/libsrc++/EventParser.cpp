@@ -535,7 +535,7 @@ namespace  evio {
         structs.reserve(25);
 
         // Create a listener that puts all structures into a vector
-        class matchListener : public IEvioListener {
+        class matchListener final : public IEvioListener {
             std::vector<std::shared_ptr<BaseStructure>> & vec;
         public:
             explicit matchListener(std::vector<std::shared_ptr<BaseStructure>> & v) : vec(v) {}

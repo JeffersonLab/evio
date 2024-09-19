@@ -33,7 +33,7 @@ namespace evio {
      * @author timmer
      * @date 4/27/2020
      */
-    class TagSegmentHeader : public BaseStructureHeader {
+    class TagSegmentHeader final : public BaseStructureHeader {
 
     public:
 

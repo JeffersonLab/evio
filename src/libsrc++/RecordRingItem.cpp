@@ -31,7 +31,7 @@ namespace evio {
     /** Function to create RecordRingItems by RingBuffer. */
     const std::function< std::shared_ptr<RecordRingItem> () >& RecordRingItem::eventFactory() {
         static std::function< std::shared_ptr<RecordRingItem> () > result([] {
-            return std::move(std::make_shared<RecordRingItem>());
+            return std::make_shared<RecordRingItem>();
         });
         return result;
     }

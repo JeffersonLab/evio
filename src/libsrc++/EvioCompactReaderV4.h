@@ -51,7 +51,7 @@ namespace evio {
      * @date 07/01/2020
      * @author timmer
      */
-    class EvioCompactReaderV4 : public IEvioCompactReader {
+    class EvioCompactReaderV4 final : public IEvioCompactReader {
 
     public:
 

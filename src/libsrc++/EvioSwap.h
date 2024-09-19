@@ -394,7 +394,6 @@ namespace evio {
         static void swapData(std::shared_ptr<BaseStructure> strc) {
              auto type       = strc->getHeader()->getDataType();
              uint32_t length = strc->getHeader()->getDataLength();
-             bool srcIsLocal = strc->getByteOrder().isLocalEndian();
 
              if (type == DataType::UINT32) {
                  auto & vec = strc->getUIntData();

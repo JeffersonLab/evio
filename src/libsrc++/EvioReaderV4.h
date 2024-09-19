@@ -55,7 +55,7 @@ namespace evio {
      * @author heddle (original java version)
      * @author timmer
      */
-    class EvioReaderV4 : public IEvioReader {
+    class EvioReaderV4 final : public IEvioReader {
 
     public:
 

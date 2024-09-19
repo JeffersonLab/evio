@@ -36,7 +36,7 @@ namespace evio {
      * @author timmer
      * @date 5/19/2020
      */
-    class EvioEvent : public EvioBank {
+    class EvioEvent final : public EvioBank {
 
     private:
 

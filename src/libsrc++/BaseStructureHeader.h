@@ -81,6 +81,7 @@ namespace evio {
 
         BaseStructureHeader() = default;
         BaseStructureHeader(uint16_t tag, DataType const & dataType, uint8_t num = 0);
+        virtual ~BaseStructureHeader() = default;
 
         uint8_t getNumber() const;
         void setNumber(uint8_t number);

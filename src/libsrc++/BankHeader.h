@@ -32,7 +32,7 @@ namespace evio {
      * @author timmer
      * @date 4/23/2020
      */
-    class BankHeader : public BaseStructureHeader {
+    class BankHeader final : public BaseStructureHeader {
 
         friend class EvioReader;
 

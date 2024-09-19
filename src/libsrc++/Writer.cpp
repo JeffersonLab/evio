@@ -715,7 +715,7 @@ namespace evio {
 
         // Get ready to read, buffer position is still 0
         buf->limit(totalLen);
-        return std::move(buf);
+        return buf;
     }
 
 
@@ -814,7 +814,7 @@ namespace evio {
 
         // Get ready to read, buffer position is still 0
         buf->limit(totalLen);
-        return std::move(buf);
+        return buf;
     }
 
 

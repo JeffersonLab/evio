@@ -108,14 +108,9 @@ namespace evio {
         /** Byte order of RecordOutputStream in each RecordRingItem. */
         ByteOrder order {ByteOrder::ENDIAN_LOCAL};
 
-        /** Max number of events each record can hold.
-         *  Value of O means use default (1M). */
-        uint32_t maxEventCount = 0;
         /** Max number of uncompressed data bytes each record can hold.
          *  Value of < 8MB results in default of 8MB. */
         uint32_t maxBufferSize = 0;
-        /** Type type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip). */
-        Compressor::CompressionType compressionType {Compressor::UNCOMPRESSED};
         /** Number of threads doing compression simultaneously. */
         uint32_t compressionThreadCount = 1;
         /** Number of records held in this supply. */

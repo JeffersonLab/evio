@@ -71,7 +71,7 @@ namespace evio {
      * @author heddle (original java version)
      * @author timmer
      */
-    class BlockHeaderV2 : public IBlockHeader {
+    class BlockHeaderV2 final : public IBlockHeader {
 
     public:
 

@@ -74,10 +74,9 @@ namespace evio {
     private:
         boost::asio::io_context ioContext;
         boost::thread_group threadPool;
-        int size;
 
     public:
-        FileCloserV4(int poolSize) : size(poolSize) {
+        FileCloserV4(int poolSize) {
             // Create a work object to keep the io_context busy
             boost::asio::io_context::work work(ioContext);
 
@@ -438,12 +437,6 @@ namespace evio {
              */
             uint32_t splitIncrement = 0;
 
-            /** Track bytes written to help split a file. */
-            uint64_t splitEventBytes = 0ULL;
-
-            /** Track events written to help split a file. */
-            uint32_t splitEventCount = 0;
-
             /**
              * Id of this specific data stream.
              * In CODA, a data stream is a chain of ROCS and EBs ending in a final EB (SEB or PEB) or ER.
@@ -471,15 +464,6 @@ namespace evio {
             /** Object used to close files in a separate thread when splitting
              *  so as to allow writing speed not to dip so low. */
             std::shared_ptr<FileCloserV4> fileCloser = nullptr;
-
-            //-----------------------
-            /**
-             * Flag to do everything except the actual writing of data to file.
-             * Set true for testing purposes ONLY.
-             */
-            bool noFileWriting = false;
-            //-----------------------
-
 
 
         public:

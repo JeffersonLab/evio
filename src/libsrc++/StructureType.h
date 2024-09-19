@@ -63,7 +63,7 @@ namespace evio {
          * @param val int value of this StructureType object.
          * @param val2 possible second int value of this StructureType object.
          */
-        StructureType(std::string name, uint32_t val, uint32_t val2=0) : name(std::move(name)), value(val), value2(val2) {}
+        StructureType(std::string name, uint32_t val, uint32_t val2=0) : value(val), value2(val2), name(std::move(name)) {}
 
     public:
 
@@ -135,19 +135,19 @@ namespace evio {
          * Convenience routine to see if "this" structure type is a bank structure.
          * @return <code>true</code> if this structure type corresponds to a bank structure.
          */
-        bool isBank() {return (*this == STRUCT_BANK);}
+        bool isBank() const {return (*this == STRUCT_BANK);}
 
         /**
          * Convenience routine to see if "this" structure type is a segment structure.
          * @return <code>true</code> if this structure type corresponds to a segment structure.
          */
-        bool isSegment() {return (*this == STRUCT_SEGMENT);}
+        bool isSegment() const {return (*this == STRUCT_SEGMENT);}
 
         /**
          * Convenience routine to see if "this" structure type is a tagsegment structure.
          * @return <code>true</code> if this structure type corresponds to a tagsegment structure.
          */
-        bool isTagSegment() {return (*this == STRUCT_TAGSEGMENT);}
+        bool isTagSegment() const {return (*this == STRUCT_TAGSEGMENT);}
 
 
         bool operator==(const StructureType &rhs) const;

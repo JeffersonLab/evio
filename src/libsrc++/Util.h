@@ -457,7 +457,7 @@ namespace evio {
          */
         static void printBytes(std::shared_ptr<ByteBuffer> buf, uint32_t position, uint32_t bytes,
                                const std::string & label) {
-            printBytes(*(buf.get()), position, bytes, label);
+            printBytes(*buf, position, bytes, label);
         }
 
         /**
@@ -726,13 +726,13 @@ namespace evio {
          * @return the number of bytes in a raw evio format of the given strings
          * @return 0 if vector empty.
          */
-        static uint32_t stringsToRawSize(std::vector<std::string> const & strings) {
+        static size_t stringsToRawSize(std::vector<std::string> const & strings) {
 
             if (strings.empty()) {
                 return 0;
             }
 
-            uint32_t dataLen = 0;
+            size_t dataLen = 0;
             for (std::string const & s : strings) {
                 dataLen += s.length() + 1; // don't forget the null char after each string
             }
@@ -790,7 +790,7 @@ namespace evio {
             }
 
             // create some storage
-            int dataLen = stringsToRawSize(strings);
+            size_t dataLen = stringsToRawSize(strings);
             std::string strData;
             strData.reserve(dataLen);
 
@@ -854,7 +854,7 @@ namespace evio {
         static void unpackRawBytesToStrings(std::vector<uint8_t> & bytes,
                                             size_t offset, size_t maxLength,
                                             std::vector<std::string> & strData) {
-            int length = bytes.size() - offset;
+            size_t length = bytes.size() - offset;
             if (bytes.empty() || (length < 4)) return;
 
             // Don't read read more than maxLength ASCII characters
@@ -971,7 +971,7 @@ namespace evio {
                     // is entirely valid.
                     if (c == '\004') {
                         // How many more chars are there?
-                        int charsLeft = length - (i+1);
+                        size_t charsLeft = length - (i+1);
 
                         // Should be no more than 3 additional 4's before the end
                         if (charsLeft > 3) {
@@ -1130,8 +1130,6 @@ namespace evio {
         static int generateBaseFileName(const std::string & baseName, const std::string & runType,
                                         std::string & modifiedBaseName) {
 
-            int* returnInts = new int[1];
-
             // Return the modified base file name
             modifiedBaseName = baseName;
 
@@ -1153,7 +1151,7 @@ namespace evio {
             // Count # of int specifiers, making sure any number preceding
             // "x" or "d" starts with a 0 or else there will be empty spaces
             // in the file name (%3x --> %03x).
-            uint32_t specifierCount = countAndFixIntSpecifiers(modifiedBaseName);
+            int specifierCount = (int)countAndFixIntSpecifiers(modifiedBaseName);
 
             if (specifierCount > 3) {
                 throw EvioException("baseName arg is improperly formatted");
@@ -1206,8 +1204,6 @@ namespace evio {
 
             if (streamCount < 1) streamCount = 1;
             if (splitNumber < 1) splitNumber = 0;
-            if (runNumber < 0)   runNumber = 0;
-            if (streamId < 0)    streamId = 0;
             bool oneStream = streamCount < 2;
 
             if (fileName.length() < 1) {

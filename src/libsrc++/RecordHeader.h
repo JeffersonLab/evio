@@ -183,7 +183,7 @@ namespace evio {
      * @author timmer
      */
 
-    class RecordHeader : public IBlockHeader {
+    class RecordHeader final : public IBlockHeader {
 
     private:
 

@@ -128,7 +128,6 @@ namespace evio {
         // Pick out elements that are both old & new direct entry elements
 
         uint32_t kidCount = 0;
-        uint32_t index = 0;
 
         // Look at all the children (and creating a list of them)
         std::vector<pugi::xml_node> children;
@@ -1101,7 +1100,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      */
     std::string EvioXMLDictionary::getName(std::shared_ptr<EvioDictionaryEntry> key) {
 
-        bool debug = true;
+//        bool debug = true;
         uint16_t tag = key->getTag();
         EvioDictionaryEntry::EvioDictionaryEntryType entryType = key->getEntryType();
 

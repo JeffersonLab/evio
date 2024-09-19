@@ -103,7 +103,7 @@ namespace evio {
      * @author heddle
      * @author timmer
      */
-    class BlockHeaderV4 : public IBlockHeader {
+    class BlockHeaderV4 final : public IBlockHeader {
 
     public:
 

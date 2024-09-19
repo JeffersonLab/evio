@@ -437,7 +437,7 @@ namespace evio {
 
         // Get a total length (# bytes)
         size_t totalLen = 0, len;
-        for (auto const cd : data) {
+        for (auto cd : data) {
             len = cd->getRawBytes().size();
             totalLen += len;
         }
@@ -447,7 +447,7 @@ namespace evio {
 
         // Copy everything in
         int offset = 0;
-        for (auto const cd : data) {
+        for (auto cd : data) {
             len = cd->getRawBytes().size();
             if (cd->byteOrder != order) {
 //std::cout << "CompositeData::generateRawBytes call swapAll()" << std::endl;
@@ -1474,7 +1474,7 @@ namespace evio {
         int imt   = 0;  // ifmt[] index
         int lev   = 0;  // parenthesis level
         int ncnf  = 0;  // how many times must repeat a format
-        int iterm = 0;
+//        int iterm = 0;
 
         LV lv[10];
 
@@ -1827,7 +1827,8 @@ namespace evio {
         int imt  = 0;   /* ifmt[] index */
         int ncnf = 0;   /* how many times must repeat a format */
         int lev  = 0;   /* parenthesis level */
-        int kcnf, mcnf, iterm = 0;
+        int kcnf, mcnf;
+//        int iterm = 0;
         int64_t *b64, *b64end, *b64dest;
         int32_t *b32, *b32end, *b32dest;
         int16_t *b16, *b16end, *b16dest;
@@ -2499,7 +2500,6 @@ namespace evio {
     void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data const & data,
                                        std::vector<uint16_t> & ifmt) {
 
-        bool debug = false;
         int kcnf, mcnf;
 
         // check args
@@ -2515,7 +2515,7 @@ namespace evio {
         int imt   = 0;  // ifmt[] index
         int lev   = 0;  // parenthesis level
         int ncnf  = 0;  // how many times must repeat a format
-        int iterm = 0;
+//        int iterm = 0;
 
         int itemIndex = 0;
         int itemCount = data.dataItems.size();
@@ -2538,7 +2538,7 @@ namespace evio {
                     // if format in parenthesis was processed the required number of times
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
                         // store left parenthesis index minus 1
-                        iterm = lv[lev-1].left - 1;
+                        //iterm = lv[lev-1].left - 1;
                         // done with this level - decrease parenthesis level
                         lev--;
                     }
@@ -2863,7 +2863,7 @@ namespace evio {
         int imt   = 0;  // formatInts[] index
         int lev   = 0;  // parenthesis level
         int ncnf  = 0;  // how many times must repeat a format
-        int iterm = 0;
+//        int iterm = 0;
 
         // start of data, index into data array
         int dataIndex = 0;
@@ -2890,7 +2890,7 @@ namespace evio {
                     lv[lev-1].irepeat++;
 
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
-                        iterm = lv[lev-1].left - 1;
+                        //iterm = lv[lev-1].left - 1;
                         lev--;
                     }
                     else {
@@ -3267,7 +3267,7 @@ namespace evio {
         int imt   = 0;  // formatInts[] index
         int lev   = 0;  // parenthesis level
         int ncnf  = 0;  // how many times must repeat a format
-        int iterm = 0;
+//        int iterm = 0;
         int kcnf, mcnf;
 
         // start of data, index into data array
@@ -3303,7 +3303,7 @@ namespace evio {
                     lv[lev-1].irepeat++;
                     // if format in parenthesis was processed
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
-                        iterm = lv[lev-1].left - 1;
+                        //iterm = lv[lev-1].left - 1;
                         lev--;
                     }
                         // go for another round of processing by setting 'imt' to the left parenthesis
