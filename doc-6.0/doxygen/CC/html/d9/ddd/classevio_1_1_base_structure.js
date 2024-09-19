@@ -12,6 +12,7 @@ var classevio_1_1_base_structure =
     [ "BaseStructure", "d9/ddd/classevio_1_1_base_structure.html#a39352fd39615be8a3a34706ff8776739", null ],
     [ "BaseStructure", "d9/ddd/classevio_1_1_base_structure.html#a9e5210514fffefb8e67a3c8e736a694a", null ],
     [ "BaseStructure", "d9/ddd/classevio_1_1_base_structure.html#a4c06e0c4513bfb568f1424ba7be76e89", null ],
+    [ "~BaseStructure", "d9/ddd/classevio_1_1_base_structure.html#a5d8523e1faf9561fdd77101553092dc0", null ],
     [ "add", "d9/ddd/classevio_1_1_base_structure.html#a0bf8806bcb29279bf9f6fffe42067806", null ],
     [ "bbegin", "d9/ddd/classevio_1_1_base_structure.html#adfe7d36699cb3376c5d44551edf3fb8f", null ],
     [ "begin", "d9/ddd/classevio_1_1_base_structure.html#af19d422cb8edad9a7ab7c50d9f95384b", null ],

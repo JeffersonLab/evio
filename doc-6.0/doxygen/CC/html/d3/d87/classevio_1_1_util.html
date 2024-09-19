@@ -169,9 +169,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ac66a3b2b14b36d08d9b9fac4555e15fe"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#ac66a3b2b14b36d08d9b9fac4555e15fe">stringToASCII</a> (const std::string &amp;input, <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;buf)</td></tr>
 <tr class="memdesc:ac66a3b2b14b36d08d9b9fac4555e15fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an input string as ASCII in which each character is one byte.  <a href="../../d3/d87/classevio_1_1_util.html#ac66a3b2b14b36d08d9b9fac4555e15fe">More...</a><br /></td></tr>
 <tr class="separator:ac66a3b2b14b36d08d9b9fac4555e15fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5fb04e9424d2289798ce4fa72a0427a"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#ad5fb04e9424d2289798ce4fa72a0427a">stringsToRawSize</a> (std::vector&lt; std::string &gt; const &amp;strings)</td></tr>
-<tr class="memdesc:ad5fb04e9424d2289798ce4fa72a0427a"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method returns the number of bytes in a raw evio format of the given string array, not including header.  <a href="../../d3/d87/classevio_1_1_util.html#ad5fb04e9424d2289798ce4fa72a0427a">More...</a><br /></td></tr>
-<tr class="separator:ad5fb04e9424d2289798ce4fa72a0427a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24d84643c924c770e58cc088888e16fd"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a24d84643c924c770e58cc088888e16fd">stringsToRawSize</a> (std::vector&lt; std::string &gt; const &amp;strings)</td></tr>
+<tr class="memdesc:a24d84643c924c770e58cc088888e16fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method returns the number of bytes in a raw evio format of the given string array, not including header.  <a href="../../d3/d87/classevio_1_1_util.html#a24d84643c924c770e58cc088888e16fd">More...</a><br /></td></tr>
+<tr class="separator:a24d84643c924c770e58cc088888e16fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29a1f64bd5ff18c187625eb2d7c684a0"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a29a1f64bd5ff18c187625eb2d7c684a0">stringToRawSize</a> (const std::string &amp;str)</td></tr>
 <tr class="memdesc:a29a1f64bd5ff18c187625eb2d7c684a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method returns the number of bytes in a raw evio format of the given string array (with a single string), not including header.  <a href="../../d3/d87/classevio_1_1_util.html#a29a1f64bd5ff18c187625eb2d7c684a0">More...</a><br /></td></tr>
 <tr class="separator:a29a1f64bd5ff18c187625eb2d7c684a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1135,14 +1135,14 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="reference">References <a class="el" href="../../d3/d87/classevio_1_1_util.html#ad5fb04e9424d2289798ce4fa72a0427a">stringsToRawSize()</a>.</p>
+<p class="reference">References <a class="el" href="../../d3/d87/classevio_1_1_util.html#a24d84643c924c770e58cc088888e16fd">stringsToRawSize()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="../../de/dce/classevio_1_1_compact_event_builder.html#a9835683a45cb69bbaec9f8f41c691ce0">evio::CompactEventBuilder::addStringData()</a>.</p>
 
 </div>
 </div>
-<a id="ad5fb04e9424d2289798ce4fa72a0427a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad5fb04e9424d2289798ce4fa72a0427a">&#9670;&nbsp;</a></span>stringsToRawSize()</h2>
+<a id="a24d84643c924c770e58cc088888e16fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24d84643c924c770e58cc088888e16fd">&#9670;&nbsp;</a></span>stringsToRawSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1151,7 +1151,7 @@ Static Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static uint32_t evio::Util::stringsToRawSize </td>
+          <td class="memname">static size_t evio::Util::stringsToRawSize </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; std::string &gt; const &amp;&#160;</td>
           <td class="paramname"><em>strings</em></td><td>)</td>

@@ -312,7 +312,7 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">threadCount</td><td>number of threads simultaneously doing compression. Must be &lt;= ringSize. </td></tr>
     <tr><td class="paramname">maxEventCount</td><td>max number of events each record can hold. Value &lt;= O means use default (1M). </td></tr>
     <tr><td class="paramname">maxBufferSize</td><td>max number of uncompressed data bytes each record can hold. Value of &lt; 8MB results in default of 8MB. </td></tr>
-    <tr><td class="paramname">compressionType</td><td>type of data compression to do. </td></tr>
+    <tr><td class="paramname">compressionType</td><td>type of data compression to do : (<a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9">Compressor::UNCOMPRESSED</a> = 0 = none, <a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747ae7be56dd20228ef22b2c4f79d0a491ae">Compressor::LZ4</a> = 1 = lz4 fast, <a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747a4e6c89e2c89beb57840a5b0bdb2c539d">Compressor::LZ4_BEST</a> = 2 = lz4 best, <a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747a4fd632e8126f17acee8a305f25885bb1">Compressor::GZIP</a> = 3 = gzip). </td></tr>
   </table>
   </dd>
 </dl>

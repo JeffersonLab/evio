@@ -362,66 +362,65 @@ $(document).ready(function(){initNavTree('df/d3b/_evio_swap_8h_source.html','../
 <div class="line"><a name="l00394"></a><span class="lineno"><a class="line" href="../../df/d7a/classevio_1_1_evio_swap.html#a012a366e3bc1f9eee1972e655856c833">  394</a></span>&#160;        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="../../df/d7a/classevio_1_1_evio_swap.html#a012a366e3bc1f9eee1972e655856c833">swapData</a>(std::shared_ptr&lt;BaseStructure&gt; strc) {</div>
 <div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;             <span class="keyword">auto</span> type       = strc-&gt;getHeader()-&gt;getDataType();</div>
 <div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;             uint32_t length = strc-&gt;getHeader()-&gt;getDataLength();</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;             <span class="keywordtype">bool</span> srcIsLocal = strc-&gt;getByteOrder().isLocalEndian();</div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160; </div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;             <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#ab594570d76a48584ae27c5e2276b3c04">DataType::UINT32</a>) {</div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getUIntData();</div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">ByteOrder::byteSwap32</a>(vec.data(), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;                 strc-&gt;updateUIntData();</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;             }</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#ae23b05542b144e3b7d72628280532195">DataType::INT32</a>) {</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getIntData();</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">ByteOrder::byteSwap32</a>(<span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;                 strc-&gt;updateIntData();</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;             }</div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a15212317494206aed89652808e36ffcb">DataType::FLOAT32</a>) {</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getFloatData();</div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">ByteOrder::byteSwap32</a>(<span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;                 strc-&gt;updateFloatData();</div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;             }</div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a227fb12c5f747c91239e4d305fa83447">DataType::SHORT16</a>) {</div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getShortData();</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff">ByteOrder::byteSwap16</a>(<span class="keyword">reinterpret_cast&lt;</span>uint16_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;                 strc-&gt;updateShortData();</div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;             }</div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#aa4dc041c0f0796a4b7dd12d11a9c325a">DataType::USHORT16</a>) {</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getUShortData();</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff">ByteOrder::byteSwap16</a>(vec.data(), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;                 strc-&gt;updateUShortData();</div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;             }</div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a0ad3467f252ad341a3f630f0210bc9e1">DataType::LONG64</a>) {</div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getLongData();</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">ByteOrder::byteSwap64</a>(<span class="keyword">reinterpret_cast&lt;</span>uint64_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;                 strc-&gt;updateLongData();</div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;             }</div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a0f556bae625e41a9adc3bae9949112d3">DataType::ULONG64</a>) {</div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getULongData();</div>
-<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">ByteOrder::byteSwap64</a>(vec.data(), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;                 strc-&gt;updateULongData();</div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;             }</div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812">DataType::DOUBLE64</a>) {</div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getDoubleData();</div>
-<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">ByteOrder::byteSwap64</a>(<span class="keyword">reinterpret_cast&lt;</span>uint64_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;                 strc-&gt;updateDoubleData();</div>
-<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;             }</div>
-<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;<span class="comment">//             else if (type == DataType::COMPOSITE) {</span></div>
-<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;<span class="comment">//             }</span></div>
-<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;             <span class="comment">// For containers, just iterate over their children recursively</span></div>
-<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type.isBank() || type.isSegment() || type.isTagSegment()) {</div>
-<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;                 <span class="keywordflow">for</span> (<span class="keyword">auto</span> kid : strc-&gt;getChildren()) {</div>
-<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;                     <a class="code" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData</a>(kid);</div>
-<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;                 }</div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;             }</div>
-<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160; </div>
-<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;         }</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160; </div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;             <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#ab594570d76a48584ae27c5e2276b3c04">DataType::UINT32</a>) {</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getUIntData();</div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">ByteOrder::byteSwap32</a>(vec.data(), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;                 strc-&gt;updateUIntData();</div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;             }</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#ae23b05542b144e3b7d72628280532195">DataType::INT32</a>) {</div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getIntData();</div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">ByteOrder::byteSwap32</a>(<span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;                 strc-&gt;updateIntData();</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;             }</div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a15212317494206aed89652808e36ffcb">DataType::FLOAT32</a>) {</div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getFloatData();</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">ByteOrder::byteSwap32</a>(<span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;                 strc-&gt;updateFloatData();</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;             }</div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a227fb12c5f747c91239e4d305fa83447">DataType::SHORT16</a>) {</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getShortData();</div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff">ByteOrder::byteSwap16</a>(<span class="keyword">reinterpret_cast&lt;</span>uint16_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;                 strc-&gt;updateShortData();</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;             }</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#aa4dc041c0f0796a4b7dd12d11a9c325a">DataType::USHORT16</a>) {</div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getUShortData();</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff">ByteOrder::byteSwap16</a>(vec.data(), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;                 strc-&gt;updateUShortData();</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;             }</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a0ad3467f252ad341a3f630f0210bc9e1">DataType::LONG64</a>) {</div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getLongData();</div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">ByteOrder::byteSwap64</a>(<span class="keyword">reinterpret_cast&lt;</span>uint64_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;                 strc-&gt;updateLongData();</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;             }</div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a0f556bae625e41a9adc3bae9949112d3">DataType::ULONG64</a>) {</div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getULongData();</div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">ByteOrder::byteSwap64</a>(vec.data(), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;                 strc-&gt;updateULongData();</div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;             }</div>
+<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <a class="code" href="../../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812">DataType::DOUBLE64</a>) {</div>
+<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;                 <span class="keyword">auto</span> &amp; vec = strc-&gt;getDoubleData();</div>
+<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;                 <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">ByteOrder::byteSwap64</a>(<span class="keyword">reinterpret_cast&lt;</span>uint64_t*<span class="keyword">&gt;</span>(vec.data()), length, <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;                 strc-&gt;updateDoubleData();</div>
+<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;             }</div>
+<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;<span class="comment">//             else if (type == DataType::COMPOSITE) {</span></div>
+<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;<span class="comment">//             }</span></div>
+<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;             <span class="comment">// For containers, just iterate over their children recursively</span></div>
+<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type.isBank() || type.isSegment() || type.isTagSegment()) {</div>
+<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;                 <span class="keywordflow">for</span> (<span class="keyword">auto</span> kid : strc-&gt;getChildren()) {</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;                     <a class="code" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData</a>(kid);</div>
+<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;                 }</div>
+<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;             }</div>
+<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160; </div>
+<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;         }</div>
+<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160; </div>
 <div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160; </div>
-<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160; </div>
-<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;    };</div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;    };</div>
+<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160; </div>
 <div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160; </div>
-<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160; </div>
-<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;}</div>
-<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160; </div>
-<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//EVIO_6_0_EVIOSWAP_H</span></div>
+<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;}</div>
+<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160; </div>
+<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//EVIO_6_0_EVIOSWAP_H</span></div>
 <div class="ttc" id="a_base_structure_8h_html"><div class="ttname"><a href="../../da/d80/_base_structure_8h.html">BaseStructure.h</a></div></div>
 <div class="ttc" id="a_byte_buffer_8h_html"><div class="ttname"><a href="../../d6/d6c/_byte_buffer_8h.html">ByteBuffer.h</a></div></div>
 <div class="ttc" id="a_byte_order_8h_html"><div class="ttname"><a href="../../d1/d02/_byte_order_8h.html">ByteOrder.h</a></div></div>

@@ -269,6 +269,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7f61b0849a7f260192bfc77f8fd74a7d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a7f61b0849a7f260192bfc77f8fd74a7d">getMatchingStructures</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d78/classevio_1_1_i_evio_filter.html">IEvioFilter</a> &gt; filter, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html">BaseStructure</a> &gt;&gt; &amp;vec)</td></tr>
 <tr class="memdesc:a7f61b0849a7f260192bfc77f8fd74a7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit all the descendant structures, and collect those that pass a filter.  <a href="../../d9/ddd/classevio_1_1_base_structure.html#a7f61b0849a7f260192bfc77f8fd74a7d">More...</a><br /></td></tr>
 <tr class="separator:a7f61b0849a7f260192bfc77f8fd74a7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d8523e1faf9561fdd77101553092dc0"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a5d8523e1faf9561fdd77101553092dc0">~BaseStructure</a> ()=default</td></tr>
+<tr class="separator:a5d8523e1faf9561fdd77101553092dc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b45fee575711951901b4085d041612d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a5b45fee575711951901b4085d041612d">transform</a> (std::shared_ptr&lt; <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html">BaseStructure</a> &gt; structure)</td></tr>
 <tr class="memdesc:a5b45fee575711951901b4085d041612d"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method does a partial copy and is designed to help convert between banks, segments,and tagsegments in the <a class="el" href="../../d2/da4/classevio_1_1_structure_transformer.html">StructureTransformer</a> class (hence the name "transform").  <a href="../../d9/ddd/classevio_1_1_base_structure.html#a5b45fee575711951901b4085d041612d">More...</a><br /></td></tr>
 <tr class="separator:a5b45fee575711951901b4085d041612d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -810,6 +812,31 @@ timmer - add byte order tracking, make setAllHeaderLengths more efficient in Jav
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a5d8523e1faf9561fdd77101553092dc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d8523e1faf9561fdd77101553092dc0">&#9670;&nbsp;</a></span>~BaseStructure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual evio::BaseStructure::~BaseStructure </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">default</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -3207,7 +3234,7 @@ The original version string may be padded with anything after its ending null. <
 
 <p>This method transforms the internal vector of strings into internal rawBytes vector of evio format data not including header. </p>
 
-<p class="reference">References <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a34bde5df553f75ff01b9b4ad50774505">header</a>, <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a5ff899f399d825ee358ddcc9d65a354b">numberDataItems</a>, <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a3ce65765b35750510c627385d60e8467">rawBytes</a>, <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#ad1e9d48dc5380e47df3e0080f2ab7955">stringList</a>, and <a class="el" href="../../d3/d87/classevio_1_1_util.html#ad5fb04e9424d2289798ce4fa72a0427a">evio::Util::stringsToRawSize()</a>.</p>
+<p class="reference">References <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a34bde5df553f75ff01b9b4ad50774505">header</a>, <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a5ff899f399d825ee358ddcc9d65a354b">numberDataItems</a>, <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a3ce65765b35750510c627385d60e8467">rawBytes</a>, <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#ad1e9d48dc5380e47df3e0080f2ab7955">stringList</a>, and <a class="el" href="../../d3/d87/classevio_1_1_util.html#a24d84643c924c770e58cc088888e16fd">evio::Util::stringsToRawSize()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a5ca0cde3e55b1209ddb01c47391a95e2">evio::EventWriterV4::EventWriterV4()</a>, and <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html#a4730e93ed7f947b82f022da6a417f611">updateStringData()</a>.</p>
 

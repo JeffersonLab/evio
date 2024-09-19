@@ -2,6 +2,7 @@ var classevio_1_1_base_structure_header =
 [
     [ "BaseStructureHeader", "db/dfb/classevio_1_1_base_structure_header.html#aa68eb8fdec4bbee85623a01f59762029", null ],
     [ "BaseStructureHeader", "db/dfb/classevio_1_1_base_structure_header.html#a1cc878d3cbdb0c41912fd8976adab3c7", null ],
+    [ "~BaseStructureHeader", "db/dfb/classevio_1_1_base_structure_header.html#a42432c9852149021845d3363ab6ac7da", null ],
     [ "copy", "db/dfb/classevio_1_1_base_structure_header.html#a214abec15f89e6419e8e975a74edc01a", null ],
     [ "getDataLength", "db/dfb/classevio_1_1_base_structure_header.html#a59dfbf2e4dea4a32bc63e4025304d626", null ],
     [ "getDataType", "db/dfb/classevio_1_1_base_structure_header.html#aecc8cfa082206c87607c3e4df64f940d", null ],

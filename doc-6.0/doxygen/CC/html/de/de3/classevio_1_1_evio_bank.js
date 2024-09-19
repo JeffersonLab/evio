@@ -10,6 +10,7 @@ var classevio_1_1_evio_bank =
     [ "value_type", "de/de3/classevio_1_1_evio_bank.html#a33937f6e7034fccea57626062e7f34eb", null ],
     [ "EvioBank", "de/de3/classevio_1_1_evio_bank.html#a96cb7662255ba9038ff7748d6be2ab9c", null ],
     [ "EvioBank", "de/de3/classevio_1_1_evio_bank.html#a834c19d201137a8c21ea22cfe7443117", null ],
+    [ "~EvioBank", "de/de3/classevio_1_1_evio_bank.html#af3ed0b87a37de0075e3d696a0ae609a9", null ],
     [ "add", "de/de3/classevio_1_1_evio_bank.html#a0bf8806bcb29279bf9f6fffe42067806", null ],
     [ "bbegin", "de/de3/classevio_1_1_evio_bank.html#adfe7d36699cb3376c5d44551edf3fb8f", null ],
     [ "begin", "de/de3/classevio_1_1_evio_bank.html#af19d422cb8edad9a7ab7c50d9f95384b", null ],
