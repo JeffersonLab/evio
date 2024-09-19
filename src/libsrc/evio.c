@@ -708,9 +708,9 @@ static  int      expandBuffer(EVFILE *a, uint32_t newSize);
 static  int      writeEventToBufferV6(EVFILE *a, const uint32_t *buffer, uint32_t wordsToWrite);
 static  int      writeEventToBuffer(EVFILE *a, const uint32_t *buffer,
                                     uint32_t wordsToWrite, int isDictionary);
-static int       writeNewHeaderV6(EVFILE *a,
-                                  uint32_t eventCount, uint32_t blockNumber,
-                                  int hasDictionary, int isLast);
+//static int       writeNewHeaderV6(EVFILE *a,
+//                                  uint32_t eventCount, uint32_t blockNumber,
+//                                  int hasDictionary, int isLast);
 static  int      writeNewHeader(EVFILE *a,
                                 uint32_t eventCount, uint32_t blockNumber,
                                 int hasDictionary, int isLast);
@@ -3759,7 +3759,7 @@ static int generatePointerTable(EVFILE *a) {
  */
 static int generatePointerTableV6(EVFILE *a) {
 
-    int        usingBuffer=0, lastRecord=0, firstRecord=1;
+    int        usingBuffer=0, lastRecord=0;
     size_t     bytesLeft;
     uint32_t  *pmem, numPointers, evIndex = 0L;
 
@@ -3916,10 +3916,9 @@ static int generatePointerTableV6(EVFILE *a) {
  */
 static int toAppendPosition(EVFILE *a) {
     const int debug = 0;
-    int usingBuffer=0, readEOF=0, padding;
+    int usingBuffer=0, readEOF=0;
     uint32_t nBytes, *pmem, sixthWord, header[EV_HDSIZ], *pHeader;
     uint32_t recordBitInfo, recordEventCount, recordSize, recordHeaderSize, recordNumber = 1;
-    uint32_t indexLen, userHeaderLen;
 
 
     /* Only for append mode */
@@ -4677,9 +4676,9 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
         nleft = *(a->next) + 1;
     }
 
-    int evLen = nleft;
-    uint32_t *nextOrig = a->next;
-    uint32_t *bufferOrig = buffer;
+//    int evLen = nleft;
+//    uint32_t *nextOrig = a->next;
+//    uint32_t *bufferOrig = buffer;
 //printf("evRead: nleft = 0x%x, a->left = %u, val at a->next = 0x%x\n", nleft, a->left, *(a->next));
 
     /* Is there NOT enough room in buffer to store whole event? */

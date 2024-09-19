@@ -83,7 +83,8 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
     int imt  = 0;   /* ifmt[] index */
     int ncnf = 0;   /* how many times must repeat a format */
     int lev  = 0;   /* parenthesis level */
-    int kcnf, mcnf, iterm = 0;
+    int kcnf, mcnf;
+//    int iterm = 0;
     int64_t *b64, *b64end;
     int32_t *b32, *b32end;
     int16_t *b16, *b16end;
