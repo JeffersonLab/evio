@@ -165,7 +165,7 @@ namespace evio {
         std::cout << "[FILERECORDINDEX] number of records    : " << (recordIndex.size() - 1) << std::endl;
         std::cout << "[FILERECORDINDEX] max number of events : " << getMaxEvents() << std::endl;
 
-        for (int i = 0; i < recordIndex.size(); i++) {
+        for (size_t i = 0; i < recordIndex.size(); i++) {
             std::cout << std::setw(6) << recordIndex[i];
             if ((i+1)%15 == 0) {
                 std::cout << std::endl;
