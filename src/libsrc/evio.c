@@ -3169,7 +3169,7 @@ if (debug) printf("evOpen: append, opened file %s\n", filename);
                     freeEVFILE(a);
                     return(S_EVFILE_BADFILE);
                 }
-if (debug) printf("evOpen: append, read in %lld bytes\n", nBytes);
+if (debug) printf("evOpen: append, read in %ld bytes\n", nBytes);
             }
             else {
                 err = evGenerateBaseFileName(filename, &baseName, &specifierCount);
@@ -5743,7 +5743,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
     uint32_t bytesCommittedToWrite = a->bytesToDataBuf + 4*(a->blkEvCount);
 
     if (debug && a->splitting) {
-printf("evWrite: splitting, bytesToFile = %llu, event bytes = %u, bytesToBuf = %u, split = %llu\n",
+printf("evWrite: splitting, bytesToFile = %lu, event bytes = %u, bytesToBuf = %u, split = %lu\n",
                a->bytesToFile, bytesToWrite, a->bytesToBuf, a->split);
 printf("evWrite: blockNum = %u, (blkNum == 2) = %d, eventsToBuf (%u)  <=? common blk cnt (%u)\n",
        a->blknum, (a->blknum == 2),  a->eventsToBuf,  a->commonBlkCount);
@@ -5780,10 +5780,10 @@ printf("evWrite: too many events in block, already have %u\n", a->blkEvCount );
         }
 
 if (debug) {
-    printf("evWrite: splitting = %s: total size = %llu >? split = %llu\n",
+    printf("evWrite: splitting = %s: total size = %lu >? split = %lu\n",
            (totalSize > a->split ? "True" : "False"), totalSize, a->split);
 
-    printf("evWrite: total size components: bytesToFile = %llu, bytesToBuf = %u, ev bytes = %u, data bytes = %u\n",
+    printf("evWrite: total size components: bytesToFile = %lu, bytesToBuf = %u, ev bytes = %u, data bytes = %u\n",
            a->bytesToFile, a->bytesToBuf, bytesToWrite, a->bytesToDataBuf);
 }
 
@@ -5930,7 +5930,7 @@ if (debug) {
         printf("         internal buffer cnt = %u\n", a->eventsToBuf);
         printf("         current block cnt (dict) = %u\n", a->blkEvCount);
         printf("         bytes-to-buf  = %u\n", a->bytesToBuf);
-        printf("         bytes-to-file = %llu\n", a->bytesToFile);
+        printf("         bytes-to-file = %lu\n", a->bytesToFile);
         printf("         bytes-to-databuf = %u\n", a->bytesToDataBuf);
         printf("         block # = %u\n", a->blknum);
 }
@@ -6204,7 +6204,7 @@ if (debug) printf("    flushToDestination: write %u as record count to file head
         printf("         internal buffer cnt (dict) = %u\n", a->eventsToBuf);
         printf("         current block cnt (dict) = %u\n", a->blkEvCount);
         printf("         bytes-written = %u\n", bytesToWrite);
-        printf("         bytes-to-file = %llu\n", a->bytesToFile);
+        printf("         bytes-to-file = %lu\n", a->bytesToFile);
         printf("         block # = %u\n", a->blknum);
     }
 
@@ -6987,13 +6987,13 @@ if (debug) printf("evIoctl: increasing internal buffer size to %u words\n", buff
             /* Smallest possible evio format file = 10 32-bit ints.
              * Must also be bigger than a single buffer? */
             if (splitSize < 4*10) {
-if (debug) printf("evIoctl: split file size is too small! (%llu bytes), must be min 40\n", splitSize);
+if (debug) printf("evIoctl: split file size is too small! (%lu bytes), must be min 40\n", splitSize);
                 handleUnlock(handle);
                 return(S_EVFILE_BADSIZEREQ);
             }
             
             a->split = splitSize;
-if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, splitSize);
+if (debug) printf("evIoctl: split file at %lu (0x%lx) bytes\n", splitSize, splitSize);
             break;
 
         /************************************************/
