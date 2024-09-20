@@ -19,9 +19,12 @@
 
 
 # This call must be placed BEFORE "project" command
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.15)
 
-cmake_policy(SET CMP0167 NEW)
+# in cmake v 3.30 and later, new way to look for boost
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 
 project(evio VERSION 6.0)
 
@@ -31,6 +34,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
 #set(CMAKE_BUILD_TYPE Debug)
 #add_compile_options(-g)
+add_compile_options(-Wall)
 
 
 # Place libs & binaries in build/lib and bin (this is not for installation)
