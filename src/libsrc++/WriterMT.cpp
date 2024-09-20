@@ -109,7 +109,7 @@ namespace evio {
         }
 
         // Number of ring items must be >= compressionThreads
-        int32_t finalRingSize = ringSize;
+        uint32_t finalRingSize = ringSize;
         if (finalRingSize < compressionThreads) {
             finalRingSize = compressionThreads;
         }
@@ -318,12 +318,12 @@ namespace evio {
 
         // Create compression threads
         recordCompressorThreads.reserve(compressionThreadCount);
-        for (int i=0; i < compressionThreadCount; i++) {
+        for (uint32_t i=0; i < compressionThreadCount; i++) {
             recordCompressorThreads.emplace_back(i, compressionType, supply);
         }
 
         // Start compression threads
-        for (int i=0; i < compressionThreadCount; i++) {
+        for (uint32_t i=0; i < compressionThreadCount; i++) {
             recordCompressorThreads[i].startThread();
         }
 

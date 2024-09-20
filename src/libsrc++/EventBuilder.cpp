@@ -164,7 +164,7 @@ namespace evio {
 
         auto & vect = structure->getIntData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateIntData();
@@ -189,7 +189,7 @@ namespace evio {
 
         auto & vect = structure->getUIntData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateUIntData();
@@ -214,7 +214,7 @@ namespace evio {
 
         auto & vect = structure->getShortData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateShortData();
@@ -239,7 +239,7 @@ namespace evio {
 
         auto & vect = structure->getUShortData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateUShortData();
@@ -264,7 +264,7 @@ namespace evio {
 
         auto & vect = structure->getLongData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateLongData();
@@ -289,7 +289,7 @@ namespace evio {
 
         auto & vect = structure->getULongData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateULongData();
@@ -314,7 +314,7 @@ namespace evio {
 
         auto & vect = structure->getCharData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateCharData();
@@ -339,7 +339,7 @@ namespace evio {
 
         auto & vect = structure->getUCharData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateUCharData();
@@ -364,7 +364,7 @@ namespace evio {
 
         auto & vect = structure->getFloatData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateFloatData();
@@ -389,7 +389,7 @@ namespace evio {
 
         auto & vect = structure->getDoubleData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateDoubleData();
@@ -414,7 +414,7 @@ namespace evio {
 
         auto & vect = structure->getStringData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateStringData();
@@ -440,7 +440,7 @@ namespace evio {
 
         auto & vect = structure->getCompositeData();
         vect.clear();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateCompositeData();
@@ -470,7 +470,7 @@ namespace evio {
         }
 
         auto & vect = structure->getIntData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateIntData();
@@ -496,7 +496,7 @@ namespace evio {
         }
 
         auto & vect = structure->getUIntData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateUIntData();
@@ -522,7 +522,7 @@ namespace evio {
         }
 
         auto & vect = structure->getShortData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateShortData();
@@ -548,7 +548,7 @@ namespace evio {
         }
 
         auto & vect = structure->getUShortData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateUShortData();
@@ -574,7 +574,7 @@ namespace evio {
         }
 
         auto & vect = structure->getLongData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateLongData();
@@ -600,7 +600,7 @@ namespace evio {
         }
 
         auto & vect = structure->getULongData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateULongData();
@@ -626,7 +626,7 @@ namespace evio {
         }
 
         auto & vect = structure->getCharData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateCharData();
@@ -652,7 +652,7 @@ namespace evio {
         }
 
         auto & vect = structure->getUCharData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateUCharData();
@@ -678,7 +678,7 @@ namespace evio {
         }
 
         auto & vect = structure->getFloatData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateFloatData();
@@ -704,7 +704,7 @@ namespace evio {
         }
 
         auto & vect = structure->getDoubleData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateDoubleData();
@@ -730,7 +730,7 @@ namespace evio {
         }
 
         auto & vect = structure->getStringData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateStringData();
@@ -758,7 +758,7 @@ namespace evio {
         }
 
         auto & vect = structure->getCompositeData();
-        for (int i=0; i < count; i++) {
+        for (size_t i=0; i < count; i++) {
             vect.push_back(data[i]);
         }
         structure->updateCompositeData();
@@ -902,7 +902,7 @@ namespace evio {
      * @param size the size of the array.
      */
     void EventBuilder::fakeIntArray(uint32_t* array, uint32_t size) {
-        for (int i = 0; i < size; i++) {
+        for (uint32_t i = 0; i < size; i++) {
             array[i] = i+1;
         }
     }
@@ -914,7 +914,7 @@ namespace evio {
      * @param size the size of the array.
      */
     void EventBuilder::fakeShortArray(uint16_t* array, uint32_t size) {
-        for (int i = 0; i < size; i++) {
+        for (uint32_t i = 0; i < size; i++) {
             array[i] = (short)(i+1);
         }
     }
@@ -936,7 +936,7 @@ namespace evio {
      * @param size the size of the array.
      */
     void EventBuilder::fakeDoubleArray(double *array, uint32_t size) {
-        for (int i = 0; i < size; i++) {
+        for (uint32_t i = 0; i < size; i++) {
             array[i] = i+1;
         }
     }

@@ -158,7 +158,7 @@ namespace evio {
                              std::shared_ptr<EvioBank> firstEvent, uint32_t streamId,
                              uint32_t splitNumber, uint32_t splitIncrement, uint32_t streamCount,
                              Compressor::CompressionType compressionType, uint32_t compressionThreads,
-                             uint32_t ringSize, uint32_t bufferSize) {
+                             uint32_t ringSize, size_t bufferSize) {
 
         if (baseName.empty()) {
             throw EvioException("baseName arg is empty");
@@ -395,13 +395,13 @@ namespace evio {
 
             // Create compression threads
             recordCompressorThreads.reserve(compressionThreads);
-            for (int i = 0; i < compressionThreads; i++) {
+            for (uint32_t i = 0; i < compressionThreads; i++) {
                 recordCompressorThreads.emplace_back(i, compressionType, supply);
             }
             //cout << "EventWriter constr: created " << compressionThreads << " number of comp thds" << endl;
 
             // Start compression threads
-            for (int i=0; i < compressionThreads; i++) {
+            for (uint32_t i=0; i < compressionThreads; i++) {
                 recordCompressorThreads[i].startThread();
             }
 
@@ -765,7 +765,7 @@ namespace evio {
      *
      * @param bytes size in bytes of new internal buffers.
      */
-    void EventWriter::expandInternalBuffers(int bytes) {
+    void EventWriter::expandInternalBuffers(size_t bytes) {
 
         if ((bytes <= internalBufSize) || !toFile || !singleThreadedCompression) {
             return;
@@ -1629,7 +1629,11 @@ namespace evio {
             }
 
             // Hop to next record header
-            int bytesToNextBlockHeader = 4*recordLen - headerBytesToRead;
+            if (4*recordLen < headerBytesToRead) {
+                throw EvioException("bad file format");
+            }
+
+            uint32_t bytesToNextBlockHeader = 4*recordLen - headerBytesToRead;
             if (bytesLeftInFile < bytesToNextBlockHeader) {
                 throw EvioException("bad file format");
             }
@@ -2134,7 +2138,7 @@ namespace evio {
         bool fitInRecord;
         bool splittingFile = false;
         // See how much space the event will take up
-        int currentEventBytes;
+        size_t currentEventBytes;
 
         // Which bank do we write?
         if (bankBuffer != nullptr) {
@@ -2154,9 +2158,9 @@ namespace evio {
             }
 
             // Check for inconsistent lengths
-            if (currentEventBytes != 4 * (bankBuffer->getInt(bankBuffer->position()) + 1)) {
+            if (currentEventBytes != 4 * (bankBuffer->getUInt(bankBuffer->position()) + 1)) {
                 throw EvioException("inconsistent event lengths: total bytes from event = " +
-                                            std::to_string(4*(bankBuffer->getInt(bankBuffer->position()) + 1)) +
+                                            std::to_string(4*(bankBuffer->getUInt(bankBuffer->position()) + 1)) +
                                     ", from buffer = " + std::to_string(currentEventBytes));
             }
         }

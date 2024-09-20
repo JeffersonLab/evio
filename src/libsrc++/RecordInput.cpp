@@ -603,7 +603,7 @@ namespace evio {
         // First offset is to beginning of 2nd (starting at 1) event, etc.
         int event_pos = 0, read_pos = eventsOffset;
 
-        for (int i = 0; i < nEntries; i++) {
+        for (uint32_t i = 0; i < nEntries; i++) {
             int size;
             if (findEvLens) {
                 // In the case there is no index array, evio MUST be the format!
@@ -735,7 +735,7 @@ namespace evio {
         // First offset is to beginning of 2nd (starting at 1) event, etc.
         int event_pos = 0, read_pos = eventsOffset;
 
-        for (int i = 0; i < nEntries; i++) {
+        for (uint32_t i = 0; i < nEntries; i++) {
             int size;
             if (findEvLens) {
                 // In the case there is no index array, evio MUST be the format!
@@ -908,7 +908,7 @@ namespace evio {
      * Prints on the screen the index array of the record.
      */
     void RecordInput::showIndex() const {
-        for(int i = 0; i < nEntries; i++){
+        for(uint32_t i = 0; i < nEntries; i++){
             std::cout << std::setw(3) << dataBuffer->getInt(i*4) << "  ";
         }
         std::cout << std::endl;

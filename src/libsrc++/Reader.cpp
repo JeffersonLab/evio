@@ -493,7 +493,7 @@ namespace evio {
      *         reading a file or data is compressed.
      */
     std::shared_ptr<EvioNode> Reader::getNextEventNode() {
-        if (sequentialIndex >= eventIndex.getMaxEvents() || fromFile || compressed) {
+        if ( ((sequentialIndex >= 0) && ((uint32_t)sequentialIndex >= eventIndex.getMaxEvents())) || fromFile || compressed) {
             return nullptr;
         }
 
@@ -1185,7 +1185,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // So the question is, how do we know when we've got
             // evio data and when we don't?
             //-----------------------------------------------------
-            for (int i=0; i < eventCount; i++) {
+            for (uint32_t i=0; i < eventCount; i++) {
                 // Is the length we get from the first word of an evio bank/event (bytes)
                 // the same as the length we got from the record header? If not, it's not evio.
 
@@ -1393,7 +1393,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             uint32_t recordEndPos = position + 4*recordHeader.getDataLengthWords();
 
             // For each event in record, store its location
-            for (int i=0; i < eventCount; i++) {
+            for (uint32_t i=0; i < eventCount; i++) {
                 // Is the length we get from the first word of an evio bank/event (bytes)
                 // the same as the length we got from the record header? If not, it's not evio.
 

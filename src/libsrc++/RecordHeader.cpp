@@ -478,7 +478,7 @@ namespace evio {
         // version
         int v = 6;
 
-        for (int i=0; i < set.size(); i++) {
+        for (size_t i=0; i < set.size(); i++) {
             if (i > 23) {
                 break;
             }
@@ -531,7 +531,7 @@ namespace evio {
                                              uint32_t eventType, uint32_t headerType) {
         uint32_t v = version; // version
 
-        for (int i=0; i < set.size(); i++) {
+        for (size_t i=0; i < set.size(); i++) {
             if (i > 23) {
                 break;
             }
@@ -1104,7 +1104,7 @@ namespace evio {
             if (indexLen > 0) {
                 // Get vector of ints out of shared pointer
                 std::vector<uint32_t> & vec = *(recordLengths.get());
-                for (int i=0; i < recordLengths->size(); i++) {
+                for (size_t i=0; i < recordLengths->size(); i++) {
                     Util::toBytes(vec[i], order, array + HEADER_SIZE_BYTES + 4*i);
                 }
             }
@@ -1158,7 +1158,7 @@ namespace evio {
             if (indexLen > 0) {
                 // Get vector of ints out of shared pointer
                 std::vector<uint32_t> & vec = *(recordLengths.get());
-                for (int i=0; i < recordLengths->size(); i++) {
+                for (size_t i=0; i < recordLengths->size(); i++) {
                     Util::toBytes(vec[i], order, array, HEADER_SIZE_BYTES + off + 4*i);
                 }
             }
@@ -1222,7 +1222,7 @@ namespace evio {
             if (indexLen > 0) {
                 // Get vector of ints out of shared pointer
                 std::vector<uint32_t> & vec = *(recordLengths.get());
-                for (int i=0; i < recordLengths->size(); i++) {
+                for (size_t i=0; i < recordLengths->size(); i++) {
                     buf.putInt(vec[i]);
                 }
             }
@@ -1270,7 +1270,7 @@ namespace evio {
         }
 
         // First read the magic word to establish endianness
-        int magicWord = buffer.getInt(MAGIC_OFFSET + offset);
+        uint32_t magicWord = buffer.getUInt(MAGIC_OFFSET + offset);
 
         // If it's NOT in the proper byte order ...
         if (magicWord != HEADER_MAGIC) {

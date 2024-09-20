@@ -628,7 +628,7 @@ namespace evio {
         RecordOutput record(order, 2, 0, Compressor::UNCOMPRESSED);
 
         // How much data we got?
-        int bytes=0;
+        size_t bytes=0;
 
         if (!dict.empty()) {
             bytes += dict.length();
@@ -913,7 +913,7 @@ namespace evio {
         // Write trailer with index
 
         // How many bytes are we writing here?
-        int dataBytes = RecordHeader::HEADER_SIZE_BYTES + 4*recordLengths->size();
+        size_t dataBytes = RecordHeader::HEADER_SIZE_BYTES + 4*recordLengths->size();
 
         // Make sure our array can hold everything
         if (headerArray.capacity() < dataBytes) {

@@ -139,7 +139,7 @@ namespace evio {
              * The default byte size of internal buffer.
              * It's enforced to be, at a minimum, DEFAULT_BLOCK_SIZE + a little.
              */
-            static const int DEFAULT_BUFFER_SIZE = DEFAULT_BLOCK_SIZE + 1024;
+            static const size_t DEFAULT_BUFFER_SIZE = DEFAULT_BLOCK_SIZE + 1024;
 
 
         private:
@@ -335,7 +335,7 @@ namespace evio {
             uint32_t currentBlockEventCount = 0;
 
             /** Total size of the buffer in bytes. */
-            uint32_t bufferSize;
+            size_t bufferSize;
 
             /**
              * The output buffer when writing to a buffer.
@@ -358,7 +358,7 @@ namespace evio {
             //-----------------------
 
             /** Total size of the internal buffers in bytes. */
-            int internalBufSize;
+            size_t internalBufSize;
 
             /** Variable used to stop accepting events to be included in the inner buffer
              * holding the current block. Used when disk space is inadequate. */
@@ -494,7 +494,7 @@ namespace evio {
                           std::shared_ptr<EvioBank> firstEvent = nullptr,
                           uint32_t streamId = 0, uint32_t splitNumber = 0,
                           uint32_t splitIncrement = 1, uint32_t streamCount = 1,
-                          uint32_t bufferSize = DEFAULT_BUFFER_SIZE,
+                          size_t bufferSize = DEFAULT_BUFFER_SIZE,
                           std::bitset<24> *bitInfo = nullptr);
 
 
@@ -549,7 +549,7 @@ namespace evio {
 
             void flush();
             void close();
-            bool hasRoom(int bytes);
+            bool hasRoom(size_t bytes);
 
             bool writeEvent(std::shared_ptr<EvioNode> node, bool force);
             bool writeEvent(std::shared_ptr<EvioNode> node, bool force, bool duplicate);
@@ -572,7 +572,7 @@ namespace evio {
 
             void writeCommonBlock();
             void resetBuffer(bool beforeDictionary);
-            void expandBuffer(int newSize);
+            void expandBuffer(size_t newSize);
             void writeEventToBuffer(std::shared_ptr<EvioBank> bank, std::shared_ptr<ByteBuffer> bankBuffer,
                                     int currentEventBytes);
             bool writeEvent(std::shared_ptr<EvioBank> bank, std::shared_ptr<ByteBuffer> bankBuffer, bool force);

@@ -363,7 +363,7 @@ namespace evio {
             }
 
             // For each event in block, store its location
-            for (int i=0; i < blockEventCount; i++) {
+            for (uint32_t i=0; i < blockEventCount; i++) {
                 // Sanity check - must have at least 1 header's amount left
                 if (bytesLeft < 8) {
                     throw EvioException("Bad evio format: not enough data to read event (bad bank len?)");
@@ -586,7 +586,7 @@ namespace evio {
     void EvioCompactReaderV4::searchEvent(size_t eventNumber, uint16_t tag, uint8_t num,
                                           std::vector<std::shared_ptr<EvioNode>> & vec) {
         // check args
-        if (eventNumber > eventCount) {
+        if (eventCount < 0 || eventNumber > (uint32_t)eventCount) {
             throw EvioException("eventNumber arg too large");
         }
 
@@ -800,17 +800,17 @@ namespace evio {
         uint32_t place = eventNode->place;
 
         for (int i=0; i < eventCount; i++) {
-            int level = 0;
+            uint32_t level = 0;
             nodeList = eventNodes[i]->getAllNodes();
 
             for (std::shared_ptr<EvioNode> n : nodeList) {
                 // For events that come after, move all contained nodes
-                if (i > place) {
+                if ((uint32_t)i > place) {
                     n->pos -= removeDataLen;
                     n->dataPos -= removeDataLen;
                 }
                     // For the event in which the removed node existed ...
-                else if (i == place && !isEvent) {
+                else if ((uint32_t)i == place && !isEvent) {
                     // There may be structures that came after the removed node,
                     // but within the same event. They need to be moved too.
                     if (level > removeNodePlace) {
@@ -824,7 +824,7 @@ namespace evio {
 
         place = eventNode->recordNode.getPlace();
         for (int i=0; i < blockCount; i++) {
-            if (i > place) {
+            if ((uint32_t)i > place) {
                 blockNodes[i]->pos -= removeDataLen;
             }
         }
@@ -993,7 +993,7 @@ namespace evio {
                 n->setBuffer(newBuffer);
 
                 //System.out.println("Event node " + (i+1) + ", pos = " + n.pos + ", dataPos = " + n.dataPos);
-                if (i > place) {
+                if ((uint32_t)i > place) {
                     n->pos     += appendDataLen - initialPosition;
                     n->dataPos += appendDataLen - initialPosition;
                     //System.out.println("      pos -> " + n.pos + ", dataPos -> " + n.dataPos);
@@ -1007,7 +1007,7 @@ namespace evio {
 
         place = eventNode->recordNode.place;
         for (int i=0; i < blockCount; i++) {
-            if (i > place) {
+            if ((uint32_t)i > place) {
                 blockNodes[i]->pos += appendDataLen - initialPosition;
             }
             else {
@@ -1184,11 +1184,17 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    uint32_t EvioCompactReaderV4::getEventCount() {return eventCount;}
+    uint32_t EvioCompactReaderV4::getEventCount() {
+        if (eventCount < 0) return 0;
+        return (uint32_t) eventCount;
+    }
 
 
     /** {@inheritDoc} */
-    uint32_t EvioCompactReaderV4::getBlockCount() {return blockCount;}
+    uint32_t EvioCompactReaderV4::getBlockCount() {
+        if (blockCount < 0) return 0;
+        return (uint32_t) blockCount;
+    }
 
 
     /** {@inheritDoc} */

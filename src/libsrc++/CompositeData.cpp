@@ -1295,7 +1295,7 @@ namespace evio {
 
             // Char data does not get swapped but needs
             // to be copied if not swapping in place.
-            for (int i=0; i < byteLen; i++) {
+            for (uint32_t i=0; i < byteLen; i++) {
                destBuffer.put(destPos+i, srcBuffer.getByte(srcPos+i));
             }
 
@@ -1434,7 +1434,7 @@ namespace evio {
         }
 
         // size of int list
-        size_t nfmt = ifmt.size();
+        int nfmt = (int)ifmt.size();
         if (nfmt <= 0) throw EvioException("empty format list");
 
         bool inPlace = false;
@@ -1805,7 +1805,7 @@ namespace evio {
             throw EvioException("ifmt arg empty");
         }
         // size of int list
-        size_t nfmt = ifmt.size();
+        int nfmt = (int)ifmt.size();
 
         if (nwrd < 2) {
             throw EvioException("number of words to swap must be >= 2");
@@ -2824,7 +2824,7 @@ namespace evio {
                     Util::stringsToRawBytes(strs, rb);
                     rawBuf.put(rb, 0, rb.size());
 
-                    if (ncnf != rb.size()) {
+                    if (ncnf != (int)rb.size()) {
                         throw EvioException("String format mismatch with string (array)");
                     }
                     //break;
@@ -3172,11 +3172,11 @@ namespace evio {
             ss << std::hex << std::showbase;
         }
 
-        int numItems = items.size();
+        size_t numItems = items.size();
 
         uint32_t getIndexOrig = getIndex;
 
-        for (int i=0; i < items.size(); i++) {
+        for (size_t i=0; i < numItems; i++) {
             if (i%5 == 0) ss << indent;
 
             DataType typ = types[i];
@@ -3227,7 +3227,7 @@ namespace evio {
                 ss << "a=" << getFloat();
 
                 auto & strs = getStrings();
-                for (int j=0; j < strs.size(); j++) {
+                for (size_t j=0; j < strs.size(); j++) {
                     ss << strs[j];
                     if (j < strs.size() - 1) {
                         ss << ",";

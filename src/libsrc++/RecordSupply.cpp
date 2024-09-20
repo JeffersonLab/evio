@@ -83,7 +83,7 @@ namespace evio {
         nextCompressSeqs.reserve(compressionThreadCount);
         availableCompressSeqs.reserve(compressionThreadCount);
 
-        for (int i=0; i < compressionThreadCount; i++) {
+        for (uint32_t i=0; i < compressionThreadCount; i++) {
             // Create seq with usual initial value
             auto seq = std::make_shared<Disruptor::Sequence>(Disruptor::Sequence::InitialCursorValue);
 

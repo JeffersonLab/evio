@@ -137,7 +137,7 @@ namespace evio {
                 throw EvioException("bad arg");
             }
 
-            for (int i = 0; i < dataLen-3; i+=4) {
+            for (uint32_t i = 0; i < dataLen-3; i+=4) {
                 dest[i/4] = toInt(data[i ], data[i+1], data[i+2], data[i+3], byteOrder);
             }
         }
@@ -481,7 +481,7 @@ namespace evio {
                 return;
             }
 
-            for (int i=0; i < bytes; i++) {
+            for (uint32_t i=0; i < bytes; i++) {
                 if (i%20 == 0) {
                     std::cout << std::endl << std::dec << std::right << std::setfill(' ') <<
                     "  Buf(" << std::setw(3) << (i + 1) <<
@@ -515,7 +515,7 @@ namespace evio {
                 return;
             }
 
-            for (int i=0; i < bytes; i++) {
+            for (uint32_t i=0; i < bytes; i++) {
                 if (i%20 == 0) {
                     std::cout << std::endl << std::dec << std::right << std::setfill(' ') <<
                               "  Buf(" << std::setw(3) << (i + 1) <<
@@ -686,7 +686,7 @@ namespace evio {
             array.clear();
             array.reserve(inputSize);
 
-            for (int i=0; i < inputSize; i++) {
+            for (size_t i=0; i < inputSize; i++) {
                 array.push_back((uint8_t) input[i]);
             }
         }
@@ -703,7 +703,7 @@ namespace evio {
             buf.clear();
             buf.expand(inputSize);
 
-            for (int i=0; i < inputSize; i++) {
+            for (size_t i=0; i < inputSize; i++) {
                 buf.put(i, input[i]);
             }
         }
@@ -822,7 +822,7 @@ namespace evio {
 
             // Transform to ASCII
             bytes.resize(dataLen);
-            for (int i=0; i < strData.length(); i++) {
+            for (size_t i=0; i < strData.length(); i++) {
                 bytes[i] = strData[i];
             }
         }
@@ -940,7 +940,7 @@ namespace evio {
                 noEnding4 = true;
             }
 
-            for (int i=0; i < length; i++) {
+            for (size_t i=0; i < length; i++) {
                 c = strData[i];
 
                 // If char is a null
@@ -980,7 +980,7 @@ namespace evio {
                         }
                         else {
                             // Check to see if remaining chars are all 4's. If not, bad.
-                            for (int j=1; j <= charsLeft; j++) {
+                            for (size_t j=1; j <= charsLeft; j++) {
                                 c = strData[i+j];
                                 if (c != '\004') {
                                     badFormat = true;
@@ -1070,7 +1070,7 @@ namespace evio {
             std::sregex_iterator i = begin;
 
             // Go thru all specifiers in text, only once
-            for (int j = 0; j < specifierCount; j++) {
+            for (uint32_t j = 0; j < specifierCount; j++) {
                 if (j > 0) {
                     // skip over specifiers previously dealt with (text can change each loop)
                     i = std::sregex_iterator(text.begin(), text.end(), specifier);

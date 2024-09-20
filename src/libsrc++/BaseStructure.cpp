@@ -500,7 +500,7 @@ namespace evio {
         auto first = children.begin();
         auto end = children.end();
 
-        size_t index = 0;
+        ssize_t index = 0;
 
         for (; first < end; first++) {
             if (aChild == *first) {
@@ -1049,14 +1049,15 @@ namespace evio {
             throw EvioException("argument is null");
         }
 
+        // index >= -1
         ssize_t index = getIndex(aChild);           // linear search
 
         if (index == -1) {
             throw EvioException("node is not a child");
         }
 
-        if (index < getChildCount() - 1) {
-            return getChildAt(index + 1);
+        if ((size_t)index < getChildCount() - 1) {
+            return getChildAt((size_t)index + 1);
         }
         else {
             return nullptr;
@@ -1584,7 +1585,7 @@ namespace evio {
             ss << std::endl;
             std::string myIndent = indent + "  ";
             uint32_t childCount = getChildCount();
-            for (int i=0; i < childCount; i++) {
+            for (uint32_t i=0; i < childCount; i++) {
                 ss << children[i]->treeToString(myIndent);
                 if (i < childCount - 1) {
                     ss << std::endl;
@@ -1712,7 +1713,7 @@ namespace evio {
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(int16_t);
                 shortData.resize(numInts);
 
-                for (int i=0; i < numInts; ++i) {
+                for (uint32_t i=0; i < numInts; ++i) {
                     int16_t dat = *(pInt++);
                     if (needSwap()) {
                         dat = SWAP_16(dat);
@@ -1744,7 +1745,7 @@ namespace evio {
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(uint16_t);
                 ushortData.resize(numInts);
 
-                for (int i=0; i < numInts; ++i) {
+                for (uint32_t i=0; i < numInts; ++i) {
                     int16_t dat = *(pInt++);
                     if (needSwap()) {
                         dat = SWAP_16(dat);
@@ -1774,7 +1775,7 @@ namespace evio {
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(int32_t);
                 intData.resize(numInts);
 
-                for (int i=0; i < numInts; ++i) {
+                for (uint32_t i=0; i < numInts; ++i) {
                     int32_t dat = *(pInt++);
                     if (needSwap()) {
                         dat = SWAP_32(dat);
@@ -1804,7 +1805,7 @@ namespace evio {
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(uint32_t);
                 uintData.resize(numInts);
 
-                for (int i=0; i < numInts; ++i) {
+                for (uint32_t i=0; i < numInts; ++i) {
                     uint32_t dat = *(pInt++);
                     if (needSwap()) {
                         dat = SWAP_32(dat);
@@ -1834,7 +1835,7 @@ namespace evio {
                 uint32_t numLongs = (rawBytes.size() - header->getPadding()) / sizeof(int64_t);
                 longData.resize(numLongs);
 
-                for (int i=0; i < numLongs; ++i) {
+                for (uint32_t i=0; i < numLongs; ++i) {
                     int64_t dat = *(pLong++);
                     if (needSwap()) {
                         dat = SWAP_64(dat);
@@ -1864,7 +1865,7 @@ namespace evio {
                 uint32_t numLongs = (rawBytes.size() - header->getPadding()) / sizeof(uint64_t);
                 ulongData.resize(numLongs);
 
-                for (int i=0; i < numLongs; ++i) {
+                for (uint32_t i=0; i < numLongs; ++i) {
                     uint64_t dat = *(pLong++);
                     if (needSwap()) {
                         dat = SWAP_64(dat);
@@ -1894,7 +1895,7 @@ namespace evio {
                 uint32_t numReals = (rawBytes.size() - header->getPadding()) / sizeof(float);
                 floatData.resize(numReals);
 
-                for (int i=0; i < numReals; ++i) {
+                for (uint32_t i=0; i < numReals; ++i) {
                     float dat = *(pFlt++);
                     if (needSwap()) {
                         dat = SWAP_32(dat);
@@ -1924,7 +1925,7 @@ namespace evio {
                 uint32_t numReals = (rawBytes.size() - header->getPadding()) / sizeof(double);
                 doubleData.resize(numReals);
 
-                for (int i=0; i < numReals; ++i) {
+                for (uint32_t i=0; i < numReals; ++i) {
                     double dat = *(pFlt++);
                     if (needSwap()) {
                         dat = SWAP_64(dat);
@@ -2154,7 +2155,7 @@ namespace evio {
 
         // Transform to ASCII
         bytes.resize(dataLen);
-        for (int i=0; i < strData.length(); i++) {
+        for (size_t i=0; i < strData.length(); i++) {
             bytes[i] = strData[i];
         }
     }
@@ -2206,7 +2207,7 @@ namespace evio {
 
         // Transform to ASCII
         rawBytes.resize(dataLen);
-        for (int i=0; i < strData.length(); i++) {
+        for (size_t i=0; i < strData.length(); i++) {
             rawBytes[i] = strData[i];
         }
 

@@ -471,7 +471,7 @@ namespace evio {
         uint32_t sourceId = 0;
 
         /** Total size of the buffer in bytes. */
-        uint32_t bufferSize = 0;
+        size_t bufferSize = 0;
 
         /**
          * The output buffer when writing to a buffer.
@@ -501,7 +501,7 @@ namespace evio {
         //-----------------------
 
         /** Total size of the internal buffers in bytes. */
-        int internalBufSize;
+        size_t internalBufSize;
 
         /** Variable used to stop accepting events to be included in the inner buffer
          *  holding the current block. Used when disk space is inadequate. */
@@ -644,7 +644,7 @@ namespace evio {
                     uint32_t splitIncrement = 1, uint32_t streamCount = 1,
                     Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
                     uint32_t compressionThreads = 1, uint32_t ringSize = 0,
-                    uint32_t bufferSize = 32100000);
+                    size_t bufferSize = 32100000);
 
 
         //---------------------------------------------
@@ -677,7 +677,7 @@ namespace evio {
     private:
 
         std::shared_ptr<ByteBuffer> getBuffer();
-        void expandInternalBuffers(int bytes);
+        void expandInternalBuffers(size_t bytes);
 
 
     public:

@@ -1196,7 +1196,7 @@ namespace evio {
      */
     std::vector<uint32_t> & EvioNode::getIntData() {
         if (data.empty()) {
-            for (int i = dataPos; i < dataPos + 4 * dataLen; i += 4) {
+            for (size_t i = dataPos; i < dataPos + 4 * dataLen; i += 4) {
                 data[(i - dataPos) / 4] = buffer->getInt(i);
             }
         }
@@ -1214,7 +1214,7 @@ namespace evio {
     void EvioNode::getIntData(std::vector<uint32_t> & intData) {
         intData.clear();
 
-        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
+        for (size_t i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
             intData[(i-dataPos)/4] = buffer->getInt(i);
         }
 
@@ -1232,7 +1232,7 @@ namespace evio {
     void EvioNode::getLongData(std::vector<uint64_t> & longData) {
         longData.clear();
 
-        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 8) {
+        for (size_t i = dataPos; i < dataPos + 4*dataLen; i+= 8) {
             longData[(i-dataPos)/8] = buffer->getLong(i);
         }
     }
@@ -1248,7 +1248,7 @@ namespace evio {
     void EvioNode::getShortData(std::vector<uint16_t> & shortData) {
         shortData.clear();
 
-        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 2) {
+        for (size_t i = dataPos; i < dataPos + 4*dataLen; i+= 2) {
             shortData[(i-dataPos)/2] = buffer->getShort(i);
         }
     }

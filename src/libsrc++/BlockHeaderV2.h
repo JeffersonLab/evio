@@ -130,7 +130,7 @@ namespace evio {
          * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
          * (physical record). It is kept for convenience.
          */
-        uint64_t bufferStartingPosition = 0L;
+        size_t bufferStartingPosition = 0L;
 
     public:
 

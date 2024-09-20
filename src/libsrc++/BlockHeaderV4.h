@@ -178,7 +178,7 @@ namespace evio {
          * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
          * (physical record). It is kept for convenience.
          */
-        int64_t bufferStartingPosition = 0L;
+        size_t bufferStartingPosition = 0L;
 
 
     public:
@@ -569,7 +569,7 @@ namespace evio {
 
             uint32_t v = version;
 
-            for (int i=0; i < bSet.size(); i++) {
+            for (size_t i=0; i < bSet.size(); i++) {
                 if (i > 23) {
                     break;
                 }
@@ -622,7 +622,7 @@ namespace evio {
                 return v;
             }
 
-            for (int i=0; i < bSet->size(); i++) {
+            for (size_t i=0; i < bSet->size(); i++) {
                 if (i > 23) {
                     break;
                 }
@@ -641,7 +641,7 @@ namespace evio {
          * @param word integer to parse into bit info fields
          */
         void parseToBitInfo(uint32_t word) {
-            for (int i=0; i < bitInfo.size(); i++) {
+            for (size_t i=0; i < bitInfo.size(); i++) {
                 bitInfo[i] = ((word >> (8+i)) & 0x1) > 0;
             }
         }

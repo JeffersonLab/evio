@@ -48,7 +48,7 @@ namespace evio {
 
         // Fill stackArray vector with pre-allocated objects so each openBank/Seg/TagSeg
         // doesn't have to create a new StructureContent object each time they're called.
-        for (int i=0; i < MAX_LEVELS; i++) {
+        for (uint32_t i=0; i < MAX_LEVELS; i++) {
             stackArray[i] = std::make_shared<StructureContent>();
         }
     }
@@ -75,7 +75,7 @@ namespace evio {
         totalLengths.assign(MAX_LEVELS, 0);
         stackArray.resize(MAX_LEVELS);
 
-        for (int i=0; i < MAX_LEVELS; i++) {
+        for (uint32_t i=0; i < MAX_LEVELS; i++) {
             stackArray[i] = std::make_shared<StructureContent>();
         }
 
@@ -198,7 +198,8 @@ namespace evio {
         }
 
         // currentLevel starts at -1
-        if (++currentLevel >= MAX_LEVELS) {
+        currentLevel++;
+        if ((uint32_t)currentLevel >= MAX_LEVELS) {
             throw EvioException("too many nested evio structures, increase MAX_LEVELS from " +
                                 std::to_string(MAX_LEVELS));
         }
@@ -280,7 +281,8 @@ namespace evio {
         }
 
         // currentLevel starts at -1
-        if (++currentLevel >= MAX_LEVELS) {
+        currentLevel++;
+        if ((uint32_t)currentLevel >= MAX_LEVELS) {
             throw EvioException("too many nested evio structures, increase MAX_LEVELS from " +
                                 std::to_string(MAX_LEVELS));
         }
@@ -370,7 +372,8 @@ namespace evio {
         }
 
         // currentLevel starts at -1
-        if (++currentLevel >= MAX_LEVELS) {
+        currentLevel++;
+        if ((uint32_t)currentLevel >= MAX_LEVELS) {
             throw EvioException("too many nested evio structures, increase MAX_LEVELS from " +
                                 std::to_string(MAX_LEVELS));
         }
@@ -496,7 +499,7 @@ namespace evio {
             try {
                 Util::toBytes(len, order, array + arrayOffset + currentStructure->pos);
             }
-            catch (EvioException e) {/* never happen*/}
+            catch (EvioException & e) {/* never happen*/}
         }
         else if (type == DataType::SEGMENT || type == DataType::ALSOSEGMENT || type == DataType::TAGSEGMENT) {
             try {
@@ -828,7 +831,7 @@ namespace evio {
         }
         else {
             size_t pos = position;
-            for (int i=0; i < len; i++) {
+            for (uint32_t i=0; i < len; i++) {
                 uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[3];
                 array[arrayOffset + pos++] = bytes[2];
@@ -907,7 +910,7 @@ namespace evio {
         }
         else {
             size_t pos = position;
-            for (int i=0; i < len; i++) {
+            for (uint32_t i=0; i < len; i++) {
                 uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[1];
                 array[arrayOffset + pos++] = bytes[0];
@@ -962,7 +965,7 @@ namespace evio {
         }
         else {
             size_t pos = position;
-            for (int i = 0; i < len; i++) {
+            for (uint32_t i = 0; i < len; i++) {
                 uint8_t *bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[7];
                 array[arrayOffset + pos++] = bytes[6];
@@ -1017,7 +1020,7 @@ namespace evio {
         }
         else {
             size_t pos = position;
-            for (int i=0; i < len; i++) {
+            for (uint32_t i=0; i < len; i++) {
                 uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[3];
                 array[arrayOffset + pos++] = bytes[2];
@@ -1064,7 +1067,7 @@ namespace evio {
         }
         else {
             size_t pos = position;
-            for (int i=0; i < len; i++) {
+            for (uint32_t i=0; i < len; i++) {
                 uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[7];
                 array[arrayOffset + pos++] = bytes[6];

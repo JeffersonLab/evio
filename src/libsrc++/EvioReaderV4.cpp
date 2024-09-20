@@ -305,7 +305,7 @@ namespace evio {
                 firstBlock = false;
 
                 // For each event in block, store its location
-                for (int i=0; i < blockEventCount; i++) {
+                for (uint32_t i=0; i < blockEventCount; i++) {
                     // Sanity check - must have at least 1 header's amount left
                     if (bytesLeft < 8) {
                         throw EvioException("Bad evio format: not enough data to read event (bad bank len?)");
@@ -466,7 +466,7 @@ namespace evio {
         // Get the file's version # and byte order
         byteOrder = headerBuf->order();
 
-        int magicNumber = headerBuf->getInt(MAGIC_OFFSET);
+        uint32_t magicNumber = headerBuf->getUInt(MAGIC_OFFSET);
 
         if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
             swap = true;
@@ -1341,7 +1341,7 @@ std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::en
 
         try {
             // get the first evNumber - 1 events without parsing
-            for (int i = 1; i < evNumber; i++) {
+            for (size_t i = 1; i < evNumber; i++) {
                 event = nextEvent();
                 if (event == nullptr) {
                     throw EvioException("Asked to go to event: " + std::to_string(evNumber) +
@@ -1405,7 +1405,7 @@ std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::en
                     }
 
                     // Go back to original event # & therefore buffer data
-                    for (int i=1; i < state->eventNumber; i++) {
+                    for (uint32_t i=1; i < state->eventNumber; i++) {
                         nextEvent();
                     }
                 }

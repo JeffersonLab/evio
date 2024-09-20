@@ -146,7 +146,7 @@ namespace evio {
                              bool overWriteOK, bool append,
                              std::shared_ptr<EvioBank> firstEvent, uint32_t streamId,
                              uint32_t splitNumber, uint32_t splitIncrement, uint32_t streamCount,
-                             uint32_t bufferSize, std::bitset<24> *bitInfo) {
+                             size_t bufferSize, std::bitset<24> *bitInfo) {
 
         if (baseName.empty()) {
             throw EvioException("baseName arg is null");
@@ -1280,7 +1280,7 @@ namespace evio {
             // peeking ahead 7 ints or 28 bytes. Set the endianness
             // once we figure out what it is (buffer defaults to big endian).
             byteOrder = buffer->order();
-            int magicNumber = buffer->getInt(currentPosition + MAGIC_OFFSET);
+            uint32_t magicNumber = buffer->getUInt(currentPosition + MAGIC_OFFSET);
             // std::cout << "magic # = " << std::hex << std::showbase << magicNumber << std::endl;
             // std::cout << std::dec;
 
@@ -1751,7 +1751,7 @@ namespace evio {
                 writeNewHeader(0, blockNumber++, nullptr, false, false, haveFirstEvent);
             }
         }
-        catch (EvioException e) {/* never happen */}
+        catch (EvioException & e) {/* never happen */}
     }
 
 
@@ -1761,7 +1761,7 @@ namespace evio {
      *
      * @param newSize size in bytes to make the new buffers
      */
-    void EventWriterV4::expandBuffer(int newSize) {
+    void EventWriterV4::expandBuffer(size_t newSize) {
         // No need to increase it
         if (newSize <= bufferSize) {
             //System.out.println("    expandBuffer: buffer is big enough");
@@ -1881,7 +1881,7 @@ namespace evio {
      * @param bytes number of bytes to write
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
-    bool EventWriterV4::hasRoom(int bytes) {
+    bool EventWriterV4::hasRoom(size_t bytes) {
         //System.out.println("Buffer size = " + bufferSize + ", bytesWritten = " + bytesWrittenToBuffer +
         //        ", <? " + (bytes + headerBytes));
         return isToFile() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
@@ -2189,8 +2189,8 @@ namespace evio {
             bool writeNewBlockHeader = true;
 
             // See how much space the event will take up
-            int newBufSize = 0;
-            int currentEventBytes;
+            size_t newBufSize = 0;
+            size_t currentEventBytes;
 
             // Which bank do we write?
             if (bankBuffer != nullptr) {
@@ -2210,9 +2210,9 @@ namespace evio {
                 }
 
                 // Check for inconsistent lengths
-                if (currentEventBytes != 4*(bankBuffer->getInt(bankBuffer->position()) + 1)) {
+                if (currentEventBytes != 4*(bankBuffer->getUInt(bankBuffer->position()) + 1)) {
                     throw EvioException("inconsistent event lengths: total bytes from event = " +
-                                         std::to_string(4*(bankBuffer->getInt(bankBuffer->position()) + 1)) +
+                                         std::to_string(4*(bankBuffer->getUInt(bankBuffer->position()) + 1)) +
                                          ", from buffer = " + std::to_string(currentEventBytes));
                 }
             }
@@ -2267,8 +2267,8 @@ namespace evio {
 
                 // Is this event (with the current buffer, current file,
                 // and ending block header) large enough to split the file?
-                long totalSize = currentEventBytes + bytesWrittenToFile +
-                                 bytesWrittenToBuffer + headerBytes;
+                uint64_t totalSize = currentEventBytes + bytesWrittenToFile +
+                                     bytesWrittenToBuffer + headerBytes;
 
                 // If we have to add another block header (before this event), account for it.
                 if (writeNewBlockHeader) {
@@ -2404,7 +2404,7 @@ namespace evio {
             if (splittingFile && (!xmlDictionary.empty() || haveFirstEvent)) {
                 // Memory needed to write: dictionary + first event + 3 block headers
                 // (beginning, after dict & first event, and ending) + event
-                int neededBytes = commonBlockByteSize + 3*headerBytes + currentEventBytes;
+                size_t neededBytes = commonBlockByteSize + 3*headerBytes + currentEventBytes;
                 //if (debug) System.out.println("evWrite: write DICTIONARY after splitting, needed bytes = " + neededBytes);
 
                 // Write block header after dictionary + first event
@@ -2522,8 +2522,8 @@ namespace evio {
             bool writeNewBlockHeader = true;
 
             // See how much space the event will take up
-            int newBufSize = 0;
-            int currentEventBytes;
+            size_t newBufSize = 0;
+            size_t currentEventBytes;
 
             // Which bank do we write?
             if (bankBuffer != nullptr) {
@@ -2543,7 +2543,7 @@ namespace evio {
                 }
 
                 // Check for inconsistent lengths
-                int lengthFromBankData = 4*(bankBuffer->getInt(bankBuffer->position()) + 1);
+                uint32_t lengthFromBankData = 4*(bankBuffer->getUInt(bankBuffer->position()) + 1);
                 if (currentEventBytes != lengthFromBankData) {
 
                     Util::printBytes(bankBuffer, bankBuffer->position(), 100,
@@ -2580,7 +2580,7 @@ namespace evio {
 
                 // Is this event (with the current buffer, current file,
                 // and ending block header) large enough to split the file?
-                long totalSize = currentEventBytes + bytesWrittenToFile +
+                uint64_t totalSize = currentEventBytes + bytesWrittenToFile +
                                  bytesWrittenToBuffer + headerBytes;
 
                 // If we have to add another block header (before this event), account for it.
