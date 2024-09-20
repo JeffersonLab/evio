@@ -21,7 +21,7 @@ var searchData=
   ['dbl_162',['dbl',['../d3/dd7/unionevio_1_1_composite_data_1_1_single_member.html#a60ade2dc284aaa06115147af561128ea',1,'evio::CompositeData::SingleMember']]],
   ['default_5fblock_5fcount_163',['DEFAULT_BLOCK_COUNT',['../df/d0c/classevio_1_1_event_writer_v4.html#a62cee800a3d132f0c11e23393c236f7f',1,'evio::EventWriterV4']]],
   ['default_5fblock_5fsize_164',['DEFAULT_BLOCK_SIZE',['../df/d0c/classevio_1_1_event_writer_v4.html#a17b6bc167b1261c0c06f0cc655715c95',1,'evio::EventWriterV4']]],
-  ['default_5fbuffer_5fsize_165',['DEFAULT_BUFFER_SIZE',['../df/d0c/classevio_1_1_event_writer_v4.html#abf442c2f2b3519599a538bb18bb5512c',1,'evio::EventWriterV4']]],
+  ['default_5fbuffer_5fsize_165',['DEFAULT_BUFFER_SIZE',['../df/d0c/classevio_1_1_event_writer_v4.html#aa0d2dea869028c67fe2fd14a5919579c',1,'evio::EventWriterV4']]],
   ['default_5fread_5fbytes_166',['DEFAULT_READ_BYTES',['../dd/db3/classevio_1_1_evio_reader_v4.html#a9baf7d5622c18daa125528639ffd8f27',1,'evio::EvioReaderV4']]],
   ['deprecated_20list_167',['Deprecated List',['../da/d58/deprecated.html',1,'']]],
   ['dictionary_5fbit_168',['DICTIONARY_BIT',['../d1/da6/classevio_1_1_file_header.html#a1a268f67ad00710c9d815e25aff4c12c',1,'evio::FileHeader::DICTIONARY_BIT()'],['../d8/d64/classevio_1_1_record_header.html#a0acd86bd77c7a853b56ecfd981161469',1,'evio::RecordHeader::DICTIONARY_BIT()']]],

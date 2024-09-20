@@ -2,7 +2,7 @@ var classevio_1_1_event_writer_v4 =
 [
     [ "EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html#a2b4a1dad022c856784e96da451cc7375", null ],
     [ "EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html#a905bc3892f25616130a87ca3a6e2b68d", null ],
-    [ "EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html#a5ca0cde3e55b1209ddb01c47391a95e2", null ],
+    [ "EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html#a2e731b80c9c2253bfc688f9afa43b8ec", null ],
     [ "EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html#a6fe4327e1bc07b706f4d4aa21f7aa4e3", null ],
     [ "EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html#ad276aa00474e9943aaa36582df729b51", null ],
     [ "close", "df/d0c/classevio_1_1_event_writer_v4.html#a497299886fb4462fa1d4c849acc9f710", null ],
@@ -17,7 +17,7 @@ var classevio_1_1_event_writer_v4 =
     [ "getEventsWritten", "df/d0c/classevio_1_1_event_writer_v4.html#a36e2ebea6b986399ac80bc886f40a89c", null ],
     [ "getSplitCount", "df/d0c/classevio_1_1_event_writer_v4.html#a54e306e78aafb16378748608e8a8d5e2", null ],
     [ "getSplitNumber", "df/d0c/classevio_1_1_event_writer_v4.html#af2127029f34c77d41fbaa5142c31336d", null ],
-    [ "hasRoom", "df/d0c/classevio_1_1_event_writer_v4.html#a28f6baf115a4c861f6bad88b2d84cda1", null ],
+    [ "hasRoom", "df/d0c/classevio_1_1_event_writer_v4.html#a52f4f904b3129de05f6fe4dbc9ff31c5", null ],
     [ "isClosed", "df/d0c/classevio_1_1_event_writer_v4.html#a82e51d7875f3b98e97f0bd09b72ddfed", null ],
     [ "isDiskFull", "df/d0c/classevio_1_1_event_writer_v4.html#a03b07d5885fc446ec0a3ad775a5b093a", null ],
     [ "isToFile", "df/d0c/classevio_1_1_event_writer_v4.html#a4b22f75ba8069135f5676c16039ff875", null ],
@@ -37,5 +37,5 @@ var classevio_1_1_event_writer_v4 =
     [ "writeEventToFile", "df/d0c/classevio_1_1_event_writer_v4.html#a7ded2b8346e365604451eb7bb3bfc09d", null ],
     [ "DEFAULT_BLOCK_COUNT", "df/d0c/classevio_1_1_event_writer_v4.html#a62cee800a3d132f0c11e23393c236f7f", null ],
     [ "DEFAULT_BLOCK_SIZE", "df/d0c/classevio_1_1_event_writer_v4.html#a17b6bc167b1261c0c06f0cc655715c95", null ],
-    [ "DEFAULT_BUFFER_SIZE", "df/d0c/classevio_1_1_event_writer_v4.html#abf442c2f2b3519599a538bb18bb5512c", null ]
+    [ "DEFAULT_BUFFER_SIZE", "df/d0c/classevio_1_1_event_writer_v4.html#aa0d2dea869028c67fe2fd14a5919579c", null ]
 ];
