@@ -591,7 +591,7 @@ namespace evio {
             throw EvioException("buffer pos of " + std::to_string(p) + " will exceed limit of " + std::to_string(lim));
         }
         pos = p;
-        if (mrk > pos) {
+        if (mrk > -1 && (size_t) mrk > pos) {
             mrk = -1;
         }
         return *this;
@@ -614,7 +614,7 @@ namespace evio {
             pos = lim;
         }
 
-        if (mrk > lim) {
+        if (mrk > -1 && (size_t)mrk > lim) {
             mrk = -1;
         }
         return *this;
