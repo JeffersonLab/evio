@@ -2056,7 +2056,7 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriterV4::EventWriterV4::writeEvent(std::shared_ptr<ByteBuffer> eventBuffer) {
+    bool EventWriterV4::writeEvent(std::shared_ptr<ByteBuffer> eventBuffer) {
         return writeEvent(nullptr, eventBuffer, false);
     }
 
