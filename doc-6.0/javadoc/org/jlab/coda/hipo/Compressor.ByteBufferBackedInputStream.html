@@ -146,7 +146,9 @@ extends java.io.InputStream</pre>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Compressor.ByteBufferBackedInputStream.html#ByteBufferBackedInputStream-java.nio.ByteBuffer-">ByteBufferBackedInputStream</a></span>(java.nio.ByteBuffer&nbsp;backendBuffer)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Compressor.ByteBufferBackedInputStream.html#ByteBufferBackedInputStream-java.nio.ByteBuffer-">ByteBufferBackedInputStream</a></span>(java.nio.ByteBuffer&nbsp;backendBuffer)</code>
+<div class="block">Get ByteBuffer backing the input stream (containing uncompressed gzip input).</div>
+</td>
 </tr>
 </table>
 </li>
@@ -230,6 +232,11 @@ extends java.io.InputStream</pre>
 <li class="blockList">
 <h4>ByteBufferBackedInputStream</h4>
 <pre>public&nbsp;ByteBufferBackedInputStream(java.nio.ByteBuffer&nbsp;backendBuffer)</pre>
+<div class="block">Get ByteBuffer backing the input stream (containing uncompressed gzip input).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>backendBuffer</code> - buffer to contain uncompressed gzip data during decompression process.</dd>
+</dl>
 </li>
 </ul>
 </li>

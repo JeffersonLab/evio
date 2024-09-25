@@ -141,37 +141,54 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#clear--">clear</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#clear--">clear</a></span>()</code>
+<div class="block">Clear the field of this object to 0.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getCount--">getCount</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getCount--">getCount</a></span>()</code>
+<div class="block">Get the count or number of entries in this record.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getLength--">getLength</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getLength--">getLength</a></span>()</code>
+<div class="block">Get the length of this record.</div>
+</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getPosition--">getPosition</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#getPosition--">getPosition</a></span>()</code>
+<div class="block">Get the position of this record in file/buffer.</div>
+</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setAll-long-int-int-">setAll</a></span>(long&nbsp;pos,
       int&nbsp;len,
-      int&nbsp;cnt)</code>&nbsp;</td>
+      int&nbsp;cnt)</code>
+<div class="block">Set the position of this record in file/buffer, its length,
+ and the number of entries in it.</div>
+</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setCount-int-">setCount</a></span>(int&nbsp;_cnt)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setCount-int-">setCount</a></span>(int&nbsp;_cnt)</code>
+<div class="block">Set the count or number of entries in this record.</div>
+</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setLength-int-">setLength</a></span>(int&nbsp;_len)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setLength-int-">setLength</a></span>(int&nbsp;_len)</code>
+<div class="block">Set length of this record.</div>
+</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setPosition-long-">setPosition</a></span>(long&nbsp;_pos)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html#setPosition-long-">setPosition</a></span>(long&nbsp;_pos)</code>
+<div class="block">Set position of this record in file/buffer.</div>
+</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
@@ -206,6 +223,13 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setPosition</h4>
 <pre>public&nbsp;<a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a>&nbsp;setPosition(long&nbsp;_pos)</pre>
+<div class="block">Set position of this record in file/buffer.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>_pos</code> - new position of record.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>this object.</dd>
+</dl>
 </li>
 </ul>
 <a name="setLength-int-">
@@ -215,6 +239,13 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setLength</h4>
 <pre>public&nbsp;<a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a>&nbsp;setLength(int&nbsp;_len)</pre>
+<div class="block">Set length of this record.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>_len</code> - length of record in bytes.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>this object.</dd>
+</dl>
 </li>
 </ul>
 <a name="setCount-int-">
@@ -224,6 +255,13 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setCount</h4>
 <pre>public&nbsp;<a href="../../../../org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a>&nbsp;setCount(int&nbsp;_cnt)</pre>
+<div class="block">Set the count or number of entries in this record.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>_cnt</code> - count or number of entries in this record.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the object.</dd>
+</dl>
 </li>
 </ul>
 <a name="setAll-long-int-int-">
@@ -235,6 +273,14 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;void&nbsp;setAll(long&nbsp;pos,
                    int&nbsp;len,
                    int&nbsp;cnt)</pre>
+<div class="block">Set the position of this record in file/buffer, its length,
+ and the number of entries in it.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>pos</code> - new position of record.</dd>
+<dd><code>len</code> - length of record in bytes.</dd>
+<dd><code>cnt</code> - number of entries in this record.</dd>
+</dl>
 </li>
 </ul>
 <a name="getPosition--">
@@ -244,6 +290,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getPosition</h4>
 <pre>public&nbsp;long&nbsp;getPosition()</pre>
+<div class="block">Get the position of this record in file/buffer.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>position of this record.</dd>
+</dl>
 </li>
 </ul>
 <a name="getLength--">
@@ -253,6 +304,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getLength</h4>
 <pre>public&nbsp;int&nbsp;getLength()</pre>
+<div class="block">Get the length of this record.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>length of this record in bytes.</dd>
+</dl>
 </li>
 </ul>
 <a name="getCount--">
@@ -262,6 +318,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getCount</h4>
 <pre>public&nbsp;int&nbsp;getCount()</pre>
+<div class="block">Get the count or number of entries in this record.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>number of entries in this record.</dd>
+</dl>
 </li>
 </ul>
 <a name="clear--">
@@ -271,6 +332,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>clear</h4>
 <pre>public&nbsp;void&nbsp;clear()</pre>
+<div class="block">Clear the field of this object to 0.</div>
 </li>
 </ul>
 <a name="toString--">

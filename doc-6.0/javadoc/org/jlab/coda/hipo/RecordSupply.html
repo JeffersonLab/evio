@@ -121,7 +121,7 @@ extends java.lang.Object</pre>
  fills the record with data, and finally does a <a href="../../../../org/jlab/coda/hipo/RecordSupply.html#publish-org.jlab.coda.hipo.RecordRingItem-"><code>publish(RecordRingItem)</code></a>
  to let consumers know the data is ready.<p>
 
- This class is setup to handle 2 types of consumers.
+ This class is set up to handle 2 types of consumers.
  The first type is a thread which compresses a record's data.
  The number of such consumers is set in the constructor.
  Each of these will call <a href="../../../../org/jlab/coda/hipo/RecordSupply.html#getToCompress-int-"><code>getToCompress(int)</code></a> to get a record
@@ -159,7 +159,7 @@ extends java.lang.Object</pre>
 
                        ||
                        ||  writeBarrier
-           ^gt;           ||
+          ^            ||
          /            _____
     Write thread     /  |  \
               ---&gt;  /1 _|_ 2\  &lt;---- Compression Threads 1-M

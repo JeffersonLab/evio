@@ -592,7 +592,9 @@
 <div class="block">Copies a 1-byte byte value into a 4-byte int while preserving bit pattern.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Compressor.ByteBufferBackedInputStream.html#ByteBufferBackedInputStream-java.nio.ByteBuffer-">ByteBufferBackedInputStream(ByteBuffer)</a></span> - Constructor for class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Compressor.ByteBufferBackedInputStream.html" title="class in org.jlab.coda.hipo">Compressor.ByteBufferBackedInputStream</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Get ByteBuffer backing the input stream (containing uncompressed gzip input).</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileHeader.html#byteBufferBinaryString-java.nio.ByteBuffer-">byteBufferBinaryString(ByteBuffer)</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileHeader.html" title="class in org.jlab.coda.hipo">FileHeader</a></dt>
 <dd>
 <div class="block">Print out each word of the given buffer as binary, hex, and decimal.</div>
@@ -671,7 +673,9 @@
 <div class="block">Clear the entire object.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#clear--">clear()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Clear the field of this object to 0.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/CompositeData.Data.html#clear--">clear()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/CompositeData.Data.html" title="class in org.jlab.coda.jevio">CompositeData.Data</a></dt>
 <dd>
 <div class="block">Clear all existing data in this object to prepare for reuse.</div>
@@ -924,9 +928,13 @@
 <div class="block">Use this class when decompressing GZIP data from a ByteBuffer.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Evio6Converter.html#convert-java.lang.String-java.lang.String-int-">convert(String, String, int)</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Evio6Converter.html" title="class in org.jlab.coda.hipo">Evio6Converter</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Method to convert evio file into hipo file.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Evio6Converter.html#convert-java.lang.String-java.lang.String-int-org.jlab.coda.hipo.CompressionType-">convert(String, String, int, CompressionType)</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Evio6Converter.html" title="class in org.jlab.coda.hipo">Evio6Converter</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Method to convert evio file into hipo file.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileHeader.html#copy-org.jlab.coda.hipo.FileHeader-">copy(FileHeader)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileHeader.html" title="class in org.jlab.coda.hipo">FileHeader</a></dt>
 <dd>
 <div class="block">Copy the contents of the arg into this object.</div>
@@ -997,8 +1005,6 @@
 <div class="block">This an enum used to convert data type numerical values to a more meaningful name.</div>
 </dd>
 <dt><a href="org/jlab/coda/hipo/DataUtils.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">DataUtils</span></a> - Class in <a href="org/jlab/coda/hipo/package-summary.html">org.jlab.coda.hipo</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/DataUtils.html#DataUtils--">DataUtils()</a></span> - Constructor for class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/DataUtils.html" title="class in org.jlab.coda.hipo">DataUtils</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#DEFAULT_BLOCK_COUNT">DEFAULT_BLOCK_COUNT</a></span> - Static variable in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
@@ -1198,7 +1204,8 @@
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#EventWriterUnsync-java.lang.String-java.lang.String-java.lang.String-int-long-int-int-java.nio.ByteOrder-java.lang.String-boolean-boolean-org.jlab.coda.jevio.EvioBank-int-int-int-int-org.jlab.coda.hipo.CompressionType-int-int-int-">EventWriterUnsync(String, String, String, int, long, int, int, ByteOrder, String, boolean, boolean, EvioBank, int, int, int, int, CompressionType, int, int, int)</a></span> - Constructor for class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Create an object for writing events to a file.</div>
+<div class="block">
+ Create an object for writing events to a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#EventWriterUnsync-java.nio.ByteBuffer-">EventWriterUnsync(ByteBuffer)</a></span> - Constructor for class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
@@ -1271,19 +1278,23 @@
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#EventWriterUnsyncV4-java.lang.String-java.lang.String-java.lang.String-int-long-int-int-int-java.nio.ByteOrder-java.lang.String-java.util.BitSet-boolean-boolean-">EventWriterUnsyncV4(String, String, String, int, long, int, int, int, ByteOrder, String, BitSet, boolean, boolean)</a></span> - Constructor for class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Create an object for writing events to a file.</div>
+<div class="block">
+ Create an object for writing events to a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#EventWriterUnsyncV4-java.lang.String-java.lang.String-java.lang.String-int-long-int-int-int-java.nio.ByteOrder-java.lang.String-java.util.BitSet-boolean-boolean-org.jlab.coda.jevio.EvioBank-">EventWriterUnsyncV4(String, String, String, int, long, int, int, int, ByteOrder, String, BitSet, boolean, boolean, EvioBank)</a></span> - Constructor for class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Create an object for writing events to a file.</div>
+<div class="block">
+ Create an object for writing events to a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#EventWriterUnsyncV4-java.lang.String-java.lang.String-java.lang.String-int-long-int-int-int-java.nio.ByteOrder-java.lang.String-java.util.BitSet-boolean-boolean-org.jlab.coda.jevio.EvioBank-int-">EventWriterUnsyncV4(String, String, String, int, long, int, int, int, ByteOrder, String, BitSet, boolean, boolean, EvioBank, int)</a></span> - Constructor for class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Create an object for writing events to a file.</div>
+<div class="block">
+ Create an object for writing events to a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#EventWriterUnsyncV4-java.lang.String-java.lang.String-java.lang.String-int-long-int-int-int-java.nio.ByteOrder-java.lang.String-java.util.BitSet-boolean-boolean-org.jlab.coda.jevio.EvioBank-int-int-int-int-">EventWriterUnsyncV4(String, String, String, int, long, int, int, int, ByteOrder, String, BitSet, boolean, boolean, EvioBank, int, int, int, int)</a></span> - Constructor for class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Create an object for writing events to a file.</div>
+<div class="block">
+ Create an object for writing events to a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#EventWriterUnsyncV4-java.nio.ByteBuffer-">EventWriterUnsyncV4(ByteBuffer)</a></span> - Constructor for class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
@@ -1419,7 +1430,9 @@
 <div class="block">Create an object for writing events to a ByteBuffer.</div>
 </dd>
 <dt><a href="org/jlab/coda/hipo/Evio6Converter.html" title="class in org.jlab.coda.hipo"><span class="typeNameLink">Evio6Converter</span></a> - Class in <a href="org/jlab/coda/hipo/package-summary.html">org.jlab.coda.hipo</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Class used to convert evio files into hipo files.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Evio6Converter.html#Evio6Converter--">Evio6Converter()</a></span> - Constructor for class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Evio6Converter.html" title="class in org.jlab.coda.hipo">Evio6Converter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileHeader.html#EVIO_FILE_UNIQUE_WORD">EVIO_FILE_UNIQUE_WORD</a></span> - Static variable in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileHeader.html" title="class in org.jlab.coda.hipo">FileHeader</a></dt>
@@ -1913,11 +1926,13 @@
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriter.html#flush--">flush()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriter.html" title="class in org.jlab.coda.jevio">EventWriter</a></dt>
 <dd>
-<div class="block">This method flushes any remaining internally buffered data to file.</div>
+<div class="block">
+ This method flushes any remaining internally buffered data to file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#flush--">flush()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">This method flushes any remaining internally buffered data to file.</div>
+<div class="block">
+ This method flushes any remaining internally buffered data to file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#flush--">flush()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
@@ -2453,7 +2468,9 @@
 <div class="block">Get the type of data compression used.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#getCount--">getCount()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Get the count or number of entries in this record.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BlockNode.html#getCount--">getCount()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BlockNode.html" title="class in org.jlab.coda.jevio">BlockNode</a></dt>
 <dd>
 <div class="block">Get the count of events in block.</div>
@@ -3231,7 +3248,9 @@
 <div class="block">Get the total length of header + index + user header (including padding) in bytes.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#getLength--">getLength()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Get the length of this record.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#getLength--">getLength()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>
 <div class="block">Get the total length of this record in bytes.</div>
@@ -3592,7 +3611,9 @@
 <div class="block">Get the position of this record in a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#getPosition--">getPosition()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Get the position of this record in file/buffer.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#getPosition--">getPosition()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>
 <div class="block">Get the position of this record in a file.</div>
@@ -4416,7 +4437,8 @@
 </dd>
 <dt><a href="org/jlab/coda/jevio/IEvioCompactReader.html" title="interface in org.jlab.coda.jevio"><span class="typeNameLink">IEvioCompactReader</span></a> - Interface in <a href="org/jlab/coda/jevio/package-summary.html">org.jlab.coda.jevio</a></dt>
 <dd>
-<div class="block">This is an interface for a compact reader of evio format files and buffers.</div>
+<div class="block">
+ This is an interface for a compact reader of evio format files and buffers.</div>
 </dd>
 <dt><a href="org/jlab/coda/jevio/IEvioFilter.html" title="interface in org.jlab.coda.jevio"><span class="typeNameLink">IEvioFilter</span></a> - Interface in <a href="org/jlab/coda/jevio/package-summary.html">org.jlab.coda.jevio</a></dt>
 <dd>
@@ -4820,15 +4842,21 @@
 <div class="block">Offset to get magic number from start of file for every evio version.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Evio6Converter.html#main-java.lang.String:A-">main(String[])</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Evio6Converter.html" title="class in org.jlab.coda.hipo">Evio6Converter</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Example use of this class.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileEventIndex.html#main-java.lang.String:A-">main(String[])</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileEventIndex.html" title="class in org.jlab.coda.hipo">FileEventIndex</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Example use of this class.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileHeader.html#main-java.lang.String:A-">main(String[])</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileHeader.html" title="class in org.jlab.coda.hipo">FileHeader</a></dt>
 <dd>
 <div class="block">Run this class as an executable which tests the writing and reading of a record.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.html#main-java.lang.String:A-">main(String[])</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.html" title="class in org.jlab.coda.hipo">Reader</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Example program using Reader.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#main-java.lang.String:A-">main(String[])</a></span> - Static method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>
 <div class="block">Run this class as an executable which tests the writing and reading of a record.</div>
@@ -4854,7 +4882,9 @@
 <div class="block">Example use of this class.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/apps/Xml2evio.html#main-java.lang.String:A-">main(String[])</a></span> - Static method in class org.jlab.coda.jevio.apps.<a href="org/jlab/coda/jevio/apps/Xml2evio.html" title="class in org.jlab.coda.jevio.apps">Xml2evio</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Example use of this class.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/Environment.html#main-java.lang.String:A-">main(String[])</a></span> - Static method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/Environment.html" title="class in org.jlab.coda.jevio">Environment</a></dt>
 <dd>
 <div class="block">Main program used for testing only.</div>
@@ -5596,7 +5626,10 @@
 <div class="block">Constructor.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#setAll-long-int-int-">setAll(long, int, int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Set the position of this record in file/buffer, its length,
+ and the number of entries in it.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BaseStructure.html#setAllHeaderLengths--">setAllHeaderLengths()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a></dt>
 <dd>
 <div class="block">Compute and set length of all header fields for this structure and all its descendants.</div>
@@ -5662,7 +5695,8 @@
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#setBuffer-java.nio.ByteBuffer-java.util.BitSet-int-">setBuffer(ByteBuffer, BitSet, int)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Set the buffer being written into (initially set in constructor).</div>
+<div class="block">
+ Set the buffer being written into (initially set in constructor).</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#setBuffer-java.nio.ByteBuffer-">setBuffer(ByteBuffer)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
@@ -5809,7 +5843,9 @@
 <div class="block">Convenience method that sets compression type for the file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#setCount-int-">setCount(int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Set the count or number of entries in this record.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BlockNode.html#setCount-int-">setCount(int)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BlockNode.html" title="class in org.jlab.coda.jevio">BlockNode</a></dt>
 <dd>
 <div class="block">Set the number of events in block.</div>
@@ -5920,62 +5956,74 @@
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriter.html#setFirstEvent-org.jlab.coda.jevio.EvioNode-">setFirstEvent(EvioNode)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriter.html" title="class in org.jlab.coda.jevio">EventWriter</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file as
+<div class="block">
+ Set an event which will be written to the file as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriter.html#setFirstEvent-java.nio.ByteBuffer-">setFirstEvent(ByteBuffer)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriter.html" title="class in org.jlab.coda.jevio">EventWriter</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file as
+<div class="block">
+ Set an event which will be written to the file as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriter.html#setFirstEvent-org.jlab.coda.jevio.EvioBank-">setFirstEvent(EvioBank)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriter.html" title="class in org.jlab.coda.jevio">EventWriter</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file as
+<div class="block">
+ Set an event which will be written to the file as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#setFirstEvent-org.jlab.coda.jevio.EvioNode-">setFirstEvent(EvioNode)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file as
+<div class="block">
+ Set an event which will be written to the file as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#setFirstEvent-java.nio.ByteBuffer-">setFirstEvent(ByteBuffer)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file as
+<div class="block">
+ Set an event which will be written to the file as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#setFirstEvent-org.jlab.coda.jevio.EvioBank-">setFirstEvent(EvioBank)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file as
+<div class="block">
+ Set an event which will be written to the file as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#setFirstEvent-org.jlab.coda.jevio.EvioNode-">setFirstEvent(EvioNode)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#setFirstEvent-java.nio.ByteBuffer-">setFirstEvent(ByteBuffer)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#setFirstEvent-org.jlab.coda.jevio.EvioBank-">setFirstEvent(EvioBank)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterV4.html#setFirstEvent-org.jlab.coda.jevio.EvioNode-">setFirstEvent(EvioNode)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterV4.html" title="class in org.jlab.coda.jevio">EventWriterV4</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterV4.html#setFirstEvent-java.nio.ByteBuffer-">setFirstEvent(ByteBuffer)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterV4.html" title="class in org.jlab.coda.jevio">EventWriterV4</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterV4.html#setFirstEvent-org.jlab.coda.jevio.EvioBank-">setFirstEvent(EvioBank)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterV4.html" title="class in org.jlab.coda.jevio">EventWriterV4</a></dt>
 <dd>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BlockHeaderV4.html#setFirstEventBit-int-">setFirstEventBit(int)</a></span> - Static method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BlockHeaderV4.html" title="class in org.jlab.coda.jevio">BlockHeaderV4</a></dt>
@@ -6055,7 +6103,9 @@
 <div class="block">Set the total length in bytes, header + index + user header.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#setLength-int-">setLength(int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Set length of this record.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#setLength-int-">setLength(int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>
 <div class="block">Set the record length in bytes and words.</div>
@@ -6138,7 +6188,9 @@
 <div class="block">Set the position of this record in a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.RecordPosition.html#setPosition-long-">setPosition(long)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.RecordPosition.html" title="class in org.jlab.coda.hipo">Reader.RecordPosition</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Set position of this record in file/buffer.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#setPosition-long-">setPosition(long)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>
 <div class="block">Set the position of this record in a file.</div>
@@ -6290,7 +6342,9 @@
 <div class="block">Prints the content of the event index array on the screen.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/Reader.html#show--">show()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/Reader.html" title="class in org.jlab.coda.hipo">Reader</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Print out all record positions.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EvioByteArrayOutputStream.html#size--">size()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EvioByteArrayOutputStream.html" title="class in org.jlab.coda.jevio">EvioByteArrayOutputStream</a></dt>
 <dd>
 <div class="block">Returns the current size of the buffer.</div>
@@ -7213,39 +7267,48 @@ the order they are declared.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-">writeEvent(EvioNode, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEvent(EvioNode, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-boolean-boolean-">writeEvent(EvioNode, boolean, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-java.nio.ByteBuffer-">writeEvent(ByteBuffer)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-java.nio.ByteBuffer-boolean-">writeEvent(ByteBuffer, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-java.nio.ByteBuffer-boolean-boolean-">writeEvent(ByteBuffer, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-org.jlab.coda.jevio.EvioBank-">writeEvent(EvioBank)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-org.jlab.coda.jevio.EvioBank-boolean-">writeEvent(EvioBank, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEvent-org.jlab.coda.jevio.EvioBank-boolean-boolean-">writeEvent(EvioBank, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record in evio/hipo version 6 format.</div>
+<div class="block">
+ Write an event (bank) into a record in evio/hipo version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-">writeEvent(EvioNode, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
@@ -7273,47 +7336,56 @@ the order they are declared.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriter.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-">writeEventToFile(EvioBank, ByteBuffer, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriter.html" title="class in org.jlab.coda.jevio">EventWriter</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record and eventually to a file in evio/hipo
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio/hipo
  version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriter.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-boolean-">writeEventToFile(EvioBank, ByteBuffer, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriter.html" title="class in org.jlab.coda.jevio">EventWriter</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record and eventually to a file in evio/hipo
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio/hipo
  version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEventToFile-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEventToFile(EvioNode, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record and eventually to a file in evio/hipo
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio/hipo
  version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEventToFile-org.jlab.coda.jevio.EvioNode-boolean-boolean-boolean-">writeEventToFile(EvioNode, boolean, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record and eventually to a file in evio/hipo
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio/hipo
  version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-">writeEventToFile(EvioBank, ByteBuffer, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record and eventually to a file in evio/hipo
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio/hipo
  version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsync.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-boolean-">writeEventToFile(EvioBank, ByteBuffer, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsync.html" title="class in org.jlab.coda.jevio">EventWriterUnsync</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record and eventually to a file in evio/hipo
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio/hipo
  version 6 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEventToFile-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEventToFile(EvioNode, boolean, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a record and eventually to a file in evio
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio
  version 4 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-">writeEventToFile(EvioBank, ByteBuffer, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a block and eventually to a file in evio
+<div class="block">
+ Write an event (bank) into a block and eventually to a file in evio
  version 4 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventWriterV4.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-">writeEventToFile(EvioBank, ByteBuffer, boolean)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventWriterV4.html" title="class in org.jlab.coda.jevio">EventWriterV4</a></dt>
 <dd>
-<div class="block">Write an event (bank) into a block and eventually to a file in evio
+<div class="block">
+ Write an event (bank) into a block and eventually to a file in evio
  version 4 format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/FileHeader.html#writeHeader-java.nio.ByteBuffer-int-">writeHeader(ByteBuffer, int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/FileHeader.html" title="class in org.jlab.coda.hipo">FileHeader</a></dt>

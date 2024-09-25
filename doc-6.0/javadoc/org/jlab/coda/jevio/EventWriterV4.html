@@ -455,21 +455,24 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventWriterV4.html#setFirstEvent-java.nio.ByteBuffer-">setFirstEvent</a></span>(java.nio.ByteBuffer&nbsp;buffer)</code>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventWriterV4.html#setFirstEvent-org.jlab.coda.jevio.EvioBank-">setFirstEvent</a></span>(<a href="../../../../org/jlab/coda/jevio/EvioBank.html" title="class in org.jlab.coda.jevio">EvioBank</a>&nbsp;bank)</code>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventWriterV4.html#setFirstEvent-org.jlab.coda.jevio.EvioNode-">setFirstEvent</a></span>(<a href="../../../../org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a>&nbsp;node)</code>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block">
+ Set an event which will be written to the file/buffer as
  well as to all split files.</div>
 </td>
 </tr>
@@ -478,7 +481,8 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventWriterV4.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-">writeEventToFile</a></span>(<a href="../../../../org/jlab/coda/jevio/EvioBank.html" title="class in org.jlab.coda.jevio">EvioBank</a>&nbsp;bank,
                 java.nio.ByteBuffer&nbsp;bankBuffer,
                 boolean&nbsp;force)</code>
-<div class="block">Write an event (bank) into a block and eventually to a file in evio
+<div class="block">
+ Write an event (bank) into a block and eventually to a file in evio
  version 4 format.</div>
 </td>
 </tr>
@@ -1578,27 +1582,28 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <pre>public&nbsp;void&nbsp;setFirstEvent(<a href="../../../../org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a>&nbsp;node)
                    throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a>,
                           java.io.IOException</pre>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block"><p>
+ Set an event which will be written to the file/buffer as
  well as to all split files. It's called the "first event" as it will be the
  first event written to each split file (after the dictionary) if this method
- is called early enough or the first event was defined in the constructor.<p>
-
+ is called early enough or the first event was defined in the constructor.</p>
+ <p>
  Since this method is always called after the constructor, the common block will
  have already been written with a dictionary and firstEvent if either was
  defined in the constructor. The event given here will be written
  immediately somewhere in the body of the file, with the forth-coming split
- files having that event in the first block along with any dictionary.<p>
-
+ files having that event in the first block along with any dictionary.</p>
+ <p>
  This means that if the firstEvent is given in the constructor, then the
  caller may end up with 2 copies of it in a single file (if this method
  is called once). It's also possible to get 2 copies in a file if this
- method is called immediately prior to the file splitting.<p>
-
+ method is called immediately prior to the file splitting.</p>
+ <p>
  By its nature this method is not useful for writing to a buffer since
- it is never split and the event can be written to it as any other.<p>
-
+ it is never split and the event can be written to it as any other.</p>
+ <p>
  Data is transferred byte for byte, so data better be in an endian
- compatible with the output of this writer.<p>
+ compatible with the output of this writer.</p>
 
  <p>Do not call this while simultaneously calling
  close, flush, writeEventToFile, setFirstEvent, or writeEvent.
@@ -1630,29 +1635,30 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <pre>public&nbsp;void&nbsp;setFirstEvent(java.nio.ByteBuffer&nbsp;buffer)
                    throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a>,
                           java.io.IOException</pre>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block"><p>
+ Set an event which will be written to the file/buffer as
  well as to all split files. It's called the "first event" as it will be the
  first event written to each split file (after the dictionary) if this method
- is called early enough or the first event was defined in the constructor.<p>
-
+ is called early enough or the first event was defined in the constructor.</p>
+ <p>
  Since this method is always called after the constructor, the common block will
  have already been written with a dictionary and firstEvent if either was
  defined in the constructor. The event given here will be written
  immediately somewhere in the body of the file, with the forth-coming split
- files having that event in the first block along with any dictionary.<p>
-
+ files having that event in the first block along with any dictionary.</p>
+ <p>
  This means that if the firstEvent is given in the constructor, then the
  caller may end up with 2 copies of it in a single file (if this method
  is called once). It's also possible to get 2 copies in a file if this
- method is called immediately prior to the file splitting.<p>
-
+ method is called immediately prior to the file splitting.</p>
+ <p>
  By its nature this method is not useful for writing to a buffer since
- it is never split and the event can be written to it as any other.<p>
-
+ it is never split and the event can be written to it as any other.</p>
+ <p>
  Data is transferred byte for byte, so data better be in an endian
- compatible with the output of this writer.<p>
-
- <p>Do not call this while simultaneously calling
+ compatible with the output of this writer.</p>
+ <p>
+ Do not call this while simultaneously calling
  close, flush, writeEventToFile, setFirstEvent, or writeEvent.
  Automatically taken care of in EventWriterV4.</p></div>
 <dl>
@@ -1682,26 +1688,27 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <pre>public&nbsp;void&nbsp;setFirstEvent(<a href="../../../../org/jlab/coda/jevio/EvioBank.html" title="class in org.jlab.coda.jevio">EvioBank</a>&nbsp;bank)
                    throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a>,
                           java.io.IOException</pre>
-<div class="block">Set an event which will be written to the file/buffer as
+<div class="block"><p>
+ Set an event which will be written to the file/buffer as
  well as to all split files. It's called the "first event" as it will be the
  first event written to each split file (after the dictionary) if this method
- is called early enough or the first event was defined in the constructor.<p>
-
+ is called early enough or the first event was defined in the constructor.</p>
+ <p>
  Since this method is always called after the constructor, the common block will
  have already been written with a dictionary and firstEvent if either was
  defined in the constructor. The event given here will be written
  immediately somewhere in the body of the file, with the forth-coming split
- files having that event in the first block along with any dictionary.<p>
-
+ files having that event in the first block along with any dictionary.</p>
+ <p>
  This means that if the firstEvent is given in the constructor, then the
  caller may end up with 2 copies of it in a single file (if this method
  is called once). It's also possible to get 2 copies in a file if this
- method is called immediately prior to the file splitting.<p>
-
+ method is called immediately prior to the file splitting.</p>
+ <p>
  By its nature this method is not useful for writing to a buffer since
- it is never split and the event can be written to it as any other.<p>
-
- <p>Do not call this while simultaneously calling
+ it is never split and the event can be written to it as any other.</p>
+ <p>
+ Do not call this while simultaneously calling
  close, flush, writeEventToFile, setFirstEvent, or writeEvent.
  Automatically taken care of in EventWriterV4.</p></div>
 <dl>
@@ -1728,13 +1735,13 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <li class="blockList">
 <h4>flush</h4>
 <pre>public&nbsp;void&nbsp;flush()</pre>
-<div class="block">This method flushes any remaining internally buffered data to file.
+<div class="block"><p>This method flushes any remaining internally buffered data to file.
   Calling <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#close--"><code>EventWriterUnsyncV4.close()</code></a> automatically does this so it isn't necessary
   to call before closing. This method should only be used when writing
   events at such a low rate that it takes an inordinate amount of time
-  for internally buffered data to be written to the file.<p>
+  for internally buffered data to be written to the file.</p>
 
-  Calling this can kill performance.<p>
+  <p>Calling this can kill performance.</p>
 
   <p>Do not call this while simultaneously calling
   close, writeEventToFile, setFirstEvent, writeEvent, or getByteBuffer.
@@ -1773,30 +1780,31 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
                                 boolean&nbsp;force)
                          throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a>,
                                 java.io.IOException</pre>
-<div class="block">Write an event (bank) into a block and eventually to a file in evio
+<div class="block"><p>
+ Write an event (bank) into a block and eventually to a file in evio
  version 4 format. This method will <b>not</b> work with this object setup
- to write into a buffer.
+ to write into a buffer.</p>
 
- <b>
+ <p><b>
  If splitting files, this method returns false if disk partition is too full
  to write the complete, next split file. If force arg is true, write anyway.
  DO NOT mix calling this method with calling <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-"><code>EventWriterUnsyncV4.writeEvent(EvioBank, ByteBuffer, boolean)</code></a>
  (or the methods which call it). Results are unpredictable as it messes up the
  logic used to quit writing to full disk.
- </b>
+ </b></p>
  <p>
  The event to be written may be in one of two forms.
  The first is as an EvioBank object and the second is as a ByteBuffer
  containing only the event's data (event header and event data) and must
  <b>not</b> be in complete evio file format.
- The first non-null of the bank arguments will be written.
+ The first non-null of the bank arguments will be written.</p>
 
  <p>Do not call this while simultaneously calling
  close, flush, setFirstEvent, writeEvent, or getByteBuffer.
  Automatically taken care of in EventWriterV4.</p>
-
+ <p>
  Be warned that injudicious use of a true 2nd arg, the force flag, will
-<b>kill</b> performance.<p>
+<b>kill</b> performance.</p>
 
  This method is not used to write the dictionary or the first event
  (common block). That is only done with the method <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeCommonBlock--"><code>EventWriterUnsyncV4.writeCommonBlock()</code></a>.</div>
