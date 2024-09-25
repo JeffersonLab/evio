@@ -127,7 +127,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
-     * Maximum block size (32 bit words) for a single block (block header & following events).
+     * Maximum block size (32 bit words) for a single block (block header and following events).
      * There may be exceptions to this limit if the size of an individual
      * event exceeds this limit.
      * Default is {@link #DEFAULT_BLOCK_SIZE}.
@@ -175,11 +175,11 @@ public class EventWriterUnsyncV4 {
      *  in banks of evio format (evio headers, not block headers, included). */
     protected int commonBlockByteSize;
 
-    /** Number of events in the common block. At most 2 - dictionary & firstEvent. */
+    /** Number of events in the common block. At most 2 - dictionary and firstEvent. */
     protected int commonBlockCount;
 
     /**
-     * Bit information in the block headers:<p>
+     * <p>Bit information in the block headers:</p>
      * <ul>
      * <li>Bit one: is the first event a dictionary?  Used in first block only.
      * <li>Bit two: is this the last block?
@@ -341,6 +341,7 @@ public class EventWriterUnsyncV4 {
         /** Thread pool with 1 thread. */
         private final ExecutorService threadPool;
 
+        /** Constructor.  */
         FileCloser() {threadPool = Executors.newSingleThreadExecutor();}
 
         /** Close the thread pool in this object while executing all existing tasks. */
@@ -698,6 +699,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
@@ -705,8 +707,8 @@ public class EventWriterUnsyncV4 {
      * append these events to an existing file is <code>true</code>,
      * in which case everything is fine. If the file doesn't exist,
      * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
+     * File can be split while writing.</p>
+     * <p>
      * The base file name may contain up to 2, C-style integer format specifiers using
      * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
      * If more than 2 are found, an exception will be thrown.
@@ -718,15 +720,15 @@ public class EventWriterUnsyncV4 {
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file
      * name after a dot (.).
+     * </p>
      * <p>
-     *
      * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
      * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
-     *
+     * variable or a blank string if none is found.</p>
+     * <p>
      * The base file name may also contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
+     * the runType is null.</p>
      *
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
@@ -777,6 +779,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
@@ -784,8 +787,8 @@ public class EventWriterUnsyncV4 {
      * append these events to an existing file is <code>true</code>,
      * in which case everything is fine. If the file doesn't exist,
      * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
+     * File can be split while writing.</p>
+     * <p>
      * The base file name may contain up to 2, C-style integer format specifiers using
      * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
      * If more than 2 are found, an exception will be thrown.
@@ -797,15 +800,15 @@ public class EventWriterUnsyncV4 {
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file
      * name after a dot (.).
+     * </p>
      * <p>
-     *
      * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
      * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
-     *
+     * variable or a blank string if none is found.</p>
+     * <p>
      * The base file name may also contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
+     * the runType is null.</p>
      *
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
@@ -860,6 +863,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
@@ -867,8 +871,8 @@ public class EventWriterUnsyncV4 {
      * append these events to an existing file is <code>true</code>,
      * in which case everything is fine. If the file doesn't exist,
      * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
+     * File can be split while writing.</p>
+     * <p>
      * The base file name may contain up to 2, C-style integer format specifiers using
      * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
      * If more than 2 are found, an exception will be thrown.
@@ -880,21 +884,21 @@ public class EventWriterUnsyncV4 {
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file
      * name after a dot (.).
+     * </p>
      * <p>
-     *
      * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
      * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
-     *
+     * variable or a blank string if none is found.</p>
+     * <p>
      * The base file name may also contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
-     *
+     * the runType is null.</p>
+     * <p>
      * If multiple streams of data, each writing a file, end up with the same file name,
      * they can be differentiated by a stream id number. If the id is &gt; 0, the string, ".strm"
      * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
      * This is done after the run type, run number, split numbers, and env vars have been inserted
-     * into the file name.<p>
+     * into the file name.</p>
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
@@ -950,6 +954,7 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
@@ -957,8 +962,8 @@ public class EventWriterUnsyncV4 {
      * append these events to an existing file is <code>true</code>,
      * in which case everything is fine. If the file doesn't exist,
      * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
+     * File can be split while writing.</p>
+     * <p>
      * The base file name may contain up to 2, C-style integer format specifiers using
      * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
      * If more than 2 are found, an exception will be thrown.
@@ -973,15 +978,15 @@ public class EventWriterUnsyncV4 {
      * If streamCount &gt; 1, the split number is calculated starting with streamId and incremented
      * by streamCount each time. In this manner, all split files will have unique, sequential
      * names even though there are multiple parallel ERs.
+     * </p>
      * <p>
-     *
      * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
      * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
-     *
+     * variable or a blank string if none is found.</p>
+     * <p>
      * The base file name may also contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
+     * the runType is null.</p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
      * they can be differentiated by a stream id, starting split # and split increment.
@@ -1855,27 +1860,28 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Set an event which will be written to the file/buffer as
      * well as to all split files. It's called the "first event" as it will be the
      * first event written to each split file (after the dictionary) if this method
-     * is called early enough or the first event was defined in the constructor.<p>
-     *
+     * is called early enough or the first event was defined in the constructor.</p>
+     * <p>
      * Since this method is always called after the constructor, the common block will
      * have already been written with a dictionary and firstEvent if either was
      * defined in the constructor. The event given here will be written
      * immediately somewhere in the body of the file, with the forth-coming split
-     * files having that event in the first block along with any dictionary.<p>
-     *
+     * files having that event in the first block along with any dictionary.</p>
+     * <p>
      * This means that if the firstEvent is given in the constructor, then the
      * caller may end up with 2 copies of it in a single file (if this method
      * is called once). It's also possible to get 2 copies in a file if this
-     * method is called immediately prior to the file splitting.<p>
-     *
+     * method is called immediately prior to the file splitting.</p>
+     * <p>
      * By its nature this method is not useful for writing to a buffer since
-     * it is never split and the event can be written to it as any other.<p>
-     *
+     * it is never split and the event can be written to it as any other.</p>
+     * <p>
      * Data is transferred byte for byte, so data better be in an endian
-     * compatible with the output of this writer.<p>
+     * compatible with the output of this writer.</p>
      *
      * <p>Do not call this while simultaneously calling
      * close, flush, writeEventToFile, setFirstEvent, or writeEvent.
@@ -1937,29 +1943,30 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Set an event which will be written to the file/buffer as
      * well as to all split files. It's called the "first event" as it will be the
      * first event written to each split file (after the dictionary) if this method
-     * is called early enough or the first event was defined in the constructor.<p>
-     *
+     * is called early enough or the first event was defined in the constructor.</p>
+     * <p>
      * Since this method is always called after the constructor, the common block will
      * have already been written with a dictionary and firstEvent if either was
      * defined in the constructor. The event given here will be written
      * immediately somewhere in the body of the file, with the forth-coming split
-     * files having that event in the first block along with any dictionary.<p>
-     *
+     * files having that event in the first block along with any dictionary.</p>
+     * <p>
      * This means that if the firstEvent is given in the constructor, then the
      * caller may end up with 2 copies of it in a single file (if this method
      * is called once). It's also possible to get 2 copies in a file if this
-     * method is called immediately prior to the file splitting.<p>
-     *
+     * method is called immediately prior to the file splitting.</p>
+     * <p>
      * By its nature this method is not useful for writing to a buffer since
-     * it is never split and the event can be written to it as any other.<p>
-     *
+     * it is never split and the event can be written to it as any other.</p>
+     * <p>
      * Data is transferred byte for byte, so data better be in an endian
-     * compatible with the output of this writer.<p>
-     *
-     * <p>Do not call this while simultaneously calling
+     * compatible with the output of this writer.</p>
+     * <p>
+     * Do not call this while simultaneously calling
      * close, flush, writeEventToFile, setFirstEvent, or writeEvent.
      * Automatically taken care of in EventWriterV4.</p>
      *
@@ -2023,26 +2030,27 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Set an event which will be written to the file/buffer as
      * well as to all split files. It's called the "first event" as it will be the
      * first event written to each split file (after the dictionary) if this method
-     * is called early enough or the first event was defined in the constructor.<p>
-     *
+     * is called early enough or the first event was defined in the constructor.</p>
+     * <p>
      * Since this method is always called after the constructor, the common block will
      * have already been written with a dictionary and firstEvent if either was
      * defined in the constructor. The event given here will be written
      * immediately somewhere in the body of the file, with the forth-coming split
-     * files having that event in the first block along with any dictionary.<p>
-     *
+     * files having that event in the first block along with any dictionary.</p>
+     * <p>
      * This means that if the firstEvent is given in the constructor, then the
      * caller may end up with 2 copies of it in a single file (if this method
      * is called once). It's also possible to get 2 copies in a file if this
-     * method is called immediately prior to the file splitting.<p>
-     *
+     * method is called immediately prior to the file splitting.</p>
+     * <p>
      * By its nature this method is not useful for writing to a buffer since
-     * it is never split and the event can be written to it as any other.<p>
-     *
-     * <p>Do not call this while simultaneously calling
+     * it is never split and the event can be written to it as any other.</p>
+     * <p>
+     * Do not call this while simultaneously calling
      * close, flush, writeEventToFile, setFirstEvent, or writeEvent.
      * Automatically taken care of in EventWriterV4.</p>
      *
@@ -2103,13 +2111,14 @@ public class EventWriterUnsyncV4 {
     }
 
 
-    /** This method flushes any remaining internally buffered data to file.
+    /**
+     * <p>This method flushes any remaining internally buffered data to file.
      *  Calling {@link #close()} automatically does this so it isn't necessary
      *  to call before closing. This method should only be used when writing
      *  events at such a low rate that it takes an inordinate amount of time
-     *  for internally buffered data to be written to the file.<p>
+     *  for internally buffered data to be written to the file.</p>
      *
-     *  Calling this can kill performance.<p>
+     *  <p>Calling this can kill performance.</p>
      *
      *  <p>Do not call this while simultaneously calling
      *  close, writeEventToFile, setFirstEvent, writeEvent, or getByteBuffer.
@@ -2759,6 +2768,8 @@ public class EventWriterUnsyncV4 {
      * This routine writes an event into the internal buffer
      * and does much of the bookkeeping associated with it.
      *
+     * @param bank event to write in EvioBank form.
+     * @param bankBuffer event to write in ByteBuffer form.
      * @param currentEventBytes  number of bytes to write from buffer
      */
     protected void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes) {
@@ -2929,32 +2940,33 @@ public class EventWriterUnsyncV4 {
     }
 
     /**
+     * <p>
      * Write an event (bank) into a record and eventually to a file in evio
      * version 4 format.
      * If the internal buffer is full, it will be flushed to the file.
-     * Otherwise an exception will be thrown.<p>
+     * Otherwise an exception will be thrown.</p>
      *
-     * <b>
+     * <p><b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling {@link #writeEvent(EvioNode, boolean, boolean)}
      * (or the methods which call it). Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
-     * </b>
-     *
+     * </b></p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>Do not call this while simultaneously calling
      * close, flush, setFirstEvent, writeEvent, or getByteBuffer.
      * Automatically taken care of in EventWriterV4.</p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
      * A true 3rd arg can be used when the backing buffer
      * of the node is accessed by multiple threads simultaneously. This allows
      * that buffer's limit and position to be changed without interfering
-     * with the other threads.<p>
+     * with the other threads.</p>
      *
      * @param node       object representing the event to write in buffer form
      * @param force      if writing to disk, force it to write event to the disk.
@@ -3136,7 +3148,7 @@ public class EventWriterUnsyncV4 {
      * Automatically taken care of in EventWriterV4.</p>
      *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     *<b>kill</b> performance.<p>
+     *<b>kill</b> performance.
      *
      * This method is not used to write the dictionary or the first event
      * (common block). That is only done with the method {@link #writeCommonBlock}.
@@ -3457,30 +3469,31 @@ public class EventWriterUnsyncV4 {
 
 
     /**
+     * <p>
      * Write an event (bank) into a block and eventually to a file in evio
      * version 4 format. This method will <b>not</b> work with this object setup
-     * to write into a buffer.
+     * to write into a buffer.</p>
      *
-     * <b>
+     * <p><b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
      * (or the methods which call it). Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
-     * </b>
+     * </b></p>
      * <p>
      * The event to be written may be in one of two forms.
      * The first is as an EvioBank object and the second is as a ByteBuffer
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
-     * The first non-null of the bank arguments will be written.
+     * The first non-null of the bank arguments will be written.</p>
      *
      * <p>Do not call this while simultaneously calling
      * close, flush, setFirstEvent, writeEvent, or getByteBuffer.
      * Automatically taken care of in EventWriterV4.</p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     *<b>kill</b> performance.<p>
+     *<b>kill</b> performance.</p>
      *
      * This method is not used to write the dictionary or the first event
      * (common block). That is only done with the method {@link #writeCommonBlock}.
@@ -3947,7 +3960,6 @@ public class EventWriterUnsyncV4 {
      *
      * @throws EvioException if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
      */
     protected void splitFile() throws EvioException {
         // Close existing file (in separate thread for speed)

@@ -62,7 +62,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
     protected final ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
 
     /**
-     * Are we using & storing block header objects or not? If user will be calling the
+     * Are we using and storing block header objects or not? If user will be calling the
      * {@link #addStructure(int, ByteBuffer)} or {@link #removeEvent(int)}, or
      * {@link #removeEvent(int)} methods, then block header objects need to be
      * created and stored.
@@ -211,7 +211,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
     }
 
     /**
-     * Constructor for reading an event file.
+     * Constructor for reading a buffer.
      *
      * @param byteBuffer the buffer that contains events.
      *

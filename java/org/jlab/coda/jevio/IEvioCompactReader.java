@@ -14,12 +14,26 @@ import java.nio.MappedByteBuffer;
 import java.util.List;
 
 /**
+ * <p>
  * This is an interface for a compact reader of evio format files and buffers.
  * The word "compact" refers to using the EvioNode class as a compact or
  * lightweight means to refer to an evio event or structure in a buffer.
  * Compact readers do not use EvioEvent, EvioBank, EvioSegment or EvioTagSegment
  * classes which require a full parsing of each event and the creation of a large
- * number of objects.
+ * number of objects.</p>
+ *
+ * <p>
+ * Of the classes implementing this interface,
+ * EvioCompactReaderUnsyncV4 and EvioCompactReaderV4 can read both files and buffers.
+ * Whereas EvioCompactReaderUnsyncV6 and EvioCompactReaderV6 can read only buffers.</p>
+ *
+ * Note that when reading a file, a memory map is created as an MappedByteBuffer.
+ * This type of buffer is <b>NOT</b> backed by a byte array.
+ * Thus, a call to the array() method of any returned ByteBuffer objects
+ * (such as from {@link #getEventBuffer(int)} or {@link #getStructureBuffer(EvioNode)})
+ * will throw an UnsupportedOperationException, unless the returned buffer is a <b>copy</b>.
+ * Note also that when reading a buffer, returned buffers will have a backing array
+ * if the original buffer has one or the returned buffer is a copy.
  *
  * @author timmer
  * @since 11/1/17.

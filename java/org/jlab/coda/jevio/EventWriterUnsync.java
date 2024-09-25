@@ -355,7 +355,23 @@ public class EventWriterUnsync implements AutoCloseable {
 
         /**
          * Close the given file, in the order received, in a separate thread.
+         *
          * @param afc file channel to close
+         * @param future1 object to write to file and return asynchronously.
+         * @param future2 object to write to file and return asynchronously.
+         * @param fileHeader header to write into file which may need updating when closing file.
+         * @param recordLengths list of record lengths to put into trailer.
+         * @param bytesWritten total # of bytes written to file, used for updating
+         *                     file header's trailer position word.
+         * @param fileWritingPosition position in file at which to write trailer record.
+         * @param recordNumber record # of trailer record.
+         * @param addingTrailer if true, write trailer record.
+         * @param writeIndex if true, write index into trailer
+         *                   (list of record lengths interspersed with event counts).
+         * @param release1 if true, release ringItem1 back to RecordRingSupply.
+         * @param release2 if true, release ringItem2 back to RecordRingSupply.
+         * @param ringItem1 object containing record1 from RecordRingSupply.
+         * @param ringItem2 object containing record2 from RecordRingSupply.
          */
         void closeAsyncFile(AsynchronousFileChannel afc,
                             Future<Integer> future1, Future<Integer> future2,
@@ -673,7 +689,7 @@ public class EventWriterUnsync implements AutoCloseable {
     protected boolean hasAppendDictionary;
 
     /**
-     * Total number of events written to buffer or file (although may not be flushed yet).
+     * Total number of events written to buffer or file (although they may not be flushed yet).
      * Will be the same as eventsWrittenToBuffer (- dictionary) if writing to buffer.
      * If the file being written to is split, this value refers to all split files
      * taken together. Does NOT include dictionary(ies).
@@ -714,7 +730,7 @@ public class EventWriterUnsync implements AutoCloseable {
     protected int commonRecordBytesToBuffer;
 
     /** Number of events written to final destination buffer or file's current record
-     * NOT including dictionary (& first event?). */
+     * NOT including dictionary (and first event?). */
     protected int eventsWrittenToBuffer;
 
     //-----------------------
@@ -950,6 +966,7 @@ public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
+     * <p>
      * Create an object for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
@@ -957,8 +974,8 @@ public class EventWriterUnsync implements AutoCloseable {
      * append these events to an existing file is <code>true</code>,
      * in which case everything is fine. If the file doesn't exist,
      * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
+     * File can be split while writing.</p>
+     * <p>
      * The base file name may contain up to 2, C-style integer format specifiers using
      * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
      * If more than 2 are found, an exception will be thrown.
@@ -973,18 +990,18 @@ public class EventWriterUnsync implements AutoCloseable {
      * If streamCount &gt; 1, the split number is calculated starting with streamId and incremented
      * by streamCount each time. In this manner, all split files will have unique, sequential
      * names even though there are multiple parallel ERs.
+     * </p>
      * <p>
-     *
      * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
      * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
-     *
+     * variable or a blank string if none is found.</p>
+     * <p>
      * The base file name may also contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
-     *
+     * the runType is null.</p>
+     * <p>
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id, starting split # and split increment.<p>
+     * they can be differentiated by a stream id, starting split # and split increment.</p>
      *
      * If there are multiple compression threads, then the maxRecordSize arg is used to determine
      * the max size of each record in the internally created RecordSupply. If a single event,
@@ -1514,10 +1531,11 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Set the buffer being written into (initially set in constructor).
      * This method allows the user to avoid having to create a new EventWriter
      * each time a bank needs to be written to a different buffer.
-     * This does nothing if writing to a file.<p>
+     * This does nothing if writing to a file.</p>
      * Do <b>not</b> use this method unless you know what you are doing.
      *
      * @param buf the buffer to write to.
@@ -1834,25 +1852,28 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Set an event which will be written to the file as
      * well as to all split files. It's called the "first event" as it will be the
      * first event written to each split file if this method
      * is called early enough or the first event was defined in the constructor.
      * In evio version 6, any dictionary and the first event are written to a
      * common record which is stored in the user-header part of the file header if
-     * writing to a file. The common record data is never compressed.<p>
+     * writing to a file. The common record data is never compressed.</p>
      *
      * <b>FILE:</b>
+     * <p>
      * Since this method can only be called after the constructor, the common record may
      * have already been written with its dictionary and possibly another firstEvent.
      * If that is the case, the event given here will be written immediately somewhere
      * in the body of the file. Any subsequent splits will have this event as the first
      * event in the file header. On the other hand, if the common record has not yet been
-     * written to the file, this event becomes the first event in the file header.<p>
+     * written to the file, this event becomes the first event in the file header.</p>
      *
      * <b>BUFFER:</b>
+     * <p>
      * By its nature this method is not all that useful for writing to a buffer since
-     * the buffer is never split. For that reason it throws an exception.<p>
+     * the buffer is never split. For that reason it throws an exception.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
@@ -1900,6 +1921,7 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Set an event which will be written to the file as
      * well as to all split files. It's called the "first event" as it will be the
      * first event written to each split file if this method
@@ -1907,19 +1929,21 @@ public class EventWriterUnsync implements AutoCloseable {
      * In evio version 6, any dictionary and the first event are written to a
      * common record which is stored in the user-header part of the file header if
      * writing to a file. When writing to a buffer it's stored in the first record's
-     * user-header. The common record data is never compressed.<p>
+     * user-header. The common record data is never compressed.</p>
      *
      * <b>FILE:</b>
+     * <p>
      * Since this method can only be called after the constructor, the common record may
      * have already been written with its dictionary and possibly another firstEvent.
      * If that is the case, the event given here will be written immediately somewhere
      * in the body of the file. Any subsequent splits will have this event as the first
      * event in the file header. On the other hand, if the common record has not yet been
-     * written to the file, this event becomes the first event in the file header.<p>
+     * written to the file, this event becomes the first event in the file header.</p>
      *
      * <b>BUFFER:</b>
+     * <p>
      * By its nature this method is not all that useful for writing to a buffer since
-     * the buffer is never split. For that reason it throws an exception.<p>
+     * the buffer is never split. For that reason it throws an exception.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
@@ -1961,6 +1985,7 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Set an event which will be written to the file as
      * well as to all split files. It's called the "first event" as it will be the
      * first event written to each split file if this method
@@ -1968,19 +1993,21 @@ public class EventWriterUnsync implements AutoCloseable {
      * In evio version 6, any dictionary and the first event are written to a
      * common record which is stored in the user-header part of the file header if
      * writing to a file. When writing to a buffer it's stored in the first record's
-     * user-header. The common record data is never compressed.<p>
+     * user-header. The common record data is never compressed.</p>
      *
      * <b>FILE:</b>
+     * <p>
      * Since this method can only be called after the constructor, the common record may
      * have already been written with its dictionary and possibly another firstEvent.
      * If that is the case, the event given here will be written immediately somewhere
      * in the body of the file. Any subsequent splits will have this event as the first
      * event in the file header. On the other hand, if the common record has not yet been
-     * written to the file, this event becomes the first event in the file header.<p>
+     * written to the file, this event becomes the first event in the file header.</p>
      *
      * <b>BUFFER:</b>
+     * <p>
      * By its nature this method is not all that useful for writing to a buffer since
-     * the buffer is never split. For that reason it throws an exception.<p>
+     * the buffer is never split. For that reason it throws an exception.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
@@ -2156,11 +2183,12 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * This method flushes any remaining internally buffered data to file.
      * Calling {@link #close()} automatically does this so it isn't necessary
      * to call before closing. This method should only be used when writing
      * events at such a low rate that it takes an inordinate amount of time
-     * for internally buffered data to be written to the file.<p>
+     * for internally buffered data to be written to the file.</p>
      *
      * Calling this may easily kill performance.
      *
@@ -2625,32 +2653,34 @@ public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
+     * compress the data if desired and then write it to the buffer.</p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     *<b>kill</b> performance when writing to a file.<p>
-     *
+     *<b>kill</b> performance when writing to a file.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param node       object representing the event to write in buffer form
      * @param force      if writing to disk, force it to write event to the disk.
@@ -2672,36 +2702,38 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
+     * compress the data if desired and then write it to the buffer.</p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance when writing to a file.
      * A true 3rd arg can be used when the backing buffer
      * of the node is accessed by multiple threads simultaneously. This allows
      * that buffer's limit and position to be changed without interfering
-     * with the other threads.<p>
-     *
+     * with the other threads.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param node       object representing the event to write in buffer form
      * @param force      if writing to disk, force it to write event to the disk.
@@ -2726,36 +2758,38 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
    /**
+    * <p>
     * Write an event (bank) into a record in evio/hipo version 6 format.
     * Once the record is full and if writing to a file (for multiple compression
     * threads), the record will be sent to a thread which may compress the data,
     * then it will be sent to a thread to write the record to file.
     * If there is only 1 compression thread, it's all done in the thread which
-    * call this method.<p>
+    * call this method.</p>
+    * <p>
     * If writing to a buffer, once the record is full this method returns
     * false - indicating that the last event was NOT written to the record.
     * To finish the writing process, call {@link #close()}. This will
-    * compress the data if desired and then write it to the buffer.<p>
-    *
+    * compress the data if desired and then write it to the buffer.</p>
+    * <p>
     * The buffer must contain only the event's data (event header and event data)
-    * and must <b>not</b> be in complete evio file format.
+    * and must <b>not</b> be in complete evio file format.</p>
     *
     * <p>
     * Do not call this while simultaneously calling
     * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
     * Automatically taken care of in EventWriter.
     * </p>
-    *
+    * <p>
     * Be warned that injudicious use of a true 2nd arg, the force flag, will
     *<b>kill</b> performance when writing to a file.
     * A true 3rd arg can be used when the backing buffer
     * of the node is accessed by multiple threads simultaneously. This allows
     * that buffer's limit and position to be changed without interfering
-    * with the other threads.<p>
-    *
+    * with the other threads.</p>
+    * <p>
     * This method is not used to write the dictionary or the first event
     * which are both placed in the common record which, in turn, is the
-    * user header part of the file header.<p>
+    * user header part of the file header.</p>
     *
     * @param node       object representing the event to write in buffer form
     * @param force      if writing to disk, force it to write event to the disk.
@@ -2809,15 +2843,16 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record and eventually to a file in evio/hipo
      * version 6 format.
      * Once the record is full and if writing with multiple compression
      * threads, the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
      *
-     * <b>
+     * <p><b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
@@ -2825,27 +2860,27 @@ public class EventWriterUnsync implements AutoCloseable {
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
-     * </b>
-     *
+     * </b></p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
      * A true 3rd arg can be used when the backing buffer
      * of the node is accessed by multiple threads simultaneously. This allows
      * that buffer's limit and position to be changed without interfering
-     * with the other threads.<p>
-     *
+     * with the other threads.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param node       object representing the event to write in buffer form
      * @param force      if writing to disk, force it to write event to the disk.
@@ -2871,15 +2906,16 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record and eventually to a file in evio/hipo
      * version 6 format.
      * Once the record is full and if writing with multiple compression
      * threads, the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
      *
-     * <b>
+     * <p><b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
@@ -2887,27 +2923,27 @@ public class EventWriterUnsync implements AutoCloseable {
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
-     * </b>
-     *
+     * </b></p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
      * A true 3rd arg can be used when the backing buffer
      * of the node is accessed by multiple threads simultaneously. This allows
      * that buffer's limit and position to be changed without interfering
-     * with the other threads.<p>
-     *
+     * with the other threads.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param node       object representing the event to write in buffer form
      * @param force      if writing to disk, force it to write event to the disk.
@@ -2952,29 +2988,31 @@ public class EventWriterUnsync implements AutoCloseable {
     }
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
+     * compress the data if desired and then write it to the buffer.</p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @return if writing to buffer: true if event was added to record, false if buffer full,
@@ -2993,32 +3031,34 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
+     * compress the data if desired and then write it to the buffer.</p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     * <b>kill</b> performance when writing to a file.
-     *
+     * <b>kill</b> performance when writing to a file.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
@@ -3040,32 +3080,34 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
+     * compress the data if desired and then write it to the buffer.</p>
+     * <p>
      * The buffer must contain only the event's data (event header and event data)
-     * and must <b>not</b> be in complete evio file format.
+     * and must <b>not</b> be in complete evio file format.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     * <b>kill</b> performance when writing to a file.
-     *
+     * <b>kill</b> performance when writing to a file.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
@@ -3089,26 +3131,28 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
+     * compress the data if desired and then write it to the buffer.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param bank   the bank to write.
      * @return if writing to buffer: true if event was added to record, false if buffer full,
@@ -3126,26 +3170,28 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
+     * compress the data if desired and then write it to the buffer.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * Be warned that injudicious use of the 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
@@ -3168,26 +3214,28 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
+     * compress the data if desired and then write it to the buffer.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * Be warned that injudicious use of the 2nd arg, the force flag, will
      * <b>kill</b> performance when writing to a file.
@@ -3212,35 +3260,37 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
+     * <p>
      * If writing to a buffer, once the record is full this method returns
      * false - indicating that the last event was NOT written to the record.
      * To finish the writing process, call {@link #close()}. This will
-     * compress the data if desired and then write it to the buffer.<p>
-     *
+     * compress the data if desired and then write it to the buffer.</p>
+     * <p>
      * The event to be written may be in one of two forms.
      * The first is as an EvioBank object and the second is as a ByteBuffer
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
-     * The first non-null of the bank arguments will be written.
+     * The first non-null of the bank arguments will be written.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, writeEventToFile.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     *<b>kill</b> performance when writing to a file.<p>
-     *
+     * <b>kill</b> performance when writing to a file.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
@@ -3488,15 +3538,16 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record and eventually to a file in evio/hipo
      * version 6 format.
      * Once the record is full and if writing with multiple compression
      * threads, the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
      *
-     * <b>
+     * <p><b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
@@ -3504,29 +3555,30 @@ public class EventWriterUnsync implements AutoCloseable {
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
-     * </b>
-     *
+     * </b></p>
+     * <p>
      * The event to be written may be in one of two forms.
      * The first is as an EvioBank object and the second is as a ByteBuffer
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
-     * The first non-null of the bank arguments will be written.
+     * The first non-null of the bank arguments will be written.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     *<b>kill</b> performance when writing to a file.<p>
-     *
+     * <b>kill</b> performance when writing to a file.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
+     * @param force      if writing to disk, force it to write event to the disk.
      *
      * @return true if event was added to record. If splitting files, false if disk
      *         partition too full to write the complete, next split file.
@@ -3549,15 +3601,16 @@ public class EventWriterUnsync implements AutoCloseable {
 
 
     /**
+     * <p>
      * Write an event (bank) into a record and eventually to a file in evio/hipo
      * version 6 format.
      * Once the record is full and if writing with multiple compression
      * threads, the record will be sent to a thread which may compress the data,
      * then it will be sent to a thread to write the record to file.
      * If there is only 1 compression thread, it's all done in the thread which
-     * call this method.<p>
+     * call this method.</p>
      *
-     * <b>
+     * <p><b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
@@ -3565,26 +3618,26 @@ public class EventWriterUnsync implements AutoCloseable {
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
-     * </b>
-     *
+     * </b></p>
+     * <p>
      * The event to be written may be in one of two forms.
      * The first is as an EvioBank object and the second is as a ByteBuffer
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
-     * The first non-null of the bank arguments will be written.
+     * The first non-null of the bank arguments will be written.</p>
      *
      * <p>
      * Do not call this while simultaneously calling
      * close, flush, getByteBuffer, setFirstEvent, or writeEvent.
      * Automatically taken care of in EventWriter.
      * </p>
-     *
+     * <p>
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
-     *<b>kill</b> performance when writing to a file.<p>
-     *
+     * <b>kill</b> performance when writing to a file.</p>
+     * <p>
      * This method is not used to write the dictionary or the first event
      * which are both placed in the common record which, in turn, is the
-     * user header part of the file header.<p>
+     * user header part of the file header.</p>
      *
      * @param bank       the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
@@ -3908,7 +3961,7 @@ public class EventWriterUnsync implements AutoCloseable {
 
     /**
      * Compress data and write record to file. Does nothing if close() already called.
-     * Used when doing compression & writing to file in a single thread.
+     * Used when doing compression and writing to file in a single thread.
      *
      * @param force  if true, force writing event physically to disk.
      *
@@ -3935,7 +3988,7 @@ public class EventWriterUnsync implements AutoCloseable {
 
     /**
      * Compress data and write record to file. Does nothing if close() already called.
-     * Used when doing compression & writing to file in a single thread.
+     * Used when doing compression and writing to file in a single thread.
      * Will not write file if no room on disk (and force arg is false).
      *
      * @param force  if true, force writing event physically to disk.

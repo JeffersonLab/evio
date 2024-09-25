@@ -1145,7 +1145,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
     /**
      * This method is only called once at the very beginning if buffer is known to have
-     * a dictionary. It then reads that dictionary. Only called in format versions 4 & up.
+     * a dictionary. It then reads that dictionary. Only called in format versions 4 and up.
      * Position buffer after dictionary.
      *
      * @since 4.0
@@ -1229,7 +1229,7 @@ System.err.println("ERROR endOfBuffer " + a);
             return gotoEventNumber(index, false);
         }
 
-        //  Version 4 and up && non sequential
+        //  Version 4 and up && non-sequential
         return getEventV4(index);
     }
 
@@ -1239,12 +1239,11 @@ System.err.println("ERROR endOfBuffer " + a);
      * It is only valid for evio versions 4+.
      * As useful as this sounds, most applications will probably call
      * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.
+     * since it combines getting an event with parsing it.
      * Only called if not sequential reading.<p>
      *
-     * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
+     * @param  index the event number in a 1,2,...N counting sense, from beginning of file/buffer.
      * @return the event in the file/buffer at the given index or null if none
-     * @throws IOException   if failed file access
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if out of memory;
      *                       if object closed

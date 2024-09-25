@@ -18,7 +18,7 @@ public class Xml2evio {
     /** Method to print out correct program command line usage. */
     private static void usage() {
 
-        System.out.println("\nUsage: java Xml2evio -x <xml file>  -f <evio file>\n" +
+        System.out.println("\nUsage: java org.jlab.coda.jevio.apps.Xml2evio -x <xml file>  -f <evio file>\n" +
                              "                     [-v] [-hex] [-d <dictionary file>]\n" +
                              "                     [-max <count>] [-skip <count>]\n\n" +
 
@@ -36,9 +36,10 @@ public class Xml2evio {
     }
 
 
-    public Xml2evio() {
-    }
-
+    /**
+     * Example use of this class.
+     * @param args arguments outlined in {@link #usage()}.
+     */
     public static void main(String[] args) {
         int max=0, skip=0;
         boolean debug=false, verbose=false, hex=false;

@@ -105,12 +105,17 @@ public final class CompositeData implements Cloneable {
     /** Index used in getting data items from the {@link #items} list. */
     private int getIndex;
 
-
+    /**
+     * Class used to track using the data format.
+     */
     static final class LV {
-      int left;    // index of ifmt[] element containing left parenthesis "("
-      int nrepeat; // how many times format in parenthesis must be repeated
-      int irepeat; // right parenthesis ")" counter, or how many times format
-                   // in parenthesis already repeated
+        /** index of ifmt[] element containing left parenthesis "(". */
+        int left;
+        /** how many times format in the parenthesis must be repeated. */
+        int nrepeat;
+        /** right parenthesis ")" counter, or how many times format
+         * in the parenthesis already repeated. */
+        int irepeat;
     };
 
 
@@ -1379,15 +1384,6 @@ public final class CompositeData implements Cloneable {
     }
 
 
-    static int max(int a, int b) {
-        return (a > b ? a : b);
-    }
-
-    static int min(int a, int b) {
-        return (a < b ? a : b);
-    }
-
-
     /**
      *  This method transforms a composite, format-containing
      *  ASCII string to an int array. It is to be used in
@@ -1465,7 +1461,7 @@ public final class CompositeData implements Cloneable {
                     System.out.println("the number of repeats before, nr = " + nr);
                 }
                 if (nr < 0) throw new EvioException("no negative repeats");
-                nr = 10*max(0,nr) + Character.digit(ch,10);
+                nr = 10*Math.max(0,nr) + Character.digit(ch,10);
                 if (nr > 15) throw new EvioException("no more than 15 repeats allowed");
                 if (debug) {
                     System.out.println("the number of repeats nr = " + nr);
@@ -1490,7 +1486,7 @@ public final class CompositeData implements Cloneable {
                 }
                 // # repeats hardcoded
                 else {
-                    ifmt.add((max(nn,nr) & 0x3F) << 8);
+                    ifmt.add((Math.max(nn,nr) & 0x3F) << 8);
                     n++;
                 }
 
@@ -1577,7 +1573,7 @@ public final class CompositeData implements Cloneable {
                     if (nr < 0) throw new EvioException("no negative repeats");
 //                    if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
 
-                    int ifmtVal = ((max(nn,nr) & 0x3F) << 8) + kf;
+                    int ifmtVal = ((Math.max(nn,nr) & 0x3F) << 8) + kf;
 
                     if (nb > 0) {
                         if (nb==4)      ifmtVal |= (1 << 14);
