@@ -237,24 +237,20 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="typeNameLabel">TestWriter.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/TestWriter.html#createEmptyFile--">createEmptyFile</a></span>()</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">Writer.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Writer.html#createHeader-byte:A-">createHeader</a></span>(byte[]&nbsp;userHeader)</code>
 <div class="block">Create and return a buffer containing a general file header
  followed by the user header given in the argument.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">Writer.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Writer.html#createHeader-java.nio.ByteBuffer-">createHeader</a></span>(java.nio.ByteBuffer&nbsp;userHeader)</code>
 <div class="block">Create and return a buffer containing a general file header
  followed by the user header given in the argument.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#findRecordInfo-java.nio.ByteBuffer-int-int:A-">findRecordInfo</a></span>(java.nio.ByteBuffer&nbsp;buf,
               int&nbsp;offset,
@@ -263,20 +259,20 @@
  like the bitInfo word, various lengths, etc.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#forceScanFile--">forceScanFile</a></span>()</code>
 <div class="block">Scan file to find all records and store their position, length, and event count.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordInputStream.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordInputStream.html#getEvent-java.nio.ByteBuffer-int-">getEvent</a></span>(java.nio.ByteBuffer&nbsp;buffer,
         int&nbsp;index)</code>
 <div class="block">Get the event at the given index and write it into the given byte buffer.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#getEvent-java.nio.ByteBuffer-int-">getEvent</a></span>(java.nio.ByteBuffer&nbsp;buf,
         int&nbsp;index)</code>
@@ -284,7 +280,7 @@
  and place it in the given buf.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordInputStream.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordInputStream.html#getEvent-java.nio.ByteBuffer-int-int-">getEvent</a></span>(java.nio.ByteBuffer&nbsp;buffer,
         int&nbsp;bufOffset,
@@ -292,53 +288,53 @@
 <div class="block">Get the event at the given index and write it into the given byte buffer.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#getEvent-int-">getEvent</a></span>(int&nbsp;index)</code>
 <div class="block">Get a byte array representing the specified event from the file/buffer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#getNextEvent--">getNextEvent</a></span>()</code>
 <div class="block">Get a byte array representing the next event from the file/buffer while sequentially reading.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#getPrevEvent--">getPrevEvent</a></span>()</code>
 <div class="block">Get a byte array representing the previous event from the sequential queue.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordInputStream.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordInputStream.html#getUserHeader-java.nio.ByteBuffer-int-">getUserHeader</a></span>(java.nio.ByteBuffer&nbsp;buffer,
              int&nbsp;bufOffset)</code>
 <div class="block">Get any existing user header and write it into the given byte buffer.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../org/jlab/coda/hipo/RecordInputStream.html" title="class in org.jlab.coda.hipo">RecordInputStream</a></code></td>
 <td class="colLast"><span class="typeNameLabel">RecordInputStream.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordInputStream.html#getUserHeaderAsRecord-java.nio.ByteBuffer-int-">getUserHeaderAsRecord</a></span>(java.nio.ByteBuffer&nbsp;buffer,
                      int&nbsp;bufOffset)</code>
 <div class="block">Get any existing user header and write it into the given byte buffer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordHeader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordHeader.html#isCompressed-java.nio.ByteBuffer-int-">isCompressed</a></span>(java.nio.ByteBuffer&nbsp;buffer,
             int&nbsp;offset)</code>
 <div class="block">Quickly check to see if this buffer contains compressed data or not.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Writer.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Writer.html#open-java.nio.ByteBuffer-byte:A-">open</a></span>(java.nio.ByteBuffer&nbsp;buf,
     byte[]&nbsp;userHeader)</code>
 <div class="block">Specify a buffer and write first record header with given user header.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Writer.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Writer.html#open-java.nio.ByteBuffer-byte:A-int-int-">open</a></span>(java.nio.ByteBuffer&nbsp;buf,
     byte[]&nbsp;userHdr,
@@ -347,60 +343,60 @@
 <div class="block">Specify a buffer and write first record header with given user header.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Writer.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Writer.html#open-java.lang.String-">open</a></span>(java.lang.String&nbsp;filename)</code>
 <div class="block">Open a new file and write file header with no user header.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#open-java.lang.String-">open</a></span>(java.lang.String&nbsp;filename)</code>
 <div class="block">Opens an input stream in binary mode.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">WriterMT.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/WriterMT.html#open-java.lang.String-">open</a></span>(java.lang.String&nbsp;filename)</code>
 <div class="block">Open a new file and write file header with no user header.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#open-java.lang.String-boolean-">open</a></span>(java.lang.String&nbsp;filename,
     boolean&nbsp;scan)</code>
 <div class="block">Opens an input stream in binary mode.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Writer.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Writer.html#open-java.lang.String-byte:A-">open</a></span>(java.lang.String&nbsp;filename,
     byte[]&nbsp;userHeader)</code>
 <div class="block">Open a file and write file header with given user header.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">WriterMT.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/WriterMT.html#open-java.lang.String-byte:A-">open</a></span>(java.lang.String&nbsp;filename,
     byte[]&nbsp;userHdr)</code>
 <div class="block">Open a file and write file header with given user's header.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">FileHeader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/FileHeader.html#readHeader-java.nio.ByteBuffer-">readHeader</a></span>(java.nio.ByteBuffer&nbsp;buffer)</code>
 <div class="block">Reads the file header information from a byte buffer and validates
  it by checking the magic word (8th word).</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordHeader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordHeader.html#readHeader-java.nio.ByteBuffer-">readHeader</a></span>(java.nio.ByteBuffer&nbsp;buffer)</code>
 <div class="block">Reads the header information from a byte buffer and validates
  it by checking the magic word (8th word).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">FileHeader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/FileHeader.html#readHeader-java.nio.ByteBuffer-int-">readHeader</a></span>(java.nio.ByteBuffer&nbsp;buffer,
           int&nbsp;offset)</code>
@@ -408,7 +404,7 @@
  it by checking the magic word (8th word).</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordHeader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordHeader.html#readHeader-java.nio.ByteBuffer-int-">readHeader</a></span>(java.nio.ByteBuffer&nbsp;buffer,
           int&nbsp;offset)</code>
@@ -416,77 +412,65 @@
  it by checking the magic word (8th word).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordInputStream.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordInputStream.html#readRecord-java.nio.ByteBuffer-int-">readRecord</a></span>(java.nio.ByteBuffer&nbsp;buffer,
           int&nbsp;offset)</code>
 <div class="block">Reads a record from the buffer at the given offset.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#readRecord-int-">readRecord</a></span>(int&nbsp;index)</code>
 <div class="block">Reads record from the file/buffer at the given record index.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">RecordInputStream.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/RecordInputStream.html#readRecord-java.io.RandomAccessFile-long-">readRecord</a></span>(java.io.RandomAccessFile&nbsp;file,
           long&nbsp;position)</code>
 <div class="block">Reads record from the file at given position.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#removeStructure-org.jlab.coda.jevio.EvioNode-">removeStructure</a></span>(<a href="../../../../../org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a>&nbsp;removeNode)</code>
 <div class="block">This method removes the data, represented by the given node, from the buffer.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>java.nio.ByteBuffer</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#scanBuffer--">scanBuffer</a></span>()</code>
 <div class="block">This method scans a buffer to find all records and store their position, length,
  and event count.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#scanFile-boolean-">scanFile</a></span>(boolean&nbsp;force)</code>
 <div class="block">Scans the file to index all the record positions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#scanUncompressedBuffer--">scanUncompressedBuffer</a></span>()</code>
 <div class="block">Scan buffer to find all records and store their position, length, and event count.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#setBuffer-java.nio.ByteBuffer-">setBuffer</a></span>(java.nio.ByteBuffer&nbsp;buf)</code>
 <div class="block">This method can be used to avoid creating additional Reader
  objects by reusing this one with another buffer.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Reader.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/Reader.html#setBuffer-java.nio.ByteBuffer-org.jlab.coda.jevio.EvioNodeSource-">setBuffer</a></span>(java.nio.ByteBuffer&nbsp;buf,
          <a href="../../../../../org/jlab/coda/jevio/EvioNodeSource.html" title="interface in org.jlab.coda.jevio">EvioNodeSource</a>&nbsp;pool)</code>
 <div class="block">This method can be used to avoid creating additional Reader
  objects by reusing this one with another buffer.</div>
 </td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="typeNameLabel">TestWriter.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/TestWriter.html#streamRecord--">streamRecord</a></span>()</code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="typeNameLabel">TestWriter.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/TestWriter.html#testStreamRecord--">testStreamRecord</a></span>()</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="typeNameLabel">TestWriter.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/hipo/TestWriter.html#testWriterVsWriterNew--">testWriterVsWriterNew</a></span>()</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
