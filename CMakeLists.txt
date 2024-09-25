@@ -334,14 +334,14 @@ if( DOXYGEN_FOUND )
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/CC)
 
     # Add target of "docCC"
-    doxygen_add_docs(docCC src/libsrc++)
+    doxygen_add_docs(docCC src/libsrc++ COMMENT "Generating Doxygen documentation for C++")
 
     # Change these values from cmake defaults in the Doxyfile
     set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/C)
 
     # Add target of "docC"
-    doxygen_add_docs(docC src/libsrc )
+    doxygen_add_docs(docC src/libsrc  COMMENT "Generating Doxygen documentation for C")
 
 elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Doxygen NOT found, cmake will exit." )
