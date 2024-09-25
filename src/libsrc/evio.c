@@ -83,7 +83,8 @@
 
 /* This is necessary to use an error check version of the pthread mutex */
 #ifndef __APPLE__
-#define _GNU_SOURCE
+    /** Enable GNU extensions to C lib such as strdup, strndup, asprintf, pid_t. */
+    #define _GNU_SOURCE
 #endif
 
 #include <stdio.h>
@@ -103,14 +104,23 @@
 
 
 /* A few items to make the code more readable */
+
+/** Read from a file. */
 #define EV_READFILE     0
+/** Read from a pipe. */
 #define EV_READPIPE     1
+/** Read from a socket. */
 #define EV_READSOCK     2
+/** Read from a buffer. */
 #define EV_READBUF      3
 
+/** Write to a file. */
 #define EV_WRITEFILE    4
+/** Write to a pipe. */
 #define EV_WRITEPIPE    5
+/** Write to a socket. */
 #define EV_WRITESOCK    6
+/** Write to a buffer. */
 #define EV_WRITEBUF     7
 
 
@@ -737,21 +747,21 @@ static  int      memoryMapFile(EVFILE *a, const char *fileName);
 static  int      generatePointerTable(EVFILE *a);
 static  int      generatePointerTableV6(EVFILE *a);
 
-/* Array that holds all pointers to structures created with evOpen().
+/** Array that holds all pointers to structures created with evOpen().
  * Space in the array is allocated as needed, beginning with 100
  * and adding 50% every time more are needed. */
 EVFILE **handleList = NULL;
-/* The number of handles available for use. */
+/** The number of handles available for use. */
 static size_t handleCount = 0;
 
-/* Pthread mutex for serializing calls to get and free handles. */
+/** Pthread mutex for serializing calls to get and free handles. */
 #ifdef __APPLE__
 static pthread_mutex_t getHandleMutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
 #else
 static pthread_mutex_t getHandleMutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
 #endif
 
-/* Array of pthread lock pointers for preventing simultaneous calls
+/** Array of pthread lock pointers for preventing simultaneous calls
  * to evClose, read/write routines, etc. Need 1 for each evOpen() call. */
 static pthread_mutex_t **handleLocks = NULL;
 
@@ -2098,7 +2108,7 @@ int evOpenSocket(int sockFd, char *flags, int *handle)
 /** @} */
 
 
-/* For test purposes only ... */
+/** For test purposes only ... */
 int evOpenFake(char *filename, char *flags, int *handle, char **evf)
 {
     EVFILE *a;

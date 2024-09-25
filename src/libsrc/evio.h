@@ -68,7 +68,7 @@ extern "C" {
  * @{
  */
 
-/* macros for swapping ints of various sizes */
+/** Macro for swapping 64 bit ints. */
 #define EVIO_SWAP64(x) ( (((x) >> 56) & 0x00000000000000FFL) | \
                          (((x) >> 40) & 0x000000000000FF00L) | \
                          (((x) >> 24) & 0x0000000000FF0000L) | \
@@ -78,11 +78,13 @@ extern "C" {
                          (((x) << 40) & 0x00FF000000000000L) | \
                          (((x) << 56) & 0xFF00000000000000L) )
 
+/** Macro for swapping 32 bit ints. */
 #define EVIO_SWAP32(x) ( (((x) >> 24) & 0x000000FF) | \
                          (((x) >> 8)  & 0x0000FF00) | \
                          (((x) << 8)  & 0x00FF0000) | \
                          (((x) << 24) & 0xFF000000) )
 
+/** Macro for swapping 16 bit ints. */
 #define EVIO_SWAP16(x) ( (((x) >> 8) & 0x00FF) | \
                          (((x) << 8) & 0xFF00) )
 
@@ -206,7 +208,7 @@ typedef struct evfilestruct {
 
 
     /* dictionary */
-    int   hasAppendDictionary;
+    int   hasAppendDictionary;  /**< if appending, true if first header says there is a dictionary. */
     int   wroteDictionary;      /**< dictionary already written out to a single (split fragment) file? */
     uint32_t dictLength;        /**< length of dictionary bank in bytes (including entire header). */
     uint32_t *dictBuf;          /**< buffer containing dictionary bank. */

@@ -43,12 +43,13 @@
 #define SWAP32(x) (x)
 #define SWAP16(x) (x)
 
+/** Struct used to track using the data format. */
 typedef struct
 {
-  int left;    /* index of ifmt[] element containing left parenthesis */
-  int nrepeat; /* how many times format in parenthesis must be repeated */
-  int irepeat; /* right parenthesis counter, or how many times format
-                  in parenthesis already repeated */
+  int left;    /**< index of ifmt[] element containing left parenthesis. */
+  int nrepeat; /**< how many times format in parenthesis must be repeated. */
+  int irepeat; /**< right parenthesis counter, or how many times format
+                    in parenthesis already repeated. */
 } LV;
 
 
@@ -59,6 +60,26 @@ typedef struct
 #define NWORDS 1000000
 static int32_t iarr[NWORDS+10];
 
+
+/**
+ *    This function dumps data into an XML array.
+ *
+ *      Converts the data of array (iarr[i], i=0...nwrd-1)
+ *      using the format code      ifmt[j], j=0...nfmt-1).
+ *
+ *   Algorithm description:
+ *      data processed inside while(ib < nwrd) loop, where 'ib' is iarr[] index; loop breaks when 'ib'
+ *      reaches the number of elements in iarr[].
+ *
+ *
+ * @param arr data array (words).
+ * @param nwrd length of data array in words.
+ * @param ifmt format (as produced by eviofmt.c)
+ * @param nfmt the number of elements in ifmt[]
+ * @param nextrabytes number of extra bytes at the end of the data.
+ * @param xml filled with number of chars printed.
+ * @return the number of bytes in 'xml' if everything fine, negative if error.
+ */
 int
 eviofmtdump(int32_t *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes, char *xml)
 {
