@@ -20,7 +20,7 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  * fills the record with data, and finally does a {@link #publish(RecordRingItem)}
  * to let consumers know the data is ready.<p>
  *
- * This class is setup to handle 2 types of consumers.
+ * This class is set up to handle 2 types of consumers.
  * The first type is a thread which compresses a record's data.
  * The number of such consumers is set in the constructor.
  * Each of these will call {@link #getToCompress(int)} to get a record
@@ -58,7 +58,7 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  *
  *                       ||
  *                       ||  writeBarrier
- *           ^gt;           ||
+ *          ^            ||
  *         /            _____
  *    Write thread     /  |  \
  *              ---&gt;  /1 _|_ 2\  &lt;---- Compression Threads 1-M

@@ -218,7 +218,7 @@ public class RecordInputStream {
 
     /**
      * Get the event at the given index and return it in an allocated array.
-     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * Not threadsafe as internal buffer's pos and limit may change momentarily,
      * but are unchanged on return.
      * This method allocates memory and thus creates garbage.
      *
@@ -272,7 +272,7 @@ public class RecordInputStream {
 
     /**
      * Get the event at the given index and return it in the given array.
-     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * Not threadsafe as internal buffer's pos and limit may change momentarily,
      * but are unchanged on return.
      *
      * @param event byte array in which to place event.
@@ -358,8 +358,8 @@ public class RecordInputStream {
      * but the buffer.limit() is ignored and reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
-     * Buffer pos & lim are ready to read on return.
-     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * Buffer pos and lim are ready to read on return.
+     * Not threadsafe as internal buffer's pos and limit may change momentarily,
      * but are unchanged on return.
      *
      * @param buffer buffer to be filled with event starting at position = 0
@@ -378,8 +378,8 @@ public class RecordInputStream {
      * but the buffer.limit() is ignored and reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
-     * Buffer pos & lim are ready to read on return.
-     * Not threadsafe as internal buffer's pos & limit may change momentarily,
+     * Buffer pos and lim are ready to read on return.
+     * Not threadsafe as internal buffer's pos and limit may change momentarily,
      * but are unchanged on return.
      *
      * @param buffer    buffer to be filled with event.

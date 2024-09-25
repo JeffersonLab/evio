@@ -34,43 +34,6 @@ public class Compressor {
     /** Decompressor for LZ4 if decompressed size unknown. */
     private static final LZ4SafeDecompressor lz4_decompressor;
 
- 
-    private static int getYear(ByteBuffer buf){
-      int rv = 0;
-      rv |= (int)buf.get(6);
-      rv &= 0x000000ff;
-      rv |= (int)buf.get(7) << 8;
-      rv &= 0x0000ffff;
-      return rv;
-    }
-
-    private static int getRevisionId(ByteBuffer buf, int board_id){
-      int rv = 0;
-      rv |= buf.get((9 + board_id));
-      rv &= 0x000000ff;
-      return rv;
-    }
-
-    private static int getSubsystemId(ByteBuffer buf, int board_id){
-      int rv = 0;
-      int offset = (26 + (board_id * 2));
-      rv |= buf.get(offset);
-      rv &= 0x000000ff;
-      rv |= buf.get((offset + 1)) << 8;
-      rv &= 0x0000ffff;
-      return rv;
-    }
-
-    private static int getDeviceId(ByteBuffer buf, int board_id){
-      int rv = 0;
-      int offset = (58 + (board_id * 2));
-      rv |= buf.get(offset);
-      rv &= 0x000000ff;
-      rv |= buf.get((offset + 1)) << 8;
-      rv &= 0x0000ffff;
-      return rv;
-    }
-
 
     static {
         factory = LZ4Factory.fastestInstance();
@@ -89,6 +52,10 @@ public class Compressor {
 
         private ByteBuffer backendBuffer;
 
+        /**
+         * Get ByteBuffer backing the input stream (containing uncompressed gzip input).
+         * @param backendBuffer buffer to contain uncompressed gzip data during decompression process.
+         */
         public ByteBufferBackedInputStream(ByteBuffer backendBuffer) {
             this.backendBuffer = backendBuffer;
         }

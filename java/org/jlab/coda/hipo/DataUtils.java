@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
  */
 public class DataUtils {
 
-    public DataUtils(){}
+    private DataUtils(){}
 
     /**
      * Get the String representation of a hex integer.

@@ -112,21 +112,73 @@ public class Reader {
         /** Number of entries in record. */
         private int  count;
 
+        /**
+         * Constructor.
+         * @param pos position of this record in file/buffer.
+         */
         RecordPosition(long pos) {position = pos;}
+
+        /**
+         * Constructor
+         * @param pos new position of record.
+         * @param len length of record in bytes.
+         * @param cnt number of entries in this record.
+         */
         RecordPosition(long pos, int len, int cnt) {
             position = pos; length = len; count = cnt;
         }
 
+        /**
+         * Set position of this record in file/buffer.
+         * @param _pos new position of record.
+         * @return this object.
+         */
         public RecordPosition setPosition(long _pos){ position = _pos; return this; }
+
+        /**
+         * Set length of this record.
+         * @param _len length of record in bytes.
+         * @return this object.
+         */
         public RecordPosition setLength(int _len)   { length = _len;   return this; }
+
+        /**
+         * Set the count or number of entries in this record.
+         * @param _cnt count or number of entries in this record.
+         * @return the object.
+         */
         public RecordPosition setCount( int _cnt)   { count = _cnt;    return this; }
+
+        /**
+         * Set the position of this record in file/buffer, its length,
+         * and the number of entries in it.
+         * @param pos new position of record.
+         * @param len length of record in bytes.
+         * @param cnt number of entries in this record.
+         */
         public void setAll(long pos, int len, int cnt)   {
             position = pos; length = len; count = cnt;
         }
 
+        /**
+         * Get the position of this record in file/buffer.
+         * @return position of this record.
+         */
         public long getPosition(){ return position;}
+
+        /**
+         * Get the length of this record.
+         * @return length of this record in bytes.
+         */
         public int  getLength(){   return   length;}
+
+        /**
+         * Get the count or number of entries in this record.
+         * @return number of entries in this record.
+         */
         public int  getCount(){    return    count;}
+
+        /** Clear the field of this object to 0. */
         public void clear() {position = length = count = 0;}
 
         @Override
@@ -251,9 +303,13 @@ public class Reader {
     protected FileEventIndex eventIndex = new FileEventIndex();
 
     // For garbage-free parsing
+    /** Byte array for holding evio v6 record header. */
     protected byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
+    /** ByteBuffer wrapping {@link #headerBytes} array. */
     protected ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
+    /** RecordHeader object. */
     protected RecordHeader recordHeader = new RecordHeader();
+    /** Pool of RecordPosition objects used to avoid generating garbage. */
     protected RecPosPool recPosPool = new RecPosPool(20000);
 
     /** Files may have an xml format dictionary in the user header of the file header. */
@@ -2080,6 +2136,9 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
     }
 
 
+    /**
+     * Print out all record positions.
+     */
     public void show() {
         System.out.println(" ***** FILE: (info), RECORDS = "
                 + recordPositions.size() + " *****");
@@ -2087,7 +2146,12 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
             System.out.println(entry);
         }
     }
-    
+
+
+    /**
+     * Example program using Reader.
+     * @param args unused.
+     */
     public static void main(String[] args){
         try {
             Reader reader = new Reader("/Users/gavalian/Work/Software/project-3a.0.0/Distribution/clas12-offline-software/coatjava/clas_000810_324.hipo",true);

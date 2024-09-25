@@ -226,7 +226,11 @@ public class FileEventIndex {
         str.append(String.format(" offset = %6d", currentRecordEvent));
         return str.toString();
     }
-    
+
+    /**
+     * Example use of this class.
+     * @param args unused.
+     */
     public static void main(String[] args){
         
         FileEventIndex index = new FileEventIndex();
