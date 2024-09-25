@@ -1,0 +1,46 @@
+#!/bin/csh -f
+
+# Script to setup the evio directory to use to correct version
+# of the supporting jar files.
+# The choice is based on the version of java in the path.
+# JAVA_HOME must be set.
+
+# Check if Java is available in the path
+if ( ! $?JAVA_HOME ) then
+    echo "Java is not installed or not found in the path."
+    exit 1
+endif
+
+# Capture the Java version string
+set javaVersion = `java -version |& grep "version" | awk '{print $3}' | tr -d '"'`
+
+# Extract the major version
+set majorVersion = `echo $javaVersion | awk -F. '{print $1}'`
+
+# If major version is "1", extract the second number (for Java 1.x, where x is the real version)
+if ( "$majorVersion" == "1" ) then
+    set majorVersion = `echo $javaVersion | awk -F. '{print $2}'`
+endif
+
+# Output the major Java version
+echo "Java major version: $majorVersion"
+
+# Define the destination directory
+set destDir = "java/jars"
+
+# Remove all jar files from destination
+rm $destDir/*.jar
+
+# Define the source directory
+if ($majorVersion < 15) then
+    set srcDir = "java/jars/java8"
+    echo "Copy jar files from $srcDir"
+    # Copy all jar files from source to destination
+    cp $srcDir/disruptor-3.4.3.jar $destDir/.
+    cp $srcDir/lz4-java.1.8.0.jar $destDir/.
+else
+    set srcDir = "java/jars/java15"
+    echo "Copy jar files from $srcDir"
+    cp $srcDir/disruptor-4.0.0.jar $destDir/.
+    cp $srcDir/lz4-java.1.8.0.jar $destDir/.
+endif
