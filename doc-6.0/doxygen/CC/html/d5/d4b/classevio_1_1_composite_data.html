@@ -258,7 +258,7 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a06584161030c022e2f3f60a78405eb9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method converts (swaps) an array of EVIO composite type data between IEEE (big endian) and DECS (little endian) in place.  <a href="../../d5/d4b/classevio_1_1_composite_data.html#a06584161030c022e2f3f60a78405eb9c">More...</a><br /></td></tr>
 <tr class="separator:a06584161030c022e2f3f60a78405eb9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7b558304fccaab5ee49e1fd1051aebd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html#ad7b558304fccaab5ee49e1fd1051aebd">dataToRawBytes</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;rawBuf, <a class="el" href="../../d0/d19/classevio_1_1_composite_data_1_1_data.html">Data</a> const &amp;data, std::vector&lt; uint16_t &gt; &amp;ifmt)</td></tr>
-<tr class="memdesc:ad7b558304fccaab5ee49e1fd1051aebd"><td class="mdescLeft">&#160;</td><td class="mdescRight">&zwj;**  <a href="../../d5/d4b/classevio_1_1_composite_data.html#ad7b558304fccaab5ee49e1fd1051aebd">More...</a><br /></td></tr>
+<tr class="memdesc:ad7b558304fccaab5ee49e1fd1051aebd"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method takes a <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html">CompositeData</a> object and a transformed format string and uses that to write data into a buffer/array in raw form.  <a href="../../d5/d4b/classevio_1_1_composite_data.html#ad7b558304fccaab5ee49e1fd1051aebd">More...</a><br /></td></tr>
 <tr class="separator:ad7b558304fccaab5ee49e1fd1051aebd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -410,13 +410,12 @@ _______________________________________
 </table>
 </div><div class="memdoc">
 
-<p>&zwj;** </p>
-<p>This method takes a <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html">CompositeData</a> object and a transformed format string and uses that to write data into a buffer/array in raw form.</p>
+<p>This method takes a <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html">CompositeData</a> object and a transformed format string and uses that to write data into a buffer/array in raw form. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">rawBuf</td><td>data buffer in which to put the raw bytes </td></tr>
-    <tr><td class="paramname">data</td><td>data to convert to raw bytes </td></tr>
-    <tr><td class="paramname">ifmt</td><td>format list as produced by <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html#a45522e40448c30a8d83c79df1ef09264">compositeFormatToInt(const std::string &amp;, std::vector&lt;uint16_t&gt; &amp;)</a></td></tr>
+    <tr><td class="paramname">rawBuf</td><td>data buffer in which to put the raw bytes. </td></tr>
+    <tr><td class="paramname">data</td><td>data to convert to raw bytes. </td></tr>
+    <tr><td class="paramname">ifmt</td><td>format list as produced by <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html#a45522e40448c30a8d83c79df1ef09264">compositeFormatToInt(const std::string &amp;, std::vector&lt;uint16_t&gt; &amp;)</a>.</td></tr>
   </table>
   </dd>
 </dl>

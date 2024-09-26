@@ -264,10 +264,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:af38ed12e610a90edddc20eb4d4a72fc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute <em>get</em> method for reading a short value.  <a href="../../dc/d30/classevio_1_1_byte_buffer.html#af38ed12e610a90edddc20eb4d4a72fc2">More...</a><br /></td></tr>
 <tr class="separator:af38ed12e610a90edddc20eb4d4a72fc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58f0bd2a0bf3263be899445c0c3de757"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#a58f0bd2a0bf3263be899445c0c3de757">getUShort</a> () const</td></tr>
-<tr class="memdesc:a58f0bd2a0bf3263be899445c0c3de757"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative <em>get</em> method for reading an unsigned short value.  <a href="../../dc/d30/classevio_1_1_byte_buffer.html#a58f0bd2a0bf3263be899445c0c3de757">More...</a><br /></td></tr>
 <tr class="separator:a58f0bd2a0bf3263be899445c0c3de757"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f0a1ce0012cefa29867fdaedc7cb86a"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#a9f0a1ce0012cefa29867fdaedc7cb86a">getUShort</a> (size_t index) const</td></tr>
-<tr class="memdesc:a9f0a1ce0012cefa29867fdaedc7cb86a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute <em>get</em> method for reading an unsigned short value.  <a href="../../dc/d30/classevio_1_1_byte_buffer.html#a9f0a1ce0012cefa29867fdaedc7cb86a">More...</a><br /></td></tr>
 <tr class="separator:a9f0a1ce0012cefa29867fdaedc7cb86a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a01783f61f04c093b71f58cd1adbde2fa"><td class="memItemLeft" align="right" valign="top">int32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#a01783f61f04c093b71f58cd1adbde2fa">getInt</a> () const</td></tr>
 <tr class="memdesc:a01783f61f04c093b71f58cd1adbde2fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative <em>get</em> method for reading an int value.  <a href="../../dc/d30/classevio_1_1_byte_buffer.html#a01783f61f04c093b71f58cd1adbde2fa">More...</a><br /></td></tr>
@@ -877,15 +875,9 @@ Static Public Member Functions</h2></td></tr>
 
 <p>Returns a byte buffer that shares this buffer's content. </p>
 <p>The content of the returned buffer will be that of this buffer. Changes to this buffer's content will be visible in the returned buffer, and vice versa; the two buffers' position, limit, and mark values will be independent.</p>
-<p>The returned buffer's capacity, limit, position, and mark values will initially be identical to those of this buffer. </p>
+<p>The returned buffer's capacity, limit, position, and mark values will initially be identical to those of this buffer.</p>
 <p>The C++ version of this method departs from the Java which has no argument. To implement this method, one could return a unique pointer to a locally created <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> object which would eliminate the need for an argument. However, handling the new buffer would be different from handling those created by the constructor since the caller would have a unique pointer instead of a <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> reference.</p>
 <p>A cleaner way to do this is for the caller to create their own, new <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> object and pass it in as an argument. This method then makes it identical to this buffer and the data (implemented as a shared pointer) is shared between the objects. The buffer passed in as an argument is also the one returned.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">destBuf</td><td>byte buffer to be made a duplicate of this one. </td></tr>
-  </table>
-  </dd>
-</dl>
 <dl class="section return"><dt>Returns</dt><dd>the same byte buffer as passed in as the argument. </dd></dl>
 
 <p class="reference">Referenced by <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#adf3809653426c9559eb5c77813582221">duplicate()</a>.</p>
@@ -943,7 +935,7 @@ Static Public Member Functions</h2></td></tr>
 
 <p>Returns a byte buffer that shares this buffer's content. </p>
 <p>The content of the returned buffer will be that of this buffer. Changes to this buffer's content will be visible in the returned buffer, and vice versa; the two buffers' position, limit, and mark values will be independent.</p>
-<p>The returned buffer's capacity, limit, position, and mark values will initially be identical to those of this buffer. </p>
+<p>The returned buffer's capacity, limit, position, and mark values will initially be identical to those of this buffer.</p>
 <p>The C++ version of this method departs from the Java which has no argument. To implement this method, one could return a unique pointer to a locally created <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> object which would eliminate the need for an argument. However, handling the new buffer would be different from handling those created by the constructor since the caller would have a unique pointer instead of a <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> reference.</p>
 <p>A cleaner way to do this is for the caller to create their own, new <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> object and pass it in as an argument. This method then makes it identical to this buffer and the data (implemented as a shared pointer) is shared between the objects. The buffer passed in as an argument is also the one returned.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -1222,7 +1214,8 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Relative <em>get</em> method for reading a 16-bit unicode character value which is by nature unsigned. </p>
-<p>Keeping the name as "getChar" makes it compatible with Java, but be aware it does NOT get a 8-bit "char" type. This method reads the next two bytes at this buffer's current position, composing them into a wchar_t value according to the current byte order, and then increments the position by two.</p>
+<p>Keeping the name as "getChar" makes it compatible with Java, but be aware it does NOT get a 8-bit "char" type. </p>
+<p>This method reads the next two bytes at this buffer's current position, composing them into a wchar_t value according to the current byte order, and then increments the position by two.</p>
 <dl class="section return"><dt>Returns</dt><dd>wchar_t value at buffer's current position </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
@@ -1250,7 +1243,8 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Absolute <em>get</em> method for reading a 16-bit unicode character value which is by nature unsigned. </p>
-<p>Reads at the given index. Keeping the name as "getChar" makes it compatible with Java, but be aware it does NOT get a 8-bit "char" type. This method reads the next two bytes at the given index, composing them into a wchar_t value according to the current byte order, and then increments the position by two.</p>
+<p>Reads at the given index. Keeping the name as "getChar" makes it compatible with Java, but be aware it does NOT get a 8-bit "char" type. </p>
+<p>This method reads the next two bytes at the given index, composing them into a wchar_t value according to the current byte order, and then increments the position by two.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">index</td><td>index from which the bytes will be read. </td></tr>
@@ -1770,9 +1764,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Relative <em>get</em> method for reading an unsigned short value. </p>
-<p>Reads the next two bytes at this buffer's current position, composing them into an unsigned short value according to the current byte order, and then increments the position by two.</p>
+<p>Relative <em>get</em> method for reading an unsigned short value. Reads the next two bytes at this buffer's current position, composing them into an unsigned short value according to the current byte order, and then increments the position by two.</p>
 <p>This method is not defined in the Java version.</p>
 <dl class="section return"><dt>Returns</dt><dd>unsigned short value at buffer's current position. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
@@ -1803,9 +1795,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Absolute <em>get</em> method for reading an unsigned short value. </p>
-<p>Reads two bytes at the given index, composing them into an unsigned short value according to the current byte order.</p>
+<p>Absolute <em>get</em> method for reading an unsigned short value. Reads two bytes at the given index, composing them into an unsigned short value according to the current byte order.</p>
 <p>This method is not defined in the Java version.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">

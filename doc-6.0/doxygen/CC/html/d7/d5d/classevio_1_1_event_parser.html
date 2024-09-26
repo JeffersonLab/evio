@@ -152,6 +152,7 @@ Protected Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a020d1c4bf00e6e945a88fb4d0ffcf7da"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#a020d1c4bf00e6e945a88fb4d0ffcf7da">notificationActive</a> = true</td></tr>
+<tr class="memdesc:a020d1c4bf00e6e945a88fb4d0ffcf7da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag determining whether notification of listeners is active.  <a href="../../d7/d5d/classevio_1_1_event_parser.html#a020d1c4bf00e6e945a88fb4d0ffcf7da">More...</a><br /></td></tr>
 <tr class="separator:a020d1c4bf00e6e945a88fb4d0ffcf7da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f7541475954dc182c6a76e553022456"><td class="memItemLeft" align="right" valign="top">std::recursive_mutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#a6f7541475954dc182c6a76e553022456">mtx</a></td></tr>
 <tr class="memdesc:a6f7541475954dc182c6a76e553022456"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for thread safety.  <a href="../../d7/d5d/classevio_1_1_event_parser.html#a6f7541475954dc182c6a76e553022456">More...</a><br /></td></tr>
@@ -742,6 +743,9 @@ timmer </dd></dl>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Flag determining whether notification of listeners is active. </p>
+<p>Normally it is. But in some cases it could be temporarily suspended. For example, in a "goto event" process, the listeners will not be notified of the intervening events as the file is scanned to get to the target event. </p>
 
 <p class="reference">Referenced by <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#a2ca57fd09594290998558bb995b8ceb0">isNotificationActive()</a>, <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#a07d220f58e36a42734908a080d8c1bf4">notifyEvioListeners()</a>, <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#aadd44ae6046ecc881f558d6095a36634">notifyStart()</a>, <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#ae3a8c2b74ad151e83f5c0970ed0845bc">notifyStop()</a>, and <a class="el" href="../../d7/d5d/classevio_1_1_event_parser.html#aa563397e1a05ffc3e96821697aa49547">setNotificationActive()</a>.</p>
 

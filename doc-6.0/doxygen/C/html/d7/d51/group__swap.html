@@ -96,10 +96,13 @@ $(document).ready(function(){initNavTree('d7/d51/group__swap.html','../../'); in
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:ga5f0f74f53c471490ce4c8425b8e14e6f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d51/group__swap.html#ga5f0f74f53c471490ce4c8425b8e14e6f">EVIO_SWAP64</a>(x)</td></tr>
+<tr class="memdesc:ga5f0f74f53c471490ce4c8425b8e14e6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Macro for swapping 64 bit ints.  <a href="../../d7/d51/group__swap.html#ga5f0f74f53c471490ce4c8425b8e14e6f">More...</a><br /></td></tr>
 <tr class="separator:ga5f0f74f53c471490ce4c8425b8e14e6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga14c61f6c7ad81a3509d0ad9bd7ffe2e5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d51/group__swap.html#ga14c61f6c7ad81a3509d0ad9bd7ffe2e5">EVIO_SWAP32</a>(x)</td></tr>
+<tr class="memdesc:ga14c61f6c7ad81a3509d0ad9bd7ffe2e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Macro for swapping 32 bit ints.  <a href="../../d7/d51/group__swap.html#ga14c61f6c7ad81a3509d0ad9bd7ffe2e5">More...</a><br /></td></tr>
 <tr class="separator:ga14c61f6c7ad81a3509d0ad9bd7ffe2e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8b1139c2afbb9bc259387b571e8f3e29"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d51/group__swap.html#ga8b1139c2afbb9bc259387b571e8f3e29">EVIO_SWAP16</a>(x)</td></tr>
+<tr class="memdesc:ga8b1139c2afbb9bc259387b571e8f3e29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Macro for swapping 16 bit ints.  <a href="../../d7/d51/group__swap.html#ga8b1139c2afbb9bc259387b571e8f3e29">More...</a><br /></td></tr>
 <tr class="separator:ga8b1139c2afbb9bc259387b571e8f3e29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga05d56105a85133e2087228125686cb6e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d51/group__swap.html#ga05d56105a85133e2087228125686cb6e">EVIO_TO_64_BITS</a>(low,  high)</td></tr>
 <tr class="memdesc:ga05d56105a85133e2087228125686cb6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate a 64 bit result from 2 32 bit inputs.  <a href="../../d7/d51/group__swap.html#ga05d56105a85133e2087228125686cb6e">More...</a><br /></td></tr>
@@ -153,6 +156,8 @@ Functions</h2></td></tr>
 <b>Value:</b><div class="fragment"><div class="line">                         ( (((x) &gt;&gt; 8) &amp; 0x00FF) | \</div>
 <div class="line">                         (((x) &lt;&lt; 8) &amp; 0xFF00) )</div>
 </div><!-- fragment -->
+<p>Macro for swapping 16 bit ints. </p>
+
 </div>
 </div>
 <a id="ga14c61f6c7ad81a3509d0ad9bd7ffe2e5"></a>
@@ -175,6 +180,8 @@ Functions</h2></td></tr>
 <div class="line">                         (((x) &lt;&lt; 8)  &amp; 0x00FF0000) | \</div>
 <div class="line">                         (((x) &lt;&lt; 24) &amp; 0xFF000000) )</div>
 </div><!-- fragment -->
+<p>Macro for swapping 32 bit ints. </p>
+
 </div>
 </div>
 <a id="ga5f0f74f53c471490ce4c8425b8e14e6f"></a>
@@ -201,6 +208,8 @@ Functions</h2></td></tr>
 <div class="line">                         (((x) &lt;&lt; 40) &amp; 0x00FF000000000000L) | \</div>
 <div class="line">                         (((x) &lt;&lt; 56) &amp; 0xFF00000000000000L) )</div>
 </div><!-- fragment -->
+<p>Macro for swapping 64 bit ints. </p>
+
 </div>
 </div>
 <a id="ga05d56105a85133e2087228125686cb6e"></a>

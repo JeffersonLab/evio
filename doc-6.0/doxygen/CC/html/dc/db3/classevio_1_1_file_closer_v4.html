@@ -98,10 +98,13 @@ $(document).ready(function(){initNavTree('dc/db3/classevio_1_1_file_closer_v4.ht
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a03c06b27ab63be79337750107938f7da"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/db3/classevio_1_1_file_closer_v4.html#a03c06b27ab63be79337750107938f7da">FileCloserV4</a> (int poolSize)</td></tr>
+<tr class="memdesc:a03c06b27ab63be79337750107938f7da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../dc/db3/classevio_1_1_file_closer_v4.html#a03c06b27ab63be79337750107938f7da">More...</a><br /></td></tr>
 <tr class="separator:a03c06b27ab63be79337750107938f7da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37d87812f7060ec8c440acc033f227be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/db3/classevio_1_1_file_closer_v4.html#a37d87812f7060ec8c440acc033f227be">close</a> ()</td></tr>
+<tr class="memdesc:a37d87812f7060ec8c440acc033f227be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close this object by ending all threads in pool.  <a href="../../dc/db3/classevio_1_1_file_closer_v4.html#a37d87812f7060ec8c440acc033f227be">More...</a><br /></td></tr>
 <tr class="separator:a37d87812f7060ec8c440acc033f227be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a1e5f949e209526e96923fce1ddb411"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/db3/classevio_1_1_file_closer_v4.html#a6a1e5f949e209526e96923fce1ddb411">closeAsyncFile</a> (std::shared_ptr&lt; std::fstream &gt; afc, std::shared_ptr&lt; std::future&lt; void &gt;&gt; future)</td></tr>
+<tr class="memdesc:a6a1e5f949e209526e96923fce1ddb411"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close file given by filestream after pending write is finished.  <a href="../../dc/db3/classevio_1_1_file_closer_v4.html#a6a1e5f949e209526e96923fce1ddb411">More...</a><br /></td></tr>
 <tr class="separator:a6a1e5f949e209526e96923fce1ddb411"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -131,6 +134,14 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">poolSize</td><td>size of pool of threads to close files. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -156,6 +167,8 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Close this object by ending all threads in pool. </p>
 
 </div>
 </div>
@@ -192,6 +205,15 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Close file given by filestream after pending write is finished. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">afc</td><td>file stream to close. </td></tr>
+    <tr><td class="paramname">future</td><td>object representing a write that is in progress. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

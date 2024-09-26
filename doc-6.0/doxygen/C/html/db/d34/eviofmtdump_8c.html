@@ -110,6 +110,7 @@ Macros</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ae4279c7813d568f464e16df6096a3e9a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d34/eviofmtdump_8c.html#ae4279c7813d568f464e16df6096a3e9a">eviofmtdump</a> (<a class="el" href="../../d9/d5a/msinttypes_8h.html#ab4947a5378d9eabd7ca4b401a137484d">int32_t</a> *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes, char *xml)</td></tr>
+<tr class="memdesc:ae4279c7813d568f464e16df6096a3e9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function dumps data into an XML array.  <a href="../../db/d34/eviofmtdump_8c.html#ae4279c7813d568f464e16df6096a3e9a">More...</a><br /></td></tr>
 <tr class="separator:ae4279c7813d568f464e16df6096a3e9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
@@ -273,6 +274,22 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>This function dumps data into an XML array. </p>
+<p>Converts the data of array (iarr[i], i=0...nwrd-1) using the format code ifmt[j], j=0...nfmt-1).</p>
+<p>Algorithm description: data processed inside while(ib &lt; nwrd) loop, where 'ib' is iarr[] index; loop breaks when 'ib' reaches the number of elements in iarr[].</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arr</td><td>data array (words). </td></tr>
+    <tr><td class="paramname">nwrd</td><td>length of data array in words. </td></tr>
+    <tr><td class="paramname">ifmt</td><td>format (as produced by <a class="el" href="../../d0/deb/eviofmt_8c.html">eviofmt.c</a>) </td></tr>
+    <tr><td class="paramname">nfmt</td><td>the number of elements in ifmt[] </td></tr>
+    <tr><td class="paramname">nextrabytes</td><td>number of extra bytes at the end of the data. </td></tr>
+    <tr><td class="paramname">xml</td><td>filled with number of chars printed. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the number of bytes in 'xml' if everything fine, negative if error. </dd></dl>
 
 <p class="reference">References <a class="el" href="../../db/d34/eviofmtdump_8c.html#a3cd2baa6a4e5edb7a622ad2d706cac13">NWORDS</a>.</p>
 

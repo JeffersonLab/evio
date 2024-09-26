@@ -117,10 +117,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a22a99b547180f3c9aca1a8a5b39130b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain a string representation of the tagsegment header.  <a href="../../df/d43/classevio_1_1_tag_segment_header.html#a22a99b547180f3c9aca1a8a5b39130b0">More...</a><br /></td></tr>
 <tr class="separator:a22a99b547180f3c9aca1a8a5b39130b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53fafe085bb9c294a799e77b276d2eae"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html#a53fafe085bb9c294a799e77b276d2eae">write</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; dest) override</td></tr>
-<tr class="memdesc:a53fafe085bb9c294a799e77b276d2eae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out a byte buffer.  <a href="../../df/d43/classevio_1_1_tag_segment_header.html#a53fafe085bb9c294a799e77b276d2eae">More...</a><br /></td></tr>
+<tr class="memdesc:a53fafe085bb9c294a799e77b276d2eae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../df/d43/classevio_1_1_tag_segment_header.html#a53fafe085bb9c294a799e77b276d2eae">More...</a><br /></td></tr>
 <tr class="separator:a53fafe085bb9c294a799e77b276d2eae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a568da7b8bcb84a881663712e46ceb682"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html#a568da7b8bcb84a881663712e46ceb682">write</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;dest) override</td></tr>
-<tr class="memdesc:a568da7b8bcb84a881663712e46ceb682"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out a byte buffer.  <a href="../../df/d43/classevio_1_1_tag_segment_header.html#a568da7b8bcb84a881663712e46ceb682">More...</a><br /></td></tr>
+<tr class="memdesc:a568da7b8bcb84a881663712e46ceb682"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../df/d43/classevio_1_1_tag_segment_header.html#a568da7b8bcb84a881663712e46ceb682">More...</a><br /></td></tr>
 <tr class="separator:a568da7b8bcb84a881663712e46ceb682"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa792a400774c62abced5d451affb49e0"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html#aa792a400774c62abced5d451affb49e0">write</a> (uint8_t *dest, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> const &amp;order) override</td></tr>
 <tr class="memdesc:aa792a400774c62abced5d451affb49e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out as evio format data into the given byte array in the specified byte order.  <a href="../../df/d43/classevio_1_1_tag_segment_header.html#aa792a400774c62abced5d451affb49e0">More...</a><br /></td></tr>
@@ -484,7 +484,7 @@ timmer </dd></dl>
 </div><div class="memdoc">
 
 <p>Get the length of the structure's header in ints. </p>
-<p>This includes the first header word itself (which contains the length) and in the case of banks, it also includes the second header word. </p><dl class="section return"><dt>Returns</dt><dd>Get the length of the structure's header in ints. </dd></dl>
+<p>This includes the first header word itself (which contains the length) and in the case of banks, it also includes the second header word. </p><dl class="section return"><dt>Returns</dt><dd>length of the structure's header in ints (2 for banks, 1 for segments and tagsegments). </dd></dl>
 
 <p>Reimplemented from <a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#a11c3bab4b4b99bbc3103b3ae038f0c4c">evio::BaseStructureHeader</a>.</p>
 
@@ -871,7 +871,7 @@ timmer </dd></dl>
           <td class="memname">size_t evio::TagSegmentHeader::write </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;&#160;</td>
-          <td class="paramname"><em>byteBuffer</em></td><td>)</td>
+          <td class="paramname"><em>dest</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -882,15 +882,15 @@ timmer </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p>Write myself out a byte buffer. </p>
+<p>Write myself out into a byte buffer. </p>
 <p>This write is relative - i.e., it uses the current position of the buffer.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">byteBuffer</td><td>the byteBuffer to write to. </td></tr>
+    <tr><td class="paramname">dest</td><td>the byteBuffer to write to. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../dc/d90/classevio_1_1_bank_header.html" title="This the header for an evio bank structure (EvioBank).">BankHeader</a> is 8 and for a <a class="el" href="../../d1/d89/classevio_1_1_segment_header.html" title="This the header for an evio segment structure (EvioSegment).">SegmentHeader</a> or <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
 
 <p>Reimplemented from <a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#ae045706ed8b20dcb5619a7e4e273de95">evio::BaseStructureHeader</a>.</p>
 
@@ -911,7 +911,7 @@ timmer </dd></dl>
           <td class="memname">size_t evio::TagSegmentHeader::write </td>
           <td>(</td>
           <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
-          <td class="paramname"><em>byteBuffer</em></td><td>)</td>
+          <td class="paramname"><em>dest</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -922,15 +922,15 @@ timmer </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p>Write myself out a byte buffer. </p>
+<p>Write myself out into a byte buffer. </p>
 <p>This write is relative - i.e., it uses the current position of the buffer.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">byteBuffer</td><td>the byteBuffer to write to. </td></tr>
+    <tr><td class="paramname">dest</td><td>the byteBuffer to write to. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../dc/d90/classevio_1_1_bank_header.html" title="This the header for an evio bank structure (EvioBank).">BankHeader</a> is 8 and for a <a class="el" href="../../d1/d89/classevio_1_1_segment_header.html" title="This the header for an evio segment structure (EvioSegment).">SegmentHeader</a> or <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
 
 <p>Reimplemented from <a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#aee11faf3d7ad0022dc3009772044001d">evio::BaseStructureHeader</a>.</p>
 
@@ -978,7 +978,7 @@ timmer </dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../dc/d90/classevio_1_1_bank_header.html" title="This the header for an evio bank structure (EvioBank).">BankHeader</a> is 8 and for a <a class="el" href="../../d1/d89/classevio_1_1_segment_header.html" title="This the header for an evio segment structure (EvioSegment).">SegmentHeader</a> or <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if destination array too small to hold data. </td></tr>

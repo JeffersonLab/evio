@@ -187,6 +187,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a7ded2b8346e365604451eb7bb3bfc09d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an event (bank) into a record and eventually to a file in evio version 4 format.  <a href="../../df/d0c/classevio_1_1_event_writer_v4.html#a7ded2b8346e365604451eb7bb3bfc09d">More...</a><br /></td></tr>
 <tr class="separator:a7ded2b8346e365604451eb7bb3bfc09d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a622cb6dc51edd39835c88a457a2db42e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a622cb6dc51edd39835c88a457a2db42e">writeEvent</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; eventBuffer)</td></tr>
+<tr class="memdesc:a622cb6dc51edd39835c88a457a2db42e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an event (bank) to the buffer in evio version 4 format.  <a href="../../df/d0c/classevio_1_1_event_writer_v4.html#a622cb6dc51edd39835c88a457a2db42e">More...</a><br /></td></tr>
 <tr class="separator:a622cb6dc51edd39835c88a457a2db42e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e269cecd4fffa10030d1ecbd7b93d6a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a1e269cecd4fffa10030d1ecbd7b93d6a">writeEvent</a> (std::shared_ptr&lt; <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html">EvioBank</a> &gt; bank)</td></tr>
 <tr class="memdesc:a1e269cecd4fffa10030d1ecbd7b93d6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an event (bank) to a buffer containing evio version 4 format blocks.  <a href="../../df/d0c/classevio_1_1_event_writer_v4.html#a1e269cecd4fffa10030d1ecbd7b93d6a">More...</a><br /></td></tr>
@@ -479,8 +480,8 @@ Protected Member Functions</h2></td></tr>
     <tr><td class="paramname">runType</td><td>name of run type configuration to be used in naming files </td></tr>
     <tr><td class="paramname">runNumber</td><td>number of the CODA run, used in naming files </td></tr>
     <tr><td class="paramname">split</td><td>if &lt; 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. </td></tr>
-    <tr><td class="paramname">maxBlockSize</td><td>the max blocksize in bytes to use which must be &gt;= <a class="el" href="../../">MIN_BLOCK_SIZE</a> and &lt;= <a class="el" href="../../">MAX_BLOCK_SIZE</a>. The size of the block will not be larger than this size unless a single event itself is larger. </td></tr>
-    <tr><td class="paramname">maxEventCount</td><td>the max number of events (including dictionary) in a single block which must be &gt;= <a class="el" href="../../">MIN_BLOCK_COUNT</a> and &lt;= <a class="el" href="../../">MAX_BLOCK_COUNT</a>. </td></tr>
+    <tr><td class="paramname">maxBlockSize</td><td>the max blocksize in bytes to use which must be &gt;= #MIN_BLOCK_SIZE and &lt;= #MAX_BLOCK_SIZE. The size of the block will not be larger than this size unless a single event itself is larger. </td></tr>
+    <tr><td class="paramname">maxEventCount</td><td>the max number of events (including dictionary) in a single block which must be &gt;= #MIN_BLOCK_COUNT and &lt;= #MAX_BLOCK_COUNT. </td></tr>
     <tr><td class="paramname">byteOrder</td><td>the byte order in which to write the file. This is ignored if appending to existing file. </td></tr>
     <tr><td class="paramname">xmlDictionary</td><td>dictionary in xml format or empty if none. </td></tr>
     <tr><td class="paramname">overWriteOK</td><td>if <code>false</code> and the file already exists, an exception is thrown rather than overwriting it. </td></tr>
@@ -490,7 +491,8 @@ Protected Member Functions</h2></td></tr>
     <tr><td class="paramname">splitNumber</td><td>number at which to start the split numbers </td></tr>
     <tr><td class="paramname">splitIncrement</td><td>amount to increment split number each time another file is created. </td></tr>
     <tr><td class="paramname">streamCount</td><td>total number of streams in DAQ. </td></tr>
-    <tr><td class="paramname">bufferSize</td><td>number of bytes to make the internal buffer which will be storing events before writing them to a file. Must be at least a max block size + 1kB (add a little extra). If not, it is set to that.</td></tr>
+    <tr><td class="paramname">bufferSize</td><td>number of bytes to make the internal buffer which will be storing events before writing them to a file. Must be at least a max block size + 1kB (add a little extra). If not, it is set to that. </td></tr>
+    <tr><td class="paramname">bitInfo</td><td>set of bits to include in first block header.</td></tr>
   </table>
   </dd>
 </dl>
@@ -636,8 +638,8 @@ Protected Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">buf</td><td>the buffer to write to. </td></tr>
-    <tr><td class="paramname">maxBlockSize</td><td>the max blocksize to use which must be &gt;= <a class="el" href="../../">MIN_BLOCK_SIZE</a> and &lt;= <a class="el" href="../../">MAX_BLOCK_SIZE</a> ints. The size of the block will not be larger than this size unless a single event itself is larger. </td></tr>
-    <tr><td class="paramname">maxEventCount</td><td>the max number of events (including dictionary) in a single block which must be &gt;= <a class="el" href="../../">MIN_BLOCK_COUNT</a> and &lt;= <a class="el" href="../../">MAX_BLOCK_COUNT</a>. </td></tr>
+    <tr><td class="paramname">maxBlockSize</td><td>the max blocksize to use which must be &gt;= #MIN_BLOCK_SIZE and &lt;= #MAX_BLOCK_SIZE ints. The size of the block will not be larger than this size unless a single event itself is larger. </td></tr>
+    <tr><td class="paramname">maxEventCount</td><td>the max number of events (including dictionary) in a single block which must be &gt;= #MIN_BLOCK_COUNT and &lt;= #MAX_BLOCK_COUNT. </td></tr>
     <tr><td class="paramname">xmlDictionary</td><td>dictionary in xml format or null if none. </td></tr>
     <tr><td class="paramname">bitInfo</td><td>set of bits to include in first block header. </td></tr>
     <tr><td class="paramname">reserved1</td><td>set the value of the first "reserved" int in first block header. NOTE: only CODA (i.e. EMU) software should use this. </td></tr>
@@ -1315,6 +1317,25 @@ Protected Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Write an event (bank) to the buffer in evio version 4 format. </p>
+<p>The given event buffer must contain only the event's data (event header and event data) and must <b>not</b> be in complete evio file format. If the internal buffer is full, it will be flushed to the file if writing to a file. Otherwise an exception will be thrown. Do not call this while simultaneously calling close, flush, setFirstEvent, or getByteBuffer.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">eventBuffer</td><td>the event (bank) to write in buffer form</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>if writing to buffer: true if event was added to record, false if buffer full, or bank and bankBuffer args are both null. If there is an InterruptedException.</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">IOException</td><td>if error writing file </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if event is opposite byte order of internal buffer; if <a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a497299886fb4462fa1d4c849acc9f710" title="This method flushes any remaining data to file and disables this object.">close()</a> already called; if bad eventBuffer format; if file could not be opened for writing; if file exists but user requested no over-writing; </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../df/d0c/classevio_1_1_event_writer_v4.html#a24fcc4733b8d41a9f22d65dc5658f814">writeEvent()</a>.</p>
 
 </div>
 </div>

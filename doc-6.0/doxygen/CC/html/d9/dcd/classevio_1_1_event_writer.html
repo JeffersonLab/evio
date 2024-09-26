@@ -169,7 +169,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a6ac2d99fba2d36f0e79fee233294e777"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the byte order of the buffer/file being written into.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#a6ac2d99fba2d36f0e79fee233294e777">More...</a><br /></td></tr>
 <tr class="separator:a6ac2d99fba2d36f0e79fee233294e777"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab95941edf843b7bf1c39d330da8dcba5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#ab95941edf843b7bf1c39d330da8dcba5">setStartingRecordNumber</a> (uint32_t startingRecordNumber)</td></tr>
-<tr class="memdesc:ab95941edf843b7bf1c39d330da8dcba5"><td class="mdescLeft">&#160;</td><td class="mdescRight">&zwj;**  <a href="../../d9/dcd/classevio_1_1_event_writer.html#ab95941edf843b7bf1c39d330da8dcba5">More...</a><br /></td></tr>
+<tr class="memdesc:ab95941edf843b7bf1c39d330da8dcba5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the number with which to start record numbers.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#ab95941edf843b7bf1c39d330da8dcba5">More...</a><br /></td></tr>
 <tr class="separator:ab95941edf843b7bf1c39d330da8dcba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18f1dfdfbd946821a47f9a22d317e619"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a18f1dfdfbd946821a47f9a22d317e619">setFirstEvent</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node)</td></tr>
 <tr class="memdesc:a18f1dfdfbd946821a47f9a22d317e619"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set an event which will be written to the file as well as to all split files.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#a18f1dfdfbd946821a47f9a22d317e619">More...</a><br /></td></tr>
@@ -1437,8 +1437,8 @@ Protected Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>&zwj;** </p>
-<p>Set the number with which to start record numbers. This method does nothing if events have already been written. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Set the number with which to start record numbers. </p>
+<p>This method does nothing if events have already been written. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">startingRecordNumber</td><td>the number with which to start record numbers. </td></tr>
   </table>
@@ -1547,6 +1547,7 @@ Protected Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">bank</td><td>the bank to write. </td></tr>
     <tr><td class="paramname">force</td><td>if writing to disk, force it to write event to the disk. </td></tr>
+    <tr><td class="paramname">ownRecord</td><td>if true, write event in its own record regardless of event count and record size limits. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1732,9 +1733,8 @@ Protected Member Functions</h2></td></tr>
 <p>This method is not used to write the dictionary or the first event which are both placed in the common record which, in turn, is the user header part of the file header.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">bb</td><td><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> representing the event. </td></tr>
+    <tr><td class="paramname">bank</td><td>the bank (as an <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html" title="This holds a CODA Bank structure.">EvioBank</a> object) to write. </td></tr>
     <tr><td class="paramname">force</td><td>if writing to disk, force it to write event to the disk. </td></tr>
-    <tr><td class="paramname">duplicate</td><td>if true, duplicate bb so its position and limit can be changed without issue. </td></tr>
     <tr><td class="paramname">ownRecord</td><td>if true, write event in its own record regardless of event count and record size limits.</td></tr>
   </table>
   </dd>
