@@ -101,12 +101,56 @@ namespace evio {
         uint16_t getTag() const;
         void setTag(uint16_t tag);
 
+        /**
+         * Get the length of the structure's data in 32 bit ints (not counting the header words).
+         * @return Get the length of the structure's data in 32 bit ints (not counting the header words).
+         */
         virtual uint32_t getDataLength()   {return 0;};
+
+        /**
+         * Get the length of the structure's header in ints. This includes the first header word itself
+         * (which contains the length) and in the case of banks, it also includes the second header word.
+         * @return  length of the structure's header in ints (2 for banks, 1 for segments and tagsegments).
+         */
         virtual uint32_t getHeaderLength() {return 0;};
+
+        /**
+         * Obtain a string representation of the base structure header.
+         * @return a string representation of the base structure header.
+         */
         virtual std::string   toString() {return "BaseStructureHeader";};
 
+
+        /**
+         * Write myself out into a byte buffer.
+         * This write is relative - i.e., it uses the current position of the buffer.
+         *
+         * @param dest the byteBuffer to write to.
+         * @return the number of bytes written, which for a BankHeader is 8 and for
+         *         a SegmentHeader or TagSegmentHeader is 4.
+         */
         virtual size_t write(std::shared_ptr<ByteBuffer> dest) {return 0;}
+
+        /**
+        * Write myself out into a byte buffer.
+        * This write is relative - i.e., it uses the current position of the buffer.
+        *
+        * @param dest the byteBuffer to write to.
+         * @return the number of bytes written, which for a BankHeader is 8 and for
+         *         a SegmentHeader or TagSegmentHeader is 4.
+        */
         virtual size_t write(ByteBuffer & dest) {return 0;};
+
+        /**
+         * Write myself out as evio format data
+         * into the given byte array in the specified byte order.
+         *
+         * @param dest array into which evio data is written (destination).
+         * @param order  byte order in which to write the data.
+         * @return the number of bytes written, which for a BankHeader is 8 and for
+         *         a SegmentHeader or TagSegmentHeader is 4.
+         * @throws EvioException if destination array too small to hold data.
+         */
         virtual size_t write(uint8_t *dest, ByteOrder const & order) {return 0;};
 
     };

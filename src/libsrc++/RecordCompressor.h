@@ -69,6 +69,13 @@ namespace evio {
                 supply(recordSupply) {
         }
 
+
+        /**
+         * Move constructor.
+         * Used to transfer ownership of resources from one object to another without making a deep copy.
+         * It is typically used when an object is being moved rather than copied.
+         * @param obj
+         */
         RecordCompressor(RecordCompressor && obj) noexcept :
                 threadNumber(obj.threadNumber),
                 compressionType(obj.compressionType),
@@ -76,6 +83,7 @@ namespace evio {
                 thd(std::move(obj.thd)) {
         }
 
+        /** Define equal operator. */
         RecordCompressor & operator=(RecordCompressor && obj) noexcept {
             if (this != &obj) {
                 threadNumber = obj.threadNumber;
@@ -86,6 +94,7 @@ namespace evio {
             return *this;
         }
 
+        /** Destructor. */
         ~RecordCompressor() {
             thd.interrupt();
             if (thd.try_join_for(boost::chrono::milliseconds(500))) {

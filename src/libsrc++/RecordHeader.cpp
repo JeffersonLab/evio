@@ -96,7 +96,7 @@ namespace evio {
         }
     }
 
-
+    /** Define equal operator. */
     RecordHeader & RecordHeader::operator=(const RecordHeader& head) {
 
         if (this != &head) {

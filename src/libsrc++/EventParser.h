@@ -63,7 +63,11 @@ namespace evio {
 
     protected:
 
+        /** Flag determining whether notification of listeners is active. Normally it is. But in some cases it could
+         * be temporarily suspended. For example, in a "goto event" process, the listeners will not be notified of the
+         * intervening events as the file is scanned to get to the target event. */
         bool notificationActive = true;
+
         /** Mutex for thread safety. */
         std::recursive_mutex mtx;
 

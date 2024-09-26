@@ -231,6 +231,12 @@ namespace evio {
     }
 
 
+    /**
+     * Example use of this class.
+     * @param argc unused.
+     * @param argv unused.
+     * @return
+     */
     int FileEventIndex::main(int argc, char **argv) {
 
         FileEventIndex index;

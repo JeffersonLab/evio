@@ -250,8 +250,10 @@ namespace evio {
          */
         int getBytes() const {return bytes;}
 
+        /** Defines equal operator. */
         bool operator==(const DataType &rhs) const;
 
+        /** Defines not equal operator. */
         bool operator!=(const DataType &rhs) const;
     };
 

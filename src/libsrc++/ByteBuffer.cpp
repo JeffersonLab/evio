@@ -13,8 +13,7 @@
 
 namespace evio {
 
-    // Define a deleter that does not delete memory for a shared pointer that's
-    // used with shared memory.
+    /** Define a deleter that does not delete memory for a shared pointer that's used with shared memory. */
     void null_deleter(uint8_t *) {};
 
 
@@ -640,7 +639,7 @@ namespace evio {
      * <p> The content of the returned buffer will be that of this buffer.  Changes
      * to this buffer's content will be visible in the returned buffer, and vice
      * versa; the two buffers' position, limit, and mark values will be
-     * independent.
+     * independent.</p>
      *
      * <p> The returned buffer's capacity, limit, position, and mark values will
      * initially be identical to those of this buffer.  </p>
@@ -649,12 +648,12 @@ namespace evio {
      * To implement this method, one could return a unique pointer to a locally created
      * ByteBuffer object which would eliminate the need for an argument. However, handling
      * the new buffer would be different from handling those created by the constructor
-     * since the caller would have a unique pointer instead of a ByteBuffer reference.
+     * since the caller would have a unique pointer instead of a ByteBuffer reference.</p>
      *
      * <p> A cleaner way to do this is for the caller to create their own, new ByteBuffer
      * object and pass it in as an argument. This method then makes it identical to this
      * buffer and the data (implemented as a shared pointer) is shared between
-     * the objects. The buffer passed in as an argument is also the one returned.
+     * the objects. The buffer passed in as an argument is also the one returned.</p>
      *
      * @param destBuf byte buffer to be made a duplicate of this one.
      * @return  the same byte buffer as passed in as the argument.
@@ -683,21 +682,21 @@ namespace evio {
      * <p> The content of the returned buffer will be that of this buffer.  Changes
      * to this buffer's content will be visible in the returned buffer, and vice
      * versa; the two buffers' position, limit, and mark values will be
-     * independent.
+     * independent.</p>
      *
      * <p> The returned buffer's capacity, limit, position, and mark values will
-     * initially be identical to those of this buffer.  </p>
+     * initially be identical to those of this buffer.</p>
      *
      * <p> The C++ version of this method departs from the Java which has no argument.
      * To implement this method, one could return a unique pointer to a locally created
      * ByteBuffer object which would eliminate the need for an argument. However, handling
      * the new buffer would be different from handling those created by the constructor
-     * since the caller would have a unique pointer instead of a ByteBuffer reference.
+     * since the caller would have a unique pointer instead of a ByteBuffer reference.</p>
      *
      * <p> A cleaner way to do this is for the caller to create their own, new ByteBuffer
      * object and pass it in as an argument. This method then makes it identical to this
      * buffer and the data (implemented as a shared pointer) is shared between
-     * the objects. The buffer passed in as an argument is also the one returned.
+     * the objects. The buffer passed in as an argument is also the one returned.</p>
      *
      * @param destBuf byte buffer to be made a duplicate of this one.
      * @return  the same byte buffer as passed in as the argument.
@@ -715,23 +714,22 @@ namespace evio {
      * <p> The content of the returned buffer will be that of this buffer.  Changes
      * to this buffer's content will be visible in the returned buffer, and vice
      * versa; the two buffers' position, limit, and mark values will be
-     * independent.
+     * independent.</p>
      *
      * <p> The returned buffer's capacity, limit, position, and mark values will
-     * initially be identical to those of this buffer.  </p>
+     * initially be identical to those of this buffer.</p>
      *
      * <p> The C++ version of this method departs from the Java which has no argument.
      * To implement this method, one could return a unique pointer to a locally created
      * ByteBuffer object which would eliminate the need for an argument. However, handling
      * the new buffer would be different from handling those created by the constructor
-     * since the caller would have a unique pointer instead of a ByteBuffer reference.
+     * since the caller would have a unique pointer instead of a ByteBuffer reference.</p>
      *
      * <p> A cleaner way to do this is for the caller to create their own, new ByteBuffer
      * object and pass it in as an argument. This method then makes it identical to this
      * buffer and the data (implemented as a shared pointer) is shared between
-     * the objects. The buffer passed in as an argument is also the one returned.
+     * the objects. The buffer passed in as an argument is also the one returned.</p>
      *
-     * @param destBuf byte buffer to be made a duplicate of this one.
      * @return  the same byte buffer as passed in as the argument.
      */
     std::shared_ptr<ByteBuffer> ByteBuffer::duplicate() {
@@ -759,11 +757,11 @@ namespace evio {
       * <p> The content of the new buffer will start at this buffer's current
       * position.  Changes to this buffer's content will be visible in the new
       * buffer, and vice versa; the two buffers' position, limit, and mark
-      * values will be independent.
+      * values will be independent.</p>
       *
       * <p> The new buffer's position will be zero, its capacity and its limit
       * will be the number of bytes remaining in this buffer, and its mark
-      * will be undefined.
+      * will be undefined.</p>
       *
       * @return  The new byte buffer.
       */
@@ -796,11 +794,11 @@ namespace evio {
     * <p> The content of the given buffer will start at this buffer's current
     * position.  Changes to this buffer's content will be visible in the given
     * buffer, and vice versa; the two buffers' position, limit, and mark
-    * values will be independent.
+    * values will be independent.</p>
     *
     * <p> The given buffer's position will be zero, its capacity and its limit
     * will be the number of bytes remaining in this buffer, and its mark
-    * will be undefined.
+    * will be undefined.</p>
     *
      * @param destBuf byte buffer to be made a slice of this one.
      * @return  the same byte buffer as passed in as the argument.
@@ -827,21 +825,21 @@ namespace evio {
 
 
     /**
-    * The given (and returned) byte buffer is one whose content is a shared subsequence of
-    * this buffer's content.
-    *
-    * <p> The content of the given buffer will start at this buffer's current
-    * position.  Changes to this buffer's content will be visible in the given
-    * buffer, and vice versa; the two buffers' position, limit, and mark
-    * values will be independent.
-    *
-    * <p> The given buffer's position will be zero, its capacity and its limit
-    * will be the number of bytes remaining in this buffer, and its mark
-    * will be undefined.
-    *
+     * The given (and returned) byte buffer is one whose content is a shared subsequence of
+     * this buffer's content.
+     *
+     * <p> The content of the given buffer will start at this buffer's current
+     * position.  Changes to this buffer's content will be visible in the given
+     * buffer, and vice versa; the two buffers' position, limit, and mark
+     * values will be independent.</p>
+     *
+     * <p> The given buffer's position will be zero, its capacity and its limit
+     * will be the number of bytes remaining in this buffer, and its mark
+     * will be undefined.</p>
+     *
      * @param destBuf byte buffer to be made a slice of this one.
      * @return  the same byte buffer as passed in as the argument.
-    */
+     */
     std::shared_ptr<ByteBuffer> ByteBuffer::slice(std::shared_ptr<ByteBuffer> destBuf) {
         auto & buff = *(destBuf.get());
         slice(buff);
@@ -858,15 +856,15 @@ namespace evio {
     /**
      * Relative bulk <i>get</i> method.
      *
-     * This method transfers bytes from this buffer into the given
+     * <p>This method transfers bytes from this buffer into the given
      * destination array. If there are fewer bytes remaining in the
      * buffer than are required to satisfy the request, then no
-     * bytes are transferred and an underflow_error is thrown.<p>
+     * bytes are transferred and an underflow_error is thrown.</p>
      *
-     * Otherwise, this method copies <tt>length</tt> bytes from this
+     * <p>Otherwise, this method copies <tt>length</tt> bytes from this
      * buffer into the given array, starting at the current position of this
      * buffer and at the given pointer. The position of this
-     * buffer is then incremented by <tt>length</tt>.
+     * buffer is then incremented by <tt>length</tt>.</p>
      *
      * @param  dst array into which bytes are to be written.
      * @param  length number of bytes to be written to the given
@@ -888,15 +886,15 @@ namespace evio {
     /**
      * Relative bulk <i>get</i> method.
      *
-     * This method transfers bytes from this buffer into the given
+     * <p>This method transfers bytes from this buffer into the given
      * destination vector. If there are fewer bytes remaining in the
      * buffer than are required to satisfy the request, then no
-     * bytes are transferred and an underflow_error is thrown.<p>
+     * bytes are transferred and an underflow_error is thrown.</p>
      *
-     * Otherwise, this method copies <tt>length</tt> bytes from this
+     * <p>Otherwise, this method copies <tt>length</tt> bytes from this
      * buffer into the given array, starting at the current position of this
      * buffer and at the given offset in the array. The position of this
-     * buffer is then incremented by <tt>length</tt>.
+     * buffer is then incremented by <tt>length</tt>.</p>
      *
      * @param  dst    vector into which bytes are to be written.
      * @param  offset offset (bytes) within the vector of the first byte to be written.
@@ -951,7 +949,7 @@ namespace evio {
      * which is by nature unsigned.
      * Keeping the name as "getChar" makes it compatible with Java, but be aware
      * it does NOT get a 8-bit "char" type.
-     * This method reads the next two bytes at this buffer's current position,
+     * <p>This method reads the next two bytes at this buffer's current position,
      * composing them into a wchar_t value according to the current byte order,
      * and then increments the position by two.</p>
      *
@@ -966,7 +964,7 @@ namespace evio {
      * which is by nature unsigned. Reads at the given index.
      * Keeping the name as "getChar" makes it compatible with Java, but be aware
      * it does NOT get a 8-bit "char" type.
-     * This method reads the next two bytes at the given index,
+     * <p>This method reads the next two bytes at the given index,
      * composing them into a wchar_t value according to the current byte order,
      * and then increments the position by two.</p>
      *
@@ -981,7 +979,7 @@ namespace evio {
      * Relative <i>get</i> method for reading a short value.
      * Reads the next two bytes at this buffer's current position,
      * composing them into a short value according to the current
-     * byte order, and then increments the position by two.</p>
+     * byte order, and then increments the position by two.
      *
      * @return  short value at buffer's current position.
      * @throws  underflow_error if fewer than two bytes remaining in buffer.
@@ -1001,7 +999,7 @@ namespace evio {
     /**
      * Absolute <i>get</i> method for reading a short value.
      * Reads two bytes at the given index, composing them into a
-     * short value according to the current byte order.</p>
+     * short value according to the current byte order.
      *
      * @param  index  index from which the bytes will be read.
      * @return  short value at the given index.
@@ -1020,7 +1018,7 @@ namespace evio {
 
 
     /**
-     * Relative <i>get</i> method for reading an unsigned short value.
+     * <p>Relative <i>get</i> method for reading an unsigned short value.
      * Reads the next two bytes at this buffer's current position,
      * composing them into an unsigned short value according to the current
      * byte order, and then increments the position by two.</p>
@@ -1041,7 +1039,7 @@ namespace evio {
 
 
     /**
-     * Absolute <i>get</i> method for reading an unsigned short value.
+     * <p>Absolute <i>get</i> method for reading an unsigned short value.
      * Reads two bytes at the given index, composing them into an
      * unsigned short value according to the current byte order.</p>
      * This method is not defined in the Java version.
@@ -1066,7 +1064,7 @@ namespace evio {
      * Relative <i>get</i> method for reading an int value.
      * Reads the next four bytes at this buffer's current position,
      * composing them into an int value according to the current
-     * byte order, and then increments the position by four.</p>
+     * byte order, and then increments the position by four.
      *
      * @return  int value at buffer's current position.
      * @throws  underflow_error if fewer than four bytes remaining in buffer.
@@ -1085,7 +1083,7 @@ namespace evio {
     /**
      * Absolute <i>get</i> method for reading an int value.
      * Reads four bytes at the given index, composing them into an
-     * int value according to the current byte order.</p>
+     * int value according to the current byte order.
      *
      * @param  index  index from which the bytes will be read.
      * @return  int value at the given index.
@@ -1107,7 +1105,7 @@ namespace evio {
      * Relative <i>get</i> method for reading an unsigned int value.
      * Reads the next four bytes at this buffer's current position,
      * composing them into an unsigned int value according to the current
-     * byte order, and then increments the position by four.</p>
+     * byte order, and then increments the position by four.
      *
      * @return  unsigned int value at buffer's current position.
      * @throws  underflow_error if fewer than four bytes remaining in buffer.
@@ -1126,7 +1124,7 @@ namespace evio {
     /**
      * Absolute <i>get</i> method for reading an unsigned int value.
      * Reads four bytes at the given index, composing them into an
-     * unsigned int value according to the current byte order.</p>
+     * unsigned int value according to the current byte order.
      *
      * @param  index  index from which the bytes will be read.
      * @return  unsigned int value at the given index.
@@ -1148,7 +1146,7 @@ namespace evio {
      * Relative <i>get</i> method for reading a long long value.
      * Reads the next eight bytes at this buffer's current position,
      * composing them into a long long value according to the current
-     * byte order, and then increments the position by eight.</p>
+     * byte order, and then increments the position by eight.
      *
      * @return  long long value at buffer's current position.
      * @throws  underflow_error if fewer than eight bytes remaining in buffer.
@@ -1167,7 +1165,7 @@ namespace evio {
     /**
      * Absolute <i>get</i> method for reading a long long value.
      * Reads eight bytes at the given index, composing them into a
-     * long long value according to the current byte order.</p>
+     * long long value according to the current byte order.
      *
      * @param  index  index from which the bytes will be read.
      * @return  long long value at the given index.
@@ -1189,7 +1187,7 @@ namespace evio {
      * Relative <i>get</i> method for reading an unsigned long long value.
      * Reads the next eight bytes at this buffer's current position,
      * composing them into an unsigned long long value according to the current
-     * byte order, and then increments the position by eight.</p>
+     * byte order, and then increments the position by eight.
      *
      * @return  unsigned long long value at buffer's current position.
      * @throws  underflow_error if fewer than eight bytes remaining in buffer.
@@ -1208,7 +1206,7 @@ namespace evio {
     /**
      * Absolute <i>get</i> method for reading an unsigned long long value.
      * Reads eight bytes at the given index, composing them into an
-     * unsigned long long value according to the current byte order.</p>
+     * unsigned long long value according to the current byte order.
      *
      * @param  index  index from which the bytes will be read.
      * @return  unsigned long long value at the given index.
@@ -1230,7 +1228,7 @@ namespace evio {
      * Relative <i>get</i> method for reading a float value.
      * Reads the next four bytes at this buffer's current position,
      * composing them into a float value according to the current
-     * byte order, and then increments the position by four.</p>
+     * byte order, and then increments the position by four.
      *
      * @return  float value at buffer's current position.
      * @throws  underflow_error if fewer than four bytes remaining in buffer.
@@ -1246,7 +1244,7 @@ namespace evio {
     /**
      * Absolute <i>get</i> method for reading a float value.
      * Reads four bytes at the given index, composing them into a
-     * float value according to the current byte order.</p>
+     * float value according to the current byte order.
      *
      * @param  index  index from which the bytes will be read.
      * @return  float value at the given index.
@@ -1265,7 +1263,7 @@ namespace evio {
      * Relative <i>get</i> method for reading a double value.
      * Reads the next eight bytes at this buffer's current position,
      * composing them into a double value according to the current
-     * byte order, and then increments the position by eight.</p>
+     * byte order, and then increments the position by eight.
      *
      * @return  double value at buffer's current position.
      * @throws  underflow_error if fewer than eight bytes remaining in buffer.
@@ -1281,7 +1279,7 @@ namespace evio {
     /**
      * Absolute <i>get</i> method for reading a double value.
      * Reads eight bytes at the given index, composing them into a
-     * double value according to the current byte order.</p>
+     * double value according to the current byte order.
      *
      * @param  index  index from which the bytes will be read.
      * @return  double value at the given index.
@@ -1302,18 +1300,18 @@ namespace evio {
 
 
     /**
-     * Relative bulk <i>put</i> method.<p>
+     * Relative bulk <i>put</i> method.
      *
-     * This method transfers the bytes remaining in the given source
+     * <p>This method transfers the bytes remaining in the given source
      * buffer into this buffer. If there are more bytes remaining in the
      * source buffer than in this buffer, that is, if
      * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
-     * then no bytes are transferred and a {@link EvioException} is thrown.<p>
+     * then no bytes are transferred and a {@link EvioException} is thrown.</p>
      *
-     * Otherwise, this method copies
+     * <p>Otherwise, this method copies
      * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> bytes from the given
      * buffer into this buffer, starting at each buffer's current position.
-     * The positions of both buffers are then incremented by <i>n</i>.
+     * The positions of both buffers are then incremented by <i>n</i>.</p>
      *
      * @param  src source buffer from which bytes are to be read;
      *             must not be this buffer.
@@ -1341,18 +1339,18 @@ namespace evio {
 
 
     /**
-     * Relative bulk <i>put</i> method.<p>
+     * Relative bulk <i>put</i> method.
      *
-     * This method transfers the bytes remaining in the given source
+     * <p>This method transfers the bytes remaining in the given source
      * buffer into this buffer. If there are more bytes remaining in the
      * source buffer than in this buffer, that is, if
      * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
-     * then no bytes are transferred and a {@link EvioException} is thrown.<p>
+     * then no bytes are transferred and a {@link EvioException} is thrown.</p>
      *
-     * Otherwise, this method copies
+     * <p>Otherwise, this method copies
      * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> bytes from the given
      * buffer into this buffer, starting at each buffer's current position.
-     * The positions of both buffers are then incremented by <i>n</i>.
+     * The positions of both buffers are then incremented by <i>n</i>.</p>
      *
      * @param  src source buffer from which bytes are to be read;
      *             must not be this buffer.
@@ -1370,19 +1368,19 @@ namespace evio {
 
 
     /**
-     * Relative bulk <i>put</i> method.<p>
+     * Relative bulk <i>put</i> method.
      *
-     * This method transfers bytes into this buffer from the given
+     * <p>This method transfers bytes into this buffer from the given
      * source array.  If there are more bytes to be copied from the array
      * than remain in this buffer, that is, if
      * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
      * bytes are transferred and a {@link EvioException} is
-     * thrown.<p>
+     * thrown.</p>
      *
-     * Otherwise, this method copies <tt>length</tt> bytes from the
+     * <p>Otherwise, this method copies <tt>length</tt> bytes from the
      * given array into this buffer, starting at the given pointer
      * and at the current position of this buffer.  The position of this buffer
-     * is then incremented by <tt>length</tt>.
+     * is then incremented by <tt>length</tt>.</p>
      *
      * @param  src array from which bytes are to be read
      * @param  length number of bytes to be read from the given array;
@@ -1402,19 +1400,19 @@ namespace evio {
     }
 
     /**
-     * Relative bulk <i>put</i> method.<p>
+     * Relative bulk <i>put</i> method.
      *
-     * This method transfers bytes into this buffer from the given
+     * <p>This method transfers bytes into this buffer from the given
      * vector.  If there are more bytes to be copied from the vector
      * than remain in this buffer, that is, if
      * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
      * bytes are transferred and a {@link EvioException} is
-     * thrown.<p>
+     * thrown.</p>
      *
-     * Otherwise, this method copies <tt>length</tt> bytes from the
+     * <p>Otherwise, this method copies <tt>length</tt> bytes from the
      * given array into this buffer, starting at the given offset in the array
      * and at the current position of this buffer.  The position of this buffer
-     * is then incremented by <tt>length</tt>.
+     * is then incremented by <tt>length</tt>.</p>
      *
      * @param  src array from which bytes are to be read
      * @param  offset offset (bytes) within the array of the first byte to be read;
@@ -1439,7 +1437,7 @@ namespace evio {
     /**
      * Relative <i>put</i> method.
      * Writes the given byte into this buffer at the current
-     * position, and then increments the position by one.</p>
+     * position, and then increments the position by one.
      *
      * @param  val byte value to be written.
      * @return  this buffer.

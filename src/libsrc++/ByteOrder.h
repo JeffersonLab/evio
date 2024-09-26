@@ -109,11 +109,11 @@ namespace evio {
             return isBigEndian() ? ENDIAN_LITTLE : ENDIAN_BIG;
         }
 
-
+        /** Defines equal operator. */
         bool operator==(const ByteOrder &rhs) const;
 
+        /** Defines not-equal operator. */
         bool operator!=(const ByteOrder &rhs) const;
-
 
         /**
          * Get the byte order of the local host.

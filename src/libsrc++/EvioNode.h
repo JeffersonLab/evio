@@ -155,6 +155,12 @@ namespace evio {
     protected:
 
         explicit EvioNode(std::shared_ptr<EvioNode> firstNode, int dummy);
+
+        /**
+         * This methods calls shared_from_this() to obtain a new std::shared_ptr that
+         * shares ownership of the current object (this).
+         * @return a new std::shared_ptr that shares ownership of the current object.
+         */
         std::shared_ptr<EvioNode> getThis() {return shared_from_this();}
 
     public:

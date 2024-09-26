@@ -936,20 +936,6 @@ namespace evio {
     ByteOrder EventWriter::getByteOrder()  const {return byteOrder;}
 
 
-    ///**
-    // * Set the number with which to start block (record) numbers.
-    // * This method does nothing if events have already been written.
-    // * @param startingRecordNumber  the number with which to start block
-    // *                              (record) numbers.
-    // */
-    //void EventWriter::setStartingBlockNumber(uint32_t startingRecordNumber) {
-    //    // If events have been written already, forget about it
-    //    if (eventsWrittenTotal > 0) return;
-    //    recordNumber = startingRecordNumber;
-    ////std::cout << "setStartingBLOCKNumber: set to " << recordNumber << std::endl;
-    //}
-
-
     /**
      * Set the number with which to start record numbers.
      * This method does nothing if events have already been written.
@@ -2020,6 +2006,8 @@ namespace evio {
      *
      * @param bank   the bank to write.
      * @param force  if writing to disk, force it to write event to the disk.
+     * @param ownRecord  if true, write event in its own record regardless
+     *                   of event count and record size limits.
      * @return if writing to buffer: true if event was added to record, false if buffer full,
      *         or record event count limit exceeded.
      *
@@ -2061,10 +2049,8 @@ namespace evio {
      * which are both placed in the common record which, in turn, is the
      * user header part of the file header.<p>
      *
-     * @param bb         ByteBuffer representing the event.
+     * @param bank       the bank (as an EvioBank object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
-     * @param duplicate  if true, duplicate bb so its position and limit
-     *                   can be changed without issue.
      * @param ownRecord  if true, write event in its own record regardless
      *                   of event count and record size limits.
      *

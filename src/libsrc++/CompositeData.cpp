@@ -2182,319 +2182,319 @@ namespace evio {
         swapData(iarr, iarr, nwrd, ifmt, padding, false);
     }
 
-
-    // Following is Sergui's original function (eviofmtswap) which is now implemented immediately above.
-
-    ///**
-    // * This method converts (swaps) an array of EVIO composite type data
-    // * between IEEE (big endian) and DECS (little endian) in place. This
-    // * data does <b>NOT</b> include the composite type's beginning tagsegment and
-    // * the format string it contains. It also does <b>NOT</b> include the data's
-    // * bank header words.
-    // *
-    // * Converts the data of array (iarr[i], i=0...nwrd-1)
-    // * using the format code      (ifmt[j], j=0...nfmt-1) .
-    // *
-    // * <p>
-    // * Algorithm description:<p>
-    // * Data processed inside while (ib &lt; nwrd)
-    // * loop, where 'ib' is iarr[] index;
-    // * loop breaks when 'ib' reaches the number of elements in iarr[]
-    // *
-    // *
-    // * @param iarr    pointer to data to be swapped
-    // * @param nwrd    number of data words (32-bit ints) to be swapped
-    // * @param ifmt    unsigned short vector holding translated format
-    // * @param padding number of bytes to ignore in last data word (starting from data end)
-    // *
-    // * @return  0 if success
-    // * @return -1 if nwrd &lt; 0, or ifmt vector empty.
-    // */
-    //int CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
-    //                            uint32_t padding) {
     //
-    //    if (nwrd <= 0 || ifmt.empty()) return(-1);
-    //    int nfmt = ifmt.size();
+    //     Following is Sergui's original function (eviofmtswap) which is now implemented immediately above.
     //
-    //    int imt  = 0;   /* ifmt[] index */
-    //    int ncnf = 0;   /* how many times must repeat a format */
-    //    int lev  = 0;   /* parenthesis level */
-    //    int kcnf, mcnf, iterm = 0;
-    //    int64_t *b64, *b64end;
-    //    int32_t *b32, *b32end;
-    //    int16_t *b16, *b16end;
-    //    auto b8    = reinterpret_cast<int8_t *>(&iarr[0]);   /* beginning of data */
-    //    auto b8end = reinterpret_cast<int8_t *>(&iarr[nwrd]) - padding; /* end of data + 1 - padding */
-    //    LV lv[10];
+    //   //  /**
+    //   //  * This method converts (swaps) an array of EVIO composite type data
+    //   //  * between IEEE (big endian) and DECS (little endian) in place. This
+    //   //  * data does <b>NOT</b> include the composite type's beginning tagsegment and
+    //   //  * the format string it contains. It also does <b>NOT</b> include the data's
+    //   //  * bank header words.
+    //   //  *
+    //   //  * Converts the data of array (iarr[i], i=0...nwrd-1)
+    //   //  * using the format code      (ifmt[j], j=0...nfmt-1) .
+    //   //  *
+    //   //  * <p>
+    //   //  * Algorithm description:<p>
+    //   //  * Data processed inside while (ib &lt; nwrd)
+    //   //  * loop, where 'ib' is iarr[] index;
+    //   //  * loop breaks when 'ib' reaches the number of elements in iarr[]
+    //   //  *
+    //   //  *
+    //   //  * @param iarr    pointer to data to be swapped
+    //   //  * @param nwrd    number of data words (32-bit ints) to be swapped
+    //   //  * @param ifmt    unsigned short vector holding translated format
+    //   //  * @param padding number of bytes to ignore in last data word (starting from data end)
+    //   //  *
+    //   //  * @return  0 if success
+    //   //  * @return -1 if nwrd &lt; 0, or ifmt vector empty.
+    //   //  */
+    //    int CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
+    //                                uint32_t padding) {
     //
-    //#ifdef COMPOSITE_DEBUG
-    //    std::cout << std::endl << "=== eviofmtswap start ===" << std::endl;
-    //#endif
+    //        if (nwrd <= 0 || ifmt.empty()) return(-1);
+    //        int nfmt = ifmt.size();
     //
-    //    while (b8 < b8end)
-    //    {
-    //#ifdef COMPOSITE_DEBUG
-    //        std::cout << ""+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
-    //                                   ", end = " << b8end << dec << std::endl;
-    //#endif
-    //        /* get next format code */
-    //        while (true)
+    //        int imt  = 0;   /* ifmt[] index */
+    //        int ncnf = 0;   /* how many times must repeat a format */
+    //        int lev  = 0;   /* parenthesis level */
+    //        int kcnf, mcnf, iterm = 0;
+    //        int64_t *b64, *b64end;
+    //        int32_t *b32, *b32end;
+    //        int16_t *b16, *b16end;
+    //        auto b8    = reinterpret_cast<int8_t *>(&iarr[0]);   /* beginning of data */
+    //        auto b8end = reinterpret_cast<int8_t *>(&iarr[nwrd]) - padding; /* end of data + 1 - padding */
+    //        LV lv[10];
+    //
+    //    #ifdef COMPOSITE_DEBUG
+    //        std::cout << std::endl << "=== eviofmtswap start ===" << std::endl;
+    //    #endif
+    //
+    //        while (b8 < b8end)
     //        {
-    //            imt++;
-    //            /* end of format statement reached, back to iterm - last parenthesis or format begining */
-    //            if (imt > nfmt)
+    //    #ifdef COMPOSITE_DEBUG
+    //            std::cout << ""+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
+    //                                       ", end = " << b8end << dec << std::endl;
+    //    #endif
+    //            /* get next format code */
+    //            while (true)
     //            {
-    //                imt = 0/*iterm*/; /* sergey: will always start format from the begining - for now ...*/
-    //#ifdef COMPOSITE_DEBUG
-    //                std::cout << "1" << std::endl;
-    //#endif
-    //            }
-    //                /* meet right parenthesis, so we're finished processing format(s) in parenthesis */
-    //            else if (ifmt[imt-1] == 0)
-    //            {
-    //                /* right parenthesis without preceding left parenthesis? -> illegal format */
-    //                if (lev == 0)
-    //                    return -1;
-    //
-    //                /* increment counter */
-    //                lv[lev-1].irepeat++;
-    //
-    //                /* if format in parenthesis was processed */
-    //                if (lv[lev-1].irepeat >= lv[lev-1].nrepeat)
+    //                imt++;
+    //                /* end of format statement reached, back to iterm - last parenthesis or format begining */
+    //                if (imt > nfmt)
     //                {
-    //                    /* required number of times */
-    //
-    //                    /* store left parenthesis index minus 1
-    //                       (if will meet end of format, will start from format index imt=iterm;
-    //                       by default we continue from the beginning of the format (iterm=0)) */
-    //                    //iterm = lv[lev-1].left - 1;
-    //                    lev--; /* done with this level - decrease parenthesis level */
-    //#ifdef COMPOSITE_DEBUG
-    //                    std::cout << "2" << std::endl;
-    //#endif
+    //                    imt = 0/*iterm*/; /* sergey: will always start format from the begining - for now ...*/
+    //    #ifdef COMPOSITE_DEBUG
+    //                    std::cout << "1" << std::endl;
+    //    #endif
     //                }
-    //                    /* go for another round of processing by setting 'imt' to the left parenthesis */
-    //                else
+    //                    /* meet right parenthesis, so we're finished processing format(s) in parenthesis */
+    //                else if (ifmt[imt-1] == 0)
     //                {
-    //                    /* points ifmt[] index to the left parenthesis from the same level 'lev' */
-    //                    imt = lv[lev-1].left;
-    //#ifdef COMPOSITE_DEBUG
-    //                    std::cout << "3" << std::endl;
-    //#endif
-    //                }
-    //            }
-    //            else
-    //            {
-    //                ncnf = (ifmt[imt-1] >> 8) & 0x3F; /* how many times to repeat format code */
-    //                kcnf = ifmt[imt-1] & 0xFF;        /* format code */
-    //                mcnf = (ifmt[imt-1] >> 14) & 0x3; /* repeat code */
+    //                    /* right parenthesis without preceding left parenthesis? -> illegal format */
+    //                    if (lev == 0)
+    //                        return -1;
     //
-    //                /* left parenthesis - set new lv[] */
-    //                if (kcnf == 0)
-    //                {
-    //                    /* check repeats for left parenthesis */
+    //                    /* increment counter */
+    //                    lv[lev-1].irepeat++;
     //
-    //                    if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
+    //                    /* if format in parenthesis was processed */
+    //                    if (lv[lev-1].irepeat >= lv[lev-1].nrepeat)
     //                    {
-    //                        mcnf = 0;
-    //                        b32 = reinterpret_cast<int32_t *>(b8);
-    //                        ncnf = *b32 = SWAP_32(*b32); /* get #repeats from data */
-    //#ifdef COMPOSITE_PRINT
-    //                        std::cout << "ncnf(: " << ncnf << std::endl;
-    //#endif
-    //                        b8 += 4;
-    //#ifdef COMPOSITE_DEBUG
-    //                        std::cout << "ncnf from data = " << ncnf << " (code 15)" << std::endl;
-    //#endif
-    //                    }
+    //                        /* required number of times */
     //
-    //                    if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
-    //                    {
-    //                        mcnf = 0;
-    //                        b16 = reinterpret_cast<int16_t *>(b8);
-    //                        ncnf = *b16 = SWAP_16(*b16); /* get #repeats from data */
-    //#ifdef COMPOSITE_PRINT
-    //                        std::cout << "ncnf(: " << ncnf << std::endl;
-    //#endif
-    //                        b8 += 2;
-    //#ifdef COMPOSITE_DEBUG
-    //                        std::cout << "ncnf from data = " << ncnf << " (code 14)" << std::endl;
-    //#endif
+    //                        /* store left parenthesis index minus 1
+    //                           (if will meet end of format, will start from format index imt=iterm;
+    //                           by default we continue from the beginning of the format (iterm=0)) */
+    //                        //iterm = lv[lev-1].left - 1;
+    //                        lev--; /* done with this level - decrease parenthesis level */
+    //    #ifdef COMPOSITE_DEBUG
+    //                        std::cout << "2" << std::endl;
+    //    #endif
     //                    }
-    //
-    //                    if(mcnf==3) /* left parenthesis, SPECIAL case: #repeats must be taken from int8 data */
-    //                    {
-    //                        mcnf = 0;
-    //                        ncnf = *((uint8_t *)b8); /* get #repeats from data */
-    //#ifdef COMPOSITE_PRINT
-    //                        std::cout << "ncnf(: " << ncnf << std::endl;
-    //#endif
-    //                        b8++;
-    //#ifdef COMPOSITE_DEBUG
-    //                        std::cout << "ncnf from data = " << ncnf << " (code 13)" << std::endl;
-    //#endif
-    //                    }
-    //
-    //
-    //                    /* store ifmt[] index */
-    //                    lv[lev].left = imt;
-    //                    /* how many time will repeat format code inside parenthesis */
-    //                    lv[lev].nrepeat = ncnf;
-    //                    /* cleanup place for the right parenthesis (do not get it yet) */
-    //                    lv[lev].irepeat = 0;
-    //                    /* increase parenthesis level */
-    //                    lev++;
-    //#ifdef COMPOSITE_DEBUG
-    //                    std::cout << "4" << std::endl;
-    //#endif
-    //                }
-    //                /* format F or I or ... */
-    //                else
-    //                {
-    //                    /* there are no parenthesis, just simple format, go to processing */
-    //                    if (lev == 0) {
-    //#ifdef COMPOSITE_DEBUG
-    //                        std::cout << "51" << std::endl;
-    //#endif
-    //                    }
-    //                    /* have parenthesis, NOT the pre-last format element (last assumed ')' ?) */
-    //                    else if (imt != (nfmt-1)) {
-    //#ifdef COMPOSITE_DEBUG
-    //                        std::cout << "52: " << imt << " " << (nfmt-1) << std::endl;
-    //#endif
-    //                    }
-    //                    /* have parenthesis, NOT the first format after the left parenthesis */
-    //                    else if (imt != lv[lev-1].left+1) {
-    //#ifdef COMPOSITE_DEBUG
-    //                        std::cout << "53: " << imt << " " << (nfmt-1) << std::endl;
-    //#endif
-    //                    }
-    //                    /* if none of above, we are in the end of format */
+    //                        /* go for another round of processing by setting 'imt' to the left parenthesis */
     //                    else
     //                    {
-    //                        /* set format repeat to the big number */
-    //                        ncnf = 999999999;
-    //#ifdef COMPOSITE_DEBUG
-    //                        std::cout << "54" << std::endl;
-    //#endif
+    //                        /* points ifmt[] index to the left parenthesis from the same level 'lev' */
+    //                        imt = lv[lev-1].left;
+    //    #ifdef COMPOSITE_DEBUG
+    //                        std::cout << "3" << std::endl;
+    //    #endif
     //                    }
-    //                    break;
     //                }
-    //            }
-    //        } /* while(1) */
+    //                else
+    //                {
+    //                    ncnf = (ifmt[imt-1] >> 8) & 0x3F; /* how many times to repeat format code */
+    //                    kcnf = ifmt[imt-1] & 0xFF;        /* format code */
+    //                    mcnf = (ifmt[imt-1] >> 14) & 0x3; /* repeat code */
     //
-    //        /* if 'ncnf' is zero, get it from data */
-    //        /*printf("ncnf=%d\n",ncnf);fflush(stdout);*/
-    //        if(ncnf==0)
-    //        {
-    //            if(mcnf==1)
+    //                    /* left parenthesis - set new lv[] */
+    //                    if (kcnf == 0)
+    //                    {
+    //                        /* check repeats for left parenthesis */
+    //
+    //                        if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
+    //                        {
+    //                            mcnf = 0;
+    //                            b32 = reinterpret_cast<int32_t *>(b8);
+    //                            ncnf = *b32 = SWAP_32(*b32); /* get #repeats from data */
+    //    #ifdef COMPOSITE_PRINT
+    //                            std::cout << "ncnf(: " << ncnf << std::endl;
+    //    #endif
+    //                            b8 += 4;
+    //    #ifdef COMPOSITE_DEBUG
+    //                            std::cout << "ncnf from data = " << ncnf << " (code 15)" << std::endl;
+    //    #endif
+    //                        }
+    //
+    //                        if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
+    //                        {
+    //                            mcnf = 0;
+    //                            b16 = reinterpret_cast<int16_t *>(b8);
+    //                            ncnf = *b16 = SWAP_16(*b16); /* get #repeats from data */
+    //    #ifdef COMPOSITE_PRINT
+    //                            std::cout << "ncnf(: " << ncnf << std::endl;
+    //    #endif
+    //                            b8 += 2;
+    //    #ifdef COMPOSITE_DEBUG
+    //                            std::cout << "ncnf from data = " << ncnf << " (code 14)" << std::endl;
+    //    #endif
+    //                        }
+    //
+    //                        if(mcnf==3) /* left parenthesis, SPECIAL case: #repeats must be taken from int8 data */
+    //                        {
+    //                            mcnf = 0;
+    //                            ncnf = *((uint8_t *)b8); /* get #repeats from data */
+    //    #ifdef COMPOSITE_PRINT
+    //                            std::cout << "ncnf(: " << ncnf << std::endl;
+    //    #endif
+    //                            b8++;
+    //    #ifdef COMPOSITE_DEBUG
+    //                            std::cout << "ncnf from data = " << ncnf << " (code 13)" << std::endl;
+    //    #endif
+    //                        }
+    //
+    //
+    //                        /* store ifmt[] index */
+    //                        lv[lev].left = imt;
+    //                        /* how many time will repeat format code inside parenthesis */
+    //                        lv[lev].nrepeat = ncnf;
+    //                        /* cleanup place for the right parenthesis (do not get it yet) */
+    //                        lv[lev].irepeat = 0;
+    //                        /* increase parenthesis level */
+    //                        lev++;
+    //    #ifdef COMPOSITE_DEBUG
+    //                        std::cout << "4" << std::endl;
+    //    #endif
+    //                    }
+    //                    /* format F or I or ... */
+    //                    else
+    //                    {
+    //                        /* there are no parenthesis, just simple format, go to processing */
+    //                        if (lev == 0) {
+    //    #ifdef COMPOSITE_DEBUG
+    //                            std::cout << "51" << std::endl;
+    //    #endif
+    //                        }
+    //                        /* have parenthesis, NOT the pre-last format element (last assumed ')' ?) */
+    //                        else if (imt != (nfmt-1)) {
+    //    #ifdef COMPOSITE_DEBUG
+    //                            std::cout << "52: " << imt << " " << (nfmt-1) << std::endl;
+    //    #endif
+    //                        }
+    //                        /* have parenthesis, NOT the first format after the left parenthesis */
+    //                        else if (imt != lv[lev-1].left+1) {
+    //    #ifdef COMPOSITE_DEBUG
+    //                            std::cout << "53: " << imt << " " << (nfmt-1) << std::endl;
+    //    #endif
+    //                        }
+    //                        /* if none of above, we are in the end of format */
+    //                        else
+    //                        {
+    //                            /* set format repeat to the big number */
+    //                            ncnf = 999999999;
+    //    #ifdef COMPOSITE_DEBUG
+    //                            std::cout << "54" << std::endl;
+    //    #endif
+    //                        }
+    //                        break;
+    //                    }
+    //                }
+    //            } /* while(1) */
+    //
+    //            /* if 'ncnf' is zero, get it from data */
+    //            /*printf("ncnf=%d\n",ncnf);fflush(stdout);*/
+    //            if(ncnf==0)
     //            {
-    //                b32 = (int *)b8;
-    //                ncnf = *b32 = SWAP_32(*b32);
-    //                /*printf("ncnf32=%d\n",ncnf);fflush(stdout);*/
-    //                b8 += 4;
+    //                if(mcnf==1)
+    //                {
+    //                    b32 = (int *)b8;
+    //                    ncnf = *b32 = SWAP_32(*b32);
+    //                    /*printf("ncnf32=%d\n",ncnf);fflush(stdout);*/
+    //                    b8 += 4;
+    //                }
+    //                else if(mcnf==2)
+    //                {
+    //                    b16 = (short *)b8;
+    //                    ncnf = *b16 = SWAP_16(*b16);
+    //                    /*printf("ncnf16=%d\n",ncnf);fflush(stdout);*/
+    //                    b8 += 2;
+    //                }
+    //                else if(mcnf==3)
+    //                {
+    //                    ncnf = *b8;
+    //                    /*printf("ncnf08=%d\n",ncnf);fflush(stdout);*/
+    //                    b8 += 1;
+    //                }
+    //                /*else printf("ncnf00=%d\n",ncnf);fflush(stdout);*/
+    //
+    //    #ifdef COMPOSITE_DEBUG
+    //                std::cout << "ncnf from data = " << ncnf << std::endl;
+    //    #endif
     //            }
-    //            else if(mcnf==2)
-    //            {
-    //                b16 = (short *)b8;
-    //                ncnf = *b16 = SWAP_16(*b16);
-    //                /*printf("ncnf16=%d\n",ncnf);fflush(stdout);*/
-    //                b8 += 2;
+    //
+    //
+    //            /* At this point we are ready to process next piece of data.
+    //               We have following entry info:
+    //               kcnf - format type
+    //               ncnf - how many times format repeated
+    //               b8   - starting data pointer (it comes from previously processed piece)
+    //            */
+    //
+    //            /* Convert data in according to type kcnf */
+    //
+    //            /* 64-bits */
+    //            if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
+    //                b64 = (int64_t *)b8;
+    //                b64end = b64 + ncnf;
+    //                if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
+    //                while (b64 < b64end) {
+    //                    *b64 = SWAP_64(*b64);
+    //                    b64++;
+    //                }
+    //                b8 = (int8_t *)b64;
+    //    #ifdef COMPOSITE_DEBUG
+    //                std::cout << "64bit: " << ncnf << " elements" << std::endl;
+    //    #endif
     //            }
-    //            else if(mcnf==3)
-    //            {
-    //                ncnf = *b8;
-    //                /*printf("ncnf08=%d\n",ncnf);fflush(stdout);*/
-    //                b8 += 1;
+    //            /* 32-bits */
+    //            else if ( kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
+    //                b32 = (int32_t *)b8;
+    //                b32end = b32 + ncnf;
+    //                if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
+    //                while (b32 < b32end) {
+    //                    *b32 = SWAP_32(*b32);
+    //                    b32++;
+    //                }
+    //                b8 = (int8_t *)b32;
+    //    #ifdef COMPOSITE_DEBUG
+    //                std::cout << "32bit: " << ncnf << " elements, b8 = " << std::showbase <<
+    //                             std::hex << std::setw(8) << b8 << dec << std::endl;
+    //    #endif
     //            }
-    //            /*else printf("ncnf00=%d\n",ncnf);fflush(stdout);*/
-    //
-    //#ifdef COMPOSITE_DEBUG
-    //            std::cout << "ncnf from data = " << ncnf << std::endl;
-    //#endif
-    //        }
-    //
-    //
-    //        /* At this point we are ready to process next piece of data.
-    //           We have following entry info:
-    //           kcnf - format type
-    //           ncnf - how many times format repeated
-    //           b8   - starting data pointer (it comes from previously processed piece)
-    //        */
-    //
-    //        /* Convert data in according to type kcnf */
-    //
-    //        /* 64-bits */
-    //        if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
-    //            b64 = (int64_t *)b8;
-    //            b64end = b64 + ncnf;
-    //            if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
-    //            while (b64 < b64end) {
-    //                *b64 = SWAP_64(*b64);
-    //                b64++;
+    //            /* 16 bits */
+    //            else if ( kcnf == 4 || kcnf == 5) {
+    //                b16 = (int16_t *)b8;
+    //                b16end = b16 + ncnf;
+    //                if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
+    //                while (b16 < b16end) {
+    //                    *b16 = SWAP_16(*b16);
+    //                    b16++;
+    //                }
+    //                b8 = (int8_t *)b16;
+    //    #ifdef COMPOSITE_DEBUG
+    //                std::cout << "16bit: " << ncnf << " elements" << std::endl;
+    //    #endif
     //            }
-    //            b8 = (int8_t *)b64;
-    //#ifdef COMPOSITE_DEBUG
-    //            std::cout << "64bit: " << ncnf << " elements" << std::endl;
-    //#endif
-    //        }
-    //        /* 32-bits */
-    //        else if ( kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
-    //            b32 = (int32_t *)b8;
-    //            b32end = b32 + ncnf;
-    //            if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
-    //            while (b32 < b32end) {
-    //                *b32 = SWAP_32(*b32);
-    //                b32++;
+    //            /* 8 bits */
+    //            else if ( kcnf == 6 || kcnf == 7 || kcnf == 3) {
+    //                /* do nothing for characters */
+    //                b8 += ncnf;
+    //    #ifdef COMPOSITE_DEBUG
+    //                std::cout << "8bit: " << ncnf << " elements" << std::endl;
+    //    #endif
     //            }
-    //            b8 = (int8_t *)b32;
-    //#ifdef COMPOSITE_DEBUG
-    //            std::cout << "32bit: " << ncnf << " elements, b8 = " << std::showbase <<
-    //                         std::hex << std::setw(8) << b8 << dec << std::endl;
-    //#endif
-    //        }
-    //        /* 16 bits */
-    //        else if ( kcnf == 4 || kcnf == 5) {
-    //            b16 = (int16_t *)b8;
-    //            b16end = b16 + ncnf;
-    //            if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
-    //            while (b16 < b16end) {
-    //                *b16 = SWAP_16(*b16);
-    //                b16++;
-    //            }
-    //            b8 = (int8_t *)b16;
-    //#ifdef COMPOSITE_DEBUG
-    //            std::cout << "16bit: " << ncnf << " elements" << std::endl;
-    //#endif
-    //        }
-    //        /* 8 bits */
-    //        else if ( kcnf == 6 || kcnf == 7 || kcnf == 3) {
-    //            /* do nothing for characters */
-    //            b8 += ncnf;
-    //#ifdef COMPOSITE_DEBUG
-    //            std::cout << "8bit: " << ncnf << " elements" << std::endl;
-    //#endif
-    //        }
     //
-    //    } /* while(b8 < b8end) */
+    //        } /* while(b8 < b8end) */
     //
-    //#ifdef COMPOSITE_DEBUG
-    //    std::cout << std::endl << "=== eviofmtswap end ===" << std::endl;
-    //#endif
+    //    #ifdef COMPOSITE_DEBUG
+    //        std::cout << std::endl << "=== eviofmtswap end ===" << std::endl;
+    //    #endif
     //
-    //    return(0);
-    //}
+    //        return(0);
+    //    }
 
 
     /**
      * This method takes a CompositeData object and a transformed format string
      * and uses that to write data into a buffer/array in raw form.
      *
-     * @param rawBuf   data buffer in which to put the raw bytes
-     * @param data     data to convert to raw bytes
-     * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
+     * @param rawBuf   data buffer in which to put the raw bytes.
+     * @param data     data to convert to raw bytes.
+     * @param ifmt     format list as produced by #compositeFormatToInt(const std::string &, std::vector<uint16_t> &).
      *
-     * @throws EvioException if ifmt size <= 0; if srcBuf or destBuf is too
+     * @throws EvioException if ifmt size &lt;= 0; if srcBuf or destBuf is too
      *                       small; not enough dataItems for the given format
      */
     void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data const & data,

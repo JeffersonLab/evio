@@ -13,11 +13,12 @@
 
 namespace evio {
 
-
+    /** Define equal operator. */
     bool HeaderType::operator==(const HeaderType &rhs) const {
         return value == rhs.value;
     }
 
+    /** Define not equal operator. */
     bool HeaderType::operator!=(const HeaderType &rhs) const {
         return value != rhs.value;
     }

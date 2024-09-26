@@ -109,12 +109,12 @@ namespace evio {
      * @param split          if &lt; 1, do not split file, write to only one file of unlimited size.
      *                       Else this is max size in bytes to make a file
      *                       before closing it and starting writing another.
-     * @param maxBlockSize   the max blocksize in bytes to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
-     *                       and &lt;= {@link #MAX_BLOCK_SIZE}.
+     * @param maxBlockSize   the max blocksize in bytes to use which must be &gt;= #MIN_BLOCK_SIZE
+     *                       and &lt;= #MAX_BLOCK_SIZE.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param maxEventCount  the max number of events (including dictionary) in a single block
-     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= #MIN_BLOCK_COUNT and &lt;= #MAX_BLOCK_COUNT.
      * @param byteOrder      the byte order in which to write the file. This is ignored
      *                       if appending to existing file.
      * @param xmlDictionary  dictionary in xml format or empty if none.
@@ -131,6 +131,7 @@ namespace evio {
      * @param bufferSize     number of bytes to make the internal buffer which will
      *                       be storing events before writing them to a file. Must be at least
      *                       a max block size + 1kB (add a little extra). If not, it is set to that.
+     * @param bitInfo        set of bits to include in first block header.
      *
      * @throws EvioException if defined dictionary or first event while appending;
      *                       if splitting file while appending;
@@ -407,12 +408,12 @@ namespace evio {
      * Create an <code>EventWriterV4</code> for writing events to a ByteBuffer.
      *
      * @param buf            the buffer to write to.
-     * @param maxBlockSize   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
-     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
+     * @param maxBlockSize   the max blocksize to use which must be &gt;= #MIN_BLOCK_SIZE
+     *                       and &lt;= #MAX_BLOCK_SIZE ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param maxEventCount the max number of events (including dictionary) in a single block
-     *                      which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
+     *                      which must be &gt;= #MIN_BLOCK_COUNT and &lt;= #MAX_BLOCK_COUNT.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
@@ -444,12 +445,12 @@ namespace evio {
      * The buffer's position is set to 0 before writing.
      *
      * @param buf            the buffer to write to.
-     * @param maxBlockSize   the max blocksize to use which must be &gt;= {@link #MIN_BLOCK_SIZE}
-     *                       and &lt;= {@link #MAX_BLOCK_SIZE} ints.
+     * @param maxBlockSize   the max blocksize to use which must be &gt;= #MIN_BLOCK_SIZE
+     *                       and &lt;= #MAX_BLOCK_SIZE ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
      * @param maxEventCount  the max number of events (including dictionary) in a single block
-     *                       which must be &gt;= {@link #MIN_BLOCK_COUNT} and &lt;= {@link #MAX_BLOCK_COUNT}.
+     *                       which must be &gt;= #MIN_BLOCK_COUNT and &lt;= #MAX_BLOCK_COUNT.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.

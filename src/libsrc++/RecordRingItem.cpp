@@ -102,29 +102,29 @@ namespace evio {
     }
 
 
-    ///**
-    // * Assignment operator.
-    // * @param other right side object.
-    // * @return left side object.
-    // */
-    //RecordRingItem & RecordRingItem::operator=(const RecordRingItem& other) {
-    //
-    //    // Avoid self assignment ...
-    //    if (this != &other) {
-    //        id = other.id;
-    //        order = other.order;
-    //        sequence = other.sequence;
-    //        lastItem.store(other.lastItem);
-    //        checkDisk.store(other.checkDisk);
-    //        forceToDiskBool.store(other.forceToDiskBool);
-    //        splitFileAfterWriteBool.store(other.splitFileAfterWriteBool);
-    //        alreadyReleased = other.alreadyReleased;
-    //
-    //        // Need to copy construct record & make shared pointer out of it
-    //        record = std::make_shared<RecordOutput>(*(item.record.get()));
-    //    }
-    //    return *this;
-    //}
+    //    ///**
+    //    // * Assignment operator.
+    //    // * @param other right side object.
+    //    // * @return left side object.
+    //    // */
+    //    //RecordRingItem & RecordRingItem::operator=(const RecordRingItem& other) {
+    //    //
+    //    //    // Avoid self assignment ...
+    //    //    if (this != &other) {
+    //    //        id = other.id;
+    //    //        order = other.order;
+    //    //        sequence = other.sequence;
+    //    //        lastItem.store(other.lastItem);
+    //    //        checkDisk.store(other.checkDisk);
+    //    //        forceToDiskBool.store(other.forceToDiskBool);
+    //    //        splitFileAfterWriteBool.store(other.splitFileAfterWriteBool);
+    //    //        alreadyReleased = other.alreadyReleased;
+    //    //
+    //    //        // Need to copy construct record & make shared pointer out of it
+    //    //        record = std::make_shared<RecordOutput>(*(item.record.get()));
+    //    //    }
+    //    //    return *this;
+    //    //}
 
 
     /** Method to reset this item each time it is retrieved from the supply. */

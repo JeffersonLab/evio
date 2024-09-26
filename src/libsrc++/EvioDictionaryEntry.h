@@ -247,7 +247,7 @@ namespace evio {
             return  tagEnd != 0 && entry.tag >= tag && entry.tag <= tagEnd;
         }
 
-
+        /** Define equal operator. */
         bool operator==(const EvioDictionaryEntry &other) const {
 
             if (&other == this) return true;
@@ -282,6 +282,7 @@ namespace evio {
             return match;
         }
 
+        /** Define not equal operator. */
         bool operator!=(const EvioDictionaryEntry &rhs) const {
             return !(rhs == *this);
         }

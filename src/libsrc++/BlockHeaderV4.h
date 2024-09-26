@@ -59,7 +59,6 @@ namespace evio {
      * |             Magic Int               |
      * |_____________________________________|
      *
-     * The following bit #s start with 0.
      *
      *      Block Length       = number of ints in block (including this one).
      *      Block Number       = id number (starting at 1)
@@ -79,7 +78,7 @@ namespace evio {
      *
      *
      *
-     * Bit info has the following bits defined (bit #s start with 0):
+     * Bit info has the following bits defined (bit numbers start with 0):
      *   Bit  8     = true if dictionary is included (relevant for first block only)
      *
      *   Bit  9     = true if this block is the last block in file or network transmission

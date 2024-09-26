@@ -46,30 +46,29 @@
 namespace evio {
 
 
-    /////////////////////////////////// DEPTH FIRST ITERATOR
-
+    /** Depth first iterator. */
     template<typename R>
     class nodeIterator {
 
-        // iterator of vector contained shared pointers to node's children
+        /** Iterator of vector contained shared pointers to node's children. */
         typedef typename std::vector<R>::iterator KidIter;
 
     protected:
 
-        // Stack of pair containing 2 iterators, each iterating over vector
-        // of node's children (shared pts).
-        // In each pair, first is current iterator, second is end iterator.
+        /** Stack of pair containing 2 iterators, each iterating over vector
+         * of node's children (shared pts).
+         * In each pair, first is current iterator, second is end iterator. */
         std::stack<std::pair<KidIter, KidIter>> stack;
 
-        // Where we are now in the tree
+        /** Where we are now in the tree. */
         R currentNode;
 
-        // Is this the end iterator?
+        /** Is this the end iterator? */
         bool isEnd;
 
     public:
 
-        // Copy shared pointer arg
+        /** Constructor that copies shared pointer arg. */
         explicit nodeIterator(R &node, bool isEnd) : currentNode(node), isEnd(isEnd) {
             // store current-element and end of vector in pair
             if (!node->children.empty()) {
@@ -78,8 +77,10 @@ namespace evio {
             }
         }
 
+        /** Dereference operator. */
         R operator*() const { return currentNode; }
 
+        /** Equal operator. */
         bool operator==(const nodeIterator &other) const {
             // Identify end iterator
             if (isEnd && other.isEnd) {
@@ -88,6 +89,7 @@ namespace evio {
             return this == &other;
         }
 
+        /** Not equal operator. */
         bool operator!=(const nodeIterator &other) const {
             // Identify end iterator
             if (isEnd && other.isEnd) {
@@ -96,9 +98,13 @@ namespace evio {
             return this != &other;
         }
 
+        /**
+         * Is this the end of the iterator?
+         * @return true if end of iterator.
+         */
         bool isEndIter() {return isEnd;}
 
-        // post increment gets ignored arg of 0 to distinguish from pre, A++
+        /** Post increment operator gets ignored arg of 0 to distinguish from pre, A++. */
         const nodeIterator operator++(int) {
 
             if (isEnd) return *this;
@@ -142,7 +148,7 @@ namespace evio {
         }
 
 
-        // pre increment, ++A
+        /** Pre increment operator, ++A. */
         const nodeIterator &operator++() {
 
             if (isEnd) return *this;
@@ -183,33 +189,32 @@ namespace evio {
     };
 
 
-    /////////////////////////////////// BREADTH FIRST ITERATOR
-
+    /** Breadth first iterator. */
     template<typename R>
     class nodeBreadthIterator {
 
     protected:
 
-        // iterator of vector contained shared pointers to node's children
+        /** iterator of vector contained shared pointers to node's children. */
         typedef typename std::vector<R>::iterator KidIter;
 
-        // Stack of iterators of vector of shared pointers.
+        // Queue of iterators of vector of shared pointers.
         // Each vector contains the children of a node,
         // thus each iterator gives all a node's kids.
 
-        // Stack of iterators over node's children.
-        // In each pair, first is current iterator, second is end
+        /** Queue of iterators over node's children.
+         * In each pair, first is current iterator, second is end. */
         std::queue<std::pair<KidIter, KidIter>> que;
 
-        // Where we are now in the tree
+        /** Where we are now in the tree. */
         R currentNode;
 
-        // Is this the end iterator?
+        /** Is this the end iterator? */
         bool isEnd;
 
     public:
 
-        // Copy shared pointer arg
+        /** Constructor that copies shared pointer arg. */
         nodeBreadthIterator(R & node, bool isEnd) : currentNode(node), isEnd(isEnd) {
             // store current-element and end of vector in pair
             if (!node->children.empty()) {
@@ -218,8 +223,10 @@ namespace evio {
             }
         }
 
+        /** Dereference operator. */
         R operator*() const { return currentNode; }
 
+        /** Equal operator. */
         bool operator==(const nodeBreadthIterator &other) const {
             if (isEnd && other.isEnd) {
                 return true;
@@ -227,6 +234,7 @@ namespace evio {
             return this == &other;
         }
 
+        /** Not equal operator. */
         bool operator!=(const nodeBreadthIterator &other) const {
             if (isEnd && other.isEnd) {
                 return false;
@@ -234,11 +242,15 @@ namespace evio {
             return this != &other;
         }
 
+        /**
+        * Is this the end of the iterator?
+        * @return true if end of iterator.
+        */
         bool isEndIter() {return isEnd;}
 
         // TODO: How does one handle going too far???
 
-        // post increment gets ignored arg of 0 to distinguish from pre, A++
+        /** Post increment operator gets ignored arg of 0 to distinguish from pre, A++. */
         nodeBreadthIterator operator++(int) {
 
             if (isEnd) {
@@ -284,7 +296,7 @@ namespace evio {
         }
 
 
-        // pre increment, ++A
+        /** Pre increment operator, ++A. */
         nodeBreadthIterator operator++() {
 
             if (isEnd) {
@@ -358,16 +370,23 @@ namespace evio {
 
     public:
 
-        // For defining our own iterator
+        /** For our own iterator, define size type. */
         typedef size_t size_type;
+        /** For our own iterator, define pointer difference type. */
         typedef std::ptrdiff_t difference_type;
+        /** For our own iterator, define iterator category type. */
         typedef std::input_iterator_tag iterator_category;
 
+        /** For our own iterator, define value type. */
         typedef std::shared_ptr<BaseStructure> value_type;
+        /** For our own iterator, define reference type. */
         typedef std::shared_ptr<BaseStructure> reference;
+        /** For our own iterator, define pointer type. */
         typedef std::shared_ptr<BaseStructure> pointer;
 
+        /** Depth first iterator for this element in a tree. */
         typedef nodeIterator<std::shared_ptr<BaseStructure>> iterator;
+        /** Breadth first iterator for this element in a tree. */
         typedef nodeBreadthIterator<std::shared_ptr<BaseStructure>> breadth_iterator;
 
         friend class nodeIterator<std::shared_ptr<BaseStructure>>;
@@ -413,8 +432,20 @@ namespace evio {
         bool allowsChildren = true;
 
     public:
-
+        /**
+         * This methods calls shared_from_this() to obtain a new std::shared_ptr that
+         * shares ownership of the current object (this).
+         * @return a new std::shared_ptr that shares ownership of the current object.
+         */
         std::shared_ptr<BaseStructure> getThis() {return shared_from_this();}
+
+        /**
+         * This methods calls shared_from_this() to obtain a new std::shared_ptr that
+         * shares ownership of the current object (this). However that shared pointer
+         * cannot be used to change the object.
+         * @return a new std::shared_ptr that shares ownership of the current object
+         *         which is treated as read-only.
+         */
         std::shared_ptr<const BaseStructure> getThisConst() const {return shared_from_this();}
 
     protected:
@@ -641,6 +672,10 @@ namespace evio {
 
         void transform(std::shared_ptr<BaseStructure> structure);
 
+        /**
+         * Get the type of structure this object represents (bank, seg, tagseg, or unknown).
+         * @return type of structure this object represents.
+         */
         virtual StructureType getStructureType() const {return StructureType::STRUCT_UNKNOWN32;};
 
         ByteOrder getByteOrder();

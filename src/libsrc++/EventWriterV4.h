@@ -76,6 +76,11 @@ namespace evio {
         boost::thread_group threadPool;
 
     public:
+
+        /**
+         * Constructor.
+         * @param poolSize size of pool of threads to close files.
+         */
         FileCloserV4(int poolSize) {
             // Create a work object to keep the io_context busy
             boost::asio::io_context::work work(ioContext);
@@ -88,10 +93,16 @@ namespace evio {
             }
         }
 
+        /** Close this object by ending all threads in pool. */
         void close() {
             threadPool.join_all();
         }
 
+        /**
+         * Close file given by filestream after pending write is finished.
+         * @param afc file stream to close.
+         * @param future object representing a write that is in progress.
+         */
         void closeAsyncFile(std::shared_ptr<std::fstream> afc,
                             std::shared_ptr<std::future<void>> future) {
             ioContext.post([=]() {

@@ -324,7 +324,6 @@ namespace evio {
      *
      * @param buffer    buffer to be filled with event.
      * @param index     index of event starting at 0.
-     * @param bufOffset offset into buffer to place event.
      * @return buffer   buffer arg.
      * @throws EvioException if index too large, or buffer has insufficient space to
      *                       contain event (buffer.capacity() < event size).

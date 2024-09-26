@@ -30,9 +30,24 @@ namespace evio {
 
     public:
 
+        /**
+         * Constructor.
+         * @param msg error message.
+         */
         explicit EvioException(const std::string & msg) noexcept : std::runtime_error(msg) {}
+
+        /**
+         * Constructor.
+         * @param ex exception that caused this one.
+         */
         explicit EvioException(const std::exception & ex) noexcept : std::runtime_error(ex.what()) {}
 
+        /**
+         * Constructor.
+         * @param msg error message.
+         * @param file name of file exception occurred.
+         * @param line file line exception occurred.
+         */
         EvioException(const std::string & msg, const char *file, int line) noexcept : std::runtime_error(msg) {
             std::ostringstream o;
             o << file << ":" << line << ":" << msg;
@@ -41,6 +56,7 @@ namespace evio {
 
     };
 
+/** Macro that throws an exception with given message and file, line info. */
 #define throwEvioLine(arg) throw EvioException(arg, __FILE__, __LINE__);
 
 }

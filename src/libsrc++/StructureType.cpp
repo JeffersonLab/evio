@@ -13,11 +13,12 @@
 
 namespace evio {
 
-
+    /** Define == operator. */
     bool StructureType::operator==(const StructureType &rhs) const {
         return value == rhs.value;
     }
 
+    /** Define not equal operator. */
     bool StructureType::operator!=(const StructureType &rhs) const {
         return value != rhs.value;
     }
