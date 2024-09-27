@@ -908,9 +908,10 @@ namespace evio {
          * If non-printable chars are found (besides those used to terminate strings),
          * then 1 string with all characters will be returned. However, if the "onlyGoodChars"
          * flag is true, 1 string is returned in truncated form without
-         * the bad characters at the end.<p>
+         * the bad characters at the end.
+         * <p>
          * The name of this method is taken from the java and has little to do with C++.
-         * That's done for ease of code maintenance.
+         * That's done for ease of code maintenance.</p>
          *
          * @param strData        containing string data
          * @param onlyGoodChars  if true and non-printable chars found,
@@ -1101,21 +1102,19 @@ namespace evio {
 
 
         /**
-         * This method generates part of a file name given a base file name as an argument.<p>
+         * <p>This method generates part of a file name given a base file name as an argument.</p>
          *
-         * The base file name may contain up to 3, C-style integer format specifiers
+         * <p>The base file name may contain up to 3, C-style integer format specifiers using "d" and "x"
          * (such as <b>%03d</b>, or <b>%x</b>). If more than 3 are found, an exception
          * will be thrown.
          * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
          * it will be added automatically in order to avoid spaces in the returned string.
-         * In the {@link #generateFileName(std::string, uint32_t, uint32_t, uint64_t, uint32_t, uint32_t, uint32_t)} method,
-         * the first occurrence will be substituted with the given runNumber value.
-         * If the file is being split, the second will be substituted with the split number.
-         * If there are multiple streams, the third will be substituted with the stream id.<p>
+         * See the {@link #generateFileName} documentation to understand the exact way that run number,
+         * split number and stream id are substituted into the specifiers.</p>
          *
-         * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
+         * <p>The base file name may contain characters of the form <b>\$(ENV_VAR)</b>
          * which will be substituted with the value of the associated environmental
-         * variable or a blank string if none is found.<p>
+         * variable or a blank string if none is found.</p>
          *
          * Finally, the base file name may contain occurrences of the string "%s"
          * which will be substituted with the value of the runType arg or nothing if
@@ -1163,26 +1162,72 @@ namespace evio {
 
 
         /**
-         * This method does NOT work on its own. It generates a complete file name from the
+         * <p>This method does NOT work on its own. It generates a complete file name from the
          * previously determined baseFileName obtained from calling {@link #generateBaseFileName}.
          * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
          * distinguish between the split files with splitNumber.
-         * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
-         * the first occurrence will be substituted with the given runNumber value.
-         * If the file is being split, the second will be substituted with the splitNumber.
-         * If there are multiple streams, the third will be substituted with the stream id.<p>
+         * The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted
+         * with runNumber, splitNumber and streamId in the manner described below.</p>
          *
-         * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
-         * If no specifier for the stream id exists, it is tacked onto the end of the file name,
-         * after the splitNumber. No run numbers are ever tacked on without a specifier.<p>
+         * <ul>
+         *     <li>If file is to be split:</li>
+         *          <ul>
+         *          <li>If no specifiers:</li>
+         *              <ul>
+         *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+         *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+         *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+         *                  <li>No run numbers are ever tacked on without a specifier </li>
+         *              </ul>
+         *          <li>If 1 specifier:</li>
+         *              <ul>
+         *                  <li>add runNumber according to specifier</li>
+         *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+         *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+         *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+         *              </ul>
+         *          <li>If 2 specifiers:</li>
+         *              <ul>
+         *                  <li>add runNumber according to first specifier</li>
+         *                  <li>for one stream, add splitNumber according to second specifier</li>
+         *                  <li>for multiple streams, add splitNumber according to second specifier, but place
+         *                      <b>&lt;streamId&gt;.</b> just before the splitNumber</li>
+         *              </ul>
+         *          <li>If 3 specifiers:</li>
+         *              <ul>
+         *                  <li>add runNumber according to first specifier</li>
+         *                  <li>add streamId according to second specifier add splitNumber according to third specifier</li>
+         *              </ul>
+         *          </ul>
          *
-         * For splitting: if there is only 1 stream, no stream ids are used and any
-         * third specifier is removed.
-         * For non-splitting: if there is only 1 stream, no stream ids are used and any
-         * second and third specifiers are removed. For multiple streams, the second specifier is
-         * removed and the 3rd substituted with the stream id.
-         * For all cases: if there are more than 3 specifiers, <b>NO SUBSTITUTIONS
-         * ARE DONE.</b><p>
+         *      <li>If file is NOT split:</li>
+         *          <ul>
+         *          <li>If no specifiers:</li>
+         *              <ul>
+         *                  <li>streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+         *                  <li>No run numbers are ever tacked on without a specifier.</li>
+         *              </ul>
+         *          <li>If 1 specifier:</li>
+         *              <ul>
+         *                  <li>add runNumber according to specifier</li>
+         *                  <li>for multiple streams, streamId is tacked onto the end of the file name as .<b>.&lt;streamId&gt;</b></li>
+         *              </ul>
+         *          <li>If 2 specifiers:</li>
+         *              <ul>
+         *                  <li>add runNumber according to first specifier</li>
+         *                  <li>remove second specifier</li>
+         *                  <li>for multiple streams, streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+         *              </ul>
+         *          <li>If 3 specifiers:</li>
+         *              <ul>
+         *                  <li>add runNumber according to first specifier</li>
+         *                  <li>add streamId according to second specifier</li>
+         *                  <li>remove third specifier</li>
+         *              </ul>
+         *          </ul>
+         *  </ul>
+         *
+         * If there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE on the extra specifiers</b>.
          *
          * @param fileName       file name to use as a basis for the generated file name
          * @param specifierCount number of C-style int format specifiers in baseFileName arg
