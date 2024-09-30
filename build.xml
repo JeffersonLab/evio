@@ -173,7 +173,7 @@
     
 
 
-    <!-- Javadoc -->
+    <!-- Javadoc, turn off html related warnings/errors -->
     <target name="javadoc" description="Create javadoc.">
         <mkdir dir="${doc.dir}" />
         <javadoc packagenames="org.jlab.coda.*"
@@ -181,12 +181,13 @@
                  sourcepath="java"
                  access="public"
                  destdir="${doc.dir}"
-                 use="true" >
+                 use="true"
+                 additionalparam="-Xdoclint:all,-html">
             <classpath refid="classpath" />
         </javadoc>
     </target>
     
-    <!-- Javadoc for developer -->
+    <!-- Javadoc for developer, turn off html related warnings/errors -->
     <target name="developdoc" description="Create javadoc for developer.">
         <mkdir dir="${doc.dir}" />
         <javadoc packagenames="org.jlab.coda.*"
@@ -194,7 +195,8 @@
                  sourcepath="java"
                  access="package"
                  destdir="${doc.dir}"
-                 use="true" >
+                 use="true"
+                 additionalparam="-Xdoclint:all,-html">
             <classpath refid="classpath" />
         </javadoc>
     </target>
