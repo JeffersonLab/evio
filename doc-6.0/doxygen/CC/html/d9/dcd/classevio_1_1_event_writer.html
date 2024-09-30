@@ -106,7 +106,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a92be16234de2fd45d4c19a710fdac9be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing to a file in NATIVE byte order.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#a92be16234de2fd45d4c19a710fdac9be">More...</a><br /></td></tr>
 <tr class="separator:a92be16234de2fd45d4c19a710fdac9be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3f75ecb1d298336ec19fdf4da18b59e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#af3f75ecb1d298336ec19fdf4da18b59e">EventWriter</a> (std::string &amp;baseName, const std::string &amp;directory, const std::string &amp;runType, uint32_t runNumber=1, uint64_t split=0, uint32_t maxRecordSize=4194304, uint32_t maxEventCount=10000, const <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> &amp;byteOrder=<a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#aa96046df3a55b85a31f2c33e4d903cf1">ByteOrder::nativeOrder</a>(), const std::string &amp;xmlDictionary=&quot;&quot;, bool overWriteOK=true, bool append=false, std::shared_ptr&lt; <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html">EvioBank</a> &gt; firstEvent=nullptr, uint32_t streamId=1, uint32_t splitNumber=0, uint32_t splitIncrement=1, uint32_t streamCount=1, <a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747">Compressor::CompressionType</a> compressionType=<a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9">Compressor::UNCOMPRESSED</a>, uint32_t compressionThreads=1, uint32_t ringSize=0, size_t bufferSize=32100000)</td></tr>
-<tr class="memdesc:af3f75ecb1d298336ec19fdf4da18b59e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a file.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#af3f75ecb1d298336ec19fdf4da18b59e">More...</a><br /></td></tr>
 <tr class="separator:af3f75ecb1d298336ec19fdf4da18b59e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ed821b032bad0a0363213df829c2b7f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#a9ed821b032bad0a0363213df829c2b7f">EventWriter</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf)</td></tr>
 <tr class="memdesc:a9ed821b032bad0a0363213df829c2b7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a>.  <a href="../../d9/dcd/classevio_1_1_event_writer.html#a9ed821b032bad0a0363213df829c2b7f">More...</a><br /></td></tr>
@@ -548,23 +547,23 @@ Protected Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a file. </p>
-<p>If the file already exists, its contents will be overwritten unless the "overWriteOK" argument is <code>false</code> in which case an exception will be thrown. Unless ..., the option to append these events to an existing file is <code>true</code>, in which case everything is fine. If the file doesn't exist, it will be created. Byte order defaults to big endian if arg is null. File can be split while writing.</p>
-<p>The base file name may contain up to 2, C-style integer format specifiers using "d" and "x" (such as <b>%03d</b>, or <b>x</b>). If more than 2 are found, an exception will be thrown. If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier, it will be added automatically in order to avoid spaces in the file name. The first specifier will be substituted with the given runNumber value. If the file is being split, the second will be substituted with the split number which starts at 0. If 2 specifiers exist and the file is not being split, no substitutions are made. If no specifier for the splitNumber exists, it is tacked onto the end of the file name after a dot (.). If streamCount &gt; 1, the split number is calculated starting with streamId and incremented by streamCount each time. In this manner, all split files will have unique, sequential names even though there are multiple parallel ERs. </p>
-<p>The base file name may contain characters of the form <b></b> which will be substituted with the value of the associated environmental variable or a blank string if none is found.</p>
-<p>The base file name may also contain occurrences of the string "%s" which will be substituted with the value of the runType arg or nothing if the runType is null.</p>
-<p>If multiple streams of data, each writing a file, end up with the same file name, they can be differentiated by a stream id, starting split # and split increment.</p>
+<p>Create an <code><a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a></code> for writing events to a file or files. If the given file already exists, its contents will be overwritten unless the "overWriteOK" argument is <code>false</code> in which case an exception will be thrown. If the option to "append" these events to an existing file is <code>true</code>, then the write proceeds. If the file doesn't exist, it will be created.</p>
+<p>In order to keep files from getting too large, there is an option to continue writing but to multiple files instead of just one. That is, when a file gets to the size given by the "split" arg, it is closed and another is opened, with new writes going to the new file. The trick in this case is to automatically name the new files.</p>
+<p>The baseName arg is the base string from which a final file name or names can be created. The baseName may contain up to 3, C-style integer format specifiers using "d" and "x" (such as <b>%03d</b>, or <b>x</b>). These specifiers dictate how the runNumber, streamId and splitNumber arguments are inserted into the filename.</p>
+<p>If there are multiple streams of data each writing a file, to avoid ending up with the same file name, they can be differentiated by a stream id. Run number can differentiate data files from different runs of the same experiment. And of course, the split number tracks the number of files automatically created by this <a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html" title="An EventWriter object is used for writing events to a file or to a byte buffer.">EventWriter</a> object and is incremented at each split.</p>
+<p>Back to the format specifiers, if more than 3 are found, an exception will be thrown. If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier, it will be added automatically in order to avoid spaces in the returned string. See the documentation at <a class="el" href="../../d3/d87/classevio_1_1_util.html#a76482198f230e3afadbb65d1e6feedd9">Util::generateFileName</a> to understand exactly how substitutions of runNumber, streamId and splitNumber are done for these specifiers in order to create the split file names.</p>
+<p>In addition, the baseName may contain characters of the form <b>$(ENV_VAR)</b> which will be substituted with the value of the associated environmental variable or a blank string if none is found.</p>
+<p>Finally, the baseName may contain occurrences of the string "%s" which will be substituted with the value of the runType arg or nothing if the runType is null.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">baseName</td><td>base file name used to generate complete file name (may not be empty) </td></tr>
+    <tr><td class="paramname">baseName</td><td>base file name used to generate complete file name(s) (may not be empty) </td></tr>
     <tr><td class="paramname">directory</td><td>directory in which file is to be placed </td></tr>
     <tr><td class="paramname">runType</td><td>name of run type configuration to be used in naming files </td></tr>
     <tr><td class="paramname">runNumber</td><td>number of the CODA run, used in naming files </td></tr>
     <tr><td class="paramname">split</td><td>if &lt; 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. </td></tr>
     <tr><td class="paramname">maxRecordSize</td><td>max number of uncompressed data bytes each record can hold. Value of &lt; 8MB results in default of 8MB. The size of the record will not be larger than this size unless a single event itself is larger. </td></tr>
     <tr><td class="paramname">maxEventCount</td><td>max number of events each record can hold. Value &lt;= O means use default (1M). </td></tr>
-    <tr><td class="paramname">byteOrder</td><td>the byte order in which to write the file. This is ignored if appending to existing file. Defaults to Big Endian if null. </td></tr>
+    <tr><td class="paramname">byteOrder</td><td>the byte order in which to write the file. This is ignored if appending to existing file. </td></tr>
     <tr><td class="paramname">xmlDictionary</td><td>dictionary in xml format or empty if none. </td></tr>
     <tr><td class="paramname">overWriteOK</td><td>if <code>false</code> and the file already exists, an exception is thrown rather than overwriting it. </td></tr>
     <tr><td class="paramname">append</td><td>if <code>true</code> append written data to given file. </td></tr>
@@ -573,7 +572,7 @@ Protected Member Functions</h2></td></tr>
     <tr><td class="paramname">splitNumber</td><td>number at which to start the split numbers </td></tr>
     <tr><td class="paramname">splitIncrement</td><td>amount to increment split number each time another file is created. </td></tr>
     <tr><td class="paramname">streamCount</td><td>total number of streams in DAQ. </td></tr>
-    <tr><td class="paramname">compressionType</td><td>type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip). </td></tr>
+    <tr><td class="paramname">compressionType</td><td>type of data compression to do. </td></tr>
     <tr><td class="paramname">compressionThreads</td><td>number of threads doing compression simultaneously. </td></tr>
     <tr><td class="paramname">ringSize</td><td>number of records in supply ring. If set to &lt; compressionThreads, it is forced to equal that value and is also forced to be a multiple of 2, rounded up. </td></tr>
     <tr><td class="paramname">bufferSize</td><td>number of bytes to make each internal buffer which will be storing events before writing them to a file. 9MB = default if bufferSize = 0.</td></tr>
@@ -735,7 +734,7 @@ Protected Member Functions</h2></td></tr>
     <tr><td class="paramname">maxEventCount</td><td>max number of events each record can hold. Value &lt;= O means use default (1M). </td></tr>
     <tr><td class="paramname">xmlDictionary</td><td>dictionary in xml format or null if none. </td></tr>
     <tr><td class="paramname">recordNumber</td><td>number at which to start record number counting. </td></tr>
-    <tr><td class="paramname">compressionType</td><td>type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)</td></tr>
+    <tr><td class="paramname">compressionType</td><td>type of data compression to do.</td></tr>
   </table>
   </dd>
 </dl>
@@ -813,7 +812,7 @@ Protected Member Functions</h2></td></tr>
     <tr><td class="paramname">maxEventCount</td><td>max number of events each record can hold. Value &lt;= O means use default (1M). </td></tr>
     <tr><td class="paramname">xmlDictionary</td><td>dictionary in xml format or null if none. </td></tr>
     <tr><td class="paramname">recordNumber</td><td>number at which to start record number counting. </td></tr>
-    <tr><td class="paramname">compressionType</td><td>type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip) </td></tr>
+    <tr><td class="paramname">compressionType</td><td>type of data compression to do. </td></tr>
     <tr><td class="paramname">eventType</td><td>first record header holds the following type of event encoded in bitInfo, (0=RocRaw, 1=Physics, 2=Partial Physics, 3=Disentangled, 4=User, 5=Control, 6=Mixed, 8=RocRawStream, 9=PhysicsStream, 15=Other). If &lt; 0 or &gt; 15, this arg is ignored.</td></tr>
   </table>
   </dd>

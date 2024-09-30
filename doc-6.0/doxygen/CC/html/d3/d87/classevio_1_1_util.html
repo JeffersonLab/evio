@@ -200,10 +200,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a7533e223ab3a55e4a23552fe61c2c2ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count the number of integer specifiers (e.g.  <a href="../../d3/d87/classevio_1_1_util.html#a7533e223ab3a55e4a23552fe61c2c2ac">More...</a><br /></td></tr>
 <tr class="separator:a7533e223ab3a55e4a23552fe61c2c2ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a542fb63b5849885087ac24795604b4b6"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a542fb63b5849885087ac24795604b4b6">generateBaseFileName</a> (const std::string &amp;baseName, const std::string &amp;runType, std::string &amp;modifiedBaseName)</td></tr>
-<tr class="memdesc:a542fb63b5849885087ac24795604b4b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method generates part of a file name given a base file name as an argument.  <a href="../../d3/d87/classevio_1_1_util.html#a542fb63b5849885087ac24795604b4b6">More...</a><br /></td></tr>
 <tr class="separator:a542fb63b5849885087ac24795604b4b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76482198f230e3afadbb65d1e6feedd9"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d87/classevio_1_1_util.html#a76482198f230e3afadbb65d1e6feedd9">generateFileName</a> (std::string fileName, uint32_t specifierCount, uint32_t runNumber, uint64_t split, uint32_t splitNumber, uint32_t streamId, uint32_t streamCount)</td></tr>
-<tr class="memdesc:a76482198f230e3afadbb65d1e6feedd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method does NOT work on its own.  <a href="../../d3/d87/classevio_1_1_util.html#a76482198f230e3afadbb65d1e6feedd9">More...</a><br /></td></tr>
 <tr class="separator:a76482198f230e3afadbb65d1e6feedd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -384,10 +382,9 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>This method generates part of a file name given a base file name as an argument. </p>
-<p>The base file name may contain up to 3, C-style integer format specifiers (such as <b>%03d</b>, or <b>x</b>). If more than 3 are found, an exception will be thrown. If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier, it will be added automatically in order to avoid spaces in the returned string. In the <a class="el" href="../../d3/d87/classevio_1_1_util.html#a76482198f230e3afadbb65d1e6feedd9">generateFileName(std::string, uint32_t, uint32_t, uint64_t, uint32_t, uint32_t, uint32_t)</a> method, the first occurrence will be substituted with the given runNumber value. If the file is being split, the second will be substituted with the split number. If there are multiple streams, the third will be substituted with the stream id.</p>
-<p>The base file name may contain characters of the form <b></b> which will be substituted with the value of the associated environmental variable or a blank string if none is found.</p>
+<p>This method generates part of a file name given a base file name as an argument.</p>
+<p>The base file name may contain up to 3, C-style integer format specifiers using "d" and "x" (such as <b>%03d</b>, or <b>x</b>). If more than 3 are found, an exception will be thrown. If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier, it will be added automatically in order to avoid spaces in the returned string. See the <a class="el" href="../../d3/d87/classevio_1_1_util.html#a76482198f230e3afadbb65d1e6feedd9">generateFileName</a> documentation to understand the exact way that run number, split number and stream id are substituted into the specifiers.</p>
+<p>The base file name may contain characters of the form <b>$(ENV_VAR)</b> which will be substituted with the value of the associated environmental variable or a blank string if none is found.</p>
 <p>Finally, the base file name may contain occurrences of the string "%s" which will be substituted with the value of the runType arg or nothing if the runType is null.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -474,20 +471,103 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>This method does NOT work on its own. </p>
-<p>It generates a complete file name from the previously determined baseFileName obtained from calling <a class="el" href="../../d3/d87/classevio_1_1_util.html#a542fb63b5849885087ac24795604b4b6">generateBaseFileName</a>. If evio data is to be split up into multiple files (split &gt; 0), numbers are used to distinguish between the split files with splitNumber. If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then the first occurrence will be substituted with the given runNumber value. If the file is being split, the second will be substituted with the splitNumber. If there are multiple streams, the third will be substituted with the stream id.</p>
-<p>If no specifier for the splitNumber exists, it is tacked onto the end of the file name. If no specifier for the stream id exists, it is tacked onto the end of the file name, after the splitNumber. No run numbers are ever tacked on without a specifier.</p>
-<p>For splitting: if there is only 1 stream, no stream ids are used and any third specifier is removed. For non-splitting: if there is only 1 stream, no stream ids are used and any second and third specifiers are removed. For multiple streams, the second specifier is removed and the 3rd substituted with the stream id. For all cases: if there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE.</b></p>
+<p>This method does NOT work on its own. It generates a complete file name from the previously determined baseFileName obtained from calling <a class="el" href="../../d3/d87/classevio_1_1_util.html#a542fb63b5849885087ac24795604b4b6">generateBaseFileName</a>. If evio data is to be split up into multiple files (split &gt; 0), numbers are used to distinguish between the split files with splitNumber.</p>
+<p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted with runNumber, splitNumber and streamId in the manner described below.</p>
+<ul>
+<li>
+<p class="startli">If file is to be split: </p><ul>
+<li>
+If no specifiers: <ul>
+<li>
+for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b> </li>
+<li>
+for multiple streams, streamId and splitNumber are tacked onto the end of the file name as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b> </li>
+<li>
+No run numbers are ever tacked on without a specifier  </li>
+</ul>
+</li>
+<li>
+If 1 specifier: <ul>
+<li>
+add runNumber according to specifier </li>
+<li>
+for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b> </li>
+<li>
+for multiple streams, streamId and splitNumber are tacked onto the end of the file name as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b> </li>
+</ul>
+</li>
+<li>
+If 2 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+for one stream, add splitNumber according to second specifier </li>
+<li>
+for multiple streams, add splitNumber according to second specifier, but place <b>&lt;streamId&gt;.</b> just before the splitNumber </li>
+</ul>
+</li>
+<li>
+If 3 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+add streamId according to second specifier add splitNumber according to third specifier </li>
+</ul>
+</li>
+</ul>
+<p class="endli"></p>
+</li>
+<li>
+If file is NOT split: <ul>
+<li>
+If no specifiers: <ul>
+<li>
+streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b> </li>
+<li>
+No run numbers are ever tacked on without a specifier. </li>
+</ul>
+</li>
+<li>
+If 1 specifier: <ul>
+<li>
+add runNumber according to specifier </li>
+<li>
+for multiple streams, streamId is tacked onto the end of the file name as .<b>.&lt;streamId&gt;</b> </li>
+</ul>
+</li>
+<li>
+If 2 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+remove second specifier </li>
+<li>
+for multiple streams, streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b> </li>
+</ul>
+</li>
+<li>
+If 3 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+add streamId according to second specifier </li>
+<li>
+remove third specifier </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>If there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE on the extra specifiers</b>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fileName</td><td>file name to use as a basis for the generated file name </td></tr>
-    <tr><td class="paramname">specifierCount</td><td>number of C-style int format specifiers in baseFileName arg </td></tr>
-    <tr><td class="paramname">runNumber</td><td>CODA run number </td></tr>
-    <tr><td class="paramname">split</td><td>number of bytes at which to split off evio file </td></tr>
-    <tr><td class="paramname">splitNumber</td><td>number of the split file </td></tr>
-    <tr><td class="paramname">streamId</td><td>number of the stream id </td></tr>
-    <tr><td class="paramname">streamCount</td><td>total number of streams</td></tr>
+    <tr><td class="paramname">fileName</td><td>file name to use as a basis for the generated file name. </td></tr>
+    <tr><td class="paramname">specifierCount</td><td>number of C-style int format specifiers in baseFileName arg. </td></tr>
+    <tr><td class="paramname">runNumber</td><td>CODA run number. </td></tr>
+    <tr><td class="paramname">split</td><td>number of bytes at which to split off evio file. </td></tr>
+    <tr><td class="paramname">splitNumber</td><td>number of the split file. </td></tr>
+    <tr><td class="paramname">streamId</td><td>number of the stream id. </td></tr>
+    <tr><td class="paramname">streamCount</td><td>total number of streams.</td></tr>
   </table>
   </dd>
 </dl>
@@ -1077,7 +1157,7 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>This method extracts an array of strings from a string containing evio string data. </p>
-<p>If non-printable chars are found (besides those used to terminate strings), then 1 string with all characters will be returned. However, if the "onlyGoodChars" flag is true, 1 string is returned in truncated form without the bad characters at the end.</p>
+<p>If non-printable chars are found (besides those used to terminate strings), then 1 string with all characters will be returned. However, if the "onlyGoodChars" flag is true, 1 string is returned in truncated form without the bad characters at the end. </p>
 <p>The name of this method is taken from the java and has little to do with C++. That's done for ease of code maintenance.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
