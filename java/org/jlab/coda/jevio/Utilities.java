@@ -121,21 +121,20 @@ final public class Utilities {
 
 
     /**
-     * This method generates part of a file name given a base file name as an argument.<p>
+     * <p>This method generates part of a file name given a base file name as an argument.</p>
      *
-     * The base file name may contain up to 3, C-style integer format specifiers
-     * (such as <b>%03d</b>, or <b>%x</b>). If more than 3 are found, an exception
-     * will be thrown.
+     * <p>The base file name may contain up to 3, C-style integer format specifiers
+     * using "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
+     * If more than 3 are found, an exception will be thrown.
      * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
      * it will be added automatically in order to avoid spaces in the returned string.
-     * In the {@link #generateFileName(String, int, int, long, int, int, int)} method,
-     * the first occurrence will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the split number.
-     * If there are multiple streams, the third will be substituted with the stream id.<p>
+     * See the {@link #generateFileName(String, int, int, long, int, int, int)}
+     * documentation to understand the exact way that run number,
+     * split number and stream id are substituted into the specifiers.</p>
      *
-     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
+     * <p>The base file name may contain characters of the form <b>$(ENV_VAR)</b>
      * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
+     * variable or a blank string if none is found.</p>
      *
      * Finally, the base file name may contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
@@ -144,18 +143,16 @@ final public class Utilities {
      * @param baseName        file name to start with
      * @param runType         run type/configuration name
      * @param newNameBuilder  object which contains generated base file name
-     * @return                int array containing number of C-style int format
+     * @return                number of C-style int format
      *                        specifiers found in baseName arg.
      * @throws EvioException  if baseName arg is improperly formatted;
      *                        if baseName or newNameBuilder arg is null
      */
-    static public int[] generateBaseFileName(String baseName, String runType,
+    static public int generateBaseFileName(String baseName, String runType,
                                                    StringBuilder newNameBuilder)
             throws EvioException {
 
         String baseFileName;
-        int pos = 0;
-        int[] returnInts = new int[1];
 
         if (baseName == null || newNameBuilder == null) {
             throw new EvioException("null arg(s)");
@@ -216,163 +213,92 @@ final public class Utilities {
         newNameBuilder.delete(0, newNameBuilder.length()).append(baseFileName);
 
         // Return # of C-style int format specifiers
-        returnInts[0] = specifierCount;
-        return returnInts;
+        return specifierCount;
     }
 
 
     /**
-     * This method generates a complete file name from the previously determined baseFileName
+     * <p>This method generates a complete file name from the previously determined baseFileName
      * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
      * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
-     * distinguish between the split files with splitNumber.
-     * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
-     * the first occurrence will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the splitNumber.
-     * If 2 specifiers exist and the file is not being split, no substitutions are made.
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
+     * distinguish between the split files with splitNumber.</p>
      *
-     * @param baseFileName   file name to use as a basis for the generated file name
-     * @param specifierCount number of C-style int format specifiers in baseFileName arg
-     * @param runNumber      CODA run number
-     * @param split          number of bytes at which to split off evio file
-     * @param splitNumber    number of the split file
+     * <p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted
+     * with runNumber, splitNumber and streamId in the manner described below.</p>
+     *
+     * <ul>
+     *     <li>If file is to be split:</li>
+     *          <ul>
+     *          <li>If no specifiers:</li>
+     *              <ul>
+     *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+     *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+     *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+     *                  <li>No run numbers are ever tacked on without a specifier </li>
+     *              </ul>
+     *          <li>If 1 specifier:</li>
+     *              <ul>
+     *                  <li>add runNumber according to specifier</li>
+     *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+     *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+     *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+     *              </ul>
+     *          <li>If 2 specifiers:</li>
+     *              <ul>
+     *                  <li>add runNumber according to first specifier</li>
+     *                  <li>for one stream, add splitNumber according to second specifier</li>
+     *                  <li>for multiple streams, add splitNumber according to second specifier, but place
+     *                      <b>&lt;streamId&gt;.</b> just before the splitNumber</li>
+     *              </ul>
+     *          <li>If 3 specifiers:</li>
+     *              <ul>
+     *                  <li>add runNumber according to first specifier</li>
+     *                  <li>add streamId according to second specifier add splitNumber according to third specifier</li>
+     *              </ul>
+     *          </ul>
+     *
+     *      <li>If file is NOT split:</li>
+     *          <ul>
+     *          <li>If no specifiers:</li>
+     *              <ul>
+     *                  <li>streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+     *                  <li>No run numbers are ever tacked on without a specifier.</li>
+     *              </ul>
+     *          <li>If 1 specifier:</li>
+     *              <ul>
+     *                  <li>add runNumber according to specifier</li>
+     *                  <li>for multiple streams, streamId is tacked onto the end of the file name as .<b>.&lt;streamId&gt;</b></li>
+     *              </ul>
+     *          <li>If 2 specifiers:</li>
+     *              <ul>
+     *                  <li>add runNumber according to first specifier</li>
+     *                  <li>remove second specifier</li>
+     *                  <li>for multiple streams, streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+     *              </ul>
+     *          <li>If 3 specifiers:</li>
+     *              <ul>
+     *                  <li>add runNumber according to first specifier</li>
+     *                  <li>add streamId according to second specifier</li>
+     *                  <li>remove third specifier</li>
+     *              </ul>
+     *          </ul>
+     *  </ul>
+     *
+     * If there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE on the extra specifiers</b>.
+     *
+     * @param fileName       file name to use as a basis for the generated file name.
+     * @param specifierCount number of C-style int format specifiers in baseFileName arg.
+     * @param runNumber      CODA run number.
+     * @param split          number of bytes at which to split off evio file.
+     * @param splitNumber    number of the split file.
+     * @param streamId       number of the stream id.
+     * @param streamCount    total number of streams.
      *
      * @return generated file name
      *
      * @throws IllegalFormatException if the baseFileName arg contains printing format
      *                                specifiers which are not compatible with integers
-     *                                and interfere with formatting
-     */
-    static String generateFileNameOld(String baseFileName, int specifierCount,
-                                            int runNumber, long split, int splitNumber)
-            throws IllegalFormatException {
-
-        return generateFileNameOld(baseFileName, specifierCount, runNumber, split, splitNumber, 0);
-    }
-
-
-    /**
-     * This method generates a complete file name from the previously determined baseFileName
-     * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
-     * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
-     * distinguish between the split files with splitNumber.
-     * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
-     * the first occurrence will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the splitNumber.
-     * If 2 specifiers exist and the file is not being split, no substitutions are made.
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.<p>
-     *
-     * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is not 0, the string, ".strm"
-     * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
-     * This is done after the run and split numbers have been inserted into the file name.
-     *
-     * @param baseFileName   file name to use as a basis for the generated file name
-     * @param specifierCount number of C-style int format specifiers in baseFileName arg
-     * @param runNumber      CODA run number
-     * @param split          number of bytes at which to split off evio file
-     * @param splitNumber    number of the split file
-     * @param streamId       number of the stream id
-     *
-     * @return generated file name
-     *
-     * @throws IllegalFormatException if the baseFileName arg contains printing format
-     *                                specifiers which are not compatible with integers
-     *                                and interfere with formatting
-     */
-    static String generateFileNameOld(String baseFileName, int specifierCount,
-                                            int runNumber, long split, int splitNumber,
-                                            int streamId)
-            throws IllegalFormatException {
-
-        String fileName = baseFileName;
-
-        // If we're splitting files ...
-        if (split > 0L) {
-            // For no specifiers: tack split # on end of base file name
-            if (specifierCount < 1) {
-                fileName = baseFileName + "." + splitNumber;
-            }
-            // For 1 specifier: insert run # at specified location, then tack split # on end
-            else if (specifierCount == 1) {
-                fileName = String.format(baseFileName, runNumber);
-                fileName += "." + splitNumber;
-            }
-            // For 2 specifiers: insert run # and split # at specified locations
-            else {
-                fileName = String.format(baseFileName, runNumber, splitNumber);
-            }
-        }
-        // If we're not splitting files ...
-        else {
-            if (specifierCount == 1) {
-                // Insert runNumber
-                fileName = String.format(baseFileName, runNumber);
-            }
-            else if (specifierCount == 2) {
-                // First get rid of the extra (last) int format specifier as no split # exists
-                Pattern pattern = Pattern.compile("(%\\d*[xd])");
-                Matcher matcher = pattern.matcher(fileName);
-                StringBuffer result = new StringBuffer(100);
-
-                if (matcher.find()) {
-                    // Only look at second int format specifier
-                    if (matcher.find()) {
-                        matcher.appendReplacement(result, "");
-                        matcher.appendTail(result);
-                        fileName = result.toString();
-//System.out.println("generateFileName: replacing last int specifier =  " + fileName);
-                    }
-                }
-
-                // Insert runNumber into first specifier
-                fileName = String.format(fileName, runNumber);
-            }
-        }
-
-        if (streamId > 0) {
-            fileName += ".strm" + streamId;
-        }
-
-        return fileName;
-    }
-
-    /**
-     * This method generates a complete file name from the previously determined baseFileName
-     * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
-     * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
-     * distinguish between the split files with splitNumber.
-     * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
-     * the first occurrence will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the splitNumber.
-     * If there are multiple streams, the third will be substituted with the stream id.<p>
-     *
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
-     * If no specifier for the stream id exists, it is tacked onto the end of the file name,
-     * after the splitNumber. No run numbers are ever tacked on without a specifier.<p>
-     *
-     * For splitting: if there is only 1 stream, no stream ids are used and any
-     * third specifier is removed.
-     * For non-splitting: if there is only 1 stream, no stream ids are used and any
-     * second and third specifiers are removed. For multiple streams, the second specifier is
-     * removed and the 3rd substituted with the stream id.
-     * For all cases: if there are more than 3 specifiers, <b>NO SUBSTITUTIONS
-     * ARE DONE.</b> This is because an error would be thrown in the String.format() method.<p>
-     *
-     * @param fileName   file name to use as a basis for the generated file name
-     * @param specifierCount number of C-style int format specifiers in baseFileName arg
-     * @param runNumber      CODA run number
-     * @param split          number of bytes at which to split off evio file
-     * @param splitNumber    number of the split file
-     * @param streamId       number of the stream id
-     * @param streamCount    total number of streams
-     *
-     * @return generated file name
-     *
-     * @throws IllegalFormatException if the baseFileName arg contains printing format
-     *                                specifiers which are not compatible with integers
-     *                                and interfere with formatting
+     *                                and interfere with formatting.
      */
     static public String generateFileName(String fileName, int specifierCount,
                                                 int runNumber, long split, int splitNumber,

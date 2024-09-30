@@ -334,35 +334,47 @@ public class EventWriterV4 extends EventWriterUnsyncV4 {
 
 
     /**
-     * Create an object for writing events to a file.
-     * If the file already exists, its contents will be overwritten
-     * unless the "overWriteOK" argument is <code>false</code> in
-     * which case an exception will be thrown. Unless ..., the option to
-     * append these events to an existing file is <code>true</code>,
-     * in which case everything is fine. If the file doesn't exist,
-     * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
-     * The base file name may contain up to 2, C-style integer format specifiers using
-     * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
-     * If more than 2 are found, an exception will be thrown.
-     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
-     * it will be added automatically in order to avoid spaces in the file name.
-     * The first specifier will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the split number
-     * which starts at 0.
-     * If 2 specifiers exist and the file is not being split, no substitutions are made.
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file
-     * name after a dot (.).
      * <p>
+     * Create an object for writing events to a file or files.
+     * If the given file already exists, its contents will be overwritten
+     * unless the "overWriteOK" argument is <code>false</code> in
+     * which case an exception will be thrown. If the option to
+     * "append" these events to an existing file is <code>true</code>,
+     * then the write proceeds. If the file doesn't exist,
+     * it will be created. Byte order defaults to big endian if arg is null.</p>
      *
-     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
-     * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
+     * <p>In order to keep files from getting too large, there is an option to continue writing
+     * but to multiple files instead of just one. That is, when a file gets to the size given by
+     * the "split" arg, it is closed and another is opened, with new writes going to the new file.
+     * The trick in this case is to automatically name the new files.</p>
      *
-     * The base file name may also contain occurrences of the string "%s"
+     * <p>The baseName arg is the base string from which a final file name or names can be created.
+     * The baseName may contain up to 3, C-style integer format specifiers using "d" and "x"
+     * (such as <b>%03d</b>, or <b>%x</b>). These specifiers dictate how the runNumber, streamId and
+     * splitNumber arguments are inserted into the filename.
+     *
+     * If there are multiple streams of data each writing a file, to avoid ending up with
+     * the same file name, they can be differentiated by a stream id. Run number can differentiate
+     * data files from different runs of the same experiment. And of course, the split number
+     * tracks the number of files automatically created by this EventWriter object and is incremented
+     * at each split.</p>
+     *
+     * <p>Back to the format specifiers, if more than 3 are found, an exception will be thrown.
+     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
+     * it will be added automatically in order to avoid spaces in the returned string.
+     * See the documentation at
+     * {@link Utilities#generateFileName(String,int,int, long, int,int, int)}
+     * to understand exactly how substitutions
+     * of runNumber, streamId and splitNumber are done for these specifiers in order to create
+     * the split file names. In this constructor, splitNumber and streamId = 0.</p>
+     *
+     * <p>In addition, the baseName may contain characters of the form
+     * <b>$(ENV_VAR)</b> which will be substituted with the value of the associated environmental
+     * variable or a blank string if none is found.</p>
+     *
+     * <p>Finally, the baseName may contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
+     * the runType is null.</p>
      *
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
@@ -413,35 +425,48 @@ public class EventWriterV4 extends EventWriterUnsyncV4 {
 
 
     /**
-     * Create an object for writing events to a file.
-     * If the file already exists, its contents will be overwritten
-     * unless the "overWriteOK" argument is <code>false</code> in
-     * which case an exception will be thrown. Unless ..., the option to
-     * append these events to an existing file is <code>true</code>,
-     * in which case everything is fine. If the file doesn't exist,
-     * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
-     * The base file name may contain up to 2, C-style integer format specifiers using
-     * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
-     * If more than 2 are found, an exception will be thrown.
-     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
-     * it will be added automatically in order to avoid spaces in the file name.
-     * The first specifier will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the split number
-     * which starts at 0.
-     * If 2 specifiers exist and the file is not being split, no substitutions are made.
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file
-     * name after a dot (.).
      * <p>
+     * Create an object for writing events to a file or files.
+     * If the given file already exists, its contents will be overwritten
+     * unless the "overWriteOK" argument is <code>false</code> in
+     * which case an exception will be thrown. If the option to
+     * "append" these events to an existing file is <code>true</code>,
+     * then the write proceeds. If the file doesn't exist,
+     * it will be created. Byte order defaults to big endian if arg is null.</p>
      *
-     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
-     * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
+     * <p>In order to keep files from getting too large, there is an option to continue writing
+     * but to multiple files instead of just one. That is, when a file gets to the size given by
+     * the "split" arg, it is closed and another is opened, with new writes going to the new file.
+     * The trick in this case is to automatically name the new files.</p>
      *
-     * The base file name may also contain occurrences of the string "%s"
+     * <p>The baseName arg is the base string from which a final file name or names can be created.
+     * The baseName may contain up to 3, C-style integer format specifiers using "d" and "x"
+     * (such as <b>%03d</b>, or <b>%x</b>). These specifiers dictate how the runNumber, streamId and
+     * splitNumber arguments are inserted into the filename.
+     *
+     * If there are multiple streams of data each writing a file, to avoid ending up with
+     * the same file name, they can be differentiated by a stream id. Run number can differentiate
+     * data files from different runs of the same experiment. And of course, the split number
+     * tracks the number of files automatically created by this EventWriter object and is incremented
+     * at each split.</p>
+     *
+     * <p>Back to the format specifiers, if more than 3 are found, an exception will be thrown.
+     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
+     * it will be added automatically in order to avoid spaces in the returned string.
+     * See the documentation at
+     * {@link Utilities#generateFileName(String,int,int, long, int,int, int)}
+     * to understand exactly how substitutions
+     * of runNumber, streamId and splitNumber are done for these specifiers in order to create
+     * the split file names. In this constructor, splitNumber and streamId = 0.</p>
+     *
+     * <p>In addition, the baseName may contain characters of the form
+     * <b>$(ENV_VAR)</b> which will be substituted with the value of the associated environmental
+     * variable or a blank string if none is found.</p>
+     *
+     * <p>Finally, the baseName may contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
+     * the runType is null.</p>
+     *
      *
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
@@ -496,41 +521,48 @@ public class EventWriterV4 extends EventWriterUnsyncV4 {
 
 
     /**
-     * Create an object for writing events to a file.
-     * If the file already exists, its contents will be overwritten
-     * unless the "overWriteOK" argument is <code>false</code> in
-     * which case an exception will be thrown. Unless ..., the option to
-     * append these events to an existing file is <code>true</code>,
-     * in which case everything is fine. If the file doesn't exist,
-     * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
-     * The base file name may contain up to 2, C-style integer format specifiers using
-     * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
-     * If more than 2 are found, an exception will be thrown.
-     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
-     * it will be added automatically in order to avoid spaces in the file name.
-     * The first specifier will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the split number
-     * which starts at 0.
-     * If 2 specifiers exist and the file is not being split, no substitutions are made.
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file
-     * name after a dot (.).
      * <p>
+     * Create an object for writing events to a file or files.
+     * If the given file already exists, its contents will be overwritten
+     * unless the "overWriteOK" argument is <code>false</code> in
+     * which case an exception will be thrown. If the option to
+     * "append" these events to an existing file is <code>true</code>,
+     * then the write proceeds. If the file doesn't exist,
+     * it will be created. Byte order defaults to big endian if arg is null.</p>
      *
-     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
-     * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
+     * <p>In order to keep files from getting too large, there is an option to continue writing
+     * but to multiple files instead of just one. That is, when a file gets to the size given by
+     * the "split" arg, it is closed and another is opened, with new writes going to the new file.
+     * The trick in this case is to automatically name the new files.</p>
      *
-     * The base file name may also contain occurrences of the string "%s"
+     * <p>The baseName arg is the base string from which a final file name or names can be created.
+     * The baseName may contain up to 3, C-style integer format specifiers using "d" and "x"
+     * (such as <b>%03d</b>, or <b>%x</b>). These specifiers dictate how the runNumber, streamId and
+     * splitNumber arguments are inserted into the filename.
+     *
+     * If there are multiple streams of data each writing a file, to avoid ending up with
+     * the same file name, they can be differentiated by a stream id. Run number can differentiate
+     * data files from different runs of the same experiment. And of course, the split number
+     * tracks the number of files automatically created by this EventWriter object and is incremented
+     * at each split.</p>
+     *
+     * <p>Back to the format specifiers, if more than 3 are found, an exception will be thrown.
+     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
+     * it will be added automatically in order to avoid spaces in the returned string.
+     * See the documentation at
+     * {@link Utilities#generateFileName(String,int,int, long, int,int, int)}
+     * to understand exactly how substitutions
+     * of runNumber, streamId and splitNumber are done for these specifiers in order to create
+     * the split file names. In this constructor, splitNumber = 0.</p>
+     *
+     * <p>In addition, the baseName may contain characters of the form
+     * <b>$(ENV_VAR)</b> which will be substituted with the value of the associated environmental
+     * variable or a blank string if none is found.</p>
+     *
+     * <p>Finally, the baseName may contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
+     * the runType is null.</p>
      *
-     * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is &gt; 0, the string, ".strm"
-     * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
-     * This is done after the run type, run number, split numbers, and env vars have been inserted
-     * into the file name.<p>
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
@@ -586,41 +618,48 @@ public class EventWriterV4 extends EventWriterUnsyncV4 {
 
 
     /**
-     * Create an object for writing events to a file.
-     * If the file already exists, its contents will be overwritten
-     * unless the "overWriteOK" argument is <code>false</code> in
-     * which case an exception will be thrown. Unless ..., the option to
-     * append these events to an existing file is <code>true</code>,
-     * in which case everything is fine. If the file doesn't exist,
-     * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.<p>
-     *
-     * The base file name may contain up to 2, C-style integer format specifiers using
-     * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
-     * If more than 2 are found, an exception will be thrown.
-     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
-     * it will be added automatically in order to avoid spaces in the file name.
-     * The first specifier will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the split number
-     * which starts at 0.
-     * If 2 specifiers exist and the file is not being split, no substitutions are made.
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file
-     * name after a dot (.).
-     * If streamCount &gt; 1, the split number is calculated starting with streamId and incremented
-     * by streamCount each time. In this manner, all split files will have unique, sequential
-     * names even though there are multiple parallel ERs.
      * <p>
+     * Create an object for writing events to a file or files.
+     * If the given file already exists, its contents will be overwritten
+     * unless the "overWriteOK" argument is <code>false</code> in
+     * which case an exception will be thrown. If the option to
+     * "append" these events to an existing file is <code>true</code>,
+     * then the write proceeds. If the file doesn't exist,
+     * it will be created. Byte order defaults to big endian if arg is null.</p>
      *
-     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
-     * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
+     * <p>In order to keep files from getting too large, there is an option to continue writing
+     * but to multiple files instead of just one. That is, when a file gets to the size given by
+     * the "split" arg, it is closed and another is opened, with new writes going to the new file.
+     * The trick in this case is to automatically name the new files.</p>
      *
-     * The base file name may also contain occurrences of the string "%s"
+     * <p>The baseName arg is the base string from which a final file name or names can be created.
+     * The baseName may contain up to 3, C-style integer format specifiers using "d" and "x"
+     * (such as <b>%03d</b>, or <b>%x</b>). These specifiers dictate how the runNumber, streamId and
+     * splitNumber arguments are inserted into the filename.
+     *
+     * If there are multiple streams of data each writing a file, to avoid ending up with
+     * the same file name, they can be differentiated by a stream id. Run number can differentiate
+     * data files from different runs of the same experiment. And of course, the split number
+     * tracks the number of files automatically created by this EventWriter object and is incremented
+     * at each split.</p>
+     *
+     * <p>Back to the format specifiers, if more than 3 are found, an exception will be thrown.
+     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
+     * it will be added automatically in order to avoid spaces in the returned string.
+     * See the documentation at
+     * {@link Utilities#generateFileName(String,int,int, long, int,int, int)}
+     * to understand exactly how substitutions
+     * of runNumber, streamId and splitNumber are done for these specifiers in order to create
+     * the split file names.</p>
+     *
+     * <p>In addition, the baseName may contain characters of the form
+     * <b>$(ENV_VAR)</b> which will be substituted with the value of the associated environmental
+     * variable or a blank string if none is found.</p>
+     *
+     * <p>Finally, the baseName may contain occurrences of the string "%s"
      * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.<p>
+     * the runType is null.</p>
      *
-     * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id, starting split # and split increment.
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed

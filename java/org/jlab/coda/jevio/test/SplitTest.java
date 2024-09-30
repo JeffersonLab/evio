@@ -67,8 +67,7 @@ public class SplitTest {
             // The following may not be backwards compatible.
             // Make substitutions in the baseName to create the base file name.
             StringBuilder builder = new StringBuilder(100);
-            int[] ret = Utilities.generateBaseFileName(baseName, runType, builder);
-            int specifierCount = ret[0];
+            int specifierCount = Utilities.generateBaseFileName(baseName, runType, builder);
             String baseFileName = builder.toString();
             // Also create the first file's name with more substitutions
             String fileName = Utilities.generateFileName(baseFileName, specifierCount,

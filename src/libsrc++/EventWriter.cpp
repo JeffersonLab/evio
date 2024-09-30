@@ -78,7 +78,7 @@ namespace evio {
      * which case an exception will be thrown. If the option to
      * "append" these events to an existing file is <code>true</code>,
      * then the write proceeds. If the file doesn't exist,
-     * it will be created. Byte order defaults to big endian if arg is null.</p>
+     * it will be created.</p>
      *
      * <p>In order to keep files from getting too large, there is an option to continue writing
      * but to multiple files instead of just one. That is, when a file gets to the size given by
@@ -112,7 +112,7 @@ namespace evio {
      * the runType is null.</p>
      *
      *
-     * @param baseName      base file name used to generate complete file name (may not be empty)
+     * @param baseName      base file name used to generate complete file name(s) (may not be empty)
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
@@ -126,7 +126,7 @@ namespace evio {
      * @param maxEventCount max number of events each record can hold.
      *                      Value &lt;= O means use default (1M).
      * @param byteOrder     the byte order in which to write the file. This is ignored
-     *                      if appending to existing file. Defaults to Big Endian if null.
+     *                      if appending to existing file.
      * @param xmlDictionary dictionary in xml format or empty if none.
      * @param overWriteOK   if <code>false</code> and the file already exists,
      *                      an exception is thrown rather than overwriting it.
@@ -138,7 +138,7 @@ namespace evio {
      * @param splitNumber   number at which to start the split numbers
      * @param splitIncrement amount to increment split number each time another file is created.
      * @param streamCount    total number of streams in DAQ.
-     * @param compressionType    type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     * @param compressionType    type of data compression to do.
      * @param compressionThreads number of threads doing compression simultaneously.
      * @param ringSize           number of records in supply ring. If set to &lt; compressionThreads,
      *                           it is forced to equal that value and is also forced to be a multiple of
@@ -480,7 +480,7 @@ namespace evio {
      *                        Value &lt;= O means use default (1M).
      * @param xmlDictionary   dictionary in xml format or null if none.
      * @param recordNumber    number at which to start record number counting.
-     * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
+     * @param compressionType type of data compression to do.
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
      */
@@ -509,7 +509,7 @@ namespace evio {
       *                        Value &lt;= O means use default (1M).
       * @param xmlDictionary   dictionary in xml format or null if none.
       * @param recordNumber    number at which to start record number counting.
-      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
+      * @param compressionType type of data compression to do.
       * @param eventType       first record header holds the following type of event encoded in bitInfo,
       *                        (0=RocRaw, 1=Physics, 2=Partial Physics, 3=Disentangled,
       *                         4=User, 5=Control, 6=Mixed, 8=RocRawStream, 9=PhysicsStream, 15=Other).

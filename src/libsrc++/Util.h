@@ -1165,8 +1165,9 @@ namespace evio {
          * <p>This method does NOT work on its own. It generates a complete file name from the
          * previously determined baseFileName obtained from calling {@link #generateBaseFileName}.
          * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
-         * distinguish between the split files with splitNumber.
-         * The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted
+         * distinguish between the split files with splitNumber.</p>
+         *
+         * <p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted
          * with runNumber, splitNumber and streamId in the manner described below.</p>
          *
          * <ul>
@@ -1229,13 +1230,13 @@ namespace evio {
          *
          * If there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE on the extra specifiers</b>.
          *
-         * @param fileName       file name to use as a basis for the generated file name
-         * @param specifierCount number of C-style int format specifiers in baseFileName arg
-         * @param runNumber      CODA run number
-         * @param split          number of bytes at which to split off evio file
-         * @param splitNumber    number of the split file
-         * @param streamId       number of the stream id
-         * @param streamCount    total number of streams
+         * @param fileName       file name to use as a basis for the generated file name.
+         * @param specifierCount number of C-style int format specifiers in baseFileName arg.
+         * @param runNumber      CODA run number.
+         * @param split          number of bytes at which to split off evio file.
+         * @param splitNumber    number of the split file.
+         * @param streamId       number of the stream id.
+         * @param streamCount    total number of streams.
          *
          * @return generated file name
          *
