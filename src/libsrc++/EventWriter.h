@@ -651,8 +651,7 @@ namespace evio {
         // BUFFER Constructors
         //---------------------------------------------
 
-        explicit EventWriter(std::shared_ptr<ByteBuffer> buf);
-        EventWriter(std::shared_ptr<ByteBuffer> buf, std::string & xmlDictionary);
+        explicit EventWriter(std::shared_ptr<ByteBuffer> buf, const std::string & xmlDictionary = "");
         EventWriter(std::shared_ptr<ByteBuffer> buf, uint32_t maxRecordSize, uint32_t maxEventCount,
                     const std::string & xmlDictionary, uint32_t recordNumber,
                     Compressor::CompressionType compressionType);

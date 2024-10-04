@@ -440,26 +440,12 @@ namespace evio {
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
      * Uses the default number and size of records in buffer.
-     * Will overwrite any existing data in buffer!
-     *
-     * @param buf            the buffer to write to.
-     * @throws EvioException if buf arg is null
-     */
-    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> buf) :
-                EventWriter(buf, 0, 0, "",1,
-                            Compressor::CompressionType::UNCOMPRESSED) {
-    }
-
-
-    /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
-     * Uses the default number and size of records in buffer.
      *
      * @param buf            the buffer to write to.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @throws EvioException if buf arg is null
      */
-    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> buf, std::string & xmlDictionary) :
+    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> buf, const std::string & xmlDictionary) :
                 EventWriter(buf, 0, 0, xmlDictionary, 1,
                                 Compressor::CompressionType::UNCOMPRESSED) {
     }
