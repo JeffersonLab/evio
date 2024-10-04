@@ -116,11 +116,12 @@ static char *xmlDictionary =
         "</xmlDict>";
 */
 
+/*
 static char *xmlDictionary2 =
         "<xmlDict>\n"
         "  <dictEntry name=\"TAG1_NUM1\" tag=\"1\" num=\"1\"/>\n"
         "</xmlDict>\n";
-
+*/
 
 int main (int argc, char **argv)
 {

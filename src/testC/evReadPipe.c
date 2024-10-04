@@ -121,10 +121,12 @@ int main(int argc, char **argv)
 
     status = evRead(handle, buffer, 204800);
     if (status == EOF) {
-        if (debug) printf("    Last read, reached EOF!\n"); goto end;
+        if (debug) printf("    Last read, reached EOF!\n");
+        goto end;
     }
     else if (status != S_SUCCESS) {
-        if (debug) printf ("    Last evRead status = 0x%0x, %s\n", status, evPerror(status)); goto end;
+        if (debug) printf ("    Last evRead status = 0x%0x, %s\n", status, evPerror(status));
+        goto end;
     }
     if (debug) printEvent(++nevents, buffer);
 
@@ -132,10 +134,12 @@ int main(int argc, char **argv)
     
     status = evReadAlloc(handle, &buf2, &bufLen);
     if (status == EOF) {
-        if (debug) printf("    Last read, reached EOF!\n"); goto end;
+        if (debug) printf("    Last read, reached EOF!\n");
+        goto end;
     }
     else if (status != S_SUCCESS) {
-        if (debug) printf ("    Last evRead status = 0x%0x, %s\n", status, evPerror(status)); goto end;
+        if (debug) printf ("    Last evRead status = 0x%0x, %s\n", status, evPerror(status));
+        goto end;
     }
     else {
         
@@ -147,10 +151,12 @@ int main(int argc, char **argv)
     
     status = evReadNoCopy(handle, &buf, &bufLen);
     if (status == EOF) {
-        if (debug) printf("    Last read, reached EOF!\n"); goto end;
+        if (debug) printf("    Last read, reached EOF!\n");
+        goto end;
     }
     else if (status != S_SUCCESS) {
-        if (debug) printf ("    Last evRead status = 0x%0x, %s\n", status, evPerror(status)); goto end;
+        if (debug) printf ("    Last evRead status = 0x%0x, %s\n", status, evPerror(status));
+        goto end;
     }
     else {
         if (debug) printEvent(++nevents, buf);

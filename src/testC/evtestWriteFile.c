@@ -32,7 +32,8 @@ uint32_t *makeEvent2();
 int mainBuffer() {
 
     int i, handle, handle2, nevents, nwords;
-    uint32_t status, *ip, *pBuf, buffer[4096], *buffer2, bufLen;
+    uint32_t status, *ip, *pBuf, bufLen;
+//    uint32_t *buffer2, buffer[4096];
     const uint32_t *buffer3, *ip2;
     char mainBuf[8192];
 
@@ -194,8 +195,10 @@ int mainBuffer() {
 int main() {
 
     int i, j, handle, handle2, handle3, nevents, nwords;
-    uint32_t status, *ip, *pBuf, buffer[4096], *buffer2, bufLen;
-    const uint32_t *buffer3, *ip2;
+    uint32_t status, *ip, *pBuf, bufLen;
+    uint32_t *buffer2;
+//    uint32_t buffer[4096];
+//    const uint32_t *buffer3, *ip2;
 
 
     printf("\nEvent I/O tests...\n");
