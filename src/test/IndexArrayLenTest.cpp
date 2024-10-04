@@ -34,6 +34,7 @@
 // written by the evio library which will always add an index array.
 
 // 2 Records (2 events each) + Trailer
+/*
 static uint32_t evioBuf[] = {
         // Record Header #1
         23,  // 14 header, 2 index, 0 user hdr, 3 word event, 4 word event
@@ -65,8 +66,11 @@ static uint32_t evioBuf[] = {
 };
 
 static size_t arrayLen = 4*60;
+*/
+
 
 // 2 Records (2 events each) + Trailer ---> index array + user header
+/*
 static uint32_t evioBuf3[] = {
         // Record Header #1
         24,  // 14 header, 2 index, 1 user hdr, 3 word event, 4 word event
@@ -104,7 +108,7 @@ static uint32_t evioBuf3[] = {
 };
 
 static size_t arrayLen3 = 4*62;
-
+*/
 
 // 2 Records (2 events each) + Trailer ---> no index array!
 static uint32_t evioBuf2[] = {
@@ -171,13 +175,13 @@ namespace evio {
             Reader reader(sharedBuf);
             ByteOrder order = reader.getByteOrder();
 
-            int32_t evCount = reader.getEventCount();
+            uint32_t evCount = reader.getEventCount();
             cout << "Read in buffer, got " << evCount << " events" << endl;
 
             cout << "Print out regular events:" << endl;
             uint32_t byteLen;
 
-            for (int i=0; i < reader.getEventCount(); i++) {
+            for (uint32_t i=0; i < evCount; i++) {
                 shared_ptr<uint8_t> data = reader.getEvent(i, &byteLen);
                 Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
             }
@@ -188,13 +192,13 @@ namespace evio {
             Reader reader(filename, true);
             ByteOrder order = reader.getByteOrder();
 
-            int32_t evCount = reader.getEventCount();
+            uint32_t evCount = reader.getEventCount();
             cout << "Read in buffer, got " << evCount << " events" << endl;
 
             cout << "Print out regular events:" << endl;
             uint32_t byteLen;
 
-            for (int i=0; i < reader.getEventCount(); i++) {
+            for (uint32_t i=0; i < reader.getEventCount(); i++) {
                 shared_ptr<uint8_t> data = reader.getEvent(i, &byteLen);
                 Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
             }
@@ -208,8 +212,8 @@ namespace evio {
                 printf("Failed to open statistics file %s, so don't keep any\n", filename.c_str());
             }
 
-            size_t bytes = fwrite(fileHdr, fileHdrLen, 1, fp);
-            bytes = fwrite(evioBuf2, arrayLen2, 1, fp);
+            fwrite(fileHdr, fileHdrLen, 1, fp);
+            fwrite(evioBuf2, arrayLen2, 1, fp);
             fclose(fp);
         }
 

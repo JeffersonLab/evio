@@ -116,7 +116,7 @@ namespace evio {
            * @param sequence
            */
         Compressor2(uint32_t threadNum, std::shared_ptr<RecordSupply> & recSupply) :
-                    threadNumber(threadNum), supply(recSupply)  {}
+                    supply(recSupply), threadNumber(threadNum)  {}
 
 
         /** Create and start a thread to execute the run() method of this class. */
@@ -194,12 +194,12 @@ namespace evio {
 
         // Create compression threads
         compressorThreads.reserve(compressionThreadCount);
-        for (int i=0; i < compressionThreadCount; i++) {
+        for (uint32_t i=0; i < compressionThreadCount; i++) {
             compressorThreads.emplace_back(i, supply);
         }
 
         // Start compression threads
-        for (int i=0; i < compressionThreadCount; i++) {
+        for (uint32_t i=0; i < compressionThreadCount; i++) {
             compressorThreads[i].startThread();
         }
 

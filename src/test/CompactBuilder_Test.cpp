@@ -75,8 +75,8 @@ namespace evio {
 
         CompactBuilderTest() {
 
-            uint16_t tag = 1;
-            uint8_t num = 1;
+//            uint16_t tag = 1;
+//            uint8_t num = 1;
             buffer = std::make_shared<ByteBuffer>(bufSize);
             buffer->order(order);
 
@@ -140,8 +140,7 @@ namespace evio {
         // Search the buffer created by createObjectEvents
         std::shared_ptr<EvioNode> searchBuffer(uint16_t tag, uint8_t num) {
 
-            std:
-            vector<std::shared_ptr<EvioNode>> returnList;
+            std::vector<std::shared_ptr<EvioNode>> returnList;
             std::shared_ptr<EvioNode> node = nullptr;
 
             try {
@@ -729,69 +728,71 @@ namespace evio {
     };
 
 
-    /**
-     * Print the data from a CompositeData object in a user-friendly form.
-     * @param cData CompositeData object
-     */
-    static void printCompositeDataObject(CompositeData &cData) {
+//    /**
+//     * Print the data from a CompositeData object in a user-friendly form.
+//     * @param cData CompositeData object
+//     */
+//    static void printCompositeDataObject(CompositeData &cData) {
+//
+//        std::cout << "\n************************\nFormat = " << cData.getFormat() << std::endl << std::endl;
+//        // Get vectors of data items & their types from composite data object
+//        auto items = cData.getItems();
+//        auto types = cData.getTypes();
+//
+//        // Use these list to print out data of unknown format
+//        size_t len = items.size();
+//
+//        for (size_t i = 0; i < len; i++) {
+//            auto type = types[i];
+//            std::cout << "type = " << std::setw(9) << type.toString() << std::endl;
+//
+//            if ((type == DataType::NVALUE || type == DataType::UNKNOWN32 ||
+//                 type == DataType::UINT32 || type == DataType::INT32)) {
+//                uint32_t j = items[i].item.ui32;
+//                std::cout << hex << showbase << j << std::endl;
+//            }
+//            else if (type == DataType::LONG64 || type == DataType::ULONG64) {
+//                uint64_t l = items[i].item.ul64;
+//                std::cout << hex << showbase << l << std::endl;
+//            }
+//            else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
+//                uint16_t s = items[i].item.us16;
+//                std::cout << hex << showbase << s << std::endl;
+//            }
+//            else if (type == DataType::CHAR8 || type == DataType::UCHAR8) {
+//                uint8_t b = items[i].item.ub8;
+//                std::cout << hex << showbase << (char) b << std::endl;
+//            }
+//            else if (type == DataType::FLOAT32) {
+//                float ff = items[i].item.flt;
+//                std::cout << ff << std::endl;
+//            }
+//            else if (type == DataType::DOUBLE64) {
+//                double dd = items[i].item.dbl;
+//                std::cout << dd << std::endl;
+//            }
+//            else if (type == DataType::CHARSTAR8) {
+//                auto strs = items[i].strVec;
+//                for (std::string const &ss : strs) {
+//                    std::cout << ss << ", ";
+//                }
+//                std::cout << std::endl;
+//            }
+//            std::cout << dec;
+//        }
+//
+//    }
+//
+//
+//    /**
+//    * Print the data from a CompositeData object in a user-friendly form.
+//    * @param cData CompositeData object
+//    */
+//    static void printCompositeDataObject(std::shared_ptr<CompositeData> cData) {
+//        printCompositeDataObject(*(cData.get()));
+//    }
+//
 
-        std::cout << "\n************************\nFormat = " << cData.getFormat() << std::endl << std::endl;
-        // Get vectors of data items & their types from composite data object
-        auto items = cData.getItems();
-        auto types = cData.getTypes();
-
-        // Use these list to print out data of unknown format
-        size_t len = items.size();
-
-        for (size_t i = 0; i < len; i++) {
-            auto type = types[i];
-            std::cout << "type = " << std::setw(9) << type.toString() << std::endl;
-
-            if ((type == DataType::NVALUE || type == DataType::UNKNOWN32 ||
-                 type == DataType::UINT32 || type == DataType::INT32)) {
-                uint32_t j = items[i].item.ui32;
-                std::cout << hex << showbase << j << std::endl;
-            }
-            else if (type == DataType::LONG64 || type == DataType::ULONG64) {
-                uint64_t l = items[i].item.ul64;
-                std::cout << hex << showbase << l << std::endl;
-            }
-            else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
-                uint16_t s = items[i].item.us16;
-                std::cout << hex << showbase << s << std::endl;
-            }
-            else if (type == DataType::CHAR8 || type == DataType::UCHAR8) {
-                uint8_t b = items[i].item.ub8;
-                std::cout << hex << showbase << (char) b << std::endl;
-            }
-            else if (type == DataType::FLOAT32) {
-                float ff = items[i].item.flt;
-                std::cout << ff << std::endl;
-            }
-            else if (type == DataType::DOUBLE64) {
-                double dd = items[i].item.dbl;
-                std::cout << dd << std::endl;
-            }
-            else if (type == DataType::CHARSTAR8) {
-                auto strs = items[i].strVec;
-                for (std::string const &ss : strs) {
-                    std::cout << ss << ", ";
-                }
-                std::cout << std::endl;
-            }
-            std::cout << dec;
-        }
-
-    }
-
-
-    /**
-    * Print the data from a CompositeData object in a user-friendly form.
-    * @param cData CompositeData object
-    */
-    static void printCompositeDataObject(std::shared_ptr<CompositeData> cData) {
-        printCompositeDataObject(*(cData.get()));
-    }
 
 }
 

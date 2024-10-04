@@ -122,7 +122,7 @@ namespace evio {
 
         uint32_t kidCount = topBank->getChildCount();
         std::cout << std::endl << "topBank has " << kidCount << " children" << std::endl;
-        for (int i=0; i < kidCount; i++) {
+        for (uint32_t i=0; i < kidCount; i++) {
             std::cout << "   child at index " << i << " = " << topBank->getChildAt(i)->toString() << std::endl;
             std::cout << "       child getIndex = " << topBank->getIndex(topBank->getChildAt(i)) << std::endl;
         }
@@ -864,7 +864,7 @@ namespace evio {
 
             try {
                 auto ev = EvioEvent::getInstance(0, DataType::COMPOSITE, 0);
-                auto & compDataVec = ev->getCompositeData();
+              //  auto & compDataVec = ev->getCompositeData();
 
                 // Write it to this file
                 std::string fileName  = "./composite.dat";

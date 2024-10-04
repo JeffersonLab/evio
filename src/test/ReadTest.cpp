@@ -48,13 +48,13 @@ namespace evio {
             Reader reader(finalFilename);
             ByteOrder order = reader.getByteOrder();
 
-            int32_t evCount = reader.getEventCount();
+            uint32_t evCount = reader.getEventCount();
             cout << "Read in file " << finalFilename << ", got " << evCount << " events" << endl;
 
             cout << "Print out regular events:" << endl;
             uint32_t byteLen;
 
-            for (int i=0; i < reader.getEventCount(); i++) {
+            for (uint32_t i=0; i < evCount; i++) {
                 shared_ptr<uint8_t> data = reader.getEvent(i, &byteLen);
                 Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
             }

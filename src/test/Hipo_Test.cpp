@@ -71,8 +71,8 @@ namespace evio {
 
         HipoTester() {
 
-            uint16_t tag = 1;
-            uint8_t num = 1;
+//            uint16_t tag = 1;
+//            uint8_t num = 1;
             buffer = std::make_shared<ByteBuffer>(bufSize);
             buffer->order(order);
 

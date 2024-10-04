@@ -521,7 +521,7 @@ namespace evio {
             try {
                 EvioCompactReader reader1(copy);
 
-                int evCount2 = reader1.getEventCount();
+                uint32_t evCount2 = reader1.getEventCount();
                 std::cout << "Read in buffer, got " << evCount2 << " events" << std::endl;
 
                 std::string dict2 = reader1.getDictionaryXML();
@@ -531,7 +531,7 @@ namespace evio {
 
                 std::cout << "Print out regular events:" << std::endl;
 
-                for (int i = 0; i < reader1.getEventCount(); i++) {
+                for (uint32_t i = 0; i < evCount2; i++) {
                     std::cout << "scanned event #" << i << " :" << std::endl;
                     std::shared_ptr<EvioNode> compactNode = reader1.getScannedEvent(i + 1);
                     std::cout << "node ->\n" << compactNode->toString() << std::endl;
@@ -630,7 +630,7 @@ namespace evio {
 
                 ///////////////////////////////////
 
-                int evCount3 = reader2.getEventCount();
+                uint32_t evCount3 = reader2.getEventCount();
                 std::cout << "Read in buffer, got " << evCount3 << " events" << std::endl;
 
                 std::string dict3 = reader2.getDictionaryXML();
@@ -640,7 +640,7 @@ namespace evio {
                 if (pFE3 != nullptr) {
                     std::cout << "   First Event bytes = " << pFE3->getTotalBytes() << std::endl;
                     std::cout << "   First Event values = \n   " << std::endl;
-                    for (int i = 0; i < pFE3->getRawBytes().size(); i++) {
+                    for (size_t i = 0; i < pFE3->getRawBytes().size(); i++) {
                         std::cout << (int) (pFE3->getRawBytes()[i]) << ",  " << std::endl;
                     }
                     std::cout << std::endl;
@@ -648,7 +648,7 @@ namespace evio {
 
                 std::cout << "Print out regular events:" << std::endl;
 
-                for (int i = 0; i < reader2.getEventCount(); i++) {
+                for (uint32_t i = 0; i < evCount3; i++) {
                     auto ev = reader2.getEvent(i + 1);
                     std::cout << "ev ->\n" << ev->toString() << std::endl;
 
@@ -665,7 +665,7 @@ namespace evio {
 
             std::cout << "Comparing buffer data (lim = " << dataBuf0->limit() << ") with vector data (len = " << dataVec0.size()
                       << ")" << std::endl;
-            for (int i = 0; i < dataVec0.size(); i++) {
+            for (size_t i = 0; i < dataVec0.size(); i++) {
                 if ((/*data[i+8]*/ dataBuf0->array()[i + 8] != dataVec0[i]) && (i > 3)) {
                     unchanged = false;
                     index = i;

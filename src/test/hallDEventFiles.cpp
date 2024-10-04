@@ -41,7 +41,6 @@ using namespace evio;
  */
 int main(int argc, char **argv) {
 
-    bool debug = false;
 
 
     std::string filename = "/daqfs/home/timmer/evioDataFiles/clas_006586.evio.00001";
@@ -58,9 +57,7 @@ int main(int argc, char **argv) {
 
 
     int counter = 0;
-    int byteSize = 0;
     int bufsSent = 0;
-    int index = 0, evCount = 0;
     int bigEventCnt = 0;
     uint64_t totalBigEvBytes = 0L;
 

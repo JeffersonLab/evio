@@ -169,8 +169,8 @@ namespace evio {
                    std::shared_ptr<RingBuffer< std::shared_ptr<Integer>>> & ringBuf,
                    std::shared_ptr<Disruptor::ISequenceBarrier> & barrier,
                    std::shared_ptr<Disruptor::ISequence> sequence) :
-        threadNumber(threadNum), threadCount(threadCnt), ringBuffer(ringBuf),
-        compBarrier(barrier), compSequence(sequence)  {}
+        ringBuffer(ringBuf), compBarrier(barrier), compSequence(sequence),
+        threadNumber(threadNum), threadCount(threadCnt) {}
 
 
         /** Create and start a thread to execute the run() method of this class. */
@@ -285,7 +285,7 @@ cout << "Comp " << threadNumber << ":  " << item->get() << ", next " << (nextWri
             availableCompressSeqs.reserve(compressionThreadCount);
             compressorThreads.reserve(compressionThreadCount);
 
-            for (int i=0; i < compressionThreadCount; i++) {
+            for (uint32_t i=0; i < compressionThreadCount; i++) {
                 // Create seq with usual initial value
                 std::shared_ptr<Disruptor::Sequence> seq = std::make_shared<Disruptor::Sequence>(Disruptor::Sequence::InitialCursorValue);
 
@@ -319,7 +319,7 @@ cout << "EventWriter constr: created " << compressionThreadCount << " number of 
 
 
             // Start compression threads
-            for (int i=0; i < compressionThreadCount; i++) {
+            for (uint32_t i=0; i < compressionThreadCount; i++) {
                 compressorThreads[i].startThread();
             }
 

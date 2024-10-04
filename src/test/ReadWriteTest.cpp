@@ -71,8 +71,8 @@ namespace evio {
 
         ReadWriteTest() {
 
-            uint16_t tag = 1;
-            uint8_t num = 1;
+//            uint16_t tag = 1;
+//            uint8_t num = 1;
             buffer = std::make_shared<ByteBuffer>(bufSize);
             buffer->order(order);
 
@@ -341,13 +341,13 @@ namespace evio {
 
             if (!compressed) {
 
-                long loops = 3;
+                //long loops = 3;
 
-                uint8_t firstEvent[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29};
-                uint32_t firstEventLen = 10;
+                //uint8_t firstEvent[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29};
+                //uint32_t firstEventLen = 10;
 
                 ByteOrder order = ByteOrder::ENDIAN_LOCAL;
-                Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
+                //Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
 
                 // Possible user header data
                 uint8_t userHdr[10];
@@ -421,19 +421,16 @@ namespace evio {
                 buffer = writer.getBuffer();
             }
             else {
-                long loops = 3;
-
-                uint8_t firstEvent[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29};
-                uint32_t firstEventLen = 10;
+                //long loops = 3;
 
                 ByteOrder order = ByteOrder::ENDIAN_LOCAL;
                 Compressor::CompressionType compType = Compressor::GZIP;
 
-                // Possible user header data
-                uint8_t userHdr[10];
-                for (uint8_t i = 0; i < 10; i++) {
-                    userHdr[i] = i + 16;
-                }
+//                // Possible user header data
+//                uint8_t userHdr[10];
+//                for (uint8_t i = 0; i < 10; i++) {
+//                    userHdr[i] = i + 16;
+//                }
 
                 // We cannot write compressed data into a buffer directly, but we can write it to a file
                 // and then read the file back into a buffer (minus the file header).
@@ -545,7 +542,7 @@ namespace evio {
                     // COmpare original with copy
                     unchanged = true;
                     index = 0;
-                    for (int i = 0; i < buffer->capacity(); i++) {
+                    for (size_t i = 0; i < buffer->capacity(); i++) {
                         if (buffer->array()[i] != copy->array()[i]) {
                             unchanged = false;
                             index = i;
@@ -572,7 +569,7 @@ namespace evio {
                 if (pFE != nullptr) {
                     cout << "   First Event bytes = " << feBytes << endl;
                     cout << "   First Event values = " << endl << "   ";
-                    for (int i = 0; i < feBytes; i++) {
+                    for (uint32_t i = 0; i < feBytes; i++) {
                         cout << (uint32_t) ((pFE.get())[i]) << ",  ";
                     }
                     cout << endl << endl;
@@ -623,7 +620,7 @@ namespace evio {
                     }
 
 
-                    for (int i=0; i < dataBuf->limit(); i++) {
+                    for (size_t i=0; i < dataBuf->limit(); i++) {
                         if ((data.get()[i+8] != dataBuf->array()[i])) {
                             unchanged = false;
                             index = i;
@@ -728,7 +725,7 @@ namespace evio {
                         cout << "   First Event bytes = " << fe->getTotalBytes() << endl;
                         cout << "   First Event values = " << endl << "   ";
                         std::vector<uint8_t> & rawByteVector = fe->getRawBytes();
-                        for (int i = 0; i < rawByteVector.size(); i++) {
+                        for (size_t i = 0; i < rawByteVector.size(); i++) {
                             cout << (uint32_t) (rawByteVector[i]) << ",  ";
                         }
                         cout << endl << endl;
@@ -746,7 +743,7 @@ namespace evio {
 
 
                     std::cout << "Comparing data with dataVec\n";
-                    for (int i=0; i < dataVec.size(); i++) {
+                    for (size_t i=0; i < dataVec.size(); i++) {
                         if ((data.get()[i+8] != dataVec[i]) && (i > 3)) {
                             unchanged = false;
                             index = i;
@@ -1038,7 +1035,7 @@ namespace evio {
             string dictionary = "This is a dictionary";
             //dictionary = "";
             uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-            uint32_t firstEventLen = 10;
+            //uint32_t firstEventLen = 10;
             bool addTrailerIndex = true;
             ByteOrder order = ByteOrder::ENDIAN_LITTLE;
             //Compressor::CompressionType compType = Compressor::GZIP;
@@ -1236,7 +1233,7 @@ namespace evio {
             if (pFE != nullptr) {
                 cout << "   First Event bytes = " << feBytes << endl;
                 cout << "   First Event values = " << endl << "   ";
-                for (int i = 0; i < feBytes; i++) {
+                for (uint32_t i = 0; i < feBytes; i++) {
                     cout << (uint32_t) ((pFE.get())[i]) << ",  ";
                 }
                 cout << endl << endl;
@@ -1245,7 +1242,7 @@ namespace evio {
             cout << "Print out regular events:" << endl;
             uint32_t byteLen;
 
-            for (int i=0; i < reader1.getEventCount(); i++) {
+            for (uint32_t i=0; i < reader1.getEventCount(); i++) {
                 shared_ptr<uint8_t> data = reader1.getEvent(i, &byteLen);
                 Util::printBytes(data.get(), byteLen, "  Event #" + std::to_string(i));
 
@@ -1299,7 +1296,7 @@ namespace evio {
             if (data != nullptr) {
                 uint32_t *pData = reinterpret_cast<uint32_t *>(data.get());
                 cout <<  "   Event #0, values =" << endl << "   ";
-                for (int i = 0; i < wordLen; i++) {
+                for (uint32_t i = 0; i < wordLen; i++) {
                     if (order.isLocalEndian()) {
                         cout << *pData << ",  ";
                     }
@@ -1327,7 +1324,7 @@ namespace evio {
                 Writer writer(filenameOut, ByteOrder::ENDIAN_LITTLE, 10000, 8*1024*1024);
                 //writer.setCompressionType(Compressor::LZ4);
 
-                for (int i = 0; i < nevents; i++) {
+                for (uint32_t i = 0; i < nevents; i++) {
                     cout << "     Try getting EVENT # " << i << endl;
                     uint32_t eventLen;
                     shared_ptr<uint8_t> pEvent = reader.getEvent(i, &eventLen);
