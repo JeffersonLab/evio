@@ -19,7 +19,7 @@
 
 
 # This call must be placed BEFORE "project" command
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.13)
 
 # in cmake v 3.30 and later, new way to look for boost
 if(POLICY CMP0167)
