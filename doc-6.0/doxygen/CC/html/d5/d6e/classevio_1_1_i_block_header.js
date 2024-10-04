@@ -1,5 +1,6 @@
 var classevio_1_1_i_block_header =
 [
+    [ "~IBlockHeader", "d5/d6e/classevio_1_1_i_block_header.html#a3016dee0d126138628407b10edb49a7f", null ],
     [ "bytesRemaining", "d5/d6e/classevio_1_1_i_block_header.html#a5bbd2488c7847efb83bf2d5e8c81f5c5", null ],
     [ "firstEventStartingPosition", "d5/d6e/classevio_1_1_i_block_header.html#a912dcd287e30558238b6ad00c2454cde", null ],
     [ "getBufferEndingPosition", "d5/d6e/classevio_1_1_i_block_header.html#ab5fb3e39f3b25cade3d3d1daa203010d", null ],

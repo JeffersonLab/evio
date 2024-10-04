@@ -7,6 +7,7 @@ var classevio_1_1_i_evio_reader =
       [ "EVIO_EXCEPTION", "de/d97/classevio_1_1_i_evio_reader.html#aeb9b24a83d7fc38eacf3f6b3b329f926ae3b4a070ccd53865afcc4bc2ad91ed47", null ],
       [ "UNKNOWN_ERROR", "de/d97/classevio_1_1_i_evio_reader.html#aeb9b24a83d7fc38eacf3f6b3b329f926a0c4ce2651b53b53a2e628c80bf3db456", null ]
     ] ],
+    [ "~IEvioReader", "de/d97/classevio_1_1_i_evio_reader.html#a4afeebeff4b3a4f79cebfe662bfa2e3f", null ],
     [ "checkBlockNumberSequence", "de/d97/classevio_1_1_i_evio_reader.html#a522697d2985c7cb42938b241e476cdb3", null ],
     [ "close", "de/d97/classevio_1_1_i_evio_reader.html#abfcc831176f6b4b0c402838b2fa09e6f", null ],
     [ "fileSize", "de/d97/classevio_1_1_i_evio_reader.html#adc2e2fcc2aceea85771325bac4f3c397", null ],

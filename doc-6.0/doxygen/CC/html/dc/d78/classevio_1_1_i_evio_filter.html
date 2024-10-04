@@ -100,6 +100,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aaffbf24d739eb5897a4c26af7ef3846a"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d78/classevio_1_1_i_evio_filter.html#aaffbf24d739eb5897a4c26af7ef3846a">accept</a> (<a class="el" href="../../dd/da5/classevio_1_1_structure_type.html">StructureType</a> const &amp;structureType, std::shared_ptr&lt; <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html">BaseStructure</a> &gt; structure)=0</td></tr>
 <tr class="memdesc:aaffbf24d739eb5897a4c26af7ef3846a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accept or reject the given structure.  <a href="../../dc/d78/classevio_1_1_i_evio_filter.html#aaffbf24d739eb5897a4c26af7ef3846a">More...</a><br /></td></tr>
 <tr class="separator:aaffbf24d739eb5897a4c26af7ef3846a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ae77861597f2ea90b03f7dcf4a40cd3"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d78/classevio_1_1_i_evio_filter.html#a0ae77861597f2ea90b03f7dcf4a40cd3">~IEvioFilter</a> ()=default</td></tr>
+<tr class="separator:a0ae77861597f2ea90b03f7dcf4a40cd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This interface allows applications to create filters so that they only receive certain structures when events are being processed. </p>
@@ -114,7 +116,33 @@ EventParser.getInstance().setEvioFilter(myFilter);
 </code></pre> <dl class="section author"><dt>Author</dt><dd>heddle (Original java class) </dd>
 <dd>
 timmer </dd></dl>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a0ae77861597f2ea90b03f7dcf4a40cd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ae77861597f2ea90b03f7dcf4a40cd3">&#9670;&nbsp;</a></span>~IEvioFilter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual evio::IEvioFilter::~IEvioFilter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">default</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="aaffbf24d739eb5897a4c26af7ef3846a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aaffbf24d739eb5897a4c26af7ef3846a">&#9670;&nbsp;</a></span>accept()</h2>
 

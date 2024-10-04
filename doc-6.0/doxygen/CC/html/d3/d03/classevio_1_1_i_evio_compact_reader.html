@@ -97,6 +97,8 @@ $(document).ready(function(){initNavTree('d3/d03/classevio_1_1_i_evio_compact_re
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aaa8fef5e488c53d5166799af9d0d5ff6"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#aaa8fef5e488c53d5166799af9d0d5ff6">~IEvioCompactReader</a> ()=default</td></tr>
+<tr class="separator:aaa8fef5e488c53d5166799af9d0d5ff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20657a1fd110ebffd7670cdc2ba21ea8"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a20657a1fd110ebffd7670cdc2ba21ea8">isFile</a> ()=0</td></tr>
 <tr class="memdesc:a20657a1fd110ebffd7670cdc2ba21ea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is this reader reading a file?  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a20657a1fd110ebffd7670cdc2ba21ea8">More...</a><br /></td></tr>
 <tr class="separator:a20657a1fd110ebffd7670cdc2ba21ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -202,7 +204,33 @@ Public Member Functions</h2></td></tr>
 <p>The word "compact" refers to using the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> class as a compact or lightweight means to refer to an evio event or structure in a buffer. Compact readers do not use <a class="el" href="../../d4/d12/classevio_1_1_evio_event.html" title="An event is really just the outer, primary bank.">EvioEvent</a>, <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html" title="This holds a CODA Bank structure.">EvioBank</a>, <a class="el" href="../../d5/d29/classevio_1_1_evio_segment.html" title="This holds a CODA Segment structure.">EvioSegment</a> or <a class="el" href="../../d7/d91/classevio_1_1_evio_tag_segment.html" title="This holds a CODA TagSegment structure.">EvioTagSegment</a> classes which require a full parsing of each event and the creation of a large number of objects.</p>
 <dl class="section author"><dt>Author</dt><dd>timmer </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>6/18/2020. </dd></dl>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aaa8fef5e488c53d5166799af9d0d5ff6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa8fef5e488c53d5166799af9d0d5ff6">&#9670;&nbsp;</a></span>~IEvioCompactReader()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual evio::IEvioCompactReader::~IEvioCompactReader </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">default</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a49d8b525d59f387184d76f93adcc327f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a49d8b525d59f387184d76f93adcc327f">&#9670;&nbsp;</a></span>addStructure()</h2>
 
