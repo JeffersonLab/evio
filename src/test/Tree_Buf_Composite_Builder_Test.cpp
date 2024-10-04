@@ -297,7 +297,8 @@ namespace evio {
 
             std::cout << "Search for all banks of tag = 4, got the following:" << std::endl;
             class myFilter : public IEvioFilter {
-                uint16_t tag; uint8_t num = 0;
+                uint16_t tag;
+                //uint8_t num = 0;
             public:
                 myFilter(uint16_t tag) : tag(tag) {}
                 bool accept(StructureType const & type, std::shared_ptr<BaseStructure> struc) override {

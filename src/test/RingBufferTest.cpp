@@ -49,7 +49,7 @@ namespace evio {
             /** Function to create Integers by RingBuffer. */
             static const std::function< std::shared_ptr<Integer> () >& eventFactory() {
                 static std::function< std::shared_ptr<Integer> () > result([] {
-                    return std::move(std::make_shared<Integer>());
+                    return std::make_shared<Integer>();
                 });
                 return result;
             }
