@@ -178,6 +178,7 @@ typedef struct evfilestruct {
                              * currently being written to. */
     uint64_t  bytesToFile;    /**< # bytes flushed to the current file (including ending
                              *   empty block & dictionary), not the total in all split files. */
+    uint32_t  streamCount;    /**< total # of streams in DAQ used in auto naming of files. */
     uint32_t  streamId;       /**< stream id # used in auto naming of files. */
     uint32_t  runNumber;      /**< run # used in auto naming of split files. */
     uint32_t  splitNumber;    /**< number of next split file (used in auto naming). */
@@ -299,6 +300,9 @@ uint64_t *swap_int64_t(uint64_t *data, unsigned int length, uint64_t *dest);
 /* do we need this for backwards compatibility???
 int32_t swap_int32_t_value(int32_t val); */
 
+void evFileStructInit(EVFILE *a);
+
+
 int evOpen(char *filename, char *flags, int *handle);
 int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle);
 int evOpenSocket(int sockFd, char *flags, int *handle);
@@ -331,10 +335,12 @@ void  evPrintBuffer(uint32_t *p, uint32_t len, int swap);
 char *evStrReplace(char *orig, const char *replace, const char *with);
 char *evStrReplaceEnvVar(const char *orig);
 char *evStrFindSpecifiers(const char *orig, int *specifierCount);
-char *evStrRemoveSpecifiers(const char *orig);
-int   evGenerateBaseFileName(char *origName, char **baseName, int *count);
-char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
-                         int splitting, int splitNumber, char *runType, uint32_t streamId);
+char *evStrRemoveSpecifiers(const char *orig, int skip);
+int   evStrInsertBeforeSpecifier(char *str, uint32_t n, const char *insert, char *result, size_t result_size);
+int   evGenerateBaseFileName(const char *origName, char **baseName, int *count);
+char *evGenerateFileName(EVFILE *a, int specifierCount, uint32_t runNumber,
+                         int splitting, uint32_t splitNumber, char *runType,
+                         uint32_t streamId, uint32_t streamCount, int debug);
 
 #ifdef __cplusplus
 }

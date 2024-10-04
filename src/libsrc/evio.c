@@ -732,7 +732,6 @@ static void      resetBufferV6(EVFILE *a);
 
 
 /* Dealing with EVFILE struct */
-static void      structInit(EVFILE *a);
 static void      handleLock(int handle);
 static void      handleUnlock(int handle);
 static void      handleUnlockUnconditional(int handle);
@@ -901,7 +900,7 @@ void evPrintBuffer(uint32_t *p, uint32_t len, int swap) {
  * 
  * @param a   pointer to structure being inititalized
  */
-static void structInit(EVFILE *a) {
+void evFileStructInit(EVFILE *a) {
     a->file         = NULL;
     a->handle       = 0;
     a->rw           = 0;
@@ -951,6 +950,7 @@ static void structInit(EVFILE *a) {
     a->specifierCount = 0;
     a->splitting      = 0;
     a->lastEmptyBlockHeaderExists = 0;
+    a->streamCount    = 1;
     a->streamId       = 0;
     a->splitNumber    = 0;
     a->split          = EV_SPLIT_SIZE;
@@ -1602,14 +1602,15 @@ char *evStrFindSpecifiers(const char *orig, int *specifierCount) {
  * This routine checks a string for C-style printing integer format specifiers.
  * More specifically, it checks for %nd and %nx where n can be multiple digits.
  * It removes all such specifiers and returns the modified string or NULL
- * if error. Free the result if non-NULL.
+ * if error. Skips over given # of int specifiers. Free the result if non-NULL.
  *
  * @param orig string to be checked/modified
+ * @param skip # of int specifiers to skip
  *
  * @return resulting string which is NULL if there is a problem
  *         and needs to be freed if not NULL.
  */
-char *evStrRemoveSpecifiers(const char *orig) {
+char *evStrRemoveSpecifiers(const char *orig, int skip) {
     
     char *pStart;           /* pointer to start of string */
     char *pChar;            /* pointer to char somewhere in string */
@@ -1618,7 +1619,9 @@ char *evStrRemoveSpecifiers(const char *orig) {
     const int debug=0;
     int specLen;           /* number of chars in valid specifier in orig */
     int digitCount;        /* number of digits in a specifier between % and x/d */
-    
+
+    /** How many int specifiers skipped so far. */
+    int skipCount = 0;
 
     /* Check args */
     if (!orig) return NULL;
@@ -1663,6 +1666,11 @@ char *evStrRemoveSpecifiers(const char *orig) {
         
         pChar++;
 
+        if (skipCount++ < skip) {
+            /* Skip over this specifier */
+            continue;
+        }
+
         /* # of chars in specifier */
         specLen = (int) (pChar - pSpec);
         if (debug) printf("         spec len = %d\n", specLen);
@@ -1682,22 +1690,21 @@ char *evStrRemoveSpecifiers(const char *orig) {
 
 
 /**
- * This routine generates a (base) file name from a name containing format specifiers
- * and enviromental variables.<p>
+ * <p>This routine generates a (base) file name from a name containing format specifiers
+ * and enviromental variables.</p>
  *
- * The given name may contain up to 2, C-style integer format specifiers
- * (such as <b>%03d</b>, or <b>%x</b>). If more than 2 are found, an error is returned.
- * 
+ * <p>The file name may contain characters of the form <b>\$(ENV_VAR)</b>
+ * which will be substituted with the value of the associated environmental
+ * variable or a blank string if none is found.</p>
+ *
+ * <p>The given name may contain up to 3, C-style integer format specifiers
+ * (such as <b>%03d</b>, or <b>%x</b>). If more than 3 are found, an error is returned.
  * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
  * it will be added automatically in order to avoid spaces in the final, generated
- * file name.
- * In the {@link #evGenerateFileName(EVFILE *, int, int, int, int, char *, uint32_t)} routine,
- * the first occurrence will be substituted with the given runNumber value.
- * If the file is being split, the second will be substituted with the split number.<p>
+ * file name.</p>
  *
- * The file name may contain characters of the form <b>$(ENV_VAR)</b>
- * which will be substituted with the value of the associated environmental
- * variable or a blank string if none is found.<p>
+ * See the doc for {@link #evGenerateFileName}.
+ * The details of what is substituted for the int specifiers is given there.<p>
  *
  *
  * @param origName  file name to modify
@@ -1705,11 +1712,11 @@ char *evStrRemoveSpecifiers(const char *orig) {
  * @param count     pointer to int filled with number of format specifiers found
  *
  * @return S_SUCCESS          if successful
- * @return S_FAILURE          if bad format specifiers or more that 2 specifiers found
+ * @return S_FAILURE          if bad format specifiers or more that 3 specifiers found
  * @return S_EVFILE_BADARG    if args are null or origName is invalid
  * @return S_EVFILE_ALLOCFAIL if out-of-memory
  */
-int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
+int evGenerateBaseFileName(const char *origName, char **baseName, int *count) {
 
     char *name, *tmp;
     int   specifierCount=0;
@@ -1739,7 +1746,7 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
     }
     free(tmp);
 
-    if (specifierCount > 2) {
+    if (specifierCount > 3) {
         return(S_FAILURE);
     }
 
@@ -1788,9 +1795,9 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
  * @return NULL if error
  * @return generated file name (free if non-NULL)
  */
-char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
-                         int splitting, int splitNumber, char *runType,
-                         uint32_t streamId) {
+char *evGenerateFileNameOld(EVFILE *a, int specifierCount, int runNumber,
+                           int splitting, int splitNumber, char *runType,
+                           uint32_t streamId) {
 
     char   *fileName, *name, *specifier;
 
@@ -1907,7 +1914,7 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
             sprintf(fileName, a->baseFileName, runNumber);
 
             /* Get rid of remaining int specifiers */
-            name = evStrRemoveSpecifiers(fileName);
+            name = evStrRemoveSpecifiers(fileName, 0);
             free(fileName);
             fileName = name;
         }
@@ -1939,6 +1946,383 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
 
         free(fileName);
         fileName = fName;
+    }
+
+    return fileName;
+}
+
+
+/**
+ * Inserts a string just before the first occurrence of a format specifier that starts with '%' and
+ * ends with a conversion specifier of 'd' or 'x'.
+ * The existing format specifier can include flags made of ints indicating width (ie %03x).
+ * This function partly courtesy of ChatGPT. Remember, when this is called, the substitution for
+ * %s with runType will have already been made.
+ *
+ * @param str string to scan
+ * @param n number of "%"s to skip over before making the insert
+ * @param insert string to insert before the int specifier
+ * @param result resulting string
+ * @param result_size size of result string
+ *
+ * @return 1 if specifier successfully inserted, 0 if nothing done, -1 if result is too small.
+ *           If 1 is not returned, result is not written into.
+ */
+int evStrInsertBeforeSpecifier(char *str, uint32_t n, const char *insert, char *result, size_t result_size) {
+
+    int count = 0;    // Counter for % specifiers
+    int debug = 0;
+
+    char *start = str; // Pointer to traverse the string
+    char *end = NULL;
+    size_t len_before, len_insert, len_after;
+
+    // Step 1: Find the starting position of the format specifier (%)
+    // Traverse the string using strchr to find the nth %
+    while ((start = strchr(start, '%')) != NULL) {
+
+        if (count++ == n) {
+            // Step 2: Traverse to find the end position of the specifier
+            end = start + 1;  // Start checking right after '%'
+
+            // Loop through valid format specifier characters until we find a conversion character
+            while (*end && isdigit(*end)) {
+                end++;  // Continue parsing flags, width, and precision
+                if (debug) printf("evStrInsertBeforeSpecifier: skipping over %c\n", *end);
+            }
+
+            // Check if the current character is a valid format specifier ending (d, x, f, etc.)
+            if (*end == 'd' || *end == 'x') {
+                if (debug) printf("evStrInsertBeforeSpecifier: found d or x\n");
+                // Step 3: Insert the given string just before the format specifier
+                len_before = start - str;               // Length of the string before the specifier
+                len_insert = strlen(insert);            // Length of the string to insert
+                len_after = strlen(start);              // Length of the remaining string after the prefix
+
+                // Check if the result buffer is large enough
+                if (len_before + len_insert + len_after >= result_size) {
+                    //fprintf(stderr, "Error: result buffer too small!\n");
+                    return -1;
+                }
+
+                // Construct the new string in the result buffer
+                strncpy(result, str, len_before);                        // Copy the prefix part
+                strncpy(result + len_before, insert, len_insert);        // Insert the given string
+                strncpy(result + len_before + len_insert, start,
+                        len_after);  // Copy the suffix (format specifier included)
+                result[len_before + len_insert + len_after] = '\0';      // Null-terminate the result
+                return 1;
+            }
+        }
+
+        start++;  // Move past the current % to search for the next
+    }
+    return 0;
+}
+
+
+/**
+ * <p>This method generates a complete file name from the previously determined baseFileName
+ * obtained from calling {@link #evGenerateBaseFileName(char *, char **, int *)} and
+ * stored in the evOpen handle.</p>
+ *
+ * <p>All occurrences of the string "%s" in the baseFileName will be substituted with the
+ * value of the runType arg or nothing if the runType is null.</p>
+ *
+ * <p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted
+ * with runNumber, splitNumber and streamId in the manner described below.</p>
+ *
+ * <ul>
+ *     <li>If file is to be split:</li>
+ *          <ul>
+ *          <li>If no specifiers:</li>
+ *              <ul>
+ *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+ *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+ *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+ *                  <li>No run numbers are ever tacked on without a specifier </li>
+ *              </ul>
+ *          <li>If 1 specifier:</li>
+ *              <ul>
+ *                  <li>add runNumber according to specifier</li>
+ *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+ *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+ *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+ *              </ul>
+ *          <li>If 2 specifiers:</li>
+ *              <ul>
+ *                  <li>add runNumber according to first specifier</li>
+ *                  <li>for one stream, add splitNumber according to second specifier</li>
+ *                  <li>for multiple streams, add splitNumber according to second specifier, but place
+ *                      <b>&lt;streamId&gt;.</b> just before the splitNumber</li>
+ *              </ul>
+ *          <li>If 3 specifiers:</li>
+ *              <ul>
+ *                  <li>add runNumber according to first specifier</li>
+ *                  <li>add streamId according to second specifier add splitNumber according to third specifier</li>
+ *              </ul>
+ *          </ul>
+ *
+ *      <li>If file is NOT split:</li>
+ *          <ul>
+ *          <li>If no specifiers:</li>
+ *              <ul>
+ *                  <li>streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+ *                  <li>No run numbers are ever tacked on without a specifier.</li>
+ *              </ul>
+ *          <li>If 1 specifier:</li>
+ *              <ul>
+ *                  <li>add runNumber according to specifier</li>
+ *                  <li>for multiple streams, streamId is tacked onto the end of the file name as .<b>.&lt;streamId&gt;</b></li>
+ *              </ul>
+ *          <li>If 2 specifiers:</li>
+ *              <ul>
+ *                  <li>add runNumber according to first specifier</li>
+ *                  <li>remove second specifier</li>
+ *                  <li>for multiple streams, streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+ *              </ul>
+ *          <li>If 3 specifiers:</li>
+ *              <ul>
+ *                  <li>add runNumber according to first specifier</li>
+ *                  <li>add streamId according to second specifier</li>
+ *                  <li>remove third specifier</li>
+ *              </ul>
+ *          </ul>
+ *  </ul>
+ *
+ * If there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE on the extra specifiers</b>.
+ *
+ * @param a              evio handle (contains file name to use as a basis for the
+ *                       generated file name)
+ * @param specifierCount number of C-style int format specifiers in file name arg
+ * @param runNumber      CODA run number
+ * @param splitting      is file being split (split > 0)? 1 - yes, 0 - no
+ * @param splitNumber    number of the split file
+ * @param runType        run type name
+ * @param streamId       streamId number (100 > id > -1)
+ * @param streamCount    total number of streams in DAQ (100 > id > 0)
+ * @param debug          if = 0, no debug output
+ *
+ * @return NULL if error
+ * @return generated file name (free if non-NULL)
+ */
+char *evGenerateFileName(EVFILE *a, int specifierCount, uint32_t runNumber,
+                         int splitting, uint32_t splitNumber, char *runType,
+                         uint32_t streamId, uint32_t streamCount, int debug) {
+
+    char   *fileName = NULL, *name;
+
+
+    /* Check args */
+    if ( (runNumber < 1) ||
+         (streamId > 99) || (streamCount > 99) || (streamCount < 1) ||
+         (specifierCount < 0) || (specifierCount > 3)) {
+        return(NULL);
+    }
+
+    int oneStream = streamCount < 2;
+
+    /* Check handle arg */
+    if (a == NULL) {
+        return(NULL);
+    }
+
+    /* Need to be writing to a file */
+    if (a->rw != EV_WRITEFILE) {
+        return(NULL);
+    }
+
+    /* Internal programming bug */
+    if (a->baseFileName == NULL) {
+        return(NULL);
+    }
+
+    /* Replace all %s occurrences with run type ("" if NULL).
+     * This needs to be done before the run # & split # substitutions. */
+    name = evStrReplace(a->baseFileName, "%s", runType);
+    if (name == NULL) {
+        /* out-of-mem */
+        return(NULL);
+    }
+    free(a->baseFileName);
+    a->baseFileName = name;
+
+    /* As far as memory goes, allow 10 digits for the run number, 10 for the split,
+     * and 10 for the stream id. That will cover 32 bit ints. However, to play it
+     * safe, allocate much more. */
+
+    size_t memSize = strlen(a->baseFileName) + 256;
+
+    /* If we're splitting files ... */
+    if (splitting) {
+
+        /* For no specifiers: tack split # on end of base file name */
+        if (specifierCount < 1) {
+            /* Create space for filename + "." + stream id + "." + split# */
+            fileName = (char *) calloc(1, memSize);
+            if (!fileName) return (NULL);
+
+            if (oneStream) {
+                snprintf(fileName, memSize, "%s.%d", a->baseFileName, splitNumber);
+                if (debug) printf("Split, 0 spec, 1 stream: fileName = %s, split# = %d\n",
+                                  fileName, splitNumber);
+            }
+            else {
+                snprintf(fileName, memSize, "%s.%u.%d", a->baseFileName, streamId, splitNumber);
+                if (debug) printf("Split, 0 spec, multistream: fileName = %s, streamId = %u, split# = %d\n",
+                                  fileName, streamId, splitNumber);
+            }
+        }
+
+        /* For 1 specifier: insert run # at specified location,
+         * then tack stream id and split # onto end of file name. */
+        else if (specifierCount == 1) {
+            /* Create space for filename + run# + "." + stream id + "." + split# */
+            fileName = (char *) calloc(1, memSize);
+            if (!fileName) return (NULL);
+
+            if (oneStream) {
+                /* Create 1 string with all print specifiers. */
+                char temp[memSize];
+                snprintf(temp, memSize, "%s.%s", a->baseFileName, "%d");
+
+                snprintf(fileName, memSize, temp, runNumber, splitNumber);
+                if (debug) printf("Split, 1 spec, 1 stream: fileName = %s, run# = %d, split# = %d\n",
+                                  fileName, runNumber, splitNumber);
+            }
+            else {
+                char temp[memSize];
+                snprintf(temp, memSize, "%s.%s", a->baseFileName, "%u.%d");
+
+                snprintf(fileName, memSize, temp, runNumber, streamId, splitNumber);
+                if (debug) printf("Split, 1 spec, multistream: fileName = %s, run# = %d, streamId = %u, split# = %d\n",
+                                  fileName, runNumber, streamId, splitNumber);
+            }
+        }
+
+        /* For 2 specifiers: insert run # and split # at specified locations
+         * and place stream id immediately before split #. */
+        else if (specifierCount == 2) {
+            fileName = (char *)calloc(1, memSize);
+            if (!fileName) return(NULL);
+
+            if (!oneStream) {
+                /* Insert "%u." before the 2nd specifier */
+                char result[memSize];
+                int err = evStrInsertBeforeSpecifier(a->baseFileName, 1, "%u.", result, memSize);
+                if (err == 1) {
+                    /* Place streamId and split# into specifiers in baseFileName. */
+                    snprintf(fileName, memSize, result, runNumber, streamId, splitNumber);
+                    if (debug) printf("Split, 2 spec, multistream: fileName = %s, run# = %d, streamId = %u, split# = %d\n",
+                                      fileName, runNumber, streamId, splitNumber);
+                }
+                else {
+                    // error
+                    if (debug) printf("Error in evStrInsertBeforeSpecifier\n");
+                    return NULL;
+                }
+            }
+            else {
+                /* Place run# & split# into specifiers in baseFileName. */
+                snprintf(fileName, memSize, a->baseFileName, runNumber, splitNumber);
+                if (debug) printf("Split, 2 spec, 1 stream: fileName = %s, run# = %d, split# = %d\n",
+                                  fileName, runNumber, splitNumber);
+            }
+        }
+
+        /* For 3 specifiers: insert run #, stream id, and split # at specified locations */
+        else if (specifierCount == 3) {
+            fileName = (char *)calloc(1, memSize);
+            if (!fileName) return(NULL);
+            snprintf(fileName, memSize, a->baseFileName, runNumber, (int)streamId, splitNumber);
+            if (debug) printf("Split, 3 spec: fileName = %s, run# = %d, streamId = %u, split# = %d\n",
+                              fileName, runNumber, streamId, splitNumber);
+        }
+    }
+
+    /** If we're not splitting files, then CODA isn't being used and stream id is
+     * probably meaningless. */
+    else {
+        /* For no specifiers:  tack stream id onto end of file name */
+        if (specifierCount < 1) {
+            fileName = (char *) calloc(1, memSize);
+            if (!fileName) return (NULL);
+
+            if (!oneStream) {
+                snprintf(fileName, memSize, "%s.%u", a->baseFileName, streamId);
+                if (debug) printf("No-split, 0 spec, multistream: fileName = %s, streamId = %u\n",
+                                  fileName, streamId);
+            }
+            else {
+                strncpy(fileName, a->baseFileName, strlen(a->baseFileName));
+                if (debug) printf("No-split, 0 spec, 1 stream: fileName = %s\n", fileName);
+            }
+        }
+        /* Still insert runNumber if requested */
+        if (specifierCount == 1) {
+            char temp[memSize];
+            snprintf(temp, memSize, a->baseFileName, runNumber);
+
+            fileName = (char *) calloc(1, memSize);
+            if (!fileName) return (NULL);
+
+            if (!oneStream) {
+                 snprintf(fileName, memSize, "%s.%u", temp, streamId);
+                 if (debug) printf("No-split, 1 spec, multistream: fileName = %s, run# = %d, streamId = %u\n",
+                                  fileName, runNumber, streamId);
+            }
+            else {
+                 strncpy(fileName, temp, strlen(temp));
+                 if (debug) printf("No-split, 1 spec, 1 stream: fileName = %s, run# = %d\n",
+                                  fileName, runNumber);
+            }
+        }
+        /* For 2 specifiers: insert run # and remove split # specifier as no split # exists */
+        else if (specifierCount == 2) {
+            /* Get rid of 2nd int specifier */
+            name = evStrRemoveSpecifiers(a->baseFileName, 1);
+            if (!name) return (NULL);
+
+            /* Insert runNumber into first specifier */
+            char temp[memSize];
+            snprintf(temp, memSize, name, runNumber);
+
+            fileName = (char *) calloc(1, memSize);
+            if (!fileName) return (NULL);
+
+            if (!oneStream) {
+                snprintf(fileName, memSize, "%s.%u", temp, streamId);
+                if (debug) printf("No-split, 2 spec, multistream: fileName = %s, run# = %d, streamId = %u\n",
+                                  fileName, runNumber, streamId);
+            }
+            else {
+                if (debug) printf("No-split, 2 spec, 1 stream: fileName = %s, run# = %d\n",
+                                  name, runNumber);
+                strncpy(fileName, temp, memSize);
+            }
+
+            free(name);
+        }
+        /* Get rid of extra (3rd) int format specifier as no split # exists */
+        else if (specifierCount == 3) {
+            /* Get rid of last int specifier */
+            name = evStrRemoveSpecifiers(a->baseFileName, 2);
+            if (!name) return (NULL);
+            fileName = name;
+
+            /* Insert runNumber into first specifier, stream id into 2nd */
+            fileName = (char *) calloc(1, memSize);
+            if (!fileName) return (NULL);
+            snprintf(fileName, memSize, name, runNumber, (int)streamId);
+            if (debug) printf("No-split, 3 spec: fileName = %s, run# = %d, streamId = %u\n",
+                              fileName, runNumber, streamId);
+
+            free(name);
+        }
+        /* This shouldn't be necessary */
+        else {
+            fileName = strdup(a->baseFileName);
+        }
     }
 
     return fileName;
@@ -2116,7 +2500,7 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
     
     
     a = (EVFILE *)calloc(1, sizeof(EVFILE));
-    structInit(a);
+    evFileStructInit(a);
 
      for (ihandle=0; ihandle < handleCount; ihandle++) {
         if (handleList[ihandle] == 0) {
@@ -2311,7 +2695,7 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
         return(S_EVFILE_ALLOCFAIL);
     }
     /* Initialize newly allocated structure */
-    structInit(a);
+    evFileStructInit(a);
 
     /* Set the mutex locking */
     a->lockingOn = lockingOn;
@@ -3267,7 +3651,7 @@ if (debug) printf("File must be evio version %d (not %d) for append mode, quit\n
 
         /* Allocate memory only if we are not writing to a buffer */
         if (!useBuffer) {
-            /* bufRealSize is EV_BLOCKSIZE by default, see structInit() */
+            /* bufRealSize is EV_BLOCKSIZE by default, see evFileStructInit() */
             a->buf = (uint32_t *) calloc(1,4*a->bufRealSize);
             if (a->buf == NULL) {
                 if (useFile) {
@@ -6154,7 +6538,7 @@ if (debug) printf("    flushToDestination: write data, bytes = %u\n", a->bytesTo
                 /* Generate actual file name from base name */
                 char *fname = evGenerateFileName(a, a->specifierCount, a->runNumber,
                                                  a->splitting, a->splitNumber++,
-                                                 a->runType, a->streamId);
+                                                 a->runType, a->streamId, a->streamCount, debug);
                 if (fname == NULL) {
                     return(S_FAILURE);
                 }
@@ -6310,7 +6694,7 @@ if (debug) printf("    splitFile: error closing file, %s\n", strerror(errno));
     /* Create the next file's name */
     fname = evGenerateFileName(a, a->specifierCount, a->runNumber,
                                a->splitting, a->splitNumber++,
-                               a->runType, a->streamId);
+                               a->runType, a->streamId, a->streamCount, debug);
     if (fname == NULL) {
         return(-1);
     }
@@ -6575,6 +6959,9 @@ int evGetBufferLength(int handle, uint32_t *length)
  * It sets the stream id used when auto naming files being written to if request = "M".
  * Used only in version 4.<p>
  *
+ * It sets the total # of streams used in DAQ when auto naming files being written to
+ * if request = "D". Used only in version 6.<p>
+ *
  * It returns the version number if request = "V".<p>
  *
  * It returns a pointer to the EV_HDSIZ_V6 block header ints if request = "H".
@@ -6597,6 +6984,7 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI>  "T"  for setting run type   (used in file splitting)
  * <LI>  "S"  for setting file split size in bytes
  * <LI>  "M"  for setting stream id  (used in auto file naming)
+ * <LI>  "D"  for setting total # of streams in DAQ (used in auto file naming)
  * <LI>  "V"  for getting evio version #
  * <LI>  "H"  for getting 14 ints of block header info (only 8 valid for version < 6)
  * <LI>  "E"  for getting # of events in file/buffer
@@ -6611,6 +6999,7 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI> pointer to character containing run type if request = T, or
  * <LI> pointer to <b>uint64_t</b> containing max size in bytes of split file if request = S, or
  * <LI> pointer to uin32_t containing stream id if request = M, or
+ * <LI> pointer to uin32_t containing stream count if request = D, or
  * <LI> pointer to int32_t returning version # if request = V, or
  * <LI> address of pointer to uint32_t returning pointer to 14
  *              uint32_t's of block header if request = H (only 8 valid for version < 6).
@@ -7047,9 +7436,9 @@ if (debug) printf("evIoctl: split file at %" PRIu64 " (0x%" PRIx64 ") bytes\n", 
             a->runType = runType;
             break;
 
-        /************************************************/
-        /* Setting stream id for file naming            */
-        /************************************************/
+            /************************************************/
+            /* Setting stream id for file naming            */
+            /************************************************/
         case 'm':
         case 'M':
             /* Need to specify stream id */
@@ -7059,6 +7448,20 @@ if (debug) printf("evIoctl: split file at %" PRIu64 " (0x%" PRIx64 ") bytes\n", 
             }
 
             a->streamId = *(uint32_t *) argp;
+            break;
+
+            /************************************************/
+            /* Setting total stream count for file naming            */
+            /************************************************/
+        case 'd':
+        case 'D':
+            /* Need to specify stream count */
+            if (argp == NULL) {
+                handleUnlock(handle);
+                return(S_EVFILE_BADARG);
+            }
+
+            a->streamCount = *(uint32_t *) argp;
             break;
 
         /****************************/
