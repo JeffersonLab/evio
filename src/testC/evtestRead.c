@@ -24,7 +24,8 @@
 
     int main2()
     {
-        int handle, status, nevents, nwords;
+        int handle, status, nevents;
+        //int nwords;
         uint32_t  *buffer, *ip, bufLen;
 
         //status = evOpen("/home/timmer/evioTestFiles/evioV2format.ev", "r", &handle);
@@ -37,14 +38,14 @@
             printf("    Event #%d,  len = %d data bytes\n", nevents, 4*(buffer[0] - 1));
 
             ip = buffer;
-            nwords = buffer[0] + 1;
+            //nwords = buffer[0] + 1;
 
             printf("      Header words\n");
             printf("        %#10.8x\n", *ip++);
             printf("        %#10.8x\n\n", *ip++);
             printf("      Data words\n");
 
-            nwords -= 2;
+            //nwords -= 2;
 
             free(buffer);
 
@@ -69,7 +70,8 @@
 
     int main()
     {
-        int handle, status, nevents, nwords, count = 10;
+        int handle, status, nevents, count = 10;
+        //int nwords;
         uint32_t  buffer[50000], *ip;
 
         //status = evOpen("/home/timmer/evioTestFiles/evioV2format.ev", "r", &handle);
@@ -83,14 +85,14 @@
             printf("    Event #%d,  len = %d data bytes\n", nevents, 4*(buffer[0] - 1));
 
             ip = buffer;
-            nwords = buffer[0] + 1;
+            //nwords = buffer[0] + 1;
 
             printf("      Header words\n");
             printf("        %#10.8x\n", *ip++);
             printf("        %#10.8x\n\n", *ip++);
             printf("      Data words\n");
 
-            nwords -= 2;
+            //nwords -= 2;
 
             if (count-- < 0) {
                 printf("Forced Break\n");
