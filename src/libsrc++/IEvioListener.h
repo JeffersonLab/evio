@@ -29,6 +29,7 @@ namespace evio {
     class IEvioListener {
 
     public:
+        virtual ~IEvioListener() = default;
 
         /**
          * Called after a structure is read in while parsing or searching an event

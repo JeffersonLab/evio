@@ -40,6 +40,8 @@ namespace evio {
 
     public:
 
+        virtual ~IEvioReader() = default;
+
         /**
           * This <code>enum</code> denotes the status of a read/write. <b>Used internally.</b><br>
           * SUCCESS indicates a successful read. <br>

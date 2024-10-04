@@ -52,6 +52,7 @@ namespace evio {
          * @see StructureType
          */
         virtual bool accept(StructureType const & structureType, std::shared_ptr<BaseStructure> structure) = 0;
+        virtual ~IEvioFilter() = default;
     };
 
 }

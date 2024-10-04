@@ -50,6 +50,8 @@ namespace evio {
         /** Mask to get version number from bitinfo word in header. */
         static const uint32_t VERSION_MASK = 0xff;
 
+        virtual ~IBlockHeader() = default;
+
         /**
          * Get the size of the block (record) in 32 bit words.
          * @return size of the block (record) in 32 bit words.

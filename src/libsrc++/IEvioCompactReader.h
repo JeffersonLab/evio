@@ -41,6 +41,7 @@ namespace evio {
     class IEvioCompactReader {
 
     public:
+        virtual ~IEvioCompactReader() = default;
 
         /**
          * Is this reader reading a file?
