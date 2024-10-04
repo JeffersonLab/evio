@@ -226,6 +226,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5ac79e11fb3db3c4ad2686e603f2b643"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d9/d5a/msinttypes_8h.html#add3ab157a4cf9539040b6cf89d7caaac">uint64_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d51/group__swap.html#ga5ac79e11fb3db3c4ad2686e603f2b643">swap_int64_t</a> (<a class="el" href="../../d9/d5a/msinttypes_8h.html#add3ab157a4cf9539040b6cf89d7caaac">uint64_t</a> *data, unsigned int length, <a class="el" href="../../d9/d5a/msinttypes_8h.html#add3ab157a4cf9539040b6cf89d7caaac">uint64_t</a> *dest)</td></tr>
 <tr class="memdesc:ga5ac79e11fb3db3c4ad2686e603f2b643"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine swaps a buffer of 64 bit integers.  <a href="../../d7/d51/group__swap.html#ga5ac79e11fb3db3c4ad2686e603f2b643">More...</a><br /></td></tr>
 <tr class="separator:ga5ac79e11fb3db3c4ad2686e603f2b643"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a932af09e8a60fce2d199060a6137f2a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#a932af09e8a60fce2d199060a6137f2a5">evFileStructInit</a> (<a class="el" href="../../d9/df8/evio_8h.html#aff3fe7431ea11ed556dfc6c911a387bd">EVFILE</a> *a)</td></tr>
+<tr class="memdesc:a932af09e8a60fce2d199060a6137f2a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Routine to intialize an EVFILE structure for writing.  <a href="../../d9/df8/evio_8h.html#a932af09e8a60fce2d199060a6137f2a5">More...</a><br /></td></tr>
+<tr class="separator:a932af09e8a60fce2d199060a6137f2a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga31e083efa985d9e46cdc5a6c982b6c3f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d4c/group__open.html#ga31e083efa985d9e46cdc5a6c982b6c3f">evOpen</a> (char *filename, char *flags, int *handle)</td></tr>
 <tr class="memdesc:ga31e083efa985d9e46cdc5a6c982b6c3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function opens a file for either reading or writing evio format data.  <a href="../../da/d4c/group__open.html#ga31e083efa985d9e46cdc5a6c982b6c3f">More...</a><br /></td></tr>
 <tr class="separator:ga31e083efa985d9e46cdc5a6c982b6c3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -301,14 +304,16 @@ Functions</h2></td></tr>
 <tr class="memitem:a8387cc7948ed000ad6e39630caf1806e"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#a8387cc7948ed000ad6e39630caf1806e">evStrFindSpecifiers</a> (const char *orig, int *specifierCount)</td></tr>
 <tr class="memdesc:a8387cc7948ed000ad6e39630caf1806e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine checks a string for C-style printing integer format specifiers.  <a href="../../d9/df8/evio_8h.html#a8387cc7948ed000ad6e39630caf1806e">More...</a><br /></td></tr>
 <tr class="separator:a8387cc7948ed000ad6e39630caf1806e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcd0fcd0f70058f0650a1121497401ba"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#adcd0fcd0f70058f0650a1121497401ba">evStrRemoveSpecifiers</a> (const char *orig)</td></tr>
-<tr class="memdesc:adcd0fcd0f70058f0650a1121497401ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine checks a string for C-style printing integer format specifiers.  <a href="../../d9/df8/evio_8h.html#adcd0fcd0f70058f0650a1121497401ba">More...</a><br /></td></tr>
-<tr class="separator:adcd0fcd0f70058f0650a1121497401ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6d1c3de906d5b4ffa6cfc5dc8f319d3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#ac6d1c3de906d5b4ffa6cfc5dc8f319d3">evGenerateBaseFileName</a> (char *origName, char **baseName, int *count)</td></tr>
-<tr class="memdesc:ac6d1c3de906d5b4ffa6cfc5dc8f319d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine generates a (base) file name from a name containing format specifiers and enviromental variables.  <a href="../../d9/df8/evio_8h.html#ac6d1c3de906d5b4ffa6cfc5dc8f319d3">More...</a><br /></td></tr>
-<tr class="separator:ac6d1c3de906d5b4ffa6cfc5dc8f319d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5afe7707e090b030310708cfcc835140"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#a5afe7707e090b030310708cfcc835140">evGenerateFileName</a> (<a class="el" href="../../d9/df8/evio_8h.html#aff3fe7431ea11ed556dfc6c911a387bd">EVFILE</a> *a, int specifierCount, int runNumber, int splitting, int splitNumber, char *runType, <a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a> streamId)</td></tr>
-<tr class="separator:a5afe7707e090b030310708cfcc835140"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75de811df5324b1da4e0628cf0c35ea8"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#a75de811df5324b1da4e0628cf0c35ea8">evStrRemoveSpecifiers</a> (const char *orig, int skip)</td></tr>
+<tr class="memdesc:a75de811df5324b1da4e0628cf0c35ea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">This routine checks a string for C-style printing integer format specifiers.  <a href="../../d9/df8/evio_8h.html#a75de811df5324b1da4e0628cf0c35ea8">More...</a><br /></td></tr>
+<tr class="separator:a75de811df5324b1da4e0628cf0c35ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe25fca81865d8d2e055bb1529017363"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#abe25fca81865d8d2e055bb1529017363">evStrInsertBeforeSpecifier</a> (char *str, <a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a> n, const char *insert, char *result, size_t result_size)</td></tr>
+<tr class="memdesc:abe25fca81865d8d2e055bb1529017363"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts a string just before the first occurrence of a format specifier that starts with '' and ends with a conversion specifier of 'd' or 'x'.  <a href="../../d9/df8/evio_8h.html#abe25fca81865d8d2e055bb1529017363">More...</a><br /></td></tr>
+<tr class="separator:abe25fca81865d8d2e055bb1529017363"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26ba6e3f59ddd17a990940cc7edeb4b4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#a26ba6e3f59ddd17a990940cc7edeb4b4">evGenerateBaseFileName</a> (const char *origName, char **baseName, int *count)</td></tr>
+<tr class="separator:a26ba6e3f59ddd17a990940cc7edeb4b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1809b937f0a78849a422843adbfa0d7"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df8/evio_8h.html#ad1809b937f0a78849a422843adbfa0d7">evGenerateFileName</a> (<a class="el" href="../../d9/df8/evio_8h.html#aff3fe7431ea11ed556dfc6c911a387bd">EVFILE</a> *a, int specifierCount, <a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a> runNumber, int splitting, <a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a> splitNumber, char *runType, <a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a> streamId, <a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a> streamCount, int debug)</td></tr>
+<tr class="separator:ad1809b937f0a78849a422843adbfa0d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="abc87ed9df14f063de2cb565b22605996"></a>
@@ -753,8 +758,39 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ac6d1c3de906d5b4ffa6cfc5dc8f319d3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac6d1c3de906d5b4ffa6cfc5dc8f319d3">&#9670;&nbsp;</a></span>evGenerateBaseFileName()</h2>
+<a id="a932af09e8a60fce2d199060a6137f2a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a932af09e8a60fce2d199060a6137f2a5">&#9670;&nbsp;</a></span>evFileStructInit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void evFileStructInit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d9/df8/evio_8h.html#aff3fe7431ea11ed556dfc6c911a387bd">EVFILE</a> *&#160;</td>
+          <td class="paramname"><em>a</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Routine to intialize an EVFILE structure for writing. </p>
+<p>If reading, relevant stuff gets overwritten anyway.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>pointer to structure being inititalized </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../d4/d04/structevfilestruct.html#aba1a5c7e8fedfa129b8e751754af6588">evfilestruct::append</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a7bfbaca98169c0acb4506cd7151e8caf">evfilestruct::baseFileName</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#abea913accb76f11238ca9f950c019eae">evfilestruct::bigEndian</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ace8105a2a663e109f9c68413a9fe0b98">evfilestruct::blkEvCount</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a45ce639fa52fd160e38eb065ffecff81">evfilestruct::blkEvMax</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ae92bf7e1cfe6f85c710d5f63f1791d33">evfilestruct::blknum</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#aa8c5d7e298ff08f1a178d3d236f35258">evfilestruct::blkNumDiff</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#aa8911b098430a1874bc103935e6075f2">evfilestruct::blksiz</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#af42ad67ddef5fa133654783aa714de02">evfilestruct::blkSizeTarget</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ac2aee7393e6f132259e675dd0393b095">evfilestruct::blocksToParse</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a69e9542e979e67f8080c9cf89e5ea284">evfilestruct::buf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#af60718117185653ab3b62270644d3d30">evfilestruct::bufRealSize</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ac415703198f15be76dc1bc4ce709fdd0">evfilestruct::bufSize</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a0f85679ea6aa547b87db770f72aede9e">evfilestruct::byte_swapped</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a836eb667d8dd6bdab197fa3e0b108462">evfilestruct::bytesToBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a6985361bf01701a16b6bd0e1e9fcae5b">evfilestruct::bytesToDataBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a0cba215afed54ffbef96f235e1775f9d">evfilestruct::bytesToFile</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a334889ea0c1208b9576d64382c9b096f">evfilestruct::commonBlkCount</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#af3352e65cd293cb8bd0d8a59c39017a0">evfilestruct::curRecordIndexArrayLen</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a0204c8efa6b95010031d277db11d8824">evfilestruct::curRecordUserHeaderLen</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a722d8a6600681e9b1fb12d37ca993e8e">evfilestruct::currentHeader</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a50679f7a26540fcdf137977b354d98ff">evfilestruct::dataBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#af2f3afbeedb3f70dca1759105224033d">evfilestruct::dataLeft</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a97ffef4e202016d33f81ae5e2a816459">evfilestruct::dataNext</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a8ea51c2ac1de12b25ef6d64c3aa1cf9b">evfilestruct::dictBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a8728c8464995070d219b6477ea481286">evfilestruct::dictionary</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a0cecdeb8e9cf70ab9affef918a22e37d">evfilestruct::dictLength</a>, <a class="el" href="../../d9/dca/evio_8c.html#aa4eb54cc7c521d83e74289a16c769f72">EV_BLOCKSIZE</a>, <a class="el" href="../../d9/dca/evio_8c.html#ad48704270afc6e79e133a9ec3136cfc1">EV_EVENTS_MAX_DEF</a>, <a class="el" href="../../d9/df8/evio_8h.html#abc87ed9df14f063de2cb565b22605996">EV_HDSIZ</a>, <a class="el" href="../../d9/df8/evio_8h.html#a3210c862b11c58bf3b64d6f6e384676e">EV_HDSIZ_BYTES</a>, <a class="el" href="../../d9/df8/evio_8h.html#a9038f48dd59a82af0abc63d3ed32e840">EV_HDSIZ_BYTES_V6</a>, <a class="el" href="../../d9/df8/evio_8h.html#ac93e9dc9080fc67db0aa3b428e681071">EV_HDSIZ_V6</a>, <a class="el" href="../../d9/dca/evio_8c.html#af813a8152c5fa0225aa582516f9c65ba">EV_MAGIC</a>, <a class="el" href="../../d9/dca/evio_8c.html#a095fe073cdbef3173b0d15b927f87ff8">EV_SPLIT_SIZE</a>, <a class="el" href="../../d9/df8/evio_8h.html#a65ca1c87412a814a49403fcf470cc973">EV_VERSION</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a516274eaa0769d36d7197f95a9af13fe">evfilestruct::eventCount</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ae4bae99ca24e3b2d7adf69be73f8b4b1">evfilestruct::eventLengths</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a6512c8bfb4162808d9c7ac2237264136">evfilestruct::eventLengthsLen</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a6a7a1818fb4976017dc5c9a4d78cdedb">evfilestruct::eventsToBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#af613e45732956246d9a013eafab4e94c">evfilestruct::eventsToFile</a>, <a class="el" href="../../d7/d51/group__swap.html#gab9a5456d1f69ff8d8ad8b6cd9cd617ce">evioIsLocalHostBigEndian()</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ac176477a0dc5aef3e4a5776e2091c6dd">evfilestruct::file</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#abc70784bfc811b55d09ac1938a1b9905">evfilestruct::fileIndexArrayLen</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a746fdf75fd8701273d7c28134658a059">evfilestruct::fileName</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a39bb8b4b1c0a3dce1e13bc340ae543b7">evfilestruct::filePosition</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#adf9343412d7dd58382308bcff9733c49">evfilestruct::fileSize</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a24a868b4e92aa21bf62034c6cdc76e20">evfilestruct::fileUserHeaderLen</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a8e15fa5b217a60e6c9398be8371cdf77">evfilestruct::firstEventBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a737b4049b9312f7ecba3545f82bf3ac4">evfilestruct::firstEventLength</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ad9c7cc2cad091c50f02b8e3aba6f4665">evfilestruct::handle</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a96c5e5ab4a990809c2d7acaf8d0820af">evfilestruct::hasAppendDictionary</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a7d88f1f3b039909b4f721bf820debb7b">evfilestruct::isLastBlock</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#af6c6c018b49073d1fec7cf28002a3685">evfilestruct::lastEmptyBlockHeaderExists</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#abe834bc0fb6667706e310f03d27e5a26">evfilestruct::left</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ad0ced2f57d2c4aec377ce5f5b04e30d7">evfilestruct::lockingOn</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ab0721b9af55b6d1c6d5e8fdaf3d66a7a">evfilestruct::magic</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a43a6f28542fb038da61ccb251552aa9b">evfilestruct::mmapFile</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a0a0c1abb9509880a12da594ba9b67120">evfilestruct::mmapFileSize</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a0b5331d101baffb9e1f6da19b67bfa4a">evfilestruct::next</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a15723b2fb7ff50d5c13ba1b0481ebddc">evfilestruct::pBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a1ad2fafdbb9ea0525a4a365eae68db78">evfilestruct::pTable</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a105e2ae2d855377017e4a4747a1335cc">evfilestruct::randomAccess</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a9a79b07722b8cac7f367e460dc8d3df8">evfilestruct::runNumber</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a4ddfe985e6528130ea6d2c8ec8578ecf">evfilestruct::runType</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#ab00c5c0824f41616d23930a73586408d">evfilestruct::rw</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a1a73f81301f55c96e14f109ae9ecb92a">evfilestruct::rwBuf</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a75b44955f58d519f34dd20016593eb53">evfilestruct::rwBufSize</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a2d17439b06342e5e239cd972faf7fbd0">evfilestruct::rwBytesIn</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a3d32bad94faa0119d116f7eb53977576">evfilestruct::rwBytesOut</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a31ad46843c70a5a3c846acfdbad5f40b">evfilestruct::rwFirstWrite</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a757eea57dd99cb7f7c7f342a46f3c53e">evfilestruct::sockFd</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a8d273b036968765a80b8de8080edb4a3">evfilestruct::specifierCount</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a421d277b1c0b4f20ad4713d40eef7638">evfilestruct::split</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a2d64358e772be126251002d02c4c2759">evfilestruct::splitNumber</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a5d3fcad2e2d2ca44f1b6adf772a4b819">evfilestruct::splitting</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a856d1d919594d79fe4010215fe49eed6">evfilestruct::streamCount</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a858553e0de2ce1e0cbbe316b0a6d931b">evfilestruct::streamId</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#acd74222bfba175120569984528a80d55">evfilestruct::trailerPosition</a>, <a class="el" href="../../d4/d04/structevfilestruct.html#a9d67295c5f34591461a683020bb2b580">evfilestruct::version</a>, and <a class="el" href="../../d4/d04/structevfilestruct.html#a9fcec585f13db65b546271aa98dd253b">evfilestruct::wroteDictionary</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#a206f29c7742ba6b772aea8e9fec04596">evOpenFake()</a>.</p>
+
+</div>
+</div>
+<a id="a26ba6e3f59ddd17a990940cc7edeb4b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26ba6e3f59ddd17a990940cc7edeb4b4">&#9670;&nbsp;</a></span>evGenerateBaseFileName()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -762,7 +798,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">int evGenerateBaseFileName </td>
           <td>(</td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>origName</em>, </td>
         </tr>
         <tr>
@@ -784,11 +820,10 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>This routine generates a (base) file name from a name containing format specifiers and enviromental variables. </p>
-<p>The given name may contain up to 2, C-style integer format specifiers (such as <b>%03d</b>, or <b>x</b>). If more than 2 are found, an error is returned.</p>
-<p>If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier, it will be added automatically in order to avoid spaces in the final, generated file name. In the <a class="el" href="../../d9/df8/evio_8h.html#a5afe7707e090b030310708cfcc835140">evGenerateFileName(EVFILE *, int, int, int, int, char *, uint32_t)</a> routine, the first occurrence will be substituted with the given runNumber value. If the file is being split, the second will be substituted with the split number.</p>
-<p>The file name may contain characters of the form <b></b> which will be substituted with the value of the associated environmental variable or a blank string if none is found.</p>
+<p>This routine generates a (base) file name from a name containing format specifiers and enviromental variables.</p>
+<p>The file name may contain characters of the form <b>$(ENV_VAR)</b> which will be substituted with the value of the associated environmental variable or a blank string if none is found.</p>
+<p>The given name may contain up to 3, C-style integer format specifiers (such as <b>%03d</b>, or <b>x</b>). If more than 3 are found, an error is returned. If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier, it will be added automatically in order to avoid spaces in the final, generated file name.</p>
+<p>See the doc for <a class="el" href="../../d9/df8/evio_8h.html#ad1809b937f0a78849a422843adbfa0d7">evGenerateFileName</a>. The details of what is substituted for the int specifiers is given there.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">origName</td><td>file name to modify </td></tr>
@@ -799,7 +834,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>S_SUCCESS if successful </dd>
 <dd>
-S_FAILURE if bad format specifiers or more that 2 specifiers found </dd>
+S_FAILURE if bad format specifiers or more that 3 specifiers found </dd>
 <dd>
 S_EVFILE_BADARG if args are null or origName is invalid </dd>
 <dd>
@@ -809,8 +844,8 @@ S_EVFILE_ALLOCFAIL if out-of-memory </dd></dl>
 
 </div>
 </div>
-<a id="a5afe7707e090b030310708cfcc835140"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5afe7707e090b030310708cfcc835140">&#9670;&nbsp;</a></span>evGenerateFileName()</h2>
+<a id="ad1809b937f0a78849a422843adbfa0d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1809b937f0a78849a422843adbfa0d7">&#9670;&nbsp;</a></span>evGenerateFileName()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -830,7 +865,7 @@ S_EVFILE_ALLOCFAIL if out-of-memory </dd></dl>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a>&#160;</td>
           <td class="paramname"><em>runNumber</em>, </td>
         </tr>
         <tr>
@@ -842,7 +877,7 @@ S_EVFILE_ALLOCFAIL if out-of-memory </dd></dl>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a>&#160;</td>
           <td class="paramname"><em>splitNumber</em>, </td>
         </tr>
         <tr>
@@ -855,7 +890,19 @@ S_EVFILE_ALLOCFAIL if out-of-memory </dd></dl>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a>&#160;</td>
-          <td class="paramname"><em>streamId</em>&#160;</td>
+          <td class="paramname"><em>streamId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a>&#160;</td>
+          <td class="paramname"><em>streamCount</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>debug</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -864,10 +911,95 @@ S_EVFILE_ALLOCFAIL if out-of-memory </dd></dl>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>This method generates a complete file name from the previously determined baseFileName obtained from calling <a class="el" href="../../d9/df8/evio_8h.html#ac6d1c3de906d5b4ffa6cfc5dc8f319d3">evGenerateBaseFileName(char *, char **, int *)</a> and stored in the evOpen handle.</p>
+<p>This method generates a complete file name from the previously determined baseFileName obtained from calling <a class="el" href="../../">evGenerateBaseFileName(char *, char **, int *)</a> and stored in the evOpen handle.</p>
 <p>All occurrences of the string "%s" in the baseFileName will be substituted with the value of the runType arg or nothing if the runType is null.</p>
-<p>If evio data is to be split up into multiple files (split &gt; 0), numbers are used to distinguish between the split files with splitNumber. If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then the first occurrence will be substituted with the given runNumber value. If the file is being split, the second will be substituted with the splitNumber. If 2 specifiers exist and the file is not being split, no substitutions are made. If no specifier for the splitNumber exists, it is tacked onto the end of the file name. It returns the final file name or NULL if error. Free the result if non-NULL.</p>
-<p>If multiple streams of data, each writing a file, end up with the same file name, they can be differentiated by a stream id number. If the id is &gt; 0, the string, ".strm" is appended to the very end of the file followed by the id number (e.g. filename.strm1). This is done after the run type, run number, split numbers, and env vars have been inserted into the file name.</p>
+<p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted with runNumber, splitNumber and streamId in the manner described below.</p>
+<ul>
+<li>
+<p class="startli">If file is to be split: </p><ul>
+<li>
+If no specifiers: <ul>
+<li>
+for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b> </li>
+<li>
+for multiple streams, streamId and splitNumber are tacked onto the end of the file name as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b> </li>
+<li>
+No run numbers are ever tacked on without a specifier  </li>
+</ul>
+</li>
+<li>
+If 1 specifier: <ul>
+<li>
+add runNumber according to specifier </li>
+<li>
+for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b> </li>
+<li>
+for multiple streams, streamId and splitNumber are tacked onto the end of the file name as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b> </li>
+</ul>
+</li>
+<li>
+If 2 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+for one stream, add splitNumber according to second specifier </li>
+<li>
+for multiple streams, add splitNumber according to second specifier, but place <b>&lt;streamId&gt;.</b> just before the splitNumber </li>
+</ul>
+</li>
+<li>
+If 3 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+add streamId according to second specifier add splitNumber according to third specifier </li>
+</ul>
+</li>
+</ul>
+<p class="endli"></p>
+</li>
+<li>
+If file is NOT split: <ul>
+<li>
+If no specifiers: <ul>
+<li>
+streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b> </li>
+<li>
+No run numbers are ever tacked on without a specifier. </li>
+</ul>
+</li>
+<li>
+If 1 specifier: <ul>
+<li>
+add runNumber according to specifier </li>
+<li>
+for multiple streams, streamId is tacked onto the end of the file name as .<b>.&lt;streamId&gt;</b> </li>
+</ul>
+</li>
+<li>
+If 2 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+remove second specifier </li>
+<li>
+for multiple streams, streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b> </li>
+</ul>
+</li>
+<li>
+If 3 specifiers: <ul>
+<li>
+add runNumber according to first specifier </li>
+<li>
+add streamId according to second specifier </li>
+<li>
+remove third specifier </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>If there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE on the extra specifiers</b>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">a</td><td>evio handle (contains file name to use as a basis for the generated file name) </td></tr>
@@ -876,15 +1008,16 @@ S_EVFILE_ALLOCFAIL if out-of-memory </dd></dl>
     <tr><td class="paramname">splitting</td><td>is file being split (split &gt; 0)? 1 - yes, 0 - no </td></tr>
     <tr><td class="paramname">splitNumber</td><td>number of the split file </td></tr>
     <tr><td class="paramname">runType</td><td>run type name </td></tr>
-    <tr><td class="paramname">streamId</td><td>streamId number (100 &gt; id &gt; -1)</td></tr>
+    <tr><td class="paramname">streamId</td><td>streamId number (100 &gt; id &gt; -1) </td></tr>
+    <tr><td class="paramname">streamCount</td><td>total number of streams in DAQ (100 &gt; id &gt; 0) </td></tr>
+    <tr><td class="paramname">debug</td><td>if = 0, no debug output</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>NULL if error </dd>
 <dd>
 generated file name (free if non-NULL) </dd></dl>
-
-<p class="reference">References <a class="el" href="../../d4/d04/structevfilestruct.html#a7bfbaca98169c0acb4506cd7151e8caf">evfilestruct::baseFileName</a>, <a class="el" href="../../d9/dca/evio_8c.html#a27604e07cc8a8a82365ee3fa4eb4455a">EV_WRITEFILE</a>, <a class="el" href="../../d9/dca/evio_8c.html#adcd0fcd0f70058f0650a1121497401ba">evStrRemoveSpecifiers()</a>, <a class="el" href="../../d9/dca/evio_8c.html#abb9e918787ad43e6661ca3243920b327">evStrReplace()</a>, and <a class="el" href="../../d4/d04/structevfilestruct.html#ab00c5c0824f41616d23930a73586408d">evfilestruct::rw</a>.</p>
+<p>If we're not splitting files, then CODA isn't being used and stream id is probably meaningless.</p>
 
 </div>
 </div>
@@ -1000,12 +1133,72 @@ generated file name (free if non-NULL) </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>resulting string which is NULL if there is a problem and needs to be freed if not NULL. </dd></dl>
 
-<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#ac6d1c3de906d5b4ffa6cfc5dc8f319d3">evGenerateBaseFileName()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#a26ba6e3f59ddd17a990940cc7edeb4b4">evGenerateBaseFileName()</a>.</p>
 
 </div>
 </div>
-<a id="adcd0fcd0f70058f0650a1121497401ba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adcd0fcd0f70058f0650a1121497401ba">&#9670;&nbsp;</a></span>evStrRemoveSpecifiers()</h2>
+<a id="abe25fca81865d8d2e055bb1529017363"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe25fca81865d8d2e055bb1529017363">&#9670;&nbsp;</a></span>evStrInsertBeforeSpecifier()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int evStrInsertBeforeSpecifier </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d9/d5a/msinttypes_8h.html#ad61795e544f5fd89f71be9fca838ba69">uint32_t</a>&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>insert</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>result_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inserts a string just before the first occurrence of a format specifier that starts with '' and ends with a conversion specifier of 'd' or 'x'. </p>
+<p>The existing format specifier can include flags made of ints indicating width (ie %03x). This function partly courtesy of ChatGPT. Remember, when this is called, the substitution for s with runType will have already been made.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td>string to scan </td></tr>
+    <tr><td class="paramname">n</td><td>number of "%"s to skip over before making the insert </td></tr>
+    <tr><td class="paramname">insert</td><td>string to insert before the int specifier </td></tr>
+    <tr><td class="paramname">result</td><td>resulting string </td></tr>
+    <tr><td class="paramname">result_size</td><td>size of result string</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if specifier successfully inserted, 0 if nothing done, -1 if result is too small. If 1 is not returned, result is not written into. </dd></dl>
+
+</div>
+</div>
+<a id="a75de811df5324b1da4e0628cf0c35ea8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75de811df5324b1da4e0628cf0c35ea8">&#9670;&nbsp;</a></span>evStrRemoveSpecifiers()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1014,23 +1207,35 @@ generated file name (free if non-NULL) </dd></dl>
           <td class="memname">char* evStrRemoveSpecifiers </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>orig</em></td><td>)</td>
+          <td class="paramname"><em>orig</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>skip</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>This routine checks a string for C-style printing integer format specifiers. </p>
-<p>More specifically, it checks for nd and nx where n can be multiple digits. It removes all such specifiers and returns the modified string or NULL if error. Free the result if non-NULL.</p>
+<p>More specifically, it checks for nd and nx where n can be multiple digits. It removes all such specifiers and returns the modified string or NULL if error. Skips over given # of int specifiers. Free the result if non-NULL.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">orig</td><td>string to be checked/modified</td></tr>
+    <tr><td class="paramname">orig</td><td>string to be checked/modified </td></tr>
+    <tr><td class="paramname">skip</td><td># of int specifiers to skip</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>resulting string which is NULL if there is a problem and needs to be freed if not NULL. </dd></dl>
+<p>How many int specifiers skipped so far.</p>
 
-<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#a5afe7707e090b030310708cfcc835140">evGenerateFileName()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#aa1fd462206352a301edae3674beab9ae">evGenerateFileNameOld()</a>.</p>
 
 </div>
 </div>
@@ -1078,7 +1283,7 @@ generated file name (free if non-NULL) </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>resulting string which is NULL if there is a problem and needs to be freed if not NULL. </dd></dl>
 
-<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#a5afe7707e090b030310708cfcc835140">evGenerateFileName()</a>, and <a class="el" href="../../d9/dca/evio_8c.html#aca666d824c3591feecd917ac7ecea349">evStrReplaceEnvVar()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#aa1fd462206352a301edae3674beab9ae">evGenerateFileNameOld()</a>, and <a class="el" href="../../d9/dca/evio_8c.html#aca666d824c3591feecd917ac7ecea349">evStrReplaceEnvVar()</a>.</p>
 
 </div>
 </div>
@@ -1110,7 +1315,7 @@ generated file name (free if non-NULL) </dd></dl>
 
 <p class="reference">References <a class="el" href="../../d9/dca/evio_8c.html#abb9e918787ad43e6661ca3243920b327">evStrReplace()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#ac6d1c3de906d5b4ffa6cfc5dc8f319d3">evGenerateBaseFileName()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d9/dca/evio_8c.html#a26ba6e3f59ddd17a990940cc7edeb4b4">evGenerateBaseFileName()</a>.</p>
 
 </div>
 </div>

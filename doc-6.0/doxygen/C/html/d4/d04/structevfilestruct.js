@@ -67,6 +67,7 @@ var structevfilestruct =
     [ "split", "d4/d04/structevfilestruct.html#a421d277b1c0b4f20ad4713d40eef7638", null ],
     [ "splitNumber", "d4/d04/structevfilestruct.html#a2d64358e772be126251002d02c4c2759", null ],
     [ "splitting", "d4/d04/structevfilestruct.html#a5d3fcad2e2d2ca44f1b6adf772a4b819", null ],
+    [ "streamCount", "d4/d04/structevfilestruct.html#a856d1d919594d79fe4010215fe49eed6", null ],
     [ "streamId", "d4/d04/structevfilestruct.html#a858553e0de2ce1e0cbbe316b0a6d931b", null ],
     [ "trailerPosition", "d4/d04/structevfilestruct.html#acd74222bfba175120569984528a80d55", null ],
     [ "version", "d4/d04/structevfilestruct.html#a9d67295c5f34591461a683020bb2b580", null ],

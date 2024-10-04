@@ -391,6 +391,7 @@ S_EVFILE_BADHANDLE if bad handle arg </dd></dl>
 <p>It sets the run type used when auto naming while splitting files being written to if request = "T". Used only in version 4.</p>
 <p>It changes the number of bytes at which to split a file being written to if request = "S". If unset with this function, it defaults to EV_SPLIT_SIZE (2GB). NOTE: argp must point to 64 bit integer (not 32 bit)! Used only in version 4.</p>
 <p>It sets the stream id used when auto naming files being written to if request = "M". Used only in version 4.</p>
+<p>It sets the total # of streams used in DAQ when auto naming files being written to if request = "D". Used only in version 6.</p>
 <p>It returns the version number if request = "V".</p>
 <p>It returns a pointer to the EV_HDSIZ_V6 block header ints if request = "H". This pointer must be freed by the caller to avoid a memory leak.</p>
 <p>It returns the total number of events in a file/buffer opened for reading or writing if request = "E". Includes any event added with <a class="el" href="../../da/d1c/group__write.html#gaf675e4108a45bed90e9ba51a8b9d16fc">evWrite</a> call. Used only in version 4.</p>
@@ -414,6 +415,8 @@ S_EVFILE_BADHANDLE if bad handle arg </dd></dl>
 <li>
 "M" for setting stream id (used in auto file naming) </li>
 <li>
+"D" for setting total # of streams in DAQ (used in auto file naming) </li>
+<li>
 "V" for getting evio version # </li>
 <li>
 "H" for getting 14 ints of block header info (only 8 valid for version &lt; 6) </li>
@@ -436,6 +439,8 @@ pointer to character containing run type if request = T, or </li>
 pointer to <b>uint64_t</b> containing max size in bytes of split file if request = S, or </li>
 <li>
 pointer to uin32_t containing stream id if request = M, or </li>
+<li>
+pointer to uin32_t containing stream count if request = D, or </li>
 <li>
 pointer to int32_t returning version # if request = V, or </li>
 <li>

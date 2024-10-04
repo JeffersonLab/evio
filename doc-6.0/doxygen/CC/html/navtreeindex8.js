@@ -1,6 +1,5 @@
 var NAVTREEINDEX8 =
 {
-"dc/d30/classevio_1_1_byte_buffer.html#adb57510fe193a79746eb5c4f35d1a01f":[2,0,0,7,24],
 "dc/d30/classevio_1_1_byte_buffer.html#adf3809653426c9559eb5c77813582221":[2,0,0,7,18],
 "dc/d30/classevio_1_1_byte_buffer.html#aea41d062520e973c301e4e42201ed0af":[2,0,0,7,23],
 "dc/d30/classevio_1_1_byte_buffer.html#aed6c141ba0589c64122ed8b7f9dd86dd":[2,0,0,7,31],
@@ -249,5 +248,6 @@ var NAVTREEINDEX8 =
 "de/d97/classevio_1_1_i_evio_reader.html#aeb9b24a83d7fc38eacf3f6b3b329f926ab14e3269cc4f96bf7a442d278fc51009":[2,0,0,42,0,0],
 "de/d97/classevio_1_1_i_evio_reader.html#aeb9b24a83d7fc38eacf3f6b3b329f926ae0ddb8ce05a096046ff47cf917969b50":[2,0,0,42,0,2],
 "de/d97/classevio_1_1_i_evio_reader.html#aeb9b24a83d7fc38eacf3f6b3b329f926ae3b4a070ccd53865afcc4bc2ad91ed47":[2,0,0,42,0,3],
-"de/d97/classevio_1_1_i_evio_reader.html#afb8843c9dd054f57f78fd1dcef3c5739":[2,0,0,42,30]
+"de/d97/classevio_1_1_i_evio_reader.html#afb8843c9dd054f57f78fd1dcef3c5739":[2,0,0,42,30],
+"de/d9e/_writer_8h.html":[3,0,89]
 };
