@@ -217,6 +217,7 @@ set(TESTC
         src/testC/evtestSock.c
         src/testC/evWritePipe.c
         src/testC/splitTest.c
+        src/testC/splitNameTest.c
         )
 
 
