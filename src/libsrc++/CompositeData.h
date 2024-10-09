@@ -17,6 +17,8 @@
 #include <string>
 #include <cstdint>
 #include <cstdio>
+#include <cstdint>
+#include <cstddef>
 #include <cstdlib>
 #include <climits>
 #include <limits>

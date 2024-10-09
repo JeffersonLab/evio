@@ -906,6 +906,8 @@ namespace evio {
 //std::cout << "build: writing index of size " << indexSize << ", events of size " <<
 //             eventSize << ", total = " << uncompressedDataSize << std::endl;
 
+        uint8_t* gzippedData = nullptr;
+
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
         try {
@@ -952,14 +954,14 @@ namespace evio {
                 case 3:
                     // GZIP compression
 #ifdef USE_GZIP
-                uint8_t* gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
-                                                                 uncompressedDataSize, &compressedSize);
-                recordBinary->position(recBinPastHdr);
-                recordBinary->put(gzippedData, compressedSize);
-                delete[] gzippedData;
-                header->setCompressedDataLength(compressedSize);
-                header->setLength(4*header->getCompressedDataLengthWords() +
-                                 RecordHeader::HEADER_SIZE_BYTES);
+                    gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
+                                                                     uncompressedDataSize, &compressedSize);
+                    recordBinary->position(recBinPastHdr);
+                    recordBinary->put(gzippedData, compressedSize);
+                    delete[] gzippedData;
+                    header->setCompressedDataLength(compressedSize);
+                    header->setLength(4*header->getCompressedDataLengthWords() +
+                                     RecordHeader::HEADER_SIZE_BYTES);
 #endif
                     break;
 
@@ -1099,6 +1101,7 @@ namespace evio {
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
         uint32_t compressedSize = 0;
+        uint8_t* gzippedData = nullptr;
 
         try {
             switch (compressionType) {
@@ -1131,7 +1134,7 @@ namespace evio {
                 case 3:
                     // GZIP compression
 #ifdef USE_GZIP
-                uint8_t* gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
+                gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
                                                                      uncompressedDataSize, &compressedSize);
                 recordBinary->position(recBinPastHdr);
                 recordBinary->put(gzippedData, compressedSize);

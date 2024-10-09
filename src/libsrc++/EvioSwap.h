@@ -13,6 +13,8 @@
 
 
 #include <cstdio>
+#include <cstdint>
+#include <cstddef>
 #include <memory>
 
 

@@ -20,6 +20,11 @@
 #include <climits>
 #include <string>
 #include <cstdio>
+#include <cstdint>
+#include <cstddef>
+#include <cstdint>
+#include <cstddef>
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>

@@ -19,6 +19,8 @@
 #include <iostream>
 #include <sstream>
 #include <cstdio>
+#include <cstdint>
+#include <cstddef>
 #include <vector>
 #include <stdexcept>
 #include <sys/mman.h>

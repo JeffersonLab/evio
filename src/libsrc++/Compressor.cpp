@@ -253,16 +253,16 @@ namespace evio {
 
 #ifdef USE_GZIP
     /**
- * GZIP compression. Returns locally allocated compressed byte array.
- * Caller must delete[] it.
- *
- * @param ungzipped  uncompressed data.
- * @param offset     offset into ungzipped array
- * @param length     length of valid data in bytes
- * @param compLen    number of bytes in returned array.
- * @return compressed data.
- * @throws EvioException if arg(s) are null.
- */
+     * GZIP compression. Returns locally allocated compressed byte array.
+     * Caller must delete[] it.
+     *
+     * @param ungzipped  uncompressed data.
+     * @param offset     offset into ungzipped array
+     * @param length     length of valid data in bytes
+     * @param compLen    number of bytes in returned array.
+     * @return compressed data.
+     * @throws EvioException if arg(s) are null.
+     */
 uint8_t* Compressor::compressGZIP(uint8_t* ungzipped, uint32_t offset,
                                   uint32_t length, uint32_t *compLen) {
 
