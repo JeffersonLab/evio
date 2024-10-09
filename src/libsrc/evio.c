@@ -2029,7 +2029,7 @@ int evStrInsertBeforeSpecifier(char *str, uint32_t n, const char *insert, char *
  * <p>All occurrences of the string "%s" in the baseFileName will be substituted with the
  * value of the runType arg or nothing if the runType is null.</p>
  *
- * <p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted
+ * <p>The given fileName may contain up to 3, C-style int format specifiers which will be substituted
  * with runNumber, splitNumber and streamId in the manner described below.</p>
  *
  * <ul>
@@ -2058,8 +2058,8 @@ int evStrInsertBeforeSpecifier(char *str, uint32_t n, const char *insert, char *
  *              </ul>
  *          <li>If 3 specifiers:</li>
  *              <ul>
- *                  <li>add runNumber according to first specifier</li>
- *                  <li>add streamId according to second specifier add splitNumber according to third specifier</li>
+ *                  <li>add runNumber according to first specifier, streamId according to second specifier,
+ *                  and splitNumber according to third specifier</li>
  *              </ul>
  *          </ul>
  *
