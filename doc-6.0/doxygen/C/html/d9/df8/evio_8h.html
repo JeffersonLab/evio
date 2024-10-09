@@ -913,7 +913,7 @@ S_EVFILE_ALLOCFAIL if out-of-memory </dd></dl>
 </div><div class="memdoc">
 <p>This method generates a complete file name from the previously determined baseFileName obtained from calling <a class="el" href="../../">evGenerateBaseFileName(char *, char **, int *)</a> and stored in the evOpen handle.</p>
 <p>All occurrences of the string "%s" in the baseFileName will be substituted with the value of the runType arg or nothing if the runType is null.</p>
-<p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted with runNumber, splitNumber and streamId in the manner described below.</p>
+<p>The given fileName may contain up to 3, C-style int format specifiers which will be substituted with runNumber, splitNumber and streamId in the manner described below.</p>
 <ul>
 <li>
 <p class="startli">If file is to be split: </p><ul>
@@ -950,9 +950,7 @@ for multiple streams, add splitNumber according to second specifier, but place <
 <li>
 If 3 specifiers: <ul>
 <li>
-add runNumber according to first specifier </li>
-<li>
-add streamId according to second specifier add splitNumber according to third specifier </li>
+add runNumber according to first specifier, streamId according to second specifier, and splitNumber according to third specifier </li>
 </ul>
 </li>
 </ul>
