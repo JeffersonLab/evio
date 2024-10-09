@@ -421,10 +421,11 @@ namespace evio {
 
         void readFile(string finalFilename) {
             EvioReader reader(finalFilename);
-            ByteOrder order = reader.getByteOrder();
+            ByteOrder & order = reader.getByteOrder();
 
+            cout << "Read in file " << finalFilename  << " of byte order " << order.getName() << endl;
             int32_t evCount = reader.getEventCount();
-            cout << "Read in file " << finalFilename << ", got " << evCount << " events" << endl;
+            cout << "Got " << evCount << " events" << endl;
 
             string dict = reader.getDictionaryXML();
             if (dict.empty()) {
@@ -436,7 +437,10 @@ namespace evio {
 
             auto pFE = reader.getFirstEvent();
             if (pFE != nullptr) {
-                cout << "\nFirst Event:\n" << pFE->toString() << endl << endl;
+                cout << "\nGot first Event:\n" << pFE->toString() << endl << endl;
+            }
+            else {
+                cout << "\nNo first event" << endl;
             }
 
             cout << "Print out regular events:" << endl;
