@@ -85,7 +85,7 @@ namespace evio {
           * @param writeBar
           * @param gateSeq
           */
-        Writer(std::shared_ptr<RingBuffer< std::shared_ptr<Integer>>> & ringBuf,
+        Writer(std::shared_ptr<RingBuffer< std::shared_ptr<Integer>>> ringBuf,
                std::shared_ptr<Disruptor::ISequenceBarrier> & barrier,
                std::shared_ptr<Disruptor::ISequence> sequence) :
             ringBuffer(ringBuf), writeBarrier(barrier), gateSequence(sequence)  {}
