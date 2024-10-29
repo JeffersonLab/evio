@@ -195,6 +195,9 @@ namespace evio {
 
         uint32_t len;
         std::shared_ptr<uint8_t> bytes = reader->getNextEvent(&len);
+        if (bytes == nullptr) {
+            return nullptr;
+        }
         return EvioReader::getEvent(bytes.get(), len, reader->getByteOrder());
     }
 

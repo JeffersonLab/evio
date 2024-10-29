@@ -284,7 +284,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
      * Get the event in the file/buffer at a given index (starting at 1).
      * As useful as this sounds, most applications will probably call
      * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.<p>
+     * since it combines getting an event with parsing it.<p>
      *
      * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
      * @return the event in the file/buffer at the given index or null if none
@@ -319,6 +319,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
         byte[] bytes;
         try {
             bytes = reader.getNextEvent();
+            if (bytes == null) return null;
         }
         catch (HipoException e) {
             throw new EvioException(e);
