@@ -134,7 +134,7 @@ public class ReaderTest {
 
 
 
-    /** Reading files to get EvioEvent objects & print out XML representation. */
+    /** Reading evio 4 files to get EvioEvent objects & print out XML representation. */
     public static void main1(String args[]) {
 
         EvioEvent event;
