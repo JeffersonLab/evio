@@ -16,9 +16,9 @@ public class CompactReaderBugTest {
 
 
     /**
-     1 block header which has 3 events.
+     1 block header which has 4 events.
      First is bank with 1 char, second has bank with 2 chars,
-     and third has bank with 3 chars.
+     third has bank with 3 chars, and the 4th has 4 chars.
      */
     static int data1[] = {
 

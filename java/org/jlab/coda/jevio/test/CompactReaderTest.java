@@ -73,16 +73,16 @@ public class CompactReaderTest {
                 EvioBank bankBanks2 = new EvioBank(tag+3, DataType.BANK, 4);
                 builder.addChild(event, bankBanks2);
 
-                    // segment of shorts
+                    // bank of shorts
                     EvioBank bankShorts = new EvioBank(tag+4, DataType.SHORT16, 5);
                     bankShorts.appendShortData(shortData);
                     builder.addChild(bankBanks2, bankShorts);
 
-                    // segment of segments
+                    // bank of segments
                     EvioBank bankBanks3 = new EvioBank(tag+5, DataType.BANK, 6);
                     builder.addChild(bankBanks2, bankBanks3);
 
-                        // segment of doubles
+                        // bank of doubles
                         EvioBank bankDoubles = new EvioBank(tag+6, DataType.DOUBLE64, 7);
                         bankDoubles.appendDoubleData(doubleData);
                         builder.addChild(bankBanks3, bankDoubles);
@@ -91,7 +91,7 @@ public class CompactReaderTest {
                 EvioBank bankBanks4 = new EvioBank(tag+7, DataType.BANK, 8);
                 builder.addChild(event, bankBanks4);
 
-                    // tag segment of bytes
+                    // bank of bytes
                     EvioBank bankBytes = new EvioBank(tag+8, DataType.CHAR8, 9);
                     bankBytes.appendByteData(byteData);
                     builder.addChild(bankBanks4, bankBytes);

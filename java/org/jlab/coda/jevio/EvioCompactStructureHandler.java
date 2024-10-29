@@ -5,10 +5,10 @@ import java.util.*;
 
 /**
  * This class is used to read the bytes of just an evio structure (<b>NOT</b>
- * a full evio version 4 formatted file or buffer). It is also capable of
+ * a full evio formatted file or buffer). It is also capable of
  * adding another structure to or removing it from that structure.
  * The {@link EvioCompactReader} class is similar but reads files and buffers
- * in the complete evio version 4 format.
+ * in the complete evio version format.
  * It is theoretically thread-safe.
  * It is designed to be fast and does <b>NOT</b> do a deserialization
  * on the buffer examined.<p>
@@ -110,7 +110,7 @@ public class EvioCompactStructureHandler {
 
         closed = true;
 
-        // Duplicate buf cause we'll be changing pos & lim and
+        // Duplicate buf because we'll be changing pos & lim and
         // don't want to mess up the original for someone else.
         byteOrder  = buf.order();
         byteBuffer = buf.duplicate().order(byteOrder);

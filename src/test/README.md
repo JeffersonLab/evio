@@ -1,8 +1,5 @@
-----------------------------
 
 # **C++ Test Program Guide**
-
-----------------------------
 
     Short, minimal guide to test programs that were collected over the years and left as is.
     

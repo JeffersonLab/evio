@@ -15,7 +15,7 @@ public class BufferTest {
 
     /**
        3 block headers (first 2 have 2 extra words each, last has 1 extra word).
-       First block has 2 events. Second has 3 events.
+       First block has 2 events. Second has 3 events. Evio version 4.
        Last is empty final block.
     */
     static int data1[] = {

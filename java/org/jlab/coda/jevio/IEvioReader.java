@@ -204,7 +204,7 @@ public interface IEvioReader {
      * (banks, segments, and tagsegments) and notify any interested listeners.<p>
      *
      * As useful as this sounds, most applications will probably call {@link #parseNextEvent()}
-     * instead, since it combines combines getting the next event with parsing the next event.<p>
+     * instead, since it combines getting the next event with parsing the next event.<p>
      *
      * This method is only called by synchronized methods and therefore is not synchronized.
      *
