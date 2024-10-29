@@ -165,14 +165,23 @@ public class DictionaryTest {
 
 
             EvioReader reader = new EvioReader(fileName, false, true);
-            //int count = reader.getEventCount();
-            int count = 2;
+            int count = reader.getEventCount();
+            //int count = 2;
             System.out.println("Count = " + count);
+            String dict = reader.getDictionaryXML();
+            if (dict == null) {
+                System.out.println("No Dictionary");
+            }
+            else {
+                System.out.println("Dictionary:\n" + dict);
+            }
+
             int j=0;
             while ( (ev = reader.parseNextEvent()) != null) {
                 System.out.println("Event* " + (++j) + " = " + ev);
             }
 
+            // Does nothing for evio 6
             reader.rewind();
 
             j=0;
