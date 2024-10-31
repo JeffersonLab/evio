@@ -44,6 +44,7 @@ public class SequentialReaderTest {
             System.out.println("get ev #" + eventCount);
             event = fileReader.getEvent(eventCount);
 
+            // Only works for evio 4
             System.out.println("rewind file");
             fileReader.rewind();
 
@@ -56,6 +57,7 @@ public class SequentialReaderTest {
             System.out.println("goto ev #" + eventCount);
             event = fileReader.gotoEventNumber(eventCount);
 
+            // Only works for evio 4
             System.out.println("rewind file");
             fileReader.rewind();
 
@@ -68,6 +70,7 @@ public class SequentialReaderTest {
             System.out.println("parse ev #" + eventCount);
             event = fileReader.parseEvent(eventCount);
 
+            // Only works for evio 4
             System.out.println("rewind file");
             fileReader.rewind();
 

@@ -840,7 +840,7 @@ System.out.println("Tag, int = " + tag + ", str = " + tagStr + ", bad entry = " 
                 // event - bank of banks
                 EvioEvent ev = eb.getEvent();
 
-                // bank of ints
+                // bank of strings
                 EvioBank ibanks = new EvioBank(3, DataType.CHARSTAR8, 3);
                 ibanks.appendStringData("string 1"); // len + null = 8
                 eb.addChild(ev, ibanks);

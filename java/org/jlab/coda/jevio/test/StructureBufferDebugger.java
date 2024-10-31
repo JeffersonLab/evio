@@ -68,7 +68,7 @@ public class StructureBufferDebugger {
     /** Method to print out correct program command line usage. */
     private static void usage() {
         System.out.println("\nUsage:\n\n" +
-            "   java org.jlab.coda.jevio.test.CompositeDebugger\n" +
+            "   java org.jlab.coda.jevio.test.StructureBufferDebugger\n" +
             "        [-t <tag>]     tag of structures to look for\n"+
             "        [-n <num>]     num of structures to look for\n" +
             "        [-e <event #>] number of specific event to look at\n" +
