@@ -136,6 +136,7 @@ set(CPP_HEADER_FILES
         src/libsrc++/pugiconfig.hpp
         src/libsrc++/EvioCompactReaderV4.h
         src/libsrc++/EvioCompactReaderV6.h
+        src/libsrc++/EvioCompactStructureHandler.h
         src/libsrc++/EventBuilder.h
         src/libsrc++/CompactEventBuilder.h
         src/libsrc++/EvioSwap.h
@@ -178,6 +179,7 @@ set(CPP_LIB_FILES
         src/libsrc++/pugixml.cpp
         src/libsrc++/EvioCompactReaderV4.cpp
         src/libsrc++/EvioCompactReaderV6.cpp
+        src/libsrc++/EvioCompactStructureHandler.cpp
         src/libsrc++/EventBuilder.cpp
         src/libsrc++/CompactEventBuilder.cpp
         )
@@ -198,7 +200,6 @@ set(TEST
         src/test/Writer_Reader_Test.cpp
         src/test/hallDEventFiles.cpp
         src/test/FileWriteTest.cpp
-        src/test/WriteV4Test.cpp
         )
 
 
