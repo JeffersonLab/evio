@@ -187,6 +187,7 @@ set(CPP_LIB_FILES
 
 set(TEST
         src/test/CompactBuilder_Test.cpp
+        src/test/EvioCompStructHandlerTest.cpp
         src/test/Dict_FirstEv_Test.cpp
         src/test/Hipo_Test.cpp
         src/test/IndexArrayLenTest.cpp
