@@ -56,12 +56,16 @@ namespace evio {
         /** Is this object currently closed? */
         bool closed;
 
+        /** Lock. */
+        std::mutex mutex_;
+
+
     public:
 
         explicit EvioCompactStructureHandler(std::shared_ptr<EvioNode> node);
-        EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> byteBuffer, DataType & type) ;
+        EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> byteBuffer, const DataType & type) ;
 
-        void setBuffer(std::shared_ptr<ByteBuffer> buf, DataType & type);
+        void setBuffer(std::shared_ptr<ByteBuffer> buf, const DataType & type);
 
         bool isClosed();
 
@@ -95,7 +99,7 @@ namespace evio {
         void expandBuffer(size_t byteSize);
         void bufferInit(std::shared_ptr<EvioNode> node);
         static std::shared_ptr<EvioNode> extractNode(std::shared_ptr<ByteBuffer> buffer,
-                                                     std::shared_ptr<EvioNode> eventNode, DataType & type,
+                                                     std::shared_ptr<EvioNode> eventNode, const DataType & type,
                                                      size_t position, int place, bool isEvent);
 
 

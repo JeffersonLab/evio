@@ -55,7 +55,7 @@ namespace evio {
      *                       if type arg is null or is not an evio structure;
      *                       if byteBuffer not in proper format;
      */
-    EvioCompactStructureHandler::EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> buf, DataType & type) {
+    EvioCompactStructureHandler::EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> buf, const DataType & type) {
             setBuffer(buf, type);
     }
 
@@ -73,8 +73,9 @@ namespace evio {
      *                       if type is not an evio structure;
      *                       if buf not in proper format;
      */
-    /*synchronized*/
-    void EvioCompactStructureHandler::setBuffer(std::shared_ptr<ByteBuffer> buf, DataType & type) {
+    void EvioCompactStructureHandler::setBuffer(std::shared_ptr<ByteBuffer> buf, const DataType & type) {
+
+        std::lock_guard<std::mutex> lock(mutex_);
 
         if (buf == nullptr) {
             throw EvioException("buffer arg is null");
@@ -200,8 +201,10 @@ namespace evio {
      *
      * @return {@code true} if this object closed, else {@code false}.
      */
-    /*synchronized*/
-    bool EvioCompactStructureHandler::isClosed() {return closed;}
+    bool EvioCompactStructureHandler::isClosed() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return closed;
+    }
 
 
     /**
@@ -257,7 +260,7 @@ namespace evio {
      * @throws          EvioException if file/buffer not in evio format
      */
     std::shared_ptr<EvioNode> EvioCompactStructureHandler::extractNode(std::shared_ptr<ByteBuffer> buffer,
-                                                                       std::shared_ptr<EvioNode> eventNode, DataType & type,
+                                                                       std::shared_ptr<EvioNode> eventNode, const DataType & type,
                                                                        size_t position, int place, bool isEvent) {
 
         // Store current evio info without de-serializing
@@ -326,6 +329,7 @@ namespace evio {
             else {
                 throw EvioException("Buffer bad format");
             }
+            std::cout << " extract: node->len = " << node->len << std::endl;
         }
         catch (std::runtime_error & a) {
             throw EvioException("Buffer bad format");
@@ -360,7 +364,6 @@ namespace evio {
     }
 
 
-    // TODO: deal with synchronized !!!
 
     /**
      * This method searches the event and
@@ -373,8 +376,9 @@ namespace evio {
      *         (empty if none found)
      * @throws EvioException if object closed.
      */
-    /*synchronized*/
     std::vector<std::shared_ptr<EvioNode>> EvioCompactStructureHandler::searchStructure(uint16_t tag, uint8_t num) {
+
+        std::lock_guard<std::mutex> lock(mutex_);
 
         if (closed) {
             throw EvioException("object closed");
@@ -452,7 +456,7 @@ namespace evio {
      *
      * The given buffer argument must be ready to read with its position and limit
      * defining the limits of the data to copy.
-     * This method is synchronized due to the bulk, relative puts.
+     * This method is locked due to the bulk, relative puts.
      *
      * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,
      *                  i.e. no bank headers)
@@ -465,10 +469,11 @@ namespace evio {
      *                       if there is an internal programming error;
      *                       if object closed.
      */
-    /*synchronized*/
     std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::addStructure(std::shared_ptr<ByteBuffer> addBuffer) {
 
-            if (!node->getDataTypeObj().isStructure()) {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        if (!node->getDataTypeObj().isStructure()) {
                 throw EvioException("cannot add structure to bank of primitive type");
             }
 
@@ -580,8 +585,9 @@ namespace evio {
      *                       if node was not found in any event;
      *                       if internal programming error
      */
-    /*synchronized*/
     std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::removeStructure(std::shared_ptr<EvioNode> removeNode) {
+
+        std::lock_guard<std::mutex> lock(mutex_);
 
         // If we're removing nothing, then DO nothing
         if (removeNode == nullptr) {
@@ -751,7 +757,7 @@ namespace evio {
      * Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is locked due to the bulk, relative gets &amp; puts.
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -760,8 +766,9 @@ namespace evio {
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
-    /*synchronized*/
     std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getData(std::shared_ptr<EvioNode> node, bool copy) {
+        std::lock_guard<std::mutex> lock(mutex_);
+
         if (closed) {
             throw EvioException("object closed");
         }
@@ -790,7 +797,7 @@ namespace evio {
     /**
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is locked due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -806,7 +813,7 @@ namespace evio {
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is locked due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -816,8 +823,9 @@ namespace evio {
      * @throws EvioException if node is null;
      *                       if object closed
      */
-    /*synchronized*/
     std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getStructureBuffer(std::shared_ptr<EvioNode> node, bool copy) {
+
+        std::lock_guard<std::mutex> lock(mutex_);
 
         if (node == nullptr) {
             throw EvioException("node arg is null");
@@ -855,8 +863,8 @@ namespace evio {
      * @throws EvioException if object closed
      * @return vector of all evio structures in buffer as EvioNode objects.
      */
-    /*synchronized*/
     std::vector<std::shared_ptr<EvioNode>> EvioCompactStructureHandler::getNodes() {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (closed) {
             throw EvioException("object closed");
         }
@@ -871,8 +879,8 @@ namespace evio {
      * @throws EvioException if object closed
      * @return vector of all child evio structures in buffer as EvioNode objects.
      */
-    /*synchronized*/
     std::vector<std::shared_ptr<EvioNode>> EvioCompactStructureHandler::getChildNodes() {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (closed) {
             throw EvioException("object closed");
         }
@@ -884,8 +892,8 @@ namespace evio {
     /**
      * This only sets the position to its initial value.
      */
-    /*synchronized*/
     void EvioCompactStructureHandler::close() {
+        std::lock_guard<std::mutex> lock(mutex_);
         byteBuffer->position(0);
         closed = true;
     }
