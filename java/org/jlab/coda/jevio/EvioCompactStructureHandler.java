@@ -40,7 +40,7 @@ public class EvioCompactStructureHandler {
      * all of its descendants will switch to that new buffer.
      *
      * @param node the node to be analyzed.
-     * @throws EvioException if node arg is null
+     * @throws EvioException if node arg is null.
      */
     public EvioCompactStructureHandler(EvioNode node) throws EvioException {
 
@@ -63,7 +63,7 @@ public class EvioCompactStructureHandler {
 
 
     /**
-     * Constructor for reading a buffer that contains 1 structure only (no block headers).
+     * Constructor for reading a buffer that contains 1 structure only (no record headers).
      * The data in the given ByteBuffer object will be copied to a new
      * buffer (obtainable by calling {@link #getByteBuffer()}).
      *
@@ -80,7 +80,7 @@ public class EvioCompactStructureHandler {
 
 
     /**
-     * This method can be used to avoid creating additional EvioCompactEventReader
+     * This method can be used to avoid creating additional EvioCompactStructureHandler
      * objects by reusing this one with another buffer.
      *
      * @param buf the buffer to be read that contains 1 structure only (no block headers).
@@ -103,8 +103,7 @@ public class EvioCompactStructureHandler {
         if (buf.remaining() < 1) {
             throw new EvioException("buffer has too little data");
         }
-        else if ( (type == DataType.BANK || type == DataType.ALSOBANK) &&
-                   buf.remaining() < 2 ) {
+        else if (type.isBank() && buf.remaining() < 2 ) {
             throw new EvioException("buffer has too little data");
         }
 
@@ -236,12 +235,11 @@ public class EvioCompactStructureHandler {
     }
 
     /**
-     * Get the EvioNode object associated with a particular event number
+     * Get the EvioNode object associated with the structure
      * which has been scanned so all substructures are contained in the
      * node.allNodes list.
-     * @return  EvioNode object associated with a particular event number,
-     *
-     *         or null if there is none.
+     * @return  EvioNode object associated with the structure,
+     *          or null if there is none.
      */
     public EvioNode getScannedStructure() {
         EvioNode.scanStructure(node);
@@ -457,7 +455,7 @@ public class EvioCompactStructureHandler {
      *         (empty if none found)
      * @throws EvioException if either dictName or dictionary arg is null;
      *                       if dictName is an invalid dictionary entry;
-     *                       if object closed
+     *                       if object closed.
      */
     public List<EvioNode> searchStructure(String dictName,
                                           EvioXMLDictionary dictionary)
@@ -506,7 +504,7 @@ public class EvioCompactStructureHandler {
      *                       if addBuffer is opposite endian to current event buffer;
      *                       if added data is not the proper length (i.e. multiple of 4 bytes);
      *                       if there is an internal programming error;
-     *                       if object closed
+     *                       if object closed.
      */
     public synchronized ByteBuffer addStructure(ByteBuffer addBuffer) throws EvioException {
 
@@ -915,10 +913,10 @@ public class EvioCompactStructureHandler {
 
     /**
      * This method returns an unmodifiable list of all
-     * evio structures in buffer as EvioNode objects.
+     * child evio structures in buffer as EvioNode objects.
      *
      * @throws EvioException if object closed
-     * @return unmodifiable list of all evio structures in buffer as EvioNode objects.
+     * @return unmodifiable list of all child evio structures in buffer as EvioNode objects.
      */
     public synchronized List<EvioNode> getChildNodes() throws EvioException {
         if (closed) {
