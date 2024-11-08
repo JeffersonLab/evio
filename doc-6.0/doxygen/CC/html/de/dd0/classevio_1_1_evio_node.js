@@ -67,6 +67,7 @@ var classevio_1_1_evio_node =
     [ "EventHeaderParser", "de/dd0/classevio_1_1_evio_node.html#a7fb8c9f7d288fa6ccb4dc5ba0dfd5f06", null ],
     [ "EvioCompactReaderV4", "de/dd0/classevio_1_1_evio_node.html#a1b4390a9a867354d4b1037d6688278f4", null ],
     [ "EvioCompactReaderV6", "de/dd0/classevio_1_1_evio_node.html#a32f95a8849a0400219cb3f9d977dd9b9", null ],
+    [ "EvioCompactStructureHandler", "de/dd0/classevio_1_1_evio_node.html#a435cc111ebc622be277c403cdf71c36a", null ],
     [ "Util", "de/dd0/classevio_1_1_evio_node.html#a9c2751ecdc9d2563d06622f8f100ef88", null ],
     [ "id", "de/dd0/classevio_1_1_evio_node.html#ac7931f43990aa967f9e7ddfef18d8002", null ],
     [ "staticId", "de/dd0/classevio_1_1_evio_node.html#a1c5e15b8b009b1989bc82f6ebf5f99c6", null ]

@@ -28,6 +28,7 @@ var hierarchy =
     [ "evio::EventParser", "d7/d5d/classevio_1_1_event_parser.html", null ],
     [ "evio::EventWriter", "d9/dcd/classevio_1_1_event_writer.html", null ],
     [ "evio::EventWriterV4", "df/d0c/classevio_1_1_event_writer_v4.html", null ],
+    [ "evio::EvioCompactStructureHandler", "db/d63/classevio_1_1_evio_compact_structure_handler.html", null ],
     [ "evio::EvioDictionaryEntry", "d2/d4a/classevio_1_1_evio_dictionary_entry.html", null ],
     [ "evio::EvioSwap", "df/d7a/classevio_1_1_evio_swap.html", null ],
     [ "evio::EvioXMLDictionary", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html", null ],

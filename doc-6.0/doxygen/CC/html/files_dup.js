@@ -81,6 +81,10 @@ var files_dup =
     [ "EvioCompactReaderV6.h", "d1/de7/_evio_compact_reader_v6_8h.html", [
       [ "EvioCompactReaderV6", "dd/d94/classevio_1_1_evio_compact_reader_v6.html", "dd/d94/classevio_1_1_evio_compact_reader_v6" ]
     ] ],
+    [ "EvioCompactStructureHandler.cpp", "d0/d00/_evio_compact_structure_handler_8cpp.html", null ],
+    [ "EvioCompactStructureHandler.h", "dc/d1e/_evio_compact_structure_handler_8h.html", [
+      [ "EvioCompactStructureHandler", "db/d63/classevio_1_1_evio_compact_structure_handler.html", "db/d63/classevio_1_1_evio_compact_structure_handler" ]
+    ] ],
     [ "EvioDictionaryEntry.h", "db/db0/_evio_dictionary_entry_8h.html", [
       [ "EvioDictionaryEntry", "d2/d4a/classevio_1_1_evio_dictionary_entry.html", "d2/d4a/classevio_1_1_evio_dictionary_entry" ]
     ] ],

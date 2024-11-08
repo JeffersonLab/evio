@@ -23,6 +23,7 @@ var namespaceevio =
     [ "EvioCompactReader", "d6/d5f/classevio_1_1_evio_compact_reader.html", "d6/d5f/classevio_1_1_evio_compact_reader" ],
     [ "EvioCompactReaderV4", "d9/d0a/classevio_1_1_evio_compact_reader_v4.html", "d9/d0a/classevio_1_1_evio_compact_reader_v4" ],
     [ "EvioCompactReaderV6", "dd/d94/classevio_1_1_evio_compact_reader_v6.html", "dd/d94/classevio_1_1_evio_compact_reader_v6" ],
+    [ "EvioCompactStructureHandler", "db/d63/classevio_1_1_evio_compact_structure_handler.html", "db/d63/classevio_1_1_evio_compact_structure_handler" ],
     [ "EvioDictionaryEntry", "d2/d4a/classevio_1_1_evio_dictionary_entry.html", "d2/d4a/classevio_1_1_evio_dictionary_entry" ],
     [ "EvioEvent", "d4/d12/classevio_1_1_evio_event.html", "d4/d12/classevio_1_1_evio_event" ],
     [ "EvioException", "d0/d0b/classevio_1_1_evio_exception.html", "d0/d0b/classevio_1_1_evio_exception" ],
