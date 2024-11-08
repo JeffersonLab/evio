@@ -462,17 +462,15 @@ namespace evio {
 
         /**
          * This method takes an EvioNode and prints out the desired number of bytes
-         * from the backing array from the given position, in hex. Prints all bytes.
+         * from the backing array at the given node's position, in hex. Prints all bytes.
          *
-         * @param buf       node with backing buffer to print out
-         * @param position  position of data (bytes) in buffer to start printing
+         * @param node      node with backing buffer to print out
          * @param bytes     number of bytes to print in hex
          * @param label     a label to print as header
          */
-        static void printBytes(std::shared_ptr<EvioNode> node, uint32_t position, uint32_t bytes,
-                               const std::string & label) {
+        static void printBytes(std::shared_ptr<EvioNode> node, uint32_t bytes, const std::string & label) {
             auto buf = node->getBuffer();
-            printBytes(*buf, position, bytes, label);
+            printBytes(*buf, node->getPosition(), bytes, label);
         }
 
         /**
@@ -511,7 +509,6 @@ namespace evio {
             }
 
             std::cout << std::dec << std::endl << std::endl << std::setfill(' ');
-            std::cout << "DONE WITH printBytes"  << std::endl;
         }
 
 
