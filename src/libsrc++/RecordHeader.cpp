@@ -1171,6 +1171,7 @@ namespace evio {
     /**
      * Writes a trailer with an optional index array into the given buffer.
      * Buffer's limit and position will set ready to read again after this method called.
+     *
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNum record number of trailer.
@@ -1189,6 +1190,7 @@ namespace evio {
             wholeLen += indexLen;
         }
         size_t origPos = buf.position();
+        //std::cout << "        writeTrailer: orig buf pos = " << origPos << std::endl;
 
         // Check arg
         if (buf.capacity() < wholeLen + off) {
@@ -1198,43 +1200,18 @@ namespace evio {
         // Make sure the limit allows writing
         buf.limit(off + wholeLen).position(off);
 
-        if (buf.hasArray()) {
-            writeTrailer(buf.array() + buf.arrayOffset() + off, buf.remaining(),
+        writeTrailer(buf.array() + buf.arrayOffset() + off, buf.remaining(),
                          recordNum, buf.order(), recordLengths);
-        }
-        else {
-            uint32_t bitinfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
 
-            // First the general header part
-            buf.putInt(wholeLen/4);
-            buf.putInt(recordNum);
-            buf.putInt(HEADER_SIZE_WORDS);
-            buf.putInt(0);
-            buf.putInt(0);
-            buf.putInt(bitinfo);
-            buf.putInt(0);
-            buf.putInt(HEADER_MAGIC);
-            buf.putLong(0L);
-            buf.putLong(0L);
-            buf.putLong(0L);
+        buf.limit(off + wholeLen).position(origPos);
 
-            // Second the index
-            if (indexLen > 0) {
-                // Get vector of ints out of shared pointer
-                std::vector<uint32_t> & vec = *(recordLengths.get());
-                for (size_t i=0; i < recordLengths->size(); i++) {
-                    buf.putInt(vec[i]);
-                }
-            }
-
-            buf.limit(off + wholeLen).position(origPos);
-        }
         return wholeLen;
     }
 
 
     /**
      * Writes a trailer with an optional index array into the given buffer.
+     * Buffer's limit and position will set ready to read again after this method called.
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNum record number of trailer.
