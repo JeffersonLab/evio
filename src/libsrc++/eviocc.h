@@ -31,6 +31,7 @@
 
 #include "EvioBank.h"
 #include "EvioCompactReader.h"
+#include "EvioCompactStructureHandler.h"
 #include "EvioDictionaryEntry.h"
 #include "EvioXMLDictionary.h"
 #include "EvioEvent.h"
