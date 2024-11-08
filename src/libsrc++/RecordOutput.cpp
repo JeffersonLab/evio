@@ -906,7 +906,9 @@ namespace evio {
 //std::cout << "build: writing index of size " << indexSize << ", events of size " <<
 //             eventSize << ", total = " << uncompressedDataSize << std::endl;
 
+#ifdef USE_GZIP
         uint8_t* gzippedData = nullptr;
+#endif
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
@@ -1101,8 +1103,9 @@ namespace evio {
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
         uint32_t compressedSize = 0;
+#ifdef USE_GZIP
         uint8_t* gzippedData = nullptr;
-
+#endif
         try {
             switch (compressionType) {
                 case 1:
