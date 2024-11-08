@@ -6,6 +6,8 @@
     Short, minimal guide to test programs that were collected over the years and left as is.
     
     NO GUARANTEES as to functionality or effectiveness, just dig in and parse it yourself.
+    One possible source of things not working is that most of these programs were written
+    for evio version 4 and may not translate well if assumptions about the format are built in.
 
 ---------------------------
 | File                                                                   | Function                                                                                                                                                                                                                                                                                                                                                                                         |
