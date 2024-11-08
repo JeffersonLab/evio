@@ -592,6 +592,18 @@ final public class Utilities {
         buf.limit(origLim).position(origPos);
    }
 
+    /**
+     * This method takes an EvioNode and prints out the desired number of bytes
+     * from the backing array at the given node's position, in hex. Prints all bytes.
+     *
+     * @param node      node with backing buffer to print out
+     * @param bytes     number of bytes to print in hex
+     * @param label     a label to print as header
+     */
+    static public void printBytes(EvioNode node, int bytes, String label) {
+        ByteBuffer buf = node.getBuffer();
+        printBytes(buf, node.getPosition(), bytes, label);
+    }
 
     /**
      * This method takes a byte array and prints out the desired number of bytes
