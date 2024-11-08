@@ -41,10 +41,10 @@ namespace evio {
             auto bankBanks = EvioBank::getInstance(tag + 2, DataType::BANK, 3);
             builder.addChild(event, bankBanks);
 
-            // bank of ints
-            auto bankInts2 = EvioBank::getInstance(tag + 19, DataType::INT32, 20);
-            builder.setIntData(bankInts2,intData2,1);
-            builder.addChild(bankBanks, bankInts2);
+                // bank of ints
+                auto bankInts2 = EvioBank::getInstance(tag + 19, DataType::INT32, 20);
+                builder.setIntData(bankInts2,intData2,1);
+                builder.addChild(bankBanks, bankInts2);
 
             // bank of ints
             auto bankInts3 = EvioBank::getInstance(tag + 3, DataType::INT32, 4);
@@ -62,20 +62,6 @@ namespace evio {
         }
 
         return event;
-
-    }
-
-
-    static std::shared_ptr <ByteBuffer> createBuffer(int tag, int num) {
-
-        auto bank = createSingleEvent(tag);
-        int byteSize = bank->getTotalBytes();
-
-        std::shared_ptr <ByteBuffer> bb = std::make_shared<ByteBuffer>(byteSize);
-        bank->write(bb);
-        bb->flip();
-
-        return bb;
     }
 
 
@@ -83,7 +69,7 @@ namespace evio {
 
         std::shared_ptr <ByteBuffer> bb = nullptr;
         try {
-            CompactEventBuilder builder(4 * 5, ByteOrder::ENDIAN_BIG);
+            CompactEventBuilder builder(4 * 5, ByteOrder::ENDIAN_LITTLE);
             builder.openBank(tag, DataType::BANK, num);
             builder.openBank(tag + 1, DataType::INT32, num + 1);
             uint32_t dat[1] = {6};
@@ -103,69 +89,78 @@ namespace evio {
 
 using namespace evio;
 
-    /** For creating a local evio buffer, put into EvioCompactStructureHandler,
-     *  remove a node, then examine resulting buffer. */
-    int main(int argc, char **argv) {
+int main(int argc, char **argv) {
 
-        try {
+    try {
 
-            uint16_t tag = 1;
+        uint16_t tag = 1;
+        uint8_t  num = 1;
 
-            std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(1024);
-            buf->order(ByteOrder::ENDIAN_BIG);
-            std::shared_ptr<EvioEvent> event = createSingleEvent(tag);
-            std::cout << "After creation, ev size = " << event->getTotalBytes() << std::endl;
-            std::cout << "After creation, ev header len = " << event->getHeader()->getDataLength() << std::endl;
-            std::cout << "Before writer, raw buf pos = " << buf->position() << ", lim = " << buf->limit() << std::endl;
+        std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(1024);
+        buf->order(ByteOrder::ENDIAN_LITTLE);
+        std::shared_ptr<EvioEvent> event = createSingleEvent(tag);
 
-            // Evio 6 format (buf cleared (pos -> 0, lim->cap) before writing.
-            EventWriter writer(buf);
-            writer.writeEvent(event);
-            writer.close();
+        // Evio 6 format (buf cleared (pos -> 0, lim->cap) before writing.
+        // Note: header = 14 int + 1 int / event (index) = 4*(14 + 1) bytes = 60 bytes.
+        // For evio 6, position just past header = 60 (1 event in buf)
+        EventWriter writer(buf);
+        writer.writeEvent(event);
+        writer.close();
+        // The finished buffer is just a duplicate of buf (points to same data, has independent pos/limit).
+        // So finishedBuf and buf behave the same.
+        std::shared_ptr<ByteBuffer> finishedBuf = writer.getByteBuffer();
 
-            std::shared_ptr<ByteBuffer> finishedBuf = writer.getByteBuffer();
-            std::cout << "After writer, finished buf pos = " << finishedBuf->position() << ", lim = " << finishedBuf->limit() << ", first int = " << finishedBuf->getInt(60) << std::endl;
-         //   Util::printBytes(finishedBuf, 56, 4*16, "FINISHED EVENT");
-            Util::printBytes(finishedBuf, 0, 4*35, "FINISHED EVENT");
+        Util::printBytes(finishedBuf, 0, finishedBuf->limit(), "Finished Buffer");
 
-            std::cout << "After writer, raw buf pos = " << buf->position() << ", lim = " << buf->limit() << std::endl;
-            Util::printBytes(buf, 60, 4*16, "RAW EVENT");
+        // Position buffer to after block header (evio 4)
+        //buf->limit(32 + 4*16).position(32);
 
-            // Position buffer to after block header (evio 4)
-            //buf->limit(32 + 4 * 13).position(32);
+        // Position buffer to after record header (evio 6)
+        buf->limit(60 + 4*16).position(60);
+        Util::printBytes(buf, 60, 4*16, "Full Event");
 
-            // Position buffer to after block header (evio 6)
-            buf->limit(60 + 4*16).position(60);
-            Util::printBytes(buf, 60, 4*16, "EVENT");
+        EvioCompactStructureHandler handler(buf, DataType::BANK);
+        std::vector<std::shared_ptr<EvioNode>> list = handler.getNodes();
 
-            EvioCompactStructureHandler handler(buf, DataType::BANK);
-            std::vector<std::shared_ptr<EvioNode>> list = handler.getNodes();
+        // Remove last node
+        handler.removeStructure(list[5]);
 
-            // Remove  node
-            handler.removeStructure(list[5]);
+        // Add buffer containing event
+        std::shared_ptr<ByteBuffer> bb = createAddBuffer(tag+4, num+4);
+        std::shared_ptr<ByteBuffer> newBuf = handler.addStructure(bb);
 
-            // buffer to add
-            std::shared_ptr<ByteBuffer> bb = createAddBuffer(tag+4, tag+4);
-            std::shared_ptr<ByteBuffer> newBuf = handler.addStructure(bb);
+        Util::printBytes(bb, 0, bb->limit(), "New event");
 
-            Util::printBytes(bb, 0, bb->limit(), "New event");
 
-            list = handler.getNodes();
-            std::cout << "Got " << list.size() << " nodes after everything" << std::endl;
-            int i = 0;
-            for (auto n: list) {
-                // Look at data for 3rd node
-                std::shared_ptr <ByteBuffer> dd = handler.getStructureBuffer(list[i]);
-                Util::printBytes(dd, dd->position(), dd->limit(), "Struct buf for node " + std::to_string(++i));
-            }
-
-        }
-        catch (std::runtime_error &e) {
-            std::cout << e.what() << std::endl;
+        // Search event for tag = 2, num = 2
+        std::vector<std::shared_ptr<EvioNode>> foundList = handler.searchStructure(2, 2);
+        for (auto n: foundList) {
+            // Look at each node (structure)
+            std::cout << "Found struct with tag = 2, num = 2" << std::endl;
+            Util::printBytes(n, n->getTotalBytes(), "found node");
         }
 
-        return 0;
+
+        list = handler.getNodes();
+        std::cout << "Got " << list.size() << " nodes after everything" << std::endl;
+        int i = 0;
+        for (auto n: list) {
+            // Look at each node (structure)
+            std::shared_ptr <ByteBuffer> dat = handler.getStructureBuffer(list[i]);
+            Util::printBytes(dat, dat->position(), dat->limit(), "Struct for node " + std::to_string(i + 1));
+
+            // Look at data for each node (structure)
+            std::shared_ptr <ByteBuffer> dd = handler.getData(list[i]);
+            Util::printBytes(dd, dd->position(), dd->limit(), "Data for node " + std::to_string(i + 1));
+            i++;
+        }
 
     }
+    catch (std::runtime_error &e) {
+        std::cout << e.what() << std::endl;
+    }
 
+    return 0;
+
+}
 
