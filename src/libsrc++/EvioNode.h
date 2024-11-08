@@ -44,6 +44,7 @@ namespace evio {
         friend class EventHeaderParser;
         friend class EvioCompactReaderV4;
         friend class EvioCompactReaderV6;
+        friend class EvioCompactStructureHandler;
 
     private:
 
@@ -108,7 +109,7 @@ namespace evio {
 
         /**
          * Vector of all nodes in the event including the top-level object
-         * ordered according to placement in buffer.
+         * ordered according to placement in buffer (depth-first).
          * <p><b>
          * Only the top-level event's member is used.
          * Only access this member thru {@link #getAllNodes} since that enforces

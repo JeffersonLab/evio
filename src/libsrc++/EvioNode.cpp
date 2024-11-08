@@ -497,9 +497,13 @@ namespace evio {
 
 
     /**
-     * This method recursively stores, in the given list, all the information
-     * about an evio structure's children found in the given ByteBuffer object.
-     * It uses absolute gets so buffer's position does <b>not</b> change.
+     * This recursive method stores, in the given EvioNode, all the information
+     * about an evio structure and its children found in that node
+     * (representing all or part of an underlying ByteBuffer).
+     * It uses absolute gets so the underlying buffer's position does <b>not</b> change.
+     * In the vector of all nodes contained in each EvioNode object (including the top-level object),
+     * the ordering is according to their placement in the buffer (which happens to be depth-first).
+     * This method does a depth-first search (DFS).
      *
      * @param node node being scanned
      */
