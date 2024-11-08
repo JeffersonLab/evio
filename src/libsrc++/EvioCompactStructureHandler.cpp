@@ -329,7 +329,6 @@ namespace evio {
             else {
                 throw EvioException("Buffer bad format");
             }
-            std::cout << " extract: node->len = " << node->len << std::endl;
         }
         catch (std::runtime_error & a) {
             throw EvioException("Buffer bad format");
