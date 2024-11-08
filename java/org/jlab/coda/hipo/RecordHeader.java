@@ -1352,11 +1352,11 @@ public class RecordHeader implements IBlockHeader {
                     buf.putInt(i);
                 }
             }
-
-            // Set buf to read
-            buf.limit(off + wholeLength).position(origPos);
-//System.out.println("writeTrailer buf: set lim to " + (off + wholeLength) + ", set pos = "+ origPos);
         }
+
+        // Set buf to read
+        buf.limit(off + wholeLength).position(origPos);
+//System.out.println("writeTrailer buf: set lim to " + (off + wholeLength) + ", set pos = "+ origPos);
 
         return wholeLength;
     }
@@ -1364,6 +1364,7 @@ public class RecordHeader implements IBlockHeader {
 
     /**
      * Writes an empty trailer into the given buffer.
+     * Buffer's limit and position will set ready to read again after this method called.
      * @param buf   ByteBuffer to write trailer into.
      * @param recordNumber record number of trailer.
      * @return trailer bytes written into array.
