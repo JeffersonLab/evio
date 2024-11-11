@@ -40,7 +40,7 @@ public class CompactStructureHandlerTest {
         Arrays.fill(intData3, 9);
 
         int[] intData4 = new int[1];
-        Arrays.fill(intData3, 10);
+        Arrays.fill(intData4, 10);
 
         try {
 
