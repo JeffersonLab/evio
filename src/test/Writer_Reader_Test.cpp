@@ -54,14 +54,14 @@ namespace evio {
           ceb.openBank(3, DataType::SEGMENT, 3);
             ceb.openSegment(4, DataType::UINT32);
               uint32_t ui[3] = {4, 5, 6};
-              ceb.addIntData(ui, 3);
+              ceb.addUIntData(ui, 3);
             ceb.closeStructure();
           ceb.closeStructure();
 
           ceb.openBank(5, DataType::TAGSEGMENT, 5);
             ceb.openTagSegment(6, DataType::USHORT16);
               uint16_t us[3] = {7, 8, 9};
-              ceb.addShortData(us, 3);
+              ceb.addUShortData(us, 3);
             ceb.closeStructure();
           ceb.closeStructure();
 
@@ -129,7 +129,7 @@ namespace evio {
         ceb2.openBank(10, DataType::BANK, 10);
             ceb2.openBank(20, DataType::UCHAR8, 20);
                 uint8_t bb[3] = {10, 20, 30};
-                ceb2.addByteData(bb, 3);
+                ceb2.addUByteData(bb, 3);
             ceb2.closeStructure();
 
             ceb2.openBank(30, DataType::CHARSTAR8, 30);

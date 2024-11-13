@@ -33,7 +33,7 @@ namespace evio {
         size_t bufSize = 1300000;
         CompactEventBuilder ceb(bufSize, ByteOrder::ENDIAN_LOCAL, true);
         ceb.openBank(1, DataType::INT32, 1);
-        uint32_t dd[250000];
+        int32_t dd[250000];
         ceb.addIntData(dd, 250000);
         ceb.closeAll();
         std::shared_ptr<ByteBuffer> bigEvt = ceb.getBuffer();

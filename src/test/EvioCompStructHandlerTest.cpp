@@ -72,7 +72,7 @@ namespace evio {
             CompactEventBuilder builder(4 * 5, ByteOrder::ENDIAN_LITTLE);
             builder.openBank(tag, DataType::BANK, num);
             builder.openBank(tag + 1, DataType::INT32, num + 1);
-            uint32_t dat[1] = {6};
+            int32_t dat[1] = {6};
 
             builder.addIntData(dat, 1);
             builder.closeAll();
