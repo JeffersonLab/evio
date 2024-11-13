@@ -1133,7 +1133,7 @@ public final class CompactEventBuilder {
     public void addByteData(byte data[]) throws EvioException {
         addCharData(data);
     }
-    
+
 
     /**
      * Appends byte data to the structure.
