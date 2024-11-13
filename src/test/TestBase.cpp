@@ -70,7 +70,7 @@ namespace evio {
 
         dictionary = ss.str();
 
-        std::cout << "Const: dictionary = " << dictionary << std::endl;
+        std::cout << "Const: dictionary = \n" << dictionary << std::endl;
     }
 
 
@@ -216,6 +216,7 @@ namespace evio {
         // add bank of composite data
         builder->openBank(tag + 100, DataType::COMPOSITE, num + 100);
         builder->addCompositeData(cDataVec);
+        builder->closeStructure();
 
         builder->closeStructure();
 
@@ -267,7 +268,7 @@ namespace evio {
 
         // add tagseg of ints
         builder->openTagSegment(tag + 16, DataType::UINT32);
-        builder->addIntData(int1, dataElementCount);
+        builder->addUIntData(uint1, dataElementCount);
         builder->closeStructure();
 
         // add tagseg of bytes
@@ -549,7 +550,7 @@ namespace evio {
             bankBanks->insert(bankStrings, 6);
 
             // bank of composite data
-            auto bankComps = EvioBank::getInstance(tag + 1000, DataType::COMPOSITE, num + 1000);
+            auto bankComps = EvioBank::getInstance(tag + 100, DataType::COMPOSITE, num + 100);
             auto &oldCompData = bankComps->getCompositeData();
             oldCompData.insert(oldCompData.begin(), cDataVec.begin(), cDataVec.end());
             bankComps->updateCompositeData();
@@ -664,7 +665,9 @@ namespace evio {
             auto &tstData = tsegStrings->getStringData();
             tstData.insert(tstData.begin(), stringsVec.begin(), stringsVec.end());
             tsegStrings->updateStringData();
-            bankTsegs->insert(tsegStrings, 5);
+            bankTsegs->insert(tsegStrings, 6);
+
+            event->setAllHeaderLengths();
 
             return event;
         }
