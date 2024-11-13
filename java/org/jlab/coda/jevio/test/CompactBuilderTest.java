@@ -384,7 +384,6 @@ System.out.println("SET buf size to " + bufSize);
                     // add tagseg of bytes
                     builder.openTagSegment(tag + 17, DataType.CHAR8);
                     builder.addByteData(byte1);
-                    //builder.addByteData(byte1);
                     builder.closeStructure();
 
                     // add tagseg of shorts
