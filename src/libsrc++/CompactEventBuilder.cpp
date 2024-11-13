@@ -726,16 +726,31 @@ namespace evio {
 
 
     /**
-     * Appends byte data to the structure.
+     * Appends byte (char) data to the structure.
      *
-     * @param data the byte data to append.
+     * @param data the byte (char) data to append.
      * @param len number of bytes to append.
      * @throws EvioException if data is null or empty;
      *                       if adding wrong data type to structure;
      *                       if structure not added first;
      *                       if no room in buffer for data.
      */
-    void CompactEventBuilder::addByteData(uint8_t * data, uint32_t len) {
+    void CompactEventBuilder::addByteData(int8_t *data, uint32_t len) {
+        addCharData(reinterpret_cast<char *>(data), len);
+    }
+
+
+    /**
+     * Appends char/byte data to the structure.
+     *
+     * @param data the char/byte data to append.
+     * @param len number of bytes to append.
+     * @throws EvioException if data is null or empty;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    void CompactEventBuilder::addCharData(char *data, uint32_t len) {
         if (data == nullptr || len < 1) {
             throw EvioException("no data to add");
         }
@@ -744,8 +759,7 @@ namespace evio {
             throw EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure->dataType != DataType::CHAR8  &&
-            currentStructure->dataType != DataType::UCHAR8)  {
+        if (currentStructure->dataType != DataType::CHAR8)  {
             throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
         }
 
@@ -779,7 +793,85 @@ namespace evio {
         addToAllLengths(totalWordLen - lastWordLen);
 
         // Copy the data in one chunk
-        std::memcpy(array + arrayOffset + position, data, len);
+        std::memcpy(array + arrayOffset + position, (const void *)data, len);
+
+        // Calculate the padding
+        currentStructure->padding = padCount[currentStructure->dataLen % 4];
+
+        // Advance buffer position
+        position += len + currentStructure->padding;
+    }
+
+
+    /**
+     * Appends unsigned byte (char) data to the structure.
+     *
+     * @param data the unsigned byte (char) data to append.
+     * @param len number of bytes to append.
+     * @throws EvioException if data is null or empty;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    void CompactEventBuilder::addUByteData(uint8_t *data, uint32_t len) {
+        addUCharData(reinterpret_cast<unsigned char *>(data), len);
+    }
+
+
+    /**
+      * Appends unsigned char data to the structure.
+      *
+      * @param data the unsigned char/byte data to append.
+      * @param len number of bytes to append.
+      * @throws EvioException if data is null or empty;
+      *                       if adding wrong data type to structure;
+      *                       if structure not added first;
+      *                       if no room in buffer for data.
+      */
+    void CompactEventBuilder::addUCharData(unsigned char *data, uint32_t len) {
+        if (data == nullptr || len < 1) {
+            throw EvioException("no data to add");
+        }
+
+        if (currentStructure == nullptr) {
+            throw EvioException("add a bank, segment, or tagsegment first");
+        }
+
+        if (currentStructure->dataType != DataType::UCHAR8)  {
+            throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
+        }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer->clear();
+
+        if ((buffer->limit() - position) < len) {
+            throw EvioException("no room in buffer");
+        }
+
+        // Things get tricky if this method is called multiple times in succession.
+        // Keep track of how much data we write each time so length and padding
+        // are accurate.
+
+        // Last increase in length
+        uint32_t lastWordLen = (currentStructure->dataLen + 3)/4;
+
+        // If we are adding to existing data,
+        // place position before previous padding.
+        if (currentStructure->dataLen > 0) {
+            position -= currentStructure->padding;
+        }
+
+        // Total number of bytes to write & already written
+        currentStructure->dataLen += len;
+
+        // New total word len of this data
+        uint32_t totalWordLen = (currentStructure->dataLen + 3)/4;
+
+        // Increase lengths by the difference
+        addToAllLengths(totalWordLen - lastWordLen);
+
+        // Copy the data in one chunk
+        std::memcpy(array + arrayOffset + position, (const void *)data, len);
 
         // Calculate the padding
         currentStructure->padding = padCount[currentStructure->dataLen % 4];
@@ -799,7 +891,7 @@ namespace evio {
      *                       if structure not added first;
      *                       if no room in buffer for data.
      */
-    void CompactEventBuilder::addIntData(uint32_t * data, uint32_t len) {
+    void CompactEventBuilder::addIntData(int32_t * data, uint32_t len) {
 
         if (data == nullptr) {
             throw EvioException("data arg null");
@@ -811,8 +903,59 @@ namespace evio {
             throw EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure->dataType != DataType::INT32  &&
-            currentStructure->dataType != DataType::UINT32 &&
+        if (currentStructure->dataType != DataType::INT32)  {
+            throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
+        }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer->clear();
+
+        if ((buffer->limit() - position) < 4*len) {
+            throw EvioException("no room in buffer");
+        }
+
+        addToAllLengths(len);  // # 32-bit words
+
+        if (order.isLocalEndian()) {
+            std::memcpy(array + arrayOffset + position, (const void *)data, 4*len);
+        }
+        else {
+            size_t pos = position;
+            for (uint32_t i=0; i < len; i++) {
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
+                array[arrayOffset + pos++] = bytes[3];
+                array[arrayOffset + pos++] = bytes[2];
+                array[arrayOffset + pos++] = bytes[1];
+                array[arrayOffset + pos++] = bytes[0];
+                data++;
+            }
+        }
+        position += 4*len;     // # bytes
+    }
+
+    /**
+     * Appends unsigned int or unknown type data to the structure.
+     *
+     * @param data the uint data to append.
+     * @param len  the number of ints from data to append.
+     * @throws EvioException if data is null or empty;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    void CompactEventBuilder::addUIntData(uint32_t * data, uint32_t len) {
+
+        if (data == nullptr) {
+            throw EvioException("data arg null");
+        }
+
+        if (len == 0) return;
+
+        if (currentStructure == nullptr) {
+            throw EvioException("add a bank, segment, or tagsegment first");
+        }
+
+        if (currentStructure->dataType != DataType::UINT32 &&
             currentStructure->dataType != DataType::UNKNOWN32)  {
             throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
         }
@@ -827,12 +970,12 @@ namespace evio {
         addToAllLengths(len);  // # 32-bit words
 
         if (order.isLocalEndian()) {
-            std::memcpy(array + arrayOffset + position, data, 4*len);
+            std::memcpy(array + arrayOffset + position, (const void *)data, 4*len);
         }
         else {
             size_t pos = position;
             for (uint32_t i=0; i < len; i++) {
-                uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[3];
                 array[arrayOffset + pos++] = bytes[2];
                 array[arrayOffset + pos++] = bytes[1];
@@ -855,7 +998,7 @@ namespace evio {
      *                       if structure not added first;
      *                       if no room in buffer for data.
      */
-    void CompactEventBuilder::addShortData(uint16_t * data, uint32_t len) {
+    void CompactEventBuilder::addShortData(int16_t * data, uint32_t len) {
 
         if (data == nullptr) {
             throw EvioException("data arg null");
@@ -867,9 +1010,8 @@ namespace evio {
             throw EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure->dataType != DataType::SHORT16  &&
-            currentStructure->dataType != DataType::USHORT16)  {
-            throw new EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
+        if (currentStructure->dataType != DataType::SHORT16)  {
+            throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -906,12 +1048,90 @@ namespace evio {
         addToAllLengths(totalWordLen - lastWordLen);
 
         if (order.isLocalEndian()) {
-            std::memcpy(array + arrayOffset + position, data, 2*len);
+            std::memcpy(array + arrayOffset + position, (const void *)data, 2*len);
         }
         else {
             size_t pos = position;
             for (uint32_t i=0; i < len; i++) {
-                uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
+                array[arrayOffset + pos++] = bytes[1];
+                array[arrayOffset + pos++] = bytes[0];
+                data++;
+            }
+        }
+
+        currentStructure->padding = 2*(currentStructure->dataLen % 2);
+        // Advance position
+        position += 2*len + currentStructure->padding;
+    }
+
+    /**
+     * Appends unsigned short data to the structure.
+     *
+     * @param data    the unsigned short data to append.
+     * @param len     the number of shorts from data to append.
+     * @throws EvioException if data is null;
+     *                       if count/offset negative or too large;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    void CompactEventBuilder::addUShortData(uint16_t * data, uint32_t len) {
+
+        if (data == nullptr) {
+            throw EvioException("data arg null");
+        }
+
+        if (len == 0) return;
+
+        if (currentStructure == nullptr) {
+            throw EvioException("add a bank, segment, or tagsegment first");
+        }
+
+        if (currentStructure->dataType != DataType::USHORT16)  {
+            throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
+        }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer->clear();
+
+        if ((buffer->limit() - position) < 2*len) {
+            throw EvioException("no room in buffer");
+        }
+
+        // Things get tricky if this method is called multiple times in succession.
+        // Keep track of how much data we write each time so length and padding
+        // are accurate.
+
+        // Last increase in length
+        uint32_t lastWordLen = (currentStructure->dataLen + 1)/2;
+        //std::cout << "lastWordLen = " << lastWordLen << std::endl;
+
+        // If we are adding to existing data,
+        // place position before previous padding.
+        if (currentStructure->dataLen > 0) {
+            position -= currentStructure->padding;
+            //std::cout << "Back up before previous padding of " << currentStructure->padding << std::endl;
+        }
+
+        // Total number of bytes to write & already written
+        currentStructure->dataLen += len;
+        //std::cout << "Total bytes to write = " << currentStructure->dataLen << std::endl
+
+        // New total word len of this data
+        uint32_t totalWordLen = (currentStructure->dataLen + 1)/2;
+        //std::cout << "Total word len = " << totalWordLen << std::endl;
+
+        // Increase lengths by the difference
+        addToAllLengths(totalWordLen - lastWordLen);
+
+        if (order.isLocalEndian()) {
+            std::memcpy(array + arrayOffset + position, (const void *)data, 2*len);
+        }
+        else {
+            size_t pos = position;
+            for (uint32_t i=0; i < len; i++) {
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[1];
                 array[arrayOffset + pos++] = bytes[0];
                 data++;
@@ -934,10 +1154,10 @@ namespace evio {
      *                       if structure not added first;
      *                       if no room in buffer for data.
      */
-    void CompactEventBuilder::addLongData(uint64_t * data, uint32_t len) {
+    void CompactEventBuilder::addLongData(int64_t * data, uint32_t len) {
 
         if (data == nullptr) {
-            throw new EvioException("data arg null");
+            throw EvioException("data arg null");
         }
 
         if (len == 0) return;
@@ -946,8 +1166,7 @@ namespace evio {
             throw EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure->dataType != DataType::LONG64  &&
-            currentStructure->dataType != DataType::ULONG64)  {
+        if (currentStructure->dataType != DataType::LONG64)  {
             throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
         }
 
@@ -961,12 +1180,70 @@ namespace evio {
         addToAllLengths(2*len);  // # 32-bit words
 
         if (order.isLocalEndian()) {
-            std::memcpy(array + arrayOffset + position, data, 8*len);
+            std::memcpy(array + arrayOffset + position, (const void *)data, 8*len);
         }
         else {
             size_t pos = position;
             for (uint32_t i = 0; i < len; i++) {
-                uint8_t *bytes = reinterpret_cast<uint8_t *>(data);
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
+                array[arrayOffset + pos++] = bytes[7];
+                array[arrayOffset + pos++] = bytes[6];
+                array[arrayOffset + pos++] = bytes[5];
+                array[arrayOffset + pos++] = bytes[4];
+                array[arrayOffset + pos++] = bytes[3];
+                array[arrayOffset + pos++] = bytes[2];
+                array[arrayOffset + pos++] = bytes[1];
+                array[arrayOffset + pos++] = bytes[0];
+                data++;
+            }
+        }
+
+        position += 8*len;       // # bytes
+    }
+
+
+    /**
+     * Appends unsigned long data to the structure.
+     *
+     * @param data    the unsigned long data to append.
+     * @param len     the number of longs from data to append.
+     * @throws EvioException if data is null;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    void CompactEventBuilder::addULongData(uint64_t * data, uint32_t len) {
+
+        if (data == nullptr) {
+            throw EvioException("data arg null");
+        }
+
+        if (len == 0) return;
+
+        if (currentStructure == nullptr) {
+            throw EvioException("add a bank, segment, or tagsegment first");
+        }
+
+        if (currentStructure->dataType != DataType::ULONG64)  {
+            throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
+        }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer->clear();
+
+        if ((buffer->limit() - position) < 8*len) {
+            throw EvioException("no room in buffer");
+        }
+
+        addToAllLengths(2*len);  // # 32-bit words
+
+        if (order.isLocalEndian()) {
+            std::memcpy(array + arrayOffset + position, (const void *)data, 8*len);
+        }
+        else {
+            size_t pos = position;
+            for (uint32_t i = 0; i < len; i++) {
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[7];
                 array[arrayOffset + pos++] = bytes[6];
                 array[arrayOffset + pos++] = bytes[5];
@@ -1021,7 +1298,7 @@ namespace evio {
         else {
             size_t pos = position;
             for (uint32_t i=0; i < len; i++) {
-                uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[3];
                 array[arrayOffset + pos++] = bytes[2];
                 array[arrayOffset + pos++] = bytes[1];
@@ -1068,7 +1345,7 @@ namespace evio {
         else {
             size_t pos = position;
             for (uint32_t i=0; i < len; i++) {
-                uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                auto* bytes = reinterpret_cast<uint8_t *>(data);
                 array[arrayOffset + pos++] = bytes[7];
                 array[arrayOffset + pos++] = bytes[6];
                 array[arrayOffset + pos++] = bytes[5];

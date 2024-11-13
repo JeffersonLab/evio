@@ -172,12 +172,24 @@ namespace evio {
 
         void addEvioNode(std::shared_ptr<EvioNode> node);
 
-        void addByteData(uint8_t * data, uint32_t len);
-        void addIntData(uint32_t * data, uint32_t len);
-        void addShortData(uint16_t * data, uint32_t len);
-        void addLongData(uint64_t * data, uint32_t len);
+        void addCharData(char * data, uint32_t len);
+        void addUCharData(unsigned char * data, uint32_t len);
+
+        void addByteData(int8_t * data, uint32_t len);
+        void addUByteData(uint8_t * data, uint32_t len);
+
+        void addIntData(int32_t * data, uint32_t len);
+        void addUIntData(uint32_t * data, uint32_t len);
+
+        void addShortData(int16_t * data, uint32_t len);
+        void addUShortData(uint16_t * data, uint32_t len);
+
+        void addLongData(int64_t * data, uint32_t len);
+        void addULongData(uint64_t * data, uint32_t len);
+
         void addFloatData(float * data, uint32_t len);
         void addDoubleData(double * data, uint32_t len);
+
         void addStringData(std::vector<std::string> & strings);
         void addCompositeData(std::vector<std::shared_ptr<CompositeData>> & data);
 
