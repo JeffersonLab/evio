@@ -1053,7 +1053,7 @@ namespace evio {
         // How many bytes taken for this CompositeData object?
         size_t dataOff = 0;
 
-        Util::printBytes(src, 32, "CD src bytes");
+//        Util::printBytes(src, 32, "CD src bytes");
 
         while (srcBytesLeft > 0) {
 //std::cout << "start src offset = " << srcOff << std::endl;
