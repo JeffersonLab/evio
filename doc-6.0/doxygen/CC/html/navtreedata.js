@@ -69,8 +69,8 @@ var NAVTREEINDEX =
 "da/de6/classevio_1_1_block_header_v4.html#ab29c8838c57859396a46708ddc8808bb",
 "dc/d30/classevio_1_1_byte_buffer.html#a76149a2cbcf34ff02edfb7a0e106abf5",
 "de/d97/classevio_1_1_i_evio_reader.html#a4afeebeff4b3a4f79cebfe662bfa2e3f",
-"de/de3/classevio_1_1_evio_bank.html#a9e1427e32d6d200e1f02f9dff936cbc4",
-"functions_func_w.html"
+"de/de3/classevio_1_1_evio_bank.html#a96cb7662255ba9038ff7748d6be2ab9c",
+"functions_func_p.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
