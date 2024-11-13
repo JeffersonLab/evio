@@ -1131,6 +1131,20 @@ public final class CompactEventBuilder {
      *                       if no room in buffer for data.
      */
     public void addByteData(byte data[]) throws EvioException {
+        addCharData(data);
+    }
+    
+
+    /**
+     * Appends byte data to the structure.
+     *
+     * @param data the byte data to append.
+     * @throws EvioException if data is null or empty;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    public void addCharData(byte data[]) throws EvioException {
         if (data == null || data.length < 1) {
             throw new EvioException("no data to add");
         }
