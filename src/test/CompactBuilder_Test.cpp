@@ -175,14 +175,15 @@ namespace evio {
 
             size_t count = buf1->remaining();
             size_t pos1 = buf1->position(), pos2 = buf2->position();
+            bool identical = true;
 
             for (int i = 0; i < count; i++) {
                 if (buf1->getByte(pos1 + i) != buf2->getByte(pos2 + i)) {
                     std::cout << "compareByteBuffers: buffer data differs at relative pos, " << i << std::endl;
-                    return false;
+                    identical = false;
                 }
             }
-            return true;
+            return identical;
         }
 
 
@@ -227,13 +228,25 @@ namespace evio {
 
             // First compare events created with CompactEventBuilder to those created by EventBuilder
             if (!compareByteBuffers(compactBuf, ebBuf)) {
-                std::cout << "CompactEBTest: compactBuf is different than ebBuf" << std::endl;
+                std::cout << "\nCompactEBTest: compactBuf is different than ebBuf\n" << std::endl;
+
+                Util::printBytes(compactBuf, 0, 572, "compact buf");
+                Util::printBytes(ebBuf, 0, 572, "EB buf");
+            }
+            else {
+                std::cout << "\nCompactEBTest: compactBuf & ebBuf ARE THE SAME!!!\n" << std::endl;
             }
 
             // Next compare events created with CompactEventBuilder to those
             // created by EvioEvent tree structure methods.
             if (!compareByteBuffers(compactBuf, treeBuf)) {
-                std::cout << "CompactEBTest: compactBuf is different than treeBuf" << std::endl;
+                std::cout << "CompactEBTest: compactBuf is different than treeBuf\n" << std::endl;
+
+                Util::printBytes(compactBuf, 0, 572, "compact buf");
+                Util::printBytes(treeBuf, 0, 572, "EB buf");
+            }
+            else {
+                std::cout << "\nCompactEBTest: compactBuf & treeBuf ARE THE SAME!!!\n" << std::endl;
             }
         }
 
