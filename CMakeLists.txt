@@ -36,6 +36,8 @@ set(CMAKE_DEBUG_POSTFIX -dbg)
 #add_compile_options(-g)
 add_compile_options(-Wall)
 
+set(MAKE_EXAMPLES 1)
+
 
 # Place libs & binaries in build/lib and bin (this is not for installation)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
@@ -142,6 +144,7 @@ set(CPP_HEADER_FILES
         src/libsrc++/EvioSwap.h
         src/libsrc++/StructureFinder.h
         src/libsrc++/eviocc.h
+        src/test/TestBase.h
         )
 
 set(CPP_LIB_FILES
@@ -182,6 +185,7 @@ set(CPP_LIB_FILES
         src/libsrc++/EvioCompactStructureHandler.cpp
         src/libsrc++/EventBuilder.cpp
         src/libsrc++/CompactEventBuilder.cpp
+        src/test/TestBase.cpp
         )
 
 
