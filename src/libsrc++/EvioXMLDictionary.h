@@ -200,31 +200,36 @@ namespace evio {
     private:
 
 
-        std::string getName(std::shared_ptr<EvioDictionaryEntry> key);
-        std::shared_ptr<EvioDictionaryEntry> entryLookupByData(uint16_t tag, uint8_t num, uint16_t tagEnd);
-        std::shared_ptr<EvioDictionaryEntry> entryLookupByName(std::string const &name);
+        std::string getName(std::shared_ptr<EvioDictionaryEntry> key) const;
+        std::shared_ptr<EvioDictionaryEntry> entryLookupByData(uint16_t tag, uint8_t num, uint16_t tagEnd) const;
+        std::shared_ptr<EvioDictionaryEntry> entryLookupByName(std::string const &name) const;
 
 
     public:
 
+        bool exists(std::string const & name) const;
 
-        std::string getDescription(uint16_t tag, uint8_t num);
-        std::string getDescription(uint16_t tag, uint8_t num, uint16_t tagEnd);
-        std::string getDescription(std::string const &name);
+        bool isTagRange(std::string const & name) const;
+        bool isTagOnly(std::string const & name)  const;
+        bool isTagNum(std::string const & name)   const;
 
-        std::string getFormat(uint16_t tag, uint8_t num);
-        std::string getFormat(uint16_t tag, uint8_t num, uint16_t tagEnd);
-        std::string getFormat(std::string const &name);
+        std::string getDescription(uint16_t tag, uint8_t num) const;
+        std::string getDescription(uint16_t tag, uint8_t num, uint16_t tagEnd) const;
+        std::string getDescription(std::string const &name) const;
 
-        DataType getType(uint16_t tag, uint8_t num);
-        DataType getType(uint16_t tag, uint8_t num, uint16_t tagEnd);
-        DataType getType(std::string const &name);
+        std::string getFormat(uint16_t tag, uint8_t num) const;
+        std::string getFormat(uint16_t tag, uint8_t num, uint16_t tagEnd) const;
+        std::string getFormat(std::string const &name) const;
 
-        bool getTagNum(std::string const &name, uint16_t *tag, uint8_t *num, uint16_t *tagEnd);
-        bool getTag(std::string const &name, uint16_t *tag);
-        bool getTagEnd(std::string const &name, uint16_t *tagEnd);
+        DataType getType(uint16_t tag, uint8_t num) const;
+        DataType getType(uint16_t tag, uint8_t num, uint16_t tagEnd) const;
+        DataType getType(std::string const &name) const;
 
-        bool getNum(std::string const &name, uint8_t *num);
+        bool getTagNum(std::string const &name, uint16_t *tag, uint8_t *num, uint16_t *tagEnd) const;
+        bool getTag(std::string const &name, uint16_t *tag) const;
+        bool getTagEnd(std::string const &name, uint16_t *tagEnd) const;
+
+        bool getNum(std::string const &name, uint8_t *num) const;
 
 
         std::string toString();

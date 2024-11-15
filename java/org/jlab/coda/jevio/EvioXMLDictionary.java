@@ -258,7 +258,7 @@ public class EvioXMLDictionary implements INameProvider {
 
         Integer tag, tagEnd, num, numEnd;
         boolean badEntry, isTagRange, isNumRange;
-        String name, tagStr, tagEndStr, numStr, numEndStr, type, format, description;
+        String name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
 
         // Pick out elements that are both old & new direct entry elements
         for (int index = 0; index < kidList.getLength(); index++) {
@@ -271,11 +271,12 @@ public class EvioXMLDictionary implements INameProvider {
                 continue;
             }
 
-            if (node.hasAttributes()) {
-                tag = tagEnd = num = numEnd = null;
-                badEntry = isTagRange = isNumRange = false;
-                name = numStr = tagStr = type = format = description = null;
+            tag = tagEnd = num = numEnd = null;
+            badEntry = isTagRange = isNumRange = false;
+            name = numStr = tagStr = typeStr = format = description = null;
+            DataType type = DataType.UNKNOWN32;
 
+            if (node.hasAttributes()) {
                 NamedNodeMap map = node.getAttributes();
 
                 // Get the name
@@ -406,7 +407,9 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 // Get the type, if any
                 attrNode = map.getNamedItem(TYPE);
                 if (attrNode != null) {
-                    type = attrNode.getNodeValue();
+                    typeStr = attrNode.getNodeValue();
+                    typeStr = typeStr.toUpperCase();
+                    type = DataType.valueOf(typeStr);
                 }
 
                 // Look for description node (xml element) as child of entry node
@@ -447,9 +450,9 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     continue;
                 }
 
-                if (numStr == null && type != null) {
-                    System.out.println("IGNORING bad type for this dictionary entry: type = " + type);
-                    type = null;
+                if (numStr == null && typeStr != null) {
+                    //System.out.println("IGNORING bad type for this dictionary entry: type = " + typeStr);
+                    typeStr = null;
                 }
 
 
@@ -469,7 +472,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         // Scan name for the string "%n" and substitute num for it
                         name = nameOrig.replaceAll("%n", n + "");
 
-                        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, n, tagEnd, type,
+                        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, n, tagEnd, type.toString(),
                                                                           description, format);
                         boolean entryAlreadyExists = true;
 
@@ -496,8 +499,9 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 }
                 // If no num defined ...
                 else {
+//System.out.println("  make dictEntry name = " + name + " with description = " + description + ", format = " + format);
                     EvioDictionaryEntry key = new EvioDictionaryEntry(tag, null, tagEnd,
-                                                                     type, description, format);
+                                                                     type.toString(), description, format);
                     boolean entryAlreadyExists = true;
 
                     if (reverseMap.containsKey(name)) {
@@ -571,10 +575,9 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
         if (kidList == null || kidList.getLength() < 1) return;
 
-
         Integer tag, tagEnd, num, numEnd;
         boolean isLeaf, badEntry, isTagRange, isNumRange;
-        String name, tagStr, tagEndStr, numStr, numEndStr, type, format, description;
+        String name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
 
         for (int i = 0; i < kidList.getLength(); i++) {
 
@@ -588,11 +591,12 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 continue;
             }
 
-            if (node.hasAttributes()) {
-                tag = tagEnd = num = numEnd = null;
-                badEntry = isTagRange = isNumRange = false;
-                name = numStr = tagStr = type = format = description = null;
+            tag = tagEnd = num = numEnd = null;
+            badEntry = isTagRange = isNumRange = false;
+            name = numStr = tagStr = typeStr = format = description = null;
+            DataType type = DataType.UNKNOWN32;
 
+            if (node.hasAttributes()) {
                 NamedNodeMap map = node.getAttributes();
 
                 // Get the name
@@ -711,7 +715,9 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 // Get the type, if any
                 attrNode = map.getNamedItem(TYPE);
                 if (attrNode != null) {
-                    type = attrNode.getNodeValue();
+                    typeStr = attrNode.getNodeValue();
+                    typeStr = typeStr.toUpperCase();
+                    type = DataType.valueOf(typeStr);
                 }
 
                 // Look for description node (xml element) as child of entry node
@@ -752,9 +758,9 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     continue;
                 }
 
-                if (numStr == null && type != null) {
-                    System.out.println("IGNORING bad type for this dictionary entry: type = " + type);
-                    type = null;
+                if (numStr == null && typeStr != null) {
+                    //System.out.println("IGNORING bad type for this dictionary entry: type = " + typeStr);
+                    typeStr = null;
                 }
 
 
@@ -785,7 +791,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                             parentEntry = (EvioDictionaryEntry)(parentNode.getUserData("entry"));
                         }
 
-                        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, n, tagEnd, type,
+                        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, n, tagEnd, type.toString(),
                                                                           description, format,
                                                                           parentEntry);
 
@@ -826,7 +832,8 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         parentEntry = (EvioDictionaryEntry)(parentNode.getUserData("entry"));
                     }
 
-                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, null, tagEnd, type,
+//System.out.println("  make bank/leaf name = " + name + " with description = " + description + ", format = " + format);
+                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, null, tagEnd, type.toString(),
                                                                       description, format,
                                                                       parentEntry);
 
@@ -1205,7 +1212,6 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
             return entry;
         }
 
-        System.out.println("entryLookup: no entry for name = " + name);
         return null;
     }
 
@@ -1336,7 +1342,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * Returns the type, if any, associated with the name of a dictionary entry.
      *
      * @param name dictionary name
-     * @return type; null if name or is unknown or no type is associated with it
+     * @return type; null if name is unknown or no type is associated with it
      */
     public DataType getType(String name) {
         EvioDictionaryEntry entry = entryLookupByName(name);
@@ -1346,6 +1352,65 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
         return entry.getType();
 	}
+
+
+    /**
+     * Does the given dictionary entry exist?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry, else false.
+     */
+    public boolean exists(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Does the given dictionary entry (if any) represent a range of tags?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry and it represents a range of tags, else false.
+     */
+    public boolean isTagRange(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
+            return false;
+        }
+
+        return (entry.getEntryType() == EvioDictionaryEntryType.TAG_RANGE);
+    }
+
+
+    /**
+     * Does the given dictionary entry (if any) represent only a single tag without a num?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry and it represents only a single tag without a num, else false.
+     */
+    public boolean isTagOnly(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
+            return false;
+        }
+
+        return (entry.getEntryType() == EvioDictionaryEntryType.TAG_ONLY);
+    }
+
+
+    /**
+     * Does the given dictionary entry (if any) represent a single tag and num pair?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry and it represents a single tag and num pair, else false.
+     */
+    public boolean isTagNum(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
+            return false;
+        }
+
+        return (entry.getEntryType() == EvioDictionaryEntryType.TAG_NUM);
+    }
 
 
     /**

@@ -120,6 +120,7 @@ namespace evio {
             return;
         }
 
+        bool debug = false;
         int tag, tagEnd;
         int num, numEnd;
         bool badEntry, isTagRange, isNumRange;
@@ -130,15 +131,22 @@ namespace evio {
         uint32_t kidCount = 0;
 
         // Look at all the children (and creating a list of them)
-        std::vector<pugi::xml_node> children;
+        //std::vector<pugi::xml_node> children;
+        std::vector<pugi::xml_node> rejectedChildren;
+
         for (pugi::xml_node node : topNode.children()) {
 
-            if (node.empty()) continue;
+            if (node.empty()) {
+                if (debug)  std::cout << "xml node is empty, " << node.name() << std::endl;
+                continue;
+            }
 
             // Only looking for "xmldumpDictEntry" and "dictEntry" nodes (case insensitive)
             std::string nodeName = node.name();
             if (!Util::iStrEquals(nodeName, ENTRY) &&
                 !Util::iStrEquals(nodeName, ENTRY_ALT)) {
+                if (debug)  std::cout << "rejecting node, " << nodeName << std::endl;
+                rejectedChildren.push_back(node);
                 continue;
             }
 
@@ -175,10 +183,12 @@ namespace evio {
                 std::string const & nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
-//std::cout << "String that matches the pattern, sm size = " << sm.size() << std::endl;
-//int i = 0;
-//for (auto str : sm)
-//    std::cout << "  sm[" << i++ << "] = " << str << "\n";
+if (debug) {
+    std::cout << "String that matches the pattern, sm size = " << sm.size() << std::endl;
+    int i = 0;
+    for (auto str : sm)
+        std::cout << "  sm[" << i++ << "] = " << str << "\n";
+}
 
                 if (sm.size() > 1) {
                     // First num is always >= 0
@@ -196,7 +206,7 @@ namespace evio {
                         }
                     }
 
-//std::cout << "num =  " << num << "\n";
+if (debug) std::cout << "num =  " << num << "\n";
 
                     // Ending num
                     if (sm.size() > 3) {
@@ -221,7 +231,7 @@ namespace evio {
                             catch (std::out_of_range &e) {
                                 badEntry = true;
                             }
-//std::cout << "numEnd =  " << numEnd << "\n";
+if (debug) std::cout << "numEnd =  " << numEnd << "\n";
                         }
                         else {
                             // Set for later convenience in for loop
@@ -251,10 +261,12 @@ namespace evio {
                 std::string const & nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
-//std::cout << "String that matches the pattern:" << std::endl;
-//int i = 0;
-//for (auto str : sm)
-//    std::cout << "  sm[" << i++ << "] = " << str << "\n";
+                if (debug) {
+                    std::cout << "String that matches the pattern:" << std::endl;
+                    int i = 0;
+                    for (auto str : sm)
+                        std::cout << "  sm[" << i++ << "] = " << str << "\n";
+                }
 
                 if (sm.size() > 1) {
                     // First tag, never null, always >= 0, or no match occurs
@@ -298,8 +310,11 @@ namespace evio {
                 else {
                     badEntry = true;
                 }
-//std::cout << "tag =  " << tag << "\n";
-//std::cout << "tagEnd =  " << tagEnd << "\n";
+
+                if (debug) {
+                    std::cout << "tag =  " << tag << "\n";
+                    std::cout << "tagEnd =  " << tagEnd << "\n";
+                }
             }
 
             // Scan name for the string "%t".
@@ -317,7 +332,7 @@ namespace evio {
             else {
                 name = std::regex_replace(name, std::regex("%t"), tagStr);
             }
-//std::cout << "badEntry = " << badEntry << std::endl;
+if (debug) std::cout << "badEntry = " << badEntry << std::endl;
 
             // Get the type, if any
             attrNode = node.attribute(TYPE.c_str());
@@ -340,13 +355,13 @@ namespace evio {
                 }
 
                 description = childNode.child_value();
-//std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
+if (debug) std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
 
                 // See if there's a format attribute
                 pugi::xml_attribute attr = childNode.attribute(FORMAT.c_str());
                 if (!attr.empty()) {
                     format = attr.value();
-//std::cout << "FOUND FORMAT H: = " << format << std::endl;
+if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
                 }
 
                 break;
@@ -359,7 +374,7 @@ namespace evio {
             }
 
             if (numStr.empty() && !typeStr.empty()) {
-                std::cout << "IGNORING bad type for this dictionary entry: type = " << typeStr << std::endl;
+                if (debug) std::cout << "IGNORING bad type for this dictionary entry: type = " << typeStr << std::endl;
                 typeStr = "";
             }
 
@@ -371,7 +386,7 @@ namespace evio {
                     num = numEnd;
                     numEnd = tmp;
                 }
-std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << numEnd << "\n";
+if (debug) std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << numEnd << "\n";
 
                 std::string nameOrig = name;
 
@@ -395,7 +410,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                         auto itnrm = tagNumReverseMap.find(name);
 
                         if ((itnm == tagNumMap.end()) && (itnrm == tagNumReverseMap.end())) {
-//std::cout << "  PLACING entry 1 into tagNum map, name = " <<  name << std::endl;
+if (debug) std::cout << "  PLACING entry 1 into tagNum map, name = " <<  name << std::endl;
                             tagNumMap.insert({key, name});
                             tagNumReverseMap.insert({name, key});
                             entryAlreadyExists = false;
@@ -412,6 +427,8 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
             }
             // If no num defined ...
             else {
+std::cout << "  make entry name = " <<  name << " with description = " << description << ", format = " << format << std::endl;
+
                 auto key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd, type, description, format);
                 bool entryAlreadyExists = true;
 
@@ -423,7 +440,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                     if (isTagRange) {
                         auto itrm = tagRangeMap.find(key);
                         if (itrm == tagRangeMap.end()) {
-//std::cout << "  PLACING entry 2 into tagRange map, name = " <<  name << std::endl;
+if (debug) std::cout << "  PLACING entry 2 into tagRange map, name = " <<  name << std::endl;
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -434,7 +451,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                     else {
                         auto itom  = tagOnlyMap.find(key);
                         if (itom == tagOnlyMap.end()) {
-//std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name << std::endl;
+if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name << std::endl;
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -449,7 +466,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                 }
             }
 
-            children.push_back(node);
+            //children.push_back(node);
             kidCount++;
         }
 
@@ -457,7 +474,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
 
         // Look at the (new) hierarchical entry elements,
         // recursively, and add all existing entries.
-        addHierarchicalDictEntries(children, "");
+        addHierarchicalDictEntries(rejectedChildren, "");
 
     } // end method
 
@@ -494,6 +511,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
 
         if (kidList.empty()) return;
 
+        bool debug = false;
         uint16_t tag, tagEnd;
         uint8_t  num, numEnd;
         bool badEntry, isTagRange, isNumRange, isLeaf;
@@ -502,14 +520,22 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
         // Look at all the children
         for (pugi::xml_node node : kidList) {
 
-            if (node.empty()) continue;
+            if (node.empty()) {
+                if (debug) std::cout << "node " << node.name() << " is empty so ignore it!" << std::endl;
+                continue;
+            }
             std::string nodeName = node.name();
 
             isLeaf = Util::iStrEquals(nodeName, ENTRY_LEAF);
 
             // Only looking for "bank" and "leaf" nodes
             if (!Util::iStrEquals(nodeName, ENTRY_BANK) && !isLeaf) {
+                if (debug) std::cout << "rejecting " << nodeName << " is NOT a bank or leaf" << std::endl;
                 continue;
+            }
+
+            if (debug) {
+                std::cout << "node " << nodeName << " is a bank or leaf" << std::endl;
             }
 
             tag = tagEnd = num = numEnd = 0;
@@ -533,9 +559,11 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                 std::string const &nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
-                //                cout<<"String that matches the pattern:"<<endl;
-                //                for (auto str : sm)
-                //                    cout << str << " ";
+                if (debug) {
+                    std::cout << "Hierarchical string that matches the pattern:"<< std::endl;
+                    for (auto str : sm)
+                       std::cout << str << " ";
+                }
 
                 if (sm.size() > 1) {
                     // First num is always >= 0
@@ -681,13 +709,13 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                 }
 
                 description = childNode.child_value();
-                //std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
+if (debug) std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
 
                 // See if there's a format attribute
                 pugi::xml_attribute attr = childNode.attribute(FORMAT.c_str());
                 if (!attr.empty()) {
                     format = attr.value();
-                    //std::cout << "FOUND FORMAT H: = " << format << std::endl;
+if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
                 }
 
                 break;
@@ -695,12 +723,12 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
 
             // Skip meaningless entries
             if (name.empty() || tagStr.empty() || badEntry) {
-                std::cout << "IGNORING badly formatted dictionary entry 1: name = " << name << std::endl;
+                std::cout << "IGNORING badly formatted H dictionary entry 1: name = " << name << std::endl;
                 continue;
             }
 
             if (numStr.empty() && !typeStr.empty()) {
-                std::cout << "IGNORING bad type for this dictionary entry: type = " << typeStr << std::endl;
+                if (debug) std::cout << "IGNORING bad type for this H dictionary entry: type = " << typeStr << std::endl;
                 typeStr = "";
             }
 
@@ -750,7 +778,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                         auto itnrm = tagNumReverseMap.find(name);
 
                         if ((itnm == tagNumMap.end()) && (itnrm == tagNumReverseMap.end())) {
-//std::cout << "  PLACING entry into tagNum map, name = " <<  name << std::endl;
+if (debug) std::cout << "  PLACING H entry into tagNum map, name = " <<  name << std::endl;
                             tagNumMap.insert({key, name});
                             tagNumReverseMap.insert({name, key});
                             entryAlreadyExists = false;
@@ -793,7 +821,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                     if (isTagRange) {
                         auto itrm = tagRangeMap.find(key);
                         if (itrm == tagRangeMap.end()) {
-//std::cout << "  PLACING entry into tagRange map, name = " <<  name << std::endl;
+if (debug) std::cout << "  PLACING H entry into tagRange map, name = " <<  name << std::endl;
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -804,7 +832,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                     else {
                         auto itom = tagOnlyMap.find(key);
                         if (itom == tagOnlyMap.end()) {
-//std::cout << "  PLACING entry into tagOnly map, name = " <<  name << std::endl;
+if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name << std::endl;
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -1098,7 +1126,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param key dictionary entry to look up name for.
      * @return name associated with key or "???" if none.
      */
-    std::string EvioXMLDictionary::getName(std::shared_ptr<EvioDictionaryEntry> key) {
+    std::string EvioXMLDictionary::getName(std::shared_ptr<EvioDictionaryEntry> key) const {
 
 //        bool debug = true;
         uint16_t tag = key->getTag();
@@ -1214,7 +1242,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param tagEnd tagEnd of dictionary entry to find
      * @return entry or null if none found
      */
-    std::shared_ptr<EvioDictionaryEntry> EvioXMLDictionary::entryLookupByData(uint16_t tag, uint8_t num, uint16_t tagEnd) {
+    std::shared_ptr<EvioDictionaryEntry> EvioXMLDictionary::entryLookupByData(uint16_t tag, uint8_t num, uint16_t tagEnd) const {
 
         // Given data, find the entry in dictionary that corresponds to it.
         //
@@ -1297,7 +1325,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param name name associated with entry
      * @return entry or null if none found
      */
-    std::shared_ptr<EvioDictionaryEntry> EvioXMLDictionary::entryLookupByName(std::string const & name) {
+    std::shared_ptr<EvioDictionaryEntry> EvioXMLDictionary::entryLookupByName(std::string const & name) const {
         // Check all entries
         auto it2 = reverseMap.find(name);
         if (it2 != reverseMap.end()) {
@@ -1316,7 +1344,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param num    to find the description of
      * @return description or null if none found
      */
-    std::string EvioXMLDictionary::getDescription(uint16_t tag, uint8_t num) {
+    std::string EvioXMLDictionary::getDescription(uint16_t tag, uint8_t num) const {
         return getDescription(tag, num, tag);
     }
 
@@ -1329,7 +1357,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param tagEnd to find the description of
      * @return description or empty string if none found
      */
-    std::string EvioXMLDictionary::getDescription(uint16_t tag, uint8_t num, uint16_t tagEnd) {
+    std::string EvioXMLDictionary::getDescription(uint16_t tag, uint8_t num, uint16_t tagEnd) const {
         auto entry = entryLookupByData(tag, num, tagEnd);
         if (entry == nullptr) {
             return "";
@@ -1345,7 +1373,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param name dictionary name
      * @return description; empty string if name or is unknown or no description is associated with it
      */
-    std::string EvioXMLDictionary::getDescription(std::string const & name) {
+    std::string EvioXMLDictionary::getDescription(std::string const & name) const {
         auto entry = entryLookupByName(name);
         if (entry == nullptr) {
             return "";
@@ -1362,7 +1390,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param num to find the format of
      * @return the format or null if none found
      */
-    std::string EvioXMLDictionary::getFormat(uint16_t tag, uint8_t num) {
+    std::string EvioXMLDictionary::getFormat(uint16_t tag, uint8_t num) const {
         return getFormat(tag, num, tag);
     }
 
@@ -1375,7 +1403,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param tagEnd to find the format of
      * @return  format or null if none found
      */
-    std::string EvioXMLDictionary::getFormat(uint16_t tag, uint8_t num, uint16_t tagEnd) {
+    std::string EvioXMLDictionary::getFormat(uint16_t tag, uint8_t num, uint16_t tagEnd) const {
         auto entry = entryLookupByData(tag, num, tagEnd);
         if (entry == nullptr) {
             return "";
@@ -1391,7 +1419,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param name dictionary name
      * @return format; null if name or is unknown or no format is associated with it
      */
-    std::string EvioXMLDictionary::getFormat(std::string const & name) {
+    std::string EvioXMLDictionary::getFormat(std::string const & name) const {
         auto entry = entryLookupByName(name);
         if (entry == nullptr) {
             return "";
@@ -1408,7 +1436,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param num to find the type of
      * @return type or null if none found
      */
-    DataType EvioXMLDictionary::getType(uint16_t tag, uint8_t num) {
+    DataType EvioXMLDictionary::getType(uint16_t tag, uint8_t num) const {
         return getType(tag, num, tag);
     }
 
@@ -1421,7 +1449,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param tagEnd to find the type of.
      * @return type or DataType::NOT_A_VALID_TYPE if none found.
      */
-    DataType EvioXMLDictionary::getType(uint16_t tag, uint8_t num, uint16_t tagEnd) {
+    DataType EvioXMLDictionary::getType(uint16_t tag, uint8_t num, uint16_t tagEnd) const {
         auto entry = entryLookupByData(tag, num, tagEnd);
         if (entry == nullptr) {
             return DataType::NOT_A_VALID_TYPE;
@@ -1434,16 +1462,75 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
     /**
      * Returns the type, if any, associated with the name of a dictionary entry.
      *
-     * @param name dictionary name.
+     * @param name dictionary entry name.
      * @return type; DataType::NOT_A_VALID_TYPE if name or is unknown or no type is associated with it.
      */
-    DataType EvioXMLDictionary::getType(std::string const & name) {
+    DataType EvioXMLDictionary::getType(std::string const & name) const {
         auto entry = entryLookupByName(name);
         if (entry == nullptr) {
             return DataType::NOT_A_VALID_TYPE;
         }
 
         return entry->getType();
+    }
+
+
+    /**
+     * Does the given dictionary entry exist?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry, else false.
+     */
+    bool EvioXMLDictionary::exists(const std::string &name) const {
+        auto entry = entryLookupByName(name);
+        if (entry == nullptr) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Does the given dictionary entry (if any) represent a range of tags?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry and it represents a range of tags, else false.
+     */
+    bool EvioXMLDictionary::isTagRange(std::string const & name) const {
+        auto entry = entryLookupByName(name);
+        if (entry == nullptr) {
+            return false;
+        }
+
+        return (entry->getEntryType() == EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE);
+    }
+
+
+    /**
+     * Does the given dictionary entry (if any) represent only a single tag without a num?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry and it represents only a single tag without a num, else false.
+     */
+    bool EvioXMLDictionary::isTagOnly(std::string const & name) const {
+        auto entry = entryLookupByName(name);
+        if (entry == nullptr) {
+            return false;
+        }
+
+        return (entry->getEntryType() == EvioDictionaryEntry::EvioDictionaryEntryType::TAG_ONLY);
+    }
+
+
+    /**
+     * Does the given dictionary entry (if any) represent a single tag and num pair?
+     * @param name dictionary entry name.
+     * @return true if this is a valid dictionary entry and it represents a single tag and num pair, else false.
+     */
+    bool EvioXMLDictionary::isTagNum(std::string const & name) const {
+        auto entry = entryLookupByName(name);
+        if (entry == nullptr) {
+            return false;
+        }
+
+        return (entry->getEntryType() == EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM);
     }
 
 
@@ -1466,7 +1553,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param tagEnd pointer which gets filled with tagEnd value.
      * @return true if entry found, else false.
      */
-    bool EvioXMLDictionary::getTagNum(std::string const & name, uint16_t *tag, uint8_t *num, uint16_t *tagEnd) {
+    bool EvioXMLDictionary::getTagNum(std::string const & name, uint16_t *tag, uint8_t *num, uint16_t *tagEnd) const {
         auto entry = entryLookupByName(name);
         if (entry != nullptr) {
             if (tag != nullptr)    {*tag = entry->getTag();}
@@ -1481,11 +1568,12 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
 
     /**
      * Returns the tag corresponding to the name of a dictionary entry.
+     * If a tag range, returns lowest value.
      * @param name dictionary name
      * @param tag pointer which gets filled with tag value.
      * @return true if entry found, else false.
      */
-    bool EvioXMLDictionary::getTag(std::string const & name, uint16_t *tag) {
+    bool EvioXMLDictionary::getTag(std::string const & name, uint16_t *tag) const {
         auto entry = entryLookupByName(name);
         if (entry != nullptr) {
             if (tag != nullptr) {
@@ -1504,7 +1592,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param tagEnd pointer which gets filled with tagEnd value.
      * @return true if entry found, else false.
      */
-    bool EvioXMLDictionary::getTagEnd(std::string const & name, uint16_t *tagEnd) {
+    bool EvioXMLDictionary::getTagEnd(std::string const & name, uint16_t *tagEnd) const {
         auto entry = entryLookupByName(name);
         if (entry != nullptr) {
             if (tagEnd != nullptr) {
@@ -1524,7 +1612,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
      * @param num pointer which gets filled with entry's num value.
      * @return true if entry found, else false.
      */
-    bool EvioXMLDictionary::getNum(std::string const & name, uint8_t *num) {
+    bool EvioXMLDictionary::getNum(std::string const & name, uint8_t *num) const {
         auto entry = entryLookupByName(name);
         if (entry != nullptr) {
             if (num != nullptr) {*num = entry->getNum();}
@@ -1572,7 +1660,7 @@ std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << 
                 }
                 case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM : {
                     std::stringstream ss;
-                    ss << std::setw(30) << name << ": tag " << tag << ", num " << num << std::endl;
+                    ss << std::setw(30) << name << ": tag " << tag << ", num " << +num << std::endl;
                     sb.append(ss.str());
                     break;
                 }
