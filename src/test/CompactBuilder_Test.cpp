@@ -45,6 +45,8 @@ namespace evio {
             std::vector<std::shared_ptr<EvioNode>> returnList;
             std::shared_ptr<EvioNode> node = nullptr;
 
+            buffer = createCompactEventBuffer(1,1);
+
             try {
                 std::cout << "searchBuffer: write previously created event (in buffer)" << std::endl;
                 std::cout << "            : buffer = \n" << buffer->toString() << std::endl;
@@ -54,21 +56,21 @@ namespace evio {
                 writer.close();
                 writeBuf = writer.getByteBuffer();
 
-                std::cout << "searchBuffer: create compact reader to read newly created writeBuf" << std::endl;
+                std::cout << "searchBuffer: create EvioCompactReader to read newly created writeBuf" << std::endl;
                 EvioCompactReader reader(writeBuf);
 
-//                std::shared_ptr<EvioNode> evNode = reader.getEvent(1);
-//                std::cout << "\nEv node = " << evNode->toString() << std::endl;
-//                std::cout << "   allNodes size = " << evNode->getAllNodes().size() << std::endl << std::endl;
+                //                std::shared_ptr<EvioNode> evNode = reader.getEvent(1);
+                //                std::cout << "\nEv node = " << evNode->toString() << std::endl;
+                //                std::cout << "   allNodes size = " << evNode->getAllNodes().size() << std::endl << std::endl;
 
                 std::shared_ptr<EvioNode> evScannedNode = reader.getScannedEvent(1);
                 std::cout << "\nEv scanned node = " << evScannedNode->toString() << std::endl;
                 std::cout << "   allNodes size = " << evScannedNode->getAllNodes().size() << std::endl << std::endl;
 
                 // search event #1 for struct with tag, num
-                std::cout << "searchBuffer: search event #1" << std::endl;
+                std::cout << "searchBuffer: search event #1 for tag = " << tag << ", num = " << +num << std::endl;
                 reader.searchEvent(1, tag, num, returnList);
-                if (returnList.size() < 1) {
+                if (returnList.empty()) {
                     std::cout << "GOT NOTHING IN SEARCH for ev 1, tag = " << tag << ", num = " << +num << std::endl;
                     return nullptr;
                 }
@@ -80,14 +82,14 @@ namespace evio {
                 }
 
                 // Match only tags, not num
-                std::cout << "searchBuffer: create Regular reader to read newly created writeBuf" << std::endl;
+                std::cout << "searchBuffer: create EvioReader to read newly created writeBuf" << std::endl;
                 EvioReader reader2(writeBuf);
                 auto event = reader2.parseEvent(1);
                 std::vector<std::shared_ptr<BaseStructure>> vec;
                 tag = 41;
                 std::cout << "searchBuffer: get matching struct for tag = " << tag << std::endl;
                 StructureFinder::getMatchingStructures(event, tag, vec);
-                if (vec.size() < 1) {
+                if (vec.empty()) {
                     std::cout << "GOT NOTHING IN SEARCH for ev 1, tag = " << tag << std::endl;
                     return nullptr;
                 }
@@ -97,8 +99,6 @@ namespace evio {
                         std::cout << "Struct: " << ev->toString() << std::endl << std::endl;
                     }
                 }
-
-
             }
             catch (EvioException &e) {
                 std::cout << e.what() << std::endl;
@@ -187,44 +187,19 @@ namespace evio {
         }
 
 
-
-        /** Writing to a buffer & file using CompactEventBuilder interface. */
-        void createCompactEvents(uint16_t tag, uint8_t num) {
-
-            try {
-                auto builder = std::make_shared<CompactEventBuilder>(buffer);
-                auto evBuf = createCompactEventBuffer(tag, num, ByteOrder::ENDIAN_LOCAL, 200000, builder);
-
-                builder->toFile(writeFileName1);
-                // buffer is left in a readable state after above method
-
-                // Read event back out of file
-                EvioReader reader(writeFileName1);
-                std::cout << "createCompactEvents: try getting first ev from file" << std::endl;
-                auto ev = reader.parseEvent(1);
-                std::cout << "createCompactEvents: event ->\n" << ev->treeToString("") << std::endl;
-                // This sets the proper pos and lim in buffer
-                auto bb = builder->getBuffer();
-                std::cout << "createCompactEvents: buffer = \n" << bb->toString() << std::endl;
-            }
-            catch (EvioException &e) {
-                std::cout << e.what() << std::endl;
-            }
-        }
-
-
-
-        // TCompare different methods of creating events - for accuracy
+        // Compare different methods of creating events - for accuracy
         void CompactEBTest() {
 
             uint16_t tag = 1;
             uint8_t  num = 1;
 
-            std::shared_ptr<ByteBuffer> compactBuf = createCompactEventBuffer(tag, num);
+            ByteOrder order = ByteOrder::ENDIAN_BIG;
 
-            std::shared_ptr<ByteBuffer> ebBuf = createEventBuilderBuffer(tag, num);
+            std::shared_ptr<ByteBuffer> compactBuf = createCompactEventBuffer(tag, num, order);
 
-            std::shared_ptr<ByteBuffer> treeBuf = createTreeBuffer(tag, num);
+            std::shared_ptr<ByteBuffer> ebBuf = createEventBuilderBuffer(tag, num, order);
+
+            std::shared_ptr<ByteBuffer> treeBuf = createTreeBuffer(tag, num, order);
 
             // First compare events created with CompactEventBuilder to those created by EventBuilder
             if (!compareByteBuffers(compactBuf, ebBuf)) {
