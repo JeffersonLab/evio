@@ -60,17 +60,17 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"d2/d66/_file_header_8h.html",
-"d4/d12/classevio_1_1_evio_event.html#a2524a3e5904288ddbbe4e04b505c0152",
-"d5/d29/classevio_1_1_evio_segment.html#a66c6db380ce04efa87430c79358e72d5",
-"d6/dca/classevio_1_1_writer.html#a2c367e6ba0f85d3af97248bdc1073d17",
-"d8/d2b/classevio_1_1node_breadth_iterator.html#a96ef32f84d864d5e6d0d248753c24195",
-"d9/ddd/classevio_1_1_base_structure.html#a34bde5df553f75ff01b9b4ad50774505",
-"da/de6/classevio_1_1_block_header_v4.html#ab29c8838c57859396a46708ddc8808bb",
-"dc/d30/classevio_1_1_byte_buffer.html#a76149a2cbcf34ff02edfb7a0e106abf5",
-"de/d97/classevio_1_1_i_evio_reader.html#a4afeebeff4b3a4f79cebfe662bfa2e3f",
-"de/de3/classevio_1_1_evio_bank.html#a96cb7662255ba9038ff7748d6be2ab9c",
-"functions_func_p.html"
+"d2/d4a/classevio_1_1_evio_dictionary_entry.html#adeefb94835e5555e5408e9cbe9ef5b20",
+"d4/d12/classevio_1_1_evio_event.html#a216a3d4858d6280df0f42d397b2759dc",
+"d5/d29/classevio_1_1_evio_segment.html#a622bb507ede6789103db9fd9052ff57a",
+"d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb",
+"d8/d2b/classevio_1_1node_breadth_iterator.html#a5b4ee01ca96a0e2ea67b04c0be930bc8",
+"d9/ddd/classevio_1_1_base_structure.html#a3189b9ed0ee2381128a0eaf4b0143571",
+"da/de6/classevio_1_1_block_header_v4.html#aad80710f808b0826b453796f6f0ab2b4",
+"dc/d30/classevio_1_1_byte_buffer.html#a6aee163fd7b9fc5fc6365ec6c80bb16e",
+"de/d97/classevio_1_1_i_evio_reader.html#a3a3c4a46ffffbd0d090e8ee04a5b54f2",
+"de/de3/classevio_1_1_evio_bank.html#a948822b6dab3d2a212a977798dfe314b",
+"functions_func_m.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
