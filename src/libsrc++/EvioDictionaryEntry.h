@@ -288,27 +288,27 @@ namespace evio {
         }
 
 
-        /**
-         * Get a string representation of this object.
-         * @return a string representation of this object.
-         */
-        std::string toString() const {
-            std::stringstream ss;
-
-            switch (entryType) {
-                case TAG_NUM:
-                    ss << "(tag=" << tag << ",num =" << +num << ")" ;
-                    break;
-                case TAG_ONLY:
-                    ss << "(tag=" << tag << ")" ;
-                    break;
-                case TAG_RANGE:
-                    ss << "(tag=" << tag << "-" << tagEnd << ")" ;
-            }
-
-            return ss.str();
-        }
-
+//        /**
+//         * Get a string representation of this object.
+//         * @return a string representation of this object.
+//         */
+//        std::string toString() const {
+//            std::stringstream ss;
+//
+//            switch (entryType) {
+//                case TAG_NUM:
+//                    ss << "(tag=" << tag << ",num =" << +num << ")" ;
+//                    break;
+//                case TAG_ONLY:
+//                    ss << "(tag=" << tag << ")" ;
+//                    break;
+//                case TAG_RANGE:
+//                    ss << "(tag=" << tag << "-" << tagEnd << ")" ;
+//            }
+//
+//            return ss.str();
+//        }
+//
 
         /**
          * Get the tag value.
@@ -364,23 +364,23 @@ namespace evio {
          * Get the string representation of this object.
          * @return string representation of this object.
          */
-        std::string toString() {
+        std::string toString() const {
 
             std::stringstream ss;
 
             ss << std::boolalpha;
 
-            ss << "tag = " << tag << ", tagEnd = " << tagEnd << ", num = " << +num << ", numValid = " << numValid <<
+            ss << "(tag = " << tag << ", tagEnd = " << tagEnd << ", num = " << +num << ", numValid = " << numValid <<
                   ", data type = " << type.toString();
 
             if (entryType == TAG_NUM)
-                ss << ", entry type = TAG/NUM";
+                ss << ", entry type = TAG_NUM";
             else if (entryType == TAG_ONLY)
                 ss << ", entry type = TAG_ONLY";
             else if (entryType == TAG_RANGE)
                 ss << ", entry type = TAG_RANGE";
 
-            ss << std::endl;
+            ss << ")" << std::endl;
 
             if (!format.empty()) {
                 ss << "    format = " << format << std::endl;
@@ -390,9 +390,9 @@ namespace evio {
                 ss << "    description = " << description << std::endl;
             }
 
-            if (parentEntry != nullptr) {
-                ss << "    parent = " << parentEntry->toString() << std::endl;
-            }
+//            if (parentEntry != nullptr) {
+//                ss << "    parent = " << parentEntry->toString() << std::endl;
+//            }
 
             return ss.str();
         }
