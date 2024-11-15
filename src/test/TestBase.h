@@ -64,8 +64,6 @@ namespace evio {
         int skip = 0;
         int bufSize = 200000;
 
-        bool oldEvio = false;
-        bool useBuf = false;
 
         std::shared_ptr<ByteBuffer> buffer;
 

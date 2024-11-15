@@ -17,60 +17,81 @@ namespace evio {
     TestBase::TestBase() : TestBase(200000, ByteOrder::ENDIAN_LOCAL) {}
 
 
-        /**
-         * Put boiler plate code for doing tests here.
-         * The evio events created by all methods have the same structure and data.
-         * In other words, they're identical.
-         *
-         * @param bufSize size in bytes of internal ByteBuffer.
-         * @param byteOrder byte order of internal ByteBuffer.
-         */
+    /**
+     * Put boiler plate code for doing tests here.
+     * The evio events created by all methods have the same structure and data.
+     * In other words, they're identical.
+     *
+     * @param bufSize size in bytes of internal ByteBuffer.
+     * @param byteOrder byte order of internal ByteBuffer.
+     */
     TestBase::TestBase(size_t bufSize, ByteOrder const & byteOrder) {
 
         order = byteOrder;
         buffer = std::make_shared<ByteBuffer>(bufSize);
         buffer->order(order);
 
+        bool printOut = false;
 
-        std::cout << "Running with:" << std::endl;
-        std::cout << " data elements = " << dataElementCount << std::endl;
-        std::cout << "       bufSize = " << bufSize << std::endl;
-        std::cout << "         loops = " << bufferLoops << std::endl;
-        std::cout << "          runs = " << runLoops << std::endl;
-        std::cout << "        useBuf = " << useBuf << std::endl;
-        std::cout << "      old evio = " << oldEvio << std::endl;
+        if (printOut) {
+            std::cout << "Running with:" << std::endl;
+            std::cout << " data elements = " << dataElementCount << std::endl;
+            std::cout << "       bufSize = " << bufSize << std::endl;
+            std::cout << "         loops = " << bufferLoops << std::endl;
+            std::cout << "          runs = " << runLoops << std::endl;
+        }
 
         setDataSize(dataElementCount);
 
         std::stringstream ss;
 
-        ss << "<xmlDict>\n" <<
-           "  <bank name=\"HallD\"             tag=\"6-8\"  type=\"bank\" >\n" <<
-           "      <description format=\"New Format\" >hall_d_tag_range</description>\n" <<
-           "      <bank name=\"DC(%t)\"        tag=\"6\" num=\"4\" >\n" <<
-           "          <leaf name=\"xpos(%n)\"  tag=\"6\" num=\"5\" />\n" <<
-           "          <bank name=\"ypos(%n)\"  tag=\"6\" num=\"6\" />\n" <<
-           "      </bank >\n" <<
-           "      <bank name=\"TOF\"     tag=\"8\" num=\"0\" >\n" <<
-           "          <leaf name=\"x\"   tag=\"8\" num=\"1\" />\n" <<
-           "          <bank name=\"y\"   tag=\"8\" num=\"2\" />\n" <<
-           "      </bank >\n" <<
-           "      <bank name=\"BCAL\"      tag=\"7\" >\n" <<
-           "          <leaf name=\"x(%n)\" tag=\"7\" num=\"1-3\" />\n" <<
-           "      </bank >\n" <<
+        // Warning: some of the following dictionary entries are based on the event created given
+        // tag = 1, num = 1 in the args.
+
+// Old example
+//        ss << "<xmlDict>\n" <<
+//           "  <bank name=\"HallD\"             tag=\"6-8\"  type=\"bank\" >\n" <<
+//           "      <description format=\"New Format\" >hall_d_tag_range</description>\n" <<
+//           "      <bank name=\"DC(%t)\"        tag=\"6\" num=\"4\" >\n" <<
+//           "          <leaf name=\"xpos(%n)\"  tag=\"6\" num=\"5\" />\n" <<
+//           "          <bank name=\"ypos(%n)\"  tag=\"6\" num=\"6\" />\n" <<
+//           "      </bank >\n" <<
+//           "      <bank name=\"TOF\"     tag=\"8\" num=\"0\" >\n" <<
+//           "          <leaf name=\"x\"   tag=\"8\" num=\"1\" />\n" <<
+//           "          <bank name=\"y\"   tag=\"8\" num=\"2\" />\n" <<
+//           "      </bank >\n" <<
+//           "      <bank name=\"BCAL\"      tag=\"7\" >\n" <<
+//           "          <leaf name=\"x(%n)\" tag=\"7\" num=\"1-3\" />\n" <<
+//           "      </bank >\n" <<
+//           "  </bank >\n" <<
+//           "  <bank name=\"Rangy\" tag=\"75 - 78\" >\n" <<
+//           "      <leaf name=\"BigTag\" tag=\"76\" />\n" <<
+//           "  </bank >\n" <<
+//           "</xmlDict>";
+
+
+           ss << "<xmlDict>\n" <<
+           "<bank name=\"Top\"                tag=\"1\"  num=\"1\" type=\"bank\" >\n" <<
+           "  <bank name=\"2ndLevel\"         tag=\"201-203\"      type=\"bank\" >\n" <<
+           "      <description format=\"New Format\" >example_tag_range</description>\n" <<
+           "      <leaf name=\"BankUints\"     tag=\"3\" num=\"3\" />\n" <<
+           "      <leaf name=\"SegInts\"       tag=\"9\"  />\n" <<
+           "      <leaf name=\"TagSegUints\"   tag=\"17\" />\n" <<
+           "      <leaf name=\"InBank\"        tag=\"3-8\" />\n" <<
+           "      <leaf name=\"InSeg\"         tag=\"9-14\" />\n" <<
+           "      <leaf name=\"InTagSeg\"      tag=\"18-22\" />\n" <<
            "  </bank >\n" <<
-           "  <dictEntry name=\"JUNK\" tag=\"5\" num=\"0\" />\n" <<
+           "</bank >\n" <<
+           "  <dictEntry name=\"CompositeData\" tag=\"101\"  type=\"composite\" />\n" <<
+           "  <dictEntry name=\"JUNK\" tag=\"4\" num=\"4\" />\n" <<
            "  <dictEntry name=\"SEG5\" tag=\"5\" >\n" <<
            "       <description format=\"Old Format\" >tag 5 description</description>\n" <<
            "  </dictEntry>\n" <<
-           "  <bank name=\"Rangy\" tag=\"75 - 78\" >\n" <<
-           "      <leaf name=\"BigTag\" tag=\"76\" />\n" <<
-           "  </bank >\n" <<
            "</xmlDict>";
 
         dictionary = ss.str();
 
-        std::cout << "Const: dictionary = \n" << dictionary << std::endl;
+        if (printOut) std::cout << "Const: dictionary = \n" << dictionary << std::endl;
     }
 
 
@@ -160,7 +181,16 @@ namespace evio {
     }
 
 
-    /** Create a test Evio Event in ByteBuffer form using CompactEventBuilder. */
+    /**
+     * Create a test Evio Event in ByteBuffer form using CompactEventBuilder.
+     * @param tag tag of event.
+     * @param num num of event.
+     * @param byteOrder byte order of resulting ByteBuffer.
+     * @param bSize if builder is null, size of internal buf to create
+     * @param builder object to build EvioEvent with, if null, create in method.
+     * @return ByteBuffer containing EvioEvent.
+     * @throws EvioException error in CompactEventBuilder object.
+     */
     std::shared_ptr<ByteBuffer> TestBase::createCompactEventBuffer(uint16_t tag, uint8_t num,
                                                                    ByteOrder const & byteOrder,
                                                                    size_t bSize,
@@ -176,7 +206,7 @@ namespace evio {
         builder->openBank(tag, DataType::BANK, num);
 
         // add bank of banks
-        builder->openBank(tag + 1, DataType::BANK, num + 1);
+        builder->openBank(tag + 200, DataType::BANK, num + 200);
 
         // add bank of ints
         builder->openBank(tag + 2, DataType::UINT32, num + 2);
@@ -223,7 +253,7 @@ namespace evio {
 
 
         // add bank of segs
-        builder->openBank(tag + 14, DataType::SEGMENT, num + 14);
+        builder->openBank(tag + 201, DataType::SEGMENT, num + 201);
 
         // add seg of ints
         builder->openSegment(tag + 8, DataType::INT32);
@@ -264,7 +294,7 @@ namespace evio {
 
 
         // add bank of tagsegs
-        builder->openBank(tag + 15, DataType::TAGSEGMENT, num + 15);
+        builder->openBank(tag + 202, DataType::TAGSEGMENT, num + 202);
 
         // add tagseg of ints
         builder->openTagSegment(tag + 16, DataType::UINT32);
@@ -334,7 +364,7 @@ namespace evio {
             auto event = builder.getEvent();
 
             // bank of banks
-            auto bankBanks = EvioBank::getInstance(tag + 1, DataType::BANK, num + 1);
+            auto bankBanks = EvioBank::getInstance(tag + 200, DataType::BANK, num + 200);
             builder.addChild(event, bankBanks);
 
             // bank of ints
@@ -380,7 +410,7 @@ namespace evio {
 
 
             // bank of segments
-            auto bankSegs = EvioBank::getInstance(tag + 14, DataType::SEGMENT, num + 14);
+            auto bankSegs = EvioBank::getInstance(tag + 201, DataType::SEGMENT, num + 201);
             builder.addChild(event, bankSegs);
 
             // seg of ints
@@ -421,7 +451,7 @@ namespace evio {
 
 
             // bank of tagsegments
-            auto bankTsegs = EvioBank::getInstance(tag + 15, DataType::TAGSEGMENT, num + 15);
+            auto bankTsegs = EvioBank::getInstance(tag + 202, DataType::TAGSEGMENT, num + 202);
             builder.addChild(event, bankTsegs);
 
             // tagsegments of ints
