@@ -909,7 +909,7 @@ public class EventWriterUnsync implements AutoCloseable {
     public EventWriterUnsync(File file, String dictionary, boolean append) throws EvioException {
         this(file.getPath(), null, null,
              0, 0, 0, 0,
-             ByteOrder.nativeOrder(), dictionary, false,
+             ByteOrder.nativeOrder(), dictionary, true,
              append, null, 0, 0, 1, 1,
              CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
 
@@ -960,7 +960,7 @@ public class EventWriterUnsync implements AutoCloseable {
     public EventWriterUnsync(String filename, boolean append, ByteOrder byteOrder) throws EvioException {
         this(filename, null, null,
              0, 0, 0, 0,
-             byteOrder, null, false,
+             byteOrder, null, true,
              append, null, 0, 0, 1, 1,
              CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
     }
