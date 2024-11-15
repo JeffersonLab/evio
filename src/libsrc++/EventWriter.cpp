@@ -35,7 +35,7 @@ namespace evio {
     EventWriter::EventWriter(std::string & filename, const ByteOrder & byteOrder, bool append) :
             EventWriter(filename, "", "",
                         0, 0, 0, 0,
-                        byteOrder, "", false, append,
+                        byteOrder, "", true, append,
                         nullptr, 0, 0, 1, 1,
                         Compressor::CompressionType::UNCOMPRESSED,
                         1, 8, 0) {
@@ -63,7 +63,7 @@ namespace evio {
                              bool append) :
             EventWriter(filename, "", "",
                         0, 0, 0, 0,
-                        byteOrder, dictionary, false, append,
+                        byteOrder, dictionary, true, append,
                         nullptr, 0, 0, 1, 1,
                         Compressor::CompressionType::UNCOMPRESSED,
                         1, 8, 0) {
