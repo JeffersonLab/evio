@@ -692,7 +692,34 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         return sb.toString();
     }
 
-	/**
+
+    /**
+     * Recursive method to obtain a string representation of the entire tree structure
+     * rooted at this structure.
+     * @param indent string containing indentation for this structure. Generally called with "".
+     * @return a string representation of the entire tree structure rooted at this structure.
+     */
+    public String treeToString(String indent) {
+        StringBuilder sb = new StringBuilder(100);
+        sb.append(indent);
+        sb.append(toString());
+
+        if (!(isLeaf())) {
+            sb.append("\n");
+            String myIndent = indent + "  ";
+            int childCount = getChildCount();
+            for (int i=0; i < childCount; i++) {
+                sb.append(children.get(i).treeToString(myIndent));
+                if (i < childCount - 1) {
+                    sb.append("\n");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+
+    /**
 	 * This is a method from the IEvioStructure Interface. Return the header for this structure.
 	 * 
 	 * @return the header for this structure.
