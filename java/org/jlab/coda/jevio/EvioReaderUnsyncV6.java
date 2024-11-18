@@ -246,7 +246,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
     public EvioEvent getFirstEvent() {
         try {
             byte[] rawBytes = reader.getFirstEvent();
-            return EvioReader.getEvent(rawBytes, 0, reader.getByteOrder());
+            return EvioReader.parseEvent(rawBytes, 0, reader.getByteOrder());
         }
         catch (EvioException e) {}
 
