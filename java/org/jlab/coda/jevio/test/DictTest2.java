@@ -190,7 +190,7 @@ public class DictTest2 extends TestBase {
                 EventWriter writer = new EventWriter(new File(writeFileName1), dictionary, false);
                 System.out.println("    createObjectEvents: set First Event, size bytes = " + event.getTotalBytes());
 
-            //    writer.setFirstEvent(event);
+                writer.setFirstEvent(event);
                 writer.writeEvent(event);
                 writer.close();
 
@@ -201,13 +201,13 @@ public class DictTest2 extends TestBase {
                 String xmlDict = reader.getDictionaryXML();
                 System.out.println("    createObjectEvents: read dictionary ->\n\n" + xmlDict);
 
-                System.out.println("    createObjectEvents: have first event? " + reader.hasFirstEvent());
+                System.out.println("\n    createObjectEvents: have first event? " + reader.hasFirstEvent());
                 if (reader.hasFirstEvent()) {
                     EvioEvent fe = reader.getFirstEvent();
-                    System.out.println("    createObjectEvents: read first event ->\n\n" + fe.treeToString(""));
+                    System.out.println("    createObjectEvents: first ev.treeToString() ->\n\n" + fe.treeToString(""));
                 }
 
-                System.out.println("    createObjectEvents: try getting ev #1");;
+                System.out.println("\n    createObjectEvents: try getting ev #1");
                 EvioEvent ev = reader.parseEvent(1);
                 System.out.println("    createObjectEvents: event ->\n" + ev.treeToString(""));
             }
