@@ -67,7 +67,7 @@ public final class BankHeader extends BaseStructureHeader {
 	 */
 	public int write(ByteBuffer byteBuffer) {
 		byteBuffer.putInt(length);
-		int word = (tag << 16 | (byte)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | (number & 0xffff));
+		int word = (tag << 16 | ((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | (number & 0xffff));
 		byteBuffer.putInt(word);
 
 		return 8;

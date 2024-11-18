@@ -31,8 +31,7 @@ namespace evio {
     size_t BankHeader::write(uint8_t *dest, ByteOrder const & order) {
         // length first
         Util::toBytes(length, order, dest);
-
-        auto word = (uint32_t) (tag << 16 | (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | number);
+        auto word = (uint32_t) (tag << 16 | ((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | number);
         Util::toBytes(word, order, dest+4);
         return 8;
     }
@@ -44,7 +43,7 @@ namespace evio {
     size_t BankHeader::write(ByteBuffer & dest) {
         dest.putInt(length);
 
-        auto word = (uint32_t) (tag << 16 | (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | number);
+        auto word = (uint32_t) (tag << 16 | ((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | number);
         dest.putInt(word);
         return 8;
     }

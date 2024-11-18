@@ -29,7 +29,7 @@ namespace evio {
 
     size_t SegmentHeader::write(uint8_t *dest, ByteOrder const & order) {
 
-        auto word = (uint32_t) (tag << 24 | (uint8_t)((dataType.getValue() & 0x3f) |
+        auto word = (uint32_t) (tag << 24 | ((dataType.getValue() & 0x3f) |
                                 (padding << 6)) << 16 | (length & 0xffff));
         Util::toBytes(word, order, dest);
         return 4;
@@ -41,7 +41,7 @@ namespace evio {
 
     size_t SegmentHeader::write(ByteBuffer & byteBuffer) {
 
-        auto word = (uint32_t) (tag << 24 | (uint8_t)((dataType.getValue() & 0x3f) |
+        auto word = (uint32_t) (tag << 24 | ((dataType.getValue() & 0x3f) |
                                 (padding << 6)) << 16 | (length & 0xffff));
         byteBuffer.putInt(word);
         return 4;
