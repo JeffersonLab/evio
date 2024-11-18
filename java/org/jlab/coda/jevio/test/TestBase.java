@@ -340,7 +340,7 @@ public class TestBase {
             builder.addChild(event, bankBanks);
 
             // bank of ints
-            EvioBank bankInts = new EvioBank(tag+2, DataType.INT32, num+2);
+            EvioBank bankInts = new EvioBank(tag+2, DataType.UINT32, num+2);
             builder.setIntData(bankInts, int1);
             builder.addChild(bankBanks, bankInts);
 
@@ -383,7 +383,7 @@ public class TestBase {
 
 
             // Bank of segs
-            EvioBank bankBanks2 = new EvioBank(tag+201, DataType.SEGMENT, 201);
+            EvioBank bankBanks2 = new EvioBank(tag+201, DataType.SEGMENT, num+201);
             builder.addChild(event, bankBanks2);
 
             // segment of ints
@@ -425,7 +425,7 @@ public class TestBase {
 
 
             // Bank of tag segs
-            EvioBank bankBanks4 = new EvioBank(tag+202, DataType.TAGSEGMENT, 202);
+            EvioBank bankBanks4 = new EvioBank(tag+202, DataType.TAGSEGMENT, num+202);
             builder.addChild(event, bankBanks4);
 
             // tag segment of ints
