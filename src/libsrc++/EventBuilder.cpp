@@ -739,10 +739,10 @@ namespace evio {
 
 
     /**
-     * Append string data to the structure. If the structure has no data, then this
+     * Append composite data to the structure. If the structure has no data, then this
      * is the same as setting the data (except the the data type may not be changed).
      * @param structure the structure to receive the data.
-     * @param data pointer to data (array of string) to append.
+     * @param data pointer to data (array of CompositeData shared pointers) to append.
      * @param count number of strings to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not string.
      */
