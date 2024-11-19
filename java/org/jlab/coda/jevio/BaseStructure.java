@@ -660,13 +660,10 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             }
         }
 
-        // todo: can be more thorough here for datalen calculation
 
-//        sb.append("  len=");
-//        sb.append(header.length);
         if (rawBytes == null) {
             sb.append("  dataLen=");
-            sb.append((header.length - (header.getHeaderLength() - 1))/4);
+            sb.append(header.getDataLength());
         }
         else {
             sb.append("  dataLen=");
@@ -1561,7 +1558,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * This is similar to listening to the event as it is being parsed,
      * but is done to a complete (already) parsed event.
      *
-     * @param listener an listener to notify as each structure is visited.
+     * @param listener a listener to notify as each structure is visited.
      */
     public void visitAllStructures(IEvioListener listener) {
         visitAllDescendants(this, listener, null);
@@ -1571,7 +1568,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * Visit all the structures in this structure (including the structure itself --
      * which is considered its own descendant) in a depth first manner.
      *
-     * @param listener an listener to notify as each structure is visited.
+     * @param listener a listener to notify as each structure is visited.
      * @param filter an optional filter that must "accept" structures before
      *               they are passed to the listener. If <code>null</code>, all
      *               structures are passed. In this way, specific types of
@@ -1586,7 +1583,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * (which is considered a descendant of itself.)
      *
      * @param structure the starting structure.
-     * @param listener an listener to notify as each structure is visited.
+     * @param listener a listener to notify as each structure is visited.
      * @param filter an optional filter that must "accept" structures before
      *               they are passed to the listener. If <code>null</code>, all
      *               structures are passed. In this way, specific types of
@@ -2001,7 +1998,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * structures) this returns 0. For data types smaller than an
      * int, e.g. a short, it computes assuming padding to an
 	 * integer number of ints. For example, if we are writing a byte
-     * array of length 3 or 4, the it would return 1. If
+     * array of length 3 or 4, then it would return 1. If
 	 * the byte array is 5,6,7 or 8 it would return 2;
      *
      * The problem with the original method was that if the data was
@@ -2107,10 +2104,11 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      */
     protected void lengthsUpToDate(boolean lengthsUpToDate) {
         this.lengthsUpToDate = lengthsUpToDate;
-
         // propagate back up the tree if lengths have been changed
         if (!lengthsUpToDate) {
-            if (parent != null) parent.lengthsUpToDate(false);
+            if (parent != null) {
+                parent.lengthsUpToDate(false);
+            }
         }
     }
 
@@ -2143,7 +2141,7 @@ System.err.println("Non leaf with null children!");
             for (BaseStructure child : children) {
                 len = child.setAllHeaderLengths();
                 // Add this check to make sure structure is not being overfilled
-                if (Integer.MAX_VALUE - datalen < len) {
+                if (Integer.MAX_VALUE - datalen < len + 1) {
                     throw new EvioException("added data overflowed containing structure");
                 }
                 datalen += len + 1;  // + 1 for the header length word of each child
@@ -2151,7 +2149,7 @@ System.err.println("Non leaf with null children!");
         }
 
         len =  header.getHeaderLength() - 1;  // - 1 for length header word
-        if (Integer.MAX_VALUE - datalen < len) {
+        if (Integer.MAX_VALUE - datalen < len + 1) {
             throw new EvioException("added data overflowed containing structure");
         }
 
