@@ -158,7 +158,7 @@ namespace evio {
             }
 
             if (rawBytes.empty()) {
-                ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
+                ss << "  dataLen=" << header->getDataLength();
             }
             else {
                 ss << "  dataLen=" << (rawBytes.size()/4);
