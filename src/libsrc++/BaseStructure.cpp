@@ -2679,8 +2679,6 @@ namespace evio {
 
         // set the datalen for the header
 
-//std::cout << "  setAllHeaderLengths: set data type " << header->getDataTypeName() <<
-//        " to len = " << datalen << "\n";
 
         header->setLength(datalen);
         setLengthsUpToDate(true);
