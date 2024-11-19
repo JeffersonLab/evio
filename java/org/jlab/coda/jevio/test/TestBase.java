@@ -351,32 +351,32 @@ public class TestBase {
 
             // bank of unsigned shorts
             EvioBank bankUShorts = new EvioBank(tag+4, DataType.USHORT16, num+4);
-            bankUShorts.setShortData(short1);
+            builder.setShortData(bankUShorts, short1);
             builder.addChild(bankBanks, bankUShorts);
 
             // bank of unsigned longs
             EvioBank bankULongs = new EvioBank(tag+40, DataType.ULONG64, num+40);
-            bankULongs.setLongData(long1);
+            builder.setLongData(bankULongs, long1);
             builder.addChild(bankBanks, bankULongs);
 
             // bank of floats
             EvioBank bankFloats = new EvioBank(tag+5, DataType.FLOAT32, num+5);
-            bankFloats.setFloatData(float1);
+            builder.setFloatData(bankFloats, float1);
             builder.addChild(bankBanks, bankFloats);
 
             // bank of doubles
             EvioBank bankDoubles = new EvioBank(tag+6, DataType.DOUBLE64, num+6);
-            bankDoubles.appendDoubleData(double1);
+            builder.appendDoubleData(bankDoubles, double1);
             builder.addChild(bankBanks, bankDoubles);
 
             // bank of strings
             EvioBank bankStrings = new EvioBank(tag+7, DataType.CHARSTAR8, num+7);
-            bankStrings.setStringData(string1);
+            builder.setStringData(bankStrings, string1);
             builder.addChild(bankBanks, bankStrings);
 
             // bank of composite data array
             EvioBank bankComps = new EvioBank(tag+100, DataType.COMPOSITE, num+100);
-            bankComps.appendCompositeData(cData);
+            builder.appendCompositeData(bankComps, cData);
             builder.addChild(bankBanks, bankComps);
 
 
@@ -388,37 +388,37 @@ public class TestBase {
 
             // segment of ints
             EvioSegment segInts = new EvioSegment(tag+8, DataType.INT32);
-            segInts.appendIntData(int1);
+            builder.appendIntData(segInts, int1);
             builder.addChild(bankBanks2, segInts);
 
             // segment of bytes
             EvioSegment segBytes = new EvioSegment(tag+9, DataType.CHAR8);
-            segBytes.appendByteData(byte1);
+            builder.appendByteData(segBytes, byte1);
             builder.addChild(bankBanks2, segBytes);
 
             // segment of shorts
             EvioSegment segShorts = new EvioSegment(tag+10, DataType.SHORT16);
-            segShorts.appendShortData(short1);
+            builder.appendShortData(segShorts, short1);
             builder.addChild(bankBanks2, segShorts);
 
             // segment of longs
             EvioSegment segLongs = new EvioSegment(tag+40, DataType.LONG64);
-            segLongs.appendLongData(long1);
+            builder.appendLongData(segLongs, long1);
             builder.addChild(bankBanks2, segLongs);
 
             // segment of floats
             EvioSegment segFloats = new EvioSegment(tag+11, DataType.FLOAT32);
-            segFloats.appendFloatData(float1);
+            builder.appendFloatData(segFloats, float1);
             builder.addChild(bankBanks2, segFloats);
 
             // segment of doubles
             EvioSegment segDoubles = new EvioSegment(tag+12, DataType.DOUBLE64);
-            segDoubles.appendDoubleData(double1);
+            builder.appendDoubleData(segDoubles, double1);
             builder.addChild(bankBanks2, segDoubles);
 
             // segment of strings
             EvioSegment segStrings = new EvioSegment(tag+13, DataType.CHARSTAR8);
-            segStrings.appendStringData(string1);
+            builder.appendStringData(segStrings, string1);
             builder.addChild(bankBanks2, segStrings);
 
 
@@ -430,37 +430,37 @@ public class TestBase {
 
             // tag segment of ints
             EvioTagSegment tagSegInts = new EvioTagSegment(tag+16, DataType.UINT32);
-            tagSegInts.appendIntData(int1);
+            builder.appendIntData(tagSegInts, int1);
             builder.addChild(bankBanks4, tagSegInts);
 
             // tag segment of bytes
             EvioTagSegment tagSegBytes = new EvioTagSegment(tag+17, DataType.UCHAR8);
-            tagSegBytes.appendByteData(byte1);
+            builder.appendByteData(tagSegBytes, byte1);
             builder.addChild(bankBanks4, tagSegBytes);
 
             // tag segment of shorts
             EvioTagSegment tagSegShorts = new EvioTagSegment(tag+18, DataType.USHORT16);
-            tagSegShorts.appendShortData(short1);
+            builder.appendShortData(tagSegShorts, short1);
             builder.addChild(bankBanks4, tagSegShorts);
 
             // tag seg of longs
             EvioTagSegment tagSegLongs = new EvioTagSegment(tag+40, DataType.ULONG64);
-            tagSegLongs.appendLongData(long1);
+            builder.appendLongData(tagSegLongs, long1);
             builder.addChild(bankBanks4, tagSegLongs);
 
             // segment of floats
             EvioTagSegment tagSegFloats = new EvioTagSegment(tag+19, DataType.FLOAT32);
-            tagSegFloats.appendFloatData(float1);
+            builder.appendFloatData(tagSegFloats, float1);
             builder.addChild(bankBanks4, tagSegFloats);
 
             // segment of doubles
             EvioTagSegment tagSegDoubles = new EvioTagSegment(tag+20, DataType.DOUBLE64);
-            tagSegDoubles.appendDoubleData(double1);
+            builder.appendDoubleData(tagSegDoubles, double1);
             builder.addChild(bankBanks4, tagSegDoubles);
 
             // segment of strings
             EvioTagSegment tagSegStrings = new EvioTagSegment(tag+21, DataType.CHARSTAR8);
-            tagSegStrings.appendStringData(string1);
+            builder.appendStringData(tagSegStrings, string1);
             builder.addChild(bankBanks4, tagSegStrings);
         }
         catch (EvioException e) {
