@@ -1686,7 +1686,7 @@ public final class CompositeData implements Cloneable {
         srcBuffer.order(srcOrder);
         destBuffer.order(destOrder);
 
-        Utilities.printBytes(src, srcOff, 32, "CD src bytes");
+//Utilities.printBytes(src, srcOff, 32, "CD src bytes");
 
         while (srcBytesLeft > 0) {
 //System.out.println("start src offset = " + (srcOff + dataOff));
