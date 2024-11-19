@@ -28,7 +28,12 @@ public final class SegmentHeader extends BaseStructureHeader {
 		super(tag, dataType);
 	}
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getDataLength() {return length;}
+
+	/**
      * {@inheritDoc}
      */
     public int getHeaderLength() {return 1;}

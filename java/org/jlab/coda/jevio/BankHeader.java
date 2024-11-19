@@ -29,6 +29,10 @@ public final class BankHeader extends BaseStructureHeader {
 		super(tag, dataType, num);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getDataLength() {return length - 1;}
 
     /**
      * {@inheritDoc}

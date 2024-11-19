@@ -187,13 +187,19 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
         this.length = length;
     }
 
-    /**
-     * Get the length of the structure's header in ints. This includes the first header word itself
-     * (which contains the length) and in the case of banks, it also includes the second header word.
-     *
-     * @return Get the length of the structure's header in ints.
-     */
-    public abstract int getHeaderLength();
+	/**
+	 * Get the length of the structure's data in 32 bit ints (not counting the header words).
+	 * @return Get the length of the structure's data in 32 bit ints (not counting the header words).
+	 */
+	public abstract int getDataLength();
+
+	/**
+	 * Get the length of the structure's header in ints. This includes the first header word itself
+	 * (which contains the length) and in the case of banks, it also includes the second header word.
+	 *
+	 * @return Get the length of the structure's header in ints.
+	 */
+	public abstract int getHeaderLength();
 
 	/**
 	 * Write myself out as a byte array of evio format data
