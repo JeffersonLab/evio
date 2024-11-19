@@ -186,7 +186,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a9cd39d1509c902d8a6a98ccac659e54b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append string data to the structure.  <a href="../../db/d06/classevio_1_1_event_builder.html#a9cd39d1509c902d8a6a98ccac659e54b">More...</a><br /></td></tr>
 <tr class="separator:a9cd39d1509c902d8a6a98ccac659e54b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12a1e136528c944ae60635b50401266d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d06/classevio_1_1_event_builder.html#a12a1e136528c944ae60635b50401266d">appendCompositeData</a> (std::shared_ptr&lt; <a class="el" href="../../d9/ddd/classevio_1_1_base_structure.html">BaseStructure</a> &gt; structure, std::shared_ptr&lt; <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html">CompositeData</a> &gt; *data, size_t count)</td></tr>
-<tr class="memdesc:a12a1e136528c944ae60635b50401266d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append string data to the structure.  <a href="../../db/d06/classevio_1_1_event_builder.html#a12a1e136528c944ae60635b50401266d">More...</a><br /></td></tr>
+<tr class="memdesc:a12a1e136528c944ae60635b50401266d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append composite data to the structure.  <a href="../../db/d06/classevio_1_1_event_builder.html#a12a1e136528c944ae60635b50401266d">More...</a><br /></td></tr>
 <tr class="separator:a12a1e136528c944ae60635b50401266d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9408291cfca3cabbaae55885900439a0"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d4/d12/classevio_1_1_evio_event.html">EvioEvent</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d06/classevio_1_1_event_builder.html#a9408291cfca3cabbaae55885900439a0">getEvent</a> ()</td></tr>
 <tr class="memdesc:a9408291cfca3cabbaae55885900439a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the underlying event.  <a href="../../db/d06/classevio_1_1_event_builder.html#a9408291cfca3cabbaae55885900439a0">More...</a><br /></td></tr>
@@ -411,11 +411,11 @@ timmer </dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p>Append string data to the structure. </p>
+<p>Append composite data to the structure. </p>
 <p>If the structure has no data, then this is the same as setting the data (except the the data type may not be changed). </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">structure</td><td>the structure to receive the data. </td></tr>
-    <tr><td class="paramname">data</td><td>pointer to data (array of string) to append. </td></tr>
+    <tr><td class="paramname">data</td><td>pointer to data (array of <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html">CompositeData</a> shared pointers) to append. </td></tr>
     <tr><td class="paramname">count</td><td>number of strings to append. </td></tr>
   </table>
   </dd>

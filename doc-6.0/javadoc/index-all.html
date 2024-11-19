@@ -403,6 +403,10 @@
 <dd>
 <div class="block">Appends CompositeData objects to the structure.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventBuilder.html#appendCompositeData-org.jlab.coda.jevio.BaseStructure-org.jlab.coda.jevio.CompositeData:A-">appendCompositeData(BaseStructure, CompositeData[])</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventBuilder.html" title="class in org.jlab.coda.jevio">EventBuilder</a></dt>
+<dd>
+<div class="block">Appends composite data to the structure.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BaseStructure.html#appendDoubleData-double:A-">appendDoubleData(double[])</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a></dt>
 <dd>
 <div class="block">Appends double data to the structure.</div>
@@ -472,6 +476,10 @@
 <div class="block">Appends an array of strings to the structure (as ascii).</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventBuilder.html#appendStringData-org.jlab.coda.jevio.BaseStructure-java.lang.String-">appendStringData(BaseStructure, String)</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventBuilder.html" title="class in org.jlab.coda.jevio">EventBuilder</a></dt>
+<dd>
+<div class="block">Appends a single string to the structure.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventBuilder.html#appendStringData-org.jlab.coda.jevio.BaseStructure-java.lang.String:A-">appendStringData(BaseStructure, String[])</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventBuilder.html" title="class in org.jlab.coda.jevio">EventBuilder</a></dt>
 <dd>
 <div class="block">Appends string data to the structure.</div>
 </dd>
@@ -2560,10 +2568,26 @@
 <dd>
 <div class="block">Get the length of the uncompressed data in bytes.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BankHeader.html#getDataLength--">getDataLength()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BankHeader.html" title="class in org.jlab.coda.jevio">BankHeader</a></dt>
+<dd>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BaseStructureHeader.html#getDataLength--">getDataLength()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BaseStructureHeader.html" title="class in org.jlab.coda.jevio">BaseStructureHeader</a></dt>
+<dd>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EvioNode.html#getDataLength--">getDataLength()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a></dt>
 <dd>
 <div class="block">Get the length of this evio structure's data only (no header words)
  in 32-bit words.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/SegmentHeader.html#getDataLength--">getDataLength()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/SegmentHeader.html" title="class in org.jlab.coda.jevio">SegmentHeader</a></dt>
+<dd>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/TagSegmentHeader.html#getDataLength--">getDataLength()</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/TagSegmentHeader.html" title="class in org.jlab.coda.jevio">TagSegmentHeader</a></dt>
+<dd>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#getDataLengthWords--">getDataLengthWords()</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>
@@ -5855,6 +5879,10 @@
 <dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/BaseStructure.html#setCompositeData-org.jlab.coda.jevio.CompositeData:A-">setCompositeData(CompositeData[])</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a></dt>
 <dd>
 <div class="block">Set the data in this structure to the given array of CompositeData objects.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/jlab/coda/jevio/EventBuilder.html#setCompositeData-org.jlab.coda.jevio.BaseStructure-org.jlab.coda.jevio.CompositeData:A-">setCompositeData(BaseStructure, CompositeData[])</a></span> - Method in class org.jlab.coda.jevio.<a href="org/jlab/coda/jevio/EventBuilder.html" title="class in org.jlab.coda.jevio">EventBuilder</a></dt>
+<dd>
+<div class="block">Set composite data in the structure.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/jlab/coda/hipo/RecordHeader.html#setCompressedDataLength-int-">setCompressedDataLength(int)</a></span> - Method in class org.jlab.coda.hipo.<a href="org/jlab/coda/hipo/RecordHeader.html" title="class in org.jlab.coda.hipo">RecordHeader</a></dt>
 <dd>

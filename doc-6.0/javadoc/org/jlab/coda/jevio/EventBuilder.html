@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":9,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":9,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -183,126 +183,147 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendCompositeData-org.jlab.coda.jevio.BaseStructure-org.jlab.coda.jevio.CompositeData:A-">appendCompositeData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
+                   <a href="../../../../org/jlab/coda/jevio/CompositeData.html" title="class in org.jlab.coda.jevio">CompositeData</a>[]&nbsp;data)</code>
+<div class="block">Appends composite data to the structure.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendDoubleData-org.jlab.coda.jevio.BaseStructure-double:A-">appendDoubleData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
                 double[]&nbsp;data)</code>
 <div class="block">Appends double data to the structure.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendFloatData-org.jlab.coda.jevio.BaseStructure-float:A-">appendFloatData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
                float[]&nbsp;data)</code>
 <div class="block">Appends float data to the structure.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendIntData-org.jlab.coda.jevio.BaseStructure-int:A-">appendIntData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
              int[]&nbsp;data)</code>
 <div class="block">Appends int data to the structure.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendLongData-org.jlab.coda.jevio.BaseStructure-long:A-">appendLongData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
               long[]&nbsp;data)</code>
 <div class="block">Appends long data to the structure.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendShortData-org.jlab.coda.jevio.BaseStructure-short:A-">appendShortData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
                short[]&nbsp;data)</code>
 <div class="block">Appends short data to the structure.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendStringData-org.jlab.coda.jevio.BaseStructure-java.lang.String-">appendStringData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
                 java.lang.String&nbsp;data)</code>
+<div class="block">Appends a single string to the structure.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#appendStringData-org.jlab.coda.jevio.BaseStructure-java.lang.String:A-">appendStringData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
+                java.lang.String[]&nbsp;data)</code>
 <div class="block">Appends string data to the structure.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#clearData-org.jlab.coda.jevio.BaseStructure-">clearData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure)</code>
 <div class="block">This clears all the data fields in a structure, but not the parent or the children.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/jevio/EvioEvent.html" title="class in org.jlab.coda.jevio">EvioEvent</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#getEvent--">getEvent</a></span>()</code>
 <div class="block">Get the underlying event.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#main-java.lang.String:A-">main</a></span>(java.lang.String[]&nbsp;args)</code>
 <div class="block">Main program for testing.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#remove-org.jlab.coda.jevio.BaseStructure-">remove</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;child)</code>
 <div class="block">This removes a structure (and all its descendants) from the tree.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setAllHeaderLengths--">setAllHeaderLengths</a></span>()</code>
 <div class="block">This goes through the event recursively, and makes sure all the length fields
  in the headers are properly set.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setByteData-org.jlab.coda.jevio.BaseStructure-byte:A-">setByteData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
            byte[]&nbsp;data)</code>
 <div class="block">Set byte data to the structure.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setCompositeData-org.jlab.coda.jevio.BaseStructure-org.jlab.coda.jevio.CompositeData:A-">setCompositeData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
+                <a href="../../../../org/jlab/coda/jevio/CompositeData.html" title="class in org.jlab.coda.jevio">CompositeData</a>[]&nbsp;data)</code>
+<div class="block">Set composite data in the structure.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setDoubleData-org.jlab.coda.jevio.BaseStructure-double:A-">setDoubleData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
              double[]&nbsp;data)</code>
 <div class="block">Set double data to the structure.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setEvent-org.jlab.coda.jevio.EvioEvent-">setEvent</a></span>(<a href="../../../../org/jlab/coda/jevio/EvioEvent.html" title="class in org.jlab.coda.jevio">EvioEvent</a>&nbsp;event)</code>
 <div class="block">Set the underlying event.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setFloatData-org.jlab.coda.jevio.BaseStructure-float:A-">setFloatData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
             float[]&nbsp;data)</code>
 <div class="block">Set float data to the structure.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setIntData-org.jlab.coda.jevio.BaseStructure-int:A-">setIntData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
           int[]&nbsp;data)</code>
 <div class="block">Set int data to the structure.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setLongData-org.jlab.coda.jevio.BaseStructure-long:A-">setLongData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
            long[]&nbsp;data)</code>
 <div class="block">Set long data to the structure.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setShortData-org.jlab.coda.jevio.BaseStructure-short:A-">setShortData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
             short[]&nbsp;data)</code>
 <div class="block">Set short data to the structure.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventBuilder.html#setStringData-org.jlab.coda.jevio.BaseStructure-java.lang.String:A-">setStringData</a></span>(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
              java.lang.String[]&nbsp;data)</code>
@@ -395,7 +416,7 @@ extends java.lang.Object</pre>
  tree, use <code>remove</code></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>structure</code> - the segment to clear.</dd>
+<dd><code>structure</code> - the structure to clear.</dd>
 </dl>
 </li>
 </ul>
@@ -576,6 +597,26 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
+<a name="setCompositeData-org.jlab.coda.jevio.BaseStructure-org.jlab.coda.jevio.CompositeData:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCompositeData</h4>
+<pre>public&nbsp;void&nbsp;setCompositeData(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
+                             <a href="../../../../org/jlab/coda/jevio/CompositeData.html" title="class in org.jlab.coda.jevio">CompositeData</a>[]&nbsp;data)
+                      throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></pre>
+<div class="block">Set composite data in the structure. If the structure has data, it is overwritten
+ even if the existing data is of a different type.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>structure</code> - the structure to receive the data.</dd>
+<dd><code>data</code> - the string data to write.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if structure arg is null</dd>
+</dl>
+</li>
+</ul>
 <a name="appendIntData-org.jlab.coda.jevio.BaseStructure-int:A-">
 <!--   -->
 </a>
@@ -705,12 +746,52 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;void&nbsp;appendStringData(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
                              java.lang.String&nbsp;data)
                       throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></pre>
-<div class="block">Appends string data to the structure. If the structure has no data, then this
+<div class="block">Appends a single string to the structure. If the structure has no data, then this
  is the same as setting the data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>structure</code> - the structure to receive the data, which is appended.</dd>
 <dd><code>data</code> - the string to append, or set if there is no existing data.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if structure arg is null.</dd>
+</dl>
+</li>
+</ul>
+<a name="appendStringData-org.jlab.coda.jevio.BaseStructure-java.lang.String:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appendStringData</h4>
+<pre>public&nbsp;void&nbsp;appendStringData(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
+                             java.lang.String[]&nbsp;data)
+                      throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></pre>
+<div class="block">Appends string data to the structure. If the structure has no data, then this
+ is the same as setting the data.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>structure</code> - the structure to receive the data, which is appended.</dd>
+<dd><code>data</code> - the string data to append, or set if there is no existing data.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if structure arg is null.</dd>
+</dl>
+</li>
+</ul>
+<a name="appendCompositeData-org.jlab.coda.jevio.BaseStructure-org.jlab.coda.jevio.CompositeData:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appendCompositeData</h4>
+<pre>public&nbsp;void&nbsp;appendCompositeData(<a href="../../../../org/jlab/coda/jevio/BaseStructure.html" title="class in org.jlab.coda.jevio">BaseStructure</a>&nbsp;structure,
+                                <a href="../../../../org/jlab/coda/jevio/CompositeData.html" title="class in org.jlab.coda.jevio">CompositeData</a>[]&nbsp;data)
+                         throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></pre>
+<div class="block">Appends composite data to the structure. If the structure has no data, then this
+ is the same as setting the data.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>structure</code> - the structure to receive the data, which is appended.</dd>
+<dd><code>data</code> - the composite data to append, or set if there is no existing data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if structure arg is null.</dd>
 </dl>

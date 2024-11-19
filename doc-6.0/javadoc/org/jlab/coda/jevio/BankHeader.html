@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -176,17 +176,23 @@ extends <a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html" title
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BankHeader.html#getDataLength--">getDataLength</a></span>()</code>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BankHeader.html#getHeaderLength--">getHeaderLength</a></span>()</code>
 <div class="block">Get the length of the structure's header in ints.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BankHeader.html#toString--">toString</a></span>()</code>
 <div class="block">Obtain a string representation of the bank header.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BankHeader.html#write-java.nio.ByteBuffer-">write</a></span>(java.nio.ByteBuffer&nbsp;byteBuffer)</code>
 <div class="block">Write myself out a byte buffer.</div>
@@ -257,6 +263,22 @@ extends <a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html" title
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getDataLength--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDataLength</h4>
+<pre>public&nbsp;int&nbsp;getDataLength()</pre>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getDataLength--">getDataLength</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html" title="class in org.jlab.coda.jevio">BaseStructureHeader</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Get the length of the structure's data in 32 bit ints (not counting the header words).</dd>
+</dl>
+</li>
+</ul>
 <a name="getHeaderLength--">
 <!--   -->
 </a>

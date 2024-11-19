@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":6,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
+var methods = {"i0":10,"i1":10,"i2":6,"i3":10,"i4":10,"i5":10,"i6":6,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -194,84 +194,90 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>abstract int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getDataLength--">getDataLength</a></span>()</code>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/jevio/DataType.html" title="enum in org.jlab.coda.jevio">DataType</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getDataType--">getDataType</a></span>()</code>
 <div class="block">Returns the data type for data stored in this structure as a <code>DataType</code> enum.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getDataTypeName--">getDataTypeName</a></span>()</code>
 <div class="block">Returns the data type as a string.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getDataTypeValue--">getDataTypeValue</a></span>()</code>
 <div class="block">Get the data type for the structure.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getHeaderLength--">getHeaderLength</a></span>()</code>
 <div class="block">Get the length of the structure's header in ints.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getLength--">getLength</a></span>()</code>
 <div class="block">Get the length of the structure in ints, not counting the length word.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getNumber--">getNumber</a></span>()</code>
 <div class="block">Get the number.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getPadding--">getPadding</a></span>()</code>
 <div class="block">Get the amount of padding bytes when storing short or byte data.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#getTag--">getTag</a></span>()</code>
 <div class="block">Get the structure tag.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#setDataType-org.jlab.coda.jevio.DataType-">setDataType</a></span>(<a href="../../../../org/jlab/coda/jevio/DataType.html" title="enum in org.jlab.coda.jevio">DataType</a>&nbsp;dataType)</code>
 <div class="block">Set the numeric data type for the structure.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#setLength-int-">setLength</a></span>(int&nbsp;length)</code>
 <div class="block">Set the length of the structure in ints, not counting the length word.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#setNumber-int-">setNumber</a></span>(int&nbsp;number)</code>
 <div class="block">Set the number.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#setTag-int-">setTag</a></span>(int&nbsp;tag)</code>
 <div class="block">Set the structure tag.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>short</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#shortValue-java.lang.Integer-">shortValue</a></span>(java.lang.Integer&nbsp;integer)</code>
 <div class="block">Convenience method to return the short value of an integer.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/BaseStructureHeader.html#toString--">toString</a></span>()</code>
 <div class="block">Obtain a string representation of the structure header.</div>
@@ -500,6 +506,20 @@ implements java.lang.Cloneable, <a href="../../../../org/jlab/coda/jevio/IEvioWr
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>length</code> - the length of the structure in ints, not counting the length word.</dd>
+</dl>
+</li>
+</ul>
+<a name="getDataLength--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDataLength</h4>
+<pre>public abstract&nbsp;int&nbsp;getDataLength()</pre>
+<div class="block">Get the length of the structure's data in 32 bit ints (not counting the header words).</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Get the length of the structure's data in 32 bit ints (not counting the header words).</dd>
 </dl>
 </li>
 </ul>
