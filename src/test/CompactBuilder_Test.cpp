@@ -177,7 +177,7 @@ namespace evio {
             size_t pos1 = buf1->position(), pos2 = buf2->position();
             bool identical = true;
 
-            for (int i = 0; i < count; i++) {
+            for (size_t i = 0; i < count; i++) {
                 if (buf1->getByte(pos1 + i) != buf2->getByte(pos2 + i)) {
                     std::cout << "compareByteBuffers: buffer data differs at relative pos, " << i << std::endl;
                     identical = false;
