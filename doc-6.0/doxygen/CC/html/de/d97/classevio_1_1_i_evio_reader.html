@@ -1177,7 +1177,7 @@ Public Member Functions</h2></td></tr>
 
 <p>This is a workhorse method. </p>
 <p>It retrieves the next event from the file/buffer, and then parses it SAX-like. It will drill down and uncover all structures (banks, segments, and tagsegments) and notify any interested listeners.</p>
-<dl class="section return"><dt>Returns</dt><dd>the event that was parsed. On error it throws an <a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a>. On end of file, it returns <code>null</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the event that was parsed. On error it throws an <a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a>. On end of file, it returns <code>nullptr</code>. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if failed file access; if read failure or bad format; if object closed </td></tr>
