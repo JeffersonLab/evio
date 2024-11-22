@@ -226,7 +226,7 @@ namespace evio {
          *
          * @return the event that was parsed.
          *         On error it throws an EvioException.
-         *         On end of file, it returns <code>null</code>.
+         *         On end of file, it returns <code>nullptr</code>.
          * @throws EvioException if failed file access;
          *                       if read failure or bad format;
          *                       if object closed
