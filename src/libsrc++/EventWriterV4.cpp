@@ -1254,7 +1254,7 @@ namespace evio {
             buffer->clear();
             buffer->limit(32);
 
-            //System.out.println("Internal buffer capacity = " + buffer.capacity() + ", pos = " + buffer.position());
+            //std::cout << "Internal buffer capacity = " << buffer->capacity() << ", pos = " << buffer->position() << std::endl;
             asyncFileChannel->seekg(0);
             asyncFileChannel->read(reinterpret_cast<char *>(buffer->array()), 32);
 
@@ -1521,7 +1521,7 @@ namespace evio {
                 if (toFile) {
                     // Back up to before 6th block header word
                     fileWritingPosition -= 32 - BIT_INFO_OFFSET;
-                    //System.out.println("toAppendPosition: writing over last block's 6th word, back up %d words" +(8 - 6));
+                    //std::cout << "toAppendPosition: writing over last block's 6th word, back up %d words" << (8 - 6) << std::endl;
 
                     // Write over 6th block header word
                     buffer->clear();
@@ -1539,9 +1539,9 @@ namespace evio {
                 }
                 // Buffer still positioned right before the last header to be read
                 else {
-                    //System.out.println("toAppendPosition: writing bitInfo (" +
-                    //                   Integer.toHexString(bitInfo) +  ") over last block's 6th word for buffer at pos " +
-                    //                   (buffer.position() + BIT_INFO_OFFSET));
+//                    std::cout << "toAppendPosition: writing bitInfo (0x" << std::hex <<
+//                                       bitInfo << std::dec <<  ") over last block's 6th word for buffer at pos " <<
+//                                       (buffer->position() + BIT_INFO_OFFSET) << std::endl;
 
                     // Write over 6th block header word
                     buffer->putInt(buffer->position() + BIT_INFO_OFFSET, bitInfo);
@@ -1557,7 +1557,7 @@ namespace evio {
                 blockNumber--;
                 if (toFile) {
                     fileWritingPosition -= 32;
-                    //System.out.println("toAppendPos: position (bkup) = " + fileWritingPosition);
+                    //std::cout << "toAppendPos: position (bkup) = " << fileWritingPosition << std::endl;
                 }
             }
 
@@ -1565,7 +1565,7 @@ namespace evio {
             // will be OK. This last block header will be over-written with each
             // subsequent write/flush.
             if (toFile) {
-                //System.out.println("toAppendPos: file pos = " + fileWritingPosition);
+                //std::cout << "toAppendPos: file pos = " << fileWritingPosition << std::endl;
                 bytesWrittenToFile = fileWritingPosition;
             }
             else {
@@ -1574,7 +1574,7 @@ namespace evio {
 
             // We should now be in a state identical to that if we had
             // just now written everything currently in the file/buffer.
-            //System.out.println("toAppendPos: at END, blockNum = " + blockNumber);
+            //std::cout << "toAppendPos: at END, blockNum = " << blockNumber << std::endl;
     }
 
 
@@ -1606,16 +1606,15 @@ namespace evio {
             // Record where beginning of header is so we can
             // go back and update block size and event count.
             currentHeaderPosition = buffer->position();
-            //System.out.println("writeNewHeader: set currentHeaderPos to " + currentHeaderPosition);
+            //std::cout << "writeNewHeader: set currentHeaderPos to " << currentHeaderPosition << std::endl;
 
             // Calculate the 6th header word (ok if bitInfo == nullptr)
             int sixthWord = BlockHeaderV4::generateSixthWord(bitInfo, 4, hasDictionary,
                                                              isLast, 0, hasFirstEv);
 
-            //        System.out.println("EventWriter (header): words = " + words +
-            //                ", block# = " + blockNumber + ", ev Cnt = " + eventCount +
-            //                ", 6th wd = " + sixthWord);
-            //        System.out.println("Evio header: block# = " + blockNumber + ", last = " + isLast);
+//        std::cout << "EventWriter (header): block# = " << blockNumber << ", ev Cnt = " << eventCount <<
+//                     ", 6th wd = " << sixthWord << std::endl;
+//        std::cout << "Evio header: block# = " << blockNumber << ", last = " << isLast << std::endl;
 
             // Write header words, some of which will be
             // overwritten later when the length/event count are determined.
@@ -1628,16 +1627,16 @@ namespace evio {
             buffer->putInt(reserved2);
             buffer->putInt(IBlockHeader::MAGIC_NUMBER);
             if (isLast) {
-                //System.out.println("writeNewHeader: last empty header added");
+                //std::cout << "writeNewHeader: last empty header added" << std::endl;
                 // Last item in internal buffer is last empty block header
                 lastEmptyBlockHeaderExists = true;
             }
-            //System.out.println("writeNewHeader: buffer pos = " + buffer->position());
+            //std::cout << "writeNewHeader: buffer pos = " << buffer->position() << std::endl;
 
             currentBlockSize = headerWords;
             currentBlockEventCount = 0;
             bytesWrittenToBuffer += headerBytes;
-            //System.out.println("writeNewHeader: set bytesWrittenToBuffer +32 to " + bytesWrittenToBuffer);
+            //std::cout << "writeNewHeader: set bytesWrittenToBuffer +32 to " << bytesWrittenToBuffer << std::endl;
     }
 
 
@@ -1668,8 +1667,8 @@ namespace evio {
                 resetBuffer(true);
             }
 
-            //if (debug) System.out.println("writeDictionary: write common block with bank bytes = " +
-            //                               commonBlockByteSize + ", remaining = " + buffer.remaining());
+//            if (debug) std::cout << "writeDictionary: write common block with bank bytes = " <<
+//                                           commonBlockByteSize << ", remaining = " << buffer->remaining() << std::endl;
 
             if (!xmlDictionary.empty()) {
                 // Write bank header
@@ -1721,8 +1720,8 @@ namespace evio {
             buffer->putInt(currentHeaderPosition, currentBlockSize);
             // As soon as we write an event, we need another last empty block
             lastEmptyBlockHeaderExists = false;
-            //if (debug) System.out.println("writeDictionary: done writing dictionary, remaining = " +
-            //                              buffer->remaining());
+//            if (debug) std::cout << "writeDictionary: done writing dictionary, remaining = " <<
+//                                          buffer->remaining() << std::endl;
     }
 
 
@@ -1746,12 +1745,12 @@ namespace evio {
 
         try {
             if (beforeDictionary) {
-                //if (debug) System.out.println("      resetBuffer: as in constructor");
+                //if (debug) std::cout << "      resetBuffer: as in constructor" << std::endl;
                 blockNumber = 1;
                 writeNewHeader(0, blockNumber++, nullptr, (!xmlDictionary.empty()), false, haveFirstEvent);
             }
             else {
-                //if (debug) System.out.println("      resetBuffer: NOTTTT as in constructor");
+                //if (debug) std::cout << "      resetBuffer: NOTTTT as in constructor" << std::endl;
                 writeNewHeader(0, blockNumber++, nullptr, false, false, haveFirstEvent);
             }
         }
@@ -1768,7 +1767,7 @@ namespace evio {
     void EventWriterV4::expandBuffer(size_t newSize) {
         // No need to increase it
         if (newSize <= bufferSize) {
-            //System.out.println("    expandBuffer: buffer is big enough");
+            //std::cout << "    expandBuffer: buffer is big enough" << std::endl;
             return;
         }
 
@@ -1781,7 +1780,7 @@ namespace evio {
         buffer = internalBuffers[0];
         bufferSize = newSize;
 
-        //System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
+        //std::cout << "    expandBuffer: increased buf size to " + newSize + " bytes");
     }
 
 
@@ -1814,6 +1813,8 @@ namespace evio {
         try {
             if (bankBuffer != nullptr) {
                 buffer->put(bankBuffer);
+                // set ByteBuffer back to where it was before the write
+                bankBuffer->position(bankPos);
             }
             else if (bank != nullptr) {
                 bank->write(buffer);
@@ -1844,21 +1845,21 @@ namespace evio {
         // If we wrote a dictionary and it's the first block,
         // don't count dictionary in block header's event count
         if (wroteDictionary && (blockNumber == 2) && (currentBlockEventCount > 1)) {
-            //if (debug)  System.out.println("  writeEventToBuffer: subtract ev cnt since in dictionary's blk, cnt = " +
-            //                                      (currentBlockEventCount - 1));
+//            if (debug)  std::cout << "  writeEventToBuffer: subtract ev cnt since in dictionary's blk, cnt = " <<
+//                                                  (currentBlockEventCount - 1) << std::endl;
             buffer->putInt(currentHeaderPosition + EVENT_COUNT_OFFSET,
                           currentBlockEventCount - 1);
         }
 
-        //if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
-        //                bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount (w/ dict) = " +
-        //                currentBlockEventCount + ", blk # = " + blockNumber + ", wrote Dict = " + wroteDictionary);
+//        if (debug) std::cout << "  writeEventToBuffer: after write,  bytesToBuf = " <<
+//                        bytesWrittenToBuffer << ", blksiz = " << currentBlockSize << ", blkEvCount (w/ dict) = " <<
+//                        currentBlockEventCount << ", blk # = " << blockNumber << ", wrote Dict = " << wroteDictionary << std::endl;
 
         // If we're writing over the last empty block header, clear last block bit
         // This will happen if expanding buffer.
         int headerInfoWord = buffer->getInt(currentHeaderPosition + BIT_INFO_OFFSET);
         if (BlockHeaderV4::isLastBlock(headerInfoWord)) {
-            //System.out.println("  writeEventToBuffer: clear last event bit in block header");
+            //std::cout << "  writeEventToBuffer: clear last event bit in block header" << std::endl;
             buffer->putInt(currentHeaderPosition + BIT_INFO_OFFSET,
                           BlockHeaderV4::clearLastBlockBit(headerInfoWord));
         }
@@ -1866,16 +1867,16 @@ namespace evio {
         // As soon as we write an event, we need another last empty block
         lastEmptyBlockHeaderExists = false;
 
-        //        if (debug) {
-        //            System.out.println("evWrite: after last header written, Events written to:");
-        //            System.out.println("         cnt total (no dict) = " + eventsWrittenTotal);
-        //            System.out.println("         file cnt total (dict) = " + eventsWrittenToFile);
-        //            System.out.println("         internal buffer cnt (dict) = " + eventsWrittenToBuffer);
-        //            System.out.println("         block cnt (dict) = " + currentBlockEventCount);
-        //            System.out.println("         bytes-to-buf  = " + bytesWrittenToBuffer);
-        //            System.out.println("         bytes-to-file = " + bytesWrittenToFile);
-        //            System.out.println("         block # = " + blockNumber);
-        //        }
+//        if (debug) {
+//            std::cout << "evWrite: after last header written, Events written to:" << std::endl;
+//            std::cout << "         cnt total (no dict) = " << eventsWrittenTotal << std::endl;
+//            std::cout << "         file cnt total (dict) = " << eventsWrittenToFile << std::endl;
+//            std::cout << "         internal buffer cnt (dict) = " << eventsWrittenToBuffer << std::endl;
+//            std::cout << "         block cnt (dict) = " << currentBlockEventCount << std::endl;
+//            std::cout << "         bytes-to-buf  = " << bytesWrittenToBuffer << std::endl;
+//            std::cout << "         bytes-to-file = " << bytesWrittenToFile << std::endl;
+//            std::cout << "         block # = " << blockNumber << std::endl;
+//        }
     }
 
 
@@ -1886,8 +1887,8 @@ namespace evio {
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
     bool EventWriterV4::hasRoom(size_t bytes) {
-        //System.out.println("Buffer size = " + bufferSize + ", bytesWritten = " + bytesWrittenToBuffer +
-        //        ", <? " + (bytes + headerBytes));
+//        std::cout << "Buffer size = " << bufferSize << ", bytesWritten = " << bytesWrittenToBuffer <<
+//                ", <? " << (bytes + headerBytes) << std::endl;
         return isToFile() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
     }
 
@@ -2212,6 +2213,8 @@ namespace evio {
                 if ((currentEventBytes & 3) != 0) {
                     throw EvioException("bad bankBuffer format");
                 }
+//                std::cout << "currentEventBytes = " << currentEventBytes << ", bankBuf pos = " << bankBuffer->position() << ", buf lim = " << bankBuffer->limit() << std::endl;
+//                std::cout << "bankBuf int at pos = " <<  bankBuffer->getUInt(bankBuffer->position()) << std::endl;
 
                 // Check for inconsistent lengths
                 if (currentEventBytes != 4*(bankBuffer->getUInt(bankBuffer->position()) + 1)) {
@@ -2227,37 +2230,36 @@ namespace evio {
                 return false;
             }
 
-            //        if (split > 0) {
-            //            System.out.println("evWrite: splitting, bytesToFile = " + bytesWrittenToFile +
-            //                               ", event bytes = " + currentEventBytes +
-            //                               ", bytesToBuf = " + bytesWrittenToBuffer +
-            //                               ", split = " + split);
-            //
-            //            System.out.println("evWrite: blockNum = " + blockNumber +
-            //                              ", (blkNum == 2) = " + (blockNumber == 2) +
-            //                              ", eventsToBuf (" + eventsWrittenToBuffer +
-            //                              ")  <=? common blk cnt (" + commonBlockCount + ")");
-            //        }
+//            if (split > 0) {
+//                std::cout << "evWrite: splitting, bytesToFile = " << bytesWrittenToFile <<
+//                          ", event bytes = " << currentEventBytes <<
+//                          ", bytesToBuf = " << bytesWrittenToBuffer <<
+//                          ", split = " << split << std::endl;
+//
+//                std::cout << "evWrite: blockNum = " << blockNumber <<
+//                          ", (blkNum == 2) = " << (blockNumber == 2) <<
+//                          ", eventsToBuf (" << eventsWrittenToBuffer <<
+//                          ")  <=? common blk cnt (" << commonBlockCount << ")" << std::endl;
+//            }
 
-            // If we have enough room in the current block and have not exceeded
+        // If we have enough room in the current block and have not exceeded
             // the number of allowed events, write it in the current block.
             // Worry about memory later.
             if ( ((currentEventBytes + 4*currentBlockSize) <= targetBlockSize) &&
                   (currentBlockEventCount < maxEventCount)) {
                 writeNewBlockHeader = false;
-                //System.out.println("evWrite: do NOT need a new blk header: blk size target = " + targetBlockSize +
-                //                    " >= " + (currentEventBytes + 4*currentBlockSize) +
-                //                    " bytes,  " + "blk count = " + currentBlockEventCount + ", max = " + maxEventCount);
+//                std::cout << "evWrite: do NOT need a new blk header: blk size target = " << targetBlockSize <<
+//                                    " >= " << (currentEventBytes + 4*currentBlockSize) <<
+//                                    " bytes,  " << "blk count = " << currentBlockEventCount << ", max = " << maxEventCount << std::endl;
             }
-            //        else {
-            //System.out.println("evWrite: DO need a new blk header: blk size target = " + targetBlockSize +
-            //                    " < " + (currentEventBytes + 4*currentBlockSize + headerBytes) + " bytes,  " +
-            //                    "blk count = " + currentBlockEventCount + ", max = " + maxEventCount);
-            //            if (currentBlockEventCount >= maxEventCount) {
-            //                System.out.println("evWrite: too many events in block, already have " +
-            //                                           currentBlockEventCount);
-            //            }
-            //        }
+//            else {
+//                std::cout << "evWrite: DO need a new blk header: blk size target = " << targetBlockSize <<
+//                                " < " << (currentEventBytes + 4*currentBlockSize + headerBytes) << " bytes,  " <<
+//                                "blk count = " << currentBlockEventCount << ", max = " << maxEventCount << std::endl;
+//                        if (currentBlockEventCount >= maxEventCount) {
+//                            std::cout << "evWrite: too many events in block, already have " << currentBlockEventCount << std::endl;
+//                        }
+//                    }
 
 
             // Are we splitting files in general?
@@ -2265,7 +2267,7 @@ namespace evio {
                 // If it's the first block and all that has been written so far are
                 // the dictionary and first event, don't split after writing it.
                 if (blockNumber == 2 && eventsWrittenToBuffer <= commonBlockCount) {
-                    //if (debug) System.out.println("evWrite: don't split file cause only common block written so far");
+                    //if (debug) std::cout << "evWrite: don't split file cause only common block written so far" << std::endl;
                     break;
                 }
 
@@ -2278,15 +2280,15 @@ namespace evio {
                 if (writeNewBlockHeader) {
                     totalSize += headerBytes;
                     //                headerCount++;
-                    //if (debug) System.out.println("evWrite: account for another block header when splitting");
+                    // if (debug) std::cout << "evWrite: account for another block header when splitting" << std::endl;
                 }
 
-                //if (debug) System.out.println("evWrite: splitting = " + (totalSize > split) +
-                //                    ": total size = " + totalSize + " >? split = " + split);
-                //
-                //if (debug) System.out.println("evWrite: total size components: bytesToFile = " +
-                //                bytesWrittenToFile + ", bytesToBuf = " + bytesWrittenToBuffer +
-                //                ", event bytes = " + currentEventBytes);
+//                if (debug) std::cout << "evWrite: splitting = " << (totalSize > split) <<
+//                                    ": total size = " << totalSize << " >? split = " << split << std::endl;
+//
+//                if (debug) std::cout << "evWrite: total size components: bytesToFile = " <<
+//                                bytesWrittenToFile << ", bytesToBuf = " << bytesWrittenToBuffer <<
+//                                ", event bytes = " << currentEventBytes << std::endl;
 
                 // If we're going to split the file ...
                 if (totalSize > split) {
@@ -2297,17 +2299,17 @@ namespace evio {
                     // for a new file (split) to hold the current event.
                     if (eventsWrittenToBuffer > 0) {
                         doFlush = true;
-                        //if (debug) System.out.println("evWrite: eventsToBuf > 0 so doFlush = True");
+                        //if (debug) std::cout << "evWrite: eventsToBuf > 0 so doFlush = True" << std::endl;
                     }
                 }
 
                 break;
             }
 
-            //if (debug) System.out.println("evWrite: bufSize = " + bufferSize +
-            //                              " <? bytesToWrite = " + (bytesWrittenToBuffer + currentEventBytes) +
-            //                              " + 64 = " + (bytesWrittenToBuffer + currentEventBytes + 64) +
-            //                              ", events in buf = " + eventsWrittenToBuffer);
+//            if (debug) std::cout << "evWrite: bufSize = " << bufferSize <<
+//                                          " <? bytesToWrite = " << (bytesWrittenToBuffer + currentEventBytes) <<
+//                                          " + 64 = " << (bytesWrittenToBuffer + currentEventBytes + 64) <<
+//                                          ", events in buf = " << eventsWrittenToBuffer << std::endl;
 
             // Is this event (by itself) too big for the current internal buffer?
             // Internal buffer needs room for first block header, event, and ending empty block.
@@ -2321,8 +2323,8 @@ namespace evio {
                 }
                 roomInBuffer = false;
                 needBiggerBuffer = true;
-                //System.out.println("evWrite: NEED bigger internal buffer for 1 big ev, current size = " +
-                //                           bufferSize + ", ev + blk hdrs size = " + (currentEventBytes + 2*headerBytes) );
+//                std::cout << "evWrite: NEED bigger internal buffer for 1 big ev, current size = " <<
+//                                           bufferSize << ", ev + blk hdrs size = " << (currentEventBytes + 2*headerBytes) << std::endl;
             }
             // Is this event plus ending block header, in combination with events previously written
             // to the current internal buffer, too big for it?
@@ -2333,25 +2335,26 @@ namespace evio {
                     return false;
                 }
 
-                //            if (debug) {
-                //                System.out.print("evWrite: NEED to flush buffer and re-use, ");
-                //                if (writeNewBlockHeader) {
-                //                    System.out.println("buf room = " + (bufferSize - bytesWrittenToBuffer) +
-                //                                       ", needed = "  + (currentEventBytes + 2*headerBytes));
-                //                }
-                //                else {
-                //                    System.out.println("buf room = " + (bufferSize - bytesWrittenToBuffer) +
-                //                                       ", needed = "  + (currentEventBytes + headerBytes));
-                //                }
-                //            }
+//                if (debug) {
+//                    std::cout << "evWrite: NEED to flush buffer and re-use, " << std::endl;
+//                    if (writeNewBlockHeader) {
+//                        std::cout << "buf room = " << (bufferSize - bytesWrittenToBuffer) <<
+//                                           ", needed = "  << (currentEventBytes + 2*headerBytes) << std::endl;
+//                    }
+//                    else {
+//                        std::cout << "buf room = " << (bufferSize - bytesWrittenToBuffer) <<
+//                                           ", needed = "  << (currentEventBytes + headerBytes) << std::endl;
+//                    }
+//                }
+
                 roomInBuffer = false;
             }
-            //        else {
-            //            // If we're here, there is room to add event into existing buffer.
-            //            // As we're the very first event, we need to set blockNumber.
-            //            System.out.println("evWrite: event will fit, events written to buf so far = " + eventsWrittenToBuffer +
-            //            ", bytes to buf so far = " + bytesWrittenToBuffer);
-            //        }
+//            else {
+//                // If we're here, there is room to add event into existing buffer.
+//                // As we're the very first event, we need to set blockNumber.
+//                std::cout << "evWrite: event will fit, events written to buf so far = " << eventsWrittenToBuffer <<
+//                             ", bytes to buf so far = " << bytesWrittenToBuffer << std::endl;
+//            }
 
 
             // If there is no room in the buffer for this event ...
@@ -2361,16 +2364,16 @@ namespace evio {
                     // We're here because there is not enough room in the internal buffer
                     // to write this single large event.
                     newBufSize = currentEventBytes + 2*headerBytes;
-                    //System.out.println("         must expand, bytes needed for 1 big ev + 2 hdrs = " + newBufSize);
+                    //std::cout << "         must expand, bytes needed for 1 big ev + 2 hdrs = " << newBufSize << std::endl;
                 }
                 // Flush what we have to file (if anything)
                 doFlush = true;
-                //System.out.println("evWrite: no room in Buf so doFlush = 1");
+                //std::cout << "evWrite: no room in Buf so doFlush = 1" << std::endl;
             }
 
             // Do we flush?
             if (doFlush) {
-                //System.out.println("evWrite: call flushToFile 1");
+                //std::cout << "evWrite: call flushToFile 1" << std::endl;
                 flushToFile(false, false);
              }
 
@@ -2379,7 +2382,7 @@ namespace evio {
                 splitFile();
             }
 
-            // Do we expand buffer?
+        // Do we expand buffer?
             if (needBiggerBuffer) {
                 // If here, we just flushed.
                 expandBuffer(newBufSize);
@@ -2389,7 +2392,7 @@ namespace evio {
             // internal buffer to prepare it for writing another event.
             // Start a new block.
             if (doFlush || splittingFile) {
-                //System.out.println("evWrite: call resetBuffer(false) 1");
+                //std::cout << "evWrite: call resetBuffer(false) 1" << std::endl;
                 resetBuffer(false);
                 // We have a newly initialized buffer ready to write
                 // to, so we don't need a new block header.
@@ -2409,7 +2412,7 @@ namespace evio {
                 // Memory needed to write: dictionary + first event + 3 block headers
                 // (beginning, after dict & first event, and ending) + event
                 size_t neededBytes = commonBlockByteSize + 3*headerBytes + currentEventBytes;
-                //if (debug) System.out.println("evWrite: write DICTIONARY after splitting, needed bytes = " + neededBytes);
+                //if (debug) std::cout << "evWrite: write DICTIONARY after splitting, needed bytes = " << neededBytes << std::endl;
 
                 // Write block header after dictionary + first event
                 writeNewBlockHeader = true;
@@ -2419,7 +2422,7 @@ namespace evio {
 
                 // Reset internal buffer as it was just
                 // before writing dictionary in constructor
-                //System.out.println("evWrite: call resetBuffer(true) 2");
+                //std::cout << "evWrite: call resetBuffer(true) 2" << std::endl;
                 resetBuffer(true);
 
                 // Write common block to the internal buffer
@@ -2430,25 +2433,25 @@ namespace evio {
 
             // Write new block header if required
             if (writeNewBlockHeader) {
-                //System.out.println("evWrite: wrote new blk hdr, block # = " + blockNumber);
+                //std::cout << "evWrite: wrote new blk hdr, block # = " << blockNumber << std::endl;
                 writeNewHeader(1, blockNumber++, nullptr, false, false);
-                //if (debug) System.out.println("evWrite: wrote new blk hdr, bytesToBuf = " + bytesWrittenToBuffer);
+                //if (debug) std::cout << "evWrite: wrote new blk hdr, bytesToBuf = " << bytesWrittenToBuffer << std::endl;
             }
 
             // Write out the event
             writeEventToBuffer(bank, bankBuffer, currentEventBytes);
 
-            //        if (debug) {
-            //            System.out.println("evWrite: after last header written, Events written to:");
-            //            System.out.println("         cnt total (no dict) = " + eventsWrittenTotal);
-            //            System.out.println("         file cnt total = " + eventsWrittenToFile);
-            //            System.out.println("         internal buffer cnt = " + eventsWrittenToBuffer);
-            //            System.out.println("         common block cnt = " + commonBlockCount);
-            //            System.out.println("         current block cnt (dict) = " + currentBlockEventCount);
-            //            System.out.println("         bytes-to-buf  = " + bytesWrittenToBuffer);
-            //            System.out.println("         bytes-to-file = " + bytesWrittenToFile);
-            //            System.out.println("         block # = " + blockNumber);
-            //        }
+//        if (debug) {
+//            std::cout << "evWrite: after last header written, Events written to:" << std::endl;
+//            std::cout << "         cnt total (no dict) = " << eventsWrittenTotal << std::endl;
+//            std::cout << "         file cnt total = " << eventsWrittenToFile << std::endl;
+//            std::cout << "         internal buffer cnt = " << eventsWrittenToBuffer << std::endl;
+//            std::cout << "         common block cnt = " << commonBlockCount << std::endl;
+//            std::cout << "         current block cnt (dict) = " << currentBlockEventCount << std::endl;
+//            std::cout << "         bytes-to-buf  = " << bytesWrittenToBuffer << std::endl;
+//            std::cout << "         bytes-to-file = " << bytesWrittenToFile << std::endl;
+//            std::cout << "         block # = " << blockNumber << std::endl;
+//        }
 
             // If caller wants to flush the event to disk (say, prestart event) ...
             if (force && toFile) {
@@ -2922,7 +2925,7 @@ namespace evio {
                 // Add that now.
                 writeNewHeader(0, blockNumber, nullptr, false, true);
                 flushToFile(false, false);
-                //System.out.println("    split file: flushToFile for file being closed");
+                //std::cout << "    split file: flushToFile for file being closed" << std::endl;
 
                 fileCloser->closeAsyncFile(asyncFileChannel, future1);
             }
