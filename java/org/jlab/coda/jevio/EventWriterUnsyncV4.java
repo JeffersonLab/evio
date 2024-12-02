@@ -2814,7 +2814,9 @@ public class EventWriterUnsyncV4 {
 
         // Write event to internal buffer
         if (bankBuffer != null) {
+            int bankPos = bankBuffer.position();
             buffer.put(bankBuffer);
+            bankBuffer.position(bankPos);
         }
         else if (bank != null) {
             bank.write(buffer);
