@@ -2844,6 +2844,7 @@ System.err.println("ERROR endOfBuffer " + a);
         try {
             if (bankBuffer != null) {
                 buffer.put(bankBuffer);
+                bankBuffer.position(bankPos);
             }
             else if (bank != null) {
                 bank.write(buffer);
