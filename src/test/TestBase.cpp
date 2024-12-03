@@ -527,7 +527,7 @@ namespace evio {
             std::shared_ptr<EvioEvent> event = EvioEvent::getInstance(tag, DataType::BANK, num);
 
             // bank of banks
-            auto bankBanks = EvioBank::getInstance(tag + 1, DataType::BANK, num + 1);
+            auto bankBanks = EvioBank::getInstance(tag + 200, DataType::BANK, num + 200);
             event->insert(bankBanks, 0);
 
             // bank of ints
@@ -590,7 +590,7 @@ namespace evio {
 
 
             // bank of segments
-            auto bankSegs = EvioBank::getInstance(tag + 14, DataType::SEGMENT, num + 14);
+            auto bankSegs = EvioBank::getInstance(tag + 201, DataType::SEGMENT, num + 201);
             event->insert(bankSegs, 1);
 
             // seg of ints
@@ -645,7 +645,7 @@ namespace evio {
 
 
             // bank of tagsegments
-            auto bankTsegs = EvioBank::getInstance(tag + 15, DataType::TAGSEGMENT, num + 15);
+            auto bankTsegs = EvioBank::getInstance(tag + 202, DataType::TAGSEGMENT, num + 202);
             event->insert(bankTsegs, 2);
 
             // tagsegments of ints
