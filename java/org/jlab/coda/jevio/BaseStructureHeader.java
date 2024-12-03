@@ -116,8 +116,9 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
 
     /**
      * Set the numeric data type for the structure.
+	 * If the arg does not correspond to a valid DataType, it's set to null.
      *
-     * @param dataType the dataTtype for the structure.
+     * @param dataType the dataType for the structure.
      */
     void setDataType(int dataType) {
         this.dataType = DataType.getDataType(dataType);
