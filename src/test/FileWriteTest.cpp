@@ -62,20 +62,29 @@ namespace evio {
                                  100000, ByteOrder::ENDIAN_LOCAL, "", true, false,
                                  nullptr, 0, 0, 1, 1, bufferBytes);
 
-            std::cout << "Write little event 1" << std::endl;
+            std::cout << "Write little event 1, buf pos = " << littleEvt->position() << ", lim = " << littleEvt->limit() << std::endl;
             writer.writeEvent(littleEvt, false);
+            //writer.writeEventToFile(nullptr, littleEvt, false);
             // Delay between writes
             //std::this_thread::sleep_for(std::chrono::seconds(2));
             std::cout << "Write BIG event 1" << std::endl;
             writer.writeEvent(bigEvt, false);
             //std::this_thread::sleep_for(std::chrono::seconds(2));
-            std::cout << "Write little event 2" << std::endl;
+            std::cout << "Write little event 2, buf pos = " << littleEvt->position() << ", lim = " << littleEvt->limit() << std::endl;
             writer.writeEvent(littleEvt, true);
             //std::this_thread::sleep_for(std::chrono::seconds(2));
             std::cout << "Write BIG event 2" << std::endl;
             writer.writeEvent(bigEvt, true);
             std::cout << "WRTER CLOSE" << std::endl;
             writer.close();
+
+
+            EvioReader reader(fname);
+            std::shared_ptr<EvioEvent> ev;
+            while ( (ev = reader.parseNextEvent()) != nullptr) {
+
+            }
+
         }
         else {
             EventWriter writer(fname, "", "", 1, 0, targetRecordBytes,
@@ -83,18 +92,22 @@ namespace evio {
                                 nullptr, 1, 0, 1, 1, Compressor::CompressionType::UNCOMPRESSED,
                                 0, 0, bufferBytes);
 
-            std::cout << "Write little event 1" << std::endl;
-            writer.writeEventToFile(littleEvt, false, false);
+            std::cout << "Write little event 1, buf pos = " << littleEvt->position() << ", lim = " << littleEvt->limit() << std::endl;
+            writer.writeEvent(littleEvt);
+            //writer.writeEventToFile(littleEvt, false, false);
             // Delay between writes
             //std::this_thread::sleep_for(std::chrono::seconds(2));
             std::cout << "Write BIG event 1" << std::endl;
-            writer.writeEventToFile(bigEvt, false, false);
+            writer.writeEvent(bigEvt);
+            //writer.writeEventToFile(bigEvt, false, false);
             //std::this_thread::sleep_for(std::chrono::seconds(2));
-            std::cout << "Write little event 2" << std::endl;
-            writer.writeEventToFile(littleEvt, false, true);
+            std::cout << "Write little event 2, buf pos = " << littleEvt->position() << ", lim = " << littleEvt->limit() << std::endl;
+            writer.writeEvent(littleEvt);
+            //writer.writeEventToFile(littleEvt, false, true);
             //std::this_thread::sleep_for(std::chrono::seconds(2));
             std::cout << "Write BIG event 2" << std::endl;
-            writer.writeEventToFile(bigEvt, false, true);
+            writer.writeEvent(bigEvt);
+            //writer.writeEventToFile(bigEvt, false, true);
             std::cout << "WRTER CLOSE" << std::endl;
             writer.close();
         }
