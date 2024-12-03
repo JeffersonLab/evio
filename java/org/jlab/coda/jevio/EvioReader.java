@@ -458,7 +458,7 @@ public class EvioReader implements IEvioReader {
      * @return an EvioEvent object parsed from the given array.
      * @throws EvioException if null arg, too little data, length too large, or data not in evio format.
      */
-    static EvioEvent getEvent(byte[] array, int offset, ByteOrder order) throws EvioException {
+    public static EvioEvent getEvent(byte[] array, int offset, ByteOrder order) throws EvioException {
 
         if (array == null || array.length - offset < 8) {
             throw new EvioException("arg null or too little data");
