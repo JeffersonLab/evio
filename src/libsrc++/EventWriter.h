@@ -12,6 +12,7 @@
 #define EVIO_6_0_EVENTWRITER_H
 
 
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
@@ -29,8 +30,13 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 
+#include <boost/filesystem.hpp>
+
+
 #ifdef USE_FILESYSTEMLIB
-    #include <experimental/filesystem>
+    #include <filesystem>
+#else
+    #include <boost/filesystem.hpp>
 #endif
 
 

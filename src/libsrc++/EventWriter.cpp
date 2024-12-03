@@ -382,11 +382,21 @@ namespace evio {
 #else
             uint64_t freeBytes;
             struct statvfs sttvfs{};
-            if (statvfs(fileName.c_str(), &sttvfs) == 0) {
+
+            // Use Boost.Filesystem to extract the directory (file may not exist yet)
+            boost::filesystem::path path(fileName);
+            boost::filesystem::path directory = path.parent_path();
+            std::string dirStr = directory.string();
+
+            if (statvfs(dirStr.c_str(), &sttvfs) == 0) {
                 freeBytes = sttvfs.f_bavail * sttvfs.f_frsize;
+                //std::cout << "EventWriter constr: freeBytes for (" << dirStr << ") = " << freeBytes << std::endl;
             }
             else {
-                throw EvioException("error getting disk partition's available space for " + fileName);
+                perror(dirStr.c_str());
+                // Trouble getting info about disk partition file is sitting on.
+                // Just assume everything is OK (1TB available).
+                freeBytes = 1000000000000UL;
             }
 #endif
             // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
@@ -2692,8 +2702,14 @@ namespace evio {
 #else
         uint64_t freeBytes;
         struct statvfs sttvfs{};
-        if (statvfs(currentFileName.c_str(), &sttvfs) == 0) {
+
+        // Use Boost.Filesystem to extract the directory (in case file does not exist yet)
+        boost::filesystem::path path(currentFileName);
+        boost::filesystem::path directory = path.parent_path();
+
+        if (statvfs(directory.string().c_str(), &sttvfs) == 0) {
             freeBytes = sttvfs.f_bavail * sttvfs.f_frsize;
+            //std::cout << "EventWriter: freeBytes for (" << dirStr << ") = " << freeBytes << std::endl;
         }
         else {
             // assume there is room if we can't get disk info
