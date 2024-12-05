@@ -24,6 +24,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * An EventWriter object is used for writing events to a file or to a byte buffer.
@@ -182,16 +184,23 @@ public class EventWriterUnsync implements AutoCloseable {
     class RecordWriter extends Thread {
 
         /** The highest sequence to have been currently processed. */
-        private volatile long lastSeqProcessed = -1;
+        private AtomicLong lastSeqProcessed;
 
         /** Place to store event when disk is full. */
         private RecordRingItem storedItem;
 
         /** Force write to disk. */
-        private volatile boolean forceToDisk;
+        private AtomicBoolean forceToDisk;
 
         /** Id of RecordRingItem that initiated the forced write. */
-        private volatile long forcedRecordId;
+        private AtomicLong forcedRecordId;
+
+
+        RecordWriter() {
+            lastSeqProcessed = new AtomicLong(-1);
+            forceToDisk = new AtomicBoolean(false);
+            forcedRecordId = new AtomicLong(0);
+        }
 
 
         /**
@@ -207,14 +216,14 @@ public class EventWriterUnsync implements AutoCloseable {
          * @param id id of record causing the forced write to disk.
          */
         void setForcedRecordId(long id) {
-            forcedRecordId = id;
-            forceToDisk = true;
+            forcedRecordId.set(id);
+            forceToDisk.set(true);
         }
 
 
         /** Wait for the last item to be processed, then exit thread. */
         void waitForLastItem() {
-            while (supply.getLastSequence() > lastSeqProcessed) {
+            while (supply.getLastSequence() > lastSeqProcessed.get()) {
                 Thread.yield();
             }
             // Interrupt this thread, not the thread calling this method
@@ -246,7 +255,7 @@ public class EventWriterUnsync implements AutoCloseable {
 
                     // Check the disk before we try to write if about to create another file,
                     // we're told to check the disk and we're not forcing to disk
-                    if ((bytesWritten < 1) && checkDisk && (!forceToDisk)) {
+                    if ((bytesWritten < 1) && checkDisk && (!forceToDisk.get())) {
 
                         // If there isn't enough free space to write the complete, projected
                         // size file, and we're not trying to force the write ...
@@ -270,7 +279,7 @@ public class EventWriterUnsync implements AutoCloseable {
                         // blocking by checking for a full disk (which it couldn't do before since
                         // the signal came too late).
 
-                        while (fullDisk() && (!forceToDisk)) {
+                        while (fullDisk() && (!forceToDisk.get())) {
                             // Wait for a sec and try again
                             Thread.sleep(1000);
 
@@ -281,6 +290,7 @@ public class EventWriterUnsync implements AutoCloseable {
                                 // Release original so we don't block writeEvent()
                                 supply.releaseWriter(item);
                                 item = copiedItem;
+                                item.setAlreadyReleased(true);
                             }
 
                             // Wait until space opens up
@@ -291,27 +301,25 @@ public class EventWriterUnsync implements AutoCloseable {
                     }
 
                     // Write current item to file
-                    writeToFileMT(item, forceToDisk);
+                    writeToFileMT(item, forceToDisk.get());
 
                     // Turn off forced write to disk, if the record which
                     // initially triggered it, has now been written.
-                    if (forceToDisk && (forcedRecordId == item.getId()))  {
+                    if (forceToDisk.get() && (forcedRecordId.get() == item.getId()))  {
 //System.out.println("  write: WROTE the record that triggered force, reset to false");
-                        forceToDisk = false;
+                        forceToDisk.set(false);
                     }
 
                     // Now we're done with this sequence
-                    lastSeqProcessed = currentSeq;
+                    lastSeqProcessed.set(currentSeq);
 
                     // Split file if needed
                     if (item.splitFileAfterWrite()) {
                         splitFile();
                     }
 
-// TODO: do we need this???
                     // Release back to supply
-                    //supply.releaseWriter(item);
-
+                    supply.releaseWriter(item);
                 }
             }
             catch (AlertException e) {
@@ -2334,9 +2342,14 @@ public class EventWriterUnsync implements AutoCloseable {
                     catch (Exception e) {}
                 }
 
-                if (asyncFileChannel != null) asyncFileChannel.close();
+                if (asyncFileChannel != null) {
+                    asyncFileChannel.close();
+                }
+
                 // Close split file handler thread pool
-                if (fileCloser != null) fileCloser.close();
+                if (fileCloser != null) {
+                    fileCloser.close();
+                }
             }
             catch (IOException e) {}
 
@@ -4379,7 +4392,6 @@ public class EventWriterUnsync implements AutoCloseable {
         // After first 2 times, wait until one of the
         // 2 futures is finished before proceeding
         else {
-
             boolean future1Done = future1.isDone();
             boolean future2Done = future2.isDone();
 
