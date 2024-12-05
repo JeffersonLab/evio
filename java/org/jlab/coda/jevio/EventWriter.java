@@ -493,26 +493,5 @@ public class EventWriter extends EventWriterUnsync {
 
         return super.writeEventToFile(bank, bankBuffer, force, ownRecord);
     }
-
-    /** {@inheritDoc} */
-    synchronized protected boolean writeToFile(boolean force, boolean checkDisk)
-            throws EvioException, IOException,
-            InterruptedException, ExecutionException {
-
-        return super.writeToFile(force, checkDisk);
-    }
-
-    /** {@inheritDoc} */
-    synchronized protected void writeToFileMT(RecordRingItem item, boolean force)
-            throws EvioException, IOException,
-            InterruptedException, ExecutionException {
-
-        super.writeToFileMT(item, force);
-    }
-
-    /** {@inheritDoc} */
-    synchronized protected void splitFile() throws EvioException {
-        super.splitFile();
-    }
-
+    
 }
