@@ -35,6 +35,7 @@
 
 #ifdef USE_FILESYSTEMLIB
     #include <filesystem>
+    //namespace fs = std::experimental::filesystem;
 #else
     #include <boost/filesystem.hpp>
 #endif
@@ -59,10 +60,6 @@
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 
-
-#ifdef USE_FILESYSTEMLIB
-namespace fs = std::experimental::filesystem;
-#endif
 
 
 namespace evio {
@@ -285,7 +282,7 @@ namespace evio {
 
                             int64_t currentSeq = item->getSequence();
                             // Pull record out of wrapping object
-                            auto record = item->getRecord();
+                            //auto record = item->getRecord();
 
                             // Only need to check the disk when writing the first record following
                             // a file split. That first write will create the file. If there isn't
@@ -329,6 +326,7 @@ namespace evio {
                                         // Release original so we don't block writeEvent()
                                         supply->releaseWriter(item);
                                         item = copiedItem;
+                                        item->setAlreadyReleased(true);
                                     }
 
                                     // Wait until space opens up
@@ -363,8 +361,18 @@ namespace evio {
                         }
                     }
                 }
+                catch (Disruptor::AlertException & e) {
+                    // Woken up in getToWrite through user call to supply.errorAlert()
+                    //std::cout << "RecordWriter: quit thread through alert" << std::endl;
+                }
                 catch (boost::thread_interrupted & e) {
-                    std::cout << "EventWriter: INTERRUPTED, return" << std::endl;
+                    // Interrupted while blocked in getToWrite which means we're all done
+                    //std::cout << "RecordWriter: quit thread through interrupt" << std::endl;
+                }
+                catch (std::runtime_error & e) {
+                    std::string err = e.what();
+                    supply->haveError(true);
+                    supply->setError(err);
                 }
             }
         };
