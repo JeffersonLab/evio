@@ -455,15 +455,12 @@ public class RecordSupply {
      * item is released but will still be used in some manner.
      *
      * @param item item in ring buffer to release for reuse.
-     * @return false if item not released since item is null, else true.
+     * @return false if item not released since item is null or is already released, else true.
      */
     public boolean releaseWriter(RecordRingItem item) {
-        if (item == null) {
-            return false;
-        }
 
-        if (item.isAlreadyReleased()) {
-//System.out.println("RecordSupply: item already released!");
+        if (item == null || item.isAlreadyReleased()) {
+            //System.out.println("RecordSupply: item already released!");
             return false;
         }
 
