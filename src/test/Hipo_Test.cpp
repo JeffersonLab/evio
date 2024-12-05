@@ -76,6 +76,8 @@ namespace evio {
                 std::cout << "createCompactEvents: next evio event ->\n" << ev->treeToString("") << std::endl;
 
                 std::shared_ptr<uint8_t> bytes2 = reader.getEvent(0, &len);
+                std::cout << "createCompactEvents: get event(0), size = " << std::to_string(len) << std::endl << std::endl;
+
                 ByteBuffer bb1(20000);
                 reader.getEvent(bb1, 0);
                 std::cout << "createCompactEvents: event 1,  bb1 limit ->\n" << bb1.limit() << std::endl;
@@ -109,6 +111,7 @@ namespace evio {
 
                 writer.setFirstEvent(event);
                 writer.writeEvent(event);
+                std::cout << "    createObjectEvents: call writer.close()" << std::endl;
                 writer.close();
 
                 // Read event back out of file
@@ -143,8 +146,8 @@ namespace evio {
 
 int main(int argc, char **argv) {
     auto tester = evio::HipoTester();
-    tester.testCompactEventCreation(1,1);
-    //tester.testTreeEventCreation(1,1);
+    //tester.testCompactEventCreation(1,1);
+    tester.testTreeEventCreation(1,1);
     return 0;
 }
 

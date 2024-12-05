@@ -102,9 +102,11 @@ public class HipoTest extends TestBase {
 
             writer.setFirstEvent(event);
             writer.writeEvent(event);
+            System.out.println("    createObjectEvents: call writer.close()");
             writer.close();
 
             // Read event back out of file
+            System.out.println("    createObjectEvents:create EvioReader");
             EvioReader reader = new EvioReader(writeFileName1);
 
             System.out.println("    createObjectEvents: have dictionary? " + reader.hasDictionaryXML());
