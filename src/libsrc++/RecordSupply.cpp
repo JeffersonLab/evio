@@ -17,11 +17,11 @@ namespace evio {
 
     /**
      * Constructor. Ring size of 4 records, compression thread count of 1,
-     * no compression, little endian data.
+     * no compression, local endian data.
      */
-    RecordSupply::RecordSupply() : ringSize(4),
-                                   ringBuffer(Disruptor::RingBuffer<std::shared_ptr<RecordRingItem>>::createSingleProducer(RecordRingItem::eventFactory(), ringSize))
-    {}
+    RecordSupply::RecordSupply() : ringSize(4) {
+        ringBuffer = Disruptor::RingBuffer<std::shared_ptr<RecordRingItem>>::createSingleProducer(RecordRingItem::eventFactory(), ringSize);
+    }
 
 
     /**
@@ -42,14 +42,14 @@ namespace evio {
      * @throws EvioException if args < 1, ringSize not power of 2,
      *                                  threadCount > ringSize.
      */
-    RecordSupply::RecordSupply(uint32_t ringSize, ByteOrder order,
+    RecordSupply::RecordSupply(int32_t ringSize, ByteOrder order,
                                uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize,
                                Compressor::CompressionType & compressionType) :
 
-            order(order), maxBufferSize(maxBufferSize)
+            order(order), maxBufferSize(maxBufferSize), compressionType(compressionType), ringSize(ringSize)
     {
 
-        if (!Disruptor::Util::isPowerOf2(ringSize)) {
+        if (ringSize < 1 || !Disruptor::Util::isPowerOf2(ringSize)) {
             throw EvioException("ringSize must be a power of 2");
         }
 
@@ -61,8 +61,6 @@ namespace evio {
         if (threadCount > 0) {
             compressionThreadCount = threadCount;
         }
-
-        this->ringSize = ringSize;
 
         // Set RecordRingItem static values to be used when eventFactory is creating RecordRingItem objects
         RecordRingItem::setEventFactorySettings(order, maxEventCount, maxBufferSize, compressionType);
@@ -132,14 +130,14 @@ namespace evio {
      * Get the max number of bytes the records in this supply can hold all together.
      * @return max number of bytes the records in this supply can hold all together.
      */
-    uint32_t RecordSupply::getMaxRingBytes() {return (int) (ringSize*1.1*maxBufferSize);}
+    uint32_t RecordSupply::getMaxRingBytes() const {return (int) (ringSize*1.1*maxBufferSize);}
 
 
     /**
      * Get the number of records in this supply.
      * @return number of records in this supply.
      */
-    uint32_t RecordSupply::getRingSize() {return ringSize;}
+    uint32_t RecordSupply::getRingSize() const {return ringSize;}
 
 
     /**
@@ -199,6 +197,7 @@ namespace evio {
      * @param item record item available for consumers' use.
      */
     void RecordSupply::publish(std::shared_ptr<RecordRingItem> item) {
+        if (item == nullptr) return;
         ringBuffer->publish(item->getSequence());
     }
 
@@ -280,6 +279,7 @@ namespace evio {
      * @param item item in ring buffer to release for reuse.
      */
     void RecordSupply::releaseCompressor(std::shared_ptr<RecordRingItem> item) {
+        if (item == nullptr) return;
         item->getSequenceObj()->setValue(item->getSequence() + compressionThreadCount - 1);
     }
 
@@ -330,7 +330,7 @@ namespace evio {
      * item is released but will still be used in some manner.
      *
      * @param item item in ring buffer to release for reuse.
-     * @return false if item or released since item is null, else true.
+     * @return false if item not released since item is null or is already released, else true.
      */
     bool RecordSupply::releaseWriter(std::shared_ptr<RecordRingItem> item) {
 
@@ -354,7 +354,7 @@ namespace evio {
                 // Set the new max
                 maxSequence = seq;
             }
-                // If we're < max and > last, then we're in between
+            // If we're < max and > last, then we're in between
             else if (seq > lastSequenceReleased) {
                 between++;
             }

@@ -28,6 +28,7 @@
 #include "Disruptor/ISequence.h"
 #include "Disruptor/RingBuffer.h"
 #include "Disruptor/ISequenceBarrier.h"
+#include "Disruptor/AlertException.h"
 #include "Disruptor/TimeoutException.h"
 #include "Disruptor/SpinCountBackoffWaitStrategy.h"
 
@@ -108,25 +109,25 @@ namespace evio {
         /** Byte order of RecordOutputStream in each RecordRingItem. */
         ByteOrder order {ByteOrder::ENDIAN_LOCAL};
 
-        /** Max number of uncompressed data bytes each record can hold.
-         *  Value of < 8MB results in default of 8MB. */
-        uint32_t maxBufferSize = 0;
-        /** Number of threads doing compression simultaneously. */
-        uint32_t compressionThreadCount = 1;
-        /** Number of records held in this supply. */
-        uint32_t ringSize = 0;
-
-
         /** Ring buffer. Variable ringSize needs to be defined first. */
         std::shared_ptr<Disruptor::RingBuffer<std::shared_ptr<RecordRingItem>>> ringBuffer = nullptr;
 
+        /** Max number of uncompressed data bytes each record can hold.
+         *  Value of < 8MB results in default of 8MB. */
+        uint32_t maxBufferSize = 0;
+        /** Type type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip). */
+        Compressor::CompressionType compressionType = Compressor::CompressionType::UNCOMPRESSED;
+        /** Number of threads doing compression simultaneously. */
+        uint32_t compressionThreadCount = 1;
+        /** Number of records held in this supply. */
+        int32_t ringSize = 0;
 
         // Stuff for reporting errors
 
         /** Do we have an error writing and/or compressing data? */
         std::atomic<bool> haveErrorCondition{false};
         /** Error string. No atomic<string> in C++, so protect with mutex. */
-        std::string error {""};
+        std::string error;
 
         // Stuff for reporting conditions (disk is full)
 
@@ -176,7 +177,7 @@ namespace evio {
         RecordSupply();
         // No need to copy these things
         RecordSupply(const RecordSupply & supply) = delete;
-        RecordSupply(uint32_t ringSize, ByteOrder order,
+        RecordSupply(int32_t ringSize, ByteOrder order,
                      uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize,
                      Compressor::CompressionType & compressionType);
 
@@ -191,8 +192,8 @@ namespace evio {
 
         void errorAlert();
 
-        uint32_t getMaxRingBytes();
-        uint32_t getRingSize();
+        uint32_t getMaxRingBytes() const ;
+        uint32_t getRingSize() const ;
         ByteOrder & getOrder();
         uint64_t getFillLevel();
         int64_t getLastSequence();
