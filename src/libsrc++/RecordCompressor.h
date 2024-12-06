@@ -153,6 +153,7 @@ namespace evio {
 
                     {
                         // Only allow interruption when blocked on trying to get item
+                        boost::this_thread::interruption_point();
                         boost::this_thread::disable_interruption d1;
 
                         // Pull record out of wrapping object
