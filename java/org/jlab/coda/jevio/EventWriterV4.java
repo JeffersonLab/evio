@@ -966,10 +966,10 @@ public class EventWriterV4 extends EventWriterUnsyncV4 {
 
 
     /** {@inheritDoc} */
-    synchronized protected void examineFirstBlockHeader()
-            throws EvioException {
+    synchronized public boolean writeEvent(EvioNode node, boolean force, boolean duplicate)
+            throws EvioException, IOException {
 
-            super.examineFirstBlockHeader();
+        return super.writeEvent(node, force, duplicate);
     }
 
 
@@ -979,6 +979,14 @@ public class EventWriterV4 extends EventWriterUnsyncV4 {
             throws EvioException, IOException {
 
         return super.writeEvent(bank, bankBuffer, force);
+    }
+
+
+    /** {@inheritDoc} */
+    public boolean writeEventToFile(EvioNode node, boolean force, boolean duplicate)
+            throws EvioException, IOException {
+
+        return super.writeEventToFile(node, force, duplicate);
     }
 
 
