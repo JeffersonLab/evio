@@ -160,7 +160,7 @@ public class EvioReaderV6 extends EvioReaderUnsyncV6 {
     /** {@inheritDoc} */
     @Override
     public synchronized EvioEvent getEvent(int index) throws EvioException {
-        return EvioReader.getEvent(getEventArray(index), 0, reader.getByteOrder());
+        return super.getEvent(index);
     }
 
     /** {@inheritDoc} */
