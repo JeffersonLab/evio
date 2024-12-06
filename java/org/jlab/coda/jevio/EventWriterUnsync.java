@@ -220,14 +220,37 @@ public class EventWriterUnsync implements AutoCloseable {
             forceToDisk.set(true);
         }
 
+        /** Stop the thread. */
+        void stopThread() {
+            try {
+                // Send signal to interrupt it
+                this.interrupt();
+
+                // Wait for it to stop
+                this.join(1);
+
+                if (this.isAlive()) {
+                    // If that didn't work, send Alert signal to ring
+                    supply.errorAlert();
+
+                    this.join();
+                    //std::cout << "RecordWriter JOINED from alert" << std::endl;
+                }
+            }
+            catch (InterruptedException e) {}
+        }
 
         /** Wait for the last item to be processed, then exit thread. */
         void waitForLastItem() {
-            while (supply.getLastSequence() > lastSeqProcessed.get()) {
-                Thread.yield();
+            try {
+                while (supply.getLastSequence() > lastSeqProcessed.get()) {
+                    Thread.yield();
+                }
             }
-            // Interrupt this thread, not the thread calling this method
-            this.interrupt();
+            catch (Exception e) {}
+
+            // Stop this thread, not the thread calling this method
+            stopThread();
         }
 
         private RecordRingItem storeRecordCopy(RecordRingItem rec) {
