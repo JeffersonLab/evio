@@ -184,7 +184,7 @@ namespace evio {
 
             /**
              * Constructor.
-             * @param pwriter pointer to WriterMT object which owns this thread.
+             * @param pwriter pointer to EventWriter object which owns this thread.
              * @param recordSupply shared pointer to an object supplying compressed records that need to be written to file.
              */
             RecordWriter(EventWriter * pwriter, std::shared_ptr<RecordSupply> recordSupply) :
@@ -211,9 +211,11 @@ namespace evio {
 
             // Do not free writer!
             ~RecordWriter() {
-                thd.interrupt();
-                if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                    std::cout << "     RecordWriter thread did not quit after 1/2 sec" << std::endl;
+                try {
+                    stopThread();
+                }
+                catch (const std::exception& e) {
+                    std::cerr << "Exception during thread cleanup: " << e.what() << std::endl;
                 }
             }
 
@@ -224,22 +226,42 @@ namespace evio {
 
             /** Stop the thread. */
             void stopThread() {
-                // Send signal to interrupt it
-                thd.interrupt();
-                // Wait for it to stop
-                thd.join();
+                if (thd.joinable()) {
+                    // Send signal to interrupt it
+                    thd.interrupt();
+
+                    // Wait for it to stop
+                    if (thd.try_join_for(boost::chrono::milliseconds(1))) {
+                        //std::cout << "RecordWriter JOINED from interrupt" << std::endl;
+                        return;
+                    }
+
+                    // If that didn't work, send Alert signal to ring
+                    supply->errorAlert();
+
+                    if (thd.joinable()) {
+                        thd.join();
+                        //std::cout << "RecordWriter JOINED from alert" << std::endl;
+                    }
+                }
             }
 
             /** Wait for the last item to be processed, then exit thread. */
             void waitForLastItem() {
-                //cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
-                //" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
-                while (supply->getLastSequence() > lastSeqProcessed.load()) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                }
+                try {
+                    //cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
+                    //" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
+                    while (supply->getLastSequence() > lastSeqProcessed.load()) {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    }
 
-                // Stop this thread, not the calling thread
-                stopThread();
+                    // Stop this thread, not the calling thread
+                    stopThread();
+                }
+                catch (Disruptor::AlertException & e) {
+                    // Woken up in getToWrite through user call to supply.errorAlert()
+                    //std::cout << "RecordWriter: quit thread through alert" << std::endl;
+                }
             }
 
             /**
@@ -269,9 +291,7 @@ namespace evio {
             void run() {
 
                 try {
-
                     while (true) {
-
                         // Get the next record for this thread to write
                         // shared_ptr<RecordRingItem>
                         auto item = supply->getToWrite();

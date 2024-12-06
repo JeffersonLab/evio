@@ -96,9 +96,11 @@ namespace evio {
 
         /** Destructor. */
         ~RecordCompressor() {
-            thd.interrupt();
-            if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                std::cout << "RecordCompressor thread did not quit after 1/2 sec" << std::endl;
+            try {
+                stopThread();
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Exception during thread cleanup: " << e.what() << std::endl;
             }
         }
 
@@ -109,10 +111,24 @@ namespace evio {
 
         /** Stop the thread. */
         void stopThread() {
-            // Send signal to interrupt it
-            thd.interrupt();
-            // Wait for it to stop
-            thd.join();
+             if (thd.joinable()) {
+                 // Send signal to interrupt it
+                 thd.interrupt();
+
+                // Wait for it to stop
+                if (thd.try_join_for(boost::chrono::milliseconds(1))) {
+                    //std::cout << "RecordCompressor JOINED from interrupt" << std::endl;
+                    return;
+                }
+
+                // If that didn't work, send Alert signal to ring
+                supply->errorAlert();
+
+                if (thd.joinable()) {
+                    thd.join();
+                    //std::cout << "RecordCompressor JOINED from alert" << std::endl;
+                }
+            }
         }
 
         /** Method to run in the thread. */
@@ -152,8 +168,13 @@ namespace evio {
                     }
                 }
             }
+            catch (Disruptor::AlertException & e) {
+                // Woken up in getToCompress through user call to supply.errorAlert()
+                //std::cout << "RecordCompressor: quit thread through alert" << std::endl;
+            }
             catch (boost::thread_interrupted & e) {
-//cout << "RecordCompressor thd " << threadNumber << ": INTERRUPTED, return" << endl;
+                // Never happen since we don't use timeout wait strategy
+                //cout << "RecordCompressor thd " << threadNumber << ": INTERRUPTED, return" << endl;
             }
         }
     };

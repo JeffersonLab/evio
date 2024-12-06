@@ -1345,9 +1345,7 @@ namespace evio {
 
                 // Since the writer thread is the last to process each record,
                 // wait until it's done with the last item, then exit the thread.
-// std::cout << "Close: waiting 4 writing thd" << std::endl;
                 recordWriterThread[0].waitForLastItem();
-// std::cout << "Close: done waiting 4 writing thd" << std::endl;
 
                 // Stop all compressing threads which by now are stuck on get
                 for (RecordCompressor &thd : recordCompressorThreads) {
@@ -2940,7 +2938,7 @@ namespace evio {
 
         // This actually creates the file so do it only once
         if (bytesWritten < 1) {
-            std::cout << "Creating channel to " << currentFileName << std::endl;
+            //std::cout << "Creating channel to " << currentFileName << std::endl;
 
             // New shared pointer for each file ...
             asyncFileChannel = std::make_shared<std::fstream>();
@@ -2976,8 +2974,9 @@ namespace evio {
         // Length of this record
         int bytesToWrite = header->getLength();
         int eventCount   = header->getEntries();
-        std::cout << "   **** added to recordLengths MT: " << bytesToWrite << ", " <<
-             eventCount << std::endl;
+
+        //std::cout << "   **** added to recordLengths MT: " << bytesToWrite << ", " << eventCount << std::endl;
+
         recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths->push_back(eventCount);

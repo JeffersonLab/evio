@@ -120,9 +120,11 @@ namespace evio {
 
             // Do not free writer!
             ~RecordWriter() {
-                thd.interrupt();
-                if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                    std::cout << "RecordWriter thread did not quit after 1/2 sec" << std::endl;
+                try {
+                    stopThread();
+                }
+                catch (const std::exception& e) {
+                    std::cerr << "Exception during thread cleanup: " << e.what() << std::endl;
                 }
             }
 
@@ -133,32 +135,50 @@ namespace evio {
 
             /** Stop the thread. */
             void stopThread() {
-                // Send signal to interrupt it
-                thd.interrupt();
-                // Wait for it to stop
-                thd.join();
+                if (thd.joinable()) {
+                    // Send signal to interrupt it
+                    thd.interrupt();
+
+                    // Wait for it to stop
+                    if (thd.try_join_for(boost::chrono::milliseconds(1))) {
+                        //std::cout << "RecordWriter JOINED from interrupt" << std::endl;
+                        return;
+                    }
+
+                    // If that didn't work, send Alert signal to ring
+                    supply->errorAlert();
+
+                    if (thd.joinable()) {
+                        thd.join();
+                        //std::cout << "RecordWriter JOINED from alert" << std::endl;
+                    }
+                }
             }
 
             /** Wait for the last item to be processed, then exit thread. */
             void waitForLastItem() {
-//std::cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
-//" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  std::endl;
-                while (supply->getLastSequence() > lastSeqProcessed.load()) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                }
+                try {
+                    //cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
+                    //" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
+                    while (supply->getLastSequence() > lastSeqProcessed.load()) {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    }
 
-                // Stop this thread, not the calling thread
-                stopThread();
+                    // Stop this thread, not the calling thread
+                    stopThread();
+                }
+                catch (Disruptor::AlertException & e) {
+                    // Woken up in getToWrite through user call to supply.errorAlert()
+                    //std::cout << "RecordWriter: quit thread through alert" << std::endl;
+                }
             }
 
             /** Run this method in thread. */
             void run() {
-                int64_t currentSeq;
 
                 try {
                     while (true) {
-
-                        std::cout << "   RecordWriter: try getting record to write" << std::endl;
+                        //std::cout << "   RecordWriter: try getting record to write" << std::endl;
                         // Get the next record for this thread to write
                         auto item = supply->getToWrite();
 
@@ -166,7 +186,7 @@ namespace evio {
                             // Only allow interruption when blocked on trying to get item
                             boost::this_thread::disable_interruption d1;
 
-                            currentSeq = item->getSequence();
+                            int64_t currentSeq = item->getSequence();
                             // Pull record out of wrapping object
                             std::shared_ptr<RecordOutput> record = item->getRecord();
 
@@ -180,8 +200,8 @@ namespace evio {
                             writer->writerBytesWritten += bytesToWrite;
 
                             auto buf = record->getBinaryBuffer();
-                            std::cout << "   RecordWriter: use outFile to write file, buf pos = " << buf->position() <<
-                                 ", lim = " << buf->limit() << ", bytesToWrite = " << bytesToWrite << std::endl;
+//                            std::cout << "   RecordWriter: use outFile to write file, buf pos = " << buf->position() <<
+//                                 ", lim = " << buf->limit() << ", bytesToWrite = " << bytesToWrite << std::endl;
                             writer->outFile.write(reinterpret_cast<const char *>(buf->array()), bytesToWrite);
                             if (writer->outFile.fail()) {
                                 throw EvioException("failed write to file");
@@ -189,16 +209,26 @@ namespace evio {
 
                             record->reset();
 
-                            // Release back to supply
-                            supply->releaseWriter(item);
-
                             // Now we're done with this sequence
                             lastSeqProcessed = currentSeq;
+
+                            // Release back to supply
+                            supply->releaseWriter(item);
                         }
                     }
                 }
+                catch (Disruptor::AlertException & e) {
+                    // Woken up in getToWrite through user call to supply.errorAlert()
+                    //std::cout << "RecordWriter: quit thread through alert" << std::endl;
+                }
                 catch (boost::thread_interrupted & e) {
-                    //cout << "   RecordWriter: INTERRUPTED, return" << endl;
+                    // Interrupted while blocked in getToWrite which means we're all done
+                    //std::cout << "RecordWriter: quit thread through interrupt" << std::endl;
+                }
+                catch (std::runtime_error & e) {
+                    std::string err = e.what();
+                    supply->haveError(true);
+                    supply->setError(err);
                 }
             }
         };
@@ -223,7 +253,7 @@ namespace evio {
         uint32_t compressionThreadCount = 1;
 
         /** File name. */
-        std::string fileName = "";
+        std::string fileName;
 
         /** Object for writing file. */
         std::ofstream outFile;

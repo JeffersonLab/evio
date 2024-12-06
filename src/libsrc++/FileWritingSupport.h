@@ -99,6 +99,17 @@ namespace evio {
             }
 
 
+            /** Destructor. */
+            ~CloseAsyncFChan() {
+                try {
+                    stopThread();
+                }
+                catch (const std::exception& e) {
+                    std::cerr << "Exception during thread cleanup: " << e.what() << std::endl;
+                }
+            }
+
+
             /**
              * Set the shared pointer to this object for later used in removing from
              * FileCloser's vector of these pointers (threads).
@@ -111,12 +122,23 @@ namespace evio {
 
             /** Stop the thread. */
             void stopThread() {
-                // Send signal to interrupt it
-                thd.interrupt();
+                if (thd.joinable()) {
+                    // Send signal to interrupt it
+                    thd.interrupt();
 
-                // Wait for it to stop
-                if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                    std::cout << "CloseAsyncFChan thread did not quit after 1/2 sec" << std::endl;
+                    // Wait for it to stop
+                    if (thd.try_join_for(boost::chrono::milliseconds(1))) {
+                        //std::cout << "EventWriter JOINED from interrupt" << std::endl;
+                        return;
+                    }
+
+                    // If that didn't work, send Alert signal to ring
+                    supply->errorAlert();
+
+                    if (thd.joinable()) {
+                        thd.join();
+                        //std::cout << "EventWriter JOINED from alert" << std::endl;
+                    }
                 }
 
                 try {

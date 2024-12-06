@@ -54,7 +54,7 @@ namespace evio {
         // If writing to file ...
 
         /** File name. */
-        std::string fileName = "";
+        std::string fileName;
         /** Object for writing file. */
         std::ofstream outFile;
         /** Header to write to file, created in constructor. */
