@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -482,11 +482,29 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventWriterV4.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEvent</a></span>(<a href="../../../../org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a>&nbsp;node,
+          boolean&nbsp;force,
+          boolean&nbsp;duplicate)</code>
+<div class="block">Write an event (bank) to the buffer in evio version 4 format.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventWriterV4.html#writeEventToFile-org.jlab.coda.jevio.EvioBank-java.nio.ByteBuffer-boolean-">writeEventToFile</a></span>(<a href="../../../../org/jlab/coda/jevio/EvioBank.html" title="class in org.jlab.coda.jevio">EvioBank</a>&nbsp;bank,
                 java.nio.ByteBuffer&nbsp;bankBuffer,
                 boolean&nbsp;force)</code>
 <div class="block">
  Write an event (bank) into a block and eventually to a file in evio
+ version 4 format.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EventWriterV4.html#writeEventToFile-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEventToFile</a></span>(<a href="../../../../org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a>&nbsp;node,
+                boolean&nbsp;force,
+                boolean&nbsp;duplicate)</code>
+<div class="block">
+ Write an event (bank) into a record and eventually to a file in evio
  version 4 format.</div>
 </td>
 </tr>
@@ -496,7 +514,7 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jlab.coda.jevio.<a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></h3>
-<code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getBlockNumber--">getBlockNumber</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getByteOrder--">getByteOrder</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getBytesWrittenToBuffer--">getBytesWrittenToBuffer</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getCurrentFilename--">getCurrentFilename</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getCurrentFilePath--">getCurrentFilePath</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getEventsWritten--">getEventsWritten</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getSplitCount--">getSplitCount</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getSplitNumber--">getSplitNumber</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#hasRoom-int-">hasRoom</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#isDiskFull--">isDiskFull</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#setBuffer-java.nio.ByteBuffer-">setBuffer</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#setBuffer-java.nio.ByteBuffer-java.util.BitSet-int-">setBuffer</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#setStartingBlockNumber-int-">setStartingBlockNumber</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#toFile--">toFile</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-java.nio.ByteBuffer-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-java.nio.ByteBuffer-boolean-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioBank-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioBank-boolean-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEventToFile-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEventToFile</a></code></li>
+<code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getBlockNumber--">getBlockNumber</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getByteOrder--">getByteOrder</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getBytesWrittenToBuffer--">getBytesWrittenToBuffer</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getCurrentFilename--">getCurrentFilename</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getCurrentFilePath--">getCurrentFilePath</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getEventsWritten--">getEventsWritten</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getSplitCount--">getSplitCount</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#getSplitNumber--">getSplitNumber</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#hasRoom-int-">hasRoom</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#isDiskFull--">isDiskFull</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#setBuffer-java.nio.ByteBuffer-">setBuffer</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#setBuffer-java.nio.ByteBuffer-java.util.BitSet-int-">setBuffer</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#setStartingBlockNumber-int-">setStartingBlockNumber</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#toFile--">toFile</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-java.nio.ByteBuffer-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-java.nio.ByteBuffer-boolean-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioBank-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioBank-boolean-">writeEvent</a>, <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-">writeEvent</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -1806,6 +1824,108 @@ extends <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#close--">close</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="writeEvent-org.jlab.coda.jevio.EvioNode-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writeEvent</h4>
+<pre>public&nbsp;boolean&nbsp;writeEvent(<a href="../../../../org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a>&nbsp;node,
+                          boolean&nbsp;force,
+                          boolean&nbsp;duplicate)
+                   throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a>,
+                          java.io.IOException</pre>
+<div class="block">Write an event (bank) to the buffer in evio version 4 format.
+ If the internal buffer is full, it will be flushed to the file if writing to a file.
+ Otherwise an exception will be thrown.
+
+ <p>Do not call this while simultaneously calling
+ close, flush, writeEventToFile, setFirstEvent, or getByteBuffer.
+ Automatically taken care of in EventWriterV4.</p></div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEvent</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>node</code> - object representing the event to write in buffer form</dd>
+<dd><code>force</code> - if writing to disk, force it to write event to the disk.</dd>
+<dd><code>duplicate</code> - if true, duplicate node's buffer so its position and limit
+                   can be changed without issue.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>if writing to buffer: true if event was added to record, false if buffer full,
+         or bank and bankBuffer args are both null.
+         If there is an InterruptedException.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if event is opposite byte order of internal buffer;
+                       if close() already called;
+                       if bad eventBuffer format;
+                       if file could not be opened for writing;
+                       if file exists but user requested no over-writing;
+                       if null node arg;</dd>
+<dd><code>java.io.IOException</code> - if error writing file</dd>
+</dl>
+</li>
+</ul>
+<a name="writeEventToFile-org.jlab.coda.jevio.EvioNode-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writeEventToFile</h4>
+<pre>public&nbsp;boolean&nbsp;writeEventToFile(<a href="../../../../org/jlab/coda/jevio/EvioNode.html" title="class in org.jlab.coda.jevio">EvioNode</a>&nbsp;node,
+                                boolean&nbsp;force,
+                                boolean&nbsp;duplicate)
+                         throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a>,
+                                java.io.IOException</pre>
+<div class="block"><p>
+ Write an event (bank) into a record and eventually to a file in evio
+ version 4 format.
+ If the internal buffer is full, it will be flushed to the file.
+ Otherwise an exception will be thrown.</p>
+
+ <p><b>
+ If splitting files, this method returns false if disk partition is too full
+ to write the complete, next split file. If force arg is true, write anyway.
+ DO NOT mix calling this method with calling <a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEvent-org.jlab.coda.jevio.EvioNode-boolean-boolean-"><code>EventWriterUnsyncV4.writeEvent(EvioNode, boolean, boolean)</code></a>
+ (or the methods which call it). Results are unpredictable as it messes up the
+ logic used to quit writing to full disk.
+ </b></p>
+ <p>
+ The buffer must contain only the event's data (event header and event data)
+ and must <b>not</b> be in complete evio file format.</p>
+
+ <p>Do not call this while simultaneously calling
+ close, flush, setFirstEvent, writeEvent, or getByteBuffer.
+ Automatically taken care of in EventWriterV4.</p>
+ <p>
+ Be warned that injudicious use of a true 2nd arg, the force flag, will
+ <b>kill</b> performance when writing to a file.
+ A true 3rd arg can be used when the backing buffer
+ of the node is accessed by multiple threads simultaneously. This allows
+ that buffer's limit and position to be changed without interfering
+ with the other threads.</p></div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html#writeEventToFile-org.jlab.coda.jevio.EvioNode-boolean-boolean-">writeEventToFile</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jlab/coda/jevio/EventWriterUnsyncV4.html" title="class in org.jlab.coda.jevio">EventWriterUnsyncV4</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>node</code> - object representing the event to write in buffer form</dd>
+<dd><code>force</code> - if writing to disk, force it to write event to the disk.</dd>
+<dd><code>duplicate</code> - if true, duplicate node's buffer so its position and limit
+                   can be changed without issue.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if event was added to record. If splitting files, false if disk
+         partition too full to write the complete, next split file.
+         False if interrupted. If force arg is true, write anyway.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if event is opposite byte order of internal buffer;
+                       if close() already called;
+                       if bad eventBuffer format;
+                       if file could not be opened for writing;
+                       if file exists but user requested no over-writing;
+                       if null node arg;</dd>
+<dd><code>java.io.IOException</code> - if error writing file</dd>
 </dl>
 </li>
 </ul>
