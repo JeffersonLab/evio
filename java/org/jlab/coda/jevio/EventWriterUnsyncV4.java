@@ -2255,7 +2255,7 @@ public class EventWriterUnsyncV4 {
      *                       if not in append mode;
      *                       if data has bad format, wrong version;
      */
-    protected synchronized void examineFirstBlockHeader()
+    protected void examineFirstBlockHeader()
             throws EvioException {
 
         // Only for append mode
