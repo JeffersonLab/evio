@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -312,17 +312,25 @@ implements java.lang.AutoCloseable</pre>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/WriterMT.html#open-java.lang.String-byte:A-boolean-">open</a></span>(java.lang.String&nbsp;filename,
+    byte[]&nbsp;userHdr,
+    boolean&nbsp;overwrite)</code>
+<div class="block">Open a file and write file header with given user's header.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/WriterMT.html#reset--">reset</a></span>()</code>
 <div class="block">Get this object ready for re-use.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jlab/coda/hipo/WriterMT.html" title="class in org.jlab.coda.hipo">WriterMT</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/WriterMT.html#setCompressionType-org.jlab.coda.hipo.CompressionType-">setCompressionType</a></span>(<a href="../../../../org/jlab/coda/hipo/CompressionType.html" title="enum in org.jlab.coda.hipo">CompressionType</a>&nbsp;compression)</code>
 <div class="block">Convenience method that sets compression type for the file.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/WriterMT.html#writeRecord-org.jlab.coda.hipo.RecordOutputStream-">writeRecord</a></span>(<a href="../../../../org/jlab/coda/hipo/RecordOutputStream.html" title="class in org.jlab.coda.hipo">RecordOutputStream</a>&nbsp;rec)</code>
 <div class="block">Appends the record to the file.</div>
@@ -596,7 +604,8 @@ implements java.lang.AutoCloseable</pre>
 <h4>open</h4>
 <pre>public final&nbsp;void&nbsp;open(java.lang.String&nbsp;filename)
                 throws <a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></pre>
-<div class="block">Open a new file and write file header with no user header.</div>
+<div class="block">Open a new file and write file header with no user header.
+ Existing file is NOT overwritten.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>filename</code> - output file name</dd>
@@ -617,7 +626,8 @@ implements java.lang.AutoCloseable</pre>
                        byte[]&nbsp;userHdr)
                 throws <a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></pre>
 <div class="block">Open a file and write file header with given user's header.
- User header is automatically padded when written.</div>
+ User header is automatically padded when written.
+ Existing file is NOT overwritten.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>filename</code> - disk file name.</dd>
@@ -626,6 +636,30 @@ implements java.lang.AutoCloseable</pre>
 <dd><code><a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></code> - if filename arg is null or bad,
                        if this method already called without being
                        followed by reset.</dd>
+</dl>
+</li>
+</ul>
+<a name="open-java.lang.String-byte:A-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>open</h4>
+<pre>public final&nbsp;void&nbsp;open(java.lang.String&nbsp;filename,
+                       byte[]&nbsp;userHdr,
+                       boolean&nbsp;overwrite)
+                throws <a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></pre>
+<div class="block">Open a file and write file header with given user's header.
+ User header is automatically padded when written.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>filename</code> - disk file name.</dd>
+<dd><code>userHdr</code> - byte array representing the optional user's header.</dd>
+<dd><code>overwrite</code> - if true, overwrite any existing file.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></code> - if filename arg is null or bad,
+                       if this method already called without being followed by reset,
+                       or if overwrite is false and file exists.</dd>
 </dl>
 </li>
 </ul>
