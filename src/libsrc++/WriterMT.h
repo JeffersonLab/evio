@@ -365,7 +365,7 @@ namespace evio {
         void addTrailerWithIndex(bool addTrailingIndex);
 
         void open(const std::string & filename);
-        void open(const std::string & filename, uint8_t* userHdr, uint32_t userLen);
+        void open(const std::string & filename, uint8_t* userHdr, uint32_t userLen, bool overwrite = true);
 
         std::shared_ptr<ByteBuffer> createHeader(uint8_t* userHdr, uint32_t userLen);
         std::shared_ptr<ByteBuffer> createHeader(ByteBuffer & userHdr);

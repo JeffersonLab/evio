@@ -191,7 +191,7 @@ namespace evio {
         void addTrailerWithIndex(bool addTrailingIndex);
 
         void open(const std::string & filename);
-        void open(const std::string & filename, uint8_t* userHdr, uint32_t len);
+        void open(const std::string & filename, uint8_t* userHdr, uint32_t len, bool overwrite = true);
         void open(std::shared_ptr<ByteBuffer> buf,  uint8_t* userHdr, uint32_t len);
 
         static std::shared_ptr<ByteBuffer> createRecord(const std::string & dictionary,

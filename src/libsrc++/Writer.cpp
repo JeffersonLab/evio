@@ -459,12 +459,15 @@ namespace evio {
      *                   the dictionary and/or first event will be placed in its
      *                   own record and written as the user header.
      * @param userLen    length of valid data (bytes) in userHdr (starting at off).
+     * @param overwrite if true, overwrite existing file.
      * @throws EvioException filename arg is null, if constructor specified writing to a buffer,
      *                       if open() was already called without being followed by reset(),
-     *                       if file cannot be found, if IO error writing to file,
-     *                       or if filename is empty.
+     *                       if IO error writing to file,
+     *                       if filename is empty,
+     *                       or if overwrite is false and file exists.
+
      */
-    void Writer::open(const std::string & filename, uint8_t* userHdr, uint32_t userLen) {
+    void Writer::open(const std::string & filename, uint8_t* userHdr, uint32_t userLen, bool overwrite) {
 
         if (opened) {
             throw EvioException("currently open, call reset() first");
@@ -503,7 +506,14 @@ namespace evio {
 
         // Write this to file
         fileName = filename;
-        // TODO: what flags??? instead of "rw"
+        if (!overwrite) {
+            // Check if the file exists using std::ifstream
+            std::ifstream fileCheck(filename);
+            if (fileCheck.good()) {
+                throw EvioException("file already exists: " + filename);
+            }
+        }
+
         outFile.open(filename, std::ios::binary);
         if (outFile.fail()) {
             throw EvioException("error opening file " + filename);
