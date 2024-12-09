@@ -424,6 +424,8 @@ public class Writer implements AutoCloseable {
 
     /**
      * Open a new file and write file header with no user header.
+     * Will not overwrite existing file.
+     * Existing file is NOT overwritten.
      * @param filename output file name
      * @throws HipoException if open already called without being followed by calling close.
      * @throws IOException if file cannot be found or IO error writing to file
@@ -435,6 +437,7 @@ public class Writer implements AutoCloseable {
     /**
      * Open a file and write file header with given user header.
      * User header is automatically padded when written.
+     * Existing file is NOT overwritten.
      * @param filename   name of file to write to.
      * @param userHeader byte array representing the optional user's header.
      *                   If this is null AND dictionary and/or first event are given,
@@ -446,6 +449,27 @@ public class Writer implements AutoCloseable {
      */
     public final void open(String filename, byte[] userHeader)
             throws HipoException, IOException {
+        open (filename, userHeader, false);
+    }
+
+
+    /**
+     * Open a file and write file header with given user header.
+     * User header is automatically padded when written.
+     * @param filename   name of file to write to.
+     * @param userHeader byte array representing the optional user's header.
+     *                   If this is null AND dictionary and/or first event are given,
+     *                   the dictionary and/or first event will be placed in its
+     *                   own record and written as the user header.
+     * @param overwrite  if true, overwrite any existing file.
+     * @throws HipoException filename arg is null, if constructor specified writing to a buffer,
+     *                       or if open() was already called without being followed by reset().
+     * @throws IOException   if IO error writing to file,
+     *                       or if overwrite is false and file exists.
+     */
+    public final void open(String filename, byte[] userHeader, boolean overwrite)
+            throws HipoException, IOException {
+
 
         if (opened) {
             throw new HipoException("currently open, call reset() first");
@@ -482,11 +506,17 @@ public class Writer implements AutoCloseable {
         // Path object corresponding to file currently being written
         Path currentFilePath = Paths.get(filename);
 
-        asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
-                                //StandardOpenOption.TRUNCATE_EXISTING,
-                                StandardOpenOption.CREATE_NEW,
-                                StandardOpenOption.CREATE,
-                                StandardOpenOption.WRITE);
+        if (overwrite) {
+            asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE);
+        }
+        else {
+            asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                    StandardOpenOption.CREATE_NEW,
+                    StandardOpenOption.WRITE);
+        }
 
         asyncFileChannel.write(headBuffer, 0L);
         fileWritingPosition = fileHeader.getLength();

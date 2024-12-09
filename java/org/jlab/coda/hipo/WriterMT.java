@@ -12,7 +12,7 @@ import org.jlab.coda.jevio.EvioBank;
 import org.jlab.coda.jevio.EvioNode;
 import org.jlab.coda.jevio.Utilities;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -549,6 +549,7 @@ System.out.println("   Writer: thread INTERRUPTED");
 
     /**
      * Open a new file and write file header with no user header.
+     * Existing file is NOT overwritten.
      * @param filename output file name
      * @throws HipoException if filename arg is null or bad,
      *                       if this method already called without being
@@ -561,6 +562,7 @@ System.out.println("   Writer: thread INTERRUPTED");
     /**
      * Open a file and write file header with given user's header.
      * User header is automatically padded when written.
+     * Existing file is NOT overwritten.
      * @param filename disk file name.
      * @param userHdr byte array representing the optional user's header.
      * @throws HipoException if filename arg is null or bad,
@@ -568,7 +570,20 @@ System.out.println("   Writer: thread INTERRUPTED");
      *                       followed by reset.
      */
     public final void open(String filename, byte[] userHdr) throws HipoException {
+        open(filename, userHdr, false);
+    }
 
+    /**
+     * Open a file and write file header with given user's header.
+     * User header is automatically padded when written.
+     * @param filename disk file name.
+     * @param userHdr byte array representing the optional user's header.
+     * @param overwrite  if true, overwrite any existing file.
+     * @throws HipoException if filename arg is null or bad,
+     *                       if this method already called without being followed by reset,
+     *                       or if overwrite is false and file exists.
+     */
+    public final void open(String filename, byte[] userHdr, boolean overwrite) throws HipoException {
         if (opened) {
            throw new HipoException("currently open, call reset() first");
         }
@@ -583,7 +598,7 @@ System.out.println("   Writer: thread INTERRUPTED");
         // User header given as arg has precedent
         if (userHdr != null) {
             haveUserHeader = true;
-System.out.println("writerMT::open: given a valid user header to write");
+//System.out.println("writerMT::open: given a valid user header to write");
             fileHeaderBuffer = createHeader(userHdr);
         }
         else {
@@ -594,20 +609,32 @@ System.out.println("writerMT::open: given a valid user header to write");
             // else place dictionary and/or firstEvent into
             // record which becomes user header
             else {
-System.out.println("writerMT::open: given a valid dict/first ev header to write");
+//System.out.println("writerMT::open: given a valid dict/first ev header to write");
                 fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
             }
         }
 
         try {
-            outStream = new RandomAccessFile(filename, "rw");
+            if (overwrite) {
+                outStream = new RandomAccessFile(filename, "rw");
+                // Truncate the file to 0 length to overwrite it
+                outStream.setLength(0);
+            }
+            else {
+                File file = new File(filename);
+
+                // Check if the file exists
+                if (file.exists()) {
+                    throw new HipoException("File already exists: " + file.getName());
+                }
+
+                outStream = new RandomAccessFile(filename, "rw");
+            }
             fileChannel = outStream.getChannel();
             outStream.write(fileHeaderBuffer.array());
-
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (Exception ex) {
+           throw new HipoException(ex);
         }
 
         writerBytesWritten = (long) (fileHeader.getLength());
