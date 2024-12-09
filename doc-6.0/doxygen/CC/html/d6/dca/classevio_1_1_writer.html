@@ -151,9 +151,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1f64043951e4d8ff7f186fced75052fb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb">open</a> (const std::string &amp;filename)</td></tr>
 <tr class="memdesc:a1f64043951e4d8ff7f186fced75052fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a new file and write file header with no user header.  <a href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb">More...</a><br /></td></tr>
 <tr class="separator:a1f64043951e4d8ff7f186fced75052fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec66f6f92fa30daa2f9546d2920dbbfe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dca/classevio_1_1_writer.html#aec66f6f92fa30daa2f9546d2920dbbfe">open</a> (const std::string &amp;filename, uint8_t *userHdr, uint32_t len)</td></tr>
-<tr class="memdesc:aec66f6f92fa30daa2f9546d2920dbbfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a file and write file header with given user header.  <a href="../../d6/dca/classevio_1_1_writer.html#aec66f6f92fa30daa2f9546d2920dbbfe">More...</a><br /></td></tr>
-<tr class="separator:aec66f6f92fa30daa2f9546d2920dbbfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecf32909431959a361a4db46af8495db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dca/classevio_1_1_writer.html#aecf32909431959a361a4db46af8495db">open</a> (const std::string &amp;filename, uint8_t *userHdr, uint32_t len, bool overwrite=true)</td></tr>
+<tr class="memdesc:aecf32909431959a361a4db46af8495db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a file and write file header with given user header.  <a href="../../d6/dca/classevio_1_1_writer.html#aecf32909431959a361a4db46af8495db">More...</a><br /></td></tr>
+<tr class="separator:aecf32909431959a361a4db46af8495db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0c390fc56c957705f1b1a5de67b62bfe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dca/classevio_1_1_writer.html#a0c390fc56c957705f1b1a5de67b62bfe">open</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; buf, uint8_t *userHdr, uint32_t len)</td></tr>
 <tr class="memdesc:a0c390fc56c957705f1b1a5de67b62bfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specify a buffer and write first record header with given user header.  <a href="../../d6/dca/classevio_1_1_writer.html#a0c390fc56c957705f1b1a5de67b62bfe">More...</a><br /></td></tr>
 <tr class="separator:a0c390fc56c957705f1b1a5de67b62bfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1131,7 +1131,7 @@ Static Public Member Functions</h2></td></tr>
 
 <p class="reference">References <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#a01c1f92000c5a0f3b2f11b0c0e5e3a74">evio::FileHeader::getLength()</a>, <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#a60a8eab054b6f02e84d8975e3aa436b9">evio::FileHeader::HEADER_SIZE_BYTES</a>, <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#af318676a4ffce0023d1bf669bb44cf31">evio::FileHeader::reset()</a>, <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#ade550a2cc97d77fe89f81941a3e92fcc">evio::FileHeader::setBitInfo()</a>, <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#a5d19dfdbc256c2bf9025795442cb59ff">evio::FileHeader::setUserHeaderLength()</a>, and <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#aabd952c177a47ed7875b6c9d988bff8e">evio::FileHeader::writeHeader()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#aec66f6f92fa30daa2f9546d2920dbbfe">open()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#aecf32909431959a361a4db46af8495db">open()</a>.</p>
 
 </div>
 </div>
@@ -1327,8 +1327,8 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aec66f6f92fa30daa2f9546d2920dbbfe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec66f6f92fa30daa2f9546d2920dbbfe">&#9670;&nbsp;</a></span>open() <span class="overload">[2/3]</span></h2>
+<a id="aecf32909431959a361a4db46af8495db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aecf32909431959a361a4db46af8495db">&#9670;&nbsp;</a></span>open() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1349,7 +1349,13 @@ Static Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>userLen</em>&#160;</td>
+          <td class="paramname"><em>userLen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>overwrite</em> = <code>true</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1365,12 +1371,13 @@ Static Public Member Functions</h2></td></tr>
     <tr><td class="paramname">filename</td><td>name of file to write to. </td></tr>
     <tr><td class="paramname">userHdr</td><td>byte array representing the optional user's header. If this is null AND dictionary and/or first event are given, the dictionary and/or first event will be placed in its own record and written as the user header. </td></tr>
     <tr><td class="paramname">userLen</td><td>length of valid data (bytes) in userHdr (starting at off). </td></tr>
+    <tr><td class="paramname">overwrite</td><td>if true, overwrite existing file. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>filename arg is null, if constructor specified writing to a buffer, if <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a" title="Get this object ready for re-use.">reset()</a>, if file cannot be found, if IO error writing to file, or if filename is empty. </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>filename arg is null, if constructor specified writing to a buffer, if <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a" title="Get this object ready for re-use.">reset()</a>, if IO error writing to file, if filename is empty, or if overwrite is false and file exists. </td></tr>
   </table>
   </dd>
 </dl>
