@@ -844,7 +844,7 @@ public class RecordOutputStream {
         indexSize  = 0;
         eventSize  = 0;
         eventCount = 0;
-        startingPosition = 0;
+        //startingPosition = 0;
 
         recordData.clear();
         recordIndex.clear();
