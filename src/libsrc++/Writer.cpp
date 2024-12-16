@@ -723,7 +723,6 @@ namespace evio {
         int userHeaderBytes = 0;
         if (userHdr != nullptr) {
             userHeaderBytes = userLen;
-             +
         }
         // TODO: make sure next line is necessary (taken from WriterMT)
         fileHeader.reset();
