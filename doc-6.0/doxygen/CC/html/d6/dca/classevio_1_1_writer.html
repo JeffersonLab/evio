@@ -191,7 +191,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a39d7e291d85d61a6343ac6a40e7902cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> to the internal record.  <a href="../../d6/dca/classevio_1_1_writer.html#a39d7e291d85d61a6343ac6a40e7902cf">More...</a><br /></td></tr>
 <tr class="separator:a39d7e291d85d61a6343ac6a40e7902cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17cd4aa42143d1f6578422f6ef36151a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a">reset</a> ()</td></tr>
-<tr class="memdesc:a17cd4aa42143d1f6578422f6ef36151a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get this object ready for re-use.  <a href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a">More...</a><br /></td></tr>
 <tr class="separator:a17cd4aa42143d1f6578422f6ef36151a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f01bf28c0d2910947fca9a841a1fc7b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dca/classevio_1_1_writer.html#a8f01bf28c0d2910947fca9a841a1fc7b">close</a> ()</td></tr>
 <tr class="memdesc:a8f01bf28c0d2910947fca9a841a1fc7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close opened file.  <a href="../../d6/dca/classevio_1_1_writer.html#a8f01bf28c0d2910947fca9a841a1fc7b">More...</a><br /></td></tr>
@@ -1377,7 +1376,7 @@ Static Public Member Functions</h2></td></tr>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>filename arg is null, if constructor specified writing to a buffer, if <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a" title="Get this object ready for re-use.">reset()</a>, if IO error writing to file, if filename is empty, or if overwrite is false and file exists. </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>filename arg is null, if constructor specified writing to a buffer, if <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a">reset()</a>, if IO error writing to file, if filename is empty, or if overwrite is false and file exists. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1429,7 +1428,7 @@ Static Public Member Functions</h2></td></tr>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if constructor specified writing to a file, or if <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a" title="Get this object ready for re-use.">reset()</a>. </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if constructor specified writing to a file, or if <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a">reset()</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1450,11 +1449,6 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Get this object ready for re-use. </p>
-<p>Follow calling this with call to <a class="el" href="../../d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb">open(const std::string &amp;)</a>. </p>
-
-<p class="reference">References <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#af318676a4ffce0023d1bf669bb44cf31">evio::FileHeader::reset()</a>.</p>
 
 </div>
 </div>

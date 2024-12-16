@@ -21,6 +21,5 @@ var classevio_1_1_writer_m_t =
     [ "getFileHeader", "d1/d17/classevio_1_1_writer_m_t.html#a68b05c4f9a45ec56f9c5594d513da6d1", null ],
     [ "open", "d1/d17/classevio_1_1_writer_m_t.html#a1f585f15aa1b56884dc8612eb5072e0d", null ],
     [ "open", "d1/d17/classevio_1_1_writer_m_t.html#af882b91785040358120ceded73921941", null ],
-    [ "reset", "d1/d17/classevio_1_1_writer_m_t.html#adebafad3524a67dae57ff4a50c991229", null ],
     [ "writeRecord", "d1/d17/classevio_1_1_writer_m_t.html#a9185ec115b3b04111345b53c7fa64190", null ]
 ];

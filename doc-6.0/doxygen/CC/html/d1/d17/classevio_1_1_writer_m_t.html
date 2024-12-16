@@ -160,9 +160,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a329d5fd7ee27378b2d532e715742bd87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a329d5fd7ee27378b2d532e715742bd87">addEvent</a> (<a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &amp;node)</td></tr>
 <tr class="memdesc:a329d5fd7ee27378b2d532e715742bd87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> to the internal record.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a329d5fd7ee27378b2d532e715742bd87">More...</a><br /></td></tr>
 <tr class="separator:a329d5fd7ee27378b2d532e715742bd87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adebafad3524a67dae57ff4a50c991229"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#adebafad3524a67dae57ff4a50c991229">reset</a> ()</td></tr>
-<tr class="memdesc:adebafad3524a67dae57ff4a50c991229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get this object ready for re-use.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#adebafad3524a67dae57ff4a50c991229">More...</a><br /></td></tr>
-<tr class="separator:adebafad3524a67dae57ff4a50c991229"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0647993716e981fbedd6040f80114048"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a0647993716e981fbedd6040f80114048">close</a> ()</td></tr>
 <tr class="memdesc:a0647993716e981fbedd6040f80114048"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close opened file.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a0647993716e981fbedd6040f80114048">More...</a><br /></td></tr>
 <tr class="separator:a0647993716e981fbedd6040f80114048"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -949,34 +946,12 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if filename arg is bad, if <a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a1f585f15aa1b56884dc8612eb5072e0d" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by <a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#adebafad3524a67dae57ff4a50c991229" title="Get this object ready for re-use.">reset()</a>, if IO error writing to file, if filename is empty, if overwrite is false and file exists. </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if filename arg is bad, if <a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a1f585f15aa1b56884dc8612eb5072e0d" title="Open a new file and write file header with no user header.">open()</a> was already called without being followed by reset(), if IO error writing to file, if filename is empty, if overwrite is false and file exists. </td></tr>
   </table>
   </dd>
 </dl>
 
 <p class="reference">References <a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#abe4a6ab09bc138dbd08057262b87d77b">createHeader()</a>, and <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#a01c1f92000c5a0f3b2f11b0c0e5e3a74">evio::FileHeader::getLength()</a>.</p>
-
-</div>
-</div>
-<a id="adebafad3524a67dae57ff4a50c991229"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adebafad3524a67dae57ff4a50c991229">&#9670;&nbsp;</a></span>reset()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void evio::WriterMT::reset </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get this object ready for re-use. </p>
-<p>Follow calling this with call to <a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a1f585f15aa1b56884dc8612eb5072e0d">open(const std::string &amp;)</a>. </p>
-
-<p class="reference">References <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#af318676a4ffce0023d1bf669bb44cf31">evio::FileHeader::reset()</a>.</p>
 
 </div>
 </div>
