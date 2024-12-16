@@ -127,13 +127,11 @@ public class WriterMT implements AutoCloseable {
      * 1M max event count and 8M max buffer size.
      */
     public WriterMT() {
-        fileHeader = new FileHeader(true); // evio file
-        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, CompressionType.RECORD_UNCOMPRESSED);
-
-        // Get a single blank record to start writing into
-        ringItem = supply.get();
-        outputRecord = ringItem.getRecord();
+        this(HeaderType.EVIO_FILE, ByteOrder.LITTLE_ENDIAN, 0, 0,
+                null, null, 0, CompressionType.RECORD_UNCOMPRESSED,
+                1, false, 8);
     }
+
 
     /**
      * Constructor with byte order. <b>No</b> file is opened.
@@ -157,7 +155,8 @@ public class WriterMT implements AutoCloseable {
             throws IllegalArgumentException {
 
         this(HeaderType.EVIO_FILE, order, maxEventCount, maxBufferSize,
-             null, null, 0, compressionType, compressionThreads, false, ringSize);
+             null, null, 0, compressionType,
+                compressionThreads, false, ringSize);
     }
 
 
@@ -217,8 +216,8 @@ public class WriterMT implements AutoCloseable {
             fileHeader = new FileHeader(true);
         }
 
-        haveDictionary = dictionary.length() > 0;
-        haveFirstEvent = (firstEvent != null && firstEventLen > 0);
+        haveDictionary = (dictionary != null) && (dictionary.length() > 0);
+        haveFirstEvent = (firstEvent != null) && (firstEventLen > 0);
 
         if (haveDictionary) {
             System.out.println("WriterMT CON: create dict, len = " + dictionary.length());
@@ -350,11 +349,11 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToCompress
                 // which means we're all done.
-System.out.println("   Compressor: thread " + num + " INTERRUPTED");
+//System.out.println("   Compressor: thread " + num + " INTERRUPTED");
             }
             catch (AlertException e) {
                  // We've been notified that an error has occurred
- System.out.println("   Compressor: thread " + num + " exiting due to error of some sort");
+ //System.out.println("   Compressor: thread " + num + " exiting due to ring alert exception");
              }
          }
     }
@@ -459,11 +458,11 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToWrite
                 // which means we're all done.
-System.out.println("   Writer: thread INTERRUPTED");
+//System.out.println("   Writer: thread INTERRUPTED");
             }
             catch (AlertException e) {
                  // We've been notified that an error has occurred
- System.out.println("   Writer: thread exiting due to error of some sort");
+ //System.out.println("   Writer: thread exiting due to ring alert exception");
              }
         }
     }
@@ -617,7 +616,8 @@ System.out.println("   Writer: thread INTERRUPTED");
         }
         else {
             // If dictionary & firstEvent not defined and user header not given ...
-            if (dictionaryFirstEventBuffer.remaining() < 1) {
+            if (dictionaryFirstEventBuffer == null ||
+                dictionaryFirstEventBuffer.remaining() < 1) {
                 fileHeaderBuffer = createHeader((byte []) null);
             }
             // else place dictionary and/or firstEvent into
