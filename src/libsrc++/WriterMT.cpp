@@ -248,6 +248,21 @@ namespace evio {
     }
 
 
+    /** Called by open(), needed if open called multiple times in succession. */
+    void WriterMT::clear() {
+        // outputRecord belongs to ringItem which is taken from supply and is put back in close()
+        if (outputRecord == nullptr || ringItem == nullptr) {
+            ringItem = supply->get();
+            outputRecord = ringItem->getRecord();
+        }
+
+        writerBytesWritten = 0L;
+        recordNumber = 1;
+        closed = false;
+        opened = false;
+    }
+
+
     /**
      * Open a new file and write file header with no user header.
      * @param filename output file name
@@ -284,6 +299,8 @@ namespace evio {
         if (filename.empty()) {
             throw EvioException("bad filename");
         }
+
+        clear();
 
         std::shared_ptr<ByteBuffer> fileHeaderBuffer;
         haveUserHeader = false;
@@ -671,21 +688,6 @@ namespace evio {
     //---------------------------------------------------------------------
 
 
-    /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(const std::string &)}. */
-    void WriterMT::reset() {
-        outputRecord->reset();
-        fileHeader.reset();
-        writerBytesWritten = 0L;
-        recordNumber = 1;
-        addingTrailer = false;
-        firstRecordWritten = false;
-
-        closed = false;
-        opened = false;
-    }
-
-
     /**
      * Close opened file. If the output record contains events,
      * they will be flushed to file. Trailer and its optional index
@@ -700,6 +702,9 @@ namespace evio {
             // Put it in queue for compressing
             supply->publish(ringItem);
         }
+
+        outputRecord = nullptr;
+        ringItem = nullptr;
 
         // Since the writer thread is the last to process each record,
         // wait until it's done with the last item, then exit the thread.

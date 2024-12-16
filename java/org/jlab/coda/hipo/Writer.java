@@ -122,9 +122,7 @@ public class Writer implements AutoCloseable {
      * <b>No</b> file is opened. Any file will have little endian byte order.
      */
     public Writer() {
-        outputRecord = new RecordOutputStream();
-        fileHeader = new FileHeader(true);
-        headerBuffer.order(byteOrder);
+        this(HeaderType.EVIO_FILE, ByteOrder.LITTLE_ENDIAN, 0, 0);
     }
 
     /**
@@ -422,6 +420,35 @@ public class Writer implements AutoCloseable {
         }
     }
 
+    /** Called by open(), needed if open called multiple times in succession. */
+    private void clear() {
+        // If writing to file ...
+        if (toFile) {
+            future1 = null;
+            future2 = null;
+            futureIndex = 0;
+            fileWritingPosition = 0L;
+
+            internalRecords[0].reset();
+            internalRecords[1].reset();
+            internalRecords[2].reset();
+            outputRecord = internalRecords[0];
+
+            usedRecords[0] = null;
+            usedRecords[1] = null;
+        }
+
+        // For both files & buffers
+        outputRecord.reset();
+        headerBuffer.clear();
+        recordLengths.clear();
+        writerBytesWritten = 0;
+        recordNumber = 1;
+        closed = false;
+        opened = false;
+        firstRecordWritten = false;
+    }
+
     /**
      * Open a new file and write file header with no user header.
      * Will not overwrite existing file.
@@ -481,6 +508,8 @@ public class Writer implements AutoCloseable {
         if (filename == null) {
             throw new HipoException("filename arg is null");
         }
+
+        clear();
 
         ByteBuffer headBuffer;
         haveUserHeader = false;
@@ -572,6 +601,8 @@ public class Writer implements AutoCloseable {
         if (buf == null || off < 0 || len < 0) {
             throw new HipoException("bad arg");
         }
+
+        clear();
 
         if (userHdr == null) {
             if (dictionaryFirstEventBuffer != null) {
@@ -1213,21 +1244,6 @@ System.out.println("createRecord: add first event to record");
 
 
     //---------------------------------------------------------------------
-
-
-    /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(String)}. */
-    public void reset() {
-        outputRecord.reset();
-        fileHeader.reset();
-        writerBytesWritten = 0L;
-        recordNumber = 1;
-        addTrailer = false;
-        firstRecordWritten = false;
-
-        closed = false;
-        opened = false;
-    }
 
 
     /**

@@ -306,8 +306,6 @@ namespace evio {
         bool closed = false;
         /** Has open() been called? */
         bool opened = false;
-        /** Has the first record been written already? */
-        bool firstRecordWritten = false;
         /** Has a dictionary been defined? */
         bool haveDictionary = false;
         /** Has a first event been defined? */
@@ -349,6 +347,7 @@ namespace evio {
 
         std::shared_ptr<ByteBuffer> createDictionaryRecord();
         void writeTrailer(bool writeIndex, uint32_t recordNum);
+        void clear();
 
     public:
 
@@ -379,7 +378,7 @@ namespace evio {
 //    void addEvent(EvioBank & bank);
         void addEvent(EvioNode & node);
 
-        void reset();
+    //    void reset();
         void close();
 
     };

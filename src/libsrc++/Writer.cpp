@@ -183,7 +183,7 @@ namespace evio {
             dictionaryFirstEventBuffer = createDictionaryRecord();
 //std::cout << "Writer const: created dict/fe event buffer of size " << dictionaryFirstEventBuffer->remaining() << std::endl;
 //Util::printBytes(dictionaryFirstEventBuffer, 0, dictionaryFirstEventBuffer->remaining(), "FIRST RECORD Bytes");
-            // make this the user header by default since open() may not get called for buffers
+            // make this the user header by default
             // TODO: SHOULD NOT AVOID the shared pointer!!!!! Look at userHeader uses!!!
             userHeader = dictionaryFirstEventBuffer->array();
             userHeaderLength = dictionaryFirstEventBuffer->remaining();
@@ -440,6 +440,27 @@ namespace evio {
 
 
     /**
+     * Called by open(), needed if open called multiple times in succession.
+     */
+    void Writer::clear() {
+
+        // For both files & buffers
+        unusedRecord->reset();
+        outputRecord->reset();
+        beingWrittenRecord = nullptr;
+
+        recordLengths->clear();
+        writerBytesWritten = 0;
+        recordNumber = 1;
+        closed = false;
+        opened = false;
+        firstRecordWritten = false;
+
+        headerArray.clear();
+    }
+
+
+    /**
      * Open a new file and write file header with no user header.
      * @param filename output file name
      * @throws EvioException if open already called without being followed by calling close.
@@ -479,6 +500,8 @@ namespace evio {
         if (filename.empty()) {
             throw EvioException("bad filename");
         }
+
+        clear();
 
         std::shared_ptr<ByteBuffer> fileHeaderBuffer;
         haveUserHeader = false;
@@ -555,6 +578,8 @@ namespace evio {
         else if (toFile) {
             throw EvioException("can only write to a file, call open(filename, userHdr)");
         }
+
+        clear();
 
         if (userHdr == nullptr) {
             if (dictionaryFirstEventBuffer->remaining() > 0) {
@@ -698,6 +723,7 @@ namespace evio {
         int userHeaderBytes = 0;
         if (userHdr != nullptr) {
             userHeaderBytes = userLen;
+             +
         }
         // TODO: make sure next line is necessary (taken from WriterMT)
         fileHeader.reset();
@@ -1232,21 +1258,6 @@ namespace evio {
     }
 
     //---------------------------------------------------------------------
-
-    /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(const std::string &)}. */
-    void Writer::reset() {
-        outputRecord->reset();
-        fileHeader.reset();
-        writerBytesWritten = 0L;
-        recordNumber = 1;
-        addingTrailer = false;
-        firstRecordWritten = false;
-
-        closed = false;
-        opened = false;
-    }
-
 
     /**
      * Close opened file. If the output record contains events,

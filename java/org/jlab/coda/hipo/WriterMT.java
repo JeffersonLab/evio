@@ -113,8 +113,6 @@ public class WriterMT implements AutoCloseable {
     private boolean closed;
     /** Has open() been called? */
     private boolean opened;
-    /** Has the first record been written already? */
-    private boolean firstRecordWritten;
     /** Has a dictionary been defined? */
     private boolean haveDictionary;
     /** Has a first event been defined? */
@@ -547,6 +545,20 @@ System.out.println("   Writer: thread INTERRUPTED");
         }
     }
 
+    /** Called by open(), needed if open called multiple times in succession. */
+    private void clear() {
+        // outputRecord belongs to ringItem which is taken from supply and is put back in close()
+        if (outputRecord == null || ringItem == null) {
+            ringItem = supply.get();
+            outputRecord = ringItem.getRecord();
+        }
+
+        writerBytesWritten = 0L;
+        recordNumber = 1;
+        closed = false;
+        opened = false;
+    }
+
     /**
      * Open a new file and write file header with no user header.
      * Existing file is NOT overwritten.
@@ -591,6 +603,8 @@ System.out.println("   Writer: thread INTERRUPTED");
         if (filename == null || filename.length() < 1) {
             throw new HipoException("bad filename");
         }
+
+        clear();
 
         ByteBuffer fileHeaderBuffer;
         haveUserHeader = false;
@@ -1048,16 +1062,6 @@ System.out.println("   Writer: thread INTERRUPTED");
 
     //---------------------------------------------------------------------
 
-    /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(String)}. */
-    public void reset() {
-        outputRecord.reset();
-        fileHeader.reset();
-        writerBytesWritten = 0L;
-        recordNumber = 1;
-        addingTrailer = false;
-    }
-
     /**
      * Close opened file. If the output record contains events,
      * they will be flushed to file. Trailer and its optional index
@@ -1071,6 +1075,9 @@ System.out.println("   Writer: thread INTERRUPTED");
             // Put it back in supply for compressing
             supply.publish(ringItem);
         }
+
+        outputRecord = null;
+        ringItem = null;
 
         // Since the writer thread is the last to process each record,
         // wait until it's done with the last item, then exit the thread.

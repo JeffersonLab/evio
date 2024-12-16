@@ -221,6 +221,7 @@ namespace evio {
 
     private:
 
+        void clear();
         void writeTrailer(bool writeIndex, uint32_t recordNum, uint64_t trailerPos);
 
     };
