@@ -476,7 +476,7 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
      *         of zero size if first event and dictionary don't exist.
      */
     ByteBuffer createDictionaryRecord() {
-        return Writer.createRecord(dictionary, firstEvent,
+        return Writer.createRecord(dictionary, firstEvent, firstEventLength,
                                    byteOrder, fileHeader, null);
     }
 
