@@ -176,7 +176,8 @@ public class WriterMT implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
-     * @param firstEventLen number of valid bytes in firstEvent.
+     * @param firstEventLen number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+     *                      this is set to firstEvent.length.
      * @param compType      type of data compression to do (one, lz4 fast, lz4 best, gzip)
      * @param compressionThreads number of threads doing compression simultaneously
      * @param addTrailerIndex if true, we add a record index to the trailer.
@@ -194,9 +195,13 @@ public class WriterMT implements AutoCloseable {
 
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
-        if (firstEvent == null || firstEventLen < 0) {
+        if (firstEvent == null) {
             firstEventLen = 0;
         }
+        else if (firstEventLen < 1) {
+            firstEventLen = firstEvent.length;
+        }
+
         firstEventLength     = firstEventLen;
         this.maxEventCount   = maxEventCount;
         this.maxBufferSize   = maxBufferSize;

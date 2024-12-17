@@ -169,6 +169,9 @@ namespace evio {
 
         this->dictionary = dictionary;
         this->firstEvent = firstEvent;
+        if (firstEvent == nullptr) {
+            firstEventLen = 0;
+        }
         firstEventLength = firstEventLen;
 
         recordLengths = std::make_shared<std::vector<uint32_t>>();
