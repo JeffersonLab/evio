@@ -266,7 +266,7 @@ namespace evio {
      * @throws IOException if file cannot be found or IO error writing to file
      */
     void WriterMT::open(const std::string & filename) {
-        open(filename, nullptr, 0);
+        open(filename, nullptr, 0, false);
     }
 
 
