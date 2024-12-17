@@ -655,7 +655,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                 }
             }
             else {
-                ByteBuffer record = Writer.createRecord(dictionary, efArray, writer.getByteOrder(), null, null);
+                ByteBuffer record = Writer.createRecord(dictionary, efArray, efArray.length, writer.getByteOrder(), null, null);
 
                 for (int i = 0; i < 6; i++) {
                     // Top level event
