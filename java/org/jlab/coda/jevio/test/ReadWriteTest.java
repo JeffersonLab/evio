@@ -660,7 +660,7 @@ public class ReadWriteTest {
             // We cannot write compressed data into a buffer directly, but we can write it to a file
             // and then read the file back into a buffer (minus the file header).
             Writer writer = new Writer(HeaderType.EVIO_FILE, order, 0, 0,
-            null, null, compType, false);
+            null, null, 0, compType, false);
             writer.open("./temp");
 
 

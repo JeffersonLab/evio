@@ -110,7 +110,7 @@ public class ReadWriteTest {
             ByteOrder order = ByteOrder.LITTLE_ENDIAN;
 
             Writer writer = new Writer(HeaderType.EVIO_FILE, order, 0, 0,
-                                       dictionary, firstEvent, compType,
+                                       dictionary, firstEvent, firstEventLen, compType,
                                        addTrailerIndex);
 
             byte[] userHdr = new byte[10];

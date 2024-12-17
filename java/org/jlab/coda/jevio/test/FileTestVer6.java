@@ -624,7 +624,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
 
             if (useFile) {
                 writer = new Writer(HeaderType.EVIO_FILE, order,
-                                    5, targetBlockBytes, dictionary, efArray,
+                                    5, targetBlockBytes, dictionary, efArray, 0,
                                     CompressionType.RECORD_UNCOMPRESSED, true);
 
                 writer.getFileHeader().setUserIntFirst(111);
@@ -639,7 +639,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
                 myBuf.order(order);
-                writer = new Writer(myBuf, 10, targetBlockBytes, null, null);
+                writer = new Writer(myBuf, 10, targetBlockBytes, null, null, 0);
             }
 
             if (useFile) {

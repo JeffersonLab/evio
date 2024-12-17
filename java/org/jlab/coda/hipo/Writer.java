@@ -78,6 +78,8 @@ public class Writer implements AutoCloseable {
     private ByteBuffer dictionaryFirstEventBuffer;
     /** Evio format "first" event to store in file header's user header. */
     private byte[] firstEvent;
+    /** Length in bytes of firstEvent. */
+    private int firstEventLength;
 
     /** Byte order of data to write to file/buffer. */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -149,7 +151,7 @@ public class Writer implements AutoCloseable {
      *                      Value of &lt; 8MB results in default of 8MB.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize) {
-        this(hType, order, maxEventCount, maxBufferSize, null, null,
+        this(hType, order, maxEventCount, maxBufferSize, null, null, 0,
              CompressionType.RECORD_UNCOMPRESSED, false);
     }
 
@@ -168,11 +170,13 @@ public class Writer implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
+     * @param firstEventLen number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+     *                      this is set to firstEvent.length.
      * @param compType      type of data compression to use.
      * @param addTrailerIndex if true, we add a record index to the trailer.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize,
-                  String dictionary, byte[] firstEvent,
+                  String dictionary, byte[] firstEvent, int firstEventLen,
                   CompressionType compType, boolean addTrailerIndex) {
 
         if (order != null) {
@@ -182,6 +186,15 @@ public class Writer implements AutoCloseable {
         this.firstEvent = firstEvent;
         this.compressionType = compType;
         this.addTrailerIndex = addTrailerIndex;
+
+        if (firstEvent == null) {
+            firstEventLen = 0;
+        }
+        else if (firstEventLen < 1) {
+            firstEventLen = firstEvent.length;
+        }
+        firstEventLength = firstEventLen;
+
         headerBuffer.order(byteOrder);
 
         // Create a place to store records currently being written
@@ -261,7 +274,7 @@ public class Writer implements AutoCloseable {
      * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf) throws HipoException {
-        this(buf, 0, 0, null, null);
+        this(buf, 0, 0, null, null, 0);
     }
 
     /**
@@ -272,7 +285,7 @@ public class Writer implements AutoCloseable {
      * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf, byte[] userHeader) throws HipoException {
-        this(buf, 0, 0, null, null);
+        this(buf, 0, 0, null, null, 0);
         open(buf, userHeader, 0, userHeader.length);
     }
 
@@ -289,10 +302,13 @@ public class Writer implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
+     * @param firstEventLen number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+     *                      this is set to firstEvent.length.
      * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf, int maxEventCount, int maxBufferSize,
-                  String dictionary, byte[] firstEvent) throws HipoException {
+                  String dictionary, byte[] firstEvent, int firstEventLen)
+            throws HipoException {
 
         if (buf == null) {
             throw new HipoException("buf arg is null");
@@ -304,6 +320,14 @@ public class Writer implements AutoCloseable {
 
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
+        if (firstEvent == null) {
+            firstEventLen = 0;
+        }
+        else if (firstEventLen < 1) {
+            firstEventLen = firstEvent.length;
+        }
+        firstEventLength = firstEventLen;
+
         outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize, CompressionType.RECORD_UNCOMPRESSED);
 
         haveDictionary = dictionary != null;
@@ -652,7 +676,7 @@ public class Writer implements AutoCloseable {
      *         Null if both are null.
      */
     private ByteBuffer createDictionaryRecord() {
-        return createRecord(dictionary, firstEvent, firstEvent.length,
+        return createRecord(dictionary, firstEvent, firstEventLength,
                             byteOrder, fileHeader, null);
     }
 
