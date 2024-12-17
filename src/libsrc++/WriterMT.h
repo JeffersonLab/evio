@@ -140,18 +140,23 @@ namespace evio {
                     thd.interrupt();
 
                     // Wait for it to stop
-                    if (thd.try_join_for(boost::chrono::milliseconds(1))) {
-                        //std::cout << "RecordWriter JOINED from interrupt" << std::endl;
-                        return;
-                    }
-
-                    // If that didn't work, send Alert signal to ring
-                    supply->errorAlert();
-
+//                    if (thd.try_join_for(boost::chrono::milliseconds(1))) {
+//                        //std::cout << "RecordWriter JOINED from interrupt" << std::endl;
+//                        return;
+//                    }
                     if (thd.joinable()) {
                         thd.join();
-                        //std::cout << "RecordWriter JOINED from alert" << std::endl;
+                        //std::cout << "RecordWriter JOINED from interrupt" << std::endl;
                     }
+
+
+                    //                    // If that didn't work, send Alert signal to ring
+//                    supply->errorAlert();
+//
+//                    if (thd.joinable()) {
+//                        thd.join();
+//                        //std::cout << "RecordWriter JOINED from alert" << std::endl;
+//                    }
                 }
             }
 
@@ -225,6 +230,11 @@ namespace evio {
                 catch (boost::thread_interrupted & e) {
                     // Interrupted while blocked in getToWrite which means we're all done
                     //std::cout << "RecordWriter: quit thread through interrupt" << std::endl;
+                    if (supply->getLastSequence() > lastSeqProcessed.load()) {
+                        lastSeqProcessed = supply->getLastSequence();
+//                        std::cout << "RecordWriter: thread INTERRUPTED, set lastSeqProcessed to " <<
+//                                           (supply->getLastSequence() + 1) << std::endl;
+                    }
                 }
                 catch (std::runtime_error & e) {
                     std::string err = e.what();

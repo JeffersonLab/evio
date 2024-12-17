@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -224,18 +225,8 @@ public class WriterMT implements AutoCloseable {
         haveDictionary = (dictionary != null) && (dictionary.length() > 0);
         haveFirstEvent = (firstEvent != null) && (firstEventLen > 0);
 
-        if (haveDictionary) {
-            System.out.println("WriterMT CON: create dict, len = " + dictionary.length());
-        }
-
-        if (haveFirstEvent) {
-            System.out.println("WriterMT CON: create first event, len = " + firstEventLen);
-        }
-
         if (haveDictionary || haveFirstEvent)  {
             dictionaryFirstEventBuffer = createDictionaryRecord();
-System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteOrder +
-        ", dic/fe buff remaining = " + dictionaryFirstEventBuffer.remaining());
         }
 
         // Number of ring items must be >= compressionThreads
@@ -246,9 +237,10 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
         // AND is must be multiple of 2
         finalRingSize = Utilities.powerOfTwo(finalRingSize, true);
 
-        if (finalRingSize != ringSize) {
-            System.out.println("WriterMT: change to ring size = " + finalRingSize);
-        }
+//        if (finalRingSize != ringSize) {
+//            System.out.println("WriterMT: change to ring size from " +
+//                                ringSize + " to " + finalRingSize);
+//        }
 
         supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
                                   maxEventCount, maxBufferSize, compressionType);
@@ -372,7 +364,8 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
     class RecordWriter extends Thread {
 
         /** The highest sequence to have been currently processed. */
-        private volatile long lastSeqProcessed = -1;
+    //    private volatile long lastSeqProcessed = -1;
+        private AtomicLong lastSeqProcessed = new AtomicLong(-1);
 
         /** Stop the thread. */
         void stopThread() {
@@ -381,15 +374,17 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
                 this.interrupt();
 
                 // Wait for it to stop
-                this.join(1);
+                this.join();
 
-                if (this.isAlive()) {
-                    // If that didn't work, send Alert signal to ring
-                    supply.errorAlert();
+                // Do NOT call supply.errorAlert since run() will exit
+                // in a way that lastSeqProcessed doesn't get
+                // properly set so waitForLastItem routine never returns.
 
-                    this.join();
-                    //std::cout << "RecordWriter JOINED from alert" << std::endl;
-                }
+//                if (this.isAlive()) {
+//                    // If that didn't work, send Alert signal to ring
+//                    supply.errorAlert();
+//                    this.join();
+//                }
             }
             catch (InterruptedException e) {}
         }
@@ -397,7 +392,7 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
         /** Wait for the last item to be processed, then exit thread. */
         void waitForLastItem() {
             try {
-                while (supply.getLastSequence() > lastSeqProcessed) {
+                while (supply.getLastSequence() > lastSeqProcessed.get()) {
                     Thread.yield();
                 }
             }
@@ -417,7 +412,7 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
                         return;
                     }
 
-//System.out.println("   Writer: try getting record to write");
+//System.out.println("   RecordWriter: try getting record to write");
                     // Get the next record for this thread to write
                     RecordRingItem item = supply.getToWrite();
                     currentSeq = item.getSequence();
@@ -426,7 +421,7 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
 
                     // Do write
                     RecordHeader header = record.getHeader();
-//System.out.println("   Writer: got record, header = \n" + header);
+//System.out.println("   RecordWriter: got record, header = \n" + header);
                     int bytesToWrite = header.getLength();
                     // Record length of this record
                     recordLengths.add(bytesToWrite);
@@ -437,12 +432,12 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
                     try {
                         ByteBuffer buf = record.getBinaryBuffer();
                         if (buf.hasArray()) {
-//System.out.println("   Writer: use outStream to write file, buf pos = " + buf.position() +
+//System.out.println("   RecordWriter: use outStream to write file, buf pos = " + buf.position() +
 //        ", lim = " + buf.limit() + ", bytesToWrite = " + bytesToWrite);
                             outStream.write(buf.array(), 0, bytesToWrite);
                         }
                         else {
-//System.out.println("   Writer: use fileChannel to write file");
+//System.out.println("   RecordWriter: use fileChannel to write file");
                             // binary buffer is ready to read after build()
                             fileChannel.write(buf);
                         }
@@ -453,21 +448,28 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
                     }
 
                     // Release back to supply
-//System.out.println("   Writer: release ring item back to supply");
+//System.out.println("   RecordWriter: release ring item back to supply");
                     supply.releaseWriter(item);
 
                     // Now we're done with this sequence
-                    lastSeqProcessed = currentSeq;
+                    lastSeqProcessed.set(currentSeq);
                 }
             }
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToWrite
                 // which means we're all done.
-//System.out.println("   Writer: thread INTERRUPTED");
+//System.out.println("   RecordWriter: thread INTERRUPTED");
+
+                // Make sure waitForLastItem() returns
+                if (supply.getLastSequence() > lastSeqProcessed.get()) {
+                    lastSeqProcessed.set(supply.getLastSequence());
+//                    System.out.println("   RecordWriter: thread INTERRUPTED, set lastSeqProcessed to " +
+//                            (supply.getLastSequence() + 1));
+                }
             }
             catch (AlertException e) {
                  // We've been notified that an error has occurred
- //System.out.println("   Writer: thread exiting due to ring alert exception");
+ //System.out.println("   RecordWriter: thread exiting due to ring alert exception");
              }
         }
     }

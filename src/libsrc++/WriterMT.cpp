@@ -112,10 +112,10 @@ namespace evio {
         // AND is must be multiple of 2
         finalRingSize = Disruptor::Util::ceilingNextPowerOfTwo(finalRingSize);
 
-        if (finalRingSize != ringSize) {
-            std::cout << "WriterMT: started w/ ring size = " << ringSize <<
-                      ", change to " << finalRingSize << std::endl;
-        }
+//        if (finalRingSize != ringSize) {
+//            std::cout << "WriterMT: change ring size from " << ringSize <<
+//                      " to " << finalRingSize << std::endl;
+//        }
 
         supply = std::make_shared<RecordSupply>(finalRingSize, byteOrder,
                                                 compressionThreads,
