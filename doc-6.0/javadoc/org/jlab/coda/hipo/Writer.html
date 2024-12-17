@@ -165,11 +165,12 @@ implements java.lang.AutoCloseable</pre>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Writer.html#Writer-java.nio.ByteBuffer-int-int-java.lang.String-byte:A-">Writer</a></span>(java.nio.ByteBuffer&nbsp;buf,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Writer.html#Writer-java.nio.ByteBuffer-int-int-java.lang.String-byte:A-int-">Writer</a></span>(java.nio.ByteBuffer&nbsp;buf,
       int&nbsp;maxEventCount,
       int&nbsp;maxBufferSize,
       java.lang.String&nbsp;dictionary,
-      byte[]&nbsp;firstEvent)</code>
+      byte[]&nbsp;firstEvent,
+      int&nbsp;firstEventLen)</code>
 <div class="block">Constructor with byte order.</div>
 </td>
 </tr>
@@ -189,12 +190,13 @@ implements java.lang.AutoCloseable</pre>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Writer.html#Writer-org.jlab.coda.hipo.HeaderType-java.nio.ByteOrder-int-int-java.lang.String-byte:A-org.jlab.coda.hipo.CompressionType-boolean-">Writer</a></span>(<a href="../../../../org/jlab/coda/hipo/HeaderType.html" title="enum in org.jlab.coda.hipo">HeaderType</a>&nbsp;hType,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/hipo/Writer.html#Writer-org.jlab.coda.hipo.HeaderType-java.nio.ByteOrder-int-int-java.lang.String-byte:A-int-org.jlab.coda.hipo.CompressionType-boolean-">Writer</a></span>(<a href="../../../../org/jlab/coda/hipo/HeaderType.html" title="enum in org.jlab.coda.hipo">HeaderType</a>&nbsp;hType,
       java.nio.ByteOrder&nbsp;order,
       int&nbsp;maxEventCount,
       int&nbsp;maxBufferSize,
       java.lang.String&nbsp;dictionary,
       byte[]&nbsp;firstEvent,
+      int&nbsp;firstEventLen,
       <a href="../../../../org/jlab/coda/hipo/CompressionType.html" title="enum in org.jlab.coda.hipo">CompressionType</a>&nbsp;compType,
       boolean&nbsp;addTrailerIndex)</code>
 <div class="block">Constructor with byte order.</div>
@@ -467,7 +469,7 @@ implements java.lang.AutoCloseable</pre>
 </dl>
 </li>
 </ul>
-<a name="Writer-org.jlab.coda.hipo.HeaderType-java.nio.ByteOrder-int-int-java.lang.String-byte:A-org.jlab.coda.hipo.CompressionType-boolean-">
+<a name="Writer-org.jlab.coda.hipo.HeaderType-java.nio.ByteOrder-int-int-java.lang.String-byte:A-int-org.jlab.coda.hipo.CompressionType-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -479,6 +481,7 @@ implements java.lang.AutoCloseable</pre>
               int&nbsp;maxBufferSize,
               java.lang.String&nbsp;dictionary,
               byte[]&nbsp;firstEvent,
+              int&nbsp;firstEventLen,
               <a href="../../../../org/jlab/coda/hipo/CompressionType.html" title="enum in org.jlab.coda.hipo">CompressionType</a>&nbsp;compType,
               boolean&nbsp;addTrailerIndex)</pre>
 <div class="block">Constructor with byte order. The given file is opened so any subsequent call to
@@ -496,6 +499,8 @@ implements java.lang.AutoCloseable</pre>
 <dd><code>dictionary</code> - string holding an evio format dictionary to be placed in userHeader.</dd>
 <dd><code>firstEvent</code> - byte array containing an evio event to be included in userHeader.
                       It must be in the same byte order as the order argument.</dd>
+<dd><code>firstEventLen</code> - number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+                      this is set to firstEvent.length.</dd>
 <dd><code>compType</code> - type of data compression to use.</dd>
 <dd><code>addTrailerIndex</code> - if true, we add a record index to the trailer.</dd>
 </dl>
@@ -587,7 +592,7 @@ implements java.lang.AutoCloseable</pre>
 </dl>
 </li>
 </ul>
-<a name="Writer-java.nio.ByteBuffer-int-int-java.lang.String-byte:A-">
+<a name="Writer-java.nio.ByteBuffer-int-int-java.lang.String-byte:A-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -597,7 +602,8 @@ implements java.lang.AutoCloseable</pre>
               int&nbsp;maxEventCount,
               int&nbsp;maxBufferSize,
               java.lang.String&nbsp;dictionary,
-              byte[]&nbsp;firstEvent)
+              byte[]&nbsp;firstEvent,
+              int&nbsp;firstEventLen)
        throws <a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></pre>
 <div class="block">Constructor with byte order.
  This method places the dictionary and first event into the file header's user header.
@@ -612,6 +618,8 @@ implements java.lang.AutoCloseable</pre>
 <dd><code>dictionary</code> - string holding an evio format dictionary to be placed in userHeader.</dd>
 <dd><code>firstEvent</code> - byte array containing an evio event to be included in userHeader.
                       It must be in the same byte order as the order argument.</dd>
+<dd><code>firstEventLen</code> - number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+                      this is set to firstEvent.length.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/hipo/HipoException.html" title="class in org.jlab.coda.hipo">HipoException</a></code> - if buf arg is null.</dd>
 </dl>

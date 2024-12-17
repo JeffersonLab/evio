@@ -430,7 +430,8 @@ implements java.lang.AutoCloseable</pre>
 <dd><code>dictionary</code> - string holding an evio format dictionary to be placed in userHeader.</dd>
 <dd><code>firstEvent</code> - byte array containing an evio event to be included in userHeader.
                       It must be in the same byte order as the order argument.</dd>
-<dd><code>firstEventLen</code> - number of valid bytes in firstEvent.</dd>
+<dd><code>firstEventLen</code> - number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+                      this is set to firstEvent.length.</dd>
 <dd><code>compType</code> - type of data compression to do (one, lz4 fast, lz4 best, gzip)</dd>
 <dd><code>compressionThreads</code> - number of threads doing compression simultaneously</dd>
 <dd><code>addTrailerIndex</code> - if true, we add a record index to the trailer.</dd>
