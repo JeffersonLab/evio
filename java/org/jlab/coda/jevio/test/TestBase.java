@@ -80,8 +80,7 @@ public class TestBase {
 
     // files for input & output
     String writeFileName1 = "./compactEvioBuild.ev";
-    String writeFileName0 = "./compactEvioBuildOld.ev";
-    String writeFileName2 = "./rawEvioStructure.ev";
+    String writeFileName2 = "./treeEvioBuild.ev";
 
     ByteOrder order = ByteOrder.nativeOrder();
 

@@ -68,9 +68,9 @@ namespace evio {
         std::shared_ptr<ByteBuffer> buffer;
 
         // files for input & output
-        std::string writeFileName1 = "./compactEvioBuild.ev";
         std::string writeFileName0 = "./compactEvioBuildOld.ev";
-        std::string writeFileName2 = "./rawEvioStructure.ev";
+        std::string writeFileName1 = "./compactEvioBuild.ev";
+        std::string writeFileName2 = "./treeEvioBuild.ev";
 
         ByteOrder order{ByteOrder::ENDIAN_LOCAL};
 
