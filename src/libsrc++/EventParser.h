@@ -57,7 +57,7 @@ namespace evio {
     private:
 
         std::vector<std::shared_ptr<IEvioListener>> evioListenerList;
-        std::shared_ptr<IEvioFilter> evioFilter;
+        std::shared_ptr<IEvioFilter> evioFilter = nullptr;
 
         void parseStructure(std::shared_ptr<EvioEvent> evioEvent, std::shared_ptr<BaseStructure> structure);
 
