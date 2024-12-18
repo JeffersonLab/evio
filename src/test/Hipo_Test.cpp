@@ -141,34 +141,39 @@ namespace evio {
                 // Build event (bank of banks) with EventBuilder object
                 std::shared_ptr<EvioEvent> event = createTreeEvent(tag, num);
 
-                std::cout << "Event:\n" << event->treeToString("") << std::endl;
+                std::cout << "\n\nEvent (created by tree methods):\n" << event->treeToString("") << std::endl;
                 std::cout << "Event Header:\n" << event->getHeader()->toString() << std::endl;
 
                 // Take event & write it into buffer
-                std::cout << "Write event to " << writeFileName1 << " as compressed LZ4" << std::endl;
-                EventWriter writer(writeFileName1, "", "runType", 1, 0L, 0, 0,
+                std::cout << "Write event to " << writeFileName2 << " as compressed LZ4" << std::endl;
+                EventWriter writer(writeFileName2, "", "runType", 1, 0L, 0, 0,
                                    ByteOrder::ENDIAN_LOCAL, dictionary, true, false, nullptr, 1, 1, 1, 1,
                                    Compressor::LZ4, 2, 16, 0);
 
                 writer.setFirstEvent(event);
                 writer.writeEvent(event);
-                std::cout << "    createObjectEvents: call writer.close()" << std::endl;
+                std::cout << "    call writer.close()" << std::endl;
                 writer.close();
 
                 // Read event back out of file
-                EvioReader reader(writeFileName1);
+                std::cout << "    create EvioReader" << std::endl;
+                EvioReader reader(writeFileName2);
 
-                std::cout << "    createObjectEvents: have dictionary? " << reader.hasDictionaryXML() << std::endl;
-                std::string xmlDict = reader.getDictionaryXML();
-                std::cout << "    createObjectEvents: read dictionary ->\n\n" << xmlDict << std::endl << std::endl;
+                std::cout << "    have dictionary? " << reader.hasDictionaryXML() << std::endl;
+                if (reader.hasDictionaryXML()) {
+                    std::string xmlDict = reader.getDictionaryXML();
+                    std::cout << "    read dictionary ->\n\n" << xmlDict << std::endl << std::endl;
+                }
 
-                std::cout << "    createObjectEvents: have first event? " << reader.hasFirstEvent() << std::endl;
-                auto fe = reader.getFirstEvent();
-                std::cout << "    createObjectEvents: read first event ->\n\n" << fe->treeToString("") << std::endl << std::endl;
+                std::cout << "    have first event? " << reader.hasFirstEvent() << std::endl;
+                if (reader.hasFirstEvent()) {
+                    auto fe = reader.getFirstEvent();
+                    std::cout << "    read first event ->\n\n" << fe->treeToString("") << std::endl << std::endl;
+                }
 
-                std::cout << "    createObjectEvents: try getting ev #1" << std::endl;
+                std::cout << "    try getting ev #1" << std::endl;
                 auto ev = reader.parseEvent(1);
-                std::cout << "    createObjectEvents: event ->\n" << ev->treeToString("") << std::endl;
+                std::cout << "    event ->\n" << ev->treeToString("") << std::endl;
             }
             catch (EvioException &e) {
                 std::cout << e.what() << std::endl;
@@ -188,7 +193,7 @@ namespace evio {
 int main(int argc, char **argv) {
     auto tester = evio::HipoTester();
     tester.testCompactEventCreation(1,1);
-    //tester.testTreeEventCreation(1,1);
+    tester.testTreeEventCreation(1,1);
     return 0;
 }
 

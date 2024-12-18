@@ -137,12 +137,12 @@ public class HipoTest extends TestBase {
             EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0, 0, 0);
 
 
-            System.out.println("Event:\n" + event.treeToString(""));
+            System.out.println("\n\nEvent (created by tree methods):\n" + event.treeToString(""));
             System.out.println("Event Header:\n" + event.getHeader().toString());
 
             // Take event & write it into buffer
-            System.out.println("Write event to " + writeFileName1 + " as compressed LZ4");
-            EventWriter writer = new EventWriter(writeFileName1, null, "runType", 1, 0L, 0, 0,
+            System.out.println("Write event to " + writeFileName2 + " as compressed LZ4");
+            EventWriter writer = new EventWriter(writeFileName2, null, "runType", 1, 0L, 0, 0,
                     ByteOrder.nativeOrder(), dictionary, true, false, null, 1, 1, 1, 1,
                     CompressionType.RECORD_COMPRESSION_LZ4, 2, 16, 0);
 
@@ -152,28 +152,32 @@ public class HipoTest extends TestBase {
             // Test double sync
             writer.writeEvent(node, false, false);
 
-            System.out.println("    createObjectEvents: call writer.close()");
+            System.out.println("    call writer.close()");
             writer.close();
 
             // Read event back out of file
-            System.out.println("    createObjectEvents:create EvioReader");
-            EvioReader reader = new EvioReader(writeFileName1);
+            System.out.println("    create EvioReader");
+            EvioReader reader = new EvioReader(writeFileName2);
 
-            System.out.println("    createObjectEvents: have dictionary? " + reader.hasDictionaryXML());
-            String xmlDict = reader.getDictionaryXML();
-            System.out.println("    createObjectEvents: read dictionary ->\n\n" + xmlDict);
+            System.out.println("    have dictionary? " + reader.hasDictionaryXML());
+            if (reader.hasDictionaryXML()) {
+                String xmlDict = reader.getDictionaryXML();
+                System.out.println("    read dictionary ->\n\n" + xmlDict);
+            }
 
-            System.out.println("\n    createObjectEvents: have first event? " + reader.hasFirstEvent());
-            EvioEvent fe = reader.getFirstEvent();
-            System.out.println("    createObjectEvents: read first event ->\n\n" + fe.treeToString(""));
+            System.out.println("\n    have first event? " + reader.hasFirstEvent());
+            if (reader.hasFirstEvent()) {
+                EvioEvent fe = reader.getFirstEvent();
+                System.out.println("    read first event ->\n\n" + fe.treeToString(""));
+            }
 
-            System.out.println("\n    createObjectEvents: try getting ev #1");
+            System.out.println("\n    try getting ev #1");
             EvioEvent ev = reader.parseEvent(1);
-            System.out.println("    createObjectEvents: event ->\n" + ev.treeToString(""));
+            System.out.println("    event ->\n" + ev.treeToString(""));
 
-            System.out.println("\n    createObjectEvents: try getting ev #2");
+            System.out.println("\n    try getting ev #2");
             ev = reader.parseEvent(2);
-            System.out.println("    createObjectEvents: event ->\n" + ev.treeToString(""));
+            System.out.println("    event ->\n" + ev.treeToString(""));
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -186,7 +190,7 @@ public class HipoTest extends TestBase {
         try {
             HipoTest tester = new HipoTest();
             tester.testCompactEventCreation(1,1);
-            //tester.testTreeEventCreation(1,1);
+            tester.testTreeEventCreation(1,1);
         }
         catch (Exception e) {
             e.printStackTrace();
