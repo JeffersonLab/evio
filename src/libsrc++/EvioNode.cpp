@@ -884,8 +884,9 @@ namespace evio {
 
 
     /**
-     * Get the object containing the buffer that this node is associated with.
-     * @return object containing the buffer that this node is associated with.
+     * Get the buffer containing this node.
+     * Note, buffer's position and limit may not be set according to this node's position and limit.
+     * @return buffer containing this node.
      */
     std::shared_ptr<ByteBuffer> EvioNode::getBuffer() {return buffer;}
 
