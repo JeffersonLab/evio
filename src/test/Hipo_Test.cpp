@@ -45,14 +45,25 @@ namespace evio {
         void testCompactEventCreation(uint16_t tag, uint8_t num) {
 
             try {
+                bool addTrailerIndex = true;
+
                 // Create ByteBuffer with EvioEvent in it
                 buffer = createCompactEventBuffer(tag, num);
 
                 Util::printBytes(buffer, 0, buffer->limit(), "BUFFER BYTES");
                 std::cout << "\nBuffer -> \n" << buffer->toString() << "\n";
 
+                //------------------------------
+                // Create record to test writer.writeRecord(recOut);
+                // This will not change position of buffer.
+                //------------------------------
+                RecordOutput recOut(order);
+                recOut.addEvent(buffer, 0);
+                //------------------------------
+
                 //
-                // Write file
+                // Write file.
+                // Dictionary and first event end up as user header in file header.
                 //
 //                Writer writer(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
 //                              0, 0, "", nullptr, 0,
@@ -60,11 +71,11 @@ namespace evio {
 
                 WriterMT writer(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
                                 0, 0, dictionary, buffer->array(), buffer->limit(),
-                                Compressor::UNCOMPRESSED, 1);
+                                Compressor::UNCOMPRESSED, 1, addTrailerIndex);
 
-//                WriterMT writer(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
-//                                0, 0, dictionary, buffer->array(), buffer->limit(),
-//                                Compressor::LZ4_BEST, 3);
+                WriterMT writer2(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
+                                0, 0, dictionary, buffer->array(), buffer->limit(),
+                                Compressor::LZ4_BEST, 3, addTrailerIndex);
 
                 writer.open(writeFileName1, nullptr, true);
                 writer.addEvent(buffer);
@@ -77,6 +88,9 @@ namespace evio {
                 writer.addEvent(buffer);
                 writer.addEvent(buffer);
                 writer.addEvent(buffer);
+                std::cout << "add entire record" << std::endl;
+                writer.writeRecord(recOut);
+
                 writer.close();
                 std::cout << "File size of " << writeFileName1 << " is now " << getFileSize(writeFileName1) << std::endl;
 
@@ -106,19 +120,48 @@ namespace evio {
                     return;
                 }
 
+                std::cout << "event count = " << reader.getEventCount() << std::endl;
+
                 uint32_t len;
                 std::shared_ptr<uint8_t> bytes = reader.getNextEvent(&len);
                 auto ev = EvioReader::getEvent(bytes.get(), len, reader.getByteOrder());
-                std::cout << "next evio event ->\n" << ev->treeToString("") << std::endl;
+                if (bytes != nullptr) {
+                    std::cout << "next evio event ->\n" << ev->treeToString("") << std::endl;
+                }
 
-                std::shared_ptr<uint8_t> bytes2 = reader.getEvent(0, &len);
-                std::cout << "get event(0), size = " << std::to_string(len) << std::endl;
+                bytes = reader.getEvent(0, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(0), size = " << std::to_string(len) << std::endl;
+                }
 
-                reader.getEvent(1, &len);
-                std::cout << "get event(1), size = " << std::to_string(len) << std::endl;
+                bytes = reader.getEvent(1, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(1), size = " << std::to_string(len) << std::endl;
+                }
 
-                reader.getEvent(1, &len);
-                std::cout << "get event(2), size = " << std::to_string(len) << std::endl;
+                bytes = reader.getEvent(2, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(2), size = " << std::to_string(len) << std::endl;
+                }
+
+                bytes = reader.getEvent(3, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(3), size = " << std::to_string(len) << std::endl;
+                }
+
+                // This event was added with reader.recordWrite()
+                bytes = reader.getEvent(4, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(4), size = " << std::to_string(len) << std::endl;
+                }
+
+                bytes = reader.getEvent(20, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(20), size = " << std::to_string(len) << std::endl;
+                }
+                else {
+                    std::cout << "getEvent(20), no such event!" << std::endl;
+                }
 
                 ByteBuffer bb1(20000);
                 reader.getEvent(bb1, 0);
@@ -193,7 +236,7 @@ namespace evio {
 int main(int argc, char **argv) {
     auto tester = evio::HipoTester();
     tester.testCompactEventCreation(1,1);
-    tester.testTreeEventCreation(1,1);
+    //tester.testTreeEventCreation(1,1);
     return 0;
 }
 

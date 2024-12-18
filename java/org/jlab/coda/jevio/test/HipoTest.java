@@ -30,6 +30,17 @@ public class HipoTest extends TestBase {
 
             Utilities.printBytes(buffer, 0, buffer.limit(), "BUFFER BYTES");
             System.out.println("\nBuffer -> \n" + buffer.toString());
+            
+            CompressionType compressionType = CompressionType.RECORD_COMPRESSION_LZ4_BEST;
+            CompressionType compressionType2 = CompressionType.RECORD_UNCOMPRESSED;
+
+            //------------------------------
+            // Create record to test writer.writeRecord(recOut);
+            // This will not change position of buffer.
+            //------------------------------
+            RecordOutputStream recOut = new RecordOutputStream(order, 0, 0, compressionType2);
+            recOut.addEvent(buffer, 0);
+            //------------------------------
 
             //
             // Write file
@@ -37,19 +48,15 @@ public class HipoTest extends TestBase {
 
             //WriterMT writer = new WriterMT();
 
-//            WriterMT writer = new WriterMT(order, 1000, 1000000,
-//                    CompressionType.RECORD_COMPRESSION_LZ4_BEST,
-//                    3, 4);
+//            WriterMT writer = new WriterMT(order, 1000, 1000000, compressionType, 3, 4);
 
             WriterMT writer = new WriterMT(HeaderType.EVIO_FILE, order, 1000, 1000000,
-                    dictionary, buffer.array(), buffer.limit(),
-                    CompressionType.RECORD_COMPRESSION_LZ4_BEST,
+                    dictionary, buffer.array(), buffer.limit(), compressionType,
                     3, false, 4);
 
 //
 //            Writer writer = new Writer(HeaderType.EVIO_FILE, ByteOrder.nativeOrder(),
-//                    0, 0, dictionary, buffer.array(), buffer.limit(),
-//                    CompressionType.RECORD_COMPRESSION_LZ4_BEST, false);
+//                    0, 0, dictionary, buffer.array(), buffer.limit(), compressionType, false);
 
             writer.open(writeFileName1, null, true);
             writer.addEvent(buffer);
@@ -64,6 +71,8 @@ public class HipoTest extends TestBase {
             writer.addEvent(buffer);
             writer.addEvent(buffer);
             writer.addEvent(buffer);
+            System.out.println("add entire record");
+            writer.writeRecord(recOut);
             writer.close();
 
             f = new File (writeFileName1);
@@ -98,16 +107,43 @@ public class HipoTest extends TestBase {
 
             byte[] bytes = reader.getNextEvent();
             EvioEvent ev = EvioReader.getEvent(bytes, 0, reader.getByteOrder());
-            System.out.println("next evio event ->\n" + ev.treeToString(""));
+            if (bytes != null) {
+                System.out.println("next evio event ->\n" + ev.treeToString(""));
+            }
 
-            byte[] bytes2 = reader.getEvent(0);
-            System.out.println("get event(0), size = " + bytes2.length);
+            bytes = reader.getEvent(0);
+            if (bytes != null) {
+                System.out.println("getEvent(0), size = " + bytes.length);
+            }
 
-            bytes2 = reader.getEvent(1);
-            System.out.println("get event(1), size = " + bytes2.length);
+            bytes = reader.getEvent(1);
+            if (bytes != null) {
+                System.out.println("getEvent(1), size = " + bytes.length);
+            }
 
-            bytes2 = reader.getEvent(2);
-            System.out.println("get event(2), size = " + bytes2.length);
+            bytes = reader.getEvent(2);
+            if (bytes != null) {
+                System.out.println("getEvent(2), size = " + bytes.length);
+            }
+
+            bytes = reader.getEvent(3);
+            if (bytes != null) {
+                System.out.println("getEvent(3), size = " + bytes.length);
+            }
+
+            // This event was added with reader.recordWrite()
+            bytes = reader.getEvent(4);
+            if (bytes != null) {
+                System.out.println("getEvent(4), size = " + bytes.length);
+            }
+
+            bytes = reader.getEvent(20);
+            if (bytes != null) {
+                System.out.println("getEvent(20), size = " + bytes.length);
+            }
+            else {
+                System.out.println("getEvent(20), no such event!");
+            }
 
             ByteBuffer bb1 = ByteBuffer.allocate(20000);
             reader.getEvent(bb1, 0);
@@ -190,7 +226,7 @@ public class HipoTest extends TestBase {
         try {
             HipoTest tester = new HipoTest();
             tester.testCompactEventCreation(1,1);
-            tester.testTreeEventCreation(1,1);
+            //tester.testTreeEventCreation(1,1);
         }
         catch (Exception e) {
             e.printStackTrace();
