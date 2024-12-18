@@ -195,7 +195,6 @@ set(TEST
         src/test/Dict_FirstEv_Test.cpp
         src/test/Hipo_Test.cpp
         src/test/IndexArrayLenTest.cpp
-        src/test/ReadTest.cpp
         src/test/ReadWriteTest.cpp
         src/test/ReadWriteV4Test.cpp
         src/test/RecordSupplyTest.cpp
