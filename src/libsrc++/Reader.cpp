@@ -564,6 +564,7 @@ namespace evio {
 
         if (index >= eventIndex.getMaxEvents()) {
 //std::cout << "[READER] getEvent: index = " << index << ", max events = " << eventIndex.getMaxEvents() << std::endl;
+            if (len != nullptr) {*len = 0;}
             return nullptr;
         }
 
