@@ -942,7 +942,7 @@ namespace evio {
 
         index--;
 
-        std::shared_ptr<BankHeader> header;
+        std::shared_ptr<BankHeader> header = std::make_shared<BankHeader>();
         auto event = EvioEvent::getInstance(header);
 
         uint32_t eventDataSizeBytes = 0;
