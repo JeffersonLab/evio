@@ -178,7 +178,7 @@ namespace evio {
         // For the latest evio format, generate a table
         // of all event positions in buffer for random access.
         if (evioVersion > 3) {
-// std::cout << "EvioReader const: evioVersion = " <, evioVersion << ", create mem handler" << std::endl;
+//std::cout << "EvioReaderV4 const: evioVersion = " << evioVersion << ", generate event positions" << std::endl;
             generateEventPositions(byteBuffer);
             if (blockHeader4->hasDictionary()) {
                 // Jump to the first event
@@ -216,6 +216,12 @@ namespace evio {
             bool          firstBlock=true, hasDictionary=false;
 //            bool          curLastBlock;
 
+            // In Java evio, setting eventCount from its initial value of -1 is done in MappeMemoryHandler.java,
+            // but in C++ that does not exist so we set it here.
+            if (eventCount < 0) {
+                eventCount = 0;
+            }
+
             eventPositions.reserve(20000);
 
             // Start at the beginning of byteBuffer
@@ -226,7 +232,7 @@ namespace evio {
                 // Check to see if enough data to read block header.
                 // If not return the amount of memory we've used/read.
                 if (bytesLeft < 32) {
-//std::cout << "return, not enough to read header, bytes left = " << bytesLeft << std::endl;
+//std::cout << "    genEvTablePos: return, not enough to read header, bytes left = " << bytesLeft << std::endl;
                     return position;
                 }
 
@@ -241,9 +247,9 @@ namespace evio {
 //            std::cout << "    genEvTablePos: pos " << position <<
 //                               ", blk ev count = " << blockEventCount <<
 //                               ", blockSize = " << blockSize <<
-//                               ", blockHdrSize = " << blockHdrSize << showbase <<
-//                               ", byteInfo = " << hex << byteInfo <<
-//                               ", magic # = " << magicNum << dec << std::endl;
+//                               ", blockHdrSize = " << blockHdrSize << std::showbase <<
+//                               ", byteInfo = " << std::hex << byteInfo <<
+//                               ", magic # = " << magicNum << std::dec << std::endl;
 
                 // If magic # is not right, file is not in proper format
                 if (magicNum != BlockHeaderV4::MAGIC_NUMBER) {
@@ -261,7 +267,7 @@ namespace evio {
                 if (4*blockSize > bytesLeft) {
 //std::cout << "    4*blockSize = " << std::to_string(4*blockSize) + " >? bytesLeft = " <<
 //             std::to_string(bytesLeft) + ", pos = " + std::to_string(position) << std::endl;
-//std::cout << "return, not enough to read all block data" << std::endl;
+//std::cout << "    return, not enough to read all block data" << std::endl;
                     return position;
                 }
 
@@ -600,7 +606,7 @@ namespace evio {
         }
 
 
-        std::cout << "prepareForSequentialRead: bytesToRead = " << bytesToRead << std::endl;
+//std::cout << "prepareForSequentialRead: bytesToRead = " << bytesToRead << std::endl;
 
 
         // Create/expand a buffer to hold a chunk of data
@@ -1121,7 +1127,7 @@ namespace evio {
 
             // Last (perhaps only) read
             byteBuffer->getBytes(bytes + offset, bytesToGo);
-std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::endl;
+//std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::endl;
             event->setRawBytes(bytes, eventDataSizeBytes);
             event->setByteOrder(byteOrder); // add this to track endianness, timmer
             // Don't worry about dictionaries here as version must be 1-3
@@ -1375,8 +1381,11 @@ std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::en
                 throw EvioException("object closed");
             }
 
+            // sequentialRead is always false for reading buffer and
+            // always true for reading file.
             if (!sequentialRead && evioVersion > 3) {
                 // Already calculated by calling generateEventPositions in constructor ...
+                //std::cout << "EvioReaderV4 getEventCount: not seq read, event count = " << eventCount << std::endl;
                 return eventCount;
             }
 
@@ -1390,6 +1399,7 @@ std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::en
                 eventCount = 0;
 
                 while (nextEvent() != nullptr) {
+                    //std::cout << "EvioReaderV4 getEventCount: add to eventCount ("  << eventCount << ")" << std::endl;
                     eventCount++;
                 }
 
