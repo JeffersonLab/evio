@@ -28,6 +28,8 @@ namespace evio {
             throw EvioException("path is empty");
         }
 
+        blockHeader = std::make_shared<BlockHeaderV4>();
+
         /** Object for reading file. */
         file.open(path, std::ios::binary);
 
@@ -79,6 +81,7 @@ namespace evio {
             throw EvioException("Buffer arg is null");
         }
 
+        blockHeader = std::make_shared<BlockHeaderV4>();
         initialPosition = byteBuffer->position();
         this->byteBuffer = byteBuffer;
 
