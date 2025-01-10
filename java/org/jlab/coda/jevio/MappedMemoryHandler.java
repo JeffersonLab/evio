@@ -7,17 +7,21 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 /**
- * This is a class designed to handle access of evio version 4 format files
+ * <p>This is a class designed to handle access of evio version 4 format files
  * with size greater than 2.1 GBytes.
  * Currently the largest size memory map that Java can handle
  * is Integer.MAX_VALUE which limits the use of memory mapping to looking at
  * files that size or smaller. This class circumvents this limit by viewing
- * large files as a collection of multiple memory maps.<p>
+ * large files as a collection of multiple memory maps.</p>
  *
- * The problem is that we do <b>NOT</b> want an evio event which is split between
+ * <p>The problem is that we do <b>NOT</b> want an evio event which is split between
  * 2 different memory maps. This is addressed by scanning a memory map of the
  * largest size to find the last complete evio block it contains. The next memory
- * map then starts at the following block.<p>
+ * map then starts at the following block.</p>
+ *
+ * <p>Note, this class is also used in the reading of buffers. In this case,
+ * memory mapping is <b>NOT</b> used, but instead this object scans the buffer
+ * to create an ArrayList of all event positions.</p>
  *
  * Just a note about synchronization. This object is <b>NOT</b> threadsafe but it
  * doesn't have to be since its use in {@link EvioReader} is synchronized and
@@ -247,12 +251,13 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
         // Start at the beginning of byteBuffer
         position  = 0;
         bytesLeft = byteBuffer.limit();
+//System.out.println("genEvTablePos: limit = " + bytesLeft + ", event count = " + eventCount);
 
         while (bytesLeft > 0) {
             // Check to see if enough data to read block header.
             // If not return the amount of memory we've used/read.
             if (bytesLeft < 32) {
-//System.out.println("return, not enough to read header, bytes left = " + bytesLeft);
+//System.out.println("    genEvTablePos: return, not enough to read header, bytes left = " + bytesLeft);
                 return position;
             }
 
@@ -288,7 +293,7 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
             if (4*blockSize > bytesLeft) {
 //System.out.println("    4*blockSize = " + (4*blockSize) + " >? bytesLeft = " + bytesLeft +
 //                   ", pos = " + position);
-//System.out.println("return, not enough to read all block data");
+//System.out.println("    return, not enough to read all block data");
                 return position;
             }
 
@@ -301,7 +306,7 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
 //            System.out.println("    genEvTablePos: blk count = " + blockCount +
 //                               ", total ev count = " + (eventCount +  blockEventCount) +
 //                               "\n                   firstBlock = " + firstBlock +
-//                               ", isLastBlock = " + curLastBlock +
+//                              /* ", isLastBlock = " + curLastBlock + */
 //                               ", hasDict = " + hasDictionary +
 //                               ", pos = " + position);
 
