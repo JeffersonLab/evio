@@ -237,7 +237,7 @@ public class HipoTest extends TestBase {
     }
 
 
-    void writeAndReadBuffer() {
+    void writeAndReadBuffer(int tag, int num) {
 
         System.out.println();
         System.out.println();
@@ -270,7 +270,7 @@ public class HipoTest extends TestBase {
             Writer writer = new Writer(buffer, userHdr);
 
             // Create an evio bank of ints
-            ByteBuffer evioDataBuf = createEventBuilderBuffer(0, 0, order, 200000);
+            ByteBuffer evioDataBuf = createEventBuilderBuffer(tag, num, order, 200000);
             // Create node from this buffer
             EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0, 0, 0);
 
@@ -286,30 +286,10 @@ public class HipoTest extends TestBase {
             System.out.println("Finished buffer ->\n" + buffer.toString());
             System.out.println("COPY1 ->\n" + copy.toString());
             System.out.println("COPY2 ->\n" + copy2.toString());
-            System.out.println("Past close, now read it");
-
-            Utilities.printBytes(buffer, 0, buffer.limit(), "Buffer Bytes");
-
-            System.out.println("--------------------------------------------");
-            System.out.println("------------------ Reader ------------------");
-            System.out.println("--------------------------------------------");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        boolean unchanged;
-        int index;
-        byte[] data = null;
-
-
-        try {
-            Reader reader = new Reader(buffer);
 
             // Compare original with copy
-            unchanged = true;
-            index = 0;
+            boolean unchanged = true;
+            int index = 0;
             for (int i = 0; i < buffer.capacity(); i++) {
                 if (buffer.array()[i] != copy.array()[i]) {
                     unchanged = false;
@@ -324,6 +304,26 @@ public class HipoTest extends TestBase {
             if (unchanged) {
                 System.out.println("ORIGINAL buffer Unchanged!");
             }
+
+
+            Utilities.printBytes(buffer, 0, buffer.limit(), "Buffer Bytes");
+
+            System.out.println("--------------------------------------------");
+            System.out.println("------------------ Reader ------------------");
+            System.out.println("--------------------------------------------");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        boolean unchanged;
+        int index = 0;
+        byte[] data = null;
+
+
+        try {
+            Reader reader = new Reader(buffer);
 
             int evCount = reader.getEventCount();
             System.out.println("   Got " + evCount + " events");
@@ -529,7 +529,7 @@ public class HipoTest extends TestBase {
             System.exit(1);
         }
     }
-    
+
 
     public static void main(String args[]) {
         try {
@@ -540,7 +540,7 @@ public class HipoTest extends TestBase {
             tester.testTreeEventCreation(1,1);
 
             // BUFFERS
-            tester.writeAndReadBuffer();
+            tester.writeAndReadBuffer(1, 1);
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -230,7 +230,7 @@ namespace evio {
         }
 
 
-        void writeAndReadBuffer() {
+        void writeAndReadBuffer(uint16_t tag, uint8_t num) {
 
             std::cout << std::endl << std::endl;
             std::cout << "--------------------------------------------\n";
@@ -258,7 +258,7 @@ namespace evio {
             Writer writer(buffer, userHdr, 10);
 
             // Create an evio bank of ints
-            auto evioDataBuf = createEventBuilderBuffer(0, 0, order);
+            auto evioDataBuf = createEventBuilderBuffer(tag, num, order);
             // Create node from this buffer
             std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
 
@@ -268,21 +268,13 @@ namespace evio {
             // Get ready-to-read buffer
             buffer = writer.getBuffer();
 
+            // 2 ways to copy
             auto copy  = std::make_shared<ByteBuffer>(*buffer);
-            auto copy2 = std::make_shared<ByteBuffer>(*buffer);
+            auto copy2 = ByteBuffer::copyBuffer(buffer);
 
             std::cout << "Finished buffer ->\n" << buffer->toString() << std::endl;
             std::cout << "COPY1 ->\n" << copy->toString() << std::endl;
             std::cout << "COPY2 ->\n" << copy2->toString() << std::endl;
-            std::cout << "Past close, now read it" << std::endl;
-
-            Util::printBytes(buffer, 0, buffer->limit(), "Buffer Bytes");
-
-            std::cout << "--------------------------------------------\n";
-            std::cout << "------------------ Reader ------------------\n";
-            std::cout << "--------------------------------------------\n";
-
-            Reader reader(buffer);
 
             // Compare original with copy
             bool unchanged = true;
@@ -301,6 +293,14 @@ namespace evio {
             if (unchanged) {
                 std::cout << "ORIGINAL buffer Unchanged!\n";
             }
+
+            Util::printBytes(buffer, 0, buffer->limit(), "Buffer Bytes");
+
+            std::cout << "--------------------------------------------\n";
+            std::cout << "------------------ Reader ------------------\n";
+            std::cout << "--------------------------------------------\n";
+
+            Reader reader(buffer);
 
             uint32_t evCount = reader.getEventCount();
             std::cout << "   Got " << evCount << " events" << std::endl;
@@ -532,7 +532,7 @@ int main(int argc, char **argv) {
     tester.testTreeEventCreation(1,1);
 
     // BUFFERS
-    tester.writeAndReadBuffer();
+    tester.writeAndReadBuffer(1,1);
 
     return 0;
 }
