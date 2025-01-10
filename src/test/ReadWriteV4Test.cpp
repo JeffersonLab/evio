@@ -16,6 +16,7 @@
 #include <regex>
 #include <iterator>
 #include <fstream>
+#include <iostream>
 
 
 #include "TestBase.h"
@@ -31,37 +32,6 @@ namespace evio {
 
 
     public:
-
-
-        // Create a fake Evio Event
-        static std::shared_ptr<ByteBuffer> generateEvioBuffer(ByteOrder & order, int dataWords) {
-
-            // Create an evio bank of banks, containing a bank of ints
-            std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(16 + 4*dataWords);
-            buf->order(order);
-            buf->putInt(3+dataWords);  // event length in words
-
-            int tag  = 0x1234;
-            int type = 0x10;  // contains evio banks
-            int num  = 0x12;
-            int secondWord = tag << 16 | type << 8 | num;
-
-            buf->putInt(secondWord);  // 2nd evio header word
-
-            // now put in a bank of ints
-            buf->putInt(1+dataWords);  // bank of ints length in words
-            tag = 0x5678; type = 0x1; num = 0x56;
-            secondWord = tag << 16 | type << 8 | num;
-            buf->putInt(secondWord);  // 2nd evio header word
-
-            // Int data
-            for (int i=0; i < dataWords; i++) {
-                buf->putInt(i);
-            }
-
-            buf->flip();
-            return buf;
-        }
 
 
 
@@ -86,7 +56,7 @@ namespace evio {
 
 
 
-        void writeFile(string finalFilename) {
+        void writeFile(string finalFilename, uint16_t tag, uint8_t num) {
 
             ByteOrder outputOrder = ByteOrder::ENDIAN_LITTLE;
 
@@ -98,8 +68,8 @@ namespace evio {
             builder.appendUIntData(firstEvent, firstEventData, firstEventDataLen);
             //auto firstBank = static_cast<std::shared_ptr<EvioBank>>(firstEvent);
 
-            std::string directory = "";
-            std::string runType = "";
+            std::string directory;
+            std::string runType;
 
             // Create files
             EventWriterV4 writer(finalFilename, directory, runType, 1, 0,
@@ -126,22 +96,22 @@ namespace evio {
 
 
             // Create an event with lots of stuff in it
-            auto evioDataBuf = createCompactEventBuffer(3, 4, outputOrder);
+            auto evioDataBuf = createCompactEventBuffer(tag, num, outputOrder);
 
             // Create node from this buffer
             std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
 
             // Create EvioBank
-            uint16_t tag = 4567;
-            uint8_t num = 123;
             std::shared_ptr<EvioBank> bank = generateEvioBank(outputOrder, tag, num);
 
             // write as buffer
             writer.writeEvent(evioDataBuf, false);
             cout << "  Wrote evio buffer, len = " << evioDataBuf->limit() << endl;
+
             // write as node
             writer.writeEvent(node, false);
             cout << "  Wrote evio node, total bytes = " << node->getTotalBytes() << endl;
+
             // write as EvioBank
             writer.writeEvent(bank);
             cout << "  Wrote evio bank, total bytes = " << bank->getTotalBytes() << endl;
@@ -188,7 +158,7 @@ namespace evio {
 
 
 
-        void writeAndReadBuffer() {
+        void writeAndReadBuffer(uint16_t tag, uint8_t num) {
 
             ByteOrder order = ByteOrder::ENDIAN_LITTLE;
             std::shared_ptr<ByteBuffer> buffer = std::make_shared<ByteBuffer>(200000);
@@ -204,55 +174,52 @@ namespace evio {
             catch (EvioException &e) {/* never happen */}
 
             bool append = false;
+            // Allow only 2 events per block to test using multiple blocks
+            int blockCount = 20000;
 
             try {
                 EventWriterV4 writer(
                         buffer,
                         EventWriterV4::DEFAULT_BLOCK_SIZE,
-                        EventWriterV4::DEFAULT_BLOCK_COUNT,
+                        blockCount,
                         dictionary, nullptr, 0,
                         1, append, firstEv);
 
-
-                //                    EventWriterV4(std::shared_ptr<ByteBuffer> buf,
-                //                            int maxBlockSize, int maxEventCount,
-                //                            const std::string & xmlDictionary = "", std::bitset < 24 > *bitInfo = nullptr,
-                //                            int reserved1 = 0, int blockNumber = 1, bool append = false,
-                //                            std::shared_ptr<EvioBank> firstEvent = nullptr);
-
-                // Create an event with lots of stuff in it
-                std::shared_ptr<ByteBuffer> evioDataBuf = generateEvioBuffer(order, 4);
+                // Create an event in buffer form with lots of stuff in it
+                std::shared_ptr<ByteBuffer> evioDataBuf = createCompactEventBuffer(tag, num, order);
+                // Create same event as EvioEvent object
+                std::shared_ptr<EvioEvent> evioEv = createEventBuilderEvent(tag, num);
                 // Create node from this buffer
                 std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
 
-                // Create EvioBank
-                uint16_t tag = 4567;
-                uint8_t num = 123;
-                std::shared_ptr<EvioBank> bank = generateEvioBank(order, tag, num);
 
                 // write as buffer
                 writer.writeEvent(evioDataBuf, false);
+                // write as EvioEvent
+                writer.writeEvent(evioEv, false);
                 // write as node
                 writer.writeEvent(node, false);
-                // write as EvioBank
-                writer.writeEvent(bank);
 
                 writer.close();
+                // Get ready-to-read buffer
+                buffer = writer.getByteBuffer();
+
             }
             catch (EvioException &e) {
                 std::cout << "PROBLEM: " << e.what();
             }
 
-
             std::shared_ptr<ByteBuffer> copy = ByteBuffer::copyBuffer(buffer);
             std::shared_ptr<ByteBuffer> copy2 = ByteBuffer::copyBuffer(buffer);
 
 
-            // Compare original with copy
+            // Reader cannot be used, it only works on evio version 6 files and buffers.
+           // Reader reader(buffer);
+
 
 
             std::cout << "--------------------------------------------" << std::endl;
-            std::cout << "----------      READER1       --------------" << std::endl;
+            std::cout << "----------   EvioCompactReader   -----------" << std::endl;
             std::cout << "--------------------------------------------" << std::endl;
 
             std::shared_ptr<ByteBuffer> dataBuf0 = nullptr;
@@ -261,32 +228,29 @@ namespace evio {
                 EvioCompactReader reader1(copy);
 
                 uint32_t evCount2 = reader1.getEventCount();
-                std::cout << "Read in buffer, got " << evCount2 << " events" << std::endl;
+                std::cout << "   Got " << evCount2 << " events" << std::endl;
 
                 std::string dict2 = reader1.getDictionaryXML();
-                std::cout << "   Got dictionary = " << dict2 << std::endl;
+                std::cout << "   Got dictionary = \n" << dict2 << std::endl;
 
                 // Compact reader does not deal with first events, so skip over it
 
-                std::cout << "Print out regular events:" << std::endl;
+                std::cout << "\n   Print out events (includes first event if evio version 4) :" << std::endl;
 
                 for (uint32_t i = 0; i < evCount2; i++) {
-                    std::cout << "scanned event #" << i << " :" << std::endl;
+                    // The "first event" is just the first event in the list (not treated specially)
+                    std::cout << "      scanned event #" << (i+1) << " :" << std::endl;
                     std::shared_ptr<EvioNode> compactNode = reader1.getScannedEvent(i + 1);
-                    std::cout << "node ->\n" << compactNode->toString() << std::endl;
+                    std::cout << "      node ->\n         " << compactNode->toString() << std::endl;
 
-                    std::shared_ptr<ByteBuffer> dataBuf = std::make_shared<ByteBuffer>(
-                            compactNode->getTotalBytes() + 1000);
+                    std::shared_ptr<ByteBuffer> dataBuf = std::make_shared<ByteBuffer>(compactNode->getTotalBytes());
                     compactNode->getStructureBuffer(dataBuf, true);
-                    //                        ByteBuffer buffie(4*compactNode->getDataLength());
-                    //                        auto dataBuf = compactNode->getByteData(buffie,true);
 
                     if (i == 0) {
                         dataBuf0 = dataBuf;
+                        Util::printBytes(dataBuf, dataBuf->position(), dataBuf->remaining(),
+                                         "      Event #" + std::to_string(i+1));
                     }
-
-                    Util::printBytes(dataBuf, dataBuf->position(), dataBuf->remaining(),
-                                     "  Event #" + std::to_string(i));
                 }
             }
             catch (EvioException &e) {
@@ -294,129 +258,76 @@ namespace evio {
             }
 
 
+            std::cout << std::endl;
             std::cout << "--------------------------------------------" << std::endl;
-            std::cout << "----------      READER2       --------------" << std::endl;
+            std::cout << "----------     EvioReader     --------------" << std::endl;
             std::cout << "--------------------------------------------" << std::endl;
 
 
             bool unchanged = true;
-            int index = 0;
+            size_t index = 0;
             std::vector<uint8_t> dataVec;
             std::vector<uint8_t> dataVec0;
 
             try {
-                EvioReader reader2(copy2);
 
-                ///////////////////////////////////
-                // Do a parsing listener test here
-                std::shared_ptr<EventParser> parser = reader2.getParser();
+                // TODO: Something WRONG with the parsing!!!
+                EvioReader reader1(copy2);
 
+                uint32_t evCount2 = reader1.getEventCount();
+                std::cout << "   Got " << evCount2 << " events" << std::endl;
 
-                class myListener : public IEvioListener {
-                public:
-                    void startEventParse(std::shared_ptr<BaseStructure> structure) override {
-                        std::cout << "  START parsing event = " << structure->toString() << std::endl;
-                    }
+                std::string dict2 = reader1.getDictionaryXML();
+                std::cout << "   Got dictionary = \n" << dict2 << std::endl;
 
-                    void endEventParse(std::shared_ptr<BaseStructure> structure) override {
-                        std::cout << "  END parsing event = " << structure->toString() << std::endl;
-                    }
+                std::cout << "\n   Got first event = " << reader1.hasFirstEvent() << std::endl;
 
-                    void gotStructure(std::shared_ptr<BaseStructure> topStructure,
-                                      std::shared_ptr<BaseStructure> structure) override {
-                        std::cout << "  GOT struct = " << structure->toString() << std::endl;
-                    }
-                };
+                std::cout << "\n   Print out events (includes first event if evio version 4) :" << std::endl;
 
-                class myListener2 : public IEvioListener {
-                public:
-                    void startEventParse(std::shared_ptr<BaseStructure> structure) override {
-                        std::cout << "  START parsing event 2 = " << structure->toString() << std::endl;
-                    }
-
-                    void endEventParse(std::shared_ptr<BaseStructure> structure) override {
-                        std::cout << "  END parsing event 2 = " << structure->toString() << std::endl;
-                    }
-
-                    void gotStructure(std::shared_ptr<BaseStructure> topStructure,
-                                      std::shared_ptr<BaseStructure> structure) override {
-                        std::cout << "  GOT struct 2 = " << structure->toString() << std::endl;
-                    }
-                };
-
-                // Add the listener to the parser
-                auto listener = std::make_shared<myListener>();
-                parser->addEvioListener(listener);
-
-                auto listener2 = std::make_shared<myListener2>();
-                parser->addEvioListener(listener2);
-
-                // Define a filter to select everything (not much of a filter!)
-                class myFilter : public IEvioFilter {
-                public:
-                    bool accept(StructureType const &type, std::shared_ptr<BaseStructure> struc) override {
-                        return (true);
-                    }
-                };
-
-                // Add the filter to the parser
-                auto filter = std::make_shared<myFilter>();
-                parser->setEvioFilter(filter);
-
-                // Now parse some event
-                std::cout << "Run custom filter and listener, placed in reader's parser, on first event:" << std::endl;
-                reader2.parseEvent(1);
-
-                ///////////////////////////////////
-
-                uint32_t evCount3 = reader2.getEventCount();
-                std::cout << "Read in buffer, got " << evCount3 << " events" << std::endl;
-
-                std::string dict3 = reader2.getDictionaryXML();
-                std::cout << "   Got dictionary = " << dict3 << std::endl;
-
-                auto pFE3 = reader2.getFirstEvent();
-                if (pFE3 != nullptr) {
-                    std::cout << "   First Event bytes = " << pFE3->getTotalBytes() << std::endl;
-                    std::cout << "   First Event values = \n   " << std::endl;
-                    for (size_t i = 0; i < pFE3->getRawBytes().size(); i++) {
-                        std::cout << (int) (pFE3->getRawBytes()[i]) << ",  " << std::endl;
-                    }
-                    std::cout << std::endl;
-                }
-
-                std::cout << "Print out regular events:" << std::endl;
-
-                for (uint32_t i = 0; i < evCount3; i++) {
-                    auto ev = reader2.getEvent(i + 1);
-                    std::cout << "ev ->\n" << ev->toString() << std::endl;
-
-                    dataVec = ev->getRawBytes();
+                for (uint32_t i = 0; i < evCount2; i++) {
+                    std::shared_ptr<EvioEvent> ev = reader1.parseEvent(i + 1);
+                    std::cout << "      got & parsed ev " << (i+1) << std::endl;
+                    std::cout << "      event ->\n" << ev->toString() << std::endl;
                     if (i == 0) {
-                        dataVec0 = dataVec;
+                        dataVec0 = ev->getRawBytes();
                     }
-                    Util::printBytes(dataVec.data(), dataVec.size(), "  Event #" + std::to_string(i));
+                    //std::shared_ptr<EvioEvent> evt = reader1.parseNextEvent();
                 }
+// This has the same output as above
+//                int j=0;
+//                std::shared_ptr<EvioEvent> evt;
+//                while ((evt = reader1.parseNextEvent()) != nullptr) {
+//                    std::cout << "      got & parsed ev " << (j+1) << std::endl;
+//                    std::cout << "      event ->\n" << evt->toString() << std::endl;
+//                    if (j == 0) {
+//                        dataVec0 = evt->getRawBytes();
+//                    }
+//                    j++;
+//                }
+
+                std::cout << "   Comparing buffer data (lim = " << dataBuf0->limit() << ") with vector data (len = " << dataVec0.size()
+                          << ")" << std::endl;
+                for (size_t i = 0; i < dataVec0.size(); i++) {
+                    if ((/*data[i+8]*/ dataBuf0->array()[i + 8] != dataVec0[i]) && (i > 3)) {
+                        unchanged = false;
+                        index = i;
+                        std::cout << "       Compact reader different than EvioReader at byte #" << index << std::endl;
+                        std::cout << showbase << hex << dataBuf0->array()[i + 8] << " changed to " <<
+                                  dataVec0[i] << dec << std::endl;
+                        break;
+                    }
+                }
+                if (unchanged) {
+                    std::cout << "First data EVENT same whether using EvioCompactReader or EvioReader!" << std::endl;
+                }
+
             }
             catch (EvioException &e) {
                 std::cout << "PROBLEM: " << e.what();
             }
 
-            std::cout << "Comparing buffer data (lim = " << dataBuf0->limit() << ") with vector data (len = " << dataVec0.size()
-                      << ")" << std::endl;
-            for (size_t i = 0; i < dataVec0.size(); i++) {
-                if ((/*data[i+8]*/ dataBuf0->array()[i + 8] != dataVec0[i]) && (i > 3)) {
-                    unchanged = false;
-                    index = i;
-                    std::cout << "Reader different than EvioReader at byte #" << index << std::endl;
-                    std::cout << showbase << hex << dataBuf0->array()[i + 8] << " changed to " <<
-                              dataVec0[i] << dec << std::endl;
-                    break;
-                }
-            }
-            if (unchanged) {
-                std::cout << "First data EVENT same whether using EvioCompactReader or EvioReader!" << std::endl;
-            }
+
+
         }
 
 
@@ -431,13 +342,20 @@ namespace evio {
 int main(int argc, char **argv) {
 
 
-    string filename     = "./evioTest.c.evio";
-    //string filename_j   = "./evioTest.java.evio";
+    string filename_c = "./evioTest.c.evio";
+    string filename_j = "./evioTest.java.evio";
 
     evio::ReadWriteTest tester;
 
-    tester.writeFile(filename);
-    tester.readFile(filename);
+    //tester.writeFile(filename_c, 1,1);
+    tester.readFile(filename_c);
+
+//    std::ifstream file(filename_j);
+//    if (file) {
+//        tester.readFile(filename_j);
+//    }
+
+    //tester.writeAndReadBuffer(1,1);
 
     // Buffers ...
     cout << endl << endl << "----------------------------------------" << endl << endl;
