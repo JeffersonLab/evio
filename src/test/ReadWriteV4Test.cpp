@@ -58,6 +58,11 @@ namespace evio {
 
         void writeFile(string finalFilename, uint16_t tag, uint8_t num) {
 
+            std::cout << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+            std::cout << "----------    Write to file   --------------" << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+
             ByteOrder outputOrder = ByteOrder::ENDIAN_LITTLE;
 
             // Create a "first event"
@@ -125,6 +130,12 @@ namespace evio {
 
 
         void readFile(string finalFilename) {
+
+            std::cout << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+            std::cout << "----------   Read from file   --------------" << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+
             EvioReader reader(finalFilename);
             ByteOrder & order = reader.getByteOrder();
 
@@ -159,6 +170,11 @@ namespace evio {
 
 
         void writeAndReadBuffer(uint16_t tag, uint8_t num) {
+
+            std::cout << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+            std::cout << "----------    Write to buf    --------------" << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
 
             ByteOrder order = ByteOrder::ENDIAN_LITTLE;
             std::shared_ptr<ByteBuffer> buffer = std::make_shared<ByteBuffer>(200000);
@@ -347,7 +363,7 @@ int main(int argc, char **argv) {
 
     evio::ReadWriteTest tester;
 
-    //tester.writeFile(filename_c, 1,1);
+    tester.writeFile(filename_c, 1,1);
     tester.readFile(filename_c);
 
 //    std::ifstream file(filename_j);
@@ -355,7 +371,7 @@ int main(int argc, char **argv) {
 //        tester.readFile(filename_j);
 //    }
 
-    //tester.writeAndReadBuffer(1,1);
+    tester.writeAndReadBuffer(1,1);
 
     // Buffers ...
     cout << endl << endl << "----------------------------------------" << endl << endl;

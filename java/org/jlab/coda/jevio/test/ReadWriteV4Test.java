@@ -38,6 +38,10 @@ System.out.println("  generate Evio Bank, ev len = " + ev.getTotalBytes());
 
     void writeFile(String filename, int tag, int num) {
 
+        System.out.println("--------------------------------------------");
+        System.out.println("----------    Write to file   --------------");
+        System.out.println("--------------------------------------------");
+
         ByteOrder order = ByteOrder.LITTLE_ENDIAN;
 
         // Create a "first event"
@@ -109,6 +113,10 @@ System.out.println("Finished writing file " + writer.getCurrentFilename() + ", n
 
 
     static void readFile(String finalFilename) throws IOException, EvioException {
+        System.out.println("--------------------------------------------");
+        System.out.println("----------   Read from file   --------------");
+        System.out.println("--------------------------------------------");
+
         EvioReader reader = new EvioReader(finalFilename);
         ByteOrder order = reader.getByteOrder();
 
@@ -144,6 +152,10 @@ System.out.println("Finished writing file " + writer.getCurrentFilename() + ", n
 
 
     void writeAndReadBuffer(int tag, int num) throws IOException {
+
+        System.out.println("--------------------------------------------");
+        System.out.println("----------    Write to buf    --------------");
+        System.out.println("--------------------------------------------");
 
         ByteOrder order = ByteOrder.LITTLE_ENDIAN;
         ByteBuffer buffer = ByteBuffer.allocate(200000);
@@ -316,7 +328,7 @@ System.out.println("Finished writing file " + writer.getCurrentFilename() + ", n
 
             ReadWriteV4Test tester = new ReadWriteV4Test();
 
-            //tester.writeFile(filename_j, 1, 1);
+            tester.writeFile(filename_j, 1, 1);
             tester.readFile(filename_j);
 
 //            File cFile = new File(filename_c);
@@ -324,7 +336,7 @@ System.out.println("Finished writing file " + writer.getCurrentFilename() + ", n
 //                tester.readFile(filename_c);
 //            }
 
-            //tester.writeAndReadBuffer(1, 1);
+            tester.writeAndReadBuffer(1, 1);
         }
         catch (Exception e) {
             e.printStackTrace();
