@@ -36,7 +36,7 @@ namespace evio {
 
 
     /**
-      * Class used to compressed items, "write" them, and put them back.
+      * Class used to get compressed items, "write" them, and put them back.
       * Last barrier on ring.
       * It is an interruptible thread from the boost library, and only 1 exists.
       */
