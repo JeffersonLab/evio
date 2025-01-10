@@ -2060,6 +2060,7 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("object closed");
         }
 
+        // sequentialRead is always false for reading buffer
         if (!sequentialRead && evioVersion > 3) {
             return mappedMemoryHandler.getEventCount();
         }
