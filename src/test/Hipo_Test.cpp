@@ -196,10 +196,10 @@ namespace evio {
                 // Take event & write it into buffer
                 std::cout << "Write event to " << writeFileName2 << " as compressed LZ4" << std::endl;
                 EventWriter writer(writeFileName2, "", "runType", 1, 0L, 0, 0,
-                                   ByteOrder::ENDIAN_LOCAL, dictionary, true, false, nullptr, 1, 1, 1, 1,
+                                   ByteOrder::ENDIAN_LOCAL, dictionary, true, false, event, 1, 1, 1, 1,
                                    Compressor::LZ4, 2, 16, 0);
 
-                writer.setFirstEvent(event);
+                //writer.setFirstEvent(event);
                 writer.writeEvent(event);
                 std::cout << "    call writer.close()" << std::endl;
                 writer.close();
