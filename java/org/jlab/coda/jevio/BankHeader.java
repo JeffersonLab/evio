@@ -17,6 +17,8 @@ public final class BankHeader extends BaseStructureHeader {
 	 * Null constructor.
 	 */
 	public BankHeader() {
+		// For a bank there is 1 int besides the length word.
+		length = 1;
 	}
 
 	/**
@@ -27,6 +29,7 @@ public final class BankHeader extends BaseStructureHeader {
 	 */
 	public BankHeader(int tag, DataType dataType, int num) {
 		super(tag, dataType, num);
+		length = 1;
 	}
 
 	/**
