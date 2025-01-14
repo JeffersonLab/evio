@@ -7,7 +7,6 @@ import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.io.StringWriter;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.xml.stream.XMLStreamException;
@@ -26,7 +25,7 @@ import javax.xml.stream.XMLOutputFactory;
  * @author timmer - add byte order tracking, make setAllHeaderLengths more efficient
  *
  */
-public abstract class BaseStructure implements Cloneable, IEvioStructure, MutableTreeNode, IEvioWriter {
+public abstract class BaseStructure implements Cloneable, IEvioStructure, MutableTreeNode, IEvioWriter  {
 
 	/** Holds the header of the bank. */
 	protected BaseStructureHeader header;
@@ -1477,22 +1476,29 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      */
 	public Enumeration<? extends TreeNode> children() {
 		if (children == null) {
-			return DefaultMutableTreeNode.EMPTY_ENUMERATION;
+			return Collections.emptyEnumeration();
 		}
         return Collections.enumeration(children);
 	}
 
-	/**
+    /**
 	 * Add a child at the given index.
 	 * 
 	 * @param child the child to add.
 	 * @param index the target index. Part of the <code>MutableTreeNode</code> interface.
+     * @throws IndexOutOfBoundsException if index is too large.
 	 */
 	public void insert(MutableTreeNode child, int index) {
 		if (children == null) {
 			children = new ArrayList<BaseStructure>(10);
 		}
-		children.add(index, (BaseStructure) child);
+
+        MutableTreeNode oldParent = (MutableTreeNode)child.getParent();
+        if (oldParent != null) {
+            oldParent.remove(child);
+        }
+
+        children.add(index, (BaseStructure) child);
         child.setParent(this);
         isLeaf = false;
         lengthsUpToDate(false);
@@ -1501,6 +1507,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	/**
 	 * Convenience method to add a child at the end of the child list. In this application
 	 * where are not concerned with the ordering of the children.
+     * Each child can only be added once to a parent!
 	 * 
 	 * @param child the child to add. It will be added to the end of child list.
 	 */
@@ -1508,8 +1515,16 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 		if (children == null) {
 			children = new ArrayList<BaseStructure>(10);
 		}
-		//add to end
-		insert(child, children.size());
+
+		// Add to end
+        if (child.getParent() == this) {
+            // If we are adding this potential child to same parent again, the insert(child, index) method will
+            // remove it first so each child only has 1 parent! Thus reduce index by 1.
+            insert(child, getChildCount() - 1);
+        }
+        else {
+            insert(child, getChildCount());
+        }
 	}
 
 	/**
@@ -1538,6 +1553,17 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         lengthsUpToDate(false);
 	}
 
+
+    /**
+     * Removes all of this node's children, setting their parents to null.
+     * If this node has no children, this method does nothing.
+     */
+    public void removeAllChildren() {
+        for (int i = getChildCount()-1; i >= 0; i--) {
+            remove(i);
+        }
+    }
+
 	/**
 	 * Remove this node from its parent. Part of the <code>MutableTreeNode</code> interface.
 	 */
@@ -1551,6 +1577,878 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	public void setParent(MutableTreeNode parent) {
 		this.parent = (BaseStructure) parent;
 	}
+
+    //------------------------------------------------------------------------------------------
+    // Stole many of the following methods (some slightly modified) from DefaultMutableTreeNode
+    //------------------------------------------------------------------------------------------
+
+    //
+    //  Tree Queries
+    //
+
+    /**
+     * Returns true if <code>anotherNode</code> is an ancestor of this node
+     * -- if it is this node, this node's parent, or an ancestor of this
+     * node's parent.  (Note that a node is considered an ancestor of itself.)
+     * If <code>anotherNode</code> is null, this method returns false.  This
+     * operation is at worst O(h) where h is the distance from the root to
+     * this node.
+     *
+     * @see             #isNodeDescendant
+     * @see             #getSharedAncestor
+     * @param   anotherNode     node to test as an ancestor of this node
+     * @return  true if this node is a descendant of <code>anotherNode</code>
+     */
+    public boolean isNodeAncestor(TreeNode anotherNode) {
+        if (anotherNode == null) {
+            return false;
+        }
+
+        TreeNode ancestor = this;
+
+        do {
+            if (ancestor == anotherNode) {
+                return true;
+            }
+        } while((ancestor = ancestor.getParent()) != null);
+
+        return false;
+    }
+
+    /**
+     * Returns true if <code>anotherNode</code> is a descendant of this node
+     * -- if it is this node, one of this node's children, or a descendant of
+     * one of this node's children.  Note that a node is considered a
+     * descendant of itself.  If <code>anotherNode</code> is null, returns
+     * false.  This operation is at worst O(h) where h is the distance from the
+     * root to <code>anotherNode</code>.
+     *
+     * @see     #isNodeAncestor
+     * @see     #getSharedAncestor
+     * @param   anotherNode     node to test as descendant of this node
+     * @return  true if this node is an ancestor of <code>anotherNode</code>
+     */
+    public boolean isNodeDescendant(BaseStructure anotherNode) {
+        if (anotherNode == null)
+            return false;
+
+        return anotherNode.isNodeAncestor(this);
+    }
+
+    /**
+     * Returns the nearest common ancestor to this node and <code>aNode</code>.
+     * Returns null, if no such ancestor exists -- if this node and
+     * <code>aNode</code> are in different trees or if <code>aNode</code> is
+     * null.  A node is considered an ancestor of itself.
+     *
+     * @see     #isNodeAncestor
+     * @see     #isNodeDescendant
+     * @param   aNode   node to find common ancestor with
+     * @return  nearest ancestor common to this node and <code>aNode</code>,
+     *          or null if none
+     */
+    public BaseStructure getSharedAncestor(BaseStructure aNode) {
+        if (aNode == this) {
+            return this;
+        } else if (aNode == null) {
+            return null;
+        }
+
+        int             level1, level2, diff;
+        BaseStructure   node1, node2;
+
+        level1 = getLevel();
+        level2 = aNode.getLevel();
+
+        if (level2 > level1) {
+            diff = level2 - level1;
+            node1 = aNode;
+            node2 = this;
+        } else {
+            diff = level1 - level2;
+            node1 = this;
+            node2 = aNode;
+        }
+
+        // Go up the tree until the nodes are at the same level
+        while (diff > 0) {
+            node1 = node1.getParent();
+            diff--;
+        }
+
+        // Move up the tree until we find a common ancestor.  Since we know
+        // that both nodes are at the same level, we won't cross paths
+        // unknowingly (if there is a common ancestor, both nodes hit it in
+        // the same iteration).
+
+        do {
+            if (node1 == node2) {
+                return node1;
+            }
+            node1 = node1.getParent();
+            node2 = node2.getParent();
+        } while (node1 != null);// only need to check one -- they're at the
+        // same level so if one is null, the other is
+
+        if (node1 != null || node2 != null) {
+            throw new Error ("nodes should be null");
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns true if and only if <code>aNode</code> is in the same tree
+     * as this node.  Returns false if <code>aNode</code> is null.
+     *
+     * @param   aNode node to find common ancestor with
+     * @see     #getSharedAncestor
+     * @see     #getRoot
+     * @return  true if <code>aNode</code> is in the same tree as this node;
+     *          false if <code>aNode</code> is null
+     */
+    public boolean isNodeRelated(BaseStructure aNode) {
+        return (aNode != null) && (getRoot() == aNode.getRoot());
+    }
+
+
+    /**
+     * Returns the depth of the tree rooted at this node -- the longest
+     * distance from this node to a leaf.  If this node has no children,
+     * returns 0.  This operation is much more expensive than
+     * <code>getLevel()</code> because it must effectively traverse the entire
+     * tree rooted at this node.
+     *
+     * @see     #getLevel
+     * @return  the depth of the tree whose root is this node
+     */
+    public int getDepth() {
+        Object  last = null;
+        Enumeration<TreeNode> enum_ =  new BreadthFirstEnumeration(this);
+
+        while (enum_.hasMoreElements()) {
+            last = enum_.nextElement();
+        }
+
+        if (last == null) {
+            throw new Error ("nodes should be null");
+        }
+
+        return ((BaseStructure)last).getLevel() - getLevel();
+    }
+
+
+
+    /**
+     * Returns the number of levels above this node -- the distance from
+     * the root to this node.  If this node is the root, returns 0.
+     *
+     * @see     #getDepth
+     * @return  the number of levels above this node
+     */
+    public int getLevel() {
+        TreeNode ancestor;
+        int levels = 0;
+
+        ancestor = this;
+        while((ancestor = ancestor.getParent()) != null){
+            levels++;
+        }
+
+        return levels;
+    }
+
+
+    /**
+     * Returns the path from the root, to get to this node.  The last
+     * element in the path is this node.
+     *
+     * @return an array of TreeNode objects giving the path, where the
+     *         first element in the path is the root and the last
+     *         element is this node.
+     */
+    public BaseStructure[] getPath() {
+        return getPathToRoot(this, 0);
+    }
+
+    /**
+     * Builds the parents of node up to and including the root node,
+     * where the original node is the last element in the returned array.
+     * The length of the returned array gives the node's depth in the
+     * tree.
+     *
+     * @param aNode  the TreeNode to get the path for
+     * @param depth  an int giving the number of steps already taken towards
+     *        the root (on recursive calls), used to size the returned array
+     * @return an array of TreeNodes giving the path from the root to the
+     *         specified node
+     */
+    protected BaseStructure[] getPathToRoot(BaseStructure aNode, int depth) {
+        BaseStructure[]              retNodes;
+
+        /* Check for null, in case someone passed in a null node, or
+           they passed in an element that isn't rooted at root. */
+        if(aNode == null) {
+            if(depth == 0)
+                return null;
+            else
+                retNodes = new BaseStructure[depth];
+        }
+        else {
+            depth++;
+            retNodes = getPathToRoot(aNode.getParent(), depth);
+            retNodes[retNodes.length - depth] = aNode;
+        }
+        return retNodes;
+    }
+
+
+    /**
+     * Returns the root of the tree that contains this node.  The root is
+     * the ancestor with a null parent.
+     *
+     * @see     #isNodeAncestor
+     * @return  the root of the tree that contains this node
+     */
+    public BaseStructure getRoot() {
+        BaseStructure ancestor = this;
+        BaseStructure previous;
+
+        do {
+            previous = ancestor;
+            ancestor = ancestor.getParent();
+        } while (ancestor != null);
+
+        return previous;
+    }
+
+
+    /**
+     * Returns true if this node is the root of the tree.  The root is
+     * the only node in the tree with a null parent; every tree has exactly
+     * one root.
+     *
+     * @return  true if this node is the root of its tree
+     */
+    public boolean isRoot() {
+        return getParent() == null;
+    }
+
+
+    /**
+     * Returns the node that follows this node in a preorder traversal of this
+     * node's tree.  Returns null if this node is the last node of the
+     * traversal.  This is an inefficient way to traverse the entire tree; use
+     * an enumeration, instead.
+     *
+     * @return  the node that follows this node in a preorder traversal, or
+     *          null if this node is last
+     */
+    public BaseStructure getNextNode() {
+        if (getChildCount() == 0) {
+            // No children, so look for nextSibling
+            BaseStructure nextSibling = getNextSibling();
+
+            if (nextSibling == null) {
+                BaseStructure aNode = getParent();
+
+                do {
+                    if (aNode == null) {
+                        return null;
+                    }
+
+                    nextSibling = aNode.getNextSibling();
+                    if (nextSibling != null) {
+                        return nextSibling;
+                    }
+
+                    aNode = aNode.getParent();
+                } while(true);
+            } else {
+                return nextSibling;
+            }
+        } else {
+            return getChildAt(0);
+        }
+    }
+
+
+    /**
+     * Returns the node that precedes this node in a preorder traversal of
+     * this node's tree.  Returns <code>null</code> if this node is the
+     * first node of the traversal -- the root of the tree.
+     * This is an inefficient way to
+     * traverse the entire tree; use an enumeration, instead.
+     *
+     * @return  the node that precedes this node in a preorder traversal, or
+     *          null if this node is the first
+     */
+    public BaseStructure getPreviousNode() {
+        BaseStructure previousSibling;
+        BaseStructure myParent = getParent();
+
+        if (myParent == null) {
+            return null;
+        }
+
+        previousSibling = getPreviousSibling();
+
+        if (previousSibling != null) {
+            if (previousSibling.getChildCount() == 0)
+                return previousSibling;
+            else
+                return previousSibling.getLastLeaf();
+        } else {
+            return myParent;
+        }
+    }
+
+
+    //
+    //  Child Queries
+    //
+
+    /**
+     * Returns true if <code>aNode</code> is a child of this node.  If
+     * <code>aNode</code> is null, this method returns false.
+     *
+     * @param   aNode the node to determinate whether it is a child
+     * @return  true if <code>aNode</code> is a child of this node; false if
+     *                  <code>aNode</code> is null
+     */
+    public boolean isNodeChild(TreeNode aNode) {
+        boolean retval;
+
+        if (aNode == null) {
+            retval = false;
+        } else {
+            if (getChildCount() == 0) {
+                retval = false;
+            } else {
+                retval = (aNode.getParent() == this);
+            }
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Returns this node's first child.  If this node has no children,
+     * throws NoSuchElementException.
+     *
+     * @return  the first child of this node
+     * @exception       NoSuchElementException  if this node has no children
+     */
+    public BaseStructure getFirstChild() {
+        if (getChildCount() == 0) {
+            throw new NoSuchElementException("node has no children");
+        }
+        return getChildAt(0);
+    }
+
+
+    /**
+     * Returns this node's last child.  If this node has no children,
+     * throws NoSuchElementException.
+     *
+     * @return  the last child of this node
+     * @exception       NoSuchElementException  if this node has no children
+     */
+    public BaseStructure getLastChild() {
+        if (getChildCount() == 0) {
+            throw new NoSuchElementException("node has no children");
+        }
+        return getChildAt(getChildCount()-1);
+    }
+
+
+    /**
+     * Returns the child in this node's child array that immediately
+     * follows <code>aChild</code>, which must be a child of this node.  If
+     * <code>aChild</code> is the last child, returns null.  This method
+     * performs a linear search of this node's children for
+     * <code>aChild</code> and is O(n) where n is the number of children; to
+     * traverse the entire array of children, use an enumeration instead.
+     *
+     * @param           aChild the child node to look for next child after it
+     * @see             #children
+     * @exception       IllegalArgumentException if <code>aChild</code> is
+     *                                  null or is not a child of this node
+     * @return  the child of this node that immediately follows
+     *          <code>aChild</code>
+     */
+    public BaseStructure getChildAfter(TreeNode aChild) {
+        if (aChild == null) {
+            throw new IllegalArgumentException("argument is null");
+        }
+
+        int index = getIndex(aChild);           // linear search
+
+        if (index == -1) {
+            throw new IllegalArgumentException("node is not a child");
+        }
+
+        if (index < getChildCount() - 1) {
+            return getChildAt(index + 1);
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Returns the child in this node's child array that immediately
+     * precedes <code>aChild</code>, which must be a child of this node.  If
+     * <code>aChild</code> is the first child, returns null.  This method
+     * performs a linear search of this node's children for <code>aChild</code>
+     * and is O(n) where n is the number of children.
+     *
+     * @param           aChild the child node to look for previous child before it
+     * @exception       IllegalArgumentException if <code>aChild</code> is null
+     *                                          or is not a child of this node
+     * @return  the child of this node that immediately precedes
+     *          <code>aChild</code>
+     */
+    public BaseStructure getChildBefore(TreeNode aChild) {
+        if (aChild == null) {
+            throw new IllegalArgumentException("argument is null");
+        }
+
+        int index = getIndex(aChild);           // linear search
+
+        if (index == -1) {
+            throw new IllegalArgumentException("argument is not a child");
+        }
+
+        if (index > 0) {
+            return getChildAt(index - 1);
+        } else {
+            return null;
+        }
+    }
+
+
+    //
+    //  Sibling Queries
+    //
+
+
+    /**
+     * Returns true if <code>anotherNode</code> is a sibling of (has the
+     * same parent as) this node.  A node is its own sibling.  If
+     * <code>anotherNode</code> is null, returns false.
+     *
+     * @param   anotherNode     node to test as sibling of this node
+     * @return  true if <code>anotherNode</code> is a sibling of this node
+     */
+    public boolean isNodeSibling(TreeNode anotherNode) {
+        boolean retval;
+
+        if (anotherNode == null) {
+            retval = false;
+        } else if (anotherNode == this) {
+            retval = true;
+        } else {
+            TreeNode  myParent = getParent();
+            retval = (myParent != null && myParent == anotherNode.getParent());
+
+            if (retval && !((BaseStructure)getParent())
+                    .isNodeChild(anotherNode)) {
+                throw new Error("sibling has different parent");
+            }
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Returns the number of siblings of this node.  A node is its own sibling
+     * (if it has no parent or no siblings, this method returns
+     * <code>1</code>).
+     *
+     * @return  the number of siblings of this node
+     */
+    public int getSiblingCount() {
+        TreeNode myParent = getParent();
+
+        if (myParent == null) {
+            return 1;
+        } else {
+            return myParent.getChildCount();
+        }
+    }
+
+
+    /**
+     * Returns the next sibling of this node in the parent's children array.
+     * Returns null if this node has no parent or is the parent's last child.
+     * This method performs a linear search that is O(n) where n is the number
+     * of children; to traverse the entire array, use the parent's child
+     * enumeration instead.
+     *
+     * @see     #children
+     * @return  the sibling of this node that immediately follows this node
+     */
+    public BaseStructure getNextSibling() {
+        BaseStructure retval;
+
+        BaseStructure myParent = getParent();
+
+        if (myParent == null) {
+            retval = null;
+        } else {
+            retval = (BaseStructure)myParent.getChildAfter(this);      // linear search
+        }
+
+        if (retval != null && !isNodeSibling(retval)) {
+            throw new Error("child of parent is not a sibling");
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Returns the previous sibling of this node in the parent's children
+     * array.  Returns null if this node has no parent or is the parent's
+     * first child.  This method performs a linear search that is O(n) where n
+     * is the number of children.
+     *
+     * @return  the sibling of this node that immediately precedes this node
+     */
+    public BaseStructure getPreviousSibling() {
+        BaseStructure retval;
+
+        BaseStructure myParent = getParent();
+
+        if (myParent == null) {
+            retval = null;
+        } else {
+            retval = myParent.getChildBefore(this);     // linear search
+        }
+
+        if (retval != null && !isNodeSibling(retval)) {
+            throw new Error("child of parent is not a sibling");
+        }
+
+        return retval;
+    }
+
+
+
+    //
+    //  Leaf Queries
+    //
+
+//    /**
+//     * Returns true if this node has no children.  To distinguish between
+//     * nodes that have no children and nodes that <i>cannot</i> have
+//     * children (e.g. to distinguish files from empty directories), use this
+//     * method in conjunction with <code>getAllowsChildren</code>
+//     *
+//     * @see     #getAllowsChildren
+//     * @return  true if this node has no children
+//     */
+//    public boolean isLeaf() {
+//        return (getChildCount() == 0);
+//    }
+
+
+    /**
+     * Finds and returns the first leaf that is a descendant of this node --
+     * either this node or its first child's first leaf.
+     * Returns this node if it is a leaf.
+     *
+     * @see     #isLeaf
+     * @see     #isNodeDescendant
+     * @return  the first leaf in the subtree rooted at this node
+     */
+    public BaseStructure getFirstLeaf() {
+        BaseStructure node = this;
+
+        while (!node.isLeaf()) {
+            node = node.getFirstChild();
+        }
+
+        return node;
+    }
+
+
+    /**
+     * Finds and returns the last leaf that is a descendant of this node --
+     * either this node or its last child's last leaf.
+     * Returns this node if it is a leaf.
+     *
+     * @see     #isLeaf
+     * @see     #isNodeDescendant
+     * @return  the last leaf in the subtree rooted at this node
+     */
+    public BaseStructure getLastLeaf() {
+        BaseStructure node = this;
+
+        while (!node.isLeaf()) {
+            node = node.getLastChild();
+        }
+
+        return node;
+    }
+
+
+    /**
+     * Returns the leaf after this node or null if this node is the
+     * last leaf in the tree.
+     * <p>
+     * In this implementation of the <code>MutableNode</code> interface,
+     * this operation is very inefficient. In order to determine the
+     * next node, this method first performs a linear search in the
+     * parent's child-list in order to find the current node.
+     * <p>
+     * That implementation makes the operation suitable for short
+     * traversals from a known position. But to traverse all of the
+     * leaves in the tree, you should use <code>depthFirstEnumeration</code>
+     * to enumerate the nodes in the tree and use <code>isLeaf</code>
+     * on each node to determine which are leaves.
+     *
+     * @see     #isLeaf
+     * @return  returns the next leaf past this node
+     */
+    public BaseStructure getNextLeaf() {
+        BaseStructure nextSibling;
+        BaseStructure myParent = getParent();
+
+        if (myParent == null)
+            return null;
+
+        nextSibling = getNextSibling(); // linear search
+
+        if (nextSibling != null)
+            return nextSibling.getFirstLeaf();
+
+        return myParent.getNextLeaf();  // tail recursion
+    }
+
+
+    /**
+     * Returns the leaf before this node or null if this node is the
+     * first leaf in the tree.
+     * <p>
+     * In this implementation of the <code>MutableNode</code> interface,
+     * this operation is very inefficient. In order to determine the
+     * previous node, this method first performs a linear search in the
+     * parent's child-list in order to find the current node.
+     * <p>
+     * That implementation makes the operation suitable for short
+     * traversals from a known position. But to traverse all of the
+     * leaves in the tree, you should use <code>depthFirstEnumeration</code>
+     * to enumerate the nodes in the tree and use <code>isLeaf</code>
+     * on each node to determine which are leaves.
+     *
+     * @see             #isLeaf
+     * @return  returns the leaf before this node
+     */
+    public BaseStructure getPreviousLeaf() {
+        BaseStructure previousSibling;
+        BaseStructure myParent = getParent();
+
+        if (myParent == null)
+            return null;
+
+        previousSibling = getPreviousSibling(); // linear search
+
+        if (previousSibling != null)
+            return previousSibling.getLastLeaf();
+
+        return myParent.getPreviousLeaf();              // tail recursion
+    }
+
+
+    /**
+     * Returns the total number of leaves that are descendants of this node.
+     * If this node is a leaf, returns <code>1</code>.  This method is O(n)
+     * where n is the number of descendants of this node.
+     *
+     * @see     #isNodeAncestor
+     * @return  the number of leaves beneath this node
+     */
+    public int getLeafCount() {
+        int count = 0;
+
+        TreeNode node;
+        Enumeration<TreeNode> enum_ =  new BreadthFirstEnumeration(this); // order matters not
+
+        while (enum_.hasMoreElements()) {
+            node = enum_.nextElement();
+            if (node.isLeaf()) {
+                count++;
+            }
+        }
+
+        if (count < 1) {
+            throw new Error("tree has zero leaves");
+        }
+
+        return count;
+    }
+
+    /**
+     * Creates and returns an enumeration that traverses the subtree rooted at
+     * this node in breadth-first order.  The first node returned by the
+     * enumeration's <code>nextElement()</code> method is this node.<P>
+     *
+     * Modifying the tree by inserting, removing, or moving a node invalidates
+     * any enumerations created before the modification.
+     *
+     * @see     #depthFirstEnumeration
+     * @return  an enumeration for traversing the tree in breadth-first order
+     */
+    public Enumeration<TreeNode> breadthFirstEnumeration() {
+        return new BreadthFirstEnumeration(this);
+    }
+
+    /**
+     * Creates and returns an enumeration that traverses the subtree rooted at
+     * this node in depth-first order.  The first node returned by the
+     * enumeration's <code>nextElement()</code> method is the leftmost leaf.
+     * This is the same as a postorder traversal.<P>
+     *
+     * Modifying the tree by inserting, removing, or moving a node invalidates
+     * any enumerations created before the modification.
+     *
+     * @see     #breadthFirstEnumeration
+     * @return  an enumeration for traversing the tree in depth-first order
+     */
+    public Enumeration<TreeNode> depthFirstEnumeration() {
+        return new PostorderEnumeration(this);
+    }
+
+
+    final class BreadthFirstEnumeration implements Enumeration<TreeNode> {
+        Queue queue;
+
+        public BreadthFirstEnumeration(TreeNode rootNode) {
+            super();
+            Vector<TreeNode> v = new Vector<TreeNode>(1);
+            v.addElement(rootNode);     // PENDING: don't really need a vector
+            queue = new Queue();
+            queue.enqueue(v.elements());
+        }
+
+        public boolean hasMoreElements() {
+            return (!queue.isEmpty() &&
+                    ((Enumeration)queue.firstObject()).hasMoreElements());
+        }
+
+        public BaseStructure nextElement() {
+            Enumeration<?> enumer = (Enumeration)queue.firstObject();
+            BaseStructure    node = (BaseStructure)enumer.nextElement();
+            Enumeration<?> children = node.children();
+
+            if (!enumer.hasMoreElements()) {
+                queue.dequeue();
+            }
+            if (children.hasMoreElements()) {
+                queue.enqueue(children);
+            }
+            return node;
+        }
+
+
+        // A simple queue with a linked list data structure.
+        final class Queue {
+            Queue.QNode head; // null if empty
+            Queue.QNode tail;
+
+            final class QNode {
+                public Object   object;
+                public Queue.QNode next;   // null if end
+                public QNode(Object object, Queue.QNode next) {
+                    this.object = object;
+                    this.next = next;
+                }
+            }
+
+            public void enqueue(Object anObject) {
+                if (head == null) {
+                    head = tail = new Queue.QNode(anObject, null);
+                } else {
+                    tail.next = new Queue.QNode(anObject, null);
+                    tail = tail.next;
+                }
+            }
+
+            public Object dequeue() {
+                if (head == null) {
+                    throw new NoSuchElementException("No more elements");
+                }
+
+                Object retval = head.object;
+                Queue.QNode oldHead = head;
+                head = head.next;
+                if (head == null) {
+                    tail = null;
+                } else {
+                    oldHead.next = null;
+                }
+                return retval;
+            }
+
+            public Object firstObject() {
+                if (head == null) {
+                    throw new NoSuchElementException("No more elements");
+                }
+
+                return head.object;
+            }
+
+            public boolean isEmpty() {
+                return head == null;
+            }
+
+        } // End of class Queue
+
+    }  // End of class BreadthFirstEnumeration
+
+
+    /** Same as a depth-first tranversal. */
+    final class PostorderEnumeration implements Enumeration<TreeNode> {
+        protected TreeNode root;
+        protected Enumeration<? extends TreeNode> children;
+        protected Enumeration<TreeNode> subtree;
+
+        public PostorderEnumeration(TreeNode rootNode) {
+            super();
+            root = rootNode;
+            children = root.children();
+            subtree =  Collections.emptyEnumeration();
+        }
+
+        public boolean hasMoreElements() {
+            return root != null;
+        }
+
+        public TreeNode nextElement() {
+            BaseStructure retval;
+
+            if (subtree.hasMoreElements()) {
+                retval = (BaseStructure)subtree.nextElement();
+            } else if (children.hasMoreElements()) {
+                subtree = new PostorderEnumeration(children.nextElement());
+                retval = (BaseStructure)subtree.nextElement();
+            } else {
+                retval = (BaseStructure)root;
+                root = null;
+            }
+
+            return retval;
+        }
+
+    }  // End of class PostorderEnumeration
+
+
+
 
     /**
      * Visit all the structures in this structure (including the structure itself --
@@ -1661,7 +2559,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * @param index the target index.
 	 * @return the child at the given index or null if none
 	 */
-	public TreeNode getChildAt(int index) {
+	public BaseStructure getChildAt(int index) {
         if (children == null) return null;
 
         BaseStructure b = null;
