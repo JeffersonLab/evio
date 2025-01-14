@@ -32,7 +32,7 @@ using namespace std;
 namespace evio {
 
     //-------------------------------------------------------------
-    // Class used to test RecordSupply and RecordSupplyItem classes.
+    // Class used to test RecordSupply and RecordRingItem classes.
     // These are never used by the user directly.
     //-------------------------------------------------------------
 
@@ -59,7 +59,7 @@ namespace evio {
 
         /**
          * Constructor.
-         * @param recSupply
+         * @param recSupply RecordSupply object.
          */
         Writer2(std::shared_ptr<RecordSupply> recSupply) : supply(recSupply)  {}
 
@@ -115,11 +115,8 @@ namespace evio {
 
           /**
            * Constructor.
-           * @param threadNum
-           * @param threadCount
-           * @param ringBuf
-           * @param barrier
-           * @param sequence
+           * @param threadNum thread id number.
+           * @param recSupply RecordSupply object.
            */
         Compressor2(uint32_t threadNum, std::shared_ptr<RecordSupply> & recSupply) :
                     supply(recSupply), threadNumber(threadNum)  {}
