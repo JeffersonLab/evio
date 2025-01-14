@@ -618,7 +618,9 @@ namespace evio {
      *                                  or this node does not allow children.
      */
     void BaseStructure::add(std::shared_ptr<BaseStructure> newChild) {
-        if (newChild != nullptr && newChild->getParent() == getThis())
+        if (newChild == nullptr ) return;
+
+        if (newChild->getParent() == getThis())
             insert(newChild, getChildCount() - 1);
         else
             insert(newChild, getChildCount());
