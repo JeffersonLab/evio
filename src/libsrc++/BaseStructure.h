@@ -45,7 +45,6 @@
 
 namespace evio {
 
-
     /** Depth first iterator. */
     template<typename R>
     class nodeIterator {
@@ -71,9 +70,10 @@ namespace evio {
         /** Constructor that copies shared pointer arg. */
         explicit nodeIterator(R &node, bool isEnd) : currentNode(node), isEnd(isEnd) {
             // store current-element and end of vector in pair
-            if (!node->children.empty()) {
-                std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
-                stack.push(p);
+            if (!isEnd && !node->children.empty()) {
+                stack.emplace(node->children.begin(), node->children.end());
+                //std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
+                //stack.push(p);
             }
         }
 
@@ -133,6 +133,7 @@ namespace evio {
             }
 
             // Prepare to look at the next node in the vector (next call)
+            currentNode = node;
             ++curIter;
 
             // If it has children, put pair of iterators on stack
@@ -142,7 +143,6 @@ namespace evio {
                 stack.push(p);
             }
 
-            currentNode = node;
             // return copy of this iterator before changes
             return niter;
         }
@@ -174,6 +174,7 @@ namespace evio {
             }
 
             // Prepare to look at the next node in the vector (next call)
+            currentNode = node;
             ++curIter;
 
             // If it has children, put pair of iterators on stack
@@ -183,7 +184,6 @@ namespace evio {
                 stack.push(p);
             }
 
-            currentNode = node;
             return *this;
         }
     };
