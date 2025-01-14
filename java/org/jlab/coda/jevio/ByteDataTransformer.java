@@ -2044,7 +2044,7 @@ public class ByteDataTransformer {
             throws EvioException {
 
         if (srcBuffer == null) {
-            throw new EvioException("Null event in parseEvent.");
+            throw new EvioException("Null event in swapEvent");
         }
 
         // Find the destination byte order and if it is to be swapped in place
