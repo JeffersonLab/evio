@@ -30,7 +30,8 @@ namespace evio {
     class EvioDictionaryEntry {
 
         friend class EvioXMLDictionary;
-        
+    //    friend bool operator==(const std::shared_ptr<EvioDictionaryEntry> &lhs, const std::shared_ptr<EvioDictionaryEntry> &rhs);
+
     public:
 
         /**
@@ -51,7 +52,7 @@ namespace evio {
         /** Tag value or low end of a tag range of an evio container. */
         uint16_t tag= 0;
 
-        /** If &gt; 0 && != tag, this is the high end of a tag range. Never null, always &gt;= 0.
+        /** If &gt; 0 && != tag, this is the high end of a tag range. Always &gt;= 0.
          *  @since 5.2 */
         uint16_t tagEnd = 0;
 
@@ -78,8 +79,51 @@ namespace evio {
             to one parent and not the stack/tree. */
         std::shared_ptr<EvioDictionaryEntry> parentEntry = nullptr;
 
+    public:
+
+        // Define the hash function as a nested struct.
+        // Have hash compare object contents given a shared pointer and not value of pointer.
+        struct Hash {
+
+            size_t operator()(const EvioDictionaryEntry &entry) const {
+                size_t seed = 0;
+                std::hash<uint16_t> hashUint16;
+                std::hash<uint8_t> hashUint8;
+
+                // Include tag and tagEnd in the hash
+                seed ^= hashUint16(entry.tag) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= hashUint16(entry.tagEnd) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+                // Include num in the hash only if numValid is true
+                if (entry.numValid) {
+                    seed ^= hashUint8(entry.num) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                }
+
+                return seed;
+            }
+
+            // Overload for shared_ptr<EvioDictionaryEntry>
+            std::size_t operator()(const std::shared_ptr<EvioDictionaryEntry> &entry) const {
+                size_t seed = 0;
+                std::hash<uint16_t> hashUint16;
+                std::hash<uint8_t> hashUint8;
+
+                // Include tag and tagEnd in the hash
+                seed ^= hashUint16(entry->tag) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= hashUint16(entry->tagEnd) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+                // Include num in the hash only if numValid is true
+                if (entry->numValid) {
+                    seed ^= hashUint8(entry->num) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                }
+
+                return seed;
+            }
+
+        };
 
 
+    private:
 
         /** Zero-arg constructor.  */
         EvioDictionaryEntry() = default;
@@ -250,17 +294,19 @@ namespace evio {
         /** Define equal operator. */
         bool operator==(const EvioDictionaryEntry &other) const {
 
-            if (&other == this) return true;
+            if (&other == this) {
+                return true;
+            }
 
             // Objects equal each other if tag & num & tagEnd are the same
             auto otherParent = other.getParentEntry();
 
             bool match = (tag == other.tag);
-            match = match && (numValid == other.numValid);
 
-            if (numValid) {
-                match = match && (num == other.num);
+            if (numValid != other.numValid) {
+                return false;
             }
+            match = match && (num == other.num);
 
             // Now check tag range if any
             match = match && (tagEnd == other.tagEnd);
@@ -272,11 +318,12 @@ namespace evio {
             if (parentEntry != nullptr && otherParent != nullptr) {
                 match = match && (parentEntry->getTag() == otherParent->getTag());
                 match = match && (parentEntry->numValid == otherParent->numValid);
+//std::cout << " ====: 2 parents compared, tag " << parentEntry->getTag() <<
+//                                   " with other's tag " << otherParent->getTag() << std::endl;
                 if (parentEntry->numValid) {
-                     match = match && (parentEntry->getNum() == otherParent->getNum());
+                    match = match && (parentEntry->getNum() == otherParent->getNum());
                 }
                 match = match && (parentEntry->getTagEnd() == otherParent->getTagEnd());
-                if (!match) std::cout << "  parents don't match" << std::endl;
             }
 
             return match;
@@ -361,6 +408,12 @@ namespace evio {
         std::shared_ptr<EvioDictionaryEntry> getParentEntry() const {return parentEntry;}
 
         /**
+         * Get if num is valid or not defined..
+         * @return true if num defined, else false.
+         */
+        bool isNumValid() const {return numValid;}
+
+        /**
          * Get the string representation of this object.
          * @return string representation of this object.
          */
@@ -370,17 +423,28 @@ namespace evio {
 
             ss << std::boolalpha;
 
-            ss << "(tag = " << tag << ", tagEnd = " << tagEnd << ", num = " << +num << ", numValid = " << numValid <<
-                  ", data type = " << type.toString();
+            if (entryType == TAG_NUM) {
+                ss << "(tag=" << tag << ",tagEnd=" << tagEnd << ",num=" << +num <<
+                      ",datatype=" << type.toString() << ",entrytype=TAG_NUM";
+            }
+            else if (entryType == TAG_ONLY) {
+                ss << "(tag=" << tag << ",datatype=" << type.toString() << ",entrytype=TAG_ONLY";
+            }
+            else if (entryType == TAG_RANGE) {
+                ss << "(tag=" << tag << "-" << tagEnd <<
+                   ",datatype=" << type.toString() << ",entrytype=TAG_RANGE";
+            }
 
-            if (entryType == TAG_NUM)
-                ss << ", entry type = TAG_NUM";
-            else if (entryType == TAG_ONLY)
-                ss << ", entry type = TAG_ONLY";
-            else if (entryType == TAG_RANGE)
-                ss << ", entry type = TAG_RANGE";
+            if (parentEntry != nullptr) {
+                ss << ",parent=" << parentEntry->getTag() << "/" << +(parentEntry->getNum()) <<
+                      "/" << parentEntry->getTagEnd();
+            }
 
-            ss << ")" << std::endl;
+            ss << ")";
+
+            if (!(format.empty() && description.empty())) {
+                ss << std::endl;
+            }
 
             if (!format.empty()) {
                 ss << "    format = " << format << std::endl;
@@ -390,16 +454,30 @@ namespace evio {
                 ss << "    description = " << description << std::endl;
             }
 
-//            if (parentEntry != nullptr) {
-//                ss << "    parent = " << parentEntry->toString() << std::endl;
-//            }
 
             return ss.str();
         }
 
     };
 
+    // Define equality operator for std::shared_ptr<EvioDictionaryEntry>
+    inline bool operator==(const std::shared_ptr<EvioDictionaryEntry> &lhs, const std::shared_ptr<EvioDictionaryEntry> &rhs) {
+        if (lhs.get() == rhs.get()) {
+            // Both pointers are the same (or both are nullptr)
+            return true;
+        }
+        if (!lhs || !rhs) {
+            // One pointer is nullptr and the other isn't
+            return false;
+        }
+        // Compare the objects being pointed to
+        return *lhs == *rhs;
+    }
 
 }
+
+
+
+
 
 #endif //EVIO_6_0_EVIODICTIONARYENTRY_H
