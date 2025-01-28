@@ -130,6 +130,21 @@ namespace evio {
         }
 
         /**
+         * Does this string represent a valid DataType?
+         * @param typeName the name of the DataType to obtain.
+         * @return true if there exists a DataType object associated with the given type name,
+         *         or false if not.
+         */
+        static bool exists(std::string const & typeName) {
+            for (std::string const & name : names) {
+                if (name == typeName) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * Convenience method to see if the given integer arg represents a data type which
          * is a structure (a container).
          * @param dataType the int value to match.
