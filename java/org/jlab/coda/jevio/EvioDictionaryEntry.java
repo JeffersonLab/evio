@@ -289,6 +289,8 @@ public class EvioDictionaryEntry {
         if (parentEntry != null && otherParent != null) {
             Integer pNum = parentEntry.getNum();
             match = match && parentEntry.getTag().equals(otherParent.getTag());
+//            System.out.println(" ====: 2 parents compared, tag " + parentEntry.getTag() +
+//                    " with other's tag " + otherParent.getTag());
             if (pNum == null) {
                 if (otherParent.getNum() != null) {
                     return false;
@@ -315,28 +317,47 @@ public class EvioDictionaryEntry {
                 builder.append(tag);
                 builder.append(",num=");
                 builder.append(+num);
-                builder.append(", data type = ");
-                builder.append(type.toString());
-                builder.append(", entry type = TAG_NUM");
+                if (type == null) {
+                    builder.append(",datatype=UNKNOWN32");
+                }
+                else {
+                    builder.append(",datatype=");
+                    builder.append(type.toString());
+                }
+                builder.append(",entrytype=TAG_NUM");
                 break;
             case TAG_ONLY:
                 builder.append("(tag=");
                 builder.append(tag);
-                builder.append(", data type = ");
-                builder.append(type.toString());
-                builder.append(", entry type = TAG_ONLY");
+                if (type == null) {
+                    builder.append(",datatype=UNKNOWN32");
+                }
+                else {
+                    builder.append(",datatype=");
+                    builder.append(type.toString());
+                }
+                builder.append(",entrytype=TAG_ONLY");
                 break;
             case TAG_RANGE:
                 builder.append("(tag=");
                 builder.append(tag);
                 builder.append("-");
                 builder.append(tagEnd);
-                builder.append(", data type = ");
-                builder.append(type.toString());
-                builder.append(", entry type = TAG_RANGE");
+                if (type == null) {
+                    builder.append(",datatype=UNKNOWN32");
+                }
+                else {
+                    builder.append(",datatype=");
+                    builder.append(type.toString());
+                }
+                builder.append(",entrytype=TAG_RANGE");
         }
 
-        builder.append(")\n");
+        builder.append(")");
+
+        if (format != null || description != null) {
+            builder.append("\n");
+        }
 
         if (format != null) {
             builder.append("    format = ");
