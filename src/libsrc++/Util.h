@@ -90,12 +90,12 @@ namespace evio {
 
         /**
          * This method returns an XML element name given an evio data type.
-         * @param type evio data type
+         * @param type evio data type (case insensitive).
          * @return XML element name used in evio event xml output
          */
         static const DataType & getDataType(const std::string & type) {
 
-            if (iStrEquals(type,"int8"))       return DataType::CHAR8;
+            if (iStrEquals(type,"int8"))            return DataType::CHAR8;
             else if (iStrEquals(type,"uint8"))      return DataType::UCHAR8;
             else if (iStrEquals(type,"int16"))      return DataType::SHORT16;
             else if (iStrEquals(type,"uint16"))     return DataType::USHORT16;
