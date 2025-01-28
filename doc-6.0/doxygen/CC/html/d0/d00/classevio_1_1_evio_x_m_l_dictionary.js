@@ -1,7 +1,7 @@
 var classevio_1_1_evio_x_m_l_dictionary =
 [
     [ "EvioXMLDictionary", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#ab2798d72f576f24b84cee22d6e8eb51f", null ],
-    [ "EvioXMLDictionary", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a017d6bc636ce6a789ff0d41c5198f725", null ],
+    [ "EvioXMLDictionary", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a422e41c2cd3ac7313f743ffb5fadfc42", null ],
     [ "exists", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a5b235af0eecd82f6bcaa60770f9607b7", null ],
     [ "getDescription", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a0a5d64b52bf42a20f612a051bc31e822", null ],
     [ "getDescription", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#aceb3cc127f3b0d640dfb8fc4eac40960", null ],
@@ -11,11 +11,12 @@ var classevio_1_1_evio_x_m_l_dictionary =
     [ "getFormat", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a9176236504780e6b4422b3f9d0626c7a", null ],
     [ "getMap", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a53011c683ef7d15078acc478d5794983", null ],
     [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#af13c99f3748879480c51dd5bfd3a9d13", null ],
+    [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#afedb1d0838e1d394564b5647c5e7236a", null ],
     [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a897c7fa1bc6939a0589fbdc28b992f60", null ],
     [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a282a2a8bb62d2e019df8fcf4b02f2724", null ],
     [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#ae77cb73c955c3887370c5a6b8ec62348", null ],
     [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a590394aabb57cb85185cfc7241d26a97", null ],
-    [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#ab6a9f7abd82a7c63eb366bafeb3c658e", null ],
+    [ "getName", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a3ebad62f853c070e7ffd27d1318ed84c", null ],
     [ "getNum", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a260bc27a4171feccf86364b328c015cf", null ],
     [ "getTag", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a7f7a9b4e8a319bd15d8090b25720cb9a", null ],
     [ "getTagEnd", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#adc688ccf6bc2f944347c749a1acc7c95", null ],
@@ -27,10 +28,10 @@ var classevio_1_1_evio_x_m_l_dictionary =
     [ "isTagOnly", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a61a9a27d9a5dfa7a6ed5a8e9a81f1dd1", null ],
     [ "isTagRange", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#aa700d524c1c65ad1978b64dab5db7d44", null ],
     [ "NO_NAME_STRING", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a4bce21db121f872b2144333677a9e2c4", null ],
-    [ "parseXML", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a522c4afb7b3601a7bf5c2469dff2397d", null ],
+    [ "parseXML", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a3bcf7f59515b239e6a38aba5ef33a10a", null ],
     [ "size", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a61f7fab57f73383eb07fecae0fa5a906", null ],
     [ "toString", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a18de3ff2ec90a80fe5d49f006afb47d3", null ],
-    [ "tagNumMap", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a43e0d0662e8363dbaec2236e81700396", null ],
-    [ "tagOnlyMap", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a7654f8c52fe06bd2aafdb1c0ae367ccb", null ],
-    [ "tagRangeMap", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a14dd7f28968bff4f9203ebe748efe64e", null ]
+    [ "tagNumMap", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#aed334200530845ec8c2ec3fb15b0cdf7", null ],
+    [ "tagOnlyMap", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a4e1ebd995af420737e23187e5c74d400", null ],
+    [ "tagRangeMap", "d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#ab0ceb568a80654fa0f7fea21127d4f6e", null ]
 ];

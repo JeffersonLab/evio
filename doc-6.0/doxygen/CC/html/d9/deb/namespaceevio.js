@@ -60,5 +60,6 @@ var namespaceevio =
     [ "Util", "d3/d87/classevio_1_1_util.html", "d3/d87/classevio_1_1_util" ],
     [ "Writer", "d6/dca/classevio_1_1_writer.html", "d6/dca/classevio_1_1_writer" ],
     [ "WriterMT", "d1/d17/classevio_1_1_writer_m_t.html", "d1/d17/classevio_1_1_writer_m_t" ],
-    [ "null_deleter", "d9/deb/namespaceevio.html#a7cbb35fc00e6b99839c986314900dc06", null ]
+    [ "null_deleter", "d9/deb/namespaceevio.html#a7cbb35fc00e6b99839c986314900dc06", null ],
+    [ "operator==", "d9/deb/namespaceevio.html#abcf88e3a2e58ee9128b04fe0f21400e8", null ]
 ];

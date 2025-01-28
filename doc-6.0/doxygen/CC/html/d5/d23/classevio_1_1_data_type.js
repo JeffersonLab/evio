@@ -1,5 +1,6 @@
 var classevio_1_1_data_type =
 [
+    [ "exists", "d5/d23/classevio_1_1_data_type.html#a3287ad76b05a36d35c99a3c1f11ed3d4", null ],
     [ "getBytes", "d5/d23/classevio_1_1_data_type.html#a0a61f0f28a505939e06e84c1e6e51daf", null ],
     [ "getDataType", "d5/d23/classevio_1_1_data_type.html#ad49c0e00ce28f150c91cad724634c5d0", null ],
     [ "getName", "d5/d23/classevio_1_1_data_type.html#a725fbb9d81257ac84d8ff6111d6f06b4", null ],

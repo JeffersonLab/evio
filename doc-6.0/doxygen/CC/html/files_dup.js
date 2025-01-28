@@ -85,9 +85,7 @@ var files_dup =
     [ "EvioCompactStructureHandler.h", "dc/d1e/_evio_compact_structure_handler_8h.html", [
       [ "EvioCompactStructureHandler", "db/d63/classevio_1_1_evio_compact_structure_handler.html", "db/d63/classevio_1_1_evio_compact_structure_handler" ]
     ] ],
-    [ "EvioDictionaryEntry.h", "db/db0/_evio_dictionary_entry_8h.html", [
-      [ "EvioDictionaryEntry", "d2/d4a/classevio_1_1_evio_dictionary_entry.html", "d2/d4a/classevio_1_1_evio_dictionary_entry" ]
-    ] ],
+    [ "EvioDictionaryEntry.h", "db/db0/_evio_dictionary_entry_8h.html", "db/db0/_evio_dictionary_entry_8h" ],
     [ "EvioEvent.h", "df/d94/_evio_event_8h.html", [
       [ "EvioEvent", "d4/d12/classevio_1_1_evio_event.html", "d4/d12/classevio_1_1_evio_event" ]
     ] ],

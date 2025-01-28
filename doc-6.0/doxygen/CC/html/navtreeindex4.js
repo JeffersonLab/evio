@@ -1,5 +1,8 @@
 var NAVTREEINDEX4 =
 {
+"d6/dca/classevio_1_1_writer.html":[2,0,0,58],
+"d6/dca/classevio_1_1_writer.html#a0c390fc56c957705f1b1a5de67b62bfe":[2,0,0,58,30],
+"d6/dca/classevio_1_1_writer.html#a0d0f549a6ceaae794eca73130957a23d":[2,0,0,58,33],
 "d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a":[2,0,0,58,31],
 "d6/dca/classevio_1_1_writer.html#a1e500bdfd12a357a6f443def5187b675":[2,0,0,58,7],
 "d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb":[2,0,0,58,28],
@@ -246,8 +249,5 @@ var NAVTREEINDEX4 =
 "d7/dfc/_event_header_parser_8h.html":[3,0,22],
 "d7/dfc/_event_header_parser_8h_source.html":[3,0,22],
 "d8/d15/_reader_8cpp.html":[3,0,67],
-"d8/d26/_evio_exception_8h.html":[3,0,41],
-"d8/d26/_evio_exception_8h.html#a2e2c24f4a58e1cf35ab7fab80e69025a":[3,0,41,1],
-"d8/d26/_evio_exception_8h_source.html":[3,0,41],
-"d8/d2b/classevio_1_1node_breadth_iterator.html":[2,0,0,2]
+"d8/d26/_evio_exception_8h.html":[3,0,41]
 };

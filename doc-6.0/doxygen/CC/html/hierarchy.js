@@ -41,6 +41,7 @@ var hierarchy =
     [ "evio::FileCloserV4", "dc/db3/classevio_1_1_file_closer_v4.html", null ],
     [ "evio::FileEventIndex", "df/dbf/classevio_1_1_file_event_index.html", null ],
     [ "evio::FileHeader", "d1/da6/classevio_1_1_file_header.html", null ],
+    [ "evio::EvioDictionaryEntry::Hash", "d8/de2/structevio_1_1_evio_dictionary_entry_1_1_hash.html", null ],
     [ "evio::HeaderType", "df/dd8/classevio_1_1_header_type.html", null ],
     [ "evio::IBlockHeader", "d5/d6e/classevio_1_1_i_block_header.html", [
       [ "evio::BlockHeaderV2", "d7/d9e/classevio_1_1_block_header_v2.html", null ],
