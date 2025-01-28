@@ -87,9 +87,9 @@ namespace evio {
     /**
      * Create an EvioXMLDictionary from an xml string.
      * @param xml string containing xml.
-     * @param dummy here only to differentiate from other constructor, value unused.
+     * @param warn if true, print warning debug messages concerning format errors in xml arg.
      */
-    EvioXMLDictionary::EvioXMLDictionary(std::string const & xml, int dummy) {
+    EvioXMLDictionary::EvioXMLDictionary(std::string const & xml, bool warn) {
         pugi::xml_parse_result result = doc.load_string(xml.c_str());
         if (!result) {
             std::cout << "XML string parsed with error: \n" << result.description() << std::endl;
@@ -102,7 +102,7 @@ namespace evio {
         reverseMap.reserve(100);
         tagNumReverseMap.reserve(100);
 
-        parseXML(result);
+        parseXML(result, warn);
     };
 
 
@@ -111,7 +111,7 @@ namespace evio {
      * @param domDocument DOM object representing xml dictionary.
      * @throws EvioException if parsing error.
      */
-    void EvioXMLDictionary::parseXML(pugi::xml_parse_result & domDocument) {
+    void EvioXMLDictionary::parseXML(pugi::xml_parse_result & domDocument, bool warn) {
 
         pugi::xml_node topNode = topLevelDoc = doc.child(DICT_TOP_LEVEL.c_str());
 
@@ -137,7 +137,7 @@ namespace evio {
         for (pugi::xml_node node : topNode.children()) {
 
             if (node.empty()) {
-                if (debug)  std::cout << "xml node is empty, " << node.name() << std::endl;
+                if (debug)  std::cout << "dictionary: xml node is empty, " << node.name() << std::endl;
                 continue;
             }
 
@@ -145,7 +145,7 @@ namespace evio {
             std::string nodeName = node.name();
             if (!Util::iStrEquals(nodeName, ENTRY) &&
                 !Util::iStrEquals(nodeName, ENTRY_ALT)) {
-                if (debug)  std::cout << "rejecting node, " << nodeName << std::endl;
+                if (debug)  std::cout << "dictionary: rejecting node, " << nodeName << std::endl;
                 rejectedChildren.push_back(node);
                 continue;
             }
@@ -169,7 +169,7 @@ namespace evio {
             if (Util::getDataType(name) != DataType::NOT_A_VALID_TYPE ||
                 Util::iStrEquals(name, "event") ||
                 Util::iStrEquals(name, "evio-data")) {
-                std::cout << "IGNORING entry whose name conflicts with reserved strings: " << name << std::endl;
+                if (warn) std::cout << "dictionary: ignore entry whose name conflicts with reserved strings: " << name << std::endl;
                 continue;
             }
 
@@ -183,12 +183,12 @@ namespace evio {
                 std::string const & nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
-if (debug) {
-    std::cout << "String that matches the pattern, sm size = " << sm.size() << std::endl;
-    int i = 0;
-    for (auto str : sm)
-        std::cout << "  sm[" << i++ << "] = " << str << "\n";
-}
+                if (debug) {
+                    std::cout << "dictionary: string that matches the pattern, sm size = " << sm.size() << std::endl;
+                    int i = 0;
+                    for (auto str : sm)
+                        std::cout << "  sm[" << i++ << "] = " << str << "\n";
+                }
 
                 if (sm.size() > 1) {
                     // First num is always >= 0
@@ -206,7 +206,7 @@ if (debug) {
                         }
                     }
 
-if (debug) std::cout << "num =  " << num << "\n";
+if (debug) std::cout << "dictionary: num =  " << num << "\n";
 
                     // Ending num
                     if (sm.size() > 3) {
@@ -222,6 +222,7 @@ if (debug) std::cout << "num =  " << num << "\n";
                                     // Since a num range is defined, the name MUST contain at least one %n
                                     if (name.find("%n") == std::string::npos) {
                                         badEntry = true;
+if (debug) std::cout << "dictionary: num range defined so name must contain at least one %n, but = " << name << std::endl;
                                     }
                                 }
                             }
@@ -231,7 +232,7 @@ if (debug) std::cout << "num =  " << num << "\n";
                             catch (std::out_of_range &e) {
                                 badEntry = true;
                             }
-if (debug) std::cout << "numEnd =  " << numEnd << "\n";
+if (debug) std::cout << "dictionary: numEnd =  " << numEnd << "\n";
                         }
                         else {
                             // Set for later convenience in for loop
@@ -241,6 +242,7 @@ if (debug) std::cout << "numEnd =  " << numEnd << "\n";
                 }
                 else {
                     badEntry = true;
+if (debug) std::cout << "dictionary: num must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
             }
 
@@ -262,7 +264,7 @@ if (debug) std::cout << "numEnd =  " << numEnd << "\n";
                 regex_search(nodeVal, sm, pattern_regex);
 
                 if (debug) {
-                    std::cout << "String that matches the pattern:" << std::endl;
+                    std::cout << "dictionary: string that matches the pattern:" << std::endl;
                     int i = 0;
                     for (auto str : sm)
                         std::cout << "  sm[" << i++ << "] = " << str << "\n";
@@ -309,11 +311,12 @@ if (debug) std::cout << "numEnd =  " << numEnd << "\n";
                 }
                 else {
                     badEntry = true;
+if (debug) std::cout << "dictionary: tag must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
 
                 if (debug) {
-                    std::cout << "tag =  " << tag << "\n";
-                    std::cout << "tagEnd =  " << tagEnd << "\n";
+                    std::cout << "dictionary: tag =  " << tag << "\n";
+                    std::cout << "dictionary: tagEnd =  " << tagEnd << "\n";
                 }
             }
 
@@ -324,6 +327,7 @@ if (debug) std::cout << "numEnd =  " << numEnd << "\n";
                 if (!numStr.empty()) {
                     // Cannot define num (or num range) and tag range at the same time ...
                     badEntry = true;
+if (debug) std::cout <<  "dictionary: cannot define num (or num range) and tag range simultaneously for " << name << std::endl;
                 }
                 else {
                     name = std::regex_replace(name, std::regex("%t"), "");
@@ -332,15 +336,21 @@ if (debug) std::cout << "numEnd =  " << numEnd << "\n";
             else {
                 name = std::regex_replace(name, std::regex("%t"), tagStr);
             }
-if (debug) std::cout << "badEntry = " << badEntry << std::endl;
 
             // Get the type, if any
             attrNode = node.attribute(TYPE.c_str());
             if (attrNode.name() == TYPE) {
                 typeStr = attrNode.value();
-                // Change string to upper case, stupid C++ lib
-                std::transform(typeStr.begin(), typeStr.end(), typeStr.begin(), [](unsigned char c) -> unsigned char { return std::toupper(c); });
-                type = DataType::valueOf(typeStr);
+                DataType t = Util::getDataType(typeStr);
+                if (t != DataType::NOT_A_VALID_TYPE) {
+                    // Leave type as UNKNOWN32 unless properly specified
+                    type = t;
+                }
+                else {
+                    // Completely ignore bad type
+                    if (warn) std::cout << "dictionary: ignore invalid type (" << typeStr << ") for name = " << name << std::endl;
+                    typeStr = "";
+                }
             }
 
             // Look for description node (xml element) as child of entry node
@@ -355,13 +365,13 @@ if (debug) std::cout << "badEntry = " << badEntry << std::endl;
                 }
 
                 description = childNode.child_value();
-if (debug) std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
+if (debug) std::cout << "dictionary: found description = " << description << std::endl;
 
                 // See if there's a format attribute
                 pugi::xml_attribute attr = childNode.attribute(FORMAT.c_str());
                 if (!attr.empty()) {
                     format = attr.value();
-if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
+if (debug) std::cout << "dictionary: found format = " << format << std::endl;
                 }
 
                 break;
@@ -369,12 +379,13 @@ if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
 
             // Skip meaningless entries
             if (name.empty() || tagStr.empty() || badEntry) {
-                std::cout << "IGNORING badly formatted dictionary entry: name = " << name << std::endl;
+                if (warn) std::cout << "dictionary: ignore badly formatted entry for " << name << std::endl;
                 continue;
             }
 
             if (numStr.empty() && !typeStr.empty()) {
-                if (debug) std::cout << "IGNORING bad type for this dictionary entry: type = " << typeStr << std::endl;
+                if (warn) std::cout << "dictionary: ignore invalid type (" << typeStr << ") for " << name <<
+                          ", must be valid evio type, num not defined?" <<std::endl;
                 typeStr = "";
             }
 
@@ -386,7 +397,7 @@ if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
                     num = numEnd;
                     numEnd = tmp;
                 }
-if (debug) std::cout << "Num or num range is DEFINED => num = " << num << ", numEnd = " << numEnd << "\n";
+if (debug) std::cout << "dictionary: num or num range is DEFINED => num = " << num << ", numEnd = " << numEnd << "\n";
 
                 std::string nameOrig = name;
 
@@ -402,7 +413,7 @@ if (debug) std::cout << "Num or num range is DEFINED => num = " << num << ", num
 
                     auto it = reverseMap.find(name);
                     if (it != reverseMap.end()) {
-                        std::cout << "IGNORING duplicate dictionary entry 1: name = " <<  name << std::endl;
+if (warn) std::cout << "dictionary: 1 ignore duplicate dictionary entry for " <<  name << std::endl;
                     }
                     else {
                         // Only add to dictionary if both name and tag/num pair are unique
@@ -410,13 +421,14 @@ if (debug) std::cout << "Num or num range is DEFINED => num = " << num << ", num
                         auto itnrm = tagNumReverseMap.find(name);
 
                         if ((itnm == tagNumMap.end()) && (itnrm == tagNumReverseMap.end())) {
-if (debug) std::cout << "  PLACING entry 1 into tagNum map, name = " <<  name << std::endl;
+                            // if we're here, insert will succeed
                             tagNumMap.insert({key, name});
+if (debug) std::cout << "dictionary: placing entry 1 into tagNum map, name = " <<  name << std::endl;
                             tagNumReverseMap.insert({name, key});
                             entryAlreadyExists = false;
                         }
                         else {
-                            std::cout << "IGNORING duplicate dictionary entry 2: name = " <<  name << std::endl;
+if (warn) std::cout << "dictionary: 2 ignore duplicate dictionary entry for " <<  name << std::endl;
                         }
 
                         if (!entryAlreadyExists) {
@@ -427,36 +439,34 @@ if (debug) std::cout << "  PLACING entry 1 into tagNum map, name = " <<  name <<
             }
             // If no num defined ...
             else {
-std::cout << "  make entry name = " <<  name << " with description = " << description << ", format = " << format << std::endl;
-
                 auto key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd, type, description, format);
                 bool entryAlreadyExists = true;
 
                 auto it = reverseMap.find(name);
                 if (it != reverseMap.end()) {
-                    std::cout << "IGNORING duplicate dictionary entry 3: name = " <<  name << std::endl;
+if (warn) std::cout << "dictionary: 3 ignore duplicate dictionary entry for " <<  name << std::endl;
                 }
                 else {
                     if (isTagRange) {
                         auto itrm = tagRangeMap.find(key);
                         if (itrm == tagRangeMap.end()) {
-if (debug) std::cout << "  PLACING entry 2 into tagRange map, name = " <<  name << std::endl;
+if (debug) std::cout << "dictionary: placing entry 2 into tagRange map, name = " <<  name << std::endl;
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
                         else {
-                            std::cout << "IGNORING duplicate dictionary entry 4: name = " <<  name << std::endl;
+if (warn) std::cout << "dictionary: 4 ignore duplicate dictionary entry for " <<  name << std::endl;
                         }
                     }
                     else {
                         auto itom  = tagOnlyMap.find(key);
                         if (itom == tagOnlyMap.end()) {
-if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name << std::endl;
+if (debug) std::cout << "dictionary: placing entry 3 into tagOnly map, name = " <<  name << std::endl;
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
-                        else {
-                            std::cout << "IGNORING duplicate dictionary entry: name = " <<  name << std::endl;
+                        else if (warn) {
+                            std::cout << "dictionary: 5 ignore duplicate dictionary entry for " <<  name << std::endl;
                         }
                     }
 
@@ -474,7 +484,7 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
 
         // Look at the (new) hierarchical entry elements,
         // recursively, and add all existing entries.
-        addHierarchicalDictEntries(rejectedChildren, "");
+        addHierarchicalDictEntries(rejectedChildren, "", nullptr, warn);
 
     } // end method
 
@@ -504,10 +514,14 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
      * This method acts recursively since any node may contain children.
      *
      * @param kidList a list of the children of an xml node.
-     * @param parentName name of the parent xml node.
+     * @param parentName name attribute of the parent node if any, else empty.
+     * @param parentEntry parent object if any, else nullptr.
+     * @param warn if true print warning for xml format error.
      */
     void EvioXMLDictionary::addHierarchicalDictEntries(std::vector<pugi::xml_node> & kidList,
-                                                       std::string const & parentName) {
+                                                       std::string const & parentName,
+                                                       std::shared_ptr<EvioDictionaryEntry> parentEntry,
+                                                       bool warn) {
 
         if (kidList.empty()) return;
 
@@ -516,12 +530,13 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
         uint8_t  num, numEnd;
         bool badEntry, isTagRange, isNumRange, isLeaf;
         std::string name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
+        std::shared_ptr<EvioDictionaryEntry> key;
 
         // Look at all the children
         for (pugi::xml_node node : kidList) {
 
             if (node.empty()) {
-                if (debug) std::cout << "node " << node.name() << " is empty so ignore it!" << std::endl;
+                if (debug) std::cout << "dictionary: node " << node.name() << " is empty so ignore it!" << std::endl;
                 continue;
             }
             std::string nodeName = node.name();
@@ -530,18 +545,15 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
 
             // Only looking for "bank" and "leaf" nodes
             if (!Util::iStrEquals(nodeName, ENTRY_BANK) && !isLeaf) {
-                if (debug) std::cout << "rejecting " << nodeName << " is NOT a bank or leaf" << std::endl;
+                if (debug) std::cout << "dictionary: rejecting " << nodeName << " is NOT a bank or leaf" << std::endl;
                 continue;
-            }
-
-            if (debug) {
-                std::cout << "node " << nodeName << " is a bank or leaf" << std::endl;
             }
 
             tag = tagEnd = num = numEnd = 0;
             badEntry = isTagRange = isNumRange = false;
             name = numStr = tagStr = typeStr = format = description = "";
             DataType type = DataType::UNKNOWN32;
+            key = nullptr;
 
             // Get the NAME attribute
             pugi::xml_attribute attrNode = node.attribute(NAME.c_str());
@@ -560,7 +572,7 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
                 regex_search(nodeVal, sm, pattern_regex);
 
                 if (debug) {
-                    std::cout << "Hierarchical string that matches the pattern:"<< std::endl;
+                    std::cout << "dictionary: hierarchical string that matches the pattern:"<< std::endl;
                     for (auto str : sm)
                        std::cout << str << " ";
                 }
@@ -594,6 +606,7 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
                                     // Since a num range is defined, the name MUST contain at least one %n
                                     if (name.find("%n") == std::string::npos) {
                                         badEntry = true;
+if (debug) std::cout << "dictionary: num range defined so name must contain at least one %n, but = " << name << std::endl;
                                     }
                                 }
                             }
@@ -612,6 +625,7 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
                 }
                 else {
                     badEntry = true;
+if (debug) std::cout << "dictionary: num must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
             }
 
@@ -669,6 +683,7 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
                 }
                 else {
                     badEntry = true;
+if (debug) std::cout << "dictionary: tag must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
             }
 
@@ -679,6 +694,7 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
                 if (!numStr.empty()) {
                     // Cannot define num (or num range) and tag range at the same time ...
                     badEntry = true;
+if (debug) std::cout << "dictionary: cannot define num (or num range) and tag range simultaneously for " << name << std::endl;
                 }
                 else {
                     name = std::regex_replace(name, std::regex("%t"), "");
@@ -692,9 +708,16 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
             attrNode = node.attribute(TYPE.c_str());
             if (attrNode.name() == TYPE) {
                 typeStr = attrNode.value();
-                // Change string to upper case, stupid C++ lib
-                std::transform(typeStr.begin(), typeStr.end(), typeStr.begin(), [](unsigned char c) -> unsigned char { return std::toupper(c); });
-                type = DataType::valueOf(typeStr);
+                DataType t = Util::getDataType(typeStr);
+                if (t != DataType::NOT_A_VALID_TYPE) {
+                    // Leave type as UNKNOWN32 unless properly specified
+                    type = t;
+                }
+                else {
+                    // Completely ignore bad type
+if (warn) std::cout << "dictionary: ignore invalid hierarchical type (" << typeStr << ") for " << name << std::endl;
+                    typeStr = "";
+                }
             }
 
             // Look for description node (xml element) as child of entry node
@@ -709,13 +732,13 @@ if (debug) std::cout << "  PLACING entry 3 into tagOnly map, name = " <<  name <
                 }
 
                 description = childNode.child_value();
-if (debug) std::cout << "FOUND DESCRIPTION H: = " << description << std::endl;
+if (debug) std::cout << "dictionary: found description = " << description << std::endl;
 
                 // See if there's a format attribute
                 pugi::xml_attribute attr = childNode.attribute(FORMAT.c_str());
                 if (!attr.empty()) {
                     format = attr.value();
-if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
+if (debug) std::cout << "dictionary: found format = " << format << std::endl;
                 }
 
                 break;
@@ -723,12 +746,13 @@ if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
 
             // Skip meaningless entries
             if (name.empty() || tagStr.empty() || badEntry) {
-                std::cout << "IGNORING badly formatted H dictionary entry 1: name = " << name << std::endl;
+                if (warn) std::cout << "dictionary: H ignore badly formatted entry for " << name << std::endl;
                 continue;
             }
 
             if (numStr.empty() && !typeStr.empty()) {
-                if (debug) std::cout << "IGNORING bad type for this H dictionary entry: type = " << typeStr << std::endl;
+                if (warn) std::cout << "dictionary: H ignore invalid type (" << typeStr << ") for " << name <<
+                                       ", must be valid evio type, num not defined?" << std::endl;
                 typeStr = "";
             }
 
@@ -754,23 +778,13 @@ if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
                         name.insert(0, parentName);
                     }
 
-                    // Find the parent entry if any
-                    std::shared_ptr<EvioDictionaryEntry> parent = nullptr;
-                    auto pName = node.parent().name();
-                    if (pName != nullptr) {
-                        auto it = reverseMap.find(name);
-                        if (it != reverseMap.end()) {
-                            parent = it->second;
-                        }
-                    }
-
-                    auto key = std::make_shared<EvioDictionaryEntry>(tag, n, tagEnd, type, description, format, parent);
+                    key = std::make_shared<EvioDictionaryEntry>(tag, n, tagEnd, type, description, format, parentEntry);
 
                     bool entryAlreadyExists = true;
 
                     auto it = reverseMap.find(name);
                     if (it != reverseMap.end()) {
-                        std::cout << "IGNORING duplicate dictionary entry: name = " << name << std::endl;
+                        if (warn) std::cout << "dictionary: 4 ignore duplicate entry: name for " << name << std::endl;
                     }
                     else {
                         // Only add to dictionary if both name and tag/num pair are unique
@@ -778,13 +792,14 @@ if (debug) std::cout << "FOUND FORMAT H: = " << format << std::endl;
                         auto itnrm = tagNumReverseMap.find(name);
 
                         if ((itnm == tagNumMap.end()) && (itnrm == tagNumReverseMap.end())) {
-if (debug) std::cout << "  PLACING H entry into tagNum map, name = " <<  name << std::endl;
+                            // If we get here, the insert should not fail
                             tagNumMap.insert({key, name});
+if (debug) std::cout << "dictionary: placing H entry into tagNum map, name = " <<  name << std::endl;
                             tagNumReverseMap.insert({name, key});
                             entryAlreadyExists = false;
                         }
-                        else {
-                            std::cout << "IGNORING duplicate dictionary entry: name = " << name << std::endl;
+                        else if (warn) {
+                            std::cout << "dictionary: 5 ignore duplicate entry for " << name << std::endl;
                         }
 
                         if (!entryAlreadyExists) {
@@ -800,22 +815,12 @@ if (debug) std::cout << "  PLACING H entry into tagNum map, name = " <<  name <<
                     name.insert(0, parentName);
                 }
 
-                // Find the parent entry if any
-                std::shared_ptr<EvioDictionaryEntry> parent = nullptr;
-                auto pName = node.parent().name();
-                if (pName != nullptr) {
-                    auto it = reverseMap.find(name);
-                    if (it != reverseMap.end()) {
-                        parent = it->second;
-                    }
-                }
-
-                auto key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd, type, description, format, parent);
+                key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd, type, description, format, parentEntry);
                 bool entryAlreadyExists = true;
 
                 auto it = reverseMap.find(name);
                 if (it != reverseMap.end()) {
-                    std::cout << "IGNORING duplicate dictionary entry: name = " << name << std::endl;
+                    if (warn) std::cout << "dictionary: 6 ignore duplicate entry: name = " << name << std::endl;
                 }
                 else {
                     if (isTagRange) {
@@ -825,8 +830,8 @@ if (debug) std::cout << "  PLACING H entry into tagRange map, name = " <<  name 
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
-                        else {
-                            std::cout << "IGNORING duplicate dictionary entry: name = " << name << std::endl;
+                        else if (warn) {
+                            std::cout << "dictionary: 7 ignore duplicate entry for " << name << std::endl;
                         }
                     }
                     else {
@@ -836,8 +841,8 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
-                        else {
-                            std::cout << "IGNORING duplicate dictionary entry: name = " << name << std::endl;
+                        else if (warn) {
+                            std::cout << "dictionary: 8 ignore duplicate entry for " << name << std::endl;
                         }
                     }
 
@@ -856,10 +861,10 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
 
             // Look at this node's children recursively but skip a leaf's kids
             if (!isLeaf) {
-                addHierarchicalDictEntries(children, name);
+                addHierarchicalDictEntries(children, name, key, warn);
             }
             else if (!children.empty()) {
-                std::cout << "IGNORING children of \"leaf\" element " << name << std::endl;
+                if (warn) std::cout << "dictionary: ignore children of \"leaf\" element " << name << std::endl;
             }
         }
     };
@@ -901,7 +906,7 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
      * @return descriptive name or ??? if none found
      */
     std::string EvioXMLDictionary::getName(uint16_t tag) {
-        return getName(tag, 0, tag, 0, 0, 0, false);
+        return getName(tag, 0, tag, 0, 0, 0, false, false, false);
     }
 
 
@@ -1103,7 +1108,7 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
         // to the key existing in the map. Use it to find the value.
         std::shared_ptr<EvioDictionaryEntry> parentEntry;
         if (parentNumValid) {
-            parentEntry = std::make_shared<EvioDictionaryEntry>(pTag, pNum, pTagEnd);
+            parentEntry = std::make_shared<EvioDictionaryEntry>(pTag, pNum, pTagEnd, DataType::UNKNOWN32);
         }
         else {
             parentEntry = std::make_shared<EvioDictionaryEntry>(pTag, pTagEnd);
@@ -1249,7 +1254,7 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
         // The generated key below is equivalent (equals() overridden) to the key existing
         // in the map. Use it to find the value, then use the value to find the
         // original key which contains other data besides tag, tagEnd, and num.
-        auto key = std::make_shared<EvioDictionaryEntry>(tag, num, tagEnd);
+        auto key = std::make_shared<EvioDictionaryEntry>(tag, num, tagEnd, DataType::UNKNOWN32);
         EvioDictionaryEntry::EvioDictionaryEntryType entryType = key->getEntryType();
 
         std::string name;

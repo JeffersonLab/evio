@@ -112,7 +112,7 @@ namespace evio {
          * Using a map ensures entries are unique.
          * @since 4.0
          */
-        std::unordered_map<std::shared_ptr<EvioDictionaryEntry>, std::string> tagNumMap;
+        std::unordered_map<std::shared_ptr<EvioDictionaryEntry>, std::string, EvioDictionaryEntry::Hash> tagNumMap;
 
         /**
          * Some dictionary entries have only a tag and no num.
@@ -120,7 +120,7 @@ namespace evio {
          * but does match a tag in this map.
          * @since 4.1
          */
-        std::unordered_map<std::shared_ptr<EvioDictionaryEntry>, std::string> tagOnlyMap;
+        std::unordered_map<std::shared_ptr<EvioDictionaryEntry>, std::string, EvioDictionaryEntry::Hash> tagOnlyMap;
 
         /**
          * Some dictionary entries have only a tag range and no num.
@@ -128,7 +128,7 @@ namespace evio {
          * or in the tagOnlyMap but the tag is within the specified range of an entry.
          * @since 5.2
          */
-        std::unordered_map<std::shared_ptr<EvioDictionaryEntry>, std::string> tagRangeMap;
+        std::unordered_map<std::shared_ptr<EvioDictionaryEntry>, std::string, EvioDictionaryEntry::Hash> tagRangeMap;
 
 
     private:
@@ -167,10 +167,10 @@ namespace evio {
         static const std::string &NO_NAME_STRING();
 
         explicit EvioXMLDictionary(std::string const &path);
-        EvioXMLDictionary(std::string const &xml, int dummy);
+        EvioXMLDictionary(std::string const &xml, bool warn);
 
 
-        void parseXML(pugi::xml_parse_result &domDocument);
+        void parseXML(pugi::xml_parse_result &domDocument, bool warn = false);
 
         size_t size() const;
 
@@ -181,7 +181,9 @@ namespace evio {
 
 
         void addHierarchicalDictEntries(std::vector<pugi::xml_node> &kidList,
-                                        std::string const &parentName);
+                                        std::string const &parentName,
+                                        std::shared_ptr<EvioDictionaryEntry> parentEntry,
+                                        bool warn = false);
 
     public:
 
@@ -193,14 +195,14 @@ namespace evio {
                             uint16_t pTag, uint8_t pNum, uint16_t pTagEnd);
         std::string getName(uint16_t tag, uint8_t num, uint16_t tagEnd,
                             uint16_t pTag, uint8_t pNum, uint16_t pTagEnd,
-                            bool numValid = true, bool parentValid = false,
-                            bool parentNumValid = false);
+                            bool numValid, bool parentValid,
+                            bool parentNumValid);
 
+        std::string getName(std::shared_ptr<EvioDictionaryEntry> key) const;
 
     private:
 
 
-        std::string getName(std::shared_ptr<EvioDictionaryEntry> key) const;
         std::shared_ptr<EvioDictionaryEntry> entryLookupByData(uint16_t tag, uint8_t num, uint16_t tagEnd) const;
         std::shared_ptr<EvioDictionaryEntry> entryLookupByName(std::string const &name) const;
 

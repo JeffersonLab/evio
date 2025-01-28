@@ -190,18 +190,32 @@ public class EvioXMLDictionary implements INameProvider {
      * @param file file containing xml.
      */
     public EvioXMLDictionary(File file) {
-        this(getDomObject(file));
+        this(file, null, false);
     }
 
     /**
      * Create an EvioXMLDictionary from an xml file.
      *
      * @param file file containing xml.
-     * @param delimiter character used to separate hierarchical parts of names.
+     * @param delimiter character used to separate hierarchical parts of names
+     *                  where null defaults to period(.)
      */
     public EvioXMLDictionary(File file, String delimiter) {
-        this(getDomObject(file), delimiter);
+        this(file, delimiter, false);
     }
+
+    /**
+     * Create an EvioXMLDictionary from an xml file.
+     *
+     * @param file file containing xml.
+     * @param delimiter character used to separate hierarchical parts of names
+     *                  where null defaults to period(.)
+     * @param debug     if true, print out debug messages.
+     */
+    public EvioXMLDictionary(File file, String delimiter, boolean debug) {
+        this(getDomObject(file), delimiter, debug);
+    }
+
 
     /**
      * Create an EvioXMLDictionary from an xml string.
@@ -209,17 +223,30 @@ public class EvioXMLDictionary implements INameProvider {
      * @param xmlString string containing xml.
      */
     public EvioXMLDictionary(String xmlString) {
-        this(getDomObject(xmlString));
+        this(xmlString, null, false);
     }
 
     /**
      * Create an EvioXMLDictionary from an xml string.
      *
      * @param xmlString string containing xml.
-     * @param delimiter character used to separate hierarchical parts of names.
+     * @param delimiter character used to separate hierarchical parts of names
+     *                  where null defaults to period(.)
      */
     public EvioXMLDictionary(String xmlString, String delimiter) {
-        this(getDomObject(xmlString), delimiter);
+        this(xmlString, delimiter, false);
+    }
+
+    /**
+     * Create an EvioXMLDictionary from an xml string.
+     *
+     * @param xmlString string containing xml.
+     * @param delimiter character used to separate hierarchical parts of names
+     *                  where null defaults to period(.)
+     * @param debug     if true, print out debug messages.
+     */
+    public EvioXMLDictionary(String xmlString, String delimiter, boolean debug) {
+        this(getDomObject(xmlString), delimiter, debug);
     }
 
     /**
@@ -228,16 +255,29 @@ public class EvioXMLDictionary implements INameProvider {
 	 * @param domDocument DOM object representing xml dictionary.
 	 */
 	public EvioXMLDictionary(Document domDocument) {
-        this(domDocument, null);
+        this(domDocument, null, false);
     }
 
     /**
      * Create an EvioXMLDictionary from an xml Document object.
      *
      * @param domDocument DOM object representing xml dictionary.
-     * @param delimiter character used to separate hierarchical parts of names.
+     * @param delimiter character used to separate hierarchical parts of names
+     *                  where null defaults to period(.)
      */
     public EvioXMLDictionary(Document domDocument, String delimiter) {
+        this(domDocument, delimiter, false);
+    }
+
+    /**
+     * Create an EvioXMLDictionary from an xml Document object.
+     *
+     * @param domDocument DOM object representing xml dictionary.
+     * @param delimiter character used to separate hierarchical parts of names
+     *                  where null defaults to period(.)
+     * @param warn     if true, print out warning debug messages.
+     */
+    public EvioXMLDictionary(Document domDocument, String delimiter, boolean warn) {
 
         if (domDocument == null) return;
         if (delimiter   != null) this.delimiter = delimiter;
@@ -256,6 +296,7 @@ public class EvioXMLDictionary implements INameProvider {
         NodeList kidList = topNode.getChildNodes();
         if (kidList.getLength() < 1) return;
 
+        boolean debug = false;
         Integer tag, tagEnd, num, numEnd;
         boolean badEntry, isTagRange, isNumRange;
         String name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
@@ -268,6 +309,7 @@ public class EvioXMLDictionary implements INameProvider {
             // Only looking for "xmldumpDictEntry" and "dictEntry" nodes
             if (!node.getNodeName().equalsIgnoreCase(ENTRY) &&
                 !node.getNodeName().equalsIgnoreCase(ENTRY_ALT)) {
+if (debug)  System.out.println("dictionary: rejecting node, " + node.getNodeName());
                 continue;
             }
 
@@ -293,7 +335,7 @@ public class EvioXMLDictionary implements INameProvider {
                 if (Utilities.getDataType(name) != null ||
                     name.equalsIgnoreCase("event") ||
                     name.equalsIgnoreCase("evio-data")) {
-System.out.println("IGNORING entry whose name conflicts with reserved strings: " + name);
+if (warn) System.out.println("dictionary: ignore entry whose name conflicts with reserved strings: " + name);
                     continue;
                 }
 
@@ -311,8 +353,10 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                             num = Integer.decode(numStr);
                         }
                         catch (NumberFormatException e) {
+                            // Since it matches pattern, we should never get here
                             badEntry = true;
                         }
+if (debug) System.out.println("dictionary: num = " + num);
 
                         // Ending num
                         numEndStr = matcher.group(3);
@@ -327,12 +371,15 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                     // Since a num range is defined, the name MUST contain at least one %n
                                     if (!name.contains("%n")) {
                                         badEntry = true;
+if (debug) System.out.println("dictionary: num range defined so name must contain at least one %n, but = " + name);
                                     }
                                 }
                             }
                             catch (NumberFormatException e) {
+                                // Since it matches pattern, we should never get here
                                 badEntry = true;
                             }
+if (debug) System.out.println("dictionary: numEnd = " + numEnd);
                         }
                         else {
                             // Set for later convenience in for loop
@@ -341,6 +388,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     }
                     else {
                         badEntry = true;
+if (debug) System.out.println("dictionary: num must be a valid non-negative integer or range, so ignore entry for " + name);
                     }
                 }
 
@@ -363,6 +411,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                             //System.out.println("Tag, dec = " + tag);
                         }
                         catch (NumberFormatException e) {
+                            // Since it matches pattern, we should never get here
                             badEntry = true;
                         }
 
@@ -379,12 +428,19 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                 }
                             }
                             catch (NumberFormatException e) {
+                                // Since it matches pattern, we should never get here
                                 badEntry = true;
                             }
                         }
                     }
                     else {
                         badEntry = true;
+if (debug) System.out.println("dictionary: tag must be a valid non-negative integer or range, so ignore entry for " + name);
+                    }
+
+                    if (debug) {
+                        System.out.println("dictionary: tag =  " + tag);
+                        System.out.println("dictionary: tagEnd =  " + tagEnd);
                     }
                 }
 
@@ -395,6 +451,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     if (num != null) {
                         // Cannot define num (or num range) and tag range at the same time ...
                         badEntry = true;
+if (debug) System.out.println("dictionary: cannot define num (or num range) and tag range simultaneously for " + name);
                     }
                     else {
                         name = name.replaceAll("%t", "");
@@ -409,7 +466,12 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 if (attrNode != null) {
                     typeStr = attrNode.getNodeValue();
                     typeStr = typeStr.toUpperCase();
-                    type = DataType.valueOf(typeStr);
+                    try {
+                        type = DataType.valueOf(typeStr);
+                    }
+                    catch (Exception e) {
+if (warn) System.out.println("dictionary: ignore invalid type (" + typeStr + ") for " + name);
+                    }
                 }
 
                 // Look for description node (xml element) as child of entry node
@@ -427,7 +489,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         }
 
                         description = childNode.getTextContent();
-//System.out.println("FOUND DESCRIPTION H: = " + description);
+//System.out.println("dictionary: found description = " + description);
 
                         // See if there's a format attribute
                         if (childNode.hasAttributes()) {
@@ -437,7 +499,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                             attrNode = map.getNamedItem(FORMAT);
                             if (attrNode != null) {
                                 format = attrNode.getNodeValue();
-//System.out.println("FOUND FORMAT H: = " + format);
+//System.out.println("dictionary: found format = " + format);
                             }
                         }
                         break;
@@ -446,12 +508,12 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
                 // Skip meaningless entries
                 if (name == null || tagStr == null || badEntry) {
-                    System.out.println("IGNORING badly formatted dictionary entry 1: name = " + name);
+if (warn) System.out.println("dictionary: ignore badly formatted entry for " + name);
                     continue;
                 }
 
                 if (numStr == null && typeStr != null) {
-                    //System.out.println("IGNORING bad type for this dictionary entry: type = " + typeStr);
+if (warn) System.out.println("dictionary: ignore invalid type (" + typeStr + ") for " + name + ", must be valid evio type, num not defined?");
                     typeStr = null;
                 }
 
@@ -464,6 +526,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         num = numEnd;
                         numEnd = tmp;
                     }
+if (debug) System.out.println("dictionary: num or num range is DEFINED => num = " + num + ", numEnd = " + numEnd);
 
                     String nameOrig = name;
 
@@ -477,7 +540,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         boolean entryAlreadyExists = true;
 
                         if (reverseMap.containsKey(name)) {
-                            System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 1 ignore duplicate dictionary entry for " + name);
                         }
                         else {
                             // Only add to dictionary if both name and tag/num pair are unique
@@ -488,7 +551,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                  entryAlreadyExists = false;
                             }
                             else {
-                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 2 ignore duplicate dictionary entry for " + name);
                             }
 
                             if (!entryAlreadyExists) {
@@ -499,13 +562,13 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 }
                 // If no num defined ...
                 else {
-//System.out.println("  make dictEntry name = " + name + " with description = " + description + ", format = " + format);
+//System.out.println("dictionary: make dictEntry name = " + name + " with description = " + description + ", format = " + format);
                     EvioDictionaryEntry key = new EvioDictionaryEntry(tag, null, tagEnd,
                                                                      type.toString(), description, format);
                     boolean entryAlreadyExists = true;
 
                     if (reverseMap.containsKey(name)) {
-                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 3 ignore duplicate dictionary entry for " + name);
                     }
                     else {
                         if (isTagRange) {
@@ -514,7 +577,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                 entryAlreadyExists = false;
                             }
                             else {
-                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 4 ignore duplicate dictionary entry for " + name);
                             }
                         }
                         else {
@@ -522,8 +585,8 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                 tagOnlyMap.put(key, name);
                                 entryAlreadyExists = false;
                             }
-                            else {
-                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                            else if (warn) {
+System.out.println("dictionary: 5 ignore duplicate dictionary entry for " + name);
                             }
                         }
 
@@ -537,7 +600,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
         // Look at the (new) hierarchical entry elements,
         // recursively, and add all existing entries.
-        addHierarchicalDictEntries(kidList, null);
+        addHierarchicalDictEntries(kidList, null, warn);
 
 	} // end Constructor
 
@@ -570,11 +633,13 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      *
      * @param kidList a list of the children of an xml node.
      * @param parentName name of the parent xml node.
+     * @param warn     if true, print out warning debug messages.
      */
-    private void addHierarchicalDictEntries(NodeList kidList, String parentName) {
+    private void addHierarchicalDictEntries(NodeList kidList, String parentName, boolean warn) {
 
         if (kidList == null || kidList.getLength() < 1) return;
 
+        boolean debug = false;
         Integer tag, tagEnd, num, numEnd;
         boolean isLeaf, badEntry, isTagRange, isNumRange;
         String name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
@@ -635,6 +700,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                     // Since a num range is defined, the name MUST contain at least one %n
                                     if (!name.contains("%n")) {
                                         badEntry = true;
+if (debug) System.out.println("dictionary: num range defined so name must contain at least one %n, but = " + name);
                                     }
                                 }
                             }
@@ -649,6 +715,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     }
                     else {
                         badEntry = true;
+if (debug) System.out.println("dictionary: num must be a valid non-negative integer or range, so ignore entry for " + name);
                     }
                 }
 
@@ -693,6 +760,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     }
                     else {
                         badEntry = true;
+if (debug) System.out.println("dictionary: tag must be a valid non-negative integer or range, so ignore entry for " + name);
                     }
                 }
 
@@ -703,6 +771,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     if (num != null) {
                         // Cannot define num and tag range at the same time ...
                         badEntry = true;
+if (debug) System.out.println("dictionary: cannot define num (or num range) and tag range simultaneously for " + name);
                     }
                     else {
                         name = name.replaceAll("%t", "");
@@ -717,7 +786,13 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 if (attrNode != null) {
                     typeStr = attrNode.getNodeValue();
                     typeStr = typeStr.toUpperCase();
-                    type = DataType.valueOf(typeStr);
+                    try {
+                        type = DataType.valueOf(typeStr);
+                    }
+                    catch (Exception e) {
+if (warn) System.out.println("dictionary: ignore invalid hierarchical type (" + typeStr + ") for " + name);
+                        typeStr = null;
+                    }
                 }
 
                 // Look for description node (xml element) as child of entry node
@@ -735,7 +810,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         }
 
                         description = childNode.getTextContent();
-//System.out.println("FOUND DESCRIPTION: = " + description);
+//System.out.println("dictionary: found description = " + description);
 
                         // See if there's a format attribute
                         if (childNode.hasAttributes()) {
@@ -745,7 +820,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                             attrNode = map.getNamedItem(FORMAT);
                             if (attrNode != null) {
                                 format = attrNode.getNodeValue();
-//System.out.println("FOUND FORMAT: = " + format);
+//System.out.println("dictionary: found format = " + format);
                             }
                         }
                         break;
@@ -754,12 +829,12 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
                 // Skip meaningless entries
                 if (name == null || tagStr == null || badEntry) {
-                    System.out.println("IGNORING badly formatted dictionary entry 3: name = " + name);
+if (warn) System.out.println("dictionary: H ignore badly formatted entry for " + name);
                     continue;
                 }
 
                 if (numStr == null && typeStr != null) {
-                    //System.out.println("IGNORING bad type for this dictionary entry: type = " + typeStr);
+if (warn) System.out.println("dictionary: H ignore invalid type (" + typeStr + ") for " + name + ", must be valid evio type, num not defined?");
                     typeStr = null;
                 }
 
@@ -790,6 +865,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         if (parentNode != null && parentNode.getNodeName().equals("bank")) {
                             parentEntry = (EvioDictionaryEntry)(parentNode.getUserData("entry"));
                         }
+//if (debug) System.out.println("dictionary: parent entry for " + name + " = " + parentEntry);
 
                         EvioDictionaryEntry key = new EvioDictionaryEntry(tag, n, tagEnd, type.toString(),
                                                                           description, format,
@@ -798,7 +874,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         boolean entryAlreadyExists = true;
 
                         if (reverseMap.containsKey(name)) {
-                            System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 4 ignore duplicate dictionary entry for " + name);
                         }
                         else {
                             // Only add to dictionary if both name and tag/num pair are unique
@@ -809,7 +885,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                  entryAlreadyExists = false;
                             }
                             else {
-                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 5 ignore duplicate dictionary entry for " + name);
                             }
 
                             if (!entryAlreadyExists) {
@@ -840,7 +916,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                    boolean entryAlreadyExists = true;
 
                     if (reverseMap.containsKey(name)) {
-                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 6 ignore duplicate dictionary entry for " + name);
                     }
                     else {
                         if (isTagRange) {
@@ -849,7 +925,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                 entryAlreadyExists = false;
                             }
                             else {
-                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 7 ignore duplicate dictionary entry for " + name);
                             }
                         }
                         else {
@@ -858,7 +934,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                                 entryAlreadyExists = false;
                             }
                             else {
-                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+if (warn) System.out.println("dictionary: 8 ignore duplicate dictionary entry for " + name);
                             }
                         }
 
@@ -871,10 +947,10 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
                 // Look at this node's children recursively but skip a leaf's kids
                 if (!isLeaf) {
-                    addHierarchicalDictEntries(node.getChildNodes(), name);
+                    addHierarchicalDictEntries(node.getChildNodes(), name, warn);
                 }
                 else if (node.hasChildNodes()) {
-                    System.out.println("IGNORING children of \"leaf\" element " + name);
+if (warn) System.out.println("dictionary: ignore children of \"leaf\" for " + name);
                 }
             }
         }
@@ -1005,7 +1081,8 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
         // The generated key below is equivalent (equals() overridden)
         // to the key existing in the map. Use it to find the value.
-        EvioDictionaryEntry parentKey = new EvioDictionaryEntry(pTag, pNum, pTagEnd, null);
+        EvioDictionaryEntry parentKey = new EvioDictionaryEntry(pTag, pNum, pTagEnd, DataType.UNKNOWN32.toString());
+        //System.out.println("getName: parent key = " + parentKey);
         EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, tagEnd,
                                                           null, null, null, parentKey);
 
@@ -1132,8 +1209,9 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
         // The generated key below is equivalent (equals() overridden) to the key existing
         // in the map. Use it to find the value, then use the value to find the
         // original key which contains other data besides tag, tagEnd, and num.
-        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, tagEnd, null);
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, tagEnd, DataType.UNKNOWN32.toString());
         EvioDictionaryEntryType entryType = key.getEntryType();
+//System.out.println("entryLookup, entryType = " + key.getEntryType() + ", key = " + key);
 
         String name;
         EvioDictionaryEntry entry = null;
@@ -1144,8 +1222,13 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 name = tagNumMap.get(key);
                 if (name != null) {
                     entry = tagNumReverseMap.get(name);
+                    //System.out.println("entryLookup, with key, found name = " + name);
+                    //System.out.println("                       entry = " + entry);
                     break;
                 }
+//                else {
+//                    System.out.println("entryLookup, found nothing in tagNumMap");
+//                }
 
                 // Create tag-only key and try to find tag-only match
                 key = new EvioDictionaryEntry(tag);
