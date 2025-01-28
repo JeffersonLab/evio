@@ -192,6 +192,7 @@ set(CPP_LIB_FILES
 set(TEST
         src/test/CompactBuilder_Test.cpp
         src/test/EvioCompStructHandlerTest.cpp
+        src/test/DictTest.cpp
         src/test/Dict_FirstEv_Test.cpp
         src/test/Hipo_Test.cpp
         src/test/IndexArrayLenTest.cpp
@@ -200,8 +201,6 @@ set(TEST
         src/test/RecordSupplyTest.cpp
         src/test/RingBufferTest.cpp
         src/test/Tree_Buf_Composite_Builder_Test.cpp
-        src/test/Writer_Reader_Compression_Test.cpp
-        src/test/Writer_Reader_Test.cpp
         src/test/hallDEventFiles.cpp
         src/test/FileWriteTest.cpp
         )
