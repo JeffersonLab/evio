@@ -989,7 +989,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
 
         // If no dictionary is specified, use the one provided with the
         // file/buffer. If that does not exist, throw an exception.
-        int tag, num;
+        Integer tag, num;
 
         if (dictionary == null && hasDictionary)  {
             dictionary = getDictionary();
@@ -998,7 +998,7 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         if (dictionary != null) {
             tag = dictionary.getTag(dictName);
             num = dictionary.getNum(dictName);
-            if (tag == -1 || num == -1) {
+            if (tag == null || num == null) {
                 throw new EvioException("no dictionary entry for " + dictName);
             }
         }

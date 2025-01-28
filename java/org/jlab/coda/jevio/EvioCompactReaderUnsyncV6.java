@@ -347,8 +347,44 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
     /** {@inheritDoc} */
     public  List<EvioNode> searchEvent(int eventNumber, String dictName,
-                                      EvioXMLDictionary dictionary)
-                                 throws EvioException {
+                                       EvioXMLDictionary dictionary)
+            throws EvioException {
+
+        if (dictName == null) {
+            throw new EvioException("null dictionary entry name");
+        }
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        // If no dictionary is specified, use the one provided with the
+        // file/buffer. If that does not exist, throw an exception.
+        Integer tag, num;
+
+        if (dictionary == null && hasDictionary())  {
+            dictionary = getDictionary();
+        }
+
+        if (dictionary != null) {
+            tag = dictionary.getTag(dictName);
+            num = dictionary.getNum(dictName);
+            if (tag == null || num == null) {
+                throw new EvioException("no dictionary entry for " + dictName);
+            }
+        }
+        else {
+            throw new EvioException("no dictionary available");
+        }
+
+        return searchEvent(eventNumber, tag, num);
+    }
+
+
+    /** {@inheritDoc} */
+    public  List<EvioNode> searchEventOrig(int eventNumber, String dictName,
+                                       EvioXMLDictionary dictionary)
+            throws EvioException {
 
         if (dictName == null) {
             throw new EvioException("null dictionary entry name");
