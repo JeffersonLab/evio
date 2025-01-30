@@ -424,7 +424,7 @@ namespace evio {
             ss << std::boolalpha;
 
             if (entryType == TAG_NUM) {
-                ss << "(tag=" << tag << ",tagEnd=" << tagEnd << ",num=" << +num <<
+                ss << "(tag=" << tag << ",num=" << +num <<
                       ",datatype=" << type.toString() << ",entrytype=TAG_NUM";
             }
             else if (entryType == TAG_ONLY) {
@@ -436,8 +436,14 @@ namespace evio {
             }
 
             if (parentEntry != nullptr) {
-                ss << ",parent=" << parentEntry->getTag() << "/" << +(parentEntry->getNum()) <<
-                      "/" << parentEntry->getTagEnd();
+                bool nVal = parentEntry->isNumValid();
+                if (nVal) {
+                    ss << ",parent=" << parentEntry->getTag() << "/" << +(parentEntry->getNum()) <<
+                       "/" << parentEntry->getTagEnd();
+                }
+                else {
+                    ss << ",parent=" << parentEntry->getTag() << "/undefined/" << parentEntry->getTagEnd();
+                }
             }
 
             ss << ")";

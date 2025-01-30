@@ -353,6 +353,21 @@ public class EvioDictionaryEntry {
                 builder.append(",entrytype=TAG_RANGE");
         }
 
+        if (parentEntry != null) {
+            builder.append(",parent=");
+            builder.append(parentEntry.getTag());
+            builder.append("/");
+            Integer n = parentEntry.getNum();
+            if (n == null) {
+                builder.append("undefined");
+            }
+            else {
+                builder.append(n);
+            }
+            builder.append("/");
+            builder.append(parentEntry.getTagEnd());
+        }
+
         builder.append(")");
 
         if (format != null || description != null) {
@@ -371,11 +386,6 @@ public class EvioDictionaryEntry {
             builder.append("\n");
         }
 
-//        if (parentEntry != null) {
-//            builder.append("    parent = ");
-//            builder.append(parentEntry.toString());
-//            builder.append("\n");
-//        }
 
         return builder.toString();
     }
