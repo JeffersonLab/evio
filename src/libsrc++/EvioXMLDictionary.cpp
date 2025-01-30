@@ -48,8 +48,8 @@ namespace evio {
 
 
     // Regular expression to parse tag & num
-    std::regex EvioXMLDictionary::pattern_regex("(\\d+)([ ]*-[ ]*(\\d+))?");
-
+    // Allows for int - int pattern with whitespace before and after ints, but nothing else
+    std::regex EvioXMLDictionary::pattern_regex("^\\s*(\\d+)\\s*(-\\s*(\\d+))?\\s*$");
 
     /////////////////////////////////////////////////////
 
@@ -105,6 +105,20 @@ namespace evio {
         parseXML(result, warn);
     };
 
+    // Recursive function to find the first matching node
+    pugi::xml_node EvioXMLDictionary::find_first_node(pugi::xml_node node, const std::string& node_name) {
+        if (std::string(node.name()) == node_name) {
+            return node;  // Return immediately if the node matches
+        }
+
+        // Iterate over direct children
+        for (pugi::xml_node child : node.children()) {
+            pugi::xml_node result = find_first_node(child, node_name);
+            if (result) return result;  // Return as soon as a match is found
+        }
+
+        return {};  // Return empty node if no match found
+    }
 
     /**
      * Create an EvioXMLDictionary from an xml Document object.
@@ -113,25 +127,22 @@ namespace evio {
      */
     void EvioXMLDictionary::parseXML(pugi::xml_parse_result & domDocument, bool warn) {
 
-        pugi::xml_node topNode = topLevelDoc = doc.child(DICT_TOP_LEVEL.c_str());
-
-        // If no dictionary (child nodes), just return
-        if (!topNode.first_child()) {
+        // Start scanning from the root node
+        pugi::xml_node topNode = find_first_node(doc.document_element(), DICT_TOP_LEVEL);
+        if (!topNode) {
+            if (warn) std::cout << "dictionary: cannot find node = " << DICT_TOP_LEVEL << ", so return\n";
             return;
         }
 
         bool debug = false;
         int tag, tagEnd;
         int num, numEnd;
-        bool badEntry, isTagRange, isNumRange;
+        bool badTagEntry, badNumEntry, badTagEndEntry, badNameEntry, badTypeEntry;
+        bool isTagRange, isNumRange;
         std::string name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
 
         // Pick out elements that are both old & new direct entry elements
-
-        uint32_t kidCount = 0;
-
-        // Look at all the children (and creating a list of them)
-        //std::vector<pugi::xml_node> children;
+        // Create a list of all hierarchical format children for later parsing
         std::vector<pugi::xml_node> rejectedChildren;
 
         for (pugi::xml_node node : topNode.children()) {
@@ -151,7 +162,8 @@ namespace evio {
             }
 
             tag = tagEnd = num = numEnd = 0;
-            badEntry = isTagRange = isNumRange = false;
+            badTagEntry = badNumEntry = badTagEndEntry = badNameEntry = badTypeEntry = false;
+            isTagRange = isNumRange = false;
             name = numStr = tagStr = typeStr = format = description = "";
             DataType type = DataType::UNKNOWN32;
 
@@ -195,53 +207,70 @@ namespace evio {
                     numStr = sm[1];
                     if (!numStr.empty()) {
                         try {
-                            num = (uint8_t) std::stoi(numStr);
-                            numEnd = num;
+                            //num = (uint8_t) std::stoi(numStr);
+                            num = std::stoi(numStr);
+                            // num can only be an unsigned 8 bit int
+                            if (num > 255) {
+if (warn) std::cout << "dictionary: num =  " << num << " is too large, must be < 256, for " << name << "\n";
+                                badNumEntry = true;
+                            }
+                            else {
+                                numEnd = num;
+                            }
                         }
                         catch (std::invalid_argument &e) {
-                            badEntry = true;
+                            badNumEntry = true;
                         }
                         catch (std::out_of_range &e) {
-                            badEntry = true;
+                            badNumEntry = true;
                         }
                     }
-
-if (debug) std::cout << "dictionary: num =  " << num << "\n";
 
                     // Ending num
-                    if (sm.size() > 3) {
-                        numEndStr = sm[3];
-                        if (!numEndStr.empty()) {
-                            try {
-                                numEnd = std::stoi(numEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                                if (numEnd > 0 && (numEnd != num)) {
-                                    isNumRange = true;
+                    if (!badNumEntry) {
+                        if (sm.size() > 3) {
+                            numEndStr = sm[3];
+                            if (!numEndStr.empty()) {
+                                try {
+                                    numEnd = std::stoi(numEndStr);
+                                    if (numEnd > 255) {
+                                        if (warn) std::cout << "dictionary: numEnd =  " << numEnd << " is too large, must be < 256, for " << name << "\n";
+                                        badNumEntry = true;
+                                    }
 
-                                    // Since a num range is defined, the name MUST contain at least one %n
-                                    if (name.find("%n") == std::string::npos) {
-                                        badEntry = true;
-if (debug) std::cout << "dictionary: num range defined so name must contain at least one %n, but = " << name << std::endl;
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                    else if (numEnd > 0 && (numEnd != num)) {
+                                        isNumRange = true;
+
+                                        // Since a num range is defined, the name MUST contain at least one %n
+                                        if (name.find("%n") == std::string::npos) {
+                                            badNameEntry = true;
+                                            if (debug)
+                                                std::cout
+                                                        << "dictionary: num range defined so name must contain at least one %n, but = "
+                                                        << name << std::endl;
+                                        }
                                     }
                                 }
+                                catch (std::invalid_argument &e) {
+                                    badNumEntry = true;
+                                }
+                                catch (std::out_of_range &e) {
+                                    badNumEntry = true;
+                                }
+                                if (debug) std::cout << "dictionary: numEnd =  " << numEnd << "\n";
                             }
-                            catch (std::invalid_argument &e) {
-                                badEntry = true;
+                            else {
+                                // Set for later convenience in for loop
+                                numEnd = num;
                             }
-                            catch (std::out_of_range &e) {
-                                badEntry = true;
-                            }
-if (debug) std::cout << "dictionary: numEnd =  " << numEnd << "\n";
-                        }
-                        else {
-                            // Set for later convenience in for loop
-                            numEnd = num;
                         }
                     }
+
                 }
                 else {
-                    badEntry = true;
+                    badNumEntry = true;
 if (debug) std::cout << "dictionary: num must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
             }
@@ -249,7 +278,6 @@ if (debug) std::cout << "dictionary: num must be a valid non-negative integer or
             // If no num defined, substitute "" for each %n
             if (numStr.empty()) {
                 name = std::regex_replace(name, std::regex("%n"), "");
-                //name = name.replaceAll("%n", "");
             }
 
             // Get the tag or tag range as the case may be
@@ -276,41 +304,54 @@ if (debug) std::cout << "dictionary: num must be a valid non-negative integer or
                     if (!tagStr.empty()) {
                         try {
                             tag = std::stoi(tagStr);
+                            // tag can only be an unsigned 16 bit int
+                            if (tag > 65535) {
+if (warn) std::cout << "dictionary: tag =  " << tag << " is too large, must be < 65536, for " << name << "\n";
+                                badTagEntry = true;
+                            }
                         }
                         catch (std::invalid_argument &e) {
-                            badEntry = true;
+                            badTagEntry = true;
                         }
                         catch (std::out_of_range &e) {
-                            badEntry = true;
+                            badTagEntry = true;
                         }
                     }
                     else {
-                        badEntry = true;
+                        badTagEntry = true;
                     }
 
                     // Ending tag
-                    if (sm.size() > 3) {
-                        tagEndStr = sm[3];
-                        if (!tagEndStr.empty()) {
-                            try {
-                                tagEnd = std::stoi(tagEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                                if (tagEnd > 0 && (tagEnd != tag)) {
-                                    isTagRange = true;
+                    if (!badTagEntry) {
+                        if (sm.size() > 3) {
+                            tagEndStr = sm[3];
+                            if (!tagEndStr.empty()) {
+                                try {
+                                    tagEnd = std::stoi(tagEndStr);
+                                    // tag can only be an unsigned 16 bit int
+                                    if (tagEnd > 65535) {
+if (warn) std::cout << "dictionary: tagEnd =  " << tagEnd << " is too large, must be < 65536, for " << name << "\n";
+                                        badTagEndEntry = true;
+                                    }
+
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                    else if (tagEnd > 0 && (tagEnd != tag)) {
+                                        isTagRange = true;
+                                    }
                                 }
-                            }
-                            catch (std::invalid_argument &e) {
-                                badEntry = true;
-                            }
-                            catch (std::out_of_range &e) {
-                                badEntry = true;
+                                catch (std::invalid_argument &e) {
+                                    badTagEndEntry = true;
+                                }
+                                catch (std::out_of_range &e) {
+                                    badTagEndEntry = true;
+                                }
                             }
                         }
                     }
                 }
                 else {
-                    badEntry = true;
+                    badTagEntry = true;
 if (debug) std::cout << "dictionary: tag must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
 
@@ -326,7 +367,7 @@ if (debug) std::cout << "dictionary: tag must be a valid non-negative integer or
             if (isTagRange) {
                 if (!numStr.empty()) {
                     // Cannot define num (or num range) and tag range at the same time ...
-                    badEntry = true;
+                    badNumEntry = true;
 if (debug) std::cout <<  "dictionary: cannot define num (or num range) and tag range simultaneously for " << name << std::endl;
                 }
                 else {
@@ -349,7 +390,7 @@ if (debug) std::cout <<  "dictionary: cannot define num (or num range) and tag r
                 else {
                     // Completely ignore bad type
                     if (warn) std::cout << "dictionary: ignore invalid type (" << typeStr << ") for name = " << name << std::endl;
-                    typeStr = "";
+                    badTypeEntry = true;
                 }
             }
 
@@ -377,13 +418,21 @@ if (debug) std::cout << "dictionary: found format = " << format << std::endl;
                 break;
             }
 
-            // Skip meaningless entries
-            if (name.empty() || tagStr.empty() || badEntry) {
-                if (warn) std::cout << "dictionary: ignore badly formatted entry for " << name << std::endl;
+            // Skip invalid entries
+            if (name.empty() || badNameEntry) {
+                if (warn) std::cout << "dictionary: ignore name that is empty or does not contain \"%n\" for num range, name = " << name << std::endl;
+                continue;
+            }
+            else if (tagStr.empty() || badTagEntry || badTagEndEntry) {
+                if (warn) std::cout << "dictionary: ignore empty of invalid tag or tagEnd for name = " << name << std::endl;
+                continue;
+            }
+            else if (badNumEntry) {
+                if (warn) std::cout << "dictionary: ignore invalid num/num-range entry for name = " << name << std::endl;
                 continue;
             }
 
-            if (numStr.empty() && !typeStr.empty()) {
+            if (badTypeEntry) {
                 if (warn) std::cout << "dictionary: ignore invalid type (" << typeStr << ") for " << name <<
                           ", must be valid evio type, num not defined?" <<std::endl;
                 typeStr = "";
@@ -475,12 +524,7 @@ if (debug) std::cout << "dictionary: placing entry 3 into tagOnly map, name = " 
                     }
                 }
             }
-
-            //children.push_back(node);
-            kidCount++;
         }
-
-        if (kidCount < 1) return;
 
         // Look at the (new) hierarchical entry elements,
         // recursively, and add all existing entries.
@@ -526,9 +570,10 @@ if (debug) std::cout << "dictionary: placing entry 3 into tagOnly map, name = " 
         if (kidList.empty()) return;
 
         bool debug = false;
-        uint16_t tag, tagEnd;
-        uint8_t  num, numEnd;
-        bool badEntry, isTagRange, isNumRange, isLeaf;
+        int tag, tagEnd;
+        int num, numEnd;
+        bool badTagEntry, badNumEntry, badTagEndEntry, badNameEntry, badTypeEntry;
+        bool isTagRange, isNumRange, isLeaf;
         std::string name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
         std::shared_ptr<EvioDictionaryEntry> key;
 
@@ -550,7 +595,8 @@ if (debug) std::cout << "dictionary: placing entry 3 into tagOnly map, name = " 
             }
 
             tag = tagEnd = num = numEnd = 0;
-            badEntry = isTagRange = isNumRange = false;
+            badTagEntry = badNumEntry = badTagEndEntry = badNameEntry = badTypeEntry = false;
+            isTagRange = isNumRange = false;
             name = numStr = tagStr = typeStr = format = description = "";
             DataType type = DataType::UNKNOWN32;
             key = nullptr;
@@ -583,49 +629,67 @@ if (debug) std::cout << "dictionary: placing entry 3 into tagOnly map, name = " 
                     if (!numStr.empty()) {
                         try {
                             num = std::stoi(numStr);
+                            // num can only be an unsigned 8 bit int
+                            if (num > 255) {
+                                if (warn) std::cout << "dictionary: H num =  " << num << " is too large, must be < 256, for " << name << "\n";
+                                badNumEntry = true;
+                            }
+                            else {
+                                numEnd = num;
+                            }
                         }
                         catch (std::invalid_argument &e) {
-                            badEntry = true;
+                            badNumEntry = true;
                         }
                         catch (std::out_of_range &e) {
-                            badEntry = true;
+                            badNumEntry = true;
                         }
                     }
 
                     // Ending num
-                    if (sm.size() > 3) {
-                        numEndStr = sm[3];
-                        if (!numEndStr.empty()) {
-                            try {
-                                numEnd = std::stoi(numEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                                if (numEnd > 0 && (numEnd != num)) {
-                                    isNumRange = true;
+                    if (!badNumEntry) {
+                        if (sm.size() > 3) {
+                            numEndStr = sm[3];
+                            if (!numEndStr.empty()) {
+                                try {
+                                    numEnd = std::stoi(numEndStr);
+                                    if (numEnd > 255) {
+                                        if (warn) std::cout << "dictionary: H numEnd =  " << numEnd << " is too large, must be < 256, for " << name << "\n";
+                                        badNumEntry = true;
+                                    }
 
-                                    // Since a num range is defined, the name MUST contain at least one %n
-                                    if (name.find("%n") == std::string::npos) {
-                                        badEntry = true;
-if (debug) std::cout << "dictionary: num range defined so name must contain at least one %n, but = " << name << std::endl;
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                    if (numEnd > 0 && (numEnd != num)) {
+                                        isNumRange = true;
+
+                                        // Since a num range is defined, the name MUST contain at least one %n
+                                        if (name.find("%n") == std::string::npos) {
+                                            badNameEntry = true;
+                                            if (debug)
+                                                std::cout
+                                                        << "dictionary: H num range defined so name must contain at least one %n, but = "
+                                                        << name << std::endl;
+                                        }
                                     }
                                 }
+                                catch (std::invalid_argument &e) {
+                                    badNumEntry = true;
+                                }
+                                catch (std::out_of_range &e) {
+                                    badNumEntry = true;
+                                }
                             }
-                            catch (std::invalid_argument &e) {
-                                badEntry = true;
+                            else {
+                                // Set for later convenience in for loop
+                                numEnd = num;
                             }
-                            catch (std::out_of_range &e) {
-                                badEntry = true;
-                            }
-                        }
-                        else {
-                            // Set for later convenience in for loop
-                            numEnd = num;
                         }
                     }
                 }
                 else {
-                    badEntry = true;
-if (debug) std::cout << "dictionary: num must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
+                    badNumEntry = true;
+if (debug) std::cout << "dictionary: H num must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
             }
 
@@ -651,39 +715,55 @@ if (debug) std::cout << "dictionary: num must be a valid non-negative integer or
                     if (!tagStr.empty()) {
                         try {
                             tag = std::stoi(tagStr);
+                            // tag can only be an unsigned 16 bit int
+                            if (tag > 65535) {
+                                if (warn) std::cout << "dictionary: H tag =  " << tag << " is too large, must be < 65536, for " << name << "\n";
+                                badTagEntry = true;
+                            }
                         }
                         catch (std::invalid_argument &e) {
-                            badEntry = true;
+                            badTagEntry = true;
                         }
                         catch (std::out_of_range &e) {
-                            badEntry = true;
+                            badTagEntry = true;
                         }
+                    }
+                    else {
+                        badTagEntry = true;
                     }
 
                     // Ending tag
-                    if (sm.size() > 3) {
-                        tagEndStr = sm[3];
-                        if (!tagEndStr.empty()) {
-                            try {
-                                tagEnd = std::stoi(tagEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                                if (tagEnd > 0 && (tagEnd != tag)) {
-                                    isTagRange = true;
+                    if (!badTagEntry) {
+                        if (sm.size() > 3) {
+                            tagEndStr = sm[3];
+                            if (!tagEndStr.empty()) {
+                                try {
+                                    tagEnd = std::stoi(tagEndStr);
+                                    // tag can only be an unsigned 16 bit int
+                                    if (tagEnd > 65535) {
+                                        if (warn) std::cout << "dictionary: H tagEnd =  " << tagEnd << " is too large, must be < 65536, for " << name << "\n";
+                                        badTagEndEntry = true;
+                                    }
+
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                    if (tagEnd > 0 && (tagEnd != tag)) {
+                                        isTagRange = true;
+                                    }
                                 }
-                            }
-                            catch (std::invalid_argument &e) {
-                                badEntry = true;
-                            }
-                            catch (std::out_of_range &e) {
-                                badEntry = true;
+                                catch (std::invalid_argument &e) {
+                                    badTagEndEntry = true;
+                                }
+                                catch (std::out_of_range &e) {
+                                    badTagEndEntry = true;
+                                }
                             }
                         }
                     }
                 }
                 else {
-                    badEntry = true;
-if (debug) std::cout << "dictionary: tag must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
+                    badTagEndEntry = true;
+if (debug) std::cout << "dictionary: H tag must be a valid non-negative integer or range, so ignore entry for " << name << std::endl;
                 }
             }
 
@@ -693,8 +773,8 @@ if (debug) std::cout << "dictionary: tag must be a valid non-negative integer or
             if (isTagRange) {
                 if (!numStr.empty()) {
                     // Cannot define num (or num range) and tag range at the same time ...
-                    badEntry = true;
-if (debug) std::cout << "dictionary: cannot define num (or num range) and tag range simultaneously for " << name << std::endl;
+                    badNumEntry = true;
+if (debug) std::cout << "dictionary: H cannot define num (or num range) and tag range simultaneously for " << name << std::endl;
                 }
                 else {
                     name = std::regex_replace(name, std::regex("%t"), "");
@@ -744,15 +824,23 @@ if (debug) std::cout << "dictionary: found format = " << format << std::endl;
                 break;
             }
 
-            // Skip meaningless entries
-            if (name.empty() || tagStr.empty() || badEntry) {
-                if (warn) std::cout << "dictionary: H ignore badly formatted entry for " << name << std::endl;
+            // Skip invalid entries
+            if (name.empty() || badNameEntry) {
+                if (warn) std::cout << "dictionary: H ignore name that is empty or does not contain \"%n\" for num range, name = " << name << std::endl;
+                continue;
+            }
+            else if (tagStr.empty() || badTagEntry || badTagEndEntry) {
+                if (warn) std::cout << "dictionary: H ignore empty of invalid tag or tagEnd for name = " << name << std::endl;
+                continue;
+            }
+            else if (badNumEntry) {
+                if (warn) std::cout << "dictionary: H ignore invalid num/num-range entry for name = " << name << std::endl;
                 continue;
             }
 
-            if (numStr.empty() && !typeStr.empty()) {
+            if (badTypeEntry) {
                 if (warn) std::cout << "dictionary: H ignore invalid type (" << typeStr << ") for " << name <<
-                                       ", must be valid evio type, num not defined?" << std::endl;
+                                    ", must be valid evio type, num not defined?" <<std::endl;
                 typeStr = "";
             }
 
@@ -768,7 +856,7 @@ if (debug) std::cout << "dictionary: found format = " << format << std::endl;
                 std::string nameOrig = name;
 
                 // Range of nums (num == numEnd for no range)
-                for (uint8_t n = num; n <= numEnd; n++) {
+                for (int n = num; n <= numEnd; n++) {
                     // Scan name for the string "%n" and substitute num for it
                     name = std::regex_replace(nameOrig, std::regex("%n"), std::to_string(n));
 

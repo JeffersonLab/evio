@@ -112,11 +112,11 @@ public class EvioXMLDictionary implements INameProvider {
 
     /**
      * Use regular expressions to parse a tag since it may be of the form:
-     * tag="num" or tag="num1 - num2". Allow spaces on either side of minus.
+     * tag="num" or tag="num1 - num2".
+     * Allows for int - int pattern with whitespace before and after ints, but nothing else.
      * @since 5.2
      */
-    private static Pattern pattern = Pattern.compile("(\\d+)([ ]*-[ ]*(\\d+))?");
-
+    private static Pattern pattern = Pattern.compile("^\\s*(\\d+)\\s*(-\\s*(\\d+))?\\s*$");
 
 
     /**
@@ -298,7 +298,8 @@ public class EvioXMLDictionary implements INameProvider {
 
         boolean debug = false;
         Integer tag, tagEnd, num, numEnd;
-        boolean badEntry, isTagRange, isNumRange;
+        boolean badTagEntry, badNumEntry, badTagEndEntry, badNameEntry, badTypeEntry;
+        boolean isTagRange, isNumRange;
         String name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
 
         // Pick out elements that are both old & new direct entry elements
@@ -314,7 +315,8 @@ if (debug)  System.out.println("dictionary: rejecting node, " + node.getNodeName
             }
 
             tag = tagEnd = num = numEnd = null;
-            badEntry = isTagRange = isNumRange = false;
+            badTagEntry = badNumEntry = badTagEndEntry = badNameEntry = badTypeEntry = false;
+            isTagRange = isNumRange = false;
             name = numStr = tagStr = typeStr = format = description = null;
             DataType type = DataType.UNKNOWN32;
 
@@ -351,43 +353,56 @@ if (warn) System.out.println("dictionary: ignore entry whose name conflicts with
                         numStr = matcher.group(1);
                         try {
                             num = Integer.decode(numStr);
+                            if (num > 255) {
+if (warn) System.out.println("dictionary: num = " + num + " is too large must be < 256, for " + name);
+                                badNumEntry = true;
+                            }
                         }
                         catch (NumberFormatException e) {
                             // Since it matches pattern, we should never get here
-                            badEntry = true;
+                            badNumEntry = true;
                         }
 if (debug) System.out.println("dictionary: num = " + num);
 
                         // Ending num
-                        numEndStr = matcher.group(3);
-                        if (numEndStr != null) {
-                            try {
-                                numEnd = Integer.decode(numEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                                if (numEnd > 0 && !numEnd.equals(num)) {
-                                    isNumRange = true;
+                        if (!badNumEntry) {
+                            numEndStr = matcher.group(3);
+                            if (numEndStr != null) {
+                                try {
+                                    numEnd = Integer.decode(numEndStr);
+                                    if (numEnd > 255) {
+                                        if (warn) System.out.println("dictionary: numEnd = " + numEnd + " is too large must be < 256, for " + name);
+                                        badNumEntry = true;
+                                    }
 
-                                    // Since a num range is defined, the name MUST contain at least one %n
-                                    if (!name.contains("%n")) {
-                                        badEntry = true;
-if (debug) System.out.println("dictionary: num range defined so name must contain at least one %n, but = " + name);
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                    else if (numEnd > 0 && !numEnd.equals(num)) {
+                                        isNumRange = true;
+
+                                        // Since a num range is defined, the name MUST contain at least one %n
+                                        if (!name.contains("%n")) {
+                                            badNameEntry = true;
+                                            if (debug)
+                                                System.out.println("dictionary: num range defined so name must contain at least one %n, but = " + name);
+                                        }
                                     }
                                 }
+                                catch (NumberFormatException e) {
+                                    // Since it matches pattern, we should never get here
+                                    badNumEntry = true;
+                                }
+                                if (debug) System.out.println("dictionary: numEnd = " + numEnd);
                             }
-                            catch (NumberFormatException e) {
-                                // Since it matches pattern, we should never get here
-                                badEntry = true;
+                            else {
+                                // Set for later convenience in for loop
+                                numEnd = num;
                             }
-if (debug) System.out.println("dictionary: numEnd = " + numEnd);
                         }
-                        else {
-                            // Set for later convenience in for loop
-                            numEnd = num;
-                        }
+
                     }
                     else {
-                        badEntry = true;
+                        badNumEntry = true;
 if (debug) System.out.println("dictionary: num must be a valid non-negative integer or range, so ignore entry for " + name);
                     }
                 }
@@ -408,33 +423,44 @@ if (debug) System.out.println("dictionary: num must be a valid non-negative inte
                         tagStr = matcher.group(1);
                         try {
                             tag = Integer.decode(tagStr);
+                            if (tag > 65535) {
+if (warn) System.out.println("dictionary: tag = " + tag + " is too large must be < 65536, for " + name);
+                                badTagEntry = true;
+                            }
                             //System.out.println("Tag, dec = " + tag);
                         }
                         catch (NumberFormatException e) {
                             // Since it matches pattern, we should never get here
-                            badEntry = true;
+                            badTagEntry = true;
                         }
 
                         // Ending tag
-                        tagEndStr = matcher.group(3);
-                        if (tagEndStr != null) {
-                            try {
-                                tagEnd = Integer.decode(tagEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                                if (tagEnd > 0 && !tagEnd.equals(tag)) {
-                                    isTagRange = true;
-                                    //System.out.println("Tag end, dec = " + tagEnd);
+                        if (!badTagEntry) {
+                            tagEndStr = matcher.group(3);
+                            if (tagEndStr != null) {
+                                try {
+                                    tagEnd = Integer.decode(tagEndStr);
+                                    if (tagEnd > 65535) {
+if (warn) System.out.println("dictionary: tagEnd = " + tagEnd + " is too large must be < 65536, for " + name);
+                                        badTagEndEntry = true;
+                                    }
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                    else if (tagEnd > 0 && !tagEnd.equals(tag)) {
+                                        isTagRange = true;
+                                        //System.out.println("Tag end, dec = " + tagEnd);
+                                    }
+                                }
+                                catch (NumberFormatException e) {
+                                    // Since it matches pattern, we should never get here
+                                    badTagEndEntry = true;
                                 }
                             }
-                            catch (NumberFormatException e) {
-                                // Since it matches pattern, we should never get here
-                                badEntry = true;
-                            }
                         }
+
                     }
                     else {
-                        badEntry = true;
+                        badTagEntry = true;
 if (debug) System.out.println("dictionary: tag must be a valid non-negative integer or range, so ignore entry for " + name);
                     }
 
@@ -450,7 +476,7 @@ if (debug) System.out.println("dictionary: tag must be a valid non-negative inte
                 if (isTagRange) {
                     if (num != null) {
                         // Cannot define num (or num range) and tag range at the same time ...
-                        badEntry = true;
+                        badNumEntry = true;
 if (debug) System.out.println("dictionary: cannot define num (or num range) and tag range simultaneously for " + name);
                     }
                     else {
@@ -470,7 +496,8 @@ if (debug) System.out.println("dictionary: cannot define num (or num range) and 
                         type = DataType.valueOf(typeStr);
                     }
                     catch (Exception e) {
-if (warn) System.out.println("dictionary: ignore invalid type (" + typeStr + ") for " + name);
+                        badTypeEntry = true;
+                        if (warn) System.out.println("dictionary: ignore invalid type (" + typeStr + ") for " + name);
                     }
                 }
 
@@ -506,13 +533,21 @@ if (warn) System.out.println("dictionary: ignore invalid type (" + typeStr + ") 
                     }
                 }
 
-                // Skip meaningless entries
-                if (name == null || tagStr == null || badEntry) {
-if (warn) System.out.println("dictionary: ignore badly formatted entry for " + name);
+                // Skip invalid entries
+                if (name == null || badNameEntry) {
+if (warn) System.out.println("dictionary: ignore name that is empty or does not contain \"%n\" for num range, name = " + name);
+                    continue;
+                }
+                else if (tagStr == null || badTagEntry || badTagEndEntry) {
+if (warn) System.out.println("dictionary: ignore empty or invalid tag or tagEnd for name = " + name);
+                    continue;
+                }
+                else if (badNumEntry) {
+if (warn) System.out.println("dictionary: ignore invalid num/num-range entry for name = " + name);
                     continue;
                 }
 
-                if (numStr == null && typeStr != null) {
+                if (badTypeEntry) {
 if (warn) System.out.println("dictionary: ignore invalid type (" + typeStr + ") for " + name + ", must be valid evio type, num not defined?");
                     typeStr = null;
                 }
@@ -641,7 +676,8 @@ System.out.println("dictionary: 5 ignore duplicate dictionary entry for " + name
 
         boolean debug = false;
         Integer tag, tagEnd, num, numEnd;
-        boolean isLeaf, badEntry, isTagRange, isNumRange;
+        boolean badTagEntry, badNumEntry, badTagEndEntry, badNameEntry, badTypeEntry;
+        boolean isTagRange, isNumRange, isLeaf;
         String name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
 
         for (int i = 0; i < kidList.getLength(); i++) {
@@ -657,7 +693,8 @@ System.out.println("dictionary: 5 ignore duplicate dictionary entry for " + name
             }
 
             tag = tagEnd = num = numEnd = null;
-            badEntry = isTagRange = isNumRange = false;
+            badTagEntry = badNumEntry = badTagEndEntry = badNameEntry = badTypeEntry = false;
+            isTagRange = isNumRange = false;
             name = numStr = tagStr = typeStr = format = description = null;
             DataType type = DataType.UNKNOWN32;
 
@@ -682,40 +719,53 @@ System.out.println("dictionary: 5 ignore duplicate dictionary entry for " + name
                         numStr = matcher.group(1);
                         try {
                             num = Integer.decode(numStr);
+                            if (num > 255) {
+                                if (warn) System.out.println("dictionary: H num = " + num + " is too large must be < 256, for " + name);
+                                badNumEntry = true;
+                            }
                         }
                         catch (NumberFormatException e) {
-                            badEntry = true;
+                            badNumEntry = true;
                         }
 
                         // Ending num
-                        numEndStr = matcher.group(3);
-                        if (numEndStr != null) {
-                            try {
-                                numEnd = Integer.decode(numEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
-                                if (numEnd > 0 && !numEnd.equals(num)) {
-                                    isNumRange = true;
+                        if (!badNumEntry) {
+                            numEndStr = matcher.group(3);
+                            if (numEndStr != null) {
+                                try {
+                                    numEnd = Integer.decode(numEndStr);
+                                    if (numEnd > 255) {
+                                        if (warn) System.out.println("dictionary: H numEnd = " + numEnd + " is too large must be < 256, for " + name);
+                                        badNumEntry = true;
+                                    }
 
-                                    // Since a num range is defined, the name MUST contain at least one %n
-                                    if (!name.contains("%n")) {
-                                        badEntry = true;
-if (debug) System.out.println("dictionary: num range defined so name must contain at least one %n, but = " + name);
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                    if (numEnd > 0 && !numEnd.equals(num)) {
+                                        isNumRange = true;
+
+                                        // Since a num range is defined, the name MUST contain at least one %n
+                                        if (!name.contains("%n")) {
+                                            badNameEntry = true;
+                                            if (debug)
+                                                System.out.println("dictionary: H num range defined so name must contain at least one %n, but = " + name);
+                                        }
                                     }
                                 }
+                                catch (NumberFormatException e) {
+                                    badNumEntry = true;
+                                }
                             }
-                            catch (NumberFormatException e) {
-                                badEntry = true;
+                            else {
+                                // Set for later convenience in for loop
+                                numEnd = num;
                             }
                         }
-                        else {
-                            // Set for later convenience in for loop
-                            numEnd = num;
-                        }
+
                     }
                     else {
-                        badEntry = true;
-if (debug) System.out.println("dictionary: num must be a valid non-negative integer or range, so ignore entry for " + name);
+                        badNumEntry = true;
+if (debug) System.out.println("dictionary: H num must be a valid non-negative integer or range, so ignore entry for " + name);
                     }
                 }
 
@@ -735,32 +785,44 @@ if (debug) System.out.println("dictionary: num must be a valid non-negative inte
                         tagStr = matcher.group(1);
                         try {
                             tag = Integer.decode(tagStr);
+                            if (tag > 65535) {
+                                if (warn) System.out.println("dictionary: H tag = " + tag + " is too large must be < 65536, for " + name);
+                                badTagEntry = true;
+                            }
                             //System.out.println("Tag, dec = " + tag);
                         }
                         catch (NumberFormatException e) {
-                            badEntry = true;
+                            badTagEntry = true;
                         }
 
                         // Ending tag
-                        tagEndStr = matcher.group(3);
-                        if (tagEndStr != null) {
-                            try {
-                                tagEnd = Integer.decode(tagEndStr);
-                                // The regexp matching only allows values >= 0 for tagEnd.
-                                // Value of 0 means no range defined.
-                                if (tagEnd > 0) {
-                                    isTagRange = true;
-                                    //System.out.println("Tag end, dec = " + tagEnd);
+                        if (!badTagEntry) {
+                            tagEndStr = matcher.group(3);
+                            if (tagEndStr != null) {
+                                try {
+                                    tagEnd = Integer.decode(tagEndStr);
+                                    if (tagEnd > 65535) {
+                                        if (warn) System.out.println("dictionary: H tagEnd = " + tagEnd + " is too large must be < 65536, for " + name);
+                                        badTagEndEntry = true;
+                                    }
+
+                                    // The regexp matching only allows values >= 0 for tagEnd.
+                                    // Value of 0 means no range defined.
+                                    if (tagEnd > 0) {
+                                        isTagRange = true;
+                                        //System.out.println("Tag end, dec = " + tagEnd);
+                                    }
+                                }
+                                catch (NumberFormatException e) {
+                                    badTagEndEntry = true;
                                 }
                             }
-                            catch (NumberFormatException e) {
-                                badEntry = true;
-                            }
                         }
+
                     }
                     else {
-                        badEntry = true;
-if (debug) System.out.println("dictionary: tag must be a valid non-negative integer or range, so ignore entry for " + name);
+                        badTagEndEntry = true;
+if (debug) System.out.println("dictionary: H tag must be a valid non-negative integer or range, so ignore entry for " + name);
                     }
                 }
 
@@ -770,8 +832,8 @@ if (debug) System.out.println("dictionary: tag must be a valid non-negative inte
                 if (isTagRange) {
                     if (num != null) {
                         // Cannot define num and tag range at the same time ...
-                        badEntry = true;
-if (debug) System.out.println("dictionary: cannot define num (or num range) and tag range simultaneously for " + name);
+                        badNumEntry = true;
+if (debug) System.out.println("dictionary: H cannot define num (or num range) and tag range simultaneously for " + name);
                     }
                     else {
                         name = name.replaceAll("%t", "");
@@ -827,14 +889,22 @@ if (warn) System.out.println("dictionary: ignore invalid hierarchical type (" + 
                     }
                 }
 
-                // Skip meaningless entries
-                if (name == null || tagStr == null || badEntry) {
-if (warn) System.out.println("dictionary: H ignore badly formatted entry for " + name);
+                // Skip invalid entries
+                if (name == null || badNameEntry) {
+                    if (warn) System.out.println("dictionary: H ignore name that is empty or does not contain \"%n\" for num range, name = " + name);
+                    continue;
+                }
+                else if (tagStr == null || badTagEntry || badTagEndEntry) {
+                    if (warn) System.out.println("dictionary: H ignore empty or invalid tag or tagEnd for name = " + name);
+                    continue;
+                }
+                else if (badNumEntry) {
+                    if (warn) System.out.println("dictionary: H ignore invalid num/num-range entry for name = " + name);
                     continue;
                 }
 
-                if (numStr == null && typeStr != null) {
-if (warn) System.out.println("dictionary: H ignore invalid type (" + typeStr + ") for " + name + ", must be valid evio type, num not defined?");
+                if (badTypeEntry) {
+                    if (warn) System.out.println("dictionary: H ignore invalid type (" + typeStr + ") for " + name + ", must be valid evio type, num not defined?");
                     typeStr = null;
                 }
 

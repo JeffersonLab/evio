@@ -179,6 +179,7 @@ namespace evio {
 
     private:
 
+        pugi::xml_node find_first_node(pugi::xml_node node, const std::string& node_name);
 
         void addHierarchicalDictEntries(std::vector<pugi::xml_node> &kidList,
                                         std::string const &parentName,
