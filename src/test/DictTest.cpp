@@ -36,33 +36,33 @@ namespace evio {
             ss << "<JUNK>\n" <<
                "<moreJunk/>\n" <<
 
-               "<xmlDict attr='junk'>" <<
-               "<leaf name='leaf21' tag= '2.1' num = '2.1' />\n" <<
-               "<leaf name='leaf2'  tag= '2'   num = '2' />\n" <<
-               "<leaf name='leaf3'  tag= '2'   num = '2' />\n" <<
+               "<xmlDict attr='junk'>\n" <<
+                    "<leaf name='leaf21' tag= '2.1' num = '2.1' />\n" <<
+                    "<leaf name='leaf2'  tag= '2'   num = '2' />\n" <<
+                    "<leaf name='leaf3'  tag= '2'   num = '2' />\n" <<
 
-               "<dictEntry name='pretty-print'  tag= '456' />\n" <<
-               "<dictEntry name='first'  tag= '123'   num = '123' />\n" <<
-               "<dictEntry name='second'  tag= '123'   num = '123' />\n" <<
-               "<dictEntry name='a' tag= '1.7'   num = '1.8' />\n" <<
+                    "<dictEntry name='pretty-print'  tag= '456' />\n" <<
+                    "<dictEntry name='first'  tag= '123'   num = '123' />\n" <<
+                    "<dictEntry name='second'  tag= '123'   num = '123' />\n" <<
+                    "<dictEntry name='a' tag= '1.7'   num = '1.8' />\n" <<
 
-               "<bank name='b1' tag= '10' num='0' attr ='gobbledy gook' >\n" <<
-               "<bank name='b2' tag= '20' num='20' >\n" <<
-               "<leaf name='l1' tag= '30' num='31'>\n" <<
-               "<bank name='lowest' tag= '111' num='222' />\n" <<
-               "</leaf>\n" <<
-               "<leaf name='l2' tag= '31' num='32' />\n" <<
-               "</bank>\n" <<
-               "</bank>\n" <<
+                    "<bank name='b1' tag= '10' num='0' attr ='gobbledy gook' >\n" <<
+                        "<bank name='b2' tag= '20' num='20' >\n" <<
+                            "<leaf name='l1' tag= '30' num='31'>\n" <<
+                                "<bank name='lowest' tag= '111' num='222' />\n" <<
+                            "</leaf>\n" <<
+                            "<leaf name='l2' tag= '31' num='32' />\n" <<
+                        "</bank>\n" <<
+                    "</bank>\n" <<
 
                "</xmlDict>\n" <<
 
                "<xmlDict>\n" <<
-               "<leaf name='leaf21' tag= '3.1' num = '3.1' />\n" <<
+               "<leaf name='leaf21' tag= '3' num = '3' />\n" <<
                "<leaf name='a'  tag= '33'   num = '44' />\n" <<
                "</xmlDict>\n" <<
 
-               "</JUNK>\n";
+               "</JUNK>";
 
             xmlDict4 = ss.str();
 
@@ -71,17 +71,39 @@ namespace evio {
 
             std::stringstream ss1;
             ss1 << "<xmlDict>" <<
-                "<dictEntry name='first'  tag='123'   num ='456' type='ComPosiTe' >" <<
-                "<description format='FD2i' >" <<
-                description <<
-                "</description>" <<
-                "</dictEntry>" <<
-                "<bank name='b1'   tag='10'   num='0' type='inT32' >" <<
-                "<description format='2(N3F)' >" <<
-                "this is a bank of signed 32 bit integers" <<
-                "</description>" <<
-                "</bank>" <<
-                "</xmlDict>";
+                "<dictEntry name=\"first\"  tag=\"123\"   num =\"  456B\" type=\"ComPosiTe\" >\n" <<
+                    "<description format='FD2i' >" <<
+                        description <<
+                    "</description>" <<
+                "</dictEntry>\n" <<
+
+                "<dictEntry name=\"second(%n)\"  tag=\"234\"   num =\"  254  -   256 \" type=\"Bank\" />\n" <<
+                "<dictEntry name=\"third\"  tag=\"456\"   num =\"  1  -   BLAH \" type=\"SegmENT\" />\n" <<
+                "<dictEntry name=\"fourth\"  tag=\"567\"   num =\"  BLAH  -   3 \" type=\"TAGsegment\" />\n" <<
+                "<dictEntry name=\"fifth\"  tag=\"678\"   num =\"256\" type=\"Bank\" />\n" <<
+
+               "<dictEntry name=\"A(%t)\"  tag=\"65536\"   num =\"1\" />\n" <<
+               "<dictEntry name=\"Arange\"  tag=\"65534-65536\"  />\n" <<
+               "<dictEntry name=\"Brange\"  tag=\"  1 -  3 \"  />\n" <<
+               "<dictEntry name=\"B\"  tag=\"  Z1\"  />\n" <<
+
+                "<bank name='b1'   tag='10'   num='0' type='inT32' >\n" <<
+                    "<description format='2(N3F)' >" <<
+                        "this is a bank of signed 32 bit integers" <<
+                    "</description>\n" <<
+
+                    "<bank name=\"a(%n)\"  tag=\"234\"   num =\"  254  -   256 \" type=\"Bank\" />\n" <<
+                    "<bank name=\"b\"  tag=\"456\"   num =\"  1  -   BLAH \" type=\"SegmENT\" />\n" <<
+                    "<bank name=\"c\"  tag=\"567\"   num =\"  BLAH  -   3 \" type=\"TAGsegment\" />\n" <<
+                    "<bank name=\"d\"  tag=\"678\"   num =\"256\" type=\"Bank\" />\n" <<
+
+                    "<leaf name=\"A(%t)\"  tag=\"65536\"   num =\"1\" />\n" <<
+                    "<leaf name=\"Arange\"  tag=\"65534-65536\"  />\n" <<
+                    "<leaf name=\"Brange\"  tag=\"  2 -  4 \"  />\n" <<
+                    "<leaf name=\"B\"  tag=\"  Z1\"  />\n" <<
+
+                "</bank>\n" <<
+            "</xmlDict>";
 
             xmlDict5 = ss1.str();
 
@@ -243,24 +265,26 @@ namespace evio {
     void testDict5() {
 
         EvioXMLDictionary dict(xmlDict5, true);
+        std::cout << "\n\nNew Dictionary:\n" << dict.toString() << std::endl << std::endl;
 
-        std::cout << "Getting stuff for tag = 123, num = 456:"<< std::endl;
-        std::cout << "    type        = " << dict.getType(123, (uint8_t)456).toString() << std::endl;
-        std::cout << "    name        = " << dict.getName(123, (uint8_t)456) << std::endl;
-        std::cout << "    format      = " << dict.getFormat(123, (uint8_t)456) << std::endl;
-        std::cout << "    description = " << dict.getDescription(123, (uint8_t)456) << std::endl;
+        uint16_t tag = 0;
+        uint8_t  num = 0;
+        bool gotTag = dict.getTag("second(1)", &tag);
+        bool gotNum = dict.getNum("second(1)", &num);
 
-        uint16_t tag;
-        uint8_t  num;
-        bool found = dict.getTag("first", &tag);
-        found = dict.getNum("first", &num);
+        bool exists = dict.exists("second(1)");
 
-        std::cout << "Getting stuff for name = \"first\":" << std::endl;
-        std::cout << "    tag         = " << tag << std::endl;
-        std::cout << "    num         = " << num << std::endl;
-        std::cout << "    type        = " << dict.getType("first").toString() << std::endl;
-        std::cout << "    format      = " << dict.getFormat("first") << std::endl;
-        std::cout << "    description = " << dict.getDescription("first") << std::endl;
+        if (!exists) {
+            std::cout << "Entry name = \"second(1)\" does not exist\n" << std::endl;
+        }
+        else {
+            std::cout << "Getting stuff for name = \"second(1)\":" << std::endl;
+            std::cout << "    tag         = " << tag << std::endl;
+            std::cout << "    num         = " << +num << std::endl;
+            std::cout << "    type        = " << dict.getType("second(1)").toString() << std::endl;
+            std::cout << "    format      = " << dict.getFormat("second(1)") << std::endl;
+            std::cout << "    description = " << dict.getDescription("second(1)") << std::endl;
+        }
 
         std::cout << "Getting stuff for tag = 10, num = 0:" << std::endl;
         std::cout << "    type        = " << dict.getType(10,0).toString() << std::endl;
@@ -268,50 +292,53 @@ namespace evio {
         std::cout << "    format      = " << dict.getFormat(10,0) << std::endl;
         std::cout << "    description = " << dict.getDescription(10,0) << std::endl;
 
-        found = dict.getTag("b1", &tag);
-        found = dict.getNum("b1", &num);
+        dict.getTag("b1", &tag);
+        dict.getNum("b1", &num);
 
-        std::cout << "Getting stuff for name = \"b1\":" << std::endl;
+        std::cout << "\nGetting stuff for name = \"b1\":" << std::endl;
         std::cout << "    tag         = " << tag << std::endl;
-        std::cout << "    num         = " << num << std::endl;
+        std::cout << "    num         = " << +num << std::endl;
         std::cout << "    type        = " << dict.getType("b1").toString() << std::endl;
         std::cout << "    format      = " << dict.getFormat("b1") << std::endl;
-        std::cout << "    description = " << dict.getDescription("b1") << std::endl;
+        std::cout << "    description = " << dict.getDescription("b1") << std::endl << std::endl;
     }
 
 
         void testDict4() {
 
             EvioXMLDictionary dict(xmlDict4, true);
+            std::cout << "\n\nNew Dictionary:\n" << dict.toString() << std::endl << std::endl;
 
             std::unordered_map<std::string, std::shared_ptr<EvioDictionaryEntry>> map = dict.getMap();
 
             // Iterate using range-based for loop
+            int i=0;
             for (const auto &pair : map) {
-                //std::shared_ptr<EvioDictionaryEntry> val = pair.second;
+                std::shared_ptr<EvioDictionaryEntry> val = pair.second;
                 std::string key = pair.first;
-                uint16_t tag, tagEnd;
-                dict.getTag(key, &tag);
-                dict.getTagEnd(key, &tagEnd);
-                uint8_t num;
-                dict.getNum(key, &num);
 
-                std::cout << "key = " << pair.first <<
+                uint16_t tag = val->getTag();
+                uint16_t tagEnd = val->getTagEnd();
+                uint8_t num = val->getNum();
+
+                std::string strNum = "undefined";
+                if (val->isNumValid()) {
+                    strNum = std::to_string(+num);
+                }
+
+                std::cout << "entry " << (++i) << ": name = " << key <<
                           ", tag = " << tag <<
                           ", tagEnd = " << tagEnd <<
-                          ", num = " << num << std::endl;
+                          ", num = " << strNum << std::endl;
             }
             std::cout << std::endl;
 
 
             std::shared_ptr<EvioEvent> bank20 = EvioEvent::getInstance(456, DataType::BANK, 20);
-
             std::string dictName = dict.getName(bank20);
             std::cout << "Bank w/ tag=456 / num=20 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
 
-
             auto bank11 = EvioEvent::getInstance(10, DataType::BANK, 10);
-
             dictName = dict.getName(bank11);
             std::cout << "Bank w/ tag=10 / num=10 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
 

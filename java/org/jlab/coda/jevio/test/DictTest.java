@@ -18,37 +18,37 @@ import java.util.Set;
 public class DictTest extends TestBase {
 
     static String xmlDict4 =
-        "<JUNK>"  +
-            "<moreJunk/>"  +
+            "<JUNK>\n"  +
+                    "<moreJunk/>"  +
 
-            "<xmlDict attr='junk'>"  +
-                "<leaf name='leaf21' tag= '2.1' num = '2.1' />"  +
-                "<leaf name='leaf2'  tag= '2'   num = '2' />"  +
-                "<leaf name='leaf3'  tag= '2'   num = '2' />"  +
+                    "<xmlDict attr='junk'>\n"  +
+                    "<leaf name='leaf21' tag= '2.1' num = '2.1' />\n"  +
+                    "<leaf name='leaf2'  tag= '2'   num = '2' />\n"  +
+                    "<leaf name='leaf3'  tag= '2'   num = '2' />\n"  +
 
-                "<dictEntry name='pretty-print'  tag= '456' />"  +
-                "<dictEntry name='first'  tag= '123'   num = '123' />"  +
-                "<dictEntry name='second'  tag= '123'   num = '123' />"  +
-                "<dictEntry name='a' tag= '1.7'   num = '1.8' />"  +
+                    "<dictEntry name='pretty-print'  tag= '456' />\n"  +
+                    "<dictEntry name='first'  tag= '123'   num = '123' />\n"  +
+                    "<dictEntry name='second'  tag= '123'   num = '123' />\n"  +
+                    "<dictEntry name='a' tag= '1.7'   num = '1.8' />\n"  +
 
-                "<bank name='b1' tag= '10' num='0' attr ='gobbledy gook' >"  +
-                    "<bank name='b2' tag= '20' num='20' >"  +
-                        "<leaf name='l1' tag= '30' num='31'>"  +
-                            "<bank name='lowest' tag= '111' num='222' />"  +
-                        "</leaf>" +
-                        "<leaf name='l2' tag= '31' num='32' />"  +
-                    "</bank>"  +
-                "</bank>"  +
+                    "<bank name='b1' tag= '10' num='0' attr ='gobbledy gook' >\n"  +
+                        "<bank name='b2' tag= '20' num='20' >\n"  +
+                            "<leaf name='l1' tag= '30' num='31'>\n"  +
+                                "<bank name='lowest' tag= '111' num='222' />\n"  +
+                            "</leaf>\n" +
+                            "<leaf name='l2' tag= '31' num='32' />\n"  +
+                        "</bank>\n"  +
+                    "</bank>\n"  +
 
-            "</xmlDict>" +
+                    "</xmlDict>\n" +
 
-            "<xmlDict>"  +
-                "<leaf name='leaf21' tag= '3.1' num = '3.1' />"  +
-                "<leaf name='a'  tag= '33'   num = '44' />"  +
-            "</xmlDict>" +
+                    "<xmlDict>\n"  +
+                    "<leaf name='leaf21' tag= '3' num = '3' />\n"  +
+                    "<leaf name='a'  tag= '33'   num = '44' />\n"  +
+                    "</xmlDict>\n" +
 
-        "</JUNK>"
-            ;
+                    "</JUNK>";
+
 
     static String description =
             "\n" +
@@ -57,19 +57,40 @@ public class DictTest extends TestBase {
             "     N  multiplier\n";
 
     static String xmlDict5 =
-            "<xmlDict>"  +
-                "<dictEntry name='first'  tag='123'   num ='456' type='ComPosiTe' >" +
-                    "<description format='FD2i' >"  +
-                        description  +
-                    "</description>" +
-                "</dictEntry>"  +
-                "<bank name='b1'   tag='10'   num='0' type='inT32' >"  +
-                    "<description format='2(N3F)' >"  +
-                        "this is a bank of signed 32 bit integers"  +
-                    "</description>" +
-                "</bank>"  +
-            "</xmlDict>"
-            ;
+            "<xmlDict>\n" +
+                "<dictEntry name=\"first\"  tag=\"123\"   num =\"  456B\" type=\"ComPosiTe\" >\n" +
+                    "<description format='FD2i' >\n" +
+                        description +
+                    "</description>\n" +
+                "</dictEntry>\n" +
+
+                "<dictEntry name=\"second(%n)\"  tag=\"234\"   num =\"  254  -  256 \" type=\"Bank\" />\n" +
+                "<dictEntry name=\"third\"  tag=\"456\"   num =\"  1  -   BLAH \" type=\"SegmENT\" />\n" +
+                "<dictEntry name=\"fourth\"  tag=\"567\"   num =\"  BLAH  -   3 \" type=\"TAGsegment\" />\n" +
+                "<dictEntry name=\"fifth\"  tag=\"678\"   num =\"256\" type=\"Bank\" />\n" +
+
+                "<dictEntry name=\"A(%t)\"  tag=\"65536\"   num =\"1\" />\n" +
+                "<dictEntry name=\"Arange\"  tag=\"65534-65536\"  />\n" +
+                "<dictEntry name=\"Brange\"  tag=\"  1 -  3 \"  />\n" +
+                "<dictEntry name=\"B\"  tag=\"  Z1\"  />\n" +
+
+                "<bank name='b1'   tag='10'   num='0' type='inT32' >\n" +
+                    "<description format='2(N3F)' >" +
+                        "this is a bank of signed 32 bit integers" +
+                    "</description>\n" +
+
+                    "<bank name=\"a(%n)\"  tag=\"234\"   num =\"  254  -  256 \" type=\"Bank\" />\n" +
+                    "<bank name=\"b\"  tag=\"456\"   num =\"  1  -   BLAH \" type=\"SegmENT\" />\n" +
+                    "<bank name=\"c\"  tag=\"567\"   num =\"  BLAH  -   3 \" type=\"TAGsegment\" />\n" +
+                    "<bank name=\"d\"  tag=\"678\"   num =\"256\" type=\"Bank\" />\n" +
+
+                    "<leaf name=\"A(%t)\"  tag=\"65536\"   num =\"1\" />\n" +
+                    "<leaf name=\"Arange\"  tag=\"65534-65536\"  />\n" +
+                    "<leaf name=\"Brange\"  tag=\"  2 -  4 \"  />\n" +
+                    "<leaf name=\"B\"  tag=\"  Z1\"  />\n" +
+
+                    "</bank>" +
+            "</xmlDict>";
 
 
     static String xmlDict7 =
@@ -80,9 +101,9 @@ public class DictTest extends TestBase {
 
             "<xmlDict>\n" +
                     "  <bank name=\"HallD\"          tag=\"6-8\"  >\n" +
-                    "      <description format=\"blah\" >"  +
-                    "          hall_d_tag_range"  +
-                    "      </description>" +
+                    "      <description format=\"blah\" >\n"  +
+                    "          hall_d_tag_range"  + "\n" +
+                    "      </description>\n" +
                     "      <bank name=\"TAG7\"       tag=\"7\"  />\n" +
                     "      <bank name=\"DC(%t)\"     tag=\"6\" num=\"0\" >\n" +
                     "          <description format=\"DC Format\" >tag 6, num 0 bank</description>" +
@@ -107,7 +128,7 @@ public class DictTest extends TestBase {
                     "  <dictEntry name=\"BadTag\" tag=\"55\" type=\"JunkType\" />\n" +
                     "  <dictEntry name=\"BadType??\" tag=\"66\" num=\"6\" type=\"ActualJunk\" />\n" +
                     "  <dictEntry name=\"TaggiesOnly\" tag=\"5\" num=\"3\" type=\"bANk\" >\n" +
-                    "       <description format=\"My Format\" >tag 5 description</description>" +
+                    "       <description format=\"My Format\" >tag 5 description</description>\n" +
                     "  </dictEntry>\n" +
                     "  <dictEntry name=\"Rangy_Small\" tag=\"75 - 76\"  />\n" +
                     "  <dictEntry name=\"Rangy\"       tag=\"75 - 78\"  />\n" +
@@ -226,20 +247,20 @@ public class DictTest extends TestBase {
     public void testDict5() {
 
         EvioXMLDictionary dict = new EvioXMLDictionary(xmlDict5, null, true);
+        System.out.println("\n\nNew Dictionary:\n" + dict.toString());
 
-        System.out.println("Getting stuff for tag = 123, num = 456:");
-        System.out.println("    type        = " + dict.getType(123,456));
-        System.out.println("    name        = " + dict.getName(123,456));
-        System.out.println("    format      = " + dict.getFormat(123,456));
-        System.out.println("    description = " + dict.getDescription(123,456));
-
-
-        System.out.println("Getting stuff for name = \"first\":");
-        System.out.println("    tag         = " + dict.getTag("first"));
-        System.out.println("    num         = " + dict.getNum("first"));
-        System.out.println("    type        = " + dict.getType("first"));
-        System.out.println("    format      = " + dict.getFormat("first"));
-        System.out.println("    description = " + dict.getDescription("first"));
+        boolean exists = dict.exists("second(1)");
+        if (!exists) {
+            System.out.println("Entry name = \"second(1)\" does not exist\n");
+        }
+        else {
+            System.out.println("Getting stuff for name = \"second(1)\":");
+            System.out.println("    tag         = " + dict.getTag("second(1)"));
+            System.out.println("    num         = " + dict.getNum("second(1)"));
+            System.out.println("    type        = " + dict.getType("second(1)"));
+            System.out.println("    format      = " + dict.getFormat("second(1)"));
+            System.out.println("    description = " + dict.getDescription("second(1)"));
+        }
 
         System.out.println("Getting stuff for tag = 10, num = 0:");
         System.out.println("    type        = " + dict.getType(10,0));
@@ -248,24 +269,29 @@ public class DictTest extends TestBase {
         System.out.println("    description = " + dict.getDescription(10,0));
 
 
-        System.out.println("Getting stuff for name = \"b1\":");
+        System.out.println("\nGetting stuff for name = \"b1\":");
         System.out.println("    tag         = " + dict.getTag("b1"));
         System.out.println("    num         = " + dict.getNum("b1"));
         System.out.println("    type        = " + dict.getType("b1"));
         System.out.println("    format      = " + dict.getFormat("b1"));
         System.out.println("    description = " + dict.getDescription("b1"));
+        System.out.println("");
     }
 
 
     public void testDict4() {
 
         EvioXMLDictionary dict = new EvioXMLDictionary(xmlDict4, null, true);
+        System.out.println("\n\nNew Dictionary:\n" + dict.toString());
+
+
         Map<String, EvioDictionaryEntry> map = dict.getMap();
 
         Set<String> keys = map.keySet();
         for (String key : keys) {
             System.out.println("key = " + key + ", tag = " + dict.getTag(key) + ", num = " + dict.getNum(key));
         }
+        System.out.println();
 
         int i=0;
         Set<Map.Entry<String, EvioDictionaryEntry>> set = map.entrySet();
@@ -275,16 +301,14 @@ public class DictTest extends TestBase {
             System.out.println("entry " + (++i) + ": name = " + entryName + ", tag = " +
                                        entryData.getTag() + ", num = " + entryData.getNum());
         }
+        System.out.println();
 
 
         EvioEvent bank20 = new EvioEvent(456, DataType.BANK, 20);
-
         String dictName = dict.getName(bank20);
         System.out.println("Bank w/ tag=456 / num=20 corresponds to dictionary entry, \"" + dictName + "\"");
 
-
         EvioEvent bank11 = new EvioEvent(10, DataType.BANK, 10);
-
         dictName = dict.getName(bank11);
         System.out.println("Bank w/ tag=10 / num=10 corresponds to dictionary entry, \"" + dictName + "\"");
 
