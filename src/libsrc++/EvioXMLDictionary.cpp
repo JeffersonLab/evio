@@ -9,6 +9,7 @@
 
 
 #include "EvioXMLDictionary.h"
+#include "EvioBank.h"
 
 
 namespace evio {
@@ -959,6 +960,16 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
 
 
     /**
+     * Method to determine if arg's superclass is EvioBank.
+     * @param ptr shared pointer to bank or seg or tagseg.
+     * @return true if arg points to object of EvioBank.
+     */
+    bool EvioXMLDictionary::isEvioBank(const std::shared_ptr<BaseStructure> ptr) {
+        return std::dynamic_pointer_cast<EvioBank>(ptr) != nullptr;
+    }
+
+
+    /**
      * Returns the name of a given evio structure.
      * This is the method used in BaseStructure.toString()
      * to assign a dictionary entry to a particular evio structure.
@@ -967,17 +978,13 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
      * @return a descriptive name or ??? if none found
      */
     std::string EvioXMLDictionary::getName(std::shared_ptr<BaseStructure> structure) {
-        if (structure == nullptr) {
-            NO_NAME_STRING();
-        }
 
         auto const header = structure->getHeader();
-        DataType const & type = header->getDataType();
         uint16_t tag = header->getTag();
 
-        if (type.isBank()) {
+        if (isEvioBank(structure)) {
             uint8_t  num = header->getNumber();
-            return getName(tag, num);
+            return getName(tag, +num);
         }
         else {
             return getName(tag);
@@ -1185,10 +1192,12 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
         // Do we use parent info?
         if (!parentValid) {
             if (numValid) {
-                return getName(tag, num, tagEnd);
+                auto key = std::make_shared<EvioDictionaryEntry>(tag, num, tagEnd);
+                return getName(key);
             }
             else {
-                return getName(tag, tagEnd);
+                auto key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd);
+                return getName(key);
             }
         }
 
@@ -1221,7 +1230,8 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
      */
     std::string EvioXMLDictionary::getName(std::shared_ptr<EvioDictionaryEntry> key) const {
 
-//        bool debug = true;
+        bool debug = false;
+
         uint16_t tag = key->getTag();
         EvioDictionaryEntry::EvioDictionaryEntryType entryType = key->getEntryType();
 
@@ -1230,7 +1240,7 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
 
         switch (entryType) {
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM: {
-// if (debug) std::cout << "EvioXMLDictionary.getName:  FIRST TRY tagNum map, look in map:" << std::endl;
+if (debug) std::cout << "EvioXMLDictionary.getName:  FIRST TRY tagNum map, look in map:" << std::endl;
 
                 // If a tag/num pair was specified ...
                 // There may be multiple entries with the same tag/tagEnd/num values
@@ -1259,7 +1269,7 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
             }
 
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_ONLY: {
-//if (debug) std::cout << "EvioXMLDictionary.getName:  NEXT TRY tagOnly map" << std::endl;
+if (debug) std::cout << "EvioXMLDictionary.getName:  NEXT TRY tagOnly map" << std::endl;
                 // If only a tag was specified or a tag/num pair was specified
                 // but there was no exact match for the pair ...
                 bool foundEntry = false;
@@ -1281,7 +1291,7 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
             }
 
             case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE: {
-//if (debug) std::cout << "EvioXMLDictionary.getName:  LAST TRY tagRange map" << std::endl;
+if (debug) std::cout << "EvioXMLDictionary.getName:  LAST TRY tagRange map" << std::endl;
                 // If a range was specified in the args, check to see if
                 // there's an exact match first ...
                 bool foundEntry = false;
@@ -1306,7 +1316,7 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
                         auto entry = iter.first;
                         if (entry->inRange(tag)) {
                             name = iter.second;
-//if (debug) std::cout << "    DDDDD   found entry in tagRange map with name 2 = " << name << std::endl;
+if (debug) std::cout << "    DDDDD   found entry in tagRange map with name 2 = " << name << std::endl;
 //std::cout << "            key -> " << key->toString() << std::endl;
                             goto out;
                         }
@@ -1316,8 +1326,8 @@ if (debug) std::cout << "  PLACING H entry into tagOnly map, name = " <<  name <
 
             default:
                 ;
-                //std::cout << "no dictionary entry for tag = " << tag << ", tagEnd = " <<
-                //          key->getTagEnd() << ", num = " << key->getNum() << std::endl;
+//                std::cout << "no dictionary entry for tag = " << tag << ", tagEnd = " <<
+//                          key->getTagEnd() << ", num = " << key->getNum() << std::endl;
         }
 
         out:

@@ -25,6 +25,9 @@
 #include "EvioDictionaryEntry.h"
 #include "EvioException.h"
 #include "Util.h"
+#include "EvioBank.h"
+#include "EvioSegment.h"
+#include "EvioTagSegment.h"
 #include "BaseStructure.h"
 #include "pugixml.hpp"
 
@@ -186,9 +189,12 @@ namespace evio {
                                         std::shared_ptr<EvioDictionaryEntry> parentEntry,
                                         bool warn = false);
 
+        bool isEvioBank(const std::shared_ptr<BaseStructure> ptr);
+
     public:
 
         std::string getName(std::shared_ptr<BaseStructure> structure);
+
         std::string getName(uint16_t tag);
         std::string getName(uint16_t tag, uint8_t num);
         std::string getName(uint16_t tag, uint8_t num, uint16_t tagEnd);
