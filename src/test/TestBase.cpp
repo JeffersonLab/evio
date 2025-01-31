@@ -25,9 +25,8 @@ namespace evio {
      * @param bufSize size in bytes of internal ByteBuffer.
      * @param byteOrder byte order of internal ByteBuffer.
      */
-    TestBase::TestBase(size_t bufSize, ByteOrder const & byteOrder) {
+    TestBase::TestBase(size_t bufSize, ByteOrder const & byteOrder) : bufSize(bufSize), order(byteOrder) {
 
-        order = byteOrder;
         buffer = std::make_shared<ByteBuffer>(bufSize);
         buffer->order(order);
 
