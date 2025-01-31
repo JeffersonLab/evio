@@ -398,7 +398,7 @@ public class DictTest extends TestBase {
             System.out.println("    event ->\n" + ev.treeToString(""));
 
             EvioXMLDictionary dict = new EvioXMLDictionary(dictionary);
-            System.out.println("    dictionary ->\n" + dict.toString());
+            System.out.println("\n    dictionary ->\n" + dict.toString());
 
             System.out.println("\n    search, using dictionary for struct = JUNK");
             List<BaseStructure> vec =  StructureFinder.getMatchingStructures(ev, "JUNK", dict);
