@@ -46,6 +46,9 @@ namespace evio {
                     "<dictEntry name='second'  tag= '123'   num = '123' />\n" <<
                     "<dictEntry name='a' tag= '1.7'   num = '1.8' />\n" <<
 
+                    "<bank name='b10tag' tag= '10' />\n" <<
+                    "<bank name='b5tag'  tag= '5' num='5'/>\n" <<
+
                     "<bank name='b1' tag= '10' num='0' attr ='gobbledy gook' >\n" <<
                         "<bank name='b2' tag= '20' num='20' >\n" <<
                             "<leaf name='l1' tag= '30' num='31'>\n" <<
@@ -314,72 +317,68 @@ namespace evio {
             // Iterate using range-based for loop
             int i=0;
             for (const auto &pair : map) {
+
                 std::shared_ptr<EvioDictionaryEntry> val = pair.second;
+                bool numValid = val->isNumValid();
+                DataType type = val->getType();
+                EvioDictionaryEntry::EvioDictionaryEntryType eType = val->getEntryType();
+
                 std::string key = pair.first;
+                uint16_t tag, tagEnd;
+                uint8_t num;
+                dict.getTagNum(key, &tag, &num, &tagEnd);
+                std::string entryType[] = {"TAG_NUM", "TAG_ONLY", "TAG_RANGE"};
 
-                uint16_t tag = val->getTag();
-                uint16_t tagEnd = val->getTagEnd();
-                uint8_t num = val->getNum();
+                std::cout << "entry " << (++i) << ": name = " << pair.first <<
+                          ", tag=" << tag <<
+                          ", tagEnd=" << tagEnd;
 
-                std::string strNum = "undefined";
-                if (val->isNumValid()) {
-                    strNum = std::to_string(+num);
+                if (numValid) {
+                    std::cout << ", num=" << +num;
+                }
+                else {
+                    std::cout << ", num=<undefined>";
                 }
 
-                std::cout << "entry " << (++i) << ": name = " << key <<
-                          ", tag = " << tag <<
-                          ", tagEnd = " << tagEnd <<
-                          ", num = " << strNum << std::endl;
+                std::cout << ", type=" << type.toString() << ", entryType=" << entryType[eType] << std::endl;
+
             }
             std::cout << std::endl;
 
 
+
             std::shared_ptr<EvioEvent> bank20 = EvioEvent::getInstance(456, DataType::BANK, 20);
             std::string dictName = dict.getName(bank20);
-            std::cout << "Bank w/ tag=456 / num=20 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
+            std::cout << "Bank tag=456/num=20 corresponds to entry, \"" << dictName << "\"" << std::endl;
 
-            auto bank11 = EvioEvent::getInstance(10, DataType::BANK, 10);
+            auto bank11 = EvioEvent::getInstance(10, DataType::BANK, 0);
             dictName = dict.getName(bank11);
-            std::cout << "Bank w/ tag=10 / num=10 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
+            std::cout << "Bank tag=10/num=0 corresponds to entry, \"" << dictName << "\"" << std::endl;
+
+            auto tseg = EvioTagSegment::getInstance(10, DataType::INT32);
+            dictName = dict.getName(tseg);
+            std::cout << "TagSegment tag=10 corresponds to entry, \"" << dictName << "\"" << std::endl;
+
+            auto seg = EvioSegment::getInstance(10, DataType::INT32);
+            dictName = dict.getName(seg);
+            std::cout << "Segment tag=10 corresponds to entry, \"" << dictName << "\"" << std::endl;
 
             EventBuilder builder(bank11);
             auto bank12 = EvioBank::getInstance(20, DataType::SEGMENT, 20);
             try {
                 builder.addChild(bank11, bank12);
             }
-            catch (EvioException e) {}
-
-            dictName = dict.getName(bank12);
-            std::cout << "Bank with tag=20 / num=20 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
-
-            auto seg30 = EvioSegment::getInstance(1, DataType::INT32);
-            try {
-                builder.addChild(bank12, seg30);
-            }
             catch (EvioException & e) {}
-
-
-
-            dictName = dict.getName(seg30);
-            std::cout << "Segment w/ tag 1 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
-
-            auto ev = EvioEvent::getInstance(10, DataType::INT32, 10);
-            dictName = dict.getName(ev);
-            std::cout << "Event w/ tag=10 / num=10 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
-
-            auto seg = EvioSegment::getInstance(10, DataType::INT32);
-            dictName = dict.getName(seg);
-            std::cout << "Segment w/ tag=10 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
-
-
+            dictName = dict.getName(bank12);
+            std::cout << "Bank tag=20/num=20 corresponds to entry, \"" << dictName << "\"" << std::endl;
 
             auto bk2 = EvioBank::getInstance(2, DataType::INT32, 2);
             dictName = dict.getName(bk2);
-            std::cout << "Bank w/ tag=2 / num=2 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
+            std::cout << "Bank tag=2/num=2 corresponds to entry, \"" << dictName << "\"" << std::endl;
 
-            auto bk22 = EvioBank::getInstance(2, DataType::INT32, 2);
-            dictName = dict.getName(bk22);
-            std::cout << "Another Bank w/ tag=2 / num=2 corresponds to dictionary entry, \"" << dictName << "\"" << std::endl;
+            auto seg2 = EvioSegment::getInstance(5, DataType::INT32);
+            dictName = dict.getName(seg2);
+            std::cout << "Segment tag=5 corresponds to entry, \"" << dictName << "\"" << std::endl << std::endl;
 
 
             uint16_t tag, tagEnd;
@@ -389,13 +388,13 @@ namespace evio {
             bool found = dict.getTagNum("b1.b2.l1", &tag, &num, &tagEnd);
             if (found) {
                 std::cout << "Dict entry of b1.b2.l1 has tag = " << tag <<
-                                   " and num = " << num << std::endl;
+                                   " and num = " << +num << std::endl;
             }
 
             found = dict.getTagNum("a", &tag, &num, &tagEnd);
             if (found) {
                 std::cout << "Dict entry of \"a\" has tag = " << tag <<
-                                   " and num = " << num << std::endl;
+                                   " and num = " << +num << std::endl;
             }
             else {
                 std::cout << "Dict NO entry for \"a\"" << std::endl;
@@ -404,15 +403,13 @@ namespace evio {
             found = dict.getTagNum("b1.b2.l1.lowest", &tag, &num, &tagEnd);
             if (found) {
                 std::cout << "Dict entry of b1.b2.l1.lowest has tag = " << tag <<
-                                   " and num = " << num << std::endl;
+                                   " and num = " << +num << std::endl;
             }
             else {
                 std::cout << "Dict NO entry for b1.b2.l1.lowest" << std::endl;
             }
 
             std::cout << "\nNo toXml() method in C++" << std::endl;
-            std::cout << "\nTEST NEW toString() method:" << std::endl;
-            std::cout << dict.toString() << std::endl;
         }
 
 

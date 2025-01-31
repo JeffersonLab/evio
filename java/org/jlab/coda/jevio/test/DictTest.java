@@ -31,6 +31,9 @@ public class DictTest extends TestBase {
                     "<dictEntry name='second'  tag= '123'   num = '123' />\n"  +
                     "<dictEntry name='a' tag= '1.7'   num = '1.8' />\n"  +
 
+                    "<bank name='b10tag' tag= '10' />\n"  +
+                    "<bank name='b5tag'  tag= '5' num='5' />\n"  +
+
                     "<bank name='b1' tag= '10' num='0' attr ='gobbledy gook' >\n"  +
                         "<bank name='b2' tag= '20' num='20' >\n"  +
                             "<leaf name='l1' tag= '30' num='31'>\n"  +
@@ -285,32 +288,44 @@ public class DictTest extends TestBase {
         System.out.println("\n\nNew Dictionary:\n" + dict.toString());
 
 
-        Map<String, EvioDictionaryEntry> map = dict.getMap();
-
-        Set<String> keys = map.keySet();
-        for (String key : keys) {
-            System.out.println("key = " + key + ", tag = " + dict.getTag(key) + ", num = " + dict.getNum(key));
-        }
-        System.out.println();
-
         int i=0;
+        Map<String, EvioDictionaryEntry> map = dict.getMap();
         Set<Map.Entry<String, EvioDictionaryEntry>> set = map.entrySet();
         for (Map.Entry<String, EvioDictionaryEntry> entry : set) {
             String entryName =  entry.getKey();
             EvioDictionaryEntry entryData = entry.getValue();
-            System.out.println("entry " + (++i) + ": name = " + entryName + ", tag = " +
-                                       entryData.getTag() + ", num = " + entryData.getNum());
+
+            System.out.print("entry " + (++i) + "name = " + entryName + ", tag=" +
+                    entryData.getTag() + ", tagEnd=" + entryData.getTagEnd());
+
+            Integer num = entryData.getNum();
+            if (num == null) {
+                System.out.print(", num=<undefined>");
+            }
+            else {
+                System.out.print(", num=" + num);
+            }
+
+            System.out.println(", type=" + entryData.getType() + ", entryType=" + entryData.getEntryType());
         }
         System.out.println();
 
 
         EvioEvent bank20 = new EvioEvent(456, DataType.BANK, 20);
         String dictName = dict.getName(bank20);
-        System.out.println("Bank w/ tag=456 / num=20 corresponds to dictionary entry, \"" + dictName + "\"");
+        System.out.println("Bank tag=456/num=20 corresponds to entry, \"" + dictName + "\"");
 
-        EvioEvent bank11 = new EvioEvent(10, DataType.BANK, 10);
+        EvioEvent bank11 = new EvioEvent(10, DataType.BANK, 0);
         dictName = dict.getName(bank11);
-        System.out.println("Bank w/ tag=10 / num=10 corresponds to dictionary entry, \"" + dictName + "\"");
+        System.out.println("Bank tag=10/num=0 corresponds to entry, \"" + dictName + "\"");
+
+        EvioTagSegment tseg = new EvioTagSegment(10, DataType.INT32);
+        dictName = dict.getName(tseg);
+        System.out.println("TagSegment tag=10 corresponds to entry, \"" + dictName + "\"");
+
+        EvioSegment seg = new EvioSegment(10, DataType.INT32);
+        dictName = dict.getName(seg);
+        System.out.println("Segment tag=10 corresponds to entry, \"" + dictName + "\"");
 
         EventBuilder builder = new EventBuilder(bank11);
         EvioBank bank12 = new EvioBank(20, DataType.SEGMENT, 20);
@@ -318,38 +333,17 @@ public class DictTest extends TestBase {
             builder.addChild(bank11, bank12);
         }
         catch (EvioException e) {}
-
         dictName = dict.getName(bank12);
-        System.out.println("Bank with tag=20 / num=20 corresponds to dictionary entry, \"" + dictName + "\"");
+        System.out.println("Bank tag=20/num=20 corresponds to entry, \"" + dictName + "\"");
 
-        EvioSegment seg30 = new EvioSegment(1, DataType.INT32);
-        try {
-            builder.addChild(bank12, seg30);
-        }
-        catch (EvioException e) {}
-
-
-
-        dictName = dict.getName(seg30);
-        System.out.println("Segment w/ tag 1 corresponds to dictionary entry, \"" + dictName + "\"");
-
-        EvioEvent ev = new EvioEvent(10, DataType.INT32, 10);
+        EvioEvent ev = new EvioEvent(2, DataType.INT32, 2);
         dictName = dict.getName(ev);
-        System.out.println("Event w/ tag=10 / num=10 corresponds to dictionary entry, \"" + dictName + "\"");
+        System.out.println("Event tag=2/num=2 corresponds to entry, \"" + dictName + "\"");
 
-        EvioSegment seg = new EvioSegment(10, DataType.INT32);
-        dictName = dict.getName(seg);
-        System.out.println("Segment w/ tag=10 corresponds to dictionary entry, \"" + dictName + "\"");
-
-
-
-        EvioBank bk2 = new EvioBank(2, DataType.INT32, 2);
-        dictName = dict.getName(bk2);
-        System.out.println("Bank w/ tag=2 / num=2 corresponds to dictionary entry, \"" + dictName + "\"");
-
-        EvioBank bk22 = new EvioBank(2, DataType.INT32, 2);
-        dictName = dict.getName(bk22);
-        System.out.println("Another Bank w/ tag=2 / num=2 corresponds to dictionary entry, \"" + dictName + "\"");
+        EvioSegment seg2 = new EvioSegment(5, DataType.INT32);
+        dictName = dict.getName(seg2);
+        System.out.println("Segment tag=5 corresponds to entry, \"" + dictName + "\"");
+        System.out.println();
 
 
 
@@ -381,8 +375,6 @@ public class DictTest extends TestBase {
 
         System.out.println("\nTEST NEW toXml() method:");
         System.out.println(dict.toXML());
-        System.out.println("\nTEST NEW toString() method:");
-        System.out.println(dict.toString());
     }
 
 
