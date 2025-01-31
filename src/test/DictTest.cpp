@@ -409,7 +409,7 @@ namespace evio {
                 std::cout << "Dict NO entry for b1.b2.l1.lowest" << std::endl;
             }
 
-            std::cout << "\nNo toXml() method in C++" << std::endl;
+            std::cout << "\nNo toXml() method in C++" << std::endl << std::endl;
         }
 
 
@@ -420,7 +420,8 @@ namespace evio {
                 uint16_t tag = 1;
                 uint8_t  num = 1;
 
-                auto builder = std::make_shared<CompactEventBuilder>(buffer);
+                auto builderBuf = std::make_shared<ByteBuffer>(20000);
+                auto builder = std::make_shared<CompactEventBuilder>(builderBuf);
                 auto buf = createCompactEventBuffer(tag, num, ByteOrder::ENDIAN_LOCAL, 200000, builder);
 
 
@@ -435,10 +436,9 @@ namespace evio {
                 std::cout << "    event ->\n" << ev->treeToString("") << std::endl;
                 // This sets the proper pos and lim in buf
                 auto bb = builder->getBuffer();
-                std::cout << "    buf = \n" << bb->toString() << std::endl;
 
                 EvioXMLDictionary dict(dictionary, 0);
-                std::cout << "    dictionary ->\n" << dict.toString() << std::endl << std::endl;
+                std::cout << "\n    dictionary ->\n" << dict.toString() << std::endl << std::endl;
 
                 std::cout << "\n    search, using dictionary for struct = JUNK" << std::endl;
                 std::vector<std::shared_ptr<BaseStructure>> vec;
