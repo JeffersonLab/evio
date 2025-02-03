@@ -4,6 +4,7 @@ import org.jlab.coda.jevio.*;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,6 +153,7 @@ public class DictTest extends TestBase {
         test.testDict5();
         test.testDict4();
         test.testDict3();
+        test.testDict2();
     }
 
 
@@ -400,19 +402,20 @@ public class DictTest extends TestBase {
             EvioXMLDictionary dict = new EvioXMLDictionary(dictionary, null, true);
             System.out.println("\n    dictionary ->\n" + dict.toString());
 
-            System.out.println("\n    search, using dictionary for struct = JUNK");
+
+            System.out.println("\n    Use StructureFinder class to search event:");
+
+            System.out.println("\n      find structs w/ dict entry = JUNK");
             List<BaseStructure> vec =  StructureFinder.getMatchingStructures(ev, "JUNK", dict);
             for (BaseStructure bs : vec) {
-                System.out.println("      found, thru dict -> " + bs.toString());
+                System.out.println("        found -> " + bs.toString());
             }
-
-            System.out.println("\n");
             vec.clear();
 
             vec = StructureFinder.getMatchingStructures(ev, "SEG5", dict);
-            System.out.println("    find SEG5 -> ");;
+            System.out.println("      find SEG5 -> ");
             for (BaseStructure bs : vec) {
-                System.out.println("      found, thru dict -> " + bs.toString());
+                System.out.println("        found -> " + bs.toString());
             }
             System.out.println("\n");
             vec.clear();
@@ -420,21 +423,39 @@ public class DictTest extends TestBase {
             //<bank name="TopLevel"   tag="1"  num="1" type="bank" >
             //  <bank name="2Level"   tag="201-203"    type="bank" >
             vec = StructureFinder.getMatchingStructures(ev, "Top.2ndLevel", dict);
-            System.out.println("    find Top.2ndLevel -> ");
+            System.out.println("      find Top.2ndLevel -> ");
             for (BaseStructure bs : vec) {
-                System.out.println("      found, thru dict -> " + bs.toString());
+                System.out.println("        found -> " + bs.toString());
             }
             System.out.println("\n");
             vec.clear();
 
             //  <leaf name="TagSegUints"   tag="17" /> <<
-            System.out.println("    find Top.2ndLevel.TagSegUints -> ");;
+            System.out.println("      find Top.2ndLevel.TagSegUints -> ");
             vec = StructureFinder.getMatchingStructures(ev, "Top.2ndLevel.TagSegUints", dict);
             for (BaseStructure bs : vec) {
-                System.out.println("      found, thru dict -> " + bs.toString());
+                System.out.println("        found -> " + bs.toString());
             }
             System.out.println("\n");
             vec.clear();
+
+            System.out.println("      find structs whose parent is Top.2ndLevel -> ");
+            vec = StructureFinder.getMatchingParent(ev, "Top.2ndLevel", dict);
+            for (BaseStructure bs : vec) {
+                System.out.println("        found child -> " + bs.toString());
+            }
+            System.out.println("\n");
+            vec.clear();
+
+            System.out.println("      find structs whose child is Top.2ndLevel.InTagSeg -> ");
+            vec = StructureFinder.getMatchingChild(ev, "Top.2ndLevel.InTagSeg", dict);
+            for (BaseStructure bs : vec) {
+                System.out.println("        found parent -> " + bs.toString());
+            }
+            System.out.println("\n");
+            vec.clear();
+
+
 
 
             System.out.println("    find tag & num = 101:");
@@ -517,5 +538,63 @@ public class DictTest extends TestBase {
             e.printStackTrace();
         }
     }
+
+
+    /** For WRITING a local file. */
+    public void testDict2() {
+
+        try {
+            int tag = 1;
+            int num = 1;
+
+
+            buffer.order(ByteOrder.nativeOrder());
+            ByteBuffer buf = createCompactEventBuffer(tag, num, ByteOrder.nativeOrder(), 200000, null);
+            EventWriter writer = new EventWriter(buffer);
+            writer.writeEvent(buf);
+            writer.close();
+
+            EvioCompactReader reader = new EvioCompactReader(writer.getByteBuffer());
+            System.out.println("\n\n  The EvioCompactReader has a limited ability to search an event for a specific tag & num:");
+
+
+            System.out.println("\n    In buffer, find EvioNode w/ tag=201/num=201 -> ");
+            List<EvioNode> returnList = reader.searchEvent(1, 201, 201);
+            if (returnList.size() < 1) {
+                System.out.println("      got nothing for ev 1");
+            }
+            else {
+                for (EvioNode node : returnList) {
+                    System.out.println("      found -> " + node);
+                }
+            }
+
+
+            EvioXMLDictionary dict = new EvioXMLDictionary(dictionary, null, true);
+            System.out.println("    In buffer, find EvioNode for entry = Top.2ndLevel.BankUints -> ");
+
+            try {
+                returnList = reader.searchEvent(1, "Top.2ndLevel.BankUints", dict);
+                if (returnList.size() < 1) {
+                    System.out.println("      got nothing for ev 1");
+                }
+                else {
+                    for (EvioNode node : returnList) {
+                        System.out.println("      found -> " + node);
+                    }
+                }
+            }
+            catch (EvioException e) {
+                System.out.println("      no such dictionary entry or entry did not specify a single tag and single num");
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+
 
 }

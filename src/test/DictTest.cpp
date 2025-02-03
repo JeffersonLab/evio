@@ -565,6 +565,60 @@ namespace evio {
         }
 
 
+        void testDict2() {
+
+            try {
+                uint16_t tag = 1;
+                uint8_t  num = 1;
+
+                auto builderBuf = std::make_shared<ByteBuffer>(20000);
+                auto builder = std::make_shared<CompactEventBuilder>(builderBuf);
+                auto buf = createCompactEventBuffer(tag, num, ByteOrder::ENDIAN_LOCAL, 200000, builder);
+
+
+                EventWriter writer(buffer);
+                writer.writeEvent(buf);
+                writer.close();
+
+                // Read event back out of buffer
+                EvioCompactReader reader(writer.getByteBuffer());
+
+                std::cout << "\n\n  The EvioCompactReader has a limited ability to search an event for a specific tag & num:" << std::endl;
+
+                auto dict = std::make_shared<EvioXMLDictionary>(dictionary, false);
+
+                std::cout << "\n    In buffer, find EvioNode w/ tag=201/num=201 -> " << std::endl;
+                std::vector<std::shared_ptr<EvioNode>> vec;
+                reader.searchEvent(1, 201, 201, vec);
+                for (auto & node : vec) {
+                    std::cout << "      found -> " << node->toString() << std::endl;
+                }
+                std::cout << "\n";
+                vec.clear();
+
+                std::cout << "\n    In buffer, find EvioNode for entry = Top.2ndLevel.BankUintsg  -> " << std::endl;
+                try {
+                    reader.searchEvent(1, "Top.2ndLevel.BankUints", dict, vec);
+                    if (vec.empty()) {
+                        std::cout << "       got nothing for ev 1" << std::endl;
+                    }
+                    else {
+                        for (auto & node : vec) {
+                            std::cout << "      found -> " << node->toString() << std::endl;
+                        }
+                    }
+                }
+                catch (EvioException & e) {
+                    std::cout << e.what() << std::endl;
+                    std::cout << "      no such dictionary entry or entry did not specify a single tag and single num" << std::endl;
+                }
+             }
+            catch (EvioException &e) {
+                std::cout << e.what() << std::endl;
+            }
+        }
+
+
     };
 }
 
@@ -575,6 +629,7 @@ int main(int argc, char **argv) {
     tester.testDict5();
     tester.testDict4();
     tester.testDict3();
+    tester.testDict2();
     return 0;
 }
 
