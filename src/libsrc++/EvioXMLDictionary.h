@@ -222,6 +222,10 @@ namespace evio {
         bool isTagOnly(std::string const & name)  const;
         bool isTagNum(std::string const & name)   const;
 
+        bool isNumValid(uint16_t tag, uint8_t num) const;
+        bool isNumValid(uint16_t tag, uint8_t num, uint16_t tagEnd) const;
+        bool isNumValid(std::string const & name) const;
+
         std::string getDescription(uint16_t tag, uint8_t num) const;
         std::string getDescription(uint16_t tag, uint8_t num, uint16_t tagEnd) const;
         std::string getDescription(std::string const &name) const;

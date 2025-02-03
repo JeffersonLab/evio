@@ -1441,12 +1441,58 @@ if (debug) std::cout << "    DDDDD   found entry in tagRange map with name 2 = "
 
 
     /**
-     * Returns the description, if any, associated with the given tag and num.
+     * Returns if the num field is valid or not if associated with the given tag and num.
      *
-     * @param tag    to find the description of
-     * @param num    to find the description of
-     * @return description or null if none found
+     * @param tag    to find the entry of
+     * @param num    to find the entru of
+     * @return if the num field is valid or not, false if no entry for given args.
      */
+    bool EvioXMLDictionary::isNumValid(uint16_t tag, uint8_t num) const {
+        return isNumValid(tag, num, tag);
+    }
+
+
+    /**
+     * Returns if the num field is valid or not if associated with the given tag, num, and tagEnd.
+     *
+     * @param tag    to find the entry of
+     * @param num    to find the entry of
+     * @param tagEnd to find the entry of
+     * @return if the num field is valid or not, false if no entry for given args.
+     */
+    bool EvioXMLDictionary::isNumValid(uint16_t tag, uint8_t num, uint16_t tagEnd) const {
+        auto entry = entryLookupByData(tag, num, tagEnd);
+        if (entry == nullptr) {
+            return "";
+        }
+
+        return entry->isNumValid();
+    }
+
+
+    /**
+     * Returns if the num field is valid or not if associated with the name of a dictionary entry.
+     *
+     * @param name dictionary name
+     * @return if the num field is valid or not, false if no entry for name.
+     */
+    bool EvioXMLDictionary::isNumValid(std::string const & name) const {
+        auto entry = entryLookupByName(name);
+        if (entry == nullptr) {
+            return "";
+        }
+
+        return entry->isNumValid();
+    }
+
+
+    /**
+    * Returns the description, if any, associated with the given tag and num.
+    *
+    * @param tag    to find the description of
+    * @param num    to find the description of
+    * @return description or null if none found
+    */
     std::string EvioXMLDictionary::getDescription(uint16_t tag, uint8_t num) const {
         return getDescription(tag, num, tag);
     }
