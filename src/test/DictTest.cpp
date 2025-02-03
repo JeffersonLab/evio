@@ -437,7 +437,7 @@ namespace evio {
                 // This sets the proper pos and lim in buf
                 auto bb = builder->getBuffer();
 
-                EvioXMLDictionary dict(dictionary, 0);
+                EvioXMLDictionary dict(dictionary, false);
                 std::cout << "\n    dictionary ->\n" << dict.toString() << std::endl << std::endl;
 
                 std::cout << "\n    search, using dictionary for struct = JUNK" << std::endl;
@@ -486,6 +486,7 @@ namespace evio {
                 else {
                     std::cout << "      data type = " << type.toString() << std::endl;
                 }
+                std::cout << "\n";
 
 
                 std::cout << "    find Top.2ndLevel.BankUints" << std::endl;
@@ -517,6 +518,7 @@ namespace evio {
                 else {
                     std::cout << "      no tag for " << entry << std::endl;
                 }
+                std::cout << "\n";
 
 
                 std::cout << "    find Tag 5:" << std::endl;
@@ -534,8 +536,11 @@ namespace evio {
                 std::cout << "\n    Getting stuff for name = \"CompositeData\":" << std::endl;
                 dict.getTag(entry, &tag);
                 std::cout << "      tag  = " << tag << std::endl;
-                dict.getNum("CompositeData",  &num);
-                std::cout << "      num = " << num << std::endl;
+                bool numValid = dict.isNumValid("CompositeData");
+                if (numValid) {
+                    dict.getNum("CompositeData", &num);
+                    std::cout << "      num = " << +num << std::endl;
+                }
                 std::cout << "      type = " << dict.getType(entry).toString() << std::endl;
                 std::cout << "      format = " << dict.getFormat(entry) << std::endl;
                 std::cout << "      description = " << dict.getDescription(entry) << std::endl;
@@ -563,49 +568,6 @@ namespace evio {
     };
 }
 
-int main2() {
-
-    std::unordered_map<std::shared_ptr<evio::EvioDictionaryEntry>, std::string, evio::EvioDictionaryEntry::Hash> map;
-
-    uint16_t tag = 1;
-    uint16_t tagEnd = 0;
-    uint8_t num = 2;
-    evio::DataType type = evio::DataType::UNKNOWN32;
-    std::string description = "";
-    std::string format = "";
-
-
-    auto key1 = std::make_shared<evio::EvioDictionaryEntry>(tag, num, tagEnd, type);
-    // Using the custom hash function
-    evio::EvioDictionaryEntry::Hash hasher;
-    std::size_t hash1 = hasher(key1);
-    // Print the hash value
-    std::cout << "    Hash of key1: " << hash1 << std::endl;
-
-    auto key2 = std::make_shared<evio::EvioDictionaryEntry>(tag, num, tagEnd, type);
-    std::size_t hash2 = hasher(key2);
-    std::cout << "    Hash of key2: " << hash2 << std::endl;
-
-    auto key3 = std::make_shared<evio::EvioDictionaryEntry>(tag, num, tagEnd, type);
-    std::size_t hash3 = hasher(key3);
-    std::cout << "    Hash of key3: " << hash3 << std::endl;
-
-    // Insert keys
-    map.insert({key1, "First"});
-    map.insert({key2, "Second"});;  // Should trigger operator==
-    map.insert({key3, "Third"});;
-
-
-    for (size_t i = 0; i < map.bucket_count(); ++i) {
-        std::cout << "Bucket " << i << " contains:";
-        for (auto it = map.begin(i); it != map.end(i); ++it) {
-            std::cout << " (tag = " << it->first->getTag() << ", num = " << +(it->first->getNum()) << ")";
-        }
-        std::cout << std::endl;
-    }
-
-    return 0;
-}
 
 int main(int argc, char **argv) {
     evio::DictTest tester;

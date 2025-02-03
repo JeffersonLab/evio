@@ -397,7 +397,7 @@ public class DictTest extends TestBase {
             EvioEvent ev = reader.parseEvent(1);
             System.out.println("    event ->\n" + ev.treeToString(""));
 
-            EvioXMLDictionary dict = new EvioXMLDictionary(dictionary);
+            EvioXMLDictionary dict = new EvioXMLDictionary(dictionary, null, true);
             System.out.println("\n    dictionary ->\n" + dict.toString());
 
             System.out.println("\n    search, using dictionary for struct = JUNK");
