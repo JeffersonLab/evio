@@ -1,5 +1,8 @@
 var NAVTREEINDEX4 =
 {
+"d6/db6/_compact_event_builder_8h_source.html":[3,0,13],
+"d6/dc6/_evio_x_m_l_dictionary_8h.html":[3,0,54],
+"d6/dc6/_evio_x_m_l_dictionary_8h_source.html":[3,0,54],
 "d6/dca/classevio_1_1_writer.html":[2,0,0,58],
 "d6/dca/classevio_1_1_writer.html#a0c390fc56c957705f1b1a5de67b62bfe":[2,0,0,58,30],
 "d6/dca/classevio_1_1_writer.html#a0d0f549a6ceaae794eca73130957a23d":[2,0,0,58,33],
@@ -246,8 +249,5 @@ var NAVTREEINDEX4 =
 "d7/d9e/classevio_1_1_block_header_v2.html#af694b19d13c1d0eb34e19dc2fba3d254":[2,0,0,5,37],
 "d7/dd0/_record_compressor_8h.html":[3,0,69],
 "d7/dd0/_record_compressor_8h_source.html":[3,0,69],
-"d7/dfc/_event_header_parser_8h.html":[3,0,22],
-"d7/dfc/_event_header_parser_8h_source.html":[3,0,22],
-"d8/d15/_reader_8cpp.html":[3,0,67],
-"d8/d26/_evio_exception_8h.html":[3,0,41]
+"d7/dfc/_event_header_parser_8h.html":[3,0,22]
 };

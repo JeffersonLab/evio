@@ -147,6 +147,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8688ab63d3b76f242d3dfb1e89676de9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a8688ab63d3b76f242d3dfb1e89676de9">isTagNum</a> (std::string const &amp;name) const</td></tr>
 <tr class="memdesc:a8688ab63d3b76f242d3dfb1e89676de9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the given dictionary entry (if any) represent a single tag and num pair?  <a href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a8688ab63d3b76f242d3dfb1e89676de9">More...</a><br /></td></tr>
 <tr class="separator:a8688ab63d3b76f242d3dfb1e89676de9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21a855208b396e8bf4346c1b78b43c0f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a21a855208b396e8bf4346c1b78b43c0f">isNumValid</a> (uint16_t tag, uint8_t num) const</td></tr>
+<tr class="memdesc:a21a855208b396e8bf4346c1b78b43c0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns if the num field is valid or not if associated with the given tag and num.  <a href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a21a855208b396e8bf4346c1b78b43c0f">More...</a><br /></td></tr>
+<tr class="separator:a21a855208b396e8bf4346c1b78b43c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4759cbb620bc6c7a005e50486b7b1c6a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a4759cbb620bc6c7a005e50486b7b1c6a">isNumValid</a> (uint16_t tag, uint8_t num, uint16_t tagEnd) const</td></tr>
+<tr class="memdesc:a4759cbb620bc6c7a005e50486b7b1c6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns if the num field is valid or not if associated with the given tag, num, and tagEnd.  <a href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#a4759cbb620bc6c7a005e50486b7b1c6a">More...</a><br /></td></tr>
+<tr class="separator:a4759cbb620bc6c7a005e50486b7b1c6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab93a0c298a6cedf4bf9629c1e646204e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#ab93a0c298a6cedf4bf9629c1e646204e">isNumValid</a> (std::string const &amp;name) const</td></tr>
+<tr class="memdesc:ab93a0c298a6cedf4bf9629c1e646204e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns if the num field is valid or not if associated with the name of a dictionary entry.  <a href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#ab93a0c298a6cedf4bf9629c1e646204e">More...</a><br /></td></tr>
+<tr class="separator:ab93a0c298a6cedf4bf9629c1e646204e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aceb3cc127f3b0d640dfb8fc4eac40960"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#aceb3cc127f3b0d640dfb8fc4eac40960">getDescription</a> (uint16_t tag, uint8_t num) const</td></tr>
 <tr class="memdesc:aceb3cc127f3b0d640dfb8fc4eac40960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the description, if any, associated with the given tag and num.  <a href="../../d0/d00/classevio_1_1_evio_x_m_l_dictionary.html#aceb3cc127f3b0d640dfb8fc4eac40960">More...</a><br /></td></tr>
 <tr class="separator:aceb3cc127f3b0d640dfb8fc4eac40960"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1249,6 +1258,116 @@ an entry of a tag range. </li>
 <dl class="section return"><dt>Returns</dt><dd>type or <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a64b4f4f0ccc080ba2d28040f49cfef3c" title="Not a valid data type.">DataType::NOT_A_VALID_TYPE</a> if none found. </dd></dl>
 
 <p class="reference">References <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a64b4f4f0ccc080ba2d28040f49cfef3c">evio::DataType::NOT_A_VALID_TYPE</a>.</p>
+
+</div>
+</div>
+<a id="ab93a0c298a6cedf4bf9629c1e646204e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab93a0c298a6cedf4bf9629c1e646204e">&#9670;&nbsp;</a></span>isNumValid() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool evio::EvioXMLDictionary::isNumValid </td>
+          <td>(</td>
+          <td class="paramtype">std::string const &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns if the num field is valid or not if associated with the name of a dictionary entry. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>dictionary name </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>if the num field is valid or not, false if no entry for name. </dd></dl>
+
+</div>
+</div>
+<a id="a21a855208b396e8bf4346c1b78b43c0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21a855208b396e8bf4346c1b78b43c0f">&#9670;&nbsp;</a></span>isNumValid() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool evio::EvioXMLDictionary::isNumValid </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>num</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns if the num field is valid or not if associated with the given tag and num. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tag</td><td>to find the entry of </td></tr>
+    <tr><td class="paramname">num</td><td>to find the entru of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>if the num field is valid or not, false if no entry for given args. </dd></dl>
+
+</div>
+</div>
+<a id="a4759cbb620bc6c7a005e50486b7b1c6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4759cbb620bc6c7a005e50486b7b1c6a">&#9670;&nbsp;</a></span>isNumValid() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool evio::EvioXMLDictionary::isNumValid </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>num</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>tagEnd</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns if the num field is valid or not if associated with the given tag, num, and tagEnd. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tag</td><td>to find the entry of </td></tr>
+    <tr><td class="paramname">num</td><td>to find the entry of </td></tr>
+    <tr><td class="paramname">tagEnd</td><td>to find the entry of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>if the num field is valid or not, false if no entry for given args. </dd></dl>
 
 </div>
 </div>
