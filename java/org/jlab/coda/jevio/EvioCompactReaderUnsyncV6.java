@@ -464,6 +464,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      *                       if node was not found in any event;
      *                       if internal programming error;
      *                       if buffer has compressed data.
+     *                       if using file, not buffer;
      */
     public  ByteBuffer removeStructure(EvioNode removeNode) throws EvioException {
         try {
@@ -477,7 +478,8 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
     /**
      * This method adds an evio container (bank, segment, or tag segment) as the last
-     * structure contained in an event. It is the responsibility of the caller to make
+     * structure contained in an event. Generally, this will be a bank since an event
+     * is defined to be a bank of banks. It is the responsibility of the caller to make
      * sure that the buffer argument contains valid evio data (only data representing
      * the structure to be added - not in file format with record header and the like)
      * which is compatible with the type of data stored in the given event.<p>
@@ -502,7 +504,8 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      *                       if added data is not the proper length (i.e. multiple of 4 bytes);
      *                       if the event number does not correspond to an existing event;
      *                       if there is an internal programming error;
-     *                       if object closed
+     *                       if object closed;
+     *                       if using file, not buffer;
      */
     public  ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
         try {
