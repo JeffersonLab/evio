@@ -21,7 +21,7 @@ public class BigFileWrite {
     private int bufferBytes = 15000;    // Write data in 15k byte chunks by default
     private long fileBytes = 2000000000; // 2GB file by default
     private int repeat = 3;
-    String filename;
+    String filename = "./bigEvioFile";
 
 
     /** Constructor. */
@@ -93,7 +93,6 @@ public class BigFileWrite {
     private static void usage() {
         System.out.println("\nUsage:\n\n" +
             "   java BigFileWrite\n" +
-            "        [-u <UDL>]             set UDL to connect to cMsg\n" +
             "        [-file <filename>]     name of file to write\n" +
             "        [-fsize <file size>]   final size of file to write (bytes)\n" +
             "        [-bsize <buf size>]    size of buffer to write (bytes)\n" +
