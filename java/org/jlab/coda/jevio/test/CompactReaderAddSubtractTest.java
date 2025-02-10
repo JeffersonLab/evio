@@ -49,6 +49,7 @@ public class CompactReaderAddSubtractTest {
                     EvioBank bankInts = new EvioBank(tag+2, DataType.INT32, 3);
                     bankInts.appendIntData(intData);
                     builder.addChild(bankBanks, bankInts);
+    //        builder.setAllHeaderLengths();
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -94,6 +95,8 @@ public class CompactReaderAddSubtractTest {
                       bankInts2.appendIntData(intData2);
                       builder.addChild(bankBanks2, bankInts2);
 
+  //               builder.setAllHeaderLengths();
+
          }
          catch (EvioException e) {
              e.printStackTrace();
@@ -107,68 +110,49 @@ public class CompactReaderAddSubtractTest {
     static ByteBuffer createComplexBuffer() {
 
         // Create a buffer
-        ByteBuffer myBuf = ByteBuffer.allocate(32 * 5 + 24);
+        ByteBuffer myBuf = ByteBuffer.allocate(4000);
 
         try {
             // Create an event writer to write into "myBuf"
-            //EventWriter writer = new EventWriter(myBuf);
-            EventWriter writer = new EventWriter(myBuf, 4*1000, 1, null, 1,
+            // When writing a buffer, only 1 (ONE) record is used,
+            // so maxEventCount (3rd arg) must be set to accommodate all events to be written!
+            EventWriter writer = new EventWriter(myBuf, 4000, 2, null, 1,
                                                   CompressionType.RECORD_UNCOMPRESSED);
 
             EvioEvent ev1 = createComplexEvent(1);
+            //System.out.println("\ncreateComplexBuffer: complex event = " + ev1);
             EvioEvent ev2 = createSingleEvent(100);
+            //System.out.println("\ncreateComplexBuffer: simple event = " + ev2);
 
             // Write events to buffer
-            writer.writeEvent(ev1);
-            writer.writeEvent(ev2);
+            boolean added = writer.writeEvent(ev1);
+            //System.out.println("\ncreateComplexBuffer: added complex event = " + added);
+            added = writer.writeEvent(ev2);
+            //System.out.println("\ncreateComplexBuffer: added simple event = " + added);
+
 
             // All done writing
             writer.close();
+
+            int eventsWritten = writer.getEventsWritten();
+            //System.out.println("\ncreateComplexBuffer: events written = " + eventsWritten + "\n\n");
+
+            myBuf = writer.getByteBuffer();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
 
         // Get ready to read
-        myBuf.flip();
 
         return myBuf;
     }
 
 
-    static ByteBuffer createBuffer() {
-
-        // Create a buffer
-        ByteBuffer myBuf = ByteBuffer.allocate(32 * 5);
-
-        try {
-            // Create an event writer to write into "myBuf"
-            //EventWriter writer = new EventWriter(myBuf);
-            EventWriter writer = new EventWriter(myBuf, 4*1000, 1, null, 1,
-                                                  CompressionType.RECORD_UNCOMPRESSED);
-
-            EvioEvent ev1 = createSingleEvent(1);
-            EvioEvent ev2 = createSingleEvent(100);
-
-            // Write events to buffer
-            writer.writeEvent(ev1);
-            writer.writeEvent(ev2);
-
-            // All done writing
-            writer.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Get ready to read
-        myBuf.flip();
-
-        return myBuf;
-    }
 
 
-    /** Test for addStructure() */
+
+    /** Add bank w/ addStructure() & remove it w/ removeStructure(). Compare. */
     public static void main(String args[]) {
 
         try {
@@ -188,24 +172,24 @@ public class CompactReaderAddSubtractTest {
             System.out.println("1st event all:");
             for (EvioNode n : node1.getAllNodes()) {
                 i++;
-                System.out.println("node " + i + ": " + n);
+                System.out.println("  node " + i + ": " + n);
             }
 
-            System.out.println("1st event children:");
+            System.out.println("\n1st event children:");
             i=0;
             ArrayList<EvioNode> kids = node1.getChildNodes();
             if (kids != null) {
                 for (EvioNode n : kids) {
                     i++;
-                    System.out.println("child node " + i + ": " + n);
+                    System.out.println("  child node " + i + ": " + n);
                 }
             }
 
             i=0;
-            System.out.println("2nd event all:");
+            System.out.println("\n2nd event all:");
             for (EvioNode n : node2.getAllNodes()) {
                 i++;
-                System.out.println("node " + i + ": " + n);
+                System.out.println("  node " + i + ": " + n);
             }
 
             System.out.println("\nBlock 1: " + node1.blockNode);
@@ -219,14 +203,23 @@ public class CompactReaderAddSubtractTest {
                     0x00060b06,
                     0x1,
             };
-            ByteBuffer newBuf = ByteBuffer.wrap(ByteDataTransformer.toBytes(data1, ByteOrder.BIG_ENDIAN));
-            reader.addStructure(1, newBuf);
+            ByteBuffer addBuf = ByteBuffer.wrap(ByteDataTransformer.toBytes(data1, ByteOrder.BIG_ENDIAN));
+            ByteBuffer origBuf = reader.getByteBuffer();
+Utilities.printBuffer(origBuf, 0, origBuf.limit()/4, "ORIG  BEFORE");
+
+            //--------------------------------------------------
+            // Take a look at what "should be" a modified node
+            //--------------------------------------------------
+            ByteBuffer newBuf = reader.addStructure(1, addBuf);
+            reader.setBuffer(newBuf);
+            node1 = reader.getScannedEvent(1);
+            node2 = reader.getScannedEvent(2);
 
             System.out.println("1st event after:");
+            i = 0;
             for (EvioNode n : node1.getAllNodes()) {
                 i++;
                 System.out.println("node " + i + ": " + n);
-                System.out.println("nodeBB = " + n.getBuffer());
             }
 
             System.out.println("reader.byteBuffer = " + reader.getByteBuffer());
@@ -237,6 +230,168 @@ public class CompactReaderAddSubtractTest {
             else {
                 System.out.println("reader and node have DIFFERENT buffer");
             }
+
+            System.out.println("\n\nTry removing 2nd event");
+
+
+            // Remove 2nd event
+            System.out.println("Node2 is obsolete? " + node2.isObsolete());
+            ByteBuffer removedBuf = reader.removeStructure(node2);
+            Utilities.printBuffer(removedBuf, 0, removedBuf.limit()/4, "REMOVED BUFFER");
+
+
+            // Reread new buffer which should be same as original
+            EvioCompactReader reader2 = new EvioCompactReader(removedBuf);
+            System.out.println("New reader shows " + reader2.getEventCount() + " events");
+
+            node1 = reader2.getScannedEvent(1);
+         //   node2 = reader2.getScannedEvent(2);
+
+            i=0;
+            System.out.println("1st event all:");
+            for (EvioNode n : node1.getAllNodes()) {
+                i++;
+                System.out.println("  node " + i + ": " + n);
+            }
+
+            System.out.println("\n1st event children:");
+            i=0;
+            kids = node1.getChildNodes();
+            if (kids != null) {
+                for (EvioNode n : kids) {
+                    i++;
+                    System.out.println("  child node " + i + ": " + n);
+                }
+            }
+
+
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    /** Add bank w/ addStructure() & remove it w/ removeStructure(). Compare. */
+    public static void main1(String args[]) {
+
+        try {
+
+            EvioCompactReader reader;
+
+            // ready-to-read buf with 2 events
+            ByteBuffer buf = createComplexBuffer();
+            reader = new EvioCompactReader(buf);
+
+            System.out.println("# of events = " + reader.getEventCount());
+
+            EvioNode node1 = reader.getScannedEvent(1);
+            EvioNode node2 = reader.getScannedEvent(2);
+
+            int i=0;
+            System.out.println("1st event all:");
+            for (EvioNode n : node1.getAllNodes()) {
+                i++;
+                System.out.println("  node " + i + ": " + n);
+            }
+
+            System.out.println("\n1st event children:");
+            i=0;
+            ArrayList<EvioNode> kids = node1.getChildNodes();
+            if (kids != null) {
+                for (EvioNode n : kids) {
+                    i++;
+                    System.out.println("  child node " + i + ": " + n);
+                }
+            }
+
+            i=0;
+            System.out.println("\n2nd event all:");
+            for (EvioNode n : node2.getAllNodes()) {
+                i++;
+                System.out.println("  node " + i + ": " + n);
+            }
+
+            System.out.println("\nBlock 1: " + node1.blockNode);
+            System.out.println("Block 2: " + node2.blockNode + "\n");
+
+            System.out.println("node 1 has all-node-count = " + node1.getAllNodes().size());
+
+            // Add bank of ints to node 1
+            int data1[] = {
+                    0x00000002,
+                    0x00060b06,
+                    0x1,
+            };
+            ByteBuffer addBuf = ByteBuffer.wrap(ByteDataTransformer.toBytes(data1, ByteOrder.BIG_ENDIAN));
+            ByteBuffer origBuf = reader.getByteBuffer();
+            Utilities.printBuffer(origBuf, 0, origBuf.limit()/4, "ORIG  BEFORE");
+
+            //--------------------------------------------------
+            // Take a look at what "should be" a modified node
+            //--------------------------------------------------
+            ByteBuffer newBuf = reader.addStructure(1, addBuf);
+            reader.setBuffer(newBuf);
+            node1 = reader.getScannedEvent(1);
+
+            System.out.println("1st event after:");
+            i = 0;
+            for (EvioNode n : node1.getAllNodes()) {
+                i++;
+                System.out.println("node " + i + ": " + n);
+            }
+
+            System.out.println("reader.byteBuffer = " + reader.getByteBuffer());
+
+            if (reader.getByteBuffer() == node1.getBuffer()) {
+                System.out.println("reader and node have same buffer");
+            }
+            else {
+                System.out.println("reader and node have DIFFERENT buffer");
+            }
+
+            int nodeKidCount = node1.getChildCount();
+            System.out.println("node1 has " + nodeKidCount + " kids");
+            EvioNode kidToRemove = node1.getChildAt(nodeKidCount-1);
+            System.out.println("node to remove = " + kidToRemove);
+
+
+            // Remove last child node of first event (the one we just added above)
+            ByteBuffer removedBuf = reader.removeStructure(kidToRemove);
+            Utilities.printBuffer(removedBuf, 0, removedBuf.limit()/4, "REMOVED BUFFER");
+            // Reread new buffer which should be same as original
+            EvioCompactReader reader2 = new EvioCompactReader(removedBuf);
+
+            node1 = reader2.getScannedEvent(1);
+            node2 = reader2.getScannedEvent(2);
+
+            i=0;
+            System.out.println("1st event all:");
+            for (EvioNode n : node1.getAllNodes()) {
+                i++;
+                System.out.println("  node " + i + ": " + n);
+            }
+
+            System.out.println("\n1st event children:");
+            i=0;
+            kids = node1.getChildNodes();
+            if (kids != null) {
+                for (EvioNode n : kids) {
+                    i++;
+                    System.out.println("  child node " + i + ": " + n);
+                }
+            }
+
+            i=0;
+            System.out.println("\n2nd event all:");
+            for (EvioNode n : node2.getAllNodes()) {
+                i++;
+                System.out.println("  node " + i + ": " + n);
+            }
+
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -252,6 +407,7 @@ public class CompactReaderAddSubtractTest {
 
             boolean useFile = false;
             EvioCompactReader reader;
+            ArrayList<EvioNode> kids;
 
 
             if (useFile) {
@@ -279,7 +435,7 @@ public class CompactReaderAddSubtractTest {
 
             System.out.println("1st event children:");
             i=0;
-            ArrayList<EvioNode> kids = node1.getChildNodes();
+            kids = node1.getChildNodes();
             if (kids != null) {
                 for (EvioNode n : kids) {
                     i++;
@@ -294,8 +450,6 @@ public class CompactReaderAddSubtractTest {
                 System.out.println("node " + i + ": " + n);
             }
 
-            System.out.println("\nBlock 1: " + node1.blockNode + "\n");
-            System.out.println("\nBlock 2: " + node2.blockNode + "\n");
 
 //            if (!useFile) reader.toFile("/tmp/removeTest.evio");
 
@@ -303,13 +457,19 @@ public class CompactReaderAddSubtractTest {
 
             // Remove 3rd bank structure here (1st bank of ints)
 //System.out.println("removing node = " + node1.getAllNodes().get(2));
-//            ByteBuffer newBuf = reader.removeStructure(node1.getAllNodes().get(2));
+//            reader.removeStructure(node1.getAllNodes().get(2));
+
+            // The second node (tag/num = 2/2) has a child (4/4). So both get removed.
 System.out.println("removing node = " + node1.getAllNodes().get(1));
-            ByteBuffer newBuf = reader.removeStructure(node1.getAllNodes().get(1));
+            /* buf = */ reader.removeStructure(node1.getAllNodes().get(1));
+
 //System.out.println("removing node = " + node2.getAllNodes().get(2));
-//            ByteBuffer newBuf = reader.removeStructure(node2.getAllNodes().get(2));
+//            reader.removeStructure(node2.getAllNodes().get(2));
 //System.out.println("Using file (after node removal) = " + reader.isFile());
 
+            System.out.println("Old node1 object is obsolete? = " + node1.isObsolete());
+            // Get the new node resulting from a rescan in removeStructure
+            node1 = reader.getScannedEvent(1);
             System.out.println("node 1 now has all-node-count = " + node1.getAllNodes().size());
 
             //System.out.println("\n\n ******************* removing event # 2\n");
@@ -322,7 +482,7 @@ System.out.println("removing node = " + node1.getAllNodes().get(1));
 //            node2 = reader2.getScannedEvent(2);
 
             System.out.println("REMOVE node 1");
-            newBuf = reader.removeEvent(1);
+            ByteBuffer newBuf = reader.removeEvent(1);
             System.out.println("Re-get scanned events 1 & 2");
             node1 = reader.getScannedEvent(1);
             reader.removeStructure(node1.getChildAt(0));
@@ -437,112 +597,6 @@ System.out.println("removing node = " + node1.getAllNodes().get(1));
 
             // Write to file for viewing
 //            Utilities.bufferToFile("/tmp/result2.evio", newBuf, true, false);
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-
-
-
-    /** Test for addStructure() */
-    public static void main1(String args[]) {
-
-        try {
-            // ready-to-read buf with 2 events
-            ByteBuffer buf = createBuffer();
-
-            // Create bank in buffer to be inserted at end of 1st event
-            ByteBuffer evBuf = ByteBuffer.allocate(32);
-
-            try {
-                // Create an event writer to write into "evBuf"  (3 nested banks)
-                EvioEvent ev = createSingleEvent(10);
-                ev.write(evBuf);
-                // Get ready to read
-                evBuf.flip();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-
-//            // Add bank to end of first event
-//            Utilities.printBuffer(buf, 0, 32, "event");
-
-            EvioCompactReader reader = new EvioCompactReader(buf);
-
-            EvioNode node1 = reader.getEvent(1);
-            EvioNode node2 = reader.getScannedEvent(2);
-
-            int i=0;
-            System.out.println("1st event all:");
-            for (EvioNode n : node1.getAllNodes()) {
-                i++;
-                System.out.println("node " + i + ": " + n);
-            }
-
-            System.out.println("1st event children:");
-            i=0;
-            ArrayList<EvioNode> kids = node1.getChildNodes();
-            if (kids != null) {
-                for (EvioNode n : kids) {
-                    i++;
-                    System.out.println("child node " + i + ": " + n);
-                }
-            }
-
-            i=0;
-            System.out.println("2nd event all:");
-            for (EvioNode n : node2.getAllNodes()) {
-                i++;
-                System.out.println("node " + i + ": " + n);
-            }
-
-            System.out.println("\nBlock 1: " + node1.blockNode + "\n");
-            System.out.println("\nBlock 2: " + node2.blockNode + "\n");
-
-
-            // Add structure here
-            ByteBuffer newBuf = reader.addStructure(1, evBuf);
-
-//            EvioCompactReader reader2 = new EvioCompactReader(newBuf);
-//
-//            node1 = reader2.getScannedEvent(1);
-//            node2 = reader2.getScannedEvent(2);
-
-            i=0;
-            System.out.println("1st event after:");
-            for (EvioNode n : node1.getAllNodes()) {
-                i++;
-                System.out.println("node " + i + ": " + n);
-            }
-
-            System.out.println("1st event children after:");
-            i=0;
-            kids = node1.getChildNodes();
-            if (kids != null) {
-                for (EvioNode n : kids) {
-                    i++;
-                    System.out.println("child node: " + i + ": " + n);
-                }
-            }
-
-            i=0;
-            System.out.println("2nd event after:");
-            for (EvioNode n : node2.getAllNodes()) {
-                i++;
-                System.out.println("node " + i + ": " + n);
-            }
-
-            System.out.println("\nBlock 1 after: " + node1.blockNode + "\n");
-            System.out.println("\nBlock 2 after: " + node2.blockNode + "\n");
-
-            // Write to file for viewing
-//            Utilities.bufferToFile("/tmp/result.evio", newBuf, true, false);
 
         }
         catch (Exception e) {
