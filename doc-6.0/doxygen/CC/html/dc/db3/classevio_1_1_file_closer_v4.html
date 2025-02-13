@@ -103,9 +103,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a37d87812f7060ec8c440acc033f227be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/db3/classevio_1_1_file_closer_v4.html#a37d87812f7060ec8c440acc033f227be">close</a> ()</td></tr>
 <tr class="memdesc:a37d87812f7060ec8c440acc033f227be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close this object by ending all threads in pool.  <a href="../../dc/db3/classevio_1_1_file_closer_v4.html#a37d87812f7060ec8c440acc033f227be">More...</a><br /></td></tr>
 <tr class="separator:a37d87812f7060ec8c440acc033f227be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a1e5f949e209526e96923fce1ddb411"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/db3/classevio_1_1_file_closer_v4.html#a6a1e5f949e209526e96923fce1ddb411">closeAsyncFile</a> (std::shared_ptr&lt; std::fstream &gt; afc, std::shared_ptr&lt; std::future&lt; void &gt;&gt; future)</td></tr>
-<tr class="memdesc:a6a1e5f949e209526e96923fce1ddb411"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close file given by filestream after pending write is finished.  <a href="../../dc/db3/classevio_1_1_file_closer_v4.html#a6a1e5f949e209526e96923fce1ddb411">More...</a><br /></td></tr>
-<tr class="separator:a6a1e5f949e209526e96923fce1ddb411"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e8483265e5d1215682d4b32482f0645"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/db3/classevio_1_1_file_closer_v4.html#a1e8483265e5d1215682d4b32482f0645">closeAsyncFile</a> (std::shared_ptr&lt; std::fstream &gt; &amp;afc, std::shared_ptr&lt; std::future&lt; void &gt;&gt; future)</td></tr>
+<tr class="memdesc:a1e8483265e5d1215682d4b32482f0645"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close file given by filestream after pending write is finished.  <a href="../../dc/db3/classevio_1_1_file_closer_v4.html#a1e8483265e5d1215682d4b32482f0645">More...</a><br /></td></tr>
+<tr class="separator:a1e8483265e5d1215682d4b32482f0645"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Class used to close files, each in its own thread, to avoid slowing down while file splitting. </p>
@@ -172,8 +172,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a6a1e5f949e209526e96923fce1ddb411"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a1e5f949e209526e96923fce1ddb411">&#9670;&nbsp;</a></span>closeAsyncFile()</h2>
+<a id="a1e8483265e5d1215682d4b32482f0645"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e8483265e5d1215682d4b32482f0645">&#9670;&nbsp;</a></span>closeAsyncFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -184,7 +184,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void evio::FileCloserV4::closeAsyncFile </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; std::fstream &gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; std::fstream &gt; &amp;&#160;</td>
           <td class="paramname"><em>afc</em>, </td>
         </tr>
         <tr>

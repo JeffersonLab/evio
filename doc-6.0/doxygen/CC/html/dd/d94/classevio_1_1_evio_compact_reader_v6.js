@@ -2,7 +2,7 @@ var classevio_1_1_evio_compact_reader_v6 =
 [
     [ "EvioCompactReaderV6", "dd/d94/classevio_1_1_evio_compact_reader_v6.html#a2113fbe908c3e873169afea53265a750", null ],
     [ "EvioCompactReaderV6", "dd/d94/classevio_1_1_evio_compact_reader_v6.html#adc91820dbb11980f0af8f2e7de90adc1", null ],
-    [ "addStructure", "dd/d94/classevio_1_1_evio_compact_reader_v6.html#a1f3c9c9126189dedf2380861a9bd21b9", null ],
+    [ "addStructure", "dd/d94/classevio_1_1_evio_compact_reader_v6.html#a51088f293f2f6db0ae022e97d15611fd", null ],
     [ "close", "dd/d94/classevio_1_1_evio_compact_reader_v6.html#a3d7fe439c3b1c77da15c6cf5c62045da", null ],
     [ "fileSize", "dd/d94/classevio_1_1_evio_compact_reader_v6.html#ac357dcb878677ccb7167ddbf012c88a3", null ],
     [ "getBlockCount", "dd/d94/classevio_1_1_evio_compact_reader_v6.html#a00b3f3e0d56465d5f24046505d1d7899", null ],

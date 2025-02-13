@@ -139,10 +139,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a6ce1b005ee8d710ec49dac455d5e62b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the size of the file being read, in bytes.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a6ce1b005ee8d710ec49dac455d5e62b6">More...</a><br /></td></tr>
 <tr class="separator:a6ce1b005ee8d710ec49dac455d5e62b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a275f888fdfa6ffae8a24696d49fa96a3"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a275f888fdfa6ffae8a24696d49fa96a3">getEvent</a> (size_t eventNumber)=0</td></tr>
-<tr class="memdesc:a275f888fdfa6ffae8a24696d49fa96a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> object associated with a particular event number.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a275f888fdfa6ffae8a24696d49fa96a3">More...</a><br /></td></tr>
+<tr class="memdesc:a275f888fdfa6ffae8a24696d49fa96a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a275f888fdfa6ffae8a24696d49fa96a3">More...</a><br /></td></tr>
 <tr class="separator:a275f888fdfa6ffae8a24696d49fa96a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee479affa5921daabf9769ec88d88852"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#aee479affa5921daabf9769ec88d88852">getScannedEvent</a> (size_t eventNumber)=0</td></tr>
-<tr class="memdesc:aee479affa5921daabf9769ec88d88852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#aee479affa5921daabf9769ec88d88852">More...</a><br /></td></tr>
+<tr class="memdesc:aee479affa5921daabf9769ec88d88852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#aee479affa5921daabf9769ec88d88852">More...</a><br /></td></tr>
 <tr class="separator:aee479affa5921daabf9769ec88d88852"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc76f897b29265246fdf503cb7cfebad"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="../../d5/d6e/classevio_1_1_i_block_header.html">IBlockHeader</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#abc76f897b29265246fdf503cb7cfebad">getFirstBlockHeader</a> ()=0</td></tr>
 <tr class="memdesc:abc76f897b29265246fdf503cb7cfebad"><td class="mdescLeft">&#160;</td><td class="mdescRight">This returns the FIRST block (or record) header.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#abc76f897b29265246fdf503cb7cfebad">More...</a><br /></td></tr>
@@ -159,9 +159,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab1667e5243de152c6b714fa04b23223e"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#ab1667e5243de152c6b714fa04b23223e">removeStructure</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; removeNode)=0</td></tr>
 <tr class="memdesc:ab1667e5243de152c6b714fa04b23223e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method removes the data, represented by the given node, from the buffer.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#ab1667e5243de152c6b714fa04b23223e">More...</a><br /></td></tr>
 <tr class="separator:ab1667e5243de152c6b714fa04b23223e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49d8b525d59f387184d76f93adcc327f"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a49d8b525d59f387184d76f93adcc327f">addStructure</a> (size_t eventNumber, <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;addBuffer)=0</td></tr>
-<tr class="memdesc:a49d8b525d59f387184d76f93adcc327f"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method adds an evio container (bank, segment, or tag segment) as the last structure contained in an event.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a49d8b525d59f387184d76f93adcc327f">More...</a><br /></td></tr>
-<tr class="separator:a49d8b525d59f387184d76f93adcc327f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af54a38be8b1c671ad6dc156576f1ac89"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#af54a38be8b1c671ad6dc156576f1ac89">addStructure</a> (size_t eventNumber, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; addBuffer)=0</td></tr>
+<tr class="memdesc:af54a38be8b1c671ad6dc156576f1ac89"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method adds an evio container (bank, segment, or tag segment) as the last structure contained in an event.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#af54a38be8b1c671ad6dc156576f1ac89">More...</a><br /></td></tr>
+<tr class="separator:af54a38be8b1c671ad6dc156576f1ac89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a713aa9e5303f2350d4f30e496dde6274"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a713aa9e5303f2350d4f30e496dde6274">getData</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node)=0</td></tr>
 <tr class="memdesc:a713aa9e5303f2350d4f30e496dde6274"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the data associated with an evio structure in <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a> form.  <a href="../../d3/d03/classevio_1_1_i_evio_compact_reader.html#a713aa9e5303f2350d4f30e496dde6274">More...</a><br /></td></tr>
 <tr class="separator:a713aa9e5303f2350d4f30e496dde6274"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,7 +201,7 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This is an interface for a compact reader of evio format files and buffers. </p>
-<p>The word "compact" refers to using the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> class as a compact or lightweight means to refer to an evio event or structure in a buffer. Compact readers do not use <a class="el" href="../../d4/d12/classevio_1_1_evio_event.html" title="An event is really just the outer, primary bank.">EvioEvent</a>, <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html" title="This holds a CODA Bank structure.">EvioBank</a>, <a class="el" href="../../d5/d29/classevio_1_1_evio_segment.html" title="This holds a CODA Segment structure.">EvioSegment</a> or <a class="el" href="../../d7/d91/classevio_1_1_evio_tag_segment.html" title="This holds a CODA TagSegment structure.">EvioTagSegment</a> classes which require a full parsing of each event and the creation of a large number of objects.</p>
+<p>The word "compact" refers to using the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> class as a compact or lightweight means to refer to an evio event or structure in a buffer. Compact readers do not use <a class="el" href="../../d4/d12/classevio_1_1_evio_event.html" title="An event is really just the outer, primary bank.">EvioEvent</a>, <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html" title="This holds a CODA Bank structure.">EvioBank</a>, <a class="el" href="../../d5/d29/classevio_1_1_evio_segment.html" title="This holds a CODA Segment structure.">EvioSegment</a> or <a class="el" href="../../d7/d91/classevio_1_1_evio_tag_segment.html" title="This holds a CODA TagSegment structure.">EvioTagSegment</a> classes which require a full parsing of each event and the creation of a large number of objects.</p>
 <dl class="section author"><dt>Author</dt><dd>timmer </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>6/18/2020. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
@@ -231,8 +231,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a49d8b525d59f387184d76f93adcc327f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a49d8b525d59f387184d76f93adcc327f">&#9670;&nbsp;</a></span>addStructure()</h2>
+<a id="af54a38be8b1c671ad6dc156576f1ac89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af54a38be8b1c671ad6dc156576f1ac89">&#9670;&nbsp;</a></span>addStructure()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -249,7 +249,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
           <td class="paramname"><em>addBuffer</em>&#160;</td>
         </tr>
         <tr>
@@ -285,7 +285,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implemented in <a class="el" href="../../dd/d94/classevio_1_1_evio_compact_reader_v6.html#a1f3c9c9126189dedf2380861a9bd21b9">evio::EvioCompactReaderV6</a>, <a class="el" href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#aa1739e3c0772961c6a6e4a17d9ad14d3">evio::EvioCompactReaderV4</a>, and <a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a0f14a17353707ea352dde6b3bd4ac69e">evio::EvioCompactReader</a>.</p>
+<p>Implemented in <a class="el" href="../../dd/d94/classevio_1_1_evio_compact_reader_v6.html#a51088f293f2f6db0ae022e97d15611fd">evio::EvioCompactReaderV6</a>, <a class="el" href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#a5fb39ddb835491b5a5f9e111c2ba9f95">evio::EvioCompactReaderV4</a>, and <a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a7e21507f9d6a25073056f9f40dace628">evio::EvioCompactReader</a>.</p>
 
 </div>
 </div>
@@ -752,14 +752,14 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> object associated with a particular event number. </p>
+<p>Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">eventNumber</td><td>number of event (place in file/buffer) starting at 1. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> object associated with a particular event number, or null if there is none. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number, or null if there is none. </dd></dl>
 
 <p>Implemented in <a class="el" href="../../dd/d94/classevio_1_1_evio_compact_reader_v6.html#a696dbddadc545a386faf9e2b1a97c323">evio::EvioCompactReaderV6</a>, <a class="el" href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#a036485b1e01dfcee36961023e7f95e45">evio::EvioCompactReaderV4</a>, and <a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a7b4f74b9463aceb70e693c611dbfee4f">evio::EvioCompactReader</a>.</p>
 
@@ -1039,14 +1039,14 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list. </p>
+<p>Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">eventNumber</td><td>number of event (place in file/buffer) starting at 1. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> object associated with a particular event number, or null if there is none. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number, or null if there is none. </dd></dl>
 
 <p>Implemented in <a class="el" href="../../dd/d94/classevio_1_1_evio_compact_reader_v6.html#ab159a1aa5403249597c808f4979fd0ab">evio::EvioCompactReaderV6</a>, <a class="el" href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#ab22b48c7413382c6174b1588c95820b7">evio::EvioCompactReaderV4</a>, and <a class="el" href="../../d6/d5f/classevio_1_1_evio_compact_reader.html#a4e96c5b8093359ff1f39151dc7e98462">evio::EvioCompactReader</a>.</p>
 

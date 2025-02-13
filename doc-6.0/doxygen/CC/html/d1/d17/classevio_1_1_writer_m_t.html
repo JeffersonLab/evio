@@ -164,10 +164,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a36b640fc4af8bf0a8d04d2362e604934"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an <a class="el" href="../../de/de3/classevio_1_1_evio_bank.html" title="This holds a CODA Bank structure.">EvioBank</a> to the internal record.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a36b640fc4af8bf0a8d04d2362e604934">More...</a><br /></td></tr>
 <tr class="separator:a36b640fc4af8bf0a8d04d2362e604934"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d362e86c93e8413e5eb070d141da458"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a0d362e86c93e8413e5eb070d141da458">addEvent</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; node)</td></tr>
-<tr class="memdesc:a0d362e86c93e8413e5eb070d141da458"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> to the internal record.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a0d362e86c93e8413e5eb070d141da458">More...</a><br /></td></tr>
+<tr class="memdesc:a0d362e86c93e8413e5eb070d141da458"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> to the internal record.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a0d362e86c93e8413e5eb070d141da458">More...</a><br /></td></tr>
 <tr class="separator:a0d362e86c93e8413e5eb070d141da458"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a329d5fd7ee27378b2d532e715742bd87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a329d5fd7ee27378b2d532e715742bd87">addEvent</a> (<a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &amp;node)</td></tr>
-<tr class="memdesc:a329d5fd7ee27378b2d532e715742bd87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> to the internal record.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a329d5fd7ee27378b2d532e715742bd87">More...</a><br /></td></tr>
+<tr class="memdesc:a329d5fd7ee27378b2d532e715742bd87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> to the internal record.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a329d5fd7ee27378b2d532e715742bd87">More...</a><br /></td></tr>
 <tr class="separator:a329d5fd7ee27378b2d532e715742bd87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0647993716e981fbedd6040f80114048"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a0647993716e981fbedd6040f80114048">close</a> ()</td></tr>
 <tr class="memdesc:a0647993716e981fbedd6040f80114048"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close opened file.  <a href="../../d1/d17/classevio_1_1_writer_m_t.html#a0647993716e981fbedd6040f80114048">More...</a><br /></td></tr>
@@ -552,7 +552,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> to the internal record. </p>
+<p>Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> to the internal record. </p>
 <p>If the length of the data exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a9185ec115b3b04111345b53c7fa64190" title="Appends the record to the file.">writeRecord()</a> is not thread-safe. <b>The byte order of node's data must match the byte order given in constructor!</b></p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -567,7 +567,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="reference">References <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a62277033890518669c730a7b41296ec6">evio::EvioNode::getBuffer()</a>.</p>
+<p class="reference">References <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a23e85b092bf631de1d234633b7371d92">evio::EvioNode::getBuffer()</a>.</p>
 
 </div>
 </div>
@@ -653,7 +653,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html" title="This class is used to store relevant info about an evio container (bank, segment, or tag segment),...">EvioNode</a> to the internal record. </p>
+<p>Add an <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> to the internal record. </p>
 <p>If the length of the data exceeds the maximum size of the record, the record will be written to the file (compressed if the flag is set). Internal record will be reset to receive new buffers. Using this method in conjunction with <a class="el" href="../../d1/d17/classevio_1_1_writer_m_t.html#a9185ec115b3b04111345b53c7fa64190" title="Appends the record to the file.">writeRecord()</a> is not thread-safe. <b>The byte order of node's data must match the byte order given in constructor!</b></p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
