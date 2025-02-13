@@ -349,7 +349,7 @@ namespace evio {
 
                 std::cout << "   Print out regular events:" << std::endl;
 
-                for (int i = 0; i < evCount2; i++) {
+                for (uint32_t i = 0; i < evCount2; i++) {
                     std::shared_ptr<EvioNode> compactNode = reader2.getScannedEvent(i + 1);
 
                     // This node and possibly other nodes have the same underlying buffer.
