@@ -1195,9 +1195,9 @@ namespace evio {
      * @throws std::out_of_range if srcPos or len too large; if len too small.
      * @throws EvioException if srcBuffer not in evio format;
      */
-    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> buf,
+    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & buf,
                                 uint32_t srcPos, uint32_t len) {
-        swapAll(*(buf.get()), srcPos, len);
+        swapAll(*buf, srcPos, len);
     }
 
 
@@ -1219,10 +1219,11 @@ namespace evio {
      *                       if destBuffer too small;
      *                       if bad values for srcPos/destPos/len args;
      */
-    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> srcBuf,
-                                std::shared_ptr<ByteBuffer> destBuf,
+    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & srcBuffer,
+                                std::shared_ptr<ByteBuffer> & destBuffer,
                                 uint32_t srcPos, uint32_t destPos, uint32_t len) {
-        swapAll(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len);
+
+        swapAll(*srcBuffer, *destBuffer, srcPos, destPos, len);
     }
 
 
@@ -1266,7 +1267,7 @@ namespace evio {
         while (srcBytesLeft > 0) {
 
             // Read & swap string tagsegment header
-            EvioNode node;
+            auto node = EvioNode::createEvioNode();
             EventHeaderParser::swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
             // Move to beginning of string data
@@ -1275,7 +1276,7 @@ namespace evio {
             dataOff += 4;
 
             // String data length in bytes
-            byteLen = 4*node.getDataLength();
+            byteLen = 4*node->getDataLength();
 
             // Read the format string it contains
             std::vector<std::string> strs;
@@ -1308,7 +1309,7 @@ namespace evio {
             EventHeaderParser::swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
             // Oops, no data
-            if (node.getDataLength() < 1) {
+            if (node->getDataLength() < 1) {
                 throw EvioException("no data");
             }
 
@@ -1318,10 +1319,10 @@ namespace evio {
             dataOff += 8;
 
             // Bank data length in bytes
-            byteLen = 4*node.getDataLength();
+            byteLen = 4*node->getDataLength();
 
             // Swap data (accounting for padding)
-            CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.getPad()), fmtInts);
+            CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node->getPad()), fmtInts);
 
             // Move past bank data
             srcPos    += byteLen;
@@ -1338,6 +1339,7 @@ namespace evio {
             throw EvioException("bad format");
         }
     }
+
 
 
     /**
@@ -1390,11 +1392,11 @@ namespace evio {
      *                       srcBuf or destBuf limit/position combo too small;
      *                       if src & dest not identical but overlap.
      */
-    void CompositeData::swapData(std::shared_ptr<ByteBuffer> srcBuf,
-                                 std::shared_ptr<ByteBuffer> destBuf,
+    void CompositeData::swapData(std::shared_ptr<ByteBuffer> & srcBuf,
+                                 std::shared_ptr<ByteBuffer> & destBuf,
                                  size_t srcPos, size_t destPos, size_t nBytes,
                                  const std::vector<uint16_t> & ifmt) {
-        swapData(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, nBytes, ifmt);
+        swapData(*srcBuf, *destBuf, srcPos, destPos, nBytes, ifmt);
     }
 
 
