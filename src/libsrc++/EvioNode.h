@@ -29,11 +29,16 @@
 namespace evio {
 
 
-    /**
+    /** <p>
      * This class is used to store relevant info about an evio container
      * (bank, segment, or tag segment), without having
      * to de-serialize it into many objects and arrays.
-     * It is not thread-safe and is designed for speed.
+     * It is not thread-safe and is designed for speed.</p>
+     *
+     * It designed to allow the user to obtain only shared_ptrs to EvioNode objects.
+     * The reason for this (and for extending std::enable_shared_from_this<EvioNode>)
+     * is that the allNodes vector must (as in Java) contain a reference to itself.
+     * This is only possible thru shared pointers and jumping through some other hoops.
      *
      * @author timmer
      * @date 07/22/2019
@@ -137,7 +142,7 @@ namespace evio {
         //-------------------------------
 
         /** Local id for testing. */
-        uint32_t id;
+        uint32_t id = 0;
 
         /** Static id for testing. */
         static uint32_t staticId;
@@ -145,17 +150,17 @@ namespace evio {
 
     private:
 
-        void copyParentForScan(std::shared_ptr<EvioNode> parent);
-        void addChild(std::shared_ptr<EvioNode> node);
-        void addToAllNodes(std::shared_ptr<EvioNode> node);
-        void removeFromAllNodes(std::shared_ptr<EvioNode> node);
-        void removeChild(std::shared_ptr<EvioNode> node);
+        void copyParentForScan(std::shared_ptr<EvioNode> & parent);
+        void addChild(std::shared_ptr<EvioNode> & node);
+        void addToAllNodes(std::shared_ptr<EvioNode> & node);
+        void removeFromAllNodes(std::shared_ptr<EvioNode> & node);
+        void removeChild(std::shared_ptr<EvioNode> & node);
         RecordNode & getRecordNode(); // public?
         void copy(const EvioNode & src);
 
     protected:
 
-        explicit EvioNode(std::shared_ptr<EvioNode> firstNode, int dummy);
+        explicit EvioNode(std::shared_ptr<EvioNode> & firstNode, int dummy);
 
         /**
          * This methods calls shared_from_this() to obtain a new std::shared_ptr that
@@ -164,34 +169,58 @@ namespace evio {
          */
         std::shared_ptr<EvioNode> getThis() {return shared_from_this();}
 
-    public:
+    private:
 
         EvioNode();
-        EvioNode(const EvioNode & firstNode);
-        explicit EvioNode(std::shared_ptr<EvioNode> src);
+        explicit EvioNode(std::shared_ptr<EvioNode> & src);
         EvioNode(EvioNode && src) noexcept;
-        EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> buffer, RecordNode & blockNode);
-        EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> buffer);
+        EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
+        EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> & buffer);
         EvioNode(uint16_t tag, uint8_t num, size_t pos, size_t dataPos,
                  DataType const & type, DataType const & dataType,
-                 std::shared_ptr<ByteBuffer> buffer);
+                 std::shared_ptr<ByteBuffer> & buffer);
 
+
+    public:
+
+        // Delete copy constructor since accessed thru shared_ptr only
+        EvioNode(const EvioNode &) = delete;
         ~EvioNode() = default;
 
-        static void scanStructure(std::shared_ptr<EvioNode> node);
+        /**
+         * Create an instance of an EvioNode as a shared_ptr<EvioNode>.
+         * This variadic template allows createEvioNode to handle all args normally given to EvioNode constructor.
+         * @tparam Args
+         * @param args args to pass through to private EvioNode constructors.
+         * @return shared pointer of created object.
+         */
+         template <class ...Args>
+         static std::shared_ptr<EvioNode> createEvioNode(Args&& ...args) {
+            auto sp = std::shared_ptr<EvioNode>(new EvioNode(std::forward<Args>(args)...));
+            // Cannot call shared_from_this inside constructor (above) since "this" has not
+            // yet been constructed so a bad_weak_ptr exception will be thrown.
+            sp->allNodes.push_back(sp->shared_from_this());
+            return sp;
+        }
 
-        static std::shared_ptr<EvioNode> extractNode(std::shared_ptr<EvioNode> bankNode, size_t position);
-        static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> buffer,
-                                                          RecordNode & recNode,
-                                                          size_t position, uint32_t place);
-        static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> buffer,
-                                                          size_t recPosition,
-                                                          size_t position, uint32_t place);
 
-        EvioNode & operator=(const EvioNode& other);
+        static void scanStructure(std::shared_ptr<EvioNode> & node);
+
+        static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, size_t position);
+        static std::shared_ptr<EvioNode> & extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
+                                                           RecordNode & recNode,
+                                                           size_t position, uint32_t place);
+        static std::shared_ptr<EvioNode> & extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
+                                                           size_t recPosition,
+                                                           size_t position, uint32_t place);
+
+        // Delete assignment operator since accessed thru shared_ptr only
+        EvioNode & operator=(const EvioNode& other) = delete;
+
         bool operator==(const EvioNode& src) const;
+        bool operator==(std::shared_ptr<const EvioNode> & src) const;
 
-        EvioNode & shift(int deltaPos);
+        void shift(int deltaPos);
         std::string toString() const;
 
         void clearLists();
@@ -199,11 +228,9 @@ namespace evio {
         void clearObjects();
         void clearIntArray();
 
-        void setBuffer(std::shared_ptr<ByteBuffer> buf);
-        void setData(size_t position, uint32_t plc, std::shared_ptr<ByteBuffer> buf, RecordNode & recNode);
-        void setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> buf);
-
-        // TODO: set many of these methods to CONST
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
+        void setData(size_t position, uint32_t plc, std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode);
+        void setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> & buf);
 
         bool isObsolete() const;
         void setObsolete(bool ob);
@@ -214,7 +241,7 @@ namespace evio {
         uint32_t getChildCount() const;
         uint32_t getChildCount(int level);
 
-        std::shared_ptr<ByteBuffer> getBuffer();
+        std::shared_ptr<ByteBuffer> & getBuffer();
 
         uint32_t getLength()         const;
         uint32_t getTotalBytes()     const;
@@ -236,12 +263,12 @@ namespace evio {
         bool isEvent()            const;
         bool getScanned()         const;
 
-        void updateLengths(uint32_t deltaLen);
+        void updateLengths(int32_t deltaLen);
         void updateTag(uint16_t newTag);
         void updateNum(uint8_t newNum);
 
         ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
-        std::shared_ptr<ByteBuffer> getByteData(std::shared_ptr<ByteBuffer> dest, bool copy);
+        std::shared_ptr<ByteBuffer> & getByteData(std::shared_ptr<ByteBuffer> & dest, bool copy);
         std::shared_ptr<ByteBuffer> getByteData(bool copy);
 
         std::vector<uint32_t> & getIntData();
@@ -249,7 +276,7 @@ namespace evio {
         void getLongData(std::vector<uint64_t> & longData);
         void getShortData(std::vector<uint16_t> & shortData);
         ByteBuffer & getStructureBuffer(ByteBuffer & dest, bool copy);
-        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<ByteBuffer> dest, bool copy);
+        std::shared_ptr<ByteBuffer> & getStructureBuffer(std::shared_ptr<ByteBuffer> & dest, bool copy);
     };
 
 }
