@@ -1519,7 +1519,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
             // Only sets the byte order of headerBuffer
             recordHeader.readHeader(headerBuffer);
-//System.out.println("  scanUncompressedBuffer: record hdr pos = " + recordHeader.toString());
+//System.out.println("  scanUncompressedBuffer: record hdr = \n" + recordHeader.toString());
             int eventCount = recordHeader.getEntries();
             int recordHeaderLen = recordHeader.getHeaderLength();
             int recordBytes = recordHeader.getLength();
@@ -2162,6 +2162,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
         // Reduce lengths of any parent node & recursively up the chain
         EvioNode parent = removeNode.getParentNode();
         if (parent != null) {
+            //System.out.println("         : remove len = " + (removeDataLen/4) + " from chain");
             parent.updateLengths(-removeDataLen/4);
         }
 
