@@ -1512,11 +1512,19 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * @param child the child to add. It will be added to the end of child list.
 	 */
 	public void insert(MutableTreeNode child) {
-		if (children == null) {
-			children = new ArrayList<BaseStructure>(10);
-		}
+        if (children == null) {
+            children = new ArrayList<BaseStructure>(10);
+        }
 
-		// Add to end
+        if (child == null) {
+            return;
+        }
+
+        if (isNodeAncestor(child)) {
+            return;
+        }
+
+        // Add to end
         if (child.getParent() == this) {
             // If we are adding this potential child to same parent again, the insert(child, index) method will
             // remove it first so each child only has 1 parent! Thus reduce index by 1.
@@ -3020,6 +3028,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     public int setAllHeaderLengths() throws EvioException {
         // if length info is current, don't bother to recalculate it
         if (lengthsUpToDate) {
+//System.err.println(" setAllHeaderLengths: up to date, return");
             return header.getLength();
         }
 
@@ -3028,22 +3037,25 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         if (isLeaf()) {
             // # of 32 bit ints for leaves, 0 for empty containers (also considered leaves)
             datalen = dataLength();
+//System.err.println(" setAllHeaderLengths: is leaf, len = " + datalen);
         }
         else {
             datalen = 0;
 
             if (children == null) {
-System.err.println("Non leaf with null children!");
+System.err.println(" setAllHeaderLengths: non leaf with null children!");
                 System.exit(1);
             }
             for (BaseStructure child : children) {
                 len = child.setAllHeaderLengths();
+//System.err.println(" setAllHeaderLengths: child len = " + len);
                 // Add this check to make sure structure is not being overfilled
                 if (Integer.MAX_VALUE - datalen < len + 1) {
                     throw new EvioException("added data overflowed containing structure");
                 }
                 datalen += len + 1;  // + 1 for the header length word of each child
             }
+//System.err.println(" setAllHeaderLengths: total data len = " + datalen);
         }
 
         len =  header.getHeaderLength() - 1;  // - 1 for length header word
@@ -3052,6 +3064,7 @@ System.err.println("Non leaf with null children!");
         }
 
         datalen += len;
+//System.err.println(" setAllHeaderLengths: hdr len = " + datalen);
 
         // set the datalen for the header
         header.setLength(datalen);
