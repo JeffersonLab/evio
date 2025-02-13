@@ -27,7 +27,8 @@ namespace evio {
      */
     ByteBuffer::ByteBuffer(size_t size) {
 
-        buf = std::shared_ptr<uint8_t>(new uint8_t[size], std::default_delete<uint8_t[]>());
+        // Use a shared_ptr with a custom deleter to ensure delete[] is called
+        buf = std::shared_ptr<uint8_t>(new uint8_t[size],  [](uint8_t* p) { delete[] p; });
         totalSize = cap = size;
         clear();
 
@@ -92,7 +93,7 @@ namespace evio {
             buf = std::shared_ptr<uint8_t>(byteArray,  &null_deleter);
         }
         else {
-            buf = std::shared_ptr<uint8_t>(byteArray, std::default_delete<uint8_t[]>());
+            buf = std::shared_ptr<uint8_t>(byteArray,  [](uint8_t* p) { delete[] p; });
         }
         totalSize = cap = len;
         clear();
