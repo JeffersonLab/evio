@@ -233,7 +233,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::addStructure(size_t eventNumber, ByteBuffer & addBuffer) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::addStructure(size_t eventNumber, std::shared_ptr<ByteBuffer> addBuffer) {
         if (synced) {
             auto lock = std::unique_lock<std::recursive_mutex>(mtx);
             return reader->addStructure(eventNumber, addBuffer);

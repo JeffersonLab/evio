@@ -908,13 +908,13 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV4::addStructure(size_t eventNumber,
-                                                                  ByteBuffer & addBuffer) {
+                                                                  std::shared_ptr<ByteBuffer> addBuffer) {
 
-        if (addBuffer.remaining() < 8) {
+        if (addBuffer->remaining() < 8) {
             throw EvioException("empty or non-evio format buffer arg");
         }
 
-        if (addBuffer.order() != byteOrder) {
+        if (addBuffer->order() != byteOrder) {
             throw EvioException("trying to add wrong endian buffer");
         }
 
@@ -934,10 +934,10 @@ namespace evio {
         uint32_t endPos = eventNode->dataPos + 4*eventNode->dataLen;
 
         // Original position of buffer being added
-        size_t origAddBufPos = addBuffer.position();
+        size_t origAddBufPos = addBuffer->position();
 
         // How many bytes are we adding?
-        size_t appendDataLen = addBuffer.remaining();
+        size_t appendDataLen = addBuffer->remaining();
 
         // Make sure it's a multiple of 4
         if (appendDataLen % 4 != 0) {
@@ -978,7 +978,7 @@ namespace evio {
 
         // Restore original positions of buffers
         byteBuffer->position(initialPosition);
-        addBuffer.position(origAddBufPos);
+        addBuffer->position(origAddBufPos);
 
         //-------------------------------------
         // By inserting a structure, we've definitely changed the positions of all

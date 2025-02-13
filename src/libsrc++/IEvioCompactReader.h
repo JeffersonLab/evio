@@ -270,7 +270,7 @@ namespace evio {
          *                       if there is an internal programming error;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) = 0;
+        virtual std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, std::shared_ptr<ByteBuffer> addBuffer) = 0;
 
         /**
          * Get the data associated with an evio structure in ByteBuffer form.

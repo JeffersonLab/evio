@@ -285,7 +285,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::addStructure(size_t eventNumber, ByteBuffer & addBuffer) {
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::addStructure(size_t eventNumber, std::shared_ptr<ByteBuffer> addBuffer) {
         return reader.addStructure(eventNumber, addBuffer);
     }
 
