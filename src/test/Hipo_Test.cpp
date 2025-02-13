@@ -322,7 +322,7 @@ namespace evio {
             std::cout << "   Print out regular events:" << std::endl;
             uint32_t byteLen;
             std::shared_ptr<uint8_t> data;
-            for (int i = 0; i < evCount; i++) {
+            for (uint32_t i = 0; i < evCount; i++) {
                 // Because this is a Reader object, it does not parse evio, it only gets a bunch of bytes.
                 // For parsing evio, use EvioCompactReader or EvioReader.
                 data = reader.getEvent(i, &byteLen);
