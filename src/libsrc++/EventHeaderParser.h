@@ -151,11 +151,11 @@ namespace evio {
          *                       if destBuffer is too small to contain swapped data;
          *                       srcBuffer and destBuffer have same byte order.
          */
-        static void swapBankHeader(std::shared_ptr<EvioNode> node,
-                                   std::shared_ptr<ByteBuffer> srcBuffer,
-                                   std::shared_ptr<ByteBuffer> destBuffer,
+        static void swapBankHeader(std::shared_ptr<EvioNode> & node,
+                                   std::shared_ptr<ByteBuffer> & srcBuffer,
+                                   std::shared_ptr<ByteBuffer> & destBuffer,
                                    uint32_t srcPos, uint32_t destPos) {
-            swapBankHeader(*(node.get()), *(srcBuffer.get()), *(destBuffer.get()), srcPos, destPos);
+            swapBankHeader(node, *srcBuffer, *destBuffer, srcPos, destPos);
         }
 
 
@@ -176,7 +176,7 @@ namespace evio {
          *                       if destBuffer is too small to contain swapped data;
          *                       srcBuffer and destBuffer have same byte order.
          */
-        static void swapBankHeader(EvioNode & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+        static void swapBankHeader(std::shared_ptr<EvioNode> & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
                                    uint32_t srcPos, uint32_t destPos) {
 
             // Check endianness
@@ -194,16 +194,16 @@ namespace evio {
             uint32_t word = srcBuffer.getInt(srcPos);
             destBuffer.putInt(destPos, word);
 
-            node.tag      = (word >> 16) & 0xffff;
-            uint32_t dt   = (word >> 8) & 0xff;
+            node->tag      = (word >> 16) & 0xffff;
+            uint32_t dt    = (word >> 8) & 0xff;
 
-            node.dataType = dt & 0x3f;
-            node.pad      = dt >> 6;
-            node.num      = word & 0xff;
-            node.len      = length;
-            node.pos      = destPos - 4;
-            node.dataPos  = destPos + 4;
-            node.dataLen  = length - 1;
+            node->dataType = dt & 0x3f;
+            node->pad      = dt >> 6;
+            node->num      = word & 0xff;
+            node->len      = length;
+            node->pos      = destPos - 4;
+            node->dataPos  = destPos + 4;
+            node->dataLen  = length - 1;
         }
 
 
@@ -224,11 +224,11 @@ namespace evio {
          *                       if destBuffer is too small to contain swapped data;
          *                       srcBuffer and destBuffer have same byte order.
          */
-        static void swapSegmentHeader(std::shared_ptr<EvioNode> node,
-                                      std::shared_ptr<ByteBuffer> srcBuffer,
-                                      std::shared_ptr<ByteBuffer> destBuffer,
+        static void swapSegmentHeader(std::shared_ptr<EvioNode> & node,
+                                      std::shared_ptr<ByteBuffer> & srcBuffer,
+                                      std::shared_ptr<ByteBuffer> & destBuffer,
                                       uint32_t srcPos, uint32_t destPos) {
-            swapSegmentHeader(*(node.get()), *(srcBuffer.get()), *(destBuffer.get()), srcPos, destPos);
+            swapSegmentHeader(node, *srcBuffer, *destBuffer, srcPos, destPos);
         }
 
 
@@ -249,7 +249,7 @@ namespace evio {
          *                       if destBuffer is too small to contain swapped data;
          *                       srcBuffer and destBuffer have same byte order.
          */
-        static void swapSegmentHeader(EvioNode & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+        static void swapSegmentHeader(std::shared_ptr<EvioNode> & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
                                       uint32_t srcPos, uint32_t destPos) {
 
             if (srcBuffer.order() == destBuffer.order()) {
@@ -260,15 +260,15 @@ namespace evio {
             uint32_t word = srcBuffer.getInt(srcPos);
             destBuffer.putInt(destPos, word);
 
-            node.tag      = (word >> 24) & 0xff;
+            node->tag      = (word >> 24) & 0xff;
             uint32_t dt   = (word >> 16) & 0xff;
-            node.dataType = dt & 0x3f;
-            node.pad      = dt >> 6;
-            node.len      = word & 0xffff;
-            node.num      = 0;
-            node.pos      = destPos;
-            node.dataPos  = destPos + 4;
-            node.dataLen  = node.len;
+            node->dataType = dt & 0x3f;
+            node->pad      = dt >> 6;
+            node->len      = word & 0xffff;
+            node->num      = 0;
+            node->pos      = destPos;
+            node->dataPos  = destPos + 4;
+            node->dataLen  = node->len;
         }
 
 
@@ -288,11 +288,12 @@ namespace evio {
          * @throws EvioException if srcBuffer is not properly formatted;
          *                       if destBuffer is too small to contain swapped data
          */
-        static void swapTagSegmentHeader(std::shared_ptr<EvioNode> node,
-                                         std::shared_ptr<ByteBuffer> srcBuffer,
-                                         std::shared_ptr<ByteBuffer> destBuffer,
+        static void swapTagSegmentHeader(std::shared_ptr<EvioNode> & node,
+                                         std::shared_ptr<ByteBuffer> & srcBuffer,
+                                         std::shared_ptr<ByteBuffer> & destBuffer,
                                          uint32_t srcPos, uint32_t destPos) {
-            swapTagSegmentHeader(*(node.get()), *(srcBuffer.get()), *(destBuffer.get()), srcPos, destPos);
+
+            return swapTagSegmentHeader(node, *srcBuffer, *destBuffer, srcPos, destPos);
         }
 
 
@@ -312,7 +313,8 @@ namespace evio {
          * @throws EvioException if srcBuffer is not properly formatted;
          *                       if destBuffer is too small to contain swapped data
          */
-        static void swapTagSegmentHeader(EvioNode & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+        static void swapTagSegmentHeader(std::shared_ptr<EvioNode> & node,
+                                         ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
                                          uint32_t srcPos, uint32_t destPos) {
 
             if (srcBuffer.order() == destBuffer.order()) {
@@ -323,15 +325,16 @@ namespace evio {
             uint32_t word = srcBuffer.getInt(srcPos);
             destBuffer.putInt(destPos, word);
 
-            node.tag      = (word >> 20) & 0xfff;
-            node.dataType = (word >> 16) & 0xf;
-            node.len      = word & 0xffff;
-            node.num      = 0;
-            node.pad      = 0;
-            node.pos      = destPos;
-            node.dataPos  = destPos + 4;
-            node.dataLen  = node.len;
+            node->tag      = (word >> 20) & 0xfff;
+            node->dataType = (word >> 16) & 0xf;
+            node->len      = word & 0xffff;
+            node->num      = 0;
+            node->pad      = 0;
+            node->pos      = destPos;
+            node->dataPos  = destPos + 4;
+            node->dataLen  = node->len;
         }
+
 
 
     };
