@@ -443,7 +443,7 @@ namespace evio {
                 std::cout << "\n    search, using dictionary for struct = JUNK" << std::endl;
                 std::vector<std::shared_ptr<BaseStructure>> vec;
                 StructureFinder::getMatchingStructures(ev, "JUNK", dict, vec);
-                for (std::shared_ptr<BaseStructure> bs : vec) {
+                for (std::shared_ptr<BaseStructure> & bs : vec) {
                     std::cout << "      found, thru dict -> " << bs->toString() << std::endl;
                 }
 
@@ -452,7 +452,7 @@ namespace evio {
 
                 StructureFinder::getMatchingStructures(ev, "SEG5", dict, vec);
                 std::cout << "    find SEG5 -> " << std::endl;
-                for (std::shared_ptr<BaseStructure> bs : vec) {
+                for (std::shared_ptr<BaseStructure> & bs : vec) {
                     std::cout << "      found, thru dict -> " << bs->toString() << std::endl;
                 }
                 std::cout << "\n";
@@ -462,7 +462,7 @@ namespace evio {
                 //  <bank name="2Level"   tag="201-203"    type="bank" >
                 StructureFinder::getMatchingStructures(ev, "Top.2ndLevel", dict, vec);
                 std::cout << "    find Top.2ndLevel -> " << std::endl;
-                for (std::shared_ptr<BaseStructure> bs : vec) {
+                for (std::shared_ptr<BaseStructure> & bs : vec) {
                     std::cout << "      found, thru dict -> " << bs->toString() << std::endl;
                 }
                 std::cout << "\n";
@@ -471,7 +471,7 @@ namespace evio {
                 //  <leaf name="TagSegUints"   tag="17" /> <<
                 std::cout << "    find Top.2ndLevel.TagSegUints -> " << std::endl;
                 StructureFinder::getMatchingStructures(ev, "Top.2ndLevel.TagSegUints", dict, vec);
-                for (std::shared_ptr<BaseStructure> bs : vec) {
+                for (std::shared_ptr<BaseStructure> & bs : vec) {
                     std::cout << "      found, thru dict -> " << bs->toString() << std::endl;
                 }
                 std::cout << "\n\n";
