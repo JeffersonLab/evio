@@ -216,9 +216,8 @@ namespace evio {
         std::shared_ptr<EvioNode> node = nullptr;
         if (generateNodes) {
             // This constructor does not have lengths or create allNodes list, blockNode
-            node = std::make_shared<EvioNode>(tag, 0, position, position+4,
-                                              DataType::SEGMENT, dataType,
-                                              buffer);
+            node = EvioNode::createEvioNode(tag, 0, position, position+4,
+                                  DataType::SEGMENT, dataType, buffer);
             nodes.push_back(node);
         }
 
@@ -299,9 +298,8 @@ namespace evio {
         std::shared_ptr<EvioNode> node = nullptr;
         if (generateNodes) {
             // This constructor does not have lengths or create allNodes list, blockNode
-            node = std::make_shared<EvioNode>(tag, 0, position, position+4,
-                                              DataType::TAGSEGMENT, dataType,
-                                              buffer);
+            node = EvioNode::createEvioNode(tag, 0, position, position+4,
+                                  DataType::TAGSEGMENT, dataType, buffer);
             nodes.push_back(node);
         }
 
@@ -390,9 +388,8 @@ namespace evio {
         std::shared_ptr<EvioNode> node = nullptr;
         if (generateNodes) {
             // This constructor does not have lengths or create allNodes list, blockNode
-            node = std::make_shared<EvioNode>(tag, 0, position, position+8,
-                                              DataType::BANK, dataType,
-                                              buffer);
+            node = EvioNode::createEvioNode(tag, 0, position, position+8,
+                                  DataType::BANK, dataType, buffer);
             nodes.push_back(node);
         }
 
