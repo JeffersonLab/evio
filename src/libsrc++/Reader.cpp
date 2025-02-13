@@ -1309,7 +1309,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         size_t position  = bufferOffset;
         size_t recordPos = bufferOffset;
         ssize_t bytesLeft = bufferLimit - bufferOffset;
-//        std::cout << "scanUncompressedBuffer: " << "pos = " << position << ", bufLim = " << bufferLimit << std::endl;
+ //std::cout << "scanUncompressedBuffer: " << "pos = " << position << ", bufLim = " << bufferLimit << std::endl;
 
         // Keep track of the # of records, events, and valid words in file/buffer
         uint32_t eventPlace = 0;
@@ -1326,7 +1326,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             // Only sets the byte order of headerBuffer
             recordHeader.readHeader(headerBuffer);
 
-//std::cout << "Record Header:\n" << recordHeader.toString() << std::endl;
+//std::cout << "scanUncompressedBuffer: record hdr = \n" << recordHeader.toString() << std::endl;
 
             uint32_t eventCount = recordHeader.getEntries();
             uint32_t recordHeaderLen = recordHeader.getHeaderLength();
@@ -1706,6 +1706,162 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
     }
 
 
+
+    /**
+     * This method is called by {@link #removeStructure(std::shared_ptr<EvioNode>)}
+     * if the structure being removed is an entire event.
+     * <p>
+     *
+     * @param  removeNode  evio event to remove from buffer
+     * @return ByteBuffer updated to reflect the node removal
+     * @throws EvioException if internal programming error or bad data format;
+     *                       if using evio version 5 or earlier;
+     */
+    std::shared_ptr<ByteBuffer> & Reader::removeEvent(std::shared_ptr<EvioNode> & removeNode) {
+
+        // Record header location
+        size_t recPos = removeNode->getRecordPosition();
+        // How many events in this record?
+        uint32_t evCnt = buffer->getUInt(recPos + RecordHeader::EVENT_COUNT_OFFSET);
+        // How big is index array?
+        uint32_t indexBytes = buffer->getUInt(recPos + RecordHeader::INDEX_ARRAY_OFFSET);
+
+        // Fix for 1 less event.
+        // This will happen in 2 steps:
+        //   1) Remove entry for event in index array and
+        //      move everything after it, up until the event to be removed, and
+        //      copy that and move it 4 bytes closer to header.
+        //   2) Copy everything after event to be removed and move it over where
+        //      the event used to be.
+
+        if (evCnt == 0) {
+            //std::cout << "         : cannot remove what shouldn't be there" << std::endl;
+            throw EvioException("bad format");
+        }
+
+        // Pos just before the event to be removed
+        size_t removeNodePos = removeNode->getPosition();
+        int removedIndexCnt = 0;
+        std::shared_ptr<ByteBuffer> moveBuffer;
+
+        if (indexBytes == 0) {
+            // If there is no index array, we can ignore step 1
+            //std::cout << "         : no index array" << std::endl;
+        }
+        else {
+            // STEP 1
+
+            // We do have an existing index array and
+            // we'll be removing one entry
+            removedIndexCnt = 1;
+
+            // Buffer limits of data to move first
+
+            // Pos just after index element to be removed, start copying here
+            size_t startPos = recPos + RecordHeader::HEADER_SIZE_BYTES + 4*removeNode->getPlace() + 4;
+            // Stop copying just before removeNodePos
+            size_t bytesToCopy = removeNodePos - startPos;
+
+            // Store part of the header that must be moved along with
+            // everything up to the event that will be removed.
+            moveBuffer = std::make_shared<ByteBuffer>(bytesToCopy);
+            moveBuffer->order(buffer->order());
+
+            buffer->limit(removeNodePos).position(startPos);
+            moveBuffer->put(buffer);
+
+            // Now copy back into buffer, shifted 4 bytes
+            // Prepare to read moveBuffer (set pos to 0, limit to cap)
+            moveBuffer->clear();
+            // Set spot to put the data being moved
+            buffer->position(startPos - 4);
+            // Copy it over
+            buffer->put(moveBuffer);
+
+            // At this point buffer pos = - removeNodePos - 4
+            // But limit = removeNodePos
+        }
+
+        // STEP 2
+
+        // The data these nodes represent will be removed from the buffer,
+        // so the node will be obsolete along with all its descendants.
+        removeNode->setObsolete(true);
+
+        //---------------------------------------------------
+        // Remove event. Keep using current buffer.
+        // We'll move all data that came after removed node
+        // to where removed node used to be.
+        //---------------------------------------------------
+
+        // Amount of data being removed
+        uint32_t removeDataLen = removeNode->getTotalBytes();
+
+        // Pos just after removed node (start pos of data being moved)
+        size_t startPos = removeNodePos + removeDataLen;
+        // Where do we want the data after the removed node to end up?
+        size_t destPos = removeNodePos - 4*removedIndexCnt;
+        // Where is the end of the data after removal of node?
+        size_t newEnd = bufferLimit - 4*removedIndexCnt - removeDataLen;
+
+        // Copy the part of the buffer that must be moved.
+        moveBuffer =  std::make_shared<ByteBuffer>(bufferLimit-startPos);
+        moveBuffer->order(buffer->order());
+        buffer->limit(bufferLimit).position(startPos);
+        moveBuffer->put(buffer);
+
+        // Prepare to write moveBuffer (set pos to 0, limit to cap)
+        // for data currently sitting past the removed node
+        moveBuffer->clear();
+
+        // Set place to put the data being moved - where removed node starts
+        buffer->limit(newEnd).position(destPos);
+        // Copy it over
+        buffer->put(moveBuffer);
+
+        // Reset some buffer values
+        uint32_t bytesRemoved = removeDataLen + 4*removedIndexCnt;
+        buffer->position(bufferOffset);
+        bufferLimit -= bytesRemoved;
+        buffer->limit(bufferLimit);
+
+        // This is an event so there is NO parent node.
+
+        // Reduce containing record's length
+        uint32_t recLen = buffer->getUInt(recPos);
+        //std::cout << "         : old rec len at pos = " << recPos << ", is " << recLen << std::endl;
+        // Header length in words
+        buffer->putInt(recPos, (recLen - bytesRemoved/4));
+        //std::cout << "         : new rec len at pos = " << recPos << ", is " << (recLen - removeDataLen/4) << std::endl;
+
+        // Reduce uncompressed data length in bytes
+        uint32_t oldLen = buffer->getUInt(recPos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
+        buffer->putInt(recPos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen - bytesRemoved);
+
+        // Reduce event count
+        uint32_t oldCnt = buffer->getUInt(recPos + RecordHeader::EVENT_COUNT_OFFSET);
+        buffer->putInt(recPos + RecordHeader::EVENT_COUNT_OFFSET, oldCnt - 1);
+
+        // Check to see if there is an index
+        if (indexBytes > 0) {
+            // Don't need to update index array entry since it was deleted.
+            // Do reduce index array length.
+            oldLen = buffer->getUInt(recPos + RecordHeader::INDEX_ARRAY_OFFSET);
+            buffer->putInt(recPos + RecordHeader::INDEX_ARRAY_OFFSET, oldLen - 4);
+        }
+
+        // Invalidate all nodes obtained from the last buffer scan
+        for (auto & ev : eventNodes) {
+            ev->setObsolete(true);
+        }
+
+        // Now the evio data in buffer is in a valid state so rescan buffer to update everything
+        scanBuffer();
+
+        return buffer;
+    }
+
+
     /**
      * This method removes the data, represented by the given node, from the buffer.
      * It also marks all nodes taken from that buffer as obsolete.
@@ -1721,8 +1877,18 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      *                       if node was not found in any event;
      *                       if internal programming error;
      *                       if buffer has compressed data;
+     *                       if using file, not buffer;
+     *                       if using evio version 5 or earlier;
      */
-    std::shared_ptr<ByteBuffer> Reader::removeStructure(std::shared_ptr<EvioNode> removeNode) {
+    std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> & removeNode) {
+
+        if (isFile()) {
+            throw EvioException("method valid only for buffers");
+        }
+
+        if (evioVersion < 6) {
+            throw EvioException("method valid only for evio 6 format, else use evio 5.3");
+        }
 
         if (closed) {
             throw EvioException("object closed");
@@ -1732,35 +1898,44 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
             return buffer;
         }
 
+        if (isCompressed()) {
+            throw EvioException("cannot add to compressed structure");
+        }
+
         if (firstRecordHeader->getCompressionType() != Compressor::UNCOMPRESSED) {
             throw EvioException("cannot remove node from buffer of compressed data");
         }
 
         bool foundNode = false;
+        bool isEvent = false;
+        std::shared_ptr<EvioNode> evNode = nullptr;
 
         // Locate the node to be removed ...
-        for (auto ev : eventNodes) {
+        for (auto & ev : eventNodes) {
             // See if it's an event ...
             if (removeNode == ev) {
                 foundNode = true;
+                isEvent = true;
+                evNode = ev;
                 break;
             }
 
-            for (std::shared_ptr<EvioNode> nd : ev->getAllNodes()) {
-                // The first node in allNodes is the event node
-                if (removeNode == nd) {
+            for (auto & n : ev->getAllNodes()) {
+                // The first node in allNodes is the event node,
+                if (removeNode == n) {
                     foundNode = true;
-                    break;
+                    goto outer_break;  // Break out of both loops
                 }
             }
-
-            if (foundNode) {
-                break;
-            }
         }
+        outer_break: // Label to break out of both loops
 
         if (!foundNode) {
             throw EvioException("removeNode not found in any event");
+        }
+
+        if (isEvent) {
+            return removeEvent(evNode);
         }
 
         // The data these nodes represent will be removed from the buffer,
@@ -1774,15 +1949,21 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         //---------------------------------------------------
 
         // Amount of data being removed
-        uint32_t removeDataLen = removeNode->getTotalBytes();
+        int32_t removeDataLen = removeNode->getTotalBytes();
 
-        // Just after removed node (start pos of data being moved)
-        uint32_t startPos = removeNode->getPosition() + removeDataLen;
+        // Pos just after removed node (start pos of data being moved)
+        size_t startPos = removeNode->getPosition() + removeDataLen;
 
-        // Duplicate buffer shares data, but we need to copy it so use copy constructor.
-        ByteBuffer moveBuffer(*(buffer.get()));
-        // Prepare to move data currently sitting past the removed node
-        moveBuffer.limit(bufferLimit).position(startPos);
+        // Can't use duplicate(), so copy the part of the backing buffer that must be moved.
+        auto moveBuffer = std::make_shared<ByteBuffer>(bufferLimit-startPos);
+        moveBuffer->order(buffer->order());
+
+        buffer->limit(bufferLimit).position(startPos);
+        moveBuffer->put(buffer);
+
+        // Prepare to move (set pos to 0, limit to cap) data currently
+        // sitting past the removed node
+        moveBuffer->clear();
 
         // Set place to put the data being moved - where removed node starts
         buffer->position(removeNode->getPosition());
@@ -1794,20 +1975,42 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         bufferLimit -= removeDataLen;
         buffer->limit(bufferLimit);
 
-        // Reduce lengths of parent node
-        removeNode->getParentNode()->updateLengths(-removeDataLen);
+        // Reduce lengths of any parent node & recursively up the chain
+        auto & parent = removeNode->getParentNode();
+        if (parent != nullptr) {
+            //std::cout << "         : remove len = " << (removeDataLen/4) << " from chain" << std::endl;
+            parent->updateLengths(-removeDataLen/4);
+        }
 
         // Reduce containing record's length
-        uint32_t pos = removeNode->getRecordPosition();
+        size_t recPos = removeNode->getRecordPosition();
+        uint32_t recLen = buffer->getUInt(recPos);
+        //std::cout << "         : old rec len at pos = " << recPos << ", is " << recLen << std::endl;
         // Header length in words
-        uint32_t oldLen = 4*buffer->getInt(pos);
-        buffer->putInt(pos, (oldLen - removeDataLen)/4);
-        // Uncompressed data length in bytes
-        oldLen = buffer->getInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
-        buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen - removeDataLen);
+        buffer->putInt(recPos, (recLen - removeDataLen/4));
+        //std::cout << "         : new rec len at pos = " << recPos << ", is " << (recLen - removeDataLen/4) << std::endl;
+
+        // Reduce uncompressed data length in bytes
+        uint32_t oldLen = buffer->getUInt(recPos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
+        buffer->putInt(recPos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen - removeDataLen);
+
+        // Reduce event len in index array.
+        // First check to see if index array exists.
+        uint32_t arrayLen = buffer->getUInt(recPos + RecordHeader::INDEX_ARRAY_OFFSET);
+        if (arrayLen > 0) {
+            // Pos in index array of given event's length
+            size_t evLenPos = RecordHeader::HEADER_SIZE_BYTES + 4*removeNode->getPlace();
+
+            // Evio Header length in bytes
+            uint32_t oldEvLen = buffer->getUInt(evLenPos);
+            //std::cout << "         : **** old ev len at pos = " << evLenPos << ", is " << oldEvLen << std::endl;
+            uint32_t newEvLen = oldEvLen - removeDataLen;
+            buffer->putInt(evLenPos, newEvLen);
+            //std::cout << "         : **** new ev bank len = " << newEvLen << std::endl;
+        }
 
         // Invalidate all nodes obtained from the last buffer scan
-        for (auto ev : eventNodes) {
+        for (auto & ev : eventNodes) {
             ev->setObsolete(true);
         }
 
@@ -1817,10 +2020,10 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         return buffer;
     }
 
-
     /**
      * This method adds an evio container (bank, segment, or tag segment) as the last
-     * structure contained in an event. It is the responsibility of the caller to make
+     * structure contained in an event. Generally, this will be a bank since an event
+     * is defined to be a bank of banks. It is the responsibility of the caller to make
      * sure that the buffer argument contains valid evio data (only data representing
      * the structure to be added - not in file format with record header and the like)
      * which is compatible with the type of data stored in the given event.<p>
@@ -1832,9 +2035,6 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      *
      * The given buffer argument must be ready to read with its position and limit
      * defining the limits of the data to copy.<p>
-     *
-     * I don't think this method works since it does not change evio header lengths
-     * recursively, it doesn't change record headers, and it doesn't move records!
      *
      * @deprecated has not been correctly programmed.
      * @param eventNumber number of event to which addBuffer is to be added
@@ -1848,16 +2048,31 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
      *                       if added data is not the proper length (i.e. multiple of 4 bytes);
      *                       if the event number does not correspond to an existing event;
      *                       if there is an internal programming error;
-     *                       if object closed
-     */
-    std::shared_ptr<ByteBuffer> Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
+     *                       if object closed;
+     *                       if data in buffer is compressed.
+     *                       if using file, not buffer;
+     *                       if using evio version 5 or earlier;
+   */
+    std::shared_ptr<ByteBuffer> Reader::addStructure(uint32_t eventNumber, std::shared_ptr<ByteBuffer> & addBuffer) {
 
-        if (addBuffer.remaining() < 8) {
-            throw EvioException("empty or non-evio format buffer arg");
+        if (isFile()) {
+            throw EvioException("method valid only for buffers");
         }
 
-        if (addBuffer.order() != byteOrder) {
+        if (evioVersion < 6) {
+            throw EvioException("method valid only for evio 6 format, else use evio 5.3");
+        }
+
+        if (addBuffer->remaining() < 8) {
+            throw EvioException("null, empty or non-evio format buffer arg");
+        }
+
+        if (addBuffer->order() != byteOrder) {
             throw EvioException("trying to add wrong endian buffer");
+        }
+
+        if (isCompressed()) {
+            throw EvioException("cannot add to compressed structure");
         }
 
         if (eventNumber < 1 || eventNumber > eventNodes.size()) {
@@ -1870,26 +2085,29 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
 
         auto eventNode = eventNodes[eventNumber - 1];
 
-        // Position in byteBuffer just past end of event
-        uint32_t endPos = eventNode->getDataPosition() + 4*eventNode->getDataLength();
+        // Start of header
+        size_t recPos = eventNode->getRecordPosition();
 
-        // How many bytes are we adding?
-        size_t appendDataLen = addBuffer.remaining();
-
+        // How many data bytes are we adding?
+        size_t appendDataLen = addBuffer->remaining();
         // Make sure it's a multiple of 4
         if (appendDataLen % 4 != 0) {
             throw EvioException("data added is not in evio format");
         }
 
-        //--------------------------------------------
-        // Add new structure to end of specified event
-        //--------------------------------------------
+        // Original buffer's valid data length
+        size_t origContentBytes = bufferLimit - bufferOffset;
+        // New buffer's valid data length
+        size_t finalContentBytes = origContentBytes + appendDataLen;
 
         // Create a new buffer
-        std::shared_ptr<ByteBuffer> newBuffer = std::make_shared<ByteBuffer>(bufferLimit - bufferOffset + appendDataLen);
+        auto newBuffer = std::make_shared<ByteBuffer>(finalContentBytes);
         newBuffer->order(byteOrder);
 
-        // Copy beginning part of existing buffer into new buffer
+        // Position in buffer just past end of this event
+        size_t endPos = eventNode->getDataPosition() + 4*eventNode->getDataLength();
+
+        // Copy over existing record header + index array + this event
         buffer->limit(endPos).position(bufferOffset);
         newBuffer->put(buffer);
 
@@ -1897,36 +2115,68 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         newBuffer->put(addBuffer);
 
         // Copy ending part of existing buffer into new buffer
-        buffer->limit(bufferLimit).position(endPos);
+        buffer->limit(bufferLimit);
         newBuffer->put(buffer);
+
+        //--------------------------------------------
+        // Update field in evio header
+        //--------------------------------------------
+
+        // Evio header's pos
+        size_t evioHdrPos = eventNode->getPosition();
+
+        // Evio Header length in words
+        size_t oldLen = buffer->getInt(evioHdrPos);
+        //std::cout << "         : **** old bank len at pos = " << evioHdrPos << ", is " << oldLen << std::endl;
+        size_t newLen = oldLen + appendDataLen/4;
+        newBuffer->putInt(evioHdrPos, newLen);
+        //std::cout << "         : **** new bank len = " << newLen << std::endl;
+
+        //--------------------------------------------
+        // Update field in index array
+        //--------------------------------------------
+        // First check to see if index array exists
+        uint32_t arrayLen = buffer->getInt(recPos + RecordHeader::INDEX_ARRAY_OFFSET);
+        if (arrayLen > 0) {
+            // Pos in index array of given event's length
+            uint32_t evLenPos = RecordHeader::HEADER_SIZE_BYTES + 4*(eventNumber - 1);
+
+            // Evio Header length in bytes
+            uint32_t oldEvLen = buffer->getInt(evLenPos);
+            //std::cout << "         : **** old ev len at pos = " << evLenPos << ", is " << oldEvLen << std::endl;
+            uint32_t newEvLen = oldEvLen + appendDataLen;
+            newBuffer->putInt(evLenPos, newEvLen);
+            //std::cout << "         : **** new ev bank len = " << newEvLen << std::endl;
+        }
+
+        //--------------------------------------------
+        // Update fields in record header
+        //--------------------------------------------
+
+        // Record length
+        uint32_t recLen = buffer->getInt(recPos);
+        //std::cout << "         : old rec len at pos = " << recPos << ", is " << recLen << std::endl;
+        newBuffer->putInt(recPos, recLen + appendDataLen/4);
+        //std::cout << "         : new rec len at pos = " << recPos << ", is " << (recLen + appendDataLen/4) << std::endl;
+
+        // Record uncompressed length in bytes
+        size_t uncompLenPos = recPos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET;
+        uint32_t oldLen3 = buffer->getInt(uncompLenPos);
+        //std::cout << "         : old rec len at pos = " << uncompLenPos << ", is " << oldLen3 << std::endl;
+        newBuffer->putInt(uncompLenPos, oldLen3 + appendDataLen);
+        //std::cout << "         : new rec len at pos = " << uncompLenPos << ", is " << (oldLen3+appendDataLen) << std::endl;
+
+        //Util::printBytes(newBuffer, 0, (bufferLimit + appendDataLen + 4), "AddStructure");
 
         // Get new buffer ready for reading
         newBuffer->flip();
+
+        buffer = newBuffer;
         bufferOffset = 0;
         bufferLimit  = newBuffer->limit();
-        buffer = newBuffer;
 
-        // Increase lengths of parent nodes
-        auto addToNode = eventNodes[eventNumber];
-        auto parent = addToNode->getParentNode();
-        parent->updateLengths(appendDataLen);
-
-        // Increase containing record's length
-        uint32_t pos = addToNode->getRecordPosition();
-        // Header length in words
-        uint32_t oldLen = 4*buffer->getInt(pos);
-        buffer->putInt(pos, (oldLen + appendDataLen)/4);
-        // Uncompressed data length in bytes
-        oldLen = buffer->getInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
-        buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen + appendDataLen);
-
-        // Invalidate all nodes obtained from the last buffer scan
-        for (auto ev : eventNodes) {
-            ev->setObsolete(true);
-        }
-
-        // Now the evio data in buffer is in a valid state so rescan buffer to update everything
-        scanBuffer();
+        // The evio data in buffer is now in a valid state so rescan buffer to update everything
+        scanUncompressedBuffer();
 
         return buffer;
     }

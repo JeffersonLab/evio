@@ -357,17 +357,22 @@ namespace evio {
         void forceScanFile();
         void scanFile(bool force);
 
+        // Is called by removeStructure method, below
+        std::shared_ptr<ByteBuffer> & removeEvent(std::shared_ptr<EvioNode> & removeNode);
+
+
+    public:
+
         // The next 2 methods will not work on events which are not evio format data.
         // They are included here so other classes, like EvioCompactReader and EvioReader,
         // can use their APIs to call the new evio version 6 classes like this one.
         // These new classes were initially designed to be data format agnostic, but adding
         // these methods violates that.
-        std::shared_ptr<ByteBuffer> addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
-        std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> removeNode);
+
+        std::shared_ptr<ByteBuffer> addStructure(uint32_t eventNumber, std::shared_ptr<ByteBuffer> & addBuffer);
+        std::shared_ptr<ByteBuffer> & removeStructure(std::shared_ptr<EvioNode> & removeNode);
 
         void show() const;
-
-        //int main(int argc, char **argv);
 
     };
 
