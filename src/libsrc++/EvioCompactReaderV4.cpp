@@ -372,7 +372,7 @@ namespace evio {
                     throw EvioException("Bad evio format: not enough data to read event (bad bank len?)");
                 }
 
-                auto node = EvioNode::extractEventNode(byteBuffer, *(blockNode.get()),
+                auto node = EvioNode::extractEventNode(byteBuffer, *blockNode,
                                                        position, eventCount + i);
 //std::cout << "      event " << i << " in block: pos = " << node->getPosition() <<
 //             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventCount + i + 1) << std::endl;
@@ -750,8 +750,8 @@ namespace evio {
             byteBuffer = newBuffer;
 
             // All nodes need to use this new buffer
-            for (auto ev : eventNodes) {
-                for (auto n : ev->getAllNodes()) {
+            for (auto & ev : eventNodes) {
+                for (auto & n : ev->getAllNodes()) {
                     n->setBuffer(byteBuffer);
                 }
             }
@@ -991,7 +991,7 @@ namespace evio {
         uint32_t place = eventNode->place;
 
         for (int i=0; i < eventCount; i++) {
-            for (auto n : eventNodes[i]->getAllNodes()) {
+            for (auto & n : eventNodes[i]->getAllNodes()) {
                 // Make sure nodes are using the new buffer
                 n->setBuffer(newBuffer);
 
@@ -1083,8 +1083,8 @@ namespace evio {
         if (eventNode->scanned) {
 
             // copy & empty childNodes
-            auto pNode = new EvioNode(eventNode, 0);
-            auto newNode = std::shared_ptr<EvioNode>(pNode);
+
+            auto newNode = EvioNode::createEvioNode(eventNode, 0);
             newNode->childNodes.clear();
             newNode->data.clear();
             newNode->izEvent = false;
