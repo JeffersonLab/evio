@@ -247,6 +247,39 @@ namespace evio {
 
 
         /**
+         * Write int array into byte array.
+         *
+         * @param intArray    int array to convert.
+         * @param count       number of ints to convert.
+         * @param byteOrder   byte order of written bytes.
+         * @param dest        byte array in which to write converted data.
+         * @throws EvioException if dest or intArray is null.
+         */
+        static void toByteArray(const uint32_t* intArray, uint32_t count, const ByteOrder & byteOrder, uint8_t* dest) {
+
+            if (dest == nullptr || intArray == nullptr) {
+                throw EvioException("bad arg(s)");
+            }
+
+            for (int i=0; i < count; i++) {
+                uint32_t data = intArray[i];
+                if (byteOrder == ByteOrder::ENDIAN_BIG) {
+                    dest[4*i + 0] = (uint8_t) (data >> 24);
+                    dest[4*i + 1] = (uint8_t) (data >> 16);
+                    dest[4*i + 2] = (uint8_t) (data >> 8);
+                    dest[4*i + 3] = (uint8_t) (data);
+                }
+                else {
+                    dest[4*i + 0] = (uint8_t) (data);
+                    dest[4*i + 1] = (uint8_t) (data >> 8);
+                    dest[4*i + 2] = (uint8_t) (data >> 16);
+                    dest[4*i + 3] = (uint8_t) (data >> 24);
+                }
+            }
+        }
+
+
+        /**
          * Write int into byte array.
          *
          * @param data        int to convert.
@@ -455,7 +488,7 @@ namespace evio {
          * @param bytes     number of bytes to print in hex
          * @param label     a label to print as header
          */
-        static void printBytes(std::shared_ptr<ByteBuffer> buf, uint32_t position, uint32_t bytes,
+        static void printBytes(std::shared_ptr<ByteBuffer> & buf, uint32_t position, uint32_t bytes,
                                const std::string & label) {
             printBytes(*buf, position, bytes, label);
         }
@@ -468,7 +501,7 @@ namespace evio {
          * @param bytes     number of bytes to print in hex
          * @param label     a label to print as header
          */
-        static void printBytes(std::shared_ptr<EvioNode> node, uint32_t bytes, const std::string & label) {
+        static void printBytes(std::shared_ptr<EvioNode> & node, uint32_t bytes, const std::string & label) {
             auto buf = node->getBuffer();
             printBytes(*buf, node->getPosition(), bytes, label);
         }
@@ -915,6 +948,20 @@ namespace evio {
             return stringBuilderToStrings(sData, false, strData);
         }
 
+        /**
+         * This method extracts an array of strings from buffer containing raw evio string data.
+         *
+         * @param buffer  buffer containing evio string data
+         * @param pos     position of string data in buffer
+         * @param length  length of string data in buffer in bytes
+         * @param strData vector in which to place extracted strings.
+         */
+        static void unpackRawBytesToStrings(std::shared_ptr<ByteBuffer> & buffer,
+                                            size_t pos, size_t length,
+                                            std::vector<std::string> & strData) {
+            return unpackRawBytesToStrings(*buffer, pos, length, strData);
+        }
+
 
         /**
          * This method extracts an array of strings from a string containing evio string data.
@@ -954,7 +1001,7 @@ namespace evio {
                 noEnding4 = true;
             }
 
-            for (size_t i=0; i < length; i++) {
+            for (int i=0; i < length; i++) {
                 c = strData[i];
 
                 // If char is a null
@@ -994,7 +1041,7 @@ namespace evio {
                         }
                         else {
                             // Check to see if remaining chars are all 4's. If not, bad.
-                            for (size_t j=1; j <= charsLeft; j++) {
+                            for (int j=1; j <= charsLeft; j++) {
                                 c = strData[i+j];
                                 if (c != '\004') {
                                     badFormat = true;
