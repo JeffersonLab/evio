@@ -1976,7 +1976,7 @@ std::cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << off
         buffer->limit(bufferLimit);
 
         // Reduce lengths of any parent node & recursively up the chain
-        auto & parent = removeNode->getParentNode();
+        auto parent = removeNode->getParentNode();
         if (parent != nullptr) {
             //std::cout << "         : remove len = " << (removeDataLen/4) << " from chain" << std::endl;
             parent->updateLengths(-removeDataLen/4);
