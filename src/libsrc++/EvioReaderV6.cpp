@@ -58,7 +58,7 @@ namespace evio {
         parser = std::make_shared<EventParser>();
 
         if (!reader->isEvioFormat()) {
-            std::cout << "EvioCompactReaderV6: buffer is NOT in evio format" << std::endl;
+            std::cout << "EvioReaderV6: buffer is NOT in evio format" << std::endl;
             throw EvioException("buffer not in evio format");
         }
     }
@@ -73,7 +73,7 @@ namespace evio {
         reader->setBuffer(buf);
 
         if (!reader->isEvioFormat()) {
-            std::cout << "EvioCompactReaderV6: buffer is NOT in evio format" << std::endl;
+            std::cout << "EvioReaderV6: buffer is NOT in evio format" << std::endl;
             throw EvioException("buffer not in evio format");
         }
     }
