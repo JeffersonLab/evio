@@ -137,7 +137,7 @@ $(document).ready(function(){initNavTree('d0/d2f/_record_supply_8h_source.html',
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        uint32_t maxBufferSize = 0;</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        <a class="code" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747">Compressor::CompressionType</a> compressionType = Compressor::CompressionType::UNCOMPRESSED;</div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        uint32_t compressionThreadCount = 1;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        int32_t ringSize = 0;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        uint32_t ringSize = 0;</div>
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160; </div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        <span class="comment">// Stuff for reporting errors</span></div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160; </div>
@@ -174,7 +174,7 @@ $(document).ready(function(){initNavTree('d0/d2f/_record_supply_8h_source.html',
 <div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;        <a class="code" href="../../dc/de8/classevio_1_1_record_supply.html#a47d72338250d1be25e5e1fdfb2203684">RecordSupply</a>();</div>
 <div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        <span class="comment">// No need to copy these things</span></div>
 <div class="line"><a name="l00179"></a><span class="lineno"><a class="line" href="../../dc/de8/classevio_1_1_record_supply.html#ab292a973d6671f9581e940617eff7cb0">  179</a></span>&#160;        <a class="code" href="../../dc/de8/classevio_1_1_record_supply.html#ab292a973d6671f9581e940617eff7cb0">RecordSupply</a>(<span class="keyword">const</span> <a class="code" href="../../dc/de8/classevio_1_1_record_supply.html">RecordSupply</a> &amp; supply) = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;        <a class="code" href="../../dc/de8/classevio_1_1_record_supply.html#a47d72338250d1be25e5e1fdfb2203684">RecordSupply</a>(int32_t ringSize, <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> order,</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;        <a class="code" href="../../dc/de8/classevio_1_1_record_supply.html#a47d72338250d1be25e5e1fdfb2203684">RecordSupply</a>(uint32_t ringSize, <a class="code" href="../../da/d7d/classevio_1_1_byte_order.html">ByteOrder</a> order,</div>
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;                     uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize,</div>
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;                     <a class="code" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747">Compressor::CompressionType</a> &amp; compressionType);</div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160; </div>
