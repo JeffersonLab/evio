@@ -22,12 +22,8 @@ namespace evio {
      * all of its descendants will switch to that new buffer.
      *
      * @param node the node to be analyzed.
-     * @throws EvioException if node arg is null.
      */
-    EvioCompactStructureHandler::EvioCompactStructureHandler(std::shared_ptr<EvioNode> node) {
-        if (node == nullptr) {
-            throw EvioException("node arg is null");
-        }
+    EvioCompactStructureHandler::EvioCompactStructureHandler(std::shared_ptr<EvioNode> & node) {
 
         // Node's backing buffer
         std::shared_ptr<ByteBuffer> bb = node->getBuffer();
@@ -55,7 +51,7 @@ namespace evio {
      *                       if type arg is null or is not an evio structure;
      *                       if byteBuffer not in proper format;
      */
-    EvioCompactStructureHandler::EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> buf, const DataType & type) {
+    EvioCompactStructureHandler::EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> & buf, const DataType & type) {
             setBuffer(buf, type);
     }
 
@@ -69,17 +65,12 @@ namespace evio {
      * @param buf the buffer to be read that contains 1 structure only (no block headers).
      * @param type the type of outermost structure contained in buffer, may be {@link DataType#BANK},
      *             {@link DataType#SEGMENT}, {@link DataType#TAGSEGMENT} or equivalent.
-     * @throws EvioException if buf arg is null;
-     *                       if type is not an evio structure;
+     * @throws EvioException if type is not an evio structure;
      *                       if buf not in proper format;
      */
-    void EvioCompactStructureHandler::setBuffer(std::shared_ptr<ByteBuffer> buf, const DataType & type) {
+    void EvioCompactStructureHandler::setBuffer(std::shared_ptr<ByteBuffer> & buf, const DataType & type) {
 
         std::lock_guard<std::mutex> lock(mutex_);
-
-        if (buf == nullptr) {
-            throw EvioException("buffer arg is null");
-        }
 
         if (!type.isStructure()) {
             throw EvioException("type arg is not an evio structure");
@@ -124,7 +115,7 @@ namespace evio {
      *
      * @param node the node representing evio data.
      */
-    void EvioCompactStructureHandler::bufferInit(std::shared_ptr<EvioNode> node) {
+    void EvioCompactStructureHandler::bufferInit(std::shared_ptr<EvioNode> & node) {
 
         // Position of evio structure in byteBuffer
         size_t endPos   = node->dataPos + 4*node->dataLen;
@@ -186,7 +177,7 @@ namespace evio {
         newBuffer->position(0).limit(endPos);
 
         // Update node & descendants
-        for (std::shared_ptr<EvioNode> n : node->allNodes) {
+        for (auto & n : node->allNodes) {
             // Using a new buffer now
             n->buffer = newBuffer;
         }
@@ -218,14 +209,14 @@ namespace evio {
      * Get the byte buffer being read.
      * @return the byte buffer being read.
      */
-    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getByteBuffer() {return byteBuffer;}
+    std::shared_ptr<ByteBuffer> & EvioCompactStructureHandler::getByteBuffer() {return byteBuffer;}
 
 
     /**
      * Get the EvioNode object associated with the structure.
      * @return EvioNode object associated with the structure.
      */
-    std::shared_ptr<EvioNode> EvioCompactStructureHandler::getStructure() {return node;}
+    std::shared_ptr<EvioNode> & EvioCompactStructureHandler::getStructure() {return node;}
 
 
     /**
@@ -235,7 +226,7 @@ namespace evio {
       * @return  EvioNode object associated with the structure,
       *          or null if there is none.
       */
-    std::shared_ptr<EvioNode> EvioCompactStructureHandler::getScannedStructure() {
+    std::shared_ptr<EvioNode> & EvioCompactStructureHandler::getScannedStructure() {
         EvioNode::scanStructure(node);
         return node;
     }
@@ -259,12 +250,13 @@ namespace evio {
      * @return          EvioNode object containing evio structure information
      * @throws          EvioException if file/buffer not in evio format
      */
-    std::shared_ptr<EvioNode> EvioCompactStructureHandler::extractNode(std::shared_ptr<ByteBuffer> buffer,
+    std::shared_ptr<EvioNode> EvioCompactStructureHandler::extractNode(std::shared_ptr<ByteBuffer> & buffer,
                                                                        std::shared_ptr<EvioNode> eventNode, const DataType & type,
                                                                        size_t position, int place, bool isEvent) {
 
         // Store current evio info without de-serializing
-        auto node = std::make_shared<EvioNode>();
+
+        auto node = EvioNode::createEvioNode();
         node->pos        = position;
         node->place      = place;      // Which # event from beginning am I?
         node->eventNode  = eventNode;
@@ -348,7 +340,7 @@ namespace evio {
      * @return vector of objects (evio structures containing data)
      *         obtained from the scan
      */
-    std::vector<std::shared_ptr<EvioNode>> EvioCompactStructureHandler::scanStructure() {
+    std::vector<std::shared_ptr<EvioNode>> & EvioCompactStructureHandler::scanStructure() {
 
         if (!node->scanned) {
             // Do this before actual scan so clone() sets all "scanned" fields
@@ -391,7 +383,7 @@ namespace evio {
         //std::cout << "searchEvent: list size = " << list.size() << " for tag/num = " << tag << "/" << num << std::endl;
 
         // Now look for matches in this event
-        for (auto enode: list) {
+        for (auto & enode: list) {
             //std::cout << "searchEvent: desired tag = " << tag << " found " << enode->tag << std::endl;
             //std::cout << "           : desired num = " << num << " found " << enode->num << std::endl;
             if (enode->tag == tag && enode->num == num) {
@@ -468,7 +460,7 @@ namespace evio {
      *                       if there is an internal programming error;
      *                       if object closed.
      */
-    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::addStructure(std::shared_ptr<ByteBuffer> addBuffer) {
+    std::shared_ptr<ByteBuffer> & EvioCompactStructureHandler::addStructure(std::shared_ptr<ByteBuffer> addBuffer) {
 
         std::lock_guard<std::mutex> lock(mutex_);
 
@@ -584,7 +576,7 @@ namespace evio {
      *                       if node was not found in any event;
      *                       if internal programming error
      */
-    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::removeStructure(std::shared_ptr<EvioNode> removeNode) {
+    std::shared_ptr<ByteBuffer> & EvioCompactStructureHandler::removeStructure(std::shared_ptr<EvioNode> removeNode) {
 
         std::lock_guard<std::mutex> lock(mutex_);
 
@@ -605,7 +597,7 @@ namespace evio {
         int removeNodePlace = 0;
 
         // Locate the node to be removed ...
-        for (auto n : node->allNodes) {
+        for (auto & n : node->allNodes) {
             // The first node in allNodes is the event node,
             // so do not increment removeNodePlace now.
 
@@ -674,7 +666,7 @@ namespace evio {
         //-------------------------------------
         int i=0;
 
-        for (auto n : node->allNodes) {
+        for (auto & n : node->allNodes) {
             // Removing one node may remove others, skip them all
             if (n->obsolete) {
                 i++;
@@ -747,7 +739,7 @@ namespace evio {
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
-    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getData(std::shared_ptr<EvioNode> node) {
+    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getData(std::shared_ptr<EvioNode> & node) {
         return getData(node, false);
     }
 
@@ -765,7 +757,7 @@ namespace evio {
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
-    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getData(std::shared_ptr<EvioNode> node, bool copy) {
+    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getData(std::shared_ptr<EvioNode> & node, bool copy) {
         std::lock_guard<std::mutex> lock(mutex_);
 
         if (closed) {
@@ -801,9 +793,9 @@ namespace evio {
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
      *         set for reading.
-     * @throws EvioException if node is null;
+     * @throws EvioException if object closed
      */
-    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getStructureBuffer(std::shared_ptr<EvioNode> node) {
+    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getStructureBuffer(std::shared_ptr<EvioNode> & node) {
             return getStructureBuffer(node, false);
     }
 
@@ -819,16 +811,11 @@ namespace evio {
      *        view into this reader object's buffer.
      * @return ByteBuffer object containing structure's bytes. Position and limit are
      *         set for reading.
-     * @throws EvioException if node is null;
-     *                       if object closed
+     * @throws EvioException if object closed
      */
-    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getStructureBuffer(std::shared_ptr<EvioNode> node, bool copy) {
+    std::shared_ptr<ByteBuffer> EvioCompactStructureHandler::getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) {
 
         std::lock_guard<std::mutex> lock(mutex_);
-
-        if (node == nullptr) {
-            throw EvioException("node arg is null");
-        }
 
         if (closed) {
             throw EvioException("object closed");
@@ -862,7 +849,7 @@ namespace evio {
      * @throws EvioException if object closed
      * @return vector of all evio structures in buffer as EvioNode objects.
      */
-    std::vector<std::shared_ptr<EvioNode>> EvioCompactStructureHandler::getNodes() {
+    std::vector<std::shared_ptr<EvioNode>> & EvioCompactStructureHandler::getNodes() {
         std::lock_guard<std::mutex> lock(mutex_);
         if (closed) {
             throw EvioException("object closed");
@@ -878,7 +865,7 @@ namespace evio {
      * @throws EvioException if object closed
      * @return vector of all child evio structures in buffer as EvioNode objects.
      */
-    std::vector<std::shared_ptr<EvioNode>> EvioCompactStructureHandler::getChildNodes() {
+    std::vector<std::shared_ptr<EvioNode>> & EvioCompactStructureHandler::getChildNodes() {
         std::lock_guard<std::mutex> lock(mutex_);
         if (closed) {
             throw EvioException("object closed");

@@ -45,16 +45,16 @@ namespace evio {
     private:
 
         /** Stores structure info. */
-        std::shared_ptr<EvioNode> node;
+        std::shared_ptr<EvioNode> node = nullptr;
 
         /** The buffer being read. */
-        std::shared_ptr<ByteBuffer> byteBuffer;
+        std::shared_ptr<ByteBuffer> byteBuffer = nullptr;
 
         /** Endianness of the data being read. Initialize to local endian. */
         ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Is this object currently closed? */
-        bool closed;
+        bool closed = false;
 
         /** Lock. */
         std::mutex mutex_;
@@ -62,34 +62,34 @@ namespace evio {
 
     public:
 
-        explicit EvioCompactStructureHandler(std::shared_ptr<EvioNode> node);
-        EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> byteBuffer, const DataType & type) ;
+        explicit EvioCompactStructureHandler(std::shared_ptr<EvioNode> & node);
+        EvioCompactStructureHandler(std::shared_ptr<ByteBuffer> & byteBuffer, const DataType & type);
 
-        void setBuffer(std::shared_ptr<ByteBuffer> buf, const DataType & type);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf, const DataType & type);
 
         bool isClosed();
 
-        std::shared_ptr<ByteBuffer> getByteBuffer() ;
-        std::shared_ptr<EvioNode> getStructure();
-        std::shared_ptr<EvioNode> getScannedStructure();
+        std::shared_ptr<ByteBuffer> & getByteBuffer();
+        std::shared_ptr<EvioNode>   & getStructure();
+        std::shared_ptr<EvioNode>   & getScannedStructure();
 
-        std::vector<std::shared_ptr<EvioNode>> scanStructure();
+        std::vector<std::shared_ptr<EvioNode>> & scanStructure();
 
         std::vector<std::shared_ptr<EvioNode>> searchStructure(uint16_t tag, uint8_t num);
         std::vector<std::shared_ptr<EvioNode>> searchStructure(std::string const & dictName,
                                                                std::shared_ptr<EvioXMLDictionary> dictionary);
 
-        std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> removeNode) ;
-        std::shared_ptr<ByteBuffer> addStructure(std::shared_ptr<ByteBuffer> addBuffer);
+        std::shared_ptr<ByteBuffer> & removeStructure(std::shared_ptr<EvioNode> removeNode);
+        std::shared_ptr<ByteBuffer> & addStructure(std::shared_ptr<ByteBuffer> addBuffer);
 
-        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> node) ;
-        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> node, bool copy) ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node);
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy);
 
-        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> node) ;
-        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> node, bool copy) ;
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node);
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy);
 
-        std::vector<std::shared_ptr<EvioNode>> getNodes();
-        std::vector<std::shared_ptr<EvioNode>> getChildNodes();
+        std::vector<std::shared_ptr<EvioNode>> & getNodes();
+        std::vector<std::shared_ptr<EvioNode>> & getChildNodes();
 
         ByteOrder getByteOrder();
         void close();
@@ -97,8 +97,8 @@ namespace evio {
     private:
 
         void expandBuffer(size_t byteSize);
-        void bufferInit(std::shared_ptr<EvioNode> node);
-        static std::shared_ptr<EvioNode> extractNode(std::shared_ptr<ByteBuffer> buffer,
+        void bufferInit(std::shared_ptr<EvioNode> & node);
+        static std::shared_ptr<EvioNode> extractNode(std::shared_ptr<ByteBuffer> & buffer,
                                                      std::shared_ptr<EvioNode> eventNode, const DataType & type,
                                                      size_t position, int place, bool isEvent);
 
