@@ -120,7 +120,7 @@ namespace evio {
         /** Number of threads doing compression simultaneously. */
         uint32_t compressionThreadCount = 1;
         /** Number of records held in this supply. */
-        int32_t ringSize = 0;
+        uint32_t ringSize = 0;
 
         // Stuff for reporting errors
 
@@ -177,7 +177,7 @@ namespace evio {
         RecordSupply();
         // No need to copy these things
         RecordSupply(const RecordSupply & supply) = delete;
-        RecordSupply(int32_t ringSize, ByteOrder order,
+        RecordSupply(uint32_t ringSize, ByteOrder order,
                      uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize,
                      Compressor::CompressionType & compressionType);
 

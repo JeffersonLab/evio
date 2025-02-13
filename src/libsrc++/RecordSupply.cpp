@@ -42,7 +42,7 @@ namespace evio {
      * @throws EvioException if args < 1, ringSize not power of 2,
      *                                  threadCount > ringSize.
      */
-    RecordSupply::RecordSupply(int32_t ringSize, ByteOrder order,
+    RecordSupply::RecordSupply(uint32_t ringSize, ByteOrder order,
                                uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize,
                                Compressor::CompressionType & compressionType) :
 
