@@ -461,35 +461,6 @@ namespace evio {
     }
 
 
-    /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
-     * The buffer's position is set to 0 before writing.
-     * Any dictionary will be put in a commonRecord and that record will be
-     * placed in the user header associated with the single record.
-     *
-     * @param buf             the buffer to write to starting at position = 0.
-     * @param maxRecordSize   max number of data bytes each record can hold.
-     *                        Value of &lt; 8MB results in default of 8MB.
-     *                        The size of the record will not be larger than this size
-     *                        unless a single event itself is larger.
-     * @param maxEventCount   max number of events each record can hold.
-     *                        Value &lt;= O means use default (1M).
-     * @param xmlDictionary   dictionary in xml format or null if none.
-     * @param recordNumber    number at which to start record number counting.
-     * @param compressionType type of data compression to do.
-     *
-     * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
-     */
-    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> buf,
-                             uint32_t maxRecordSize, uint32_t maxEventCount,
-                             const std::string & xmlDictionary, uint32_t recordNumber,
-                             Compressor::CompressionType compressionType) :
-
-        EventWriter(buf, maxRecordSize, maxEventCount, xmlDictionary, recordNumber,
-                    compressionType, -1) {
-    }
-
-
      /**
       * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
       * The buffer's position is set to 0 before writing.
@@ -523,7 +494,6 @@ namespace evio {
         this->buffer          = buf;
         this->byteOrder       = buf->order();
         this->recordNumber    = recordNumber;
-//std::cout << "EventWriter constr: record # set to " << recordNumber << std::endl;
 
         this->xmlDictionary   = xmlDictionary;
         this->compressionType = compressionType;
