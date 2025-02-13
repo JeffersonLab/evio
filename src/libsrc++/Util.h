@@ -261,7 +261,7 @@ namespace evio {
                 throw EvioException("bad arg(s)");
             }
 
-            for (int i=0; i < count; i++) {
+            for (uint32_t i=0; i < count; i++) {
                 uint32_t data = intArray[i];
                 if (byteOrder == ByteOrder::ENDIAN_BIG) {
                     dest[4*i + 0] = (uint8_t) (data >> 24);
@@ -1001,13 +1001,13 @@ namespace evio {
                 noEnding4 = true;
             }
 
-            for (int i=0; i < length; i++) {
+            for (size_t i=0; i < length; i++) {
                 c = strData[i];
 
                 // If char is a null
                 if (c == 0) {
                     nullCount++;
-                    nullIndexList.push_back(i);
+                    nullIndexList.push_back((int)i);
                     // If evio v2 or 3, only 1 null terminated string exists
                     // and padding is just junk or nonexistent.
                     if (noEnding4) {
@@ -1041,8 +1041,8 @@ namespace evio {
                         }
                         else {
                             // Check to see if remaining chars are all 4's. If not, bad.
-                            for (int j=1; j <= charsLeft; j++) {
-                                c = strData[i+j];
+                            for (size_t j=1; j <= charsLeft; j++) {
+                                c = strData[(int)(i+j)];
                                 if (c != '\004') {
                                     badFormat = true;
                                     goto pastOuterLoop;
