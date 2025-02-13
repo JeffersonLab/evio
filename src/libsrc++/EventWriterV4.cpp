@@ -398,10 +398,9 @@ namespace evio {
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param append         if <code>true</code>, all events to be written will be
      *                       appended to the end of the buffer.
-     * @throws EvioException if buf arg is null, or
-     *                       if appending and buffer is too small to be evio format;
+     * @throws EvioException if appending and buffer is too small to be evio format;
      */
-    EventWriterV4::EventWriterV4(std::shared_ptr<ByteBuffer> buf, const std::string & xmlDictionary, bool append) :
+    EventWriterV4::EventWriterV4(std::shared_ptr<ByteBuffer> & buf, const std::string & xmlDictionary, bool append) :
 
             EventWriterV4(buf, DEFAULT_BLOCK_SIZE, DEFAULT_BLOCK_COUNT, xmlDictionary, nullptr, 0, append) {}
 
@@ -430,10 +429,9 @@ namespace evio {
      *
      * @throws EvioException if maxBlockSize or maxEventCount exceed limits;
      *                       if appending and buffer is too small to be evio format;
-     *                       if buf arg is null;
      *                       if defined dictionary while appending;
      */
-    EventWriterV4::EventWriterV4(std::shared_ptr<ByteBuffer> buf, int maxBlockSize, int maxEventCount,
+    EventWriterV4::EventWriterV4(std::shared_ptr<ByteBuffer> & buf, int maxBlockSize, int maxEventCount,
                            const std::string & xmlDictionary, std::bitset<24> *bitInfo, int reserved1,
                            int blockNumber, bool append, std::shared_ptr<EvioBank> firstEvent) :
                                 byteOrder(ByteOrder::ENDIAN_BIG)
@@ -467,10 +465,9 @@ namespace evio {
      *
      * @throws EvioException if maxBlockSize or maxEventCount exceed limits;
      *                       if appending and buffer is too small to be evio format;
-     *                       if buf arg is null;
      *                       if defined dictionary while appending;
      */
-    void EventWriterV4::initializeBuffer(std::shared_ptr<ByteBuffer> buf, int maxBlockSize, int maxEventCount,
+    void EventWriterV4::initializeBuffer(std::shared_ptr<ByteBuffer> & buf, int maxBlockSize, int maxEventCount,
                               const std::string & xmlDictionary, std::bitset<24> *bitInfo, int reserved1,
                               int blockNumber, bool append, std::shared_ptr<EvioBank> firstEvent)
     {
@@ -493,10 +490,6 @@ namespace evio {
             if (maxEventCount > MAX_BLOCK_COUNT) {
                 throw EvioException("Max block count arg (" + std::to_string(maxEventCount) + ") must be <= " +
                                     std::to_string(MAX_BLOCK_COUNT));
-            }
-
-            if (buf == nullptr) {
-                throw EvioException("Buffer arg cannot be nullptr");
             }
 
             if (append && ((!xmlDictionary.empty()) || (firstEvent != nullptr))) {
@@ -598,7 +591,7 @@ namespace evio {
      *
      * @throws EvioException not enough memory in buf for writing.
      */
-    void EventWriterV4::reInitializeBuffer(std::shared_ptr<ByteBuffer> buf,
+    void EventWriterV4::reInitializeBuffer(std::shared_ptr<ByteBuffer> & buf,
                                            std::bitset<24> *bitInfo, int blockNumber) {
         this->buffer      = buf;
         this->byteOrder   = buf->order();
@@ -693,7 +686,7 @@ namespace evio {
      * @throws EvioException if this object was not closed prior to resetting the buffer,
      *                       buffer arg is null, or in appending mode.
      */
-    void EventWriterV4::setBuffer(std::shared_ptr<ByteBuffer> buf,
+    void EventWriterV4::setBuffer(std::shared_ptr<ByteBuffer> & buf,
                                   std::bitset<24> * bitInfo, int blockNumber) {
             if (toFile) return;
             if (buf == nullptr) {
@@ -725,7 +718,7 @@ namespace evio {
      * @throws EvioException if this object was not closed prior to resetting the buffer,
      *                       buffer arg is null, or in appending mode.
      */
-    void EventWriterV4::setBuffer(std::shared_ptr<ByteBuffer> buf) {
+    void EventWriterV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
             if (toFile) return;
             if (buf == nullptr) {
                 throw EvioException("Buffer arg null");
@@ -823,7 +816,7 @@ namespace evio {
      * @return the absolute name or path of the current file being written to.
      */
     std::string EventWriterV4::getCurrentFilePath() const {
-#ifdef USE_FILESYSTEMLIB
+#ifdef __cpp_lib_filesystem
         fs::path absolutePath = fs::absolute(currentFilePath);
         return absolutePath.generic_string();
 #endif
@@ -1366,7 +1359,7 @@ namespace evio {
             fileWritingPosition = 0L;
 
             if (toFile) {
-#ifdef USE_FILESYSTEMLIB
+#ifdef __cpp_lib_filesystem
                 bytesLeftInFile = fs::file_size(currentFileName);
 #else
                 struct stat stt{};

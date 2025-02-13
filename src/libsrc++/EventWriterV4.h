@@ -33,8 +33,9 @@
 #include <mutex>
 
 
-#ifdef USE_FILESYSTEMLIB
-#include <experimental/filesystem>
+#ifdef __cpp_lib_filesystem
+#include <filesystem>
+namespace fs = std::filesystem;
 #endif
 
 
@@ -58,9 +59,6 @@
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
 
-#ifdef USE_FILESYSTEMLIB
-namespace fs = std::experimental::filesystem;
-#endif
 
 
 
@@ -103,7 +101,7 @@ namespace evio {
          * @param afc file stream to close.
          * @param future object representing a write that is in progress.
          */
-        void closeAsyncFile(std::shared_ptr<std::fstream> afc,
+        void closeAsyncFile(std::shared_ptr<std::fstream> & afc,
                             std::shared_ptr<std::future<void>> future) {
             ioContext.post([=]() {
                 try {
@@ -392,7 +390,7 @@ namespace evio {
             /** File currently being written to. */
             std::string currentFileName;
 
-#ifdef USE_FILESYSTEMLIB
+#ifdef __cpp_lib_filesystem
             /** Path object corresponding to file currently being written. */
             fs::path currentFilePath;
 #endif
@@ -514,10 +512,10 @@ namespace evio {
             //---------------------------------------------
 
 
-            explicit EventWriterV4(std::shared_ptr<ByteBuffer> buf, const std::string & xmlDictionary = "", bool append = false);
+            explicit EventWriterV4(std::shared_ptr<ByteBuffer> & buf, const std::string & xmlDictionary = "", bool append = false);
 
 
-            EventWriterV4(std::shared_ptr<ByteBuffer> buf,
+            EventWriterV4(std::shared_ptr<ByteBuffer> & buf,
                         int maxBlockSize, int maxEventCount,
                         const std::string & xmlDictionary = "", std::bitset < 24 > *bitInfo = nullptr,
                         int reserved1 = 0, int blockNumber = 1, bool append = false,
@@ -526,12 +524,12 @@ namespace evio {
 
         private:
 
-            void initializeBuffer(std::shared_ptr<ByteBuffer> buf, int maxBlockSize, int maxEventCount,
+            void initializeBuffer(std::shared_ptr<ByteBuffer> & buf, int maxBlockSize, int maxEventCount,
                                     const std::string & xmlDictionary, std::bitset < 24 > *bitInfo,
                                     int reserved1, int blockNumber, bool append,
                                     std::shared_ptr<EvioBank> firstEvent);
 
-            void reInitializeBuffer(std::shared_ptr<ByteBuffer> buf, std::bitset < 24 > *bitInfo, int blockNumber);
+            void reInitializeBuffer(std::shared_ptr<ByteBuffer> & buf, std::bitset < 24 > *bitInfo, int blockNumber);
             static void staticWriteFunction(EventWriterV4 *pWriter, const char* data, size_t len);
             static void staticDoNothingFunction(EventWriterV4 *pWriter);
 
@@ -540,8 +538,8 @@ namespace evio {
 
             bool isDiskFull() const;
             uint64_t getBytesWrittenToBuffer() const;
-            void setBuffer(std::shared_ptr<ByteBuffer> buf, std::bitset < 24 > *bitInfo, int blockNumber);
-            void setBuffer(std::shared_ptr<ByteBuffer> buf);
+            void setBuffer(std::shared_ptr<ByteBuffer> & buf, std::bitset < 24 > *bitInfo, int blockNumber);
+            void setBuffer(std::shared_ptr<ByteBuffer> & buf);
             std::shared_ptr<ByteBuffer> getByteBuffer();
             bool isToFile() const;
             bool isClosed();
