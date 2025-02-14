@@ -187,7 +187,7 @@ namespace evio {
                               Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
                               HeaderType hType = HeaderType::EVIO_RECORD);
 
-        RecordOutput(std::shared_ptr<ByteBuffer> buffer, uint32_t maxEventCount,
+        RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEventCount,
                      Compressor::CompressionType compressionType, HeaderType hType);
 
         RecordOutput(const RecordOutput & srcRec);
@@ -210,7 +210,7 @@ namespace evio {
     public:
 
 
-        void setBuffer(std::shared_ptr<ByteBuffer> buf);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
         void transferDataForReading(const RecordOutput & rec);
 
         uint32_t getUserBufferSize() const;
@@ -237,8 +237,7 @@ namespace evio {
         bool addEvent(const ByteBuffer & event, uint32_t extraDataLen = 0);
         bool addEvent(std::shared_ptr<ByteBuffer> event, uint32_t extraDataLen = 0);
 
-        bool addEvent(EvioNode & node, uint32_t extraDataLen = 0);
-        bool addEvent(std::shared_ptr<EvioNode> node, uint32_t extraDataLen = 0);
+        bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen = 0);
 
         bool addEvent(EvioBank & event, uint32_t extraDataLen);
         bool addEvent(std::shared_ptr<EvioBank> event, uint32_t extraDataLen = 0);

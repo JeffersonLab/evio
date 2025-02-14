@@ -694,46 +694,9 @@ namespace evio {
      * @param node node to add to the file.
      * @throws EvioException if cannot write to file or node arg's byte order is wrong.
      */
-    void WriterMT::addEvent(std::shared_ptr<EvioNode> node) {
+    void WriterMT::addEvent(std::shared_ptr<EvioNode> & node) {
 
         if (node->getBuffer()->order() != byteOrder) {
-            throw EvioException("buffer arg byte order is wrong");
-        }
-
-        bool status = outputRecord->addEvent(node);
-
-        // If record is full ...
-        if (!status) {
-            // Put it back in supply for compressing
-            supply->publish(ringItem);
-
-            // Now get another, empty record.
-            // This may block if threads are busy compressing
-            // and/or writing all records in supply.
-            ringItem = supply->get();
-            outputRecord = ringItem->getRecord();
-
-            // Adding the first event to a record is guaranteed to work
-            outputRecord->addEvent(node);
-        }
-    }
-
-
-    /**
-     * Add an EvioNode to the internal record. If the length of
-     * the data exceeds the maximum size of the record, the record
-     * will be written to the file (compressed if the flag is set).
-     * Internal record will be reset to receive new buffers.
-     * Using this method in conjunction with writeRecord() is not thread-safe.
-     * <b>The byte order of node's data must
-     * match the byte order given in constructor!</b>
-     *
-     * @param node node to add to the file.
-     * @throws EvioException if cannot write to file or node arg's byte order is wrong.
-     */
-    void WriterMT::addEvent(EvioNode & node) {
-
-        if (node.getBuffer()->order() != byteOrder) {
             throw EvioException("buffer arg byte order is wrong");
         }
 

@@ -387,8 +387,7 @@ namespace evio {
         void addEvent(std::shared_ptr<ByteBuffer> buffer);
         void addEvent(ByteBuffer & buffer);
         void addEvent(std::shared_ptr<EvioBank> bank);
-        void addEvent(std::shared_ptr<EvioNode> node);
-        void addEvent(EvioNode & node);
+        void addEvent(std::shared_ptr<EvioNode> & node);
 
         void close();
 

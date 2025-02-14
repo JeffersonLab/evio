@@ -74,7 +74,7 @@ namespace evio {
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      * @param hType           type of record header to use.
      */
-    RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> buffer, uint32_t maxEventCount,
+    RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEventCount,
                                Compressor::CompressionType compressionType, HeaderType hType) {
 
         try {
@@ -208,7 +208,7 @@ namespace evio {
      * The argument ByteBuffer can be retrieved by calling {@link #getBinaryBuffer()}.
      * @param buf buffer in which to build this record.
      */
-    void RecordOutput::setBuffer(std::shared_ptr<ByteBuffer> buf) {
+    void RecordOutput::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         if (buf->order() != byteOrder) {
             std::cout << "setBuffer(): warning, changing buffer's byte order!" << std::endl;
         }
@@ -655,12 +655,12 @@ namespace evio {
      *         expanded since it's user-provided.
      * @throws EvioException if node does not correspond to a bank.
      */
-    bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
+    bool RecordOutput::addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen) {
 
-        uint32_t eventLen = node.getTotalBytes();
+        uint32_t eventLen = node->getTotalBytes();
 
-        if (!node.getTypeObj().isBank()) {
-            throw EvioException("node does not represent a bank (" + node.getTypeObj().toString() + ")");
+        if (!node->getTypeObj().isBank()) {
+            throw EvioException("node does not represent a bank (" + node->getTypeObj().toString() + ")");
         }
 
         if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
@@ -680,7 +680,7 @@ namespace evio {
 
 
         ByteBuffer buf(eventLen);
-        node.getStructureBuffer(buf, false);
+        node->getStructureBuffer(buf, false);
         size_t pos = recordEvents->position();
 
 //std::cout << "\nRecordOutput::addEvent(node): write (in recordEvents)to pos = " << pos << std::endl;
@@ -696,31 +696,6 @@ namespace evio {
         eventCount++;
 
         return true;
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
-     * Can specify the length of additional data to follow the event
-     * (such as an evio trailer record) to see if by adding this event
-     * everything will fit in the available memory.<p>
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     * This method is not thread-safe with respect to the node as it's backing
-     * ByteBuffer's limit and position may be concurrently changed.
-     *
-     * @param node         event's EvioNode object
-     * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
-     * @return true if event was added; false if the event was not added because the
-     *         count limit would be exceeded or the buffer is full and cannot be
-     *         expanded since it's user-provided.
-     * @throws EvioException if node does not correspond to a bank.
-     */
-    bool RecordOutput::addEvent(std::shared_ptr<EvioNode> node, uint32_t extraDataLen) {
-        return addEvent(*(node.get()), extraDataLen);
     }
 
 

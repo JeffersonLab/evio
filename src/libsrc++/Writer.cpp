@@ -1132,25 +1132,7 @@ namespace evio {
      * @throws EvioException if node does not correspond to a bank.
      * @throws IOException if cannot write to file.
      */
-    void Writer::addEvent(std::shared_ptr<EvioNode> node) {
-        addEvent(*(node.get()));
-    }
-
-
-    /**
-     * Add an EvioNode to the internal record. If the length of
-     * the data exceeds the maximum size of the record, the record
-     * will be written to the file (compressed if the flag is set).
-     * Internal record will be reset to receive new buffers.
-     * Using this method in conjunction with writeRecord() is not thread-safe.
-     * <b>The byte order of node's data must
-     * match the byte order given in constructor!</b>
-     *
-     * @param node node to add to the file.
-     * @throws EvioException if node does not correspond to a bank.
-     * @throws IOException if cannot write to file.
-     */
-    void Writer::addEvent(EvioNode & node) {
+    void Writer::addEvent(std::shared_ptr<EvioNode> & node) {
         bool status = outputRecord->addEvent(node);
         if (!status){
             writeOutput();
