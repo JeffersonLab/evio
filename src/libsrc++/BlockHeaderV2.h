@@ -165,7 +165,7 @@ namespace evio {
         * from another object of this class.
         * @param blkHeader block header object to copy
         */
-        explicit BlockHeaderV2(std::shared_ptr<BlockHeaderV2> blkHeader) {
+        explicit BlockHeaderV2(std::shared_ptr<BlockHeaderV2> & blkHeader) {
             copy(blkHeader);
         }
 
@@ -174,7 +174,7 @@ namespace evio {
         * This method copies another header's contents.
         * @param blkHeader block header object to copy
         */
-        void copy(std::shared_ptr<BlockHeaderV2> blkHeader) {
+        void copy(std::shared_ptr<BlockHeaderV2> & blkHeader) {
             size         = blkHeader->size;
             number       = blkHeader->number;
             headerLength = blkHeader->headerLength;
@@ -244,10 +244,10 @@ namespace evio {
          * NOTE: a logical record (event) that spans three blocks (physical records) will have <code>start = 0</code>.
          *
          * @param strt the new value for the start.
-         * @throws EvioException if start &lt; 8 or &gt; {@link #MAX_BLOCK_SIZE}.
+         * @throws EvioException if start &gt; {@link #MAX_BLOCK_SIZE}.
          */
         void setStart(uint32_t strt) {
-            if ((strt < 0) || (strt > MAX_BLOCK_SIZE)) {
+            if (strt > MAX_BLOCK_SIZE) {
                 throw EvioException("Bad value for start in block (physical record) header: " + std::to_string(strt));
             }
             start = strt;

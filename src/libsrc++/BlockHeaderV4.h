@@ -210,7 +210,7 @@ namespace evio {
          * from another object of this class.
          * @param blkHeader block header object to copy
          */
-        explicit BlockHeaderV4(std::shared_ptr<BlockHeaderV4> blkHeader) {
+        explicit BlockHeaderV4(std::shared_ptr<BlockHeaderV4> & blkHeader) {
             copy(blkHeader);
         }
 
@@ -219,7 +219,7 @@ namespace evio {
         * This method copies another header's contents.
         * @param blkHeader block header object to copy
         */
-        void copy(std::shared_ptr<BlockHeaderV4> blkHeader) {
+        void copy(std::shared_ptr<BlockHeaderV4> & blkHeader) {
             size         = blkHeader->size;
             number       = blkHeader->number;
             headerLength = blkHeader->headerLength;
@@ -268,10 +268,6 @@ namespace evio {
          * @throws EvioException if count &lt; 0
          */
         void setEventCount(uint32_t count) {
-            if (count < 0) {
-                throw EvioException("Bad value for event count in block (physical record) header: " +
-                                    std::to_string(count));
-            }
             eventCount = count;
         }
 
