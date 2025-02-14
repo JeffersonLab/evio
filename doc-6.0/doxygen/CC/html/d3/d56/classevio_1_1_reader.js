@@ -3,7 +3,7 @@ var classevio_1_1_reader =
     [ "Reader", "d3/d56/classevio_1_1_reader.html#a26384beac93f62f7747109055817c7be", null ],
     [ "Reader", "d3/d56/classevio_1_1_reader.html#ac4ad5aaa65657201f8e3165b6cf07a8b", null ],
     [ "Reader", "d3/d56/classevio_1_1_reader.html#a0df29efd8d9ef6c8e41ab8c12c642da8", null ],
-    [ "Reader", "d3/d56/classevio_1_1_reader.html#a206993f4665cdc5660a4d220c538749c", null ],
+    [ "Reader", "d3/d56/classevio_1_1_reader.html#a4a03589aaecd0cb9c819dec50ccbc132", null ],
     [ "~Reader", "d3/d56/classevio_1_1_reader.html#a3a75ad257fe61c79c1ebb2a079aa9ab0", null ],
     [ "addStructure", "d3/d56/classevio_1_1_reader.html#a6bf877dc3f46ebc1fe6c97b4e3f974d9", null ],
     [ "close", "d3/d56/classevio_1_1_reader.html#afb6253fb80cafdffe93063710dc68f89", null ],
@@ -11,7 +11,7 @@ var classevio_1_1_reader =
     [ "extractDictionaryFromBuffer", "d3/d56/classevio_1_1_reader.html#a9be6c85f5fc872e5e47e13d5c34555a3", null ],
     [ "extractDictionaryFromFile", "d3/d56/classevio_1_1_reader.html#afaa4a188742e9090fe9be391ce5f3731", null ],
     [ "findRecordInfo", "d3/d56/classevio_1_1_reader.html#ab9934d70bae0210536661c0a478dee03", null ],
-    [ "findRecordInfo", "d3/d56/classevio_1_1_reader.html#abda89600c1ea134e68f328d9d9e8513b", null ],
+    [ "findRecordInfo", "d3/d56/classevio_1_1_reader.html#a4f2b8719299dfbe6baa2e5e5c23f558d", null ],
     [ "forceScanFile", "d3/d56/classevio_1_1_reader.html#aa9102d8facfed74bd17872cb452be8e8", null ],
     [ "getBuffer", "d3/d56/classevio_1_1_reader.html#af9578b8e07c84e052426e3726f81b48d", null ],
     [ "getBufferOffset", "d3/d56/classevio_1_1_reader.html#a19a502d28bf5b95c174c748893402cc7", null ],
@@ -57,7 +57,7 @@ var classevio_1_1_reader =
     [ "scanBuffer", "d3/d56/classevio_1_1_reader.html#a2df955f07faf6a4cd92cc8184eaa5d04", null ],
     [ "scanFile", "d3/d56/classevio_1_1_reader.html#a7a3c02dd9c1c87a57f4b73076071bced", null ],
     [ "scanUncompressedBuffer", "d3/d56/classevio_1_1_reader.html#a703075aab48cc798dbccc8cb14d74725", null ],
-    [ "setBuffer", "d3/d56/classevio_1_1_reader.html#ac7fbb041fb8d2f3e3e34ee4d145b6b2c", null ],
+    [ "setBuffer", "d3/d56/classevio_1_1_reader.html#a1bacb79593e55b32cd9749d14fea8b59", null ],
     [ "show", "d3/d56/classevio_1_1_reader.html#af41649b4f4ede403e3bf180e21e1f213", null ],
     [ "EvioCompactReaderV6", "d3/d56/classevio_1_1_reader.html#a32f95a8849a0400219cb3f9d977dd9b9", null ]
 ];
