@@ -560,13 +560,10 @@ namespace evio {
             void close();
             bool hasRoom(size_t bytes);
 
-            bool writeEvent(std::shared_ptr<EvioNode> node, bool force);
-            bool writeEvent(std::shared_ptr<EvioNode> node, bool force, bool duplicate);
-            bool writeEventToFile(std::shared_ptr<EvioNode> node, bool force, bool duplicate);
-            bool writeEvent(std::shared_ptr<ByteBuffer> eventBuffer);
-            bool writeEvent(std::shared_ptr<EvioBank> bank);
-            bool writeEvent(std::shared_ptr<ByteBuffer> bankBuffer, bool force);
-            bool writeEvent(std::shared_ptr<EvioBank> bank, bool force);
+            bool writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate = true);
+            bool writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
+            bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force = false);
+            bool writeEvent(std::shared_ptr<EvioBank> bank, bool force = false);
             bool writeEventToFile(std::shared_ptr<EvioBank> bank, std::shared_ptr<ByteBuffer> bankBuffer, bool force);
 
 

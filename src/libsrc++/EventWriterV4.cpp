@@ -1885,30 +1885,6 @@ namespace evio {
         return isToFile() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
     }
 
-    /**
-     * Write an event (bank) to the buffer in evio version 4 format.
-     * If the internal buffer is full, it will be flushed to the file if writing to a file.
-     * Otherwise an exception will be thrown. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.
-     *
-     * @param node   object representing the event to write in buffer form
-     * @param force  if writing to disk, force it to write event to the disk.
-     *
-     * @return if writing to buffer: true if event was added to record, false if buffer full,
-     *         or bank and bankBuffer args are both null.
-     *         If there is an InterruptedException.
-     *
-     * @throws IOException   if error writing file
-     * @throws EvioException if event is opposite byte order of internal buffer;
-     *                       if close() already called;
-     *                       if bad eventBuffer format;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing;
-     */
-    bool EventWriterV4::writeEvent(std::shared_ptr<EvioNode> node, bool force) {
-            // Duplicate buffer so we can set pos & limit without messing others up
-            return writeEvent(node, force, true);
-    }
 
     /**
      * Write an event (bank) to the buffer in evio version 4 format.
@@ -1931,12 +1907,8 @@ namespace evio {
      *                       if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if null node arg;
      */
-    bool EventWriterV4::writeEvent(std::shared_ptr<EvioNode> node, bool force, bool duplicate) {
-            if (node == nullptr) {
-                throw EvioException("null node arg");
-            }
+    bool EventWriterV4::writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate) {
 
             //        int origLim=0,origPos=0;
             std::shared_ptr<ByteBuffer> eventBuffer, bb = node->getBuffer();
@@ -2005,12 +1977,8 @@ namespace evio {
      *                       if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     *                       if null node arg;
      */
-    bool EventWriterV4::writeEventToFile(std::shared_ptr<EvioNode> node, bool force, bool duplicate) {
-        if (node == nullptr) {
-            throw EvioException("null node arg");
-        }
+    bool EventWriterV4::writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate) {
 
         if (node->getBuffer() == nullptr) {
             throw EvioException("EvioNode backing buf = null! race condition?");
@@ -2031,55 +1999,6 @@ namespace evio {
         size_t pos = node->getPosition();
         eventBuffer->limit(pos + node->getTotalBytes()).position(pos);
         return writeEventToFile(nullptr, eventBuffer, force);
-    }
-
-    /**
-     * Write an event (bank) to the buffer in evio version 4 format.
-     * The given event buffer must contain only the event's data (event header
-     * and event data) and must <b>not</b> be in complete evio file format.
-     * If the internal buffer is full, it will be flushed to the file if writing to a file.
-     * Otherwise an exception will be thrown. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.
-     *
-     * @param eventBuffer the event (bank) to write in buffer form
-     *
-     * @return if writing to buffer: true if event was added to record, false if buffer full,
-     *         or bank and bankBuffer args are both null.
-     *         If there is an InterruptedException.
-     *
-     * @throws IOException   if error writing file
-     * @throws EvioException if event is opposite byte order of internal buffer;
-     *                       if close() already called;
-     *                       if bad eventBuffer format;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing;
-     */
-    bool EventWriterV4::writeEvent(std::shared_ptr<ByteBuffer> eventBuffer) {
-        return writeEvent(nullptr, eventBuffer, false);
-    }
-
-    /**
-     * Write an event (bank) to a buffer containing evio version 4 format blocks.
-     * Each block has an integral number of events. There are limits to the
-     * number of events in each block and the total size of each block.
-     * If writing to a file, each full buffer is written - one at a time -
-     * and may contain multiple blocks. Dictionary is never written with
-     * this method. Do not call this while simultaneously calling
-     * close, flush, setFirstEvent, or getByteBuffer.
-     *
-     * @param bank the bank to write.
-     *
-     * @return if writing to buffer: true if event was added to record, false if buffer full,
-     *         or bank and bankBuffer args are both null.
-     *         If there is an InterruptedException.
-     *
-     * @throws IOException   if error writing file
-     * @throws EvioException if close() already called;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing;
-     */
-    bool EventWriterV4::writeEvent(std::shared_ptr<EvioBank> bank) {
-        return writeEvent(bank, nullptr, false);
     }
 
 
@@ -2108,7 +2027,7 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriterV4::writeEvent(std::shared_ptr<ByteBuffer> bankBuffer, bool force) {
+    bool EventWriterV4::writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force) {
             return writeEvent(nullptr, bankBuffer, force);
     }
 
