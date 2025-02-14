@@ -135,17 +135,17 @@ namespace evio {
     public:
 
         CompactEventBuilder(size_t bufferSize, ByteOrder const & order, bool generateNodes = false);
-        explicit CompactEventBuilder(std::shared_ptr<ByteBuffer> buffer, bool generateNodes = false);
+        explicit CompactEventBuilder(std::shared_ptr<ByteBuffer> & buffer, bool generateNodes = false);
 
-        void setBuffer(std::shared_ptr<ByteBuffer> buffer, bool generateNodes = false);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buffer, bool generateNodes = false);
 
     private:
 
-        void initBuffer(std::shared_ptr<ByteBuffer> buffer, bool generateNodes);
+        void initBuffer(std::shared_ptr<ByteBuffer> & buffer, bool generateNodes);
 
     public:
 
-        std::shared_ptr<ByteBuffer> getBuffer();
+        std::shared_ptr<ByteBuffer> & getBuffer();
 
         size_t getTotalBytes() const;
 
@@ -165,12 +165,12 @@ namespace evio {
         void setCurrentHeaderLength(uint32_t len);
         void setCurrentHeaderPadding(uint32_t padding);
 
-        void writeHeader(std::shared_ptr<EvioNode> node);
-        void writeNode(std::shared_ptr<EvioNode> node, bool swapData);
+        void writeHeader(std::shared_ptr<EvioNode> & node);
+        void writeNode(std::shared_ptr<EvioNode> & node, bool swapData);
 
     public:
 
-        void addEvioNode(std::shared_ptr<EvioNode> node);
+        void addEvioNode(std::shared_ptr<EvioNode> & node);
 
         void addCharData(char * data, uint32_t len);
         void addUCharData(unsigned char * data, uint32_t len);

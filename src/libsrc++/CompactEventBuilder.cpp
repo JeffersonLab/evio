@@ -63,14 +63,9 @@ namespace evio {
      * @param generateNodes generate and store an EvioNode object
      *                      for each evio structure created.
      *
-     * @throws EvioException if arg is null;
-     *                       if buffer is too small
+     * @throws EvioException if buffer is too small
      */
-    CompactEventBuilder::CompactEventBuilder(std::shared_ptr<ByteBuffer> buffer, bool generateNodes) {
-
-        if (buffer == nullptr) {
-            throw EvioException("null arg(s)");
-        }
+    CompactEventBuilder::CompactEventBuilder(std::shared_ptr<ByteBuffer> & buffer, bool generateNodes) {
 
         totalLengths.assign(MAX_LEVELS, 0);
         stackArray.resize(MAX_LEVELS);
@@ -88,13 +83,9 @@ namespace evio {
      * @param buffer buffer to be written into.
      * @param generateNodes generate and store an EvioNode object
      *                      for each evio structure created.
-     * @throws EvioException if arg is null;
-     *                       if buffer is too small
+     * @throws EvioException if buffer is too small
      */
-    void CompactEventBuilder::setBuffer(std::shared_ptr<ByteBuffer> buffer, bool generateNodes) {
-        if (buffer == nullptr) {
-            throw EvioException("null buffer arg");
-        }
+    void CompactEventBuilder::setBuffer(std::shared_ptr<ByteBuffer> & buffer, bool generateNodes) {
         initBuffer(buffer, generateNodes);
     }
 
@@ -108,7 +99,7 @@ namespace evio {
      * @throws EvioException if arg is null;
      *                       if buffer is too small
      */
-    void CompactEventBuilder::initBuffer(std::shared_ptr<ByteBuffer> buffer, bool generateNodes) {
+    void CompactEventBuilder::initBuffer(std::shared_ptr<ByteBuffer> & buffer, bool generateNodes) {
 
         this->buffer = buffer;
         this->generateNodes = generateNodes;
@@ -138,7 +129,7 @@ namespace evio {
      * The buffer is ready to read.
      * @return buffer being written into.
      */
-    std::shared_ptr<ByteBuffer> CompactEventBuilder::getBuffer() {
+    std::shared_ptr<ByteBuffer> & CompactEventBuilder::getBuffer() {
         buffer->limit(position).position(0);
         return buffer;
     }
@@ -552,7 +543,7 @@ namespace evio {
      *
      * @param node node whose header data must be written
      */
-    void CompactEventBuilder::writeHeader(std::shared_ptr<EvioNode> node) {
+    void CompactEventBuilder::writeHeader(std::shared_ptr<EvioNode> & node) {
 
         DataType const & type = currentStructure->type;
         bool isBigEndian = order.isBigEndian();
@@ -606,7 +597,7 @@ namespace evio {
         }
         else if (type == DataType::TAGSEGMENT) {
 
-            uint16_t compositeWord = (uint16_t) ((tag << 4) | (typ & 0xf));
+            auto compositeWord = (uint16_t) ((tag << 4) | (typ & 0xf));
 
             if (isBigEndian) {
                 array[arrayOffset + position]     = (uint8_t)(compositeWord >> 8);
@@ -634,7 +625,7 @@ namespace evio {
      * @param swapData do we swap the primitive data or not?
      * @throws EvioException if data needs to, but cannot be swapped.
      */
-    void CompactEventBuilder::writeNode(std::shared_ptr<EvioNode> node, bool swapData) {
+    void CompactEventBuilder::writeNode(std::shared_ptr<EvioNode> & node, bool swapData) {
 
         // Write header in endianness of buffer
         writeHeader(node);
@@ -677,10 +668,7 @@ namespace evio {
      *                       if structure not added first;
      *                       if no room in buffer for data.
      */
-    void CompactEventBuilder::addEvioNode(std::shared_ptr<EvioNode> node) {
-        if (node == nullptr) {
-            throw EvioException("no data to add");
-        }
+    void CompactEventBuilder::addEvioNode(std::shared_ptr<EvioNode> & node) {
 
         if (currentStructure == nullptr) {
             throw EvioException("add a bank, segment, or tagsegment first");
