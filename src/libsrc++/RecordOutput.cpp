@@ -630,8 +630,8 @@ namespace evio {
      *         count limit would be exceeded or the buffer is full and cannot be
      *         expanded since it's user-provided.
      */
-    bool RecordOutput::addEvent(std::shared_ptr<ByteBuffer> event, uint32_t extraDataLen) {
-        return addEvent(*(event.get()), extraDataLen);
+    bool RecordOutput::addEvent(std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen) {
+        return addEvent(*event, extraDataLen);
     }
 
 

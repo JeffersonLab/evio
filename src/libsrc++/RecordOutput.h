@@ -235,7 +235,7 @@ namespace evio {
         bool addEvent(const std::vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen = 0);
 
         bool addEvent(const ByteBuffer & event, uint32_t extraDataLen = 0);
-        bool addEvent(std::shared_ptr<ByteBuffer> event, uint32_t extraDataLen = 0);
+        bool addEvent(std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen = 0);
 
         bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen = 0);
 
