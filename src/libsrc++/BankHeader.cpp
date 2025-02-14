@@ -36,8 +36,8 @@ namespace evio {
         return 8;
     }
 
-    size_t BankHeader::write(std::shared_ptr<ByteBuffer> byteBuffer) {
-        return write(*(byteBuffer.get()));
+    size_t BankHeader::write(std::shared_ptr<ByteBuffer> & byteBuffer) {
+        return write(*byteBuffer);
     }
 
     size_t BankHeader::write(ByteBuffer & dest) {

@@ -45,8 +45,8 @@ namespace evio {
         return 4;
     }
 
-    size_t TagSegmentHeader::write(std::shared_ptr<ByteBuffer> byteBuffer) {
-        return write(*(byteBuffer.get()));
+    size_t TagSegmentHeader::write(std::shared_ptr<ByteBuffer> & byteBuffer) {
+        return write(*byteBuffer);
     }
 
     size_t TagSegmentHeader::write(ByteBuffer & byteBuffer) {

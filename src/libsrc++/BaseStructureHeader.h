@@ -129,7 +129,7 @@ namespace evio {
          * @return the number of bytes written, which for a BankHeader is 8 and for
          *         a SegmentHeader or TagSegmentHeader is 4.
          */
-        virtual size_t write(std::shared_ptr<ByteBuffer> dest) {return 0;}
+        virtual size_t write(std::shared_ptr<ByteBuffer> & dest) {return 0;}
 
         /**
         * Write myself out into a byte buffer.
