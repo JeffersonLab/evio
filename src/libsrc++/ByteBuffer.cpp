@@ -245,7 +245,7 @@ namespace evio {
      * @param srcBuf ByteBuffer to copy.
      */
     void ByteBuffer::copy(std::shared_ptr<const ByteBuffer> srcBuf) {
-        return copy(*(srcBuf.get()));
+        return copy(*srcBuf);
     }
 
 
@@ -702,8 +702,8 @@ namespace evio {
      * @param destBuf byte buffer to be made a duplicate of this one.
      * @return  the same byte buffer as passed in as the argument.
      */
-    std::shared_ptr<ByteBuffer> ByteBuffer::duplicate(std::shared_ptr<ByteBuffer> destBuf) {
-        auto & buff = *(destBuf.get());
+    std::shared_ptr<ByteBuffer> & ByteBuffer::duplicate(std::shared_ptr<ByteBuffer> & destBuf) {
+        auto & buff = *destBuf;
         duplicate(buff);
         return destBuf;
     }
@@ -841,8 +841,8 @@ namespace evio {
      * @param destBuf byte buffer to be made a slice of this one.
      * @return  the same byte buffer as passed in as the argument.
      */
-    std::shared_ptr<ByteBuffer> ByteBuffer::slice(std::shared_ptr<ByteBuffer> destBuf) {
-        auto & buff = *(destBuf.get());
+    std::shared_ptr<ByteBuffer> & ByteBuffer::slice(std::shared_ptr<ByteBuffer> & destBuf) {
+        auto & buff = *destBuf;
         slice(buff);
         return destBuf;
     }
@@ -1360,8 +1360,8 @@ namespace evio {
      * @throws  overflow_error if insufficient space in this buffer
      *          for the remaining bytes in the source buffer.
      */
-    ByteBuffer & ByteBuffer::put(std::shared_ptr<ByteBuffer> src) {
-        return (put(*(src.get())));
+    ByteBuffer & ByteBuffer::put(std::shared_ptr<ByteBuffer> & src) {
+        return (put(*src));
     }
 
 

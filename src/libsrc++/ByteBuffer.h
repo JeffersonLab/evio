@@ -141,10 +141,10 @@ namespace evio {
 
         ByteBuffer & order(ByteOrder const & order);
         ByteBuffer & duplicate(ByteBuffer & destBuf);
-        std::shared_ptr<ByteBuffer> duplicate(std::shared_ptr<ByteBuffer> destBuf);
+        std::shared_ptr<ByteBuffer> & duplicate(std::shared_ptr<ByteBuffer> & destBuf);
         std::shared_ptr<ByteBuffer> duplicate();
         ByteBuffer & slice(ByteBuffer & destBuf);
-        std::shared_ptr<ByteBuffer> slice(std::shared_ptr<ByteBuffer> destBuf);
+        std::shared_ptr<ByteBuffer> & slice(std::shared_ptr<ByteBuffer> & destBuf);
         std::shared_ptr<ByteBuffer> slice();
 
         // Read
@@ -183,7 +183,7 @@ namespace evio {
 
         // Bulk byte writes
         ByteBuffer & put(const ByteBuffer & src);
-        ByteBuffer & put(std::shared_ptr<ByteBuffer> rc);
+        ByteBuffer & put(std::shared_ptr<ByteBuffer> & rc);
         ByteBuffer & put(const uint8_t * src, size_t length);
         ByteBuffer & put(const std::vector<uint8_t> & src, size_t offset, size_t length);
 
