@@ -260,9 +260,9 @@ namespace evio {
             // Create an evio bank of ints
             auto evioDataBuf = createEventBuilderBuffer(tag, num, order);
             // Create node from this buffer
-            std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
+            auto node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
 
-            writer.addEvent(*node);
+            writer.addEvent(node);
             writer.close();
 
             // Get ready-to-read buffer

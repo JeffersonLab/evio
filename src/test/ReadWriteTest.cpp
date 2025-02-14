@@ -60,9 +60,9 @@ namespace evio {
             // Create an evio bank of ints
             auto evioDataBuf = createEventBuilderBuffer(0, 0, order);
             // Create node from this buffer
-            std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
+            auto node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
 
-            writer.addEvent(*node);
+            writer.addEvent(node);
 
             cout << "Wrote Buffer w/ user header" << endl;
 
