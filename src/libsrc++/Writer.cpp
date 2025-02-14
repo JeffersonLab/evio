@@ -126,7 +126,7 @@ namespace evio {
      * No compression.
      * @param buf buffer in to which to write events and/or records.
      */
-    Writer::Writer(std::shared_ptr<ByteBuffer> buf) :
+    Writer::Writer(std::shared_ptr<ByteBuffer> & buf) :
             Writer(buf, 0, 0, "", nullptr, 0) {
     }
 
@@ -140,7 +140,7 @@ namespace evio {
      *                   So don't go changing it in the meantime!</b>
      * @param len        length of valid data (bytes) in userHdr (starting at off).
      */
-    Writer::Writer(std::shared_ptr<ByteBuffer> buf, uint8_t * userHdr, uint32_t len) :
+    Writer::Writer(std::shared_ptr<ByteBuffer> & buf, uint8_t * userHdr, uint32_t len) :
             Writer(buf, 0, 0, "", nullptr, 0) {
         open(buf, userHdr, len);
     }
@@ -161,7 +161,7 @@ namespace evio {
      *                      It must be in the same byte order as the order argument.
      * @param firstEventLen number of bytes in firstEvent.
      */
-    Writer::Writer(std::shared_ptr<ByteBuffer> buf, uint32_t maxEventCount, uint32_t maxBufferSize,
+    Writer::Writer(std::shared_ptr<ByteBuffer> & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
                    const std::string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen) {
 
         byteOrder = buf->order();
@@ -573,7 +573,7 @@ namespace evio {
      * @throws EvioException if constructor specified writing to a file,
      *                       or if open() was already called without being followed by reset().
      */
-    void Writer::open(std::shared_ptr<ByteBuffer> buf, uint8_t* userHdr, uint32_t len) {
+    void Writer::open(std::shared_ptr<ByteBuffer> & buf, uint8_t* userHdr, uint32_t len) {
 
         if (opened) {
             throw EvioException("currently open, call reset() first");
@@ -825,7 +825,7 @@ namespace evio {
             throw EvioException("call only if writing to file");
         }
 
-        int userHeaderBytes = userHdr.remaining();
+        size_t userHeaderBytes = userHdr.remaining();
         fileHeader.reset();
         if (haveUserHeader) {
             fileHeader.setBitInfo(false, false, addTrailerIndex);
@@ -871,7 +871,7 @@ namespace evio {
             throw EvioException("call only if writing to file");
         }
 
-        int userHeaderBytes = userHdr.remaining();
+        size_t userHeaderBytes = userHdr.remaining();
 
         if (userHeaderBytes + FileHeader::HEADER_SIZE_BYTES < buf.capacity()) {
             throw EvioException("buffer too small, need " +
@@ -1070,8 +1070,8 @@ namespace evio {
      * @param buf buffer to add to the file.
      * @throws EvioException if cannot write to file or buf arg's byte order is wrong.
      */
-    void Writer::addEvent(std::shared_ptr<ByteBuffer> buf) {
-        addEvent(*(buf.get()));
+    void Writer::addEvent(std::shared_ptr<ByteBuffer> & buf) {
+        addEvent(*buf);
     }
 
 

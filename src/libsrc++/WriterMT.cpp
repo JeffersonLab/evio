@@ -620,7 +620,7 @@ namespace evio {
      * @param buffer buffer to add to the file.
      * @throws EvioException if cannot write to file or buffer arg's byte order is wrong.
      */
-    void WriterMT::addEvent(std::shared_ptr<ByteBuffer> buffer) {
+    void WriterMT::addEvent(std::shared_ptr<ByteBuffer> & buffer) {
 
         if (buffer->order() != byteOrder) {
             throw EvioException("buffer arg byte order is wrong");

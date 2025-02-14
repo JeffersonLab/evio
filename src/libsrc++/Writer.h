@@ -153,9 +153,9 @@ namespace evio {
 
         // Writing to buffer
 
-        explicit Writer(std::shared_ptr<ByteBuffer> buf);
-        Writer(std::shared_ptr<ByteBuffer> buf, uint8_t * userHdr, uint32_t len);
-        Writer(std::shared_ptr<ByteBuffer> buf, uint32_t maxEventCount, uint32_t maxBufferSize,
+        explicit Writer(std::shared_ptr<ByteBuffer> & buf);
+        Writer(std::shared_ptr<ByteBuffer> & buf, uint8_t * userHdr, uint32_t len);
+        Writer(std::shared_ptr<ByteBuffer> & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
                const std::string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
 
         ~Writer() = default;
@@ -192,7 +192,7 @@ namespace evio {
 
         void open(const std::string & filename);
         void open(const std::string & filename, uint8_t* userHdr, uint32_t len, bool overwrite = true);
-        void open(std::shared_ptr<ByteBuffer> buf,  uint8_t* userHdr, uint32_t len);
+        void open(std::shared_ptr<ByteBuffer> & buf,  uint8_t* userHdr, uint32_t len);
 
         static std::shared_ptr<ByteBuffer> createRecord(const std::string & dictionary,
                                                         uint8_t* firstEvent, uint32_t firstEventLen,
@@ -210,7 +210,7 @@ namespace evio {
         // Use internal RecordOutput to write individual events
 
         void addEvent(uint8_t* buffer, uint32_t length);
-        void addEvent(std::shared_ptr<ByteBuffer> buffer);
+        void addEvent(std::shared_ptr<ByteBuffer> & buffer);
         void addEvent(ByteBuffer & buffer);
         void addEvent(std::shared_ptr<EvioBank> bank);
         void addEvent(std::shared_ptr<EvioNode> & node);

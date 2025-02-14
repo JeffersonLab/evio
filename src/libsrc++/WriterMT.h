@@ -384,7 +384,7 @@ namespace evio {
         // Use internal RecordOutput to write individual events
 
         void addEvent(uint8_t* buffer, uint32_t offset, uint32_t length);
-        void addEvent(std::shared_ptr<ByteBuffer> buffer);
+        void addEvent(std::shared_ptr<ByteBuffer> & buffer);
         void addEvent(ByteBuffer & buffer);
         void addEvent(std::shared_ptr<EvioBank> bank);
         void addEvent(std::shared_ptr<EvioNode> & node);
