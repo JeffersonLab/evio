@@ -152,9 +152,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a24fb7da871e684ba89885339cb671cdb"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#a24fb7da871e684ba89885339cb671cdb">toString</a> ()</td></tr>
 <tr class="memdesc:a24fb7da871e684ba89885339cb671cdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain a string representation of the base structure header.  <a href="../../db/dfb/classevio_1_1_base_structure_header.html#a24fb7da871e684ba89885339cb671cdb">More...</a><br /></td></tr>
 <tr class="separator:a24fb7da871e684ba89885339cb671cdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee11faf3d7ad0022dc3009772044001d"><td class="memItemLeft" align="right" valign="top">virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#aee11faf3d7ad0022dc3009772044001d">write</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; dest)</td></tr>
-<tr class="memdesc:aee11faf3d7ad0022dc3009772044001d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../db/dfb/classevio_1_1_base_structure_header.html#aee11faf3d7ad0022dc3009772044001d">More...</a><br /></td></tr>
-<tr class="separator:aee11faf3d7ad0022dc3009772044001d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6bbf5d5ec94c160022abfc6fb0cc4dbb"><td class="memItemLeft" align="right" valign="top">virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#a6bbf5d5ec94c160022abfc6fb0cc4dbb">write</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;dest)</td></tr>
+<tr class="memdesc:a6bbf5d5ec94c160022abfc6fb0cc4dbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../db/dfb/classevio_1_1_base_structure_header.html#a6bbf5d5ec94c160022abfc6fb0cc4dbb">More...</a><br /></td></tr>
+<tr class="separator:a6bbf5d5ec94c160022abfc6fb0cc4dbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae045706ed8b20dcb5619a7e4e273de95"><td class="memItemLeft" align="right" valign="top">virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#ae045706ed8b20dcb5619a7e4e273de95">write</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;dest)</td></tr>
 <tr class="memdesc:ae045706ed8b20dcb5619a7e4e273de95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../db/dfb/classevio_1_1_base_structure_header.html#ae045706ed8b20dcb5619a7e4e273de95">More...</a><br /></td></tr>
 <tr class="separator:ae045706ed8b20dcb5619a7e4e273de95"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -806,8 +806,8 @@ timmer </dd></dl>
 
 </div>
 </div>
-<a id="aee11faf3d7ad0022dc3009772044001d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee11faf3d7ad0022dc3009772044001d">&#9670;&nbsp;</a></span>write() <span class="overload">[2/3]</span></h2>
+<a id="a6bbf5d5ec94c160022abfc6fb0cc4dbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bbf5d5ec94c160022abfc6fb0cc4dbb">&#9670;&nbsp;</a></span>write() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -818,7 +818,7 @@ timmer </dd></dl>
         <tr>
           <td class="memname">virtual size_t evio::BaseStructureHeader::write </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>dest</em></td><td>)</td>
           <td></td>
         </tr>
@@ -840,7 +840,7 @@ timmer </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../dc/d90/classevio_1_1_bank_header.html" title="This the header for an evio bank structure (EvioBank).">BankHeader</a> is 8 and for a <a class="el" href="../../d1/d89/classevio_1_1_segment_header.html" title="This the header for an evio segment structure (EvioSegment).">SegmentHeader</a> or <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
 
-<p>Reimplemented in <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html#a53fafe085bb9c294a799e77b276d2eae">evio::TagSegmentHeader</a>, <a class="el" href="../../d1/d89/classevio_1_1_segment_header.html#a66826064714a24282bf9d4f2c4193e47">evio::SegmentHeader</a>, and <a class="el" href="../../dc/d90/classevio_1_1_bank_header.html#aba43bb1a4480a487aa7929e85c4192c5">evio::BankHeader</a>.</p>
+<p>Reimplemented in <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html#a3f90ca5280e86a180c36d7f80faa764f">evio::TagSegmentHeader</a>, <a class="el" href="../../d1/d89/classevio_1_1_segment_header.html#a0261659391e90001dd5ab3f640e1f1db">evio::SegmentHeader</a>, and <a class="el" href="../../dc/d90/classevio_1_1_bank_header.html#a65f4a1d962a440fda7122d12e8baa466">evio::BankHeader</a>.</p>
 
 </div>
 </div>

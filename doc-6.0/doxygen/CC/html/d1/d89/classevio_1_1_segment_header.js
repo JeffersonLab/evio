@@ -20,7 +20,7 @@ var classevio_1_1_segment_header =
     [ "setTag", "d1/d89/classevio_1_1_segment_header.html#a0fd8e371d474551b449786da20b65df5", null ],
     [ "toString", "d1/d89/classevio_1_1_segment_header.html#a8858e2caef08e6ab1116de4f25155f2d", null ],
     [ "write", "d1/d89/classevio_1_1_segment_header.html#a2112b72784abcd6cf65257c1e137e913", null ],
-    [ "write", "d1/d89/classevio_1_1_segment_header.html#a66826064714a24282bf9d4f2c4193e47", null ],
+    [ "write", "d1/d89/classevio_1_1_segment_header.html#a0261659391e90001dd5ab3f640e1f1db", null ],
     [ "write", "d1/d89/classevio_1_1_segment_header.html#a8431fe65ab32bc72f25ae5584f07eb95", null ],
     [ "dataType", "d1/d89/classevio_1_1_segment_header.html#a6ef44d65bf94ac971d3af915180cec87", null ],
     [ "length", "d1/d89/classevio_1_1_segment_header.html#a2fe8b4dabff88791e9363b53e094eff6", null ],

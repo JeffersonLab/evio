@@ -114,9 +114,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af941007bb8c0153b1d680dafe9b922e8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d90/classevio_1_1_bank_header.html#af941007bb8c0153b1d680dafe9b922e8">toString</a> () override</td></tr>
 <tr class="memdesc:af941007bb8c0153b1d680dafe9b922e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain a string representation of the bank header.  <a href="../../dc/d90/classevio_1_1_bank_header.html#af941007bb8c0153b1d680dafe9b922e8">More...</a><br /></td></tr>
 <tr class="separator:af941007bb8c0153b1d680dafe9b922e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba43bb1a4480a487aa7929e85c4192c5"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d90/classevio_1_1_bank_header.html#aba43bb1a4480a487aa7929e85c4192c5">write</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; dest) override</td></tr>
-<tr class="memdesc:aba43bb1a4480a487aa7929e85c4192c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../dc/d90/classevio_1_1_bank_header.html#aba43bb1a4480a487aa7929e85c4192c5">More...</a><br /></td></tr>
-<tr class="separator:aba43bb1a4480a487aa7929e85c4192c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65f4a1d962a440fda7122d12e8baa466"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d90/classevio_1_1_bank_header.html#a65f4a1d962a440fda7122d12e8baa466">write</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;dest) override</td></tr>
+<tr class="memdesc:a65f4a1d962a440fda7122d12e8baa466"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../dc/d90/classevio_1_1_bank_header.html#a65f4a1d962a440fda7122d12e8baa466">More...</a><br /></td></tr>
+<tr class="separator:a65f4a1d962a440fda7122d12e8baa466"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4bc6d2129f31cb036cab2eb4020d5aa"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d90/classevio_1_1_bank_header.html#ab4bc6d2129f31cb036cab2eb4020d5aa">write</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;dest) override</td></tr>
 <tr class="memdesc:ab4bc6d2129f31cb036cab2eb4020d5aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write myself out into a byte buffer.  <a href="../../dc/d90/classevio_1_1_bank_header.html#ab4bc6d2129f31cb036cab2eb4020d5aa">More...</a><br /></td></tr>
 <tr class="separator:ab4bc6d2129f31cb036cab2eb4020d5aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -871,8 +871,8 @@ timmer </dd></dl>
 
 </div>
 </div>
-<a id="aba43bb1a4480a487aa7929e85c4192c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba43bb1a4480a487aa7929e85c4192c5">&#9670;&nbsp;</a></span>write() <span class="overload">[2/3]</span></h2>
+<a id="a65f4a1d962a440fda7122d12e8baa466"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65f4a1d962a440fda7122d12e8baa466">&#9670;&nbsp;</a></span>write() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -883,7 +883,7 @@ timmer </dd></dl>
         <tr>
           <td class="memname">size_t evio::BankHeader::write </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>dest</em></td><td>)</td>
           <td></td>
         </tr>
@@ -905,7 +905,7 @@ timmer </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the number of bytes written, which for a <a class="el" href="../../dc/d90/classevio_1_1_bank_header.html" title="This the header for an evio bank structure (EvioBank).">BankHeader</a> is 8 and for a <a class="el" href="../../d1/d89/classevio_1_1_segment_header.html" title="This the header for an evio segment structure (EvioSegment).">SegmentHeader</a> or <a class="el" href="../../df/d43/classevio_1_1_tag_segment_header.html" title="This the header for an evio tagsegment structure (EvioTagSegment).">TagSegmentHeader</a> is 4. </dd></dl>
 
-<p>Reimplemented from <a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#aee11faf3d7ad0022dc3009772044001d">evio::BaseStructureHeader</a>.</p>
+<p>Reimplemented from <a class="el" href="../../db/dfb/classevio_1_1_base_structure_header.html#a6bbf5d5ec94c160022abfc6fb0cc4dbb">evio::BaseStructureHeader</a>.</p>
 
 </div>
 </div>
