@@ -263,7 +263,8 @@ public class ByteDataTransformer {
         byte array[] = new byte[size];
 
         if (byteBuffer.hasArray()) {
-            System.arraycopy(byteBuffer.array(), byteBuffer.arrayOffset(),
+            System.arraycopy(byteBuffer.array(),
+                      byteBuffer.position() + byteBuffer.arrayOffset(),
                              array, 0, size);
         }
         else {
@@ -292,7 +293,9 @@ public class ByteDataTransformer {
             int len = byteBuffer.remaining()/4;
             int[] array = new int[len];
             try {
-                toIntArray(backingArray, backingArrayOffset, byteBuffer.remaining(),
+                toIntArray(backingArray,
+                        byteBuffer.position() + backingArrayOffset,
+                           byteBuffer.remaining(),
                            byteBuffer.order(), array, 0);
             }
             catch (EvioException e) {/* never happen */}
@@ -331,7 +334,8 @@ public class ByteDataTransformer {
             byte[] backingArray = byteBuffer.array();
             int backingArrayOffset = byteBuffer.arrayOffset();
             try {
-                toIntArray(backingArray, backingArrayOffset,
+                toIntArray(backingArray,
+                        byteBuffer.position() + backingArrayOffset,
                            byteBuffer.order(), dest, 0);
             }
             catch (EvioException e) {/* never happen */}
