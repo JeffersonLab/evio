@@ -305,7 +305,7 @@ namespace evio {
              * It needs to be added in sequence with other data.
              * @param N  N or multiplier value
              */
-            void addN(uint32_t N) {
+            void addN(int32_t N) {
                 Nlist.push_back(N);
                 DataItem mem;
                 mem.item.ui32 = N;
@@ -319,7 +319,7 @@ namespace evio {
              * It needs to be added in sequence with other data.
              * @param n  n or multiplier value
              */
-            void addn(uint16_t n) {
+            void addn(int16_t n) {
                 nlist.push_back(n);
                 DataItem mem;
                 mem.item.us16 = n;
@@ -333,7 +333,7 @@ namespace evio {
              * It needs to be added in sequence with other data.
              * @param m  m or multiplier value
              */
-            void addm(uint8_t m) {
+            void addm(int8_t m) {
                 mlist.push_back(m);
                 DataItem mem;
                 mem.item.ub8 = m;
