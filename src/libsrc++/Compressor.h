@@ -84,10 +84,10 @@ namespace evio {
         /* Makes regular lz4 compression to be lz4Acceleration * 3% speed up. */
         static const int lz4Acceleration = 1;
 
-        static uint32_t getYear(       ByteBuffer & buf);
-        static uint32_t getRevisionId( ByteBuffer & buf, uint32_t board_id);
-        static uint32_t getSubsystemId(ByteBuffer & buf, uint32_t board_id);
-        static uint32_t getDeviceId(   ByteBuffer & buf, uint32_t board_id);
+//        static uint32_t getYear(       ByteBuffer & buf);
+//        static uint32_t getRevisionId( ByteBuffer & buf, uint32_t board_id);
+//        static uint32_t getSubsystemId(ByteBuffer & buf, uint32_t board_id);
+//        static uint32_t getDeviceId(   ByteBuffer & buf, uint32_t board_id);
 
         static void setUpCompressionHardware();
         static void setUpZlib();
