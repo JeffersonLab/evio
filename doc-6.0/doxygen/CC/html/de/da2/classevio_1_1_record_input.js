@@ -9,8 +9,8 @@ var classevio_1_1_record_input =
     [ "getEntries", "de/da2/classevio_1_1_record_input.html#a7840a207a13cb1bbe312f35fcc0eca2c", null ],
     [ "getEvent", "de/da2/classevio_1_1_record_input.html#a0e602f15ada66b078eb5dec6c0103167", null ],
     [ "getEvent", "de/da2/classevio_1_1_record_input.html#a33613480cbca096466869ca8d1df2a75", null ],
-    [ "getEvent", "de/da2/classevio_1_1_record_input.html#ae38080e5634328f9906fd33b4d1db346", null ],
-    [ "getEvent", "de/da2/classevio_1_1_record_input.html#a44a0d9cae3ff1e0eb036980858dcce92", null ],
+    [ "getEvent", "de/da2/classevio_1_1_record_input.html#ae527af07d17cfe093fcda9d603122218", null ],
+    [ "getEvent", "de/da2/classevio_1_1_record_input.html#af7aabe7fd621bdf4a2ed63c553f7cd3b", null ],
     [ "getEvent", "de/da2/classevio_1_1_record_input.html#a2a4c76794e12fa3433bbc084a0b70196", null ],
     [ "getEvent", "de/da2/classevio_1_1_record_input.html#a8fc51cdc8e8f175728f9c3e79f48a5c0", null ],
     [ "getEventLength", "de/da2/classevio_1_1_record_input.html#aa00b2a5e045dcb0dda304b658d97ed26", null ],
@@ -18,7 +18,7 @@ var classevio_1_1_record_input =
     [ "getUncompressedDataBuffer", "de/da2/classevio_1_1_record_input.html#ad3374ca3748213d7b25252b2f5e9d193", null ],
     [ "getUserHeader", "de/da2/classevio_1_1_record_input.html#a8d6d188181b47c1e8933555f2d76a435", null ],
     [ "getUserHeader", "de/da2/classevio_1_1_record_input.html#ad5f421e53b8e608d79d8b901034b19dc", null ],
-    [ "getUserHeader", "de/da2/classevio_1_1_record_input.html#a044fa9c5a513c479c8a80b4182c584bd", null ],
+    [ "getUserHeader", "de/da2/classevio_1_1_record_input.html#a346332047dcff32e217cf29dfa87a3af", null ],
     [ "getUserHeaderAsRecord", "de/da2/classevio_1_1_record_input.html#ae291a1b2eb21afb9d6366bfeaa220b80", null ],
     [ "hasIndex", "de/da2/classevio_1_1_record_input.html#a0f50d5521b94d5c4a520e39a7ef9025f", null ],
     [ "hasUserHeader", "de/da2/classevio_1_1_record_input.html#af34df12d892e4c91c541d4be07147741", null ],
@@ -27,5 +27,5 @@ var classevio_1_1_record_input =
     [ "readRecord", "de/da2/classevio_1_1_record_input.html#a42e735902f78f781e3bb49b2e71c37fc", null ],
     [ "readRecord", "de/da2/classevio_1_1_record_input.html#a8bfee12a45ae1f40be0048c1a9044a07", null ],
     [ "uncompressRecord", "de/da2/classevio_1_1_record_input.html#a13b22f107be73ebb28d7ffc907ba81fc", null ],
-    [ "uncompressRecord", "de/da2/classevio_1_1_record_input.html#a6e6014cd60793feae5e07278d0edac21", null ]
+    [ "uncompressRecord", "de/da2/classevio_1_1_record_input.html#a1a9f105120b8118fedd4ab43d502f1fa", null ]
 ];
