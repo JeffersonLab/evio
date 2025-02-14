@@ -453,7 +453,7 @@ namespace evio {
 
 
         void writeHeader(ByteBuffer & buf, size_t off = 0);
-        void writeHeader(std::shared_ptr<ByteBuffer> buffer, size_t off = 0);
+        void writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off = 0);
         void writeHeader(uint8_t *array, const ByteOrder & order);
 
 
@@ -468,7 +468,7 @@ namespace evio {
         static int writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
                                 std::shared_ptr<std::vector<uint32_t>> recordLengths = nullptr);
 
-        static int writeTrailer(std::shared_ptr<ByteBuffer> buf, size_t off, uint32_t recordNum,
+        static int writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
                                 std::shared_ptr<std::vector<uint32_t>> recordLengths = nullptr);
 
 
@@ -477,7 +477,7 @@ namespace evio {
 
 
         void readHeader(ByteBuffer & buffer, size_t offset = 0);
-        void readHeader(std::shared_ptr<ByteBuffer> buffer, size_t offset = 0);
+        void readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset = 0);
         void readHeader(uint8_t *src, ByteOrder order);
 
         std::string eventTypeToString() const;

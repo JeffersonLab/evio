@@ -1016,8 +1016,8 @@ namespace evio {
      * @param off  position in buffer to begin writing.
      * @throws EvioException if buffer contains too little room.
      */
-    void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> buffer, size_t off) {
-        writeHeader(*(buffer.get()), off);
+    void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off) {
+        writeHeader(*buffer, off);
     }
 
 
@@ -1220,9 +1220,9 @@ namespace evio {
      * @return trailer bytes written into array.
      * @throws EvioException if buf too small to hold trailer + index.
      */
-    int RecordHeader::writeTrailer(std::shared_ptr<ByteBuffer> buf, size_t off, uint32_t recordNum,
+    int RecordHeader::writeTrailer(std::shared_ptr<ByteBuffer> & buf, size_t off, uint32_t recordNum,
                                    std::shared_ptr<std::vector<uint32_t>> recordLengths) {
-        return writeTrailer(*(buf.get()), off, recordNum, recordLengths);
+        return writeTrailer(*buf, off, recordNum, recordLengths);
     }
 
 
@@ -1380,8 +1380,8 @@ namespace evio {
      * @throws EvioException if buffer contains too little data,
      *                       is not in proper format, or version earlier than 6.
      */
-    void RecordHeader::readHeader(std::shared_ptr<ByteBuffer> buffer, size_t offset) {
-        readHeader(*(buffer.get()), offset);
+    void RecordHeader::readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset) {
+        readHeader(*buffer, offset);
     }
 
 
