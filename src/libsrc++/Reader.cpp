@@ -62,7 +62,7 @@ namespace evio {
      * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6;
      *                       if checkRecordNumSeq is true and records are out of sequence.
      */
-    Reader::Reader(std::shared_ptr<ByteBuffer> buffer, bool checkRecordNumSeq) {
+    Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, bool checkRecordNumSeq) {
         this->buffer = buffer;
         bufferOffset = buffer->position();
         bufferLimit  = buffer->limit();
@@ -164,14 +164,9 @@ namespace evio {
      *
      * @param buf ByteBuffer to be read
      * @throws underflow_error if not enough data in buffer.
-     * @throws EvioException if buf arg is null,
-     *                       not in the proper format, or earlier than version 6
+     * @throws EvioException not in the proper format, or earlier than version 6
      */
-    void Reader::setBuffer(std::shared_ptr<ByteBuffer> buf) {
-
-        if (buf == nullptr) {
-            throw EvioException("null buf arg");
-        }
+    void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
 
         // Possible no-arg constructor set this to true, change it now
         fromFile = false;
@@ -632,7 +627,7 @@ namespace evio {
      */
     std::shared_ptr<ByteBuffer> Reader::getEvent(std::shared_ptr<ByteBuffer> buf, uint32_t index) {
         if (buf == nullptr) return nullptr;
-        getEvent(*(buf.get()), index);
+        getEvent(*buf, index);
         return buf;
     }
 
@@ -897,9 +892,9 @@ namespace evio {
      * @throws underflow_error if not enough data in buffer.
      * @throws EvioException null info arg or info.length &lt; 7.
      */
-    void Reader::findRecordInfo(std::shared_ptr<ByteBuffer> buf, uint32_t offset,
+    void Reader::findRecordInfo(std::shared_ptr<ByteBuffer> & buf, uint32_t offset,
                                 uint32_t* info, uint32_t infoLen) {
-        findRecordInfo(*(buf.get()), offset, info, infoLen);
+        findRecordInfo(*buf, offset, info, infoLen);
     }
 
 

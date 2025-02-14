@@ -277,7 +277,7 @@ namespace evio {
         Reader();
         explicit Reader(std::string const & filename);
         Reader(std::string const & filename, bool forceScan);
-        explicit Reader(std::shared_ptr<ByteBuffer> buffer, bool checkRecordNumSeq = false);
+        explicit Reader(std::shared_ptr<ByteBuffer> & buffer, bool checkRecordNumSeq = false);
 
         ~Reader() = default;
 
@@ -290,7 +290,7 @@ namespace evio {
         std::string getFileName() const;
         size_t getFileSize() const;
 
-        void setBuffer(std::shared_ptr<ByteBuffer> buf);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
         std::shared_ptr<ByteBuffer> getBuffer();
         size_t getBufferOffset() const;
 
@@ -346,7 +346,7 @@ namespace evio {
         void extractDictionaryFromFile();
 
 
-        static void findRecordInfo(std::shared_ptr<ByteBuffer> buf, uint32_t offset,
+        static void findRecordInfo(std::shared_ptr<ByteBuffer> & buf, uint32_t offset,
                                    uint32_t* info, uint32_t infoLen);
         static void findRecordInfo(ByteBuffer & buf, uint32_t offset,
                                    uint32_t* info, uint32_t infoLen);
