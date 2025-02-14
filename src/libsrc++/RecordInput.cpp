@@ -287,7 +287,7 @@ namespace evio {
      * @throws EvioException if index too large, or buffer has insufficient space to
      *                       contain event (buffer->capacity() < event size).
      */
-    std::shared_ptr<ByteBuffer> RecordInput::getEvent(std::shared_ptr<ByteBuffer> buffer, uint32_t index) {
+    std::shared_ptr<ByteBuffer> & RecordInput::getEvent(std::shared_ptr<ByteBuffer> & buffer, uint32_t index) {
         getEvent(*(buffer.get()), buffer->position(), index);
         return buffer;
     }
@@ -307,9 +307,9 @@ namespace evio {
      * @throws EvioException if index too large, or buffer has insufficient space to
      *                       contain event (buffer->capacity() < event size).
      */
-    std::shared_ptr<ByteBuffer> RecordInput::getEvent(std::shared_ptr<ByteBuffer> buffer,
+    std::shared_ptr<ByteBuffer> & RecordInput::getEvent(std::shared_ptr<ByteBuffer> & buffer,
                                                       size_t bufOffset, uint32_t index) {
-        getEvent(*(buffer.get()), bufOffset, index);
+        getEvent(*buffer, bufOffset, index);
         return buffer;
     }
 
@@ -405,8 +405,8 @@ namespace evio {
      * @throws EvioException if buffer has insufficient space to contain user header
      *                       (buffer.capacity() - bufOffset < user header size).
      */
-    std::shared_ptr<ByteBuffer> RecordInput::getUserHeader(std::shared_ptr<ByteBuffer> buffer, size_t bufOffset) {
-        getUserHeader(*(buffer.get()), bufOffset);
+    std::shared_ptr<ByteBuffer> & RecordInput::getUserHeader(std::shared_ptr<ByteBuffer> & buffer, size_t bufOffset) {
+        getUserHeader(*buffer, bufOffset);
         return buffer;
     }
 
@@ -767,10 +767,10 @@ namespace evio {
      * @throws EvioException if srcBuf contains too little data,
      *                       is not in proper format, or version earlier than 6.
      */
-    uint32_t RecordInput::uncompressRecord(std::shared_ptr<ByteBuffer> srcBuf, size_t srcOff,
-                                           std::shared_ptr<ByteBuffer> dstBuf,
+    uint32_t RecordInput::uncompressRecord(std::shared_ptr<ByteBuffer> & srcBuf, size_t srcOff,
+                                           std::shared_ptr<ByteBuffer> & dstBuf,
                                            RecordHeader & hdr) {
-        return uncompressRecord(*(srcBuf.get()), srcOff, *(dstBuf.get()), hdr);
+        return uncompressRecord(*srcBuf, srcOff, *dstBuf, hdr);
     }
 
 

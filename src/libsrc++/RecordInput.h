@@ -178,15 +178,15 @@ namespace evio {
         std::shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t *len);
         uint32_t getEvent(uint8_t *event, uint32_t index, uint32_t evLen);
 
-        std::shared_ptr<ByteBuffer> getEvent(std::shared_ptr<ByteBuffer> buffer, uint32_t index);
-        std::shared_ptr<ByteBuffer> getEvent(std::shared_ptr<ByteBuffer> buffer, size_t bufOffset, uint32_t index);
+        std::shared_ptr<ByteBuffer> & getEvent(std::shared_ptr<ByteBuffer> & uffer, uint32_t index);
+        std::shared_ptr<ByteBuffer> & getEvent(std::shared_ptr<ByteBuffer> & buffer, size_t bufOffset, uint32_t index);
 
         ByteBuffer & getEvent(ByteBuffer & buffer, uint32_t index);
         ByteBuffer & getEvent(ByteBuffer & buffer, size_t bufOffset, uint32_t index);
 
 
         std::shared_ptr<uint8_t> getUserHeader();
-        std::shared_ptr<ByteBuffer> getUserHeader(std::shared_ptr<ByteBuffer> buffer, size_t bufOffset = 0);
+        std::shared_ptr<ByteBuffer> & getUserHeader(std::shared_ptr<ByteBuffer> & buffer, size_t bufOffset = 0);
         ByteBuffer & getUserHeader(ByteBuffer & buffer, size_t bufOffset = 0);
 
         uint32_t getEventLength(uint32_t index) const;
@@ -198,8 +198,8 @@ namespace evio {
         void readRecord(std::ifstream & file, size_t position);
         void readRecord(ByteBuffer & buffer, size_t offset);
 
-        static uint32_t uncompressRecord(std::shared_ptr<ByteBuffer> srcBuf, size_t srcOff,
-                                         std::shared_ptr<ByteBuffer> dstBuf,
+        static uint32_t uncompressRecord(std::shared_ptr<ByteBuffer> & srcBuf, size_t srcOff,
+                                         std::shared_ptr<ByteBuffer> & dstBuf,
                                          RecordHeader & hdr);
        static uint32_t uncompressRecord(ByteBuffer & srcBuf, size_t srcOff,
                                         ByteBuffer & dstBuf,
