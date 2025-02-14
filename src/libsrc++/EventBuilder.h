@@ -52,7 +52,7 @@ namespace evio {
     public:
 
         EventBuilder(uint16_t tag, DataType const & dataType, uint8_t num) ;
-        EventBuilder(std::shared_ptr<EvioEvent> event);
+        explicit EventBuilder(std::shared_ptr<EvioEvent> event);
 
         void setAllHeaderLengths();
         void clearData(std::shared_ptr<BaseStructure> structure);
