@@ -184,10 +184,10 @@ namespace evio {
          *                       if bad values for srcPos and/or destPos;
          */
         static void swapLeafData(DataType const & type,
-                                 std::shared_ptr<ByteBuffer> srcBuf,
-                                 std::shared_ptr<ByteBuffer> destBuf,
+                                 std::shared_ptr<ByteBuffer> & srcBuf,
+                                 std::shared_ptr<ByteBuffer> & destBuf,
                                  size_t srcPos, size_t destPos, size_t len) {
-            swapLeafData(type, *(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len);
+            swapLeafData(type, *srcBuf, *destBuf, srcPos, destPos, len);
         }
 
 
@@ -441,7 +441,7 @@ namespace evio {
 //             }
              // For containers, just iterate over their children recursively
              else if (type.isBank() || type.isSegment() || type.isTagSegment()) {
-                 for (auto kid : strc->getChildren()) {
+                 for (auto & kid : strc->getChildren()) {
                      swapData(kid);
                  }
              }
