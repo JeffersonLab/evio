@@ -187,7 +187,7 @@ namespace evio {
              * @param pwriter pointer to EventWriter object which owns this thread.
              * @param recordSupply shared pointer to an object supplying compressed records that need to be written to file.
              */
-            RecordWriter(EventWriter * pwriter, std::shared_ptr<RecordSupply> recordSupply) :
+            RecordWriter(EventWriter * pwriter, std::shared_ptr<RecordSupply> & recordSupply) :
                     writer(pwriter), supply(recordSupply)  {
             }
 
@@ -686,14 +686,14 @@ namespace evio {
         // BUFFER Constructors
         //---------------------------------------------
 
-        explicit EventWriter(std::shared_ptr<ByteBuffer> buf, const std::string & xmlDictionary = "");
-        EventWriter(std::shared_ptr<ByteBuffer> buf, uint32_t maxRecordSize, uint32_t maxEventCount,
+        explicit EventWriter(std::shared_ptr<ByteBuffer> & buf, const std::string & xmlDictionary = "");
+        EventWriter(std::shared_ptr<ByteBuffer> & buf, uint32_t maxRecordSize, uint32_t maxEventCount,
                     const std::string & xmlDictionary = "", uint32_t recordNumber = 1,
                     Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED, int eventType = -1);
 
     private:
 
-        void reInitializeBuffer(std::shared_ptr<ByteBuffer> buf, const std::bitset<24> *bitInfo,
+        void reInitializeBuffer(std::shared_ptr<ByteBuffer> & buf, const std::bitset<24> *bitInfo,
                                 uint32_t recordNumber, bool useCurrentBitInfo);
 
         static void staticWriteFunction(EventWriter *pWriter, const char* data, size_t len);
@@ -702,8 +702,8 @@ namespace evio {
     public:
 
         bool isDiskFull();
-        void setBuffer(std::shared_ptr<ByteBuffer> buf, std::bitset<24> *bitInfo, uint32_t recNumber);
-        void setBuffer(std::shared_ptr<ByteBuffer> buf);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf, std::bitset<24> *bitInfo, uint32_t recNumber);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
 
     private:
 
@@ -762,16 +762,16 @@ namespace evio {
 
         bool hasRoom(uint32_t bytes);
 
-        bool writeEvent(std::shared_ptr<EvioNode> node, bool force = false,
+        bool writeEvent(std::shared_ptr<EvioNode> & node, bool force = false,
                         bool duplicate = true, bool ownRecord = false);
 
-        bool writeEventToFile(std::shared_ptr<EvioNode> node, bool force = false,
+        bool writeEventToFile(std::shared_ptr<EvioNode> & node, bool force = false,
                               bool duplicate = true, bool ownRecord = false);
 
-        bool writeEventToFile(std::shared_ptr<ByteBuffer> bb, bool force = false,
+        bool writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force = false,
                               bool duplicate = true, bool ownRecord = false);
 
-        bool writeEvent(std::shared_ptr<ByteBuffer> bankBuffer, bool force = false , bool ownRecord = false);
+        bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force = false , bool ownRecord = false);
 
         bool writeEvent(std::shared_ptr<EvioBank> bank, bool force = false, bool ownRecord = false);
 

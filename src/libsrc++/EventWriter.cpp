@@ -455,7 +455,7 @@ namespace evio {
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @throws EvioException if buf arg is null
      */
-    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> buf, const std::string & xmlDictionary) :
+    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> & buf, const std::string & xmlDictionary) :
                 EventWriter(buf, 0, 0, xmlDictionary, 1,
                                 Compressor::CompressionType::UNCOMPRESSED) {
     }
@@ -484,7 +484,7 @@ namespace evio {
       *
       * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
       */
-    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> buf,
+    EventWriter::EventWriter(std::shared_ptr<ByteBuffer> & buf,
                              uint32_t maxRecordSize, uint32_t maxEventCount,
                              const std::string & xmlDictionary, uint32_t recordNumber,
                              Compressor::CompressionType compressionType, int eventType) {
@@ -551,7 +551,7 @@ namespace evio {
      * @param useCurrentBitInfo   regardless of bitInfo arg's value, use the
      *                            current value of bitInfo in the reinitialized buffer.
      */
-    void EventWriter::reInitializeBuffer(std::shared_ptr<ByteBuffer> buf,
+    void EventWriter::reInitializeBuffer(std::shared_ptr<ByteBuffer> & buf,
                                          const std::bitset<24> *bitInfo,
                                          uint32_t recNumber, bool useCurrentBitInfo) {
 
@@ -633,13 +633,10 @@ namespace evio {
      * @param bitInfo        set of bits to include in first record header.
      * @param recNumber      number at which to start record number counting.
      * @throws EvioException if this object was not closed prior to resetting the buffer,
-     *                       buffer arg is null, or writing to file.
+     *                       or writing to file.
      */
-    void EventWriter::setBuffer(std::shared_ptr<ByteBuffer> buf, std::bitset<24> *bitInfo, uint32_t recNumber) {
+    void EventWriter::setBuffer(std::shared_ptr<ByteBuffer> & buf, std::bitset<24> *bitInfo, uint32_t recNumber) {
         if (toFile) return;
-        if (buf == nullptr) {
-            throw EvioException("Buffer arg null");
-        }
         if (!closed) {
             throw EvioException("Close EventWriter before changing buffers");
         }
@@ -658,13 +655,10 @@ namespace evio {
      *
      * @param buf the buffer to write to.
      * @throws EvioException if this object was not closed prior to resetting the buffer,
-     *                       buffer arg is null, or writing to file.
+     *                       or writing to file.
      */
-    void EventWriter::setBuffer(std::shared_ptr<ByteBuffer> buf) {
+    void EventWriter::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         if (toFile) return;
-        if (buf == nullptr) {
-            throw EvioException("Buffer arg null");
-        }
         if (!closed) {
             throw EvioException("Close EventWriter before changing buffers");
         }
@@ -1745,7 +1739,7 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriter::writeEvent(std::shared_ptr<EvioNode> node, bool force, bool duplicate, bool ownRecord) {
+    bool EventWriter::writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate, bool ownRecord) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
         auto bb = node->getBuffer();
@@ -1816,7 +1810,7 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriter::writeEventToFile(std::shared_ptr<EvioNode> node, bool force,
+    bool EventWriter::writeEventToFile(std::shared_ptr<EvioNode> & node, bool force,
                                        bool duplicate, bool ownRecord) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
@@ -1888,7 +1882,7 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
-    bool EventWriter::writeEventToFile(std::shared_ptr<ByteBuffer> bb, bool force,
+    bool EventWriter::writeEventToFile(std::shared_ptr<ByteBuffer> & bb, bool force,
                                        bool duplicate, bool ownRecord) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
@@ -1945,7 +1939,7 @@ namespace evio {
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing.
      */
-    bool EventWriter::writeEvent(std::shared_ptr<ByteBuffer> bankBuffer, bool force, bool ownRecord) {
+    bool EventWriter::writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force, bool ownRecord) {
         return writeEvent(nullptr, bankBuffer, force, ownRecord);
     }
 
