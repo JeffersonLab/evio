@@ -166,7 +166,7 @@ namespace evio {
          * @param buf2 second buffer.
          * @return true if identical, else false.
          */
-        static bool compareByteBuffers(std::shared_ptr<ByteBuffer> buf1, std::shared_ptr<ByteBuffer> buf2) {
+        static bool compareByteBuffers(std::shared_ptr<ByteBuffer> & buf1, std::shared_ptr<ByteBuffer> & buf2) {
             if (buf1->remaining() != buf2->remaining()) {
                 std::cout << "compareByteBuffers: buffer data lengths differ, " << buf1->remaining() <<
                              " vs " << buf2->remaining() << std::endl;
