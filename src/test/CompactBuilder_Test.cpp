@@ -76,8 +76,8 @@ namespace evio {
                 }
                 else {
                     std::cout << "Found " << returnList.size() << " structs" << std::endl;
-                    for (auto node : returnList) {
-                        std::cout << "NODE: " << node->toString() << std::endl << std::endl;
+                    for (auto & node2 : returnList) {
+                        std::cout << "NODE: " << node2->toString() << std::endl << std::endl;
                     }
                 }
 
@@ -95,7 +95,7 @@ namespace evio {
                 }
                 else {
                     std::cout << "Using StructureFinder , found " << vec.size() << " structs" << std::endl;
-                    for (auto ev : vec) {
+                    for (auto & ev : vec) {
                         std::cout << "Struct: " << ev->toString() << std::endl << std::endl;
                     }
                 }
