@@ -98,7 +98,7 @@ namespace evio {
          * @return the matching DataType object.
          */
         static const DataType & getDataType(uint32_t val) {
-            if (val > 0x24 || (val > 0x10 && val < 0x20)) return UNKNOWN32;
+            if ((val != 0x30) && (val > 0x24 || (val > 0x10 && val < 0x20))) return UNKNOWN32;
             return intToType[val];
         }
 
@@ -108,7 +108,7 @@ namespace evio {
          * @return the name, or <code>null</code>.
          */
         static std::string getName(uint32_t val) {
-            if (val > 0x24 || (val > 0x10 && val < 0x20)) return "UNKNOWN32";
+            if ((val != 0x30) && (val > 0x24 || (val > 0x10 && val < 0x20))) return "UNKNOWN32";
             return getDataType(val).names[val];
         }
 
