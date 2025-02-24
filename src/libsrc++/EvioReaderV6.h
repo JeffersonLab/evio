@@ -72,7 +72,7 @@ namespace evio {
     public:
 
 
-        explicit EvioReaderV6(std::string const & path, bool checkRecNumSeq = false, bool synced = false);
+        explicit EvioReaderV6(std::string const & path, bool checkRecNumSeq = false, bool forceScan = true, bool synced = false);
         explicit EvioReaderV6(std::shared_ptr<ByteBuffer> byteBuffer, bool checkRecNumSeq = false, bool synced = false);
 
 

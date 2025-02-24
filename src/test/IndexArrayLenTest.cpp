@@ -189,7 +189,7 @@ namespace evio {
 
 
         void readFile() {
-            Reader reader(filename, true);
+            Reader reader(filename, false);
             ByteOrder order = reader.getByteOrder();
 
             uint32_t evCount = reader.getEventCount();

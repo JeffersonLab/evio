@@ -20,8 +20,9 @@ namespace evio {
      * @param path the full path to the file that contains events.
      * @param checkSeq if <code>true</code> check the record number sequence
      *                       and throw an exception if it is not sequential starting
-     *                       with 1
-     * @param synced if true, this class's methods are mutex protected for thread safety.
+     *                       with 1, defaults false.
+     * @param forceScan if true, force a scan of file, else use existing indexes first, defaults true,
+     * @param synced if true, this class's methods are mutex protected for thread safety, defaults false.
      *
      * @see EventWriter
      * @throws IOException   if read failure
@@ -29,12 +30,12 @@ namespace evio {
      *                       if file is too small to have valid evio format data
      *                       if first record number != 1 when checkRecNumSeq arg is true
      */
-    EvioReaderV6::EvioReaderV6(std::string const & path, bool checkSeq, bool synced) {
+    EvioReaderV6::EvioReaderV6(std::string const & path, bool checkSeq, bool forceScan, bool synced) {
         if (path.empty()) {
             throw EvioException("path is empty");
         }
         synchronized = synced;
-        reader = std::make_shared<Reader>(path);
+        reader = std::make_shared<Reader>(path, checkSeq, forceScan);
         parser = std::make_shared<EventParser>();
      }
 
@@ -45,8 +46,8 @@ namespace evio {
      * @param byteBuffer the buffer that contains events.
      * @param checkRecNumSeq if <code>true</code> check the record number sequence
      *                       and throw an exception if it is not sequential starting
-     *                       with 1
-     * @param synced if true, this class's methods are mutex protected for thread safety.
+     *                       with 1, defaults false.
+     * @param synced if true, this class's methods are mutex protected for thread safety, defaults false.
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
      *                       if first record number != 1 when checkRecNumSeq arg is true;
@@ -54,7 +55,7 @@ namespace evio {
      */
     EvioReaderV6::EvioReaderV6(std::shared_ptr<ByteBuffer> byteBuffer, bool checkRecNumSeq, bool synced) {
         synchronized = synced;
-        reader = std::make_shared<Reader>(byteBuffer);
+        reader = std::make_shared<Reader>(byteBuffer, checkRecNumSeq);
         parser = std::make_shared<EventParser>();
 
         if (!reader->isEvioFormat()) {

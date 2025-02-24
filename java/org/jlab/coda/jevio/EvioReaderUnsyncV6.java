@@ -125,7 +125,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
                                         throws EvioException, IOException {
 
         try {
-            reader = new Reader(file.getPath(), checkRecNumSeq);
+            reader = new Reader(file.getPath(), checkRecNumSeq, true);
             parser = new EventParser();
         }
         catch (HipoException e) {

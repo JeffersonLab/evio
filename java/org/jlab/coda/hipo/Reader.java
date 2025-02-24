@@ -369,7 +369,8 @@ public class Reader {
      * in file before scanning.
      * @param filename input file name.
      * @throws IOException   if error reading file
-     * @throws HipoException if file is not in the proper format or earlier than version 6
+     * @throws HipoException if file is not in the proper format or earlier than version 6;
+     *                       if checkRecordNumSeq is true and records are out of sequence.
      */
     public Reader(String filename) throws IOException, HipoException {
         open(filename, true);
@@ -379,11 +380,14 @@ public class Reader {
      * Constructor with filename. Creates instance and opens
      * the input stream with given name.
      * @param filename input file name.
+     * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
+     *                          if not throw exception. Only works if forceScan = true
      * @param forceScan if true, force a scan of file, else use existing indexes first.
      * @throws IOException   if error reading file
      * @throws HipoException if file is not in the proper format or earlier than version 6
      */
-    public Reader(String filename, boolean forceScan) throws IOException, HipoException {
+    public Reader(String filename, boolean checkRecordNumSeq, boolean forceScan) throws IOException, HipoException {
+        checkRecordNumberSequence = checkRecordNumSeq;
         open(filename, false);
         scanFile(forceScan);
     }
@@ -2391,7 +2395,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
      */
     public static void main(String[] args){
         try {
-            Reader reader = new Reader("/Users/gavalian/Work/Software/project-3a.0.0/Distribution/clas12-offline-software/coatjava/clas_000810_324.hipo",true);
+            Reader reader = new Reader("clas_000810_324.hipo", false, true);
 
             int icounter = 0;
             //reader.show();

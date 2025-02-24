@@ -39,11 +39,14 @@ namespace evio {
      * Constructor with filename. Creates instance and opens
      * the input stream with given name.
      * @param filename input file name.
+     * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
+     *                          if not throw exception. Only works if forceScan = true.
      * @param forceScan if true, force a scan of file, else use existing indexes first.
      * @throws IOException   if error reading file
      * @throws EvioException if file is not in the proper format or earlier than version 6
      */
-    Reader::Reader(std::string const & filename, bool forceScan) {
+    Reader::Reader(std::string const & filename, bool checkRecordNumSeq, bool forceScan) {
+        checkRecordNumberSequence = checkRecordNumSeq;
         open(filename, false);
         scanFile(forceScan);
     }

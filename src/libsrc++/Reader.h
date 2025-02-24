@@ -276,7 +276,7 @@ namespace evio {
 
         Reader();
         explicit Reader(std::string const & filename);
-        Reader(std::string const & filename, bool forceScan);
+        Reader(std::string const & filename, bool checkRecordNumSeq, bool forceScan = true);
         explicit Reader(std::shared_ptr<ByteBuffer> & buffer, bool checkRecordNumSeq = false);
 
         ~Reader() = default;
