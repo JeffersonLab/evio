@@ -218,9 +218,9 @@ namespace evio {
         header->setLength(wordLen);
 
         // Read and parse second header word
-        int word = Util::toInt(src + 4, order);
+        uint32_t word = Util::toInt(src + 4, order);
         header->setTag(word >> 16);
-        int dt = (word >> 8) & 0xff;
+        uint32_t dt = (word >> 8) & 0xff;
         header->setDataType(dt & 0x3f);
         header->setPadding(dt >> 6);
         header->setNumber(word & 0xff);
