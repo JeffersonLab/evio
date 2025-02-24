@@ -854,7 +854,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * data types will be returned as long arrays. The application will have to deal
      * with reinterpreting signed longs that are negative as unsigned longs.
 	 * 
-	 * @return the data as an long array, or <code>null</code> if this makes no sense for the given content type.
+	 * @return the data as a long array, or <code>null</code> if this makes no sense for the given content type.
 	 */
 	public long[] getLongData() {
 
@@ -880,7 +880,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * This is a method from the IEvioStructure Interface. Gets the raw data as a float array,
      * if the content type as indicated by the header is appropriate.
 	 * 
-	 * @return the data as an double array, or <code>null</code> if this makes no sense for the given contents type.
+	 * @return the data as a double array, or <code>null</code> if this makes no sense for the given contents type.
 	 */
 	public float[] getFloatData() {
 
@@ -905,7 +905,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * This is a method from the IEvioStructure Interface. Gets the raw data as a double array,
      * if the content type as indicated by the header is appropriate.
 	 * 
-	 * @return the data as an double array, or <code>null</code> if this makes no sense for the given content type.
+	 * @return the data as a double array, or <code>null</code> if this makes no sense for the given content type.
 	 */
 	public double[] getDoubleData() {
 
@@ -933,7 +933,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * data types will be returned as short arrays. The application will have to deal
      * with reinterpreting signed shorts that are negative as unsigned shorts.
 	 *
-	 * @return the data as an short array, or <code>null</code> if this makes no sense for the given contents type.
+	 * @return the data as a short array, or <code>null</code> if this makes no sense for the given contents type.
 	 */
 	public short[] getShortData() {
 
