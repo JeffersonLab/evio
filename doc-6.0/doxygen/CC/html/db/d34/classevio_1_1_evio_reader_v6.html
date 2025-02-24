@@ -112,9 +112,9 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad1926446c2ad9532a9a6489800078e77"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d34/classevio_1_1_evio_reader_v6.html#ad1926446c2ad9532a9a6489800078e77">EvioReaderV6</a> (std::string const &amp;path, bool checkRecNumSeq=false, bool synced=false)</td></tr>
-<tr class="memdesc:ad1926446c2ad9532a9a6489800078e77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading an event file.  <a href="../../db/d34/classevio_1_1_evio_reader_v6.html#ad1926446c2ad9532a9a6489800078e77">More...</a><br /></td></tr>
-<tr class="separator:ad1926446c2ad9532a9a6489800078e77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b7d14c79d1e25420b03ea6d04a7e768"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d34/classevio_1_1_evio_reader_v6.html#a2b7d14c79d1e25420b03ea6d04a7e768">EvioReaderV6</a> (std::string const &amp;path, bool checkRecNumSeq=false, bool forceScan=true, bool synced=false)</td></tr>
+<tr class="memdesc:a2b7d14c79d1e25420b03ea6d04a7e768"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading an event file.  <a href="../../db/d34/classevio_1_1_evio_reader_v6.html#a2b7d14c79d1e25420b03ea6d04a7e768">More...</a><br /></td></tr>
+<tr class="separator:a2b7d14c79d1e25420b03ea6d04a7e768"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac1ceed3aca21a7d2a912b597dc2d4964"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d34/classevio_1_1_evio_reader_v6.html#ac1ceed3aca21a7d2a912b597dc2d4964">EvioReaderV6</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; byteBuffer, bool checkRecNumSeq=false, bool synced=false)</td></tr>
 <tr class="memdesc:ac1ceed3aca21a7d2a912b597dc2d4964"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for reading a buffer.  <a href="../../db/d34/classevio_1_1_evio_reader_v6.html#ac1ceed3aca21a7d2a912b597dc2d4964">More...</a><br /></td></tr>
 <tr class="separator:ac1ceed3aca21a7d2a912b597dc2d4964"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -392,8 +392,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ad1926446c2ad9532a9a6489800078e77"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad1926446c2ad9532a9a6489800078e77">&#9670;&nbsp;</a></span>EvioReaderV6() <span class="overload">[1/2]</span></h2>
+<a id="a2b7d14c79d1e25420b03ea6d04a7e768"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b7d14c79d1e25420b03ea6d04a7e768">&#9670;&nbsp;</a></span>EvioReaderV6() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -412,6 +412,12 @@ Public Member Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>checkSeq</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>forceScan</em> = <code>true</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -436,8 +442,9 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>the full path to the file that contains events. </td></tr>
-    <tr><td class="paramname">checkSeq</td><td>if <code>true</code> check the record number sequence and throw an exception if it is not sequential starting with 1 </td></tr>
-    <tr><td class="paramname">synced</td><td>if true, this class's methods are mutex protected for thread safety.</td></tr>
+    <tr><td class="paramname">checkSeq</td><td>if <code>true</code> check the record number sequence and throw an exception if it is not sequential starting with 1, defaults false. </td></tr>
+    <tr><td class="paramname">forceScan</td><td>if true, force a scan of file, else use existing indexes first, defaults true, </td></tr>
+    <tr><td class="paramname">synced</td><td>if true, this class's methods are mutex protected for thread safety, defaults false.</td></tr>
   </table>
   </dd>
 </dl>
@@ -496,8 +503,8 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">byteBuffer</td><td>the buffer that contains events. </td></tr>
-    <tr><td class="paramname">checkRecNumSeq</td><td>if <code>true</code> check the record number sequence and throw an exception if it is not sequential starting with 1 </td></tr>
-    <tr><td class="paramname">synced</td><td>if true, this class's methods are mutex protected for thread safety. </td></tr>
+    <tr><td class="paramname">checkRecNumSeq</td><td>if <code>true</code> check the record number sequence and throw an exception if it is not sequential starting with 1, defaults false. </td></tr>
+    <tr><td class="paramname">synced</td><td>if true, this class's methods are mutex protected for thread safety, defaults false. </td></tr>
   </table>
   </dd>
 </dl>
