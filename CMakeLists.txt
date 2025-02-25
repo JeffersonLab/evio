@@ -193,6 +193,7 @@ set(TEST
         src/test/CompactBuilder_Test.cpp
         src/test/CompactReaderAddSubtractTest.cpp
         src/test/CompactReaderBugTest.cpp
+        src/test/CompositeTester.cpp
         src/test/EvioCompStructHandlerTest.cpp
         src/test/DictTest.cpp
         src/test/Hipo_Test.cpp
