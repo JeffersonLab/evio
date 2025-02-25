@@ -631,10 +631,10 @@ final public class Utilities {
         if (label != null) System.out.println(label + ":");
 
         for (int i = offset; i < limit; i++) {
-            if (i%20 == 0) {
+            if ((i - offset) %20 == 0) {
                 System.out.print("\n  array[" + (i + 1) + "-" + (i + 20) + "] =  ");
             }
-            else if (i%4 == 0) {
+            else if ((i-offset) %4 == 0) {
                 System.out.print("  ");
             }
 
