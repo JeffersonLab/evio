@@ -1805,8 +1805,8 @@ public final class CompositeData implements Cloneable {
      *                       if destBuffer too small;
      *                       if bad values for srcPos/destPos/len args;
      */
-    static void swapAll(ByteBuffer srcBuffer, ByteBuffer destBuffer,
-                        int srcPos, int destPos, int len, boolean inPlace)
+    public static void swapAll(ByteBuffer srcBuffer, ByteBuffer destBuffer,
+                               int srcPos, int destPos, int len, boolean inPlace)
                 throws EvioException {
 
         // Minimum size of 4 words for composite data
@@ -1837,8 +1837,11 @@ public final class CompositeData implements Cloneable {
             destPos += 4;
             dataOff += 4;
 
+            // String data length in bytes
+            byteLen = 4*node.dataLen;
+
             // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, 4*node.dataLen);
+            String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, byteLen);
 
             if (strs.length < 1) {
                 throw new EvioException("bad format string data");
@@ -1850,9 +1853,6 @@ public final class CompositeData implements Cloneable {
             if (formatInts.size() < 1) {
                 throw new EvioException("bad format string data");
             }
-
-            // String data length in bytes
-            byteLen = 4*node.dataLen;
 
             // Char data does not get swapped but needs
             // to be copied if not swapping in place.
