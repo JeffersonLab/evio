@@ -21,7 +21,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9,"i2":9,"i3":9,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":9,"i27":10,"i28":10,"i29":9,"i30":10,"i31":9,"i32":9,"i33":9,"i34":9,"i35":10,"i36":10,"i37":10,"i38":10};
+var methods = {"i0":10,"i1":9,"i2":9,"i3":9,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":9,"i27":10,"i28":10,"i29":9,"i30":10,"i31":9,"i32":9,"i33":9,"i34":9,"i35":9,"i36":10,"i37":10,"i38":10,"i39":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -414,6 +414,18 @@ implements java.lang.Cloneable</pre>
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#swapAll-java.nio.ByteBuffer-java.nio.ByteBuffer-int-int-int-boolean-">swapAll</a></span>(java.nio.ByteBuffer&nbsp;srcBuffer,
+       java.nio.ByteBuffer&nbsp;destBuffer,
+       int&nbsp;srcPos,
+       int&nbsp;destPos,
+       int&nbsp;len,
+       boolean&nbsp;inPlace)</code>
+<div class="block">This method converts (swaps) a buffer, containing EVIO composite type,
+ between big and little endian.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#swapData-byte:A-int-byte:A-int-int-java.util.List-java.nio.ByteOrder-">swapData</a></span>(byte[]&nbsp;src,
         int&nbsp;srcOff,
         byte[]&nbsp;dest,
@@ -425,7 +437,7 @@ implements java.lang.Cloneable</pre>
  between IEEE (big endian) and DECS (little endian).</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#swapData-java.nio.ByteBuffer-java.nio.ByteBuffer-int-int-int-java.util.List-">swapData</a></span>(java.nio.ByteBuffer&nbsp;srcBuf,
         java.nio.ByteBuffer&nbsp;destBuf,
@@ -437,7 +449,7 @@ implements java.lang.Cloneable</pre>
  between Big endian and Little endian.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#swapData-java.nio.ByteBuffer-java.nio.ByteBuffer-int-java.util.List-">swapData</a></span>(java.nio.ByteBuffer&nbsp;srcBuf,
         java.nio.ByteBuffer&nbsp;destBuf,
@@ -447,13 +459,13 @@ implements java.lang.Cloneable</pre>
  between Big endian and Little endian.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#toString--">toString</a></span>()</code>
 <div class="block">Obtain a string representation of the composite data.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#toString-boolean-">toString</a></span>(boolean&nbsp;hex)</code>
 <div class="block">This method returns a string representation of this CompositeData object
@@ -461,13 +473,13 @@ implements java.lang.Cloneable</pre>
  gui.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#toString-java.lang.String-">toString</a></span>(java.lang.String&nbsp;indent)</code>
 <div class="block">Obtain a string representation of the composite data.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/CompositeData.html#toXML-boolean-">toXML</a></span>(boolean&nbsp;hex)</code>
 <div class="block">This method returns an xml string representation of this CompositeData object.</div>
@@ -1109,6 +1121,39 @@ implements java.lang.Cloneable</pre>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if offsets &lt; 0; if length &lt; 4; if src = null;
                        if src or dest is too small</dd>
+</dl>
+</li>
+</ul>
+<a name="swapAll-java.nio.ByteBuffer-java.nio.ByteBuffer-int-int-int-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>swapAll</h4>
+<pre>public static&nbsp;void&nbsp;swapAll(java.nio.ByteBuffer&nbsp;srcBuffer,
+                           java.nio.ByteBuffer&nbsp;destBuffer,
+                           int&nbsp;srcPos,
+                           int&nbsp;destPos,
+                           int&nbsp;len,
+                           boolean&nbsp;inPlace)
+                    throws <a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></pre>
+<div class="block">This method converts (swaps) a buffer, containing EVIO composite type,
+ between big and little endian. It swaps the entire type including the beginning
+ tagsegment header, the following format string it contains, the data's bank header,
+ and finally the data itself. The src buffer may contain an array of
+ composite type items and all will be swapped.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>srcBuffer</code> - source data buffer</dd>
+<dd><code>destBuffer</code> - destination data buffer</dd>
+<dd><code>srcPos</code> - position in srcBuffer to beginning swapping</dd>
+<dd><code>destPos</code> - position in destBuffer to beginning writing swapped data</dd>
+<dd><code>len</code> - length of data in srcBuffer to swap in 32 bit words</dd>
+<dd><code>inPlace</code> - if true, swap in place.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../org/jlab/coda/jevio/EvioException.html" title="class in org.jlab.coda.jevio">EvioException</a></code> - if srcBuffer not in evio format;
+                       if destBuffer too small;
+                       if bad values for srcPos/destPos/len args;</dd>
 </dl>
 </li>
 </ul>
