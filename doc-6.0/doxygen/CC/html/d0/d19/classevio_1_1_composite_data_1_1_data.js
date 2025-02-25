@@ -26,6 +26,8 @@ var classevio_1_1_composite_data_1_1_data =
     [ "addULong", "d0/d19/classevio_1_1_composite_data_1_1_data.html#a02d778e9b3758affc79cc9bfdfd58dcb", null ],
     [ "addUShort", "d0/d19/classevio_1_1_composite_data_1_1_data.html#aad70fba88e2fce2d37994adf9d29beb3", null ],
     [ "addUShort", "d0/d19/classevio_1_1_composite_data_1_1_data.html#a72acfda240c05c1e3f605e0b85c30bd6", null ],
+    [ "clear", "d0/d19/classevio_1_1_composite_data_1_1_data.html#ad5c90dc2a50bf88a5703a8b3d40962f6", null ],
+    [ "copy", "d0/d19/classevio_1_1_composite_data_1_1_data.html#a3cc320000b117dd04140104b2f33f267", null ],
     [ "getDataNum", "d0/d19/classevio_1_1_composite_data_1_1_data.html#a8a2db4b4c298d9b88758c1fdf1b9f7bd", null ],
     [ "getDataSize", "d0/d19/classevio_1_1_composite_data_1_1_data.html#a809475107cba9005b4a4e0dd368b0db1", null ],
     [ "getDataTag", "d0/d19/classevio_1_1_composite_data_1_1_data.html#a692d646297c885383613c7bc233f7131", null ],
