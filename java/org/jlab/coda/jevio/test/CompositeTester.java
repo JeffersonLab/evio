@@ -21,7 +21,7 @@ public class CompositeTester {
 
 
     /** For testing only */
-    public static void main6(String args[]) {
+    public static void test1() {
 
 
         int[] bank = new int[24];
@@ -32,6 +32,7 @@ public class CompositeTester {
         bank[0] = 23;                       // bank length
         bank[1] = 6 << 16 | 0xF << 8 | 3;   // tag = 6, bank contains composite type, num = 3
 
+        // Here follows the actual CompositeData element stored in the bank
 
         // N(I,D,F,2S,8a)
         // first part of composite type (for format) = tagseg (tag & type ignored, len used)
@@ -77,6 +78,8 @@ public class CompositeTester {
         String format = "N(I,D,F,2S,8a)";
 
         try {
+            System.out.println("\n_________ TEST 1 _________\n");
+
             // change int array into byte array
             byte[] byteArray = ByteDataTransformer.toBytes(allData, ByteOrder.BIG_ENDIAN);
 
@@ -84,33 +87,26 @@ public class CompositeTester {
             ByteBuffer buf = ByteBuffer.wrap(byteArray);
             buf.order(ByteOrder.BIG_ENDIAN);
 
-            // swap
-System.out.println("CALL CompositeData.swapAll()");
-            CompositeData.swapAll(byteArray, 0, null, 0, allData.length, ByteOrder.BIG_ENDIAN);
 
-            // print swapped data
-            System.out.println("SWAPPED DATA:");
+            // print double swapped data
+            System.out.println("ORIGINAL DATA:");
             IntBuffer iBuf = buf.asIntBuffer();
             for (int i=0; i < allData.length; i++) {
                 System.out.println("     0x"+Integer.toHexString(iBuf.get(i)));
             }
             System.out.println();
 
+            // swap
+System.out.println("CALL CompositeData.swapAll()");
+            CompositeData.swapAll(byteArray, 0, null, 0, allData.length, ByteOrder.BIG_ENDIAN);
 
-
-//            // Create composite object
-//System.out.println("Call CompositeData()");
-//            CompositeData cData2 = new CompositeData(byteArray, ByteOrder.BIG_ENDIAN);
-
-//            // print swapped data
-//            System.out.println("After making CompositeData object DATA:");
-//            buf = ByteBuffer.wrap(byteArray);
-//            buf.order(ByteOrder.BIG_ENDIAN);
-//            iBuf = buf.asIntBuffer();
-//            for (int i=0; i < allData.length; i++) {
-//                System.out.println("     0x"+Integer.toHexString(iBuf.get(i)));
-//            }
-//            System.out.println();
+            // print swapped data
+            System.out.println("SWAPPED DATA:");
+            //iBuf = buf.asIntBuffer();
+            for (int i=0; i < allData.length; i++) {
+                System.out.println("     0x"+Integer.toHexString(iBuf.get(i)));
+            }
+            System.out.println();
 
 
             // swap again
@@ -135,26 +131,27 @@ System.out.println("Call CompositeData.swapAll()");
             }
             System.out.println("good swap = " + goodSwap);
 
-
             // Create composite object
             CompositeData cData = new CompositeData(byteArray, ByteOrder.BIG_ENDIAN);
-            System.out.println("cData object = " + cData + "\n\n");
+            System.out.println("cData object = " + cData.toString() + "\n\n");
 
             // print out general data
+            System.out.println("format = " + format);
             printCompositeDataObject(cData);
 
             // use alternative method to print out
-//            cData.index(0);
-//            System.out.println("\nInt    = 0x" + Integer.toHexString(cData.getInt()));
-//            System.out.println("Double = " + cData.getDouble());
-//            System.out.println("Float  = " + cData.getFloat());
-//            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
-//            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
-//            String[] strs = cData.getStrings();
-//            for (String s : strs) System.out.println("String = " + s);
+            cData.index(0);
+            System.out.println("\nNvalue = 0x" + Integer.toHexString(cData.getNValue()));
+            System.out.println("Int    = 0x" + Integer.toHexString(cData.getInt()));
+            System.out.println("Double = " + cData.getDouble());
+            System.out.println("Float  = " + cData.getFloat());
+            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
+            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
+            String[] strs = cData.getStrings();
+            for (String s : strs) System.out.println("String = " + s);
 
             // use toString() method to print out
-//            System.out.println("\ntoXmlString =\n" + cData.toXMLString("     ", true));
+            System.out.println("\ntoXmlString =\n" + cData.toXML(true));
 
         }
         catch (EvioException e) {
@@ -168,27 +165,98 @@ System.out.println("Call CompositeData.swapAll()");
      * Simple example of providing a format string and some data
      * in order to create a CompositeData object.
      */
-    public static void main1(String args[]) {
+    public static void test2() {
 
         // Create a CompositeData object ...
+        System.out.println("\n_________ TEST 2 _________\n");
+
+
+
+
+//        // Format to write an int and a string
+//        // To get the right format code for the string, use a helper method.
+//        // String can be at most 10 characters long, since when converted to
+//        // evio format, this will take 12 chars (max from composite data lib/rule is 15).
+//        String myString = "stringWhic";
+//        String stringFormat = CompositeData.stringsToFormat(new String[] {myString});
+//
+//        // Put the 2 formats together
+//        String format = "I," + stringFormat;
+//
+//        System.out.println("format = " + format);
+//
+//        // Now create some data
+//        CompositeData.Data myData = new CompositeData.Data();
+//        myData.addInt(2);
+//        // Underneath, the string is converted to evio format for string array
+//        myData.addString(myString);
+
+
 
         // Format to write an int and a string
-        // To get the right format code for the string, use a helper method
-        String myString = "string";
-        String stringFormat = CompositeData.stringsToFormat(new String[] {myString});
+        // To get the right format code for the string, use a helper method.
+        // All Strings together (including 1 between each element of array)
+        // can be at most 10 characters long, since when converted to
+        // evio format, this will take 12 chars (max from composite data lib/rule is 15).
+        String myString1 = "st1__";
+        String myString2 = "st2_";
+        String[] both = new String[2];
+        both[0] = myString1;
+        both[1] = myString2;
+        String stringFormat = CompositeData.stringsToFormat(both);
 
         // Put the 2 formats together
         String format = "I," + stringFormat;
 
+        System.out.println("Array of two strings:\n");
         System.out.println("format = " + format);
 
         // Now create some data
         CompositeData.Data myData = new CompositeData.Data();
         myData.addInt(2);
-        myData.addString(myString);
+        // Underneath, the string is converted to evio format for string array
+        myData.addString(both);
 
         // Create CompositeData object
         CompositeData cData = null;
+        try {
+            cData = new CompositeData(format, 1, myData, 0 ,0,
+                    ByteOrder.BIG_ENDIAN);
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        // Print it out
+        printCompositeDataObject(cData);
+
+
+        // Format to write an int and a string
+        // To get the right format code for the string, use a helper method.
+        // An array of strings, when treated as a single item
+        // in the format, can be at most 10 characters long.
+        // To get around this restriction, each string must be
+        // treated as its own entry in the format when.
+        myString1 = "stringOf10";
+        myString2 = "another_10";
+        String stringFormat1 = CompositeData.stringsToFormat(new String[] {myString1});
+        String stringFormat2 = CompositeData.stringsToFormat(new String[] {myString2});
+
+        // Put the 2 formats together
+        format = "I," + stringFormat1 + "," + stringFormat2;
+
+        System.out.println("\n\nTwo strings separately:\n");
+        System.out.println("format = " + format);
+
+        // Now create some data
+        myData = new CompositeData.Data();
+        myData.addInt(2);
+        // Underneath, the string is converted to evio format for string array
+        myData.addString(myString1);
+        myData.addString(myString2);
+
+        // Create CompositeData object
         try {
             cData = new CompositeData(format, 1, myData, 0 ,0,
                     ByteOrder.BIG_ENDIAN);
@@ -207,86 +275,195 @@ System.out.println("Call CompositeData.swapAll()");
      * More complicated example of providing a format string and some data
      * in order to create a CompositeData object.
      */
-    public static void main2(String args[]) {
+    public static void test3() {
 
+        System.out.println("\n_________ TEST 3 _________\n");
         // Create a CompositeData object ...
 
-        // Format to write a N shorts, 1 float, 1 double a total of N times
-        String format = "N(NS,F,D)";
+        // Format to write a m shorts, 1 float, 1 double a total of N times
+        String format = "N(mS,F,D)";
 
         System.out.println("format = " + format);
 
-        // Now create some data
+        // Now create some data (in the proper order!)
+        // This has a padding of 2 bytes.
         CompositeData.Data myData = new CompositeData.Data();
         myData.addN(2);
-        myData.addN(3);
-        myData.addShort(new short[] {1,2,3}); // use array for convenience
+        myData.addm((byte)1);
+        myData.addShort(new short[] {1}); // use array for convenience
         myData.addFloat(1.0F);
         myData.addDouble(Math.PI);
-        myData.addN(1);
+        myData.addm((byte)1);
         myData.addShort((short)4); // use array for convenience
         myData.addFloat(2.0F);
         myData.addDouble(2.*Math.PI);
 
-        // Note: N's do not needed to be added in sync with the other data.
-        // In other words, one could do:
-        // myData.addN(2);
-        // myData.addN(3);
-        // myData.addN(1);
-        // myData.addShort(new short[] {1,2,3}); ... etc.
-        //
-        // or
-        //
-        // myData.addN(new int[] {2,3,1});
-        // myData.addShort(new short[] {1,2,3}); ... etc.
-        //
-
-
         // Create CompositeData object
         CompositeData cData = null;
         try {
-            cData = new CompositeData(format, 1, myData, 0 ,0,
-                    ByteOrder.BIG_ENDIAN);
+            cData = new CompositeData(format, 1, myData, 1 ,0,
+                    ByteOrder.LITTLE_ENDIAN);
         }
         catch (EvioException e) {
             e.printStackTrace();
             System.exit(-1);
         }
 
+
+
+        // Now create more data
+        // This has a padding of 3 bytes.
+        CompositeData.Data myData2 = new CompositeData.Data();
+        myData2.addN(1);
+        myData2.addm((byte)2);
+        myData2.addShort(new short[] {1,2}); // use array for convenience
+        myData2.addFloat(1.0F);
+        myData2.addDouble(Math.PI);
+
+        // Create CompositeData object
+        CompositeData cData2 = null;
+        try {
+            cData2 = new CompositeData(format, 2, myData2, 2 ,0,
+                    ByteOrder.LITTLE_ENDIAN);
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+
+        String format3 = "N(NS,F,D)";
+
+        System.out.println("format3 = " + format3);
+
+        // Now create more data
+        // This has a padding of 3 bytes.
+        CompositeData.Data myData3 = new CompositeData.Data();
+        myData3.addN(1);
+        myData3.addN((byte)2);
+        myData3.addShort(new short[] {1,2}); // use array for convenience
+        myData3.addFloat(1.0F);
+        myData3.addDouble(Math.PI);
+
+        // Create CompositeData object
+        CompositeData cData3 = null;
+        try {
+            cData3 = new CompositeData(format3, 3, myData3, 3 ,0,
+                    ByteOrder.LITTLE_ENDIAN);
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+
         // Print it out
+        System.out.println("1st composite data item:");
         printCompositeDataObject(cData);
+//        System.out.println("\n2nd composite data item:");
+//        printCompositeDataObject(cData2);
+        System.out.println("\n3rd composite data item:");
+        printCompositeDataObject(cData2);
 
         try {
             EvioEvent ev = new EvioEvent(0, DataType.COMPOSITE, 0);
-            ev.appendCompositeData(new CompositeData[] {cData});
+            // This MUST BE THE SAME ENDIAN as EventWriter!
+            ev.setByteOrder(ByteOrder.BIG_ENDIAN);
+            ev.appendCompositeData(new CompositeData[] {cData,cData2});
+
+            System.out.println("\nDOUBLE SWAP:");
+            byte[] src = ev.getRawBytes();
+            if (src == null) {
+                System.out.println("raw bytes is NULL !!! ");
+            }
+            else {
+                int srcLen = src.length;
+                byte[] srcOrig = new byte[srcLen];
+                System.arraycopy(src, 0, srcOrig, 0, srcLen);
+                byte[] dest = new byte[srcLen];
+
+                // Both methods below are tested and work
+                if (true) {
+                    ByteBuffer srcOrigBuffer = ByteBuffer.wrap(srcOrig);
+                    srcOrigBuffer.order(ByteOrder.BIG_ENDIAN);
+                    ByteBuffer destBuffer = ByteBuffer.wrap(dest);
+                    destBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                    System.out.println("swap #1 buffer");
+                    CompositeData.swapAll(srcOrigBuffer, destBuffer,
+                            0, 0, srcLen/4, false);
+
+                    System.out.println("swap #2 buffer");
+                    CompositeData.swapAll(destBuffer, srcOrigBuffer,
+                            0, 0, srcLen/4, false);
+                }
+                else {
+                    ByteOrder origOrder = ev.getByteOrder();
+                    ByteOrder swappedOrder = origOrder == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+                    System.out.println("swap #1");
+                    CompositeData.swapAll(src, 0, dest, 0, srcLen / 4, ev.getByteOrder());
+                    System.out.println("swap #2");
+                    CompositeData.swapAll(dest, 0, src, 0, srcLen / 4, swappedOrder);
+                }
+
+                for (int i = 0; i < srcLen; i++) {
+                    if (src[i] != srcOrig[i]) {
+                        System.out.println("Double swapped item is different at pos " + i);
+                    }
+                }
+                System.out.println("DOUBLE SWAP DONE");
+
+            }
+
+            // An event containing composite data types should never have padding != 0.
+            // This is because the composite type is tagseg followed by a bank, both of
+            // which are defined to end on 4 byte boundaries. However, the tagseg and bank of a
+            // single Composite data item each may have a padding that is != 0.
+            // In this case, the composite data is defined so it is NOT an integral # of words.
+
+            System.out.println("\n\nEvent containing comp data is " + ev.getTotalBytes() +
+                               " bytes, padding = " + ev.getHeader().getPadding());
 
             // Write it to this file
             String fileName  = "./composite.dat";
 
-            EventWriter writer = new EventWriter(fileName);
+            System.out.println("\nWrite above Composite data to file\n");
+            EventWriter writer = new EventWriter(fileName, false, ByteOrder.LITTLE_ENDIAN);
             writer.writeEvent(ev);
             writer.close();
+
+            System.out.println("Read file and print\n");
+            EvioReader reader = new EvioReader(fileName);
+            EvioEvent evR = reader.parseNextEvent();
+            BaseStructureHeader h = evR.getHeader();
+            System.out.println("event: tag = " + h.getTag() +
+                    ", type = " + h.getDataTypeName() + ", len = " + h.getLength());
+            if (evR != null) {
+                CompositeData[] cDataR = evR.getCompositeData();
+                for (CompositeData cd : cDataR) {
+                    System.out.println("\nCD: \n");
+                            printCompositeDataObject(cd);
+                }
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
+
+
 
 
     /**
      * More complicated example of providing a format string and some data
      * in order to create a CompositeData object.
      */
-    public static void main(String args[]) {
+    public static void test4() {
 
-        // Create a CompositeData object ...
-        System.out.println("NEWWWWWWWWWWWWWWWWW");
+        System.out.println("\n_________ TEST 4 _________\n");
+
 
         // Format to write 1 int and 1 float a total of N times
         String format = "N(I,F)";
-
 System.out.println("format = " + format);
 
         // Now create some data
@@ -308,7 +485,7 @@ System.out.println("format = " + format);
         myData3.addFloat(3.0F);
 
 
-System.out.println("Create composite data objects");
+System.out.println("Create 3 composite data objects");
 
         // Create CompositeData object
         CompositeData[] cData = new CompositeData[3];
@@ -326,20 +503,21 @@ System.out.println("Create composite data objects");
         }
 
         // Print it out
-        System.out.println("Print composite data objects");
+        System.out.println("Print 3 composite data objects");
         printCompositeDataObject(cData[0]);
         printCompositeDataObject(cData[1]);
         printCompositeDataObject(cData[2]);
 
-        System.out.println("Print composite data object 1:\n");
+        System.out.println("  composite data object 1:\n");
         Utilities.printBytes(cData[0].getRawBytes(), 0, cData[0].getRawBytes().length, "RawBytes 1");
-        System.out.println("Print composite data object 2:\n");
+        System.out.println("  composite data object 2:\n");
         Utilities.printBytes(cData[1].getRawBytes(), 0, cData[1].getRawBytes().length, "RawBytes 2");
-        System.out.println("Print composite data object 3:\n");
+        System.out.println("  composite data object 3:\n");
         Utilities.printBytes(cData[2].getRawBytes(), 0, cData[2].getRawBytes().length, "RawBytes 3");
 
         try {
             EvioEvent ev = new EvioEvent(0, DataType.COMPOSITE, 0);
+            ev.setByteOrder(ByteOrder.BIG_ENDIAN);
             ev.appendCompositeData(cData);
 
             System.out.println("Print event raw bytes of composite array:\n");
@@ -374,48 +552,28 @@ System.out.println("READ FILE & PRINT CONTENTS:");
         catch (Exception e) {
             e.printStackTrace();
         }
-
-
-    }
-
-
-
-
-    /** For testing only */
-    public static void main666(String args[]) {
-
-        //create an event writer to write out the test events.
-        String fileName  = "/home/timmer/evioTestFiles/clas_004604.evio.00000";
-
-        File fileIn = new File(fileName);
-        System.out.println("read ev file: " + fileName + " size: " + fileIn.length());
-
-        try {
-            EvioReader evioReader = new EvioReader(fileName);
-            EvioEvent ev;
-            int eventNum = 1;
-            while ( (ev = evioReader.parseNextEvent()) != null) {
-                System.out.println("\nEVENT: number " + (eventNum++) + " (starting at 1)");
-                System.out.println("-->:\n" + ev.toXML());
-                System.out.println("\n\n");
-            }
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 
     /**
-     * Print the data from a CompositeData object in a user-friendly form.
-     * @param cData CompositeData object
+     * More complicated example of providing a format string and some data
+     * in order to create a CompositeData object.
      */
+    public static void main(String args[]) {
+        test1();
+        test2();
+        test3();
+        test4();
+    }
+
+
+
+        /**
+         * Print the data from a CompositeData object in a user-friendly form.
+         * @param cData CompositeData object
+         */
     public static void printCompositeDataObject(CompositeData cData) {
 
-System.out.print("printCompositeDataObject: IN");
         // Get lists of data items & their types from composite data object
         List<Object> items = cData.getItems();
         List<DataType> types = cData.getTypes();
@@ -423,6 +581,7 @@ System.out.print("printCompositeDataObject: IN");
         // Use these list to print out data of unknown format
         DataType type;
         int len = items.size();
+
         for (int i=0; i < len; i++) {
             type =  types.get(i);
             System.out.print(String.format("type = %9s, val = ", type));
@@ -431,19 +590,21 @@ System.out.print("printCompositeDataObject: IN");
                 case INT32:
                 case UINT32:
                 case UNKNOWN32:
-                    int j = (Integer)items.get(i);
-                    System.out.println("0x"+Integer.toHexString(j));
+                    int k = (Integer)items.get(i);
+                    System.out.println("0x"+Integer.toHexString(k));
                     break;
                 case LONG64:
                 case ULONG64:
                     long l = (Long)items.get(i);
                     System.out.println("0x"+Long.toHexString(l));
                     break;
+                case nVALUE:
                 case SHORT16:
                 case USHORT16:
                     short s = (Short)items.get(i);
                     System.out.println("0x"+Integer.toHexString(s));
                     break;
+                case mVALUE:
                 case CHAR8:
                 case UCHAR8:
                     byte b = (Byte)items.get(i);
@@ -459,15 +620,17 @@ System.out.print("printCompositeDataObject: IN");
                     break;
                 case CHARSTAR8:
                     String[] strs = (String[])items.get(i);
-                    for (String ss : strs) {
-                        System.out.print(ss + ", ");
+                    for (int j = 0; j < strs.length; j++) {
+                        System.out.print(strs[j]);
+                        if (j < strs.length - 1) {
+                            System.out.print(", ");
+                        }
                     }
                     System.out.println();
                     break;
                 default:
             }
         }
-
     }
 
 
