@@ -252,6 +252,61 @@ namespace evio {
             }
 
         public:
+
+            /** Clear all existing data in this object to prepare for reuse. */
+            void clear() {
+                dataBytes = 0;
+                paddingBytes = 0;
+
+                dataItems.clear();
+                dataTypes.clear();
+                Nlist.clear();
+                nlist.clear();
+                mlist.clear();
+
+                formatTag = 0;
+                dataTag = 0;
+                dataNum = 0;
+            }
+
+            /**
+             * Copy data from another object.
+             * @param dataToCopy object to copy.
+             */
+            void copy(Data & dataToCopy) {
+                dataBytes = dataToCopy.dataBytes;
+                paddingBytes = dataToCopy.paddingBytes;
+                formatTag = dataToCopy.formatTag;
+                dataTag = dataToCopy.dataTag;
+                dataNum = dataToCopy.dataNum;
+
+                dataItems.clear();
+                if (!dataToCopy.dataItems.empty()) {
+                    dataItems = dataToCopy.dataItems;
+                }
+
+                dataTypes.clear();
+                if (!dataToCopy.dataTypes.empty()) {
+                    dataTypes = dataToCopy.dataTypes;
+                }
+
+                Nlist.clear();
+                if (!dataToCopy.Nlist.empty()) {
+                    Nlist = dataToCopy.Nlist;
+                }
+
+                nlist.clear();
+                if (!dataToCopy.nlist.empty()) {
+                    nlist = dataToCopy.nlist;
+                }
+
+                mlist.clear();
+                if (!dataToCopy.mlist.empty()) {
+                    mlist = dataToCopy.mlist;
+                }
+            }
+
+
             /**
              * This method sets the tag in the segment containing the format string.
              * @param tag tag in segment containing the format string.
@@ -308,9 +363,9 @@ namespace evio {
             void addN(int32_t N) {
                 Nlist.push_back(N);
                 DataItem mem;
-                mem.item.ui32 = N;
+                mem.item.i32 = N;
                 dataItems.push_back(mem);
-                dataTypes.push_back(DataType::UINT32);
+                dataTypes.push_back(DataType::NVALUE);
                 addBytesToData(4);
             }
 
@@ -322,9 +377,9 @@ namespace evio {
             void addn(int16_t n) {
                 nlist.push_back(n);
                 DataItem mem;
-                mem.item.us16 = n;
+                mem.item.s16 = n;
                 dataItems.push_back(mem);
-                dataTypes.push_back(DataType::USHORT16);
+                dataTypes.push_back(DataType::nVALUE);
                 addBytesToData(2);
             }
 
@@ -336,9 +391,9 @@ namespace evio {
             void addm(int8_t m) {
                 mlist.push_back(m);
                 DataItem mem;
-                mem.item.ub8 = m;
+                mem.item.b8 = m;
                 dataItems.push_back(mem);
-                dataTypes.push_back(DataType::UCHAR8);
+                dataTypes.push_back(DataType::mVALUE);
                 addBytesToData(1);
             }
 
@@ -731,6 +786,9 @@ namespace evio {
                                                           ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
         static std::shared_ptr<CompositeData> getInstance(ByteBuffer & bytes);
+
+
+
 
         static void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
                           std::vector<std::shared_ptr<CompositeData>> & list);

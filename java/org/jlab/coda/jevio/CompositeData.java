@@ -456,7 +456,8 @@ public final class CompositeData implements Cloneable {
 
             if (debug) {
                 System.out.println("    tagseg: type = " + cd.tsHeader.getDataType() +
-                                    ", tag = " + cd.tsHeader.getTag() + ", len = " + cd.tsHeader.getLength());
+                                    ", tag = " + cd.tsHeader.getTag() +
+                                    ", len = " + cd.tsHeader.getLength());
             }
 
             // Hop over tagseg header
@@ -510,8 +511,9 @@ public final class CompositeData implements Cloneable {
             }
 
             // Make copy of only the rawbytes for this CompositeData object (including padding)
-            cd.rawBytes = new byte[byteCount];
-            System.arraycopy(rawBytes, rawBytesOffset, cd.rawBytes, 0, byteCount);
+            cd.rawBytes = new byte[byteCount - cd.dataPadding];
+            System.arraycopy(rawBytes, rawBytesOffset, cd.rawBytes,
+                    0, byteCount-cd.dataPadding);
 
             // Put only actual data into ByteBuffer object
             cd.dataBuffer = ByteBuffer.wrap(cd.rawBytes, 4*cd.dataOffset, cd.dataBytes).slice();
@@ -576,11 +578,11 @@ public final class CompositeData implements Cloneable {
             len = cd.getRawBytes().length;
             if (cd.byteOrder != order) {
                 // This CompositeData object has a rawBytes array of the wrong byte order, so swap it
-//System.out.println("CompositeData::generateRawBytes call swapAll(), data in " + cd.byteOrder);
+//System.out.println("CompositeData.generateRawBytes: call swapAll(), data in " + cd.byteOrder);
                 swapAll(cd.getRawBytes(), 0, rawBytes, offset, len/4, cd.byteOrder);
             }
             else {
-//System.out.println("CompositeData::generateRawBytes call arraycopy()");
+//System.out.println("CompositeData.generateRawBytes: call arraycopy()");
                 System.arraycopy(cd.getRawBytes(), 0, rawBytes, offset, len);
             }
             offset += len;
@@ -836,7 +838,7 @@ public final class CompositeData implements Cloneable {
         synchronized public void addN(int N) {
             Nlist.add(N);
             dataItems.add(N);
-            dataTypes.add(DataType.INT32);
+            dataTypes.add(DataType.NVALUE);
             addBytesToData(4);
         }
 
@@ -848,7 +850,7 @@ public final class CompositeData implements Cloneable {
         synchronized public void addn(short n) {
             nlist.add(n);
             dataItems.add(n);
-            dataTypes.add(DataType.SHORT16);
+            dataTypes.add(DataType.nVALUE);
             addBytesToData(2);
         }
 
@@ -860,7 +862,7 @@ public final class CompositeData implements Cloneable {
         synchronized public void addm(byte m) {
             mlist.add(m);
             dataItems.add(m);
-            dataTypes.add(DataType.CHAR8);
+            dataTypes.add(DataType.mVALUE);
             addBytesToData(1);
         }
 
@@ -1768,11 +1770,11 @@ public final class CompositeData implements Cloneable {
             swapData(srcBuffer, destBuffer, dataLength, formatInts);
 
             // Set buffer positions and offset
-            dataOff += dataLength;
+            dataOff += dataLength + padding;
             srcBuffer.position( srcOff + dataOff);
             destBuffer.position(srcOff + dataOff);
 
-            srcBytesLeft = totalBytes - (dataOff + padding);
+            srcBytesLeft = totalBytes - dataOff;
 
 //System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOff + ", padding = " + padding);
 //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
@@ -1831,8 +1833,8 @@ public final class CompositeData implements Cloneable {
             ByteDataTransformer.swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
             // Move to beginning of string data
-            srcPos     += 4;
-            destPos    += 4;
+            srcPos  += 4;
+            destPos += 4;
             dataOff += 4;
 
             // Read the format string it contains
@@ -1861,8 +1863,8 @@ public final class CompositeData implements Cloneable {
             }
 
             // Move to beginning of bank header
-            srcPos     += byteLen;
-            destPos    += byteLen;
+            srcPos  += byteLen;
+            destPos += byteLen;
             dataOff += byteLen;
 
             // Read & swap data bank header
@@ -1874,8 +1876,8 @@ public final class CompositeData implements Cloneable {
             }
 
             // Move to beginning of bank data
-            srcPos     += 8;
-            destPos    += 8;
+            srcPos  += 8;
+            destPos += 8;
             dataOff += 8;
 
             // Bank data length in bytes
@@ -1885,8 +1887,8 @@ public final class CompositeData implements Cloneable {
             swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), formatInts);
 
             // Move past bank data
-            srcPos       += byteLen;
-            destPos      += byteLen;
+            srcPos    += byteLen;
+            destPos   += byteLen;
             dataOff   += byteLen;
             srcBytesLeft  = totalBytes - dataOff;
 
@@ -2404,8 +2406,9 @@ public final class CompositeData implements Cloneable {
                             mcnf = 0;
 
                             // get "N" value from List
-                            if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                                throw new EvioException("Data type mismatch");
+                            if (data.dataTypes.get(itemIndex) != DataType.NVALUE) {
+                                throw new EvioException("Data type mismatch, N val is not NVALUE, got " +
+                                        data.dataTypes.get(itemIndex));
                             }
                             ncnf = (Integer)data.dataItems.get(itemIndex++);
                             if (debug) System.out.println("ncnf from list = " + ncnf + " (code 15)");
@@ -2419,8 +2422,9 @@ public final class CompositeData implements Cloneable {
                             mcnf = 0;
 
                             // get "n" value from List
-                            if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                                throw new EvioException("Data type mismatch");
+                            if (data.dataTypes.get(itemIndex) != DataType.nVALUE) {
+                                throw new EvioException("Data type mismatch, n val is not nVALUE, got " +
+                                        data.dataTypes.get(itemIndex));
                             }
                             // Get rid of sign extension to allow n to be unsigned
                             ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
@@ -2435,8 +2439,9 @@ public final class CompositeData implements Cloneable {
                             mcnf = 0;
 
                             // get "m" value from List
-                            if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                                throw new EvioException("Data type mismatch");
+                            if (data.dataTypes.get(itemIndex) != DataType.mVALUE) {
+                                throw new EvioException("Data type mismatch, m val is not mVALUE, got " +
+                                        data.dataTypes.get(itemIndex));
                             }
                             // Get rid of sign extension to allow m to be unsigned
                             ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
@@ -2482,8 +2487,9 @@ public final class CompositeData implements Cloneable {
 
                 if (mcnf == 1) {
                     // get "N" value from List
-                    if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                        throw new EvioException("Data type mismatch");
+                    if (data.dataTypes.get(itemIndex) != DataType.NVALUE) {
+                        throw new EvioException("Data type mismatch, N val is not NVALUE, got " +
+                                data.dataTypes.get(itemIndex));
                     }
                     ncnf = (Integer) data.dataItems.get(itemIndex++);
 
@@ -2494,8 +2500,9 @@ public final class CompositeData implements Cloneable {
                 }
                 else if (mcnf == 2) {
                     // get "n" value from List
-                    if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                        throw new EvioException("Data type mismatch");
+                    if (data.dataTypes.get(itemIndex) != DataType.nVALUE) {
+                        throw new EvioException("Data type mismatch, n val is not nVALUE, got " +
+                                                data.dataTypes.get(itemIndex));
                     }
                     ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
                     rawBuf.putShort((short)ncnf);
@@ -2503,8 +2510,9 @@ public final class CompositeData implements Cloneable {
                  }
                  else if (mcnf == 3) {
                     // get "m" value from List
-                    if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                        throw new EvioException("Data type mismatch");
+                    if (data.dataTypes.get(itemIndex) != DataType.mVALUE) {
+                        throw new EvioException("Data type mismatch, m val is not mVALUE, got " +
+                                data.dataTypes.get(itemIndex));
                     }
                     ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
                     rawBuf.put((byte)ncnf);
@@ -2693,7 +2701,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
 
         while (dataIndex < endIndex) {
-            if (debug) System.out.println(String.format("+++ %d %d\n", dataIndex, endIndex));
+            if (debug) System.out.println(String.format("+++ %d %d", dataIndex, endIndex));
 
             // get next format code
             while (true) {
@@ -2740,6 +2748,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                             NList.add(ncnf);
                             items.add(ncnf);
                             types.add(DataType.NVALUE);
+                            if (debug) System.out.println(String.format("+++ adding N %d", ncnf));
 
                             dataIndex += 4;
                         }
@@ -2752,6 +2761,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                             nList.add((short)ncnf);
                             items.add((short)ncnf);
                             types.add(DataType.nVALUE);
+                            if (debug) System.out.println(String.format("+++ adding n %hd", (short)ncnf));
                             dataIndex += 2;
                         }
 
@@ -2763,6 +2773,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                             mList.add((byte)ncnf);
                             items.add((byte)ncnf);
                             types.add(DataType.mVALUE);
+                            if (debug) System.out.println(String.format("+++ adding m %c", (byte)ncnf));
                             dataIndex++;
                         }
 
@@ -2813,6 +2824,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     NList.add(ncnf);
                     items.add(ncnf);
                     types.add(DataType.NVALUE);
+                    if (debug) System.out.println(String.format("+++ adding N %d", ncnf));
                     dataIndex += 4;
                 }
                 else if (mcnf == 2) {
@@ -2821,6 +2833,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     nList.add((short)ncnf);
                     items.add((short)ncnf);
                     types.add(DataType.nVALUE);
+                    if (debug) System.out.println(String.format("+++ adding n %hd", (short)ncnf));
                     dataIndex += 2;
                 }
                 else if (mcnf == 3) {
@@ -2829,6 +2842,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     mList.add((byte)ncnf);
                     items.add((byte)ncnf);
                     types.add(DataType.mVALUE);
+                    if (debug) System.out.println(String.format("+++ adding m %c", (byte)ncnf));
                     dataIndex++;
                 }
             }
@@ -2938,6 +2952,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 // reset position
                 dataBuffer.position(0);
+                if (debug) System.out.println("pushing type = " + DataType.getDataType(kcnf).toString() + " onto types");
 
                 types.add(DataType.getDataType(kcnf));
                 dataIndex += ncnf;

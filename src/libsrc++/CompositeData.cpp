@@ -94,7 +94,7 @@ namespace evio {
                      tsHeader->getLength();
 
         // Length of everything in bytes
-        int totalByteLen = dataBytes + 4*dataOffset;
+        uint32_t totalByteLen = dataBytes + 4*dataOffset;
 
         // Create a big enough array to hold everything
         rawBytes.resize(totalByteLen, 0);
@@ -116,6 +116,7 @@ namespace evio {
 
         // Turn CompositeData::Data into evio bytes and copy (without using EvioBank object)
         ByteBuffer dataBuf(dataBytes);
+        dataBuf.order(byteOrder);
         dataToRawBytes(dataBuf, data, formatInts);
         std::memcpy(rawBytes.data() + 12 + tsBytes, dataBuf.array(), dataBytes);
 
@@ -176,6 +177,7 @@ namespace evio {
 
         // Hop over tagseg data
         dataOffset += tsHeader->getDataLength();
+        //dataOffset += tsHeader->getLength() - (tsHeader->getHeaderLength() - 1);
 
         // Read the data bank header
         bHeader = EventHeaderParser::createBankHeader(bytes + 4*dataOffset, byteOrder);
@@ -187,13 +189,14 @@ namespace evio {
         dataPadding = bHeader->getPadding();
 
         // How much data do we have?
+        //dataBytes = 4*(bHeader->getLength() - (bHeader->getHeaderLength() - 1)) - dataPadding;
         dataBytes = 4*(bHeader->getDataLength()) - dataPadding;
         if (dataBytes < 2) {
             throw EvioException("no composite data");
         }
 
         if (debug) {
-            int words = (tsHeader->getLength() + bHeader->getLength() + 2);
+            uint32_t words = (tsHeader->getLength() + bHeader->getLength() + 2);
 
             std::cout << "    bank: type = 0x" << std::hex << bHeader->getDataTypeValue() << std::dec <<
                                ", tag = " << bHeader->getTag() << ", num = " << (int)(bHeader->getNumber()) << std::endl;
@@ -437,7 +440,7 @@ namespace evio {
 
         // Get a total length (# bytes)
         size_t totalLen = 0, len;
-        for (auto cd : data) {
+        for (auto & cd : data) {
             len = cd->getRawBytes().size();
             totalLen += len;
         }
@@ -446,8 +449,8 @@ namespace evio {
         rawBytes.resize(totalLen, 0);
 
         // Copy everything in
-        int offset = 0;
-        for (auto cd : data) {
+        size_t offset = 0;
+        for (auto & cd : data) {
             len = cd->getRawBytes().size();
             if (cd->byteOrder != order) {
 //std::cout << "CompositeData::generateRawBytes call swapAll()" << std::endl;
@@ -2566,8 +2569,8 @@ namespace evio {
                             mcnf = 0;
 
                             // get "N" value from List
-                            if (data.dataTypes[itemIndex] != DataType::UINT32) {
-                                throw EvioException("Data type mismatch, N val is not INT32, got " +
+                            if (data.dataTypes[itemIndex] != DataType::NVALUE) {
+                                throw EvioException("Data type mismatch, N val is not NVALUE, got " +
                                                     data.dataTypes[itemIndex].toString());
                             }
                             ncnf = data.dataItems[itemIndex++].item.i32;
@@ -2584,8 +2587,8 @@ namespace evio {
                             mcnf = 0;
 
                             // get "n" value from List
-                            if (data.dataTypes[itemIndex] != DataType::USHORT16) {
-                                throw EvioException("Data type mismatch, n val is not SHORT16, got " +
+                            if (data.dataTypes[itemIndex] != DataType::nVALUE) {
+                                throw EvioException("Data type mismatch, n val is not nVALUE, got " +
                                                     data.dataTypes[itemIndex].toString());
                                 throw EvioException("Data type mismatch");
                             }
@@ -2604,8 +2607,8 @@ namespace evio {
                             mcnf = 0;
 
                             // get "m" value from List
-                            if (data.dataTypes[itemIndex] != DataType::UCHAR8) {
-                                throw EvioException("Data type mismatch, m val is not CHAR8, got " +
+                            if (data.dataTypes[itemIndex] != DataType::mVALUE) {
+                                throw EvioException("Data type mismatch, m val is not mVALUE, got " +
                                                     data.dataTypes[itemIndex].toString());
                             }
                             // Get rid of sign extension to allow m to be unsigned
@@ -2655,8 +2658,8 @@ namespace evio {
 
                 if (mcnf == 1) {
                     // get "N" value from List
-                    if (data.dataTypes[itemIndex] != DataType::UINT32) {
-                        throw EvioException("Data type mismatch, N val is not INT32, got " +
+                    if (data.dataTypes[itemIndex] != DataType::NVALUE) {
+                        throw EvioException("Data type mismatch, N val is not NVALUE, got " +
                                             data.dataTypes[itemIndex].toString());
                     }
                     ncnf = data.dataItems[itemIndex++].item.i32;
@@ -2666,8 +2669,8 @@ namespace evio {
                 }
                 else if (mcnf == 2) {
                     // get "n" value from List
-                    if (data.dataTypes[itemIndex] != DataType::USHORT16) {
-                        throw EvioException("Data type mismatch, n val is not SHORT16, got " +
+                    if (data.dataTypes[itemIndex] != DataType::nVALUE) {
+                        throw EvioException("Data type mismatch, n val is not nVALUE, got " +
                                             data.dataTypes[itemIndex].toString());
                     }
                     ncnf = data.dataItems[itemIndex++].item.s16;
@@ -2675,8 +2678,8 @@ namespace evio {
                 }
                 else if (mcnf == 3) {
                     // get "m" value from List
-                    if (data.dataTypes[itemIndex] != DataType::UCHAR8) {
-                        throw EvioException("Data type mismatch, m val is not CHAR8, got " +
+                    if (data.dataTypes[itemIndex] != DataType::mVALUE) {
+                        throw EvioException("Data type mismatch, m val is not mVALUE, got " +
                                             data.dataTypes[itemIndex].toString());
                     }
                     ncnf = data.dataItems[itemIndex++].item.b8;
@@ -2843,6 +2846,7 @@ namespace evio {
      */
     void CompositeData::process() {
 
+        bool debug = false;
         int kcnf, mcnf;
 
         // size of int list
@@ -2915,32 +2919,35 @@ namespace evio {
                             mem.item.i32 = ncnf;
                             items.push_back(mem);
                             types.push_back(DataType::NVALUE);
+                            if (debug) std::printf("+++ adding N %d\n", ncnf);
 
                             dataIndex += 4;
                         }
 
                         if (mcnf == 2) {
                             mcnf = 0;
-                            ncnf = dataBuffer.getShort(dataIndex);
+                            ncnf = dataBuffer.getShort(dataIndex) & 0xffff;
 
                             nList.push_back((int16_t)ncnf);
                             DataItem mem;
-                            mem.item.s16 = ncnf;
+                            mem.item.s16 = (short)ncnf;
                             items.push_back(mem);
                             types.push_back(DataType::nVALUE);
+                            if (debug) std::printf("+++ adding n %hd\n", (short)ncnf);
 
                             dataIndex += 2;
                         }
 
                         if (mcnf == 3) {
                             mcnf = 0;
-                            ncnf = dataBuffer.getByte(dataIndex);
+                            ncnf = dataBuffer.getByte(dataIndex) & 0xff;
 
                             mList.push_back((int8_t)ncnf);
                             DataItem mem;
-                            mem.item.b8 = ncnf;
+                            mem.item.b8 = (int8_t)ncnf;
                             items.push_back(mem);
                             types.push_back(DataType::mVALUE);
+                            if (debug) std::printf("+++ adding m %c\n", (int8_t)ncnf);
 
                             dataIndex++;
                         }
@@ -2976,26 +2983,29 @@ namespace evio {
                     mem.item.i32 = ncnf;
                     items.push_back(mem);
                     types.push_back(DataType::NVALUE);
+                    if (debug) std::printf("+++ adding N %d\n", ncnf);
                     dataIndex += 4;
                 }
                 else if (mcnf == 2) {
                     // read "n" value from buffer
-                    ncnf = dataBuffer.getShort(dataIndex);
+                    ncnf = dataBuffer.getShort(dataIndex) & 0xffff;
                     nList.push_back((int16_t)ncnf);
                     DataItem mem;
-                    mem.item.s16 = ncnf;
+                    mem.item.s16 = (short)ncnf;
                     items.push_back(mem);
                     types.push_back(DataType::nVALUE);
+                    if (debug) std::printf("+++ adding n %hd\n", (short)ncnf);
                     dataIndex += 2;
                 }
                 else if (mcnf == 3) {
                     // read "m" value from buffer
-                    ncnf = dataBuffer.getByte(dataIndex);
+                    ncnf = dataBuffer.getByte(dataIndex) & 0xff;
                     mList.push_back((int8_t)ncnf);
                     DataItem mem;
-                    mem.item.b8 = ncnf;
+                    mem.item.b8 = (int8_t)ncnf;
                     items.push_back(mem);
                     types.push_back(DataType::mVALUE);
+                    if (debug) std::printf("+++ adding m %c\n", (int8_t)ncnf);
                     dataIndex++;
                 }
             }
@@ -3026,7 +3036,7 @@ namespace evio {
                         mem.item.dbl = dataBuffer.getDouble(dataIndex);
                         items.push_back(mem);
                     }
-                        // 64 bit int/uint
+                    // 64 bit int/uint
                     else if (kcnf == 9) {
                         mem.item.l64 = dataBuffer.getLong(dataIndex);
                         items.push_back(mem);
@@ -3127,7 +3137,7 @@ namespace evio {
                     // char
                 else if (kcnf == 6) {
                     for (int i=0; i < ncnf; i++) {
-                        mem.item.b8 = bytes[i];
+                        mem.item.b8 = (int8_t)bytes[i];
                         items.push_back(mem);
                     }
                 }
@@ -3141,7 +3151,7 @@ namespace evio {
 
                 // reset position
                 dataBuffer.position(0);
-
+if (debug) std::cout << "pushing type = " << DataType::getDataType(kcnf).toString() << " onto types" << std::endl;
                 types.push_back(DataType::getDataType(kcnf));
                 dataIndex += ncnf;
             }
@@ -3173,6 +3183,12 @@ namespace evio {
         if (hex) {
             ss << std::hex << std::showbase;
         }
+        else {
+            ss << std::dec;
+        }
+
+        // Start from the beginning
+        index(0);
 
         size_t numItems = items.size();
 
@@ -3226,7 +3242,21 @@ namespace evio {
                 ss << "F=" << getFloat();
             }
             else if (typ == DataType::CHARSTAR8) {
-                ss << "a=" << getFloat();
+                ss << "a=";
+
+
+//                try {
+//                    auto &strs = item.strVec;
+//                    for (size_t j = 0; j < strs.size(); j++) {
+//                        ss << strs[j];
+//                        if (j < strs.size() - 1) {
+//                            ss << ",";
+//                        }
+//                    }
+//                }
+//                catch (std::runtime_error & e) {
+//                  //  std::cout << "Error in printCompositeDataObject: " << e.what() << std::endl;
+//                }
 
                 auto & strs = getStrings();
                 for (size_t j=0; j < strs.size(); j++) {
