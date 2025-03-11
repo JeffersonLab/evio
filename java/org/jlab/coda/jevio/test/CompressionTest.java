@@ -9,7 +9,6 @@ import org.jlab.coda.jevio.EvioException;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Scanner;
 import java.util.zip.*;
