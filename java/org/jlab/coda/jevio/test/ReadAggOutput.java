@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Scanner;
 
+
+/**
+ * For online DAQ.
+ * Designed to read evio files created by the CODA aggregator and written by the CODA event recorder.
+ */
 public class ReadAggOutput {
 
 
