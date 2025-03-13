@@ -26,6 +26,9 @@ endif()
 
 project(evio VERSION 6.0)
 
+# This is better to be on the top of CMake!
+include(GNUInstallDirs)
+
 # Allow users to set C++ standard via -DCMAKE_CXX_STANDARD
 # Only default to C++11 if not already set
 if(NOT CMAKE_CXX_STANDARD)
@@ -62,7 +65,10 @@ elseif (DEFINED ENV{CODA})
     set(CMAKE_INSTALL_INCLUDEDIR $ENV{CODA}/common/include)
     message(STATUS "CMAKE_INSTALL_PREFIX reset to " ${CMAKE_INSTALL_PREFIX})
 else()
-    message(STATUS "Set the \"CODA\" env var or specify -DCODA_INSTALL=... on the command line or no installation possible!")
+    # Always define installation, even without CODA, using the default CMAKE_INSTALL_PREFIX
+    set(INSTALL_DIR_DEFINED 1)
+    message(STATUS "No CODA environment - will install to default location: ${CMAKE_INSTALL_PREFIX}")
+    # Don't set CMAKE_INSTALL_PREFIX here - use the CMake default
 endif()
 
 set(C_HEADER_FILES
@@ -355,23 +361,112 @@ if(NOT C_ONLY)
         FetchContent_Declare(
                 disruptor
                 GIT_REPOSITORY https://github.com/JeffersonLab/disruptor-cpp.git
-                GIT_TAG master  # Consider using a specific tag or commit for stability
+                GIT_TAG master
         )
 
-        # Set options for Disruptor build
-        set(DISRUPTOR_BUILD_TESTS OFF CACHE BOOL "Don't build Disruptor tests" FORCE)
+        FetchContent_GetProperties(disruptor)
+        if(NOT disruptor_POPULATED)
+            FetchContent_Populate(disruptor)
 
-        # Make the content available
-        FetchContent_MakeAvailable(disruptor)
+            # Just set these two options
+            set(DISRUPTOR_BUILD_TESTS OFF CACHE BOOL "Don't build Disruptor tests" FORCE)
+            set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation directory for Disruptor" FORCE)
+
+            add_subdirectory(${disruptor_SOURCE_DIR} ${disruptor_BINARY_DIR})
+        endif()
 
         # Set variables for later use
         set(DISRUPTOR_INCLUDE_DIR ${disruptor_SOURCE_DIR})
-        set(DISRUPTOR_LIBRARY Disruptor)
+        # Use the library target created by FetchContent
+        set(DISRUPTOR_LIBRARY DisruptorShared)
 
         message(STATUS "Disruptor fetched successfully")
         message(STATUS "  Source directory: ${disruptor_SOURCE_DIR}")
         message(STATUS "  Binary directory: ${disruptor_BINARY_DIR}")
+        message(STATUS "  Will install to: ${INSTALL_DIR}")
+
+        # Add required includes for C++ types that seem to be missing
+        # add_definitions(-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS)
+
+        # Ensure necessary standard C++ includes are added
+        include_directories(SYSTEM ${disruptor_SOURCE_DIR} )
     endif()
+
+    # Shared evio C++ library
+    add_library(eviocc SHARED ${CPP_LIB_FILES})
+    set_target_properties(eviocc PROPERTIES
+            DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
+            EXPORT_NAME eviocc
+    )
+
+    target_link_libraries(eviocc PUBLIC
+            ${LZ4_LIBRARY}
+            ${Boost_LIBRARIES}
+            ${DISRUPTOR_LIBRARY}
+    )
+
+    target_include_directories(eviocc PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libsrc++>
+            $<INSTALL_INTERFACE:include>
+            /usr/local/include
+            ${Boost_INCLUDE_DIRS}
+            ${LZ4_INCLUDE_DIRS}
+            ${DISRUPTOR_INCLUDE_DIR}
+    )
+
+    # Add the C++ tests/examples
+    if(MAKE_EXAMPLES)
+        foreach(fileName ${TEST})
+            # Get file name with no directory or extension as executable name
+            get_filename_component(execName ${fileName} NAME_WE)
+            # Create executable from file
+            add_executable(${execName} ${fileName})
+            # Put debug extension on if applicable
+            set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+            # Needs these libs
+            target_link_libraries(${execName} eviocc pthread ${Boost_LIBRARIES} ${LZ4_LIBRARY} expat dl z m)
+
+            # Only install if installation directory has been defined
+            if(DEFINED INSTALL_DIR_DEFINED)
+                # Install into bin/test dir
+                install(TARGETS ${execName} RUNTIME DESTINATION bin/test)
+            endif()
+        endforeach()
+    endif()
+else()
+    message(STATUS "NOT compiling C++ evio library (C_ONLY=ON)")
+endif()
+
+# Shared evio C library
+add_library(evio SHARED ${C_LIB_FILES})
+set_target_properties(evio PROPERTIES
+        DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
+        EXPORT_NAME evio
+)
+target_include_directories(evio PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libsrc>
+        $<INSTALL_INTERFACE:include>
+        /usr/local/include
+)
+
+# C Test programs
+if(MAKE_EXAMPLES)
+    foreach(fileName ${TESTC})
+        # Get file name with no directory or extension as executable name
+        get_filename_component(execName ${fileName} NAME_WE)
+        # Create executable from file
+        add_executable(${execName} ${fileName})
+        # Put debug extension on if applicable
+        set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+        # Needs these libs
+        target_link_libraries(${execName} evio pthread)
+
+        # Only install if installation directory has been defined
+        if(DEFINED INSTALL_DIR_DEFINED)
+            # Install into bin/test dir
+            install(TARGETS ${execName} RUNTIME DESTINATION bin/test)
+        endif()
+    endforeach()
 endif()
 
 # Find Doxygen for documentation (only required for C++ build)
@@ -405,158 +500,46 @@ elseif(NOT C_ONLY)
     message(WARNING "Doxygen NOT found, documentation will not be generated")
 endif()
 
-# Shared evio C library
-add_library(evio SHARED ${C_LIB_FILES})
-set_target_properties(evio PROPERTIES
-        DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
-        EXPORT_NAME evio
-)
-target_include_directories(evio PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libsrc>
-        $<INSTALL_INTERFACE:include>
-        /usr/local/include
+
+
+# Basic C library installation - minimal approach
+install(TARGETS evio
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# C++ library and examples (if not C_ONLY)
+install(FILES ${C_HEADER_FILES}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# C++ components if enabled
 if(NOT C_ONLY)
-    # Shared evio C++ library
-    add_library(eviocc SHARED ${CPP_LIB_FILES})
-    set_target_properties(eviocc PROPERTIES
-            DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
-            EXPORT_NAME eviocc
-    )
-
-    target_link_libraries(eviocc PUBLIC
-            ${LZ4_LIBRARY}
-            ${Boost_LIBRARIES}
-            ${DISRUPTOR_LIBRARY}
-    )
-
-    target_include_directories(eviocc PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libsrc++>
-            $<INSTALL_INTERFACE:include>
-            /usr/local/include
-            ${Boost_INCLUDE_DIRS}
-            ${LZ4_INCLUDE_DIRS}
-            ${DISRUPTOR_INCLUDE_DIR}
-    )
-
-    if(MAKE_EXAMPLES)
-        foreach(fileName ${TEST})
-            # Get file name with no directory or extension as executable name
-            get_filename_component(execName ${fileName} NAME_WE)
-            # Create executable from file
-            add_executable(${execName} ${fileName})
-            # Put debug extension on if applicable
-            set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-            # Needs these libs
-            target_link_libraries(${execName} eviocc pthread ${Boost_LIBRARIES} ${LZ4_LIBRARY} expat dl z m)
-
-            # Only install if installation directory has been defined
-            if(DEFINED INSTALL_DIR_DEFINED)
-                # Install into bin/testC dir
-                install(TARGETS ${execName} RUNTIME DESTINATION bin/test)
-            endif()
-        endforeach()
-    endif()
-else()
-    message(STATUS "NOT compiling C++ evio library (C_ONLY=ON)")
-endif()
-
-# C Test programs
-if(MAKE_EXAMPLES)
-    foreach(fileName ${TESTC})
-        # Get file name with no directory or extension as executable name
-        get_filename_component(execName ${fileName} NAME_WE)
-        # Create executable from file
-        add_executable(${execName} ${fileName})
-        # Put debug extension on if applicable
-        set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-        # Needs these libs
-        target_link_libraries(${execName} evio pthread)
-
-        # Only install if installation directory has been defined
-        if(DEFINED INSTALL_DIR_DEFINED)
-            # Install into bin/testC dir
-            install(TARGETS ${execName} RUNTIME DESTINATION bin/test)
-        endif()
-    endforeach()
-endif()
-
-# Only install if installation directory has been defined
-if(DEFINED INSTALL_DIR_DEFINED)
-    include(GNUInstallDirs)
-
-    # Installation defaulting to ${CMAKE_INSTALL_PREFIX}/lib or include
-    install(TARGETS evio
-            EXPORT evioTargets
+    install(TARGETS eviocc
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
-    install(FILES ${C_HEADER_FILES}
+    install(FILES ${CPP_HEADER_FILES}
             DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 
-    if(NOT C_ONLY)
-        install(TARGETS eviocc
-                EXPORT evioTargets
+    # Handle Disruptor if using internal version
+    if(NOT USE_EXTERNAL_DISRUPTOR)
+        install(TARGETS DisruptorShared
                 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
                 ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
-        install(FILES ${CPP_HEADER_FILES}
-                DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        install(DIRECTORY ${disruptor_SOURCE_DIR}/Disruptor/
+                DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Disruptor
+                FILES_MATCHING PATTERN "*.h"
         )
-
-        # Also install to CODA-specific include dir if specified
-        if(DEFINED CMAKE_INSTALL_INCLUDEDIR AND NOT CMAKE_INSTALL_INCLUDEDIR STREQUAL "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
-            install(FILES ${CPP_HEADER_FILES}
-                    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-            )
-        endif()
     endif()
-
-    # Export evio as a CMake package
-    include(CMakePackageConfigHelpers)
-
-    # Configure the package files using the existing template
-    configure_package_config_file(
-            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/evioConfig.cmake.in
-            ${CMAKE_CURRENT_BINARY_DIR}/evioConfig.cmake
-            INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/evio
-    )
-
-    # Create version file
-    write_basic_package_version_file(
-            ${CMAKE_CURRENT_BINARY_DIR}/evioConfigVersion.cmake
-            VERSION ${PROJECT_VERSION}
-            COMPATIBILITY SameMajorVersion
-    )
-
-    # Install config files
-    install(FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/evioConfig.cmake
-            ${CMAKE_CURRENT_BINARY_DIR}/evioConfigVersion.cmake
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/evio
-    )
-
-    # Install targets file
-    install(EXPORT evioTargets
-            FILE evioTargets.cmake
-            NAMESPACE evio::
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/evio
-    )
-
-    # Create a package registry entry
-    export(EXPORT evioTargets
-            FILE ${CMAKE_CURRENT_BINARY_DIR}/evioTargets.cmake
-            NAMESPACE evio::
-    )
-
-    # Register the package
-    export(PACKAGE evio)
 endif()
+
 
 # Uninstall target
 if(NOT TARGET uninstall)
