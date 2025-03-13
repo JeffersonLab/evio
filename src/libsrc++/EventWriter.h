@@ -32,10 +32,9 @@
 
 #include <boost/filesystem.hpp>
 
-
 #ifdef USE_FILESYSTEMLIB
-    #include <filesystem>
-    //namespace fs = std::experimental::filesystem;
+    #include <filesystem>  // It's good to include it here too, for clarity
+    namespace fs = std::filesystem;
 #else
     #include <boost/filesystem.hpp>
 #endif
@@ -565,6 +564,8 @@ namespace evio {
         /** Path object corresponding to file currently being written. */
         fs::path currentFilePath;
 #endif
+
+
 
         /** Object to allow efficient, asynchronous file writing. */
         std::shared_ptr<std::future<void>> future1;

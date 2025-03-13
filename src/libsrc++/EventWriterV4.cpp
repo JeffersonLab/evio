@@ -9,7 +9,10 @@
 
 
 #include "EventWriterV4.h"
-
+#ifdef USE_FILESYSTEMLIB
+    #include <filesystem>  // It's good to include it here too, for clarity
+    namespace fs = std::filesystem;
+#endif
 
 namespace evio {
 
@@ -236,7 +239,7 @@ namespace evio {
         this->splitNumber += splitIncrement;
 
 
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
         currentFilePath = fs::path(fileName);
         currentFileName = currentFilePath.generic_string();
         bool fileExists = fs::exists(currentFilePath);
@@ -254,7 +257,7 @@ namespace evio {
                                 + fileName);
         }
 
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
         fs::space_info spaceInfo = fs::space(currentFilePath.parent_path());
         uint64_t freeBytes = spaceInfo.available;
         //std::cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
@@ -324,7 +327,7 @@ namespace evio {
             // If we have an empty file, that's OK.
             // Otherwise we have to examine it for compatibility
             // and position ourselves for the first write.
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
             if (fs::file_size(currentFilePath) >= 32) {
 #else
             if (stt.st_size >= 32) {
@@ -816,7 +819,7 @@ namespace evio {
      * @return the absolute name or path of the current file being written to.
      */
     std::string EventWriterV4::getCurrentFilePath() const {
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
         fs::path absolutePath = fs::absolute(currentFilePath);
         return absolutePath.generic_string();
 #endif
@@ -1359,7 +1362,7 @@ namespace evio {
             fileWritingPosition = 0L;
 
             if (toFile) {
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
                 bytesLeftInFile = fs::file_size(currentFileName);
 #else
                 struct stat stt{};
@@ -2648,7 +2651,7 @@ namespace evio {
 
         uint64_t freeBytes;
 
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
         fs::space_info spaceInfo = fs::space(currentFilePath.parent_path());
         freeBytes = spaceInfo.available;
         //std::cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
@@ -2851,7 +2854,7 @@ namespace evio {
                                                           streamId, streamCount);
             splitNumber += splitIncrement;
 
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
             currentFilePath = fs::path(fileName);
             bool fileExists = fs::exists(currentFilePath);
             bool isRegularFile = fs::is_regular_file(currentFilePath);

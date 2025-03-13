@@ -9,7 +9,10 @@
 
 
 #include "EventWriter.h"
-
+#ifdef USE_FILESYSTEMLIB
+    #include <filesystem> 
+    namespace fs = std::filesystem;
+#endif
 
 namespace evio {
 
