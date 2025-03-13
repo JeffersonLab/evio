@@ -18,7 +18,7 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
-
+#include <cstdint>
 
 namespace evio {
 
