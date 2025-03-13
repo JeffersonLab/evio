@@ -299,13 +299,19 @@ if(NOT C_ONLY)
         message(STATUS "Attempting to use external Disruptor library")
 
         # First try with DISRUPTOR_CPP_HOME environment variable
-        if(DEFINED ENV{DISRUPTOR_CPP_HOME})
+        if(ENV{DISRUPTOR_CPP_HOME} || DISRUPTOR_CPP_HOME || DISRUPTOR_CPP_DIR)
             message(STATUS "Looking for Disruptor using DISRUPTOR_CPP_HOME = $ENV{DISRUPTOR_CPP_HOME}")
 
             # Try both development and installed layouts
             find_path(DISRUPTOR_INCLUDE_DIR
                     NAMES Disruptor.h
                     PATHS
+                    ${DISRUPTOR_CPP_HOME}
+                    ${DISRUPTOR_CPP_HOME}/Disruptor
+                    ${DISRUPTOR_CPP_HOME}/include/Disruptor
+                    ${DISRUPTOR_CPP_DIR}
+                    ${DISRUPTOR_CPP_DIR}/Disruptor
+                    ${DISRUPTOR_CPP_DIR}/include/Disruptor
                     $ENV{DISRUPTOR_CPP_HOME}/Disruptor
                     $ENV{DISRUPTOR_CPP_HOME}/include/Disruptor
                     NO_DEFAULT_PATH
@@ -315,6 +321,12 @@ if(NOT C_ONLY)
             find_library(DISRUPTOR_LIBRARY
                     NAMES Disruptor
                     PATHS
+                    ${DISRUPTOR_CPP_HOME}
+                    ${DISRUPTOR_CPP_HOME}/build/Disruptor
+                    ${DISRUPTOR_CPP_HOME}/lib
+                    ${DISRUPTOR_CPP_DIR}
+                    ${DISRUPTOR_CPP_DIR}/build/Disruptor
+                    ${DISRUPTOR_CPP_DIR}/lib
                     $ENV{DISRUPTOR_CPP_HOME}/build/Disruptor
                     $ENV{DISRUPTOR_CPP_HOME}/lib
                     NO_DEFAULT_PATH
