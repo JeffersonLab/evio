@@ -229,16 +229,27 @@ set(TESTC
 
 include(FindPackageHandleStandardArgs)
 
+# extract SYSTEM_HOSTNAME
+execute_process(COMMAND hostname OUTPUT_VARIABLE SYSTEM_HOSTNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Hostname: ${SYSTEM_HOSTNAME}" )
 
 # search for boost libs
-find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem CONFIG)
-
-
+set(BOOST_HINTS "/usr")  # Ensures variable exists
+# If at JLab, add typical location hint (as of March 2025)
+if("${SYSTEM_HOSTNAME}" MATCHES ".*jlab.org")
+    set(BOOST_HINTS "/opt/puppetlabs/puppet/lib/cmake")
+endif()
+find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem CONFIG
+    HINTS ${BOOST_HINTS}
+    #   # Adds hint on where to find if on jlab system
+    PATH_SUFFIXES Boost-*
+    NO_DEFAULT_PATH
+)
 if (Boost_FOUND)
     message(STATUS "Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
     include_directories(${Boost_INCLUDE_DIRS})
-elseif(NOT DEFINED C_ONLY)
+    elseif(NOT DEFINED C_ONLY)
     message(FATAL_ERROR "Boost cannot be found, cmake will exit." )
 endif()
 
