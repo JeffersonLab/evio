@@ -1725,11 +1725,12 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="typeNameLabel">CompositeData.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/jevio/CompositeData.html#swapData-byte:A-int-byte:A-int-int-java.util.List-java.nio.ByteOrder-">swapData</a></span>(byte[]&nbsp;src,
+<td class="colLast"><span class="typeNameLabel">CompositeData.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/jevio/CompositeData.html#swapData-byte:A-int-byte:A-int-int-int-java.util.List-java.nio.ByteOrder-">swapData</a></span>(byte[]&nbsp;src,
         int&nbsp;srcOff,
         byte[]&nbsp;dest,
         int&nbsp;destOff,
         int&nbsp;nBytes,
+        int&nbsp;padding,
         java.util.List&lt;java.lang.Integer&gt;&nbsp;ifmt,
         java.nio.ByteOrder&nbsp;srcOrder)</code>
 <div class="block">This method converts (swaps) an array of EVIO composite type data
@@ -1738,11 +1739,12 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="typeNameLabel">CompositeData.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/jevio/CompositeData.html#swapData-java.nio.ByteBuffer-java.nio.ByteBuffer-int-int-int-java.util.List-">swapData</a></span>(java.nio.ByteBuffer&nbsp;srcBuf,
+<td class="colLast"><span class="typeNameLabel">CompositeData.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/jevio/CompositeData.html#swapData-java.nio.ByteBuffer-java.nio.ByteBuffer-int-int-int-int-java.util.List-">swapData</a></span>(java.nio.ByteBuffer&nbsp;srcBuf,
         java.nio.ByteBuffer&nbsp;destBuf,
         int&nbsp;srcPos,
         int&nbsp;destPos,
         int&nbsp;nBytes,
+        int&nbsp;padding,
         java.util.List&lt;java.lang.Integer&gt;&nbsp;ifmt)</code>
 <div class="block">This method converts (swaps) EVIO composite type data
  between Big endian and Little endian.</div>
@@ -1750,9 +1752,10 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="typeNameLabel">CompositeData.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/jevio/CompositeData.html#swapData-java.nio.ByteBuffer-java.nio.ByteBuffer-int-java.util.List-">swapData</a></span>(java.nio.ByteBuffer&nbsp;srcBuf,
+<td class="colLast"><span class="typeNameLabel">CompositeData.</span><code><span class="memberNameLink"><a href="../../../../../org/jlab/coda/jevio/CompositeData.html#swapData-java.nio.ByteBuffer-java.nio.ByteBuffer-int-int-java.util.List-">swapData</a></span>(java.nio.ByteBuffer&nbsp;srcBuf,
         java.nio.ByteBuffer&nbsp;destBuf,
         int&nbsp;nBytes,
+        int&nbsp;padding,
         java.util.List&lt;java.lang.Integer&gt;&nbsp;ifmt)</code>
 <div class="block">This method converts (swaps) EVIO composite type data
  between Big endian and Little endian.</div>
