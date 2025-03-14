@@ -730,10 +730,10 @@ int main(int argc, char **argv) {
         tester.test2();
         tester.test3();
         tester.test4();
-
     }
     catch (std::runtime_error & e) {
         std::cout << "PROBLEM: " << e.what() << std::endl;
     }
+    return 0;
 
 }
