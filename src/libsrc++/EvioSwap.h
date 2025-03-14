@@ -39,6 +39,525 @@ namespace evio {
         public:
 
         /**
+         * Swap byte array in place assuming bytes are 32 bit ints.
+         * Number of array elements must be multiple of 4.
+         *
+         * @param data       byte array to convert.
+         * @param dataLen    number of bytes to convert.
+         * @throws EvioException if data is null;
+         *                       dataLen is not a multiple of 4.
+         */
+        static void swapArray32(uint8_t *data, uint32_t dataLen) {
+
+            if (data == nullptr || (dataLen % 4 != 0)) {
+                throw EvioException("bad arg");
+            }
+
+            uint32_t index;
+            uint8_t b1,b2,b3,b4;
+
+            for (uint32_t i=0; i < dataLen; i+=4) {
+                index = i;
+
+                b1 = (data[index]);
+                b2 = (data[index+1]);
+                b3 = (data[index+2]);
+                b4 = (data[index+3]);
+
+                data[index]   = b4;
+                data[index+1] = b3;
+                data[index+2] = b2;
+                data[index+3] = b1;
+            }
+        }
+
+
+        // =========================
+        // Swapping Evio Data
+        // =========================
+
+
+        /**
+         * This method swaps the byte order of an entire evio event or bank.
+         * The byte order of the swapped buffer will be opposite to the byte order
+         * of the source buffer argument. If the swap is done in place, the
+         * byte order of the source buffer will be switched upon completion and
+         * the destPos arg will be set equal to the srcPos arg.
+         * The positions of the source and destination buffers are not changed.
+         * A ByteBuffer's current byte order can be found by calling
+         * {@link java.nio.ByteBuffer#order()}.<p>
+         *
+         * The data to be swapped must <b>not</b> be in the evio file format (with
+         * record headers). Data must only consist of bytes representing a single event/bank.
+         * Position and limit of neither buffer is changed.
+         *
+         * @param srcBuffer   buffer containing event to swap.
+         * @param destBuffer  buffer in which to place the swapped event.
+         *                    If null, or identical to srcBuffer, the data is swapped in place.
+         * @param nodeList    if not null, generate and store node objects here -
+         *                    one for each swapped evio structure in destBuffer.
+         * @param storeNodes  if true, store generated EvioNodes in nodeList.
+         * @param swapData    if false, do NOT swap data, else swap data too.
+         * @param srcPos      position in srcBuffer to start reading event.
+         * @param destPos     position in destBuffer to start writing swapped event.
+         *
+         * @throws EvioException if srcBuffer arg is null;
+         *                       if any buffer position is not zero
+         */
+        static void swapEvent(std::shared_ptr<ByteBuffer> & srcBuffer,
+                              std::shared_ptr<ByteBuffer> & destBuffer,
+                              std::vector<std::shared_ptr<EvioNode>> & nodeList,
+                              bool storeNodes=false, bool swapData=true,
+                              size_t srcPos=0, size_t destPos=0) {
+
+                if (srcBuffer == nullptr) {
+                    throw EvioException("Null event in swapEvent");
+                }
+
+                // Find the destination byte order and if it is to be swapped in place
+                bool inPlace = false;
+                ByteOrder srcOrder  = srcBuffer->order();
+                ByteOrder destOrder = srcOrder.getOppositeEndian();
+
+                if (destBuffer == nullptr || srcBuffer == destBuffer) {
+                    // Do this so we can treat the source buffer as if it were a
+                    // completely different destination buffer with its own byte order.
+                    destBuffer = srcBuffer->duplicate();
+                    destPos = srcPos;
+                    inPlace = true;
+                }
+                destBuffer->order(destOrder);
+
+                // Check position args
+                if (srcPos > srcBuffer->capacity() - 8) {
+                    throw EvioException("bad value for srcPos arg");
+                }
+
+                if (destPos > destBuffer->capacity() - 8) {
+                    throw EvioException("bad value for destPos arg");
+                }
+
+                // Create node
+                auto node = EvioNode::createEvioNode();
+
+                // We know events are banks, so start by reading & swapping a bank header
+                swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+
+                // Store all nodes here
+                if (storeNodes) {
+                    // Set a few special members for an event
+                    node->eventNode = node;
+                    node->scanned   = true;
+                    node->izEvent   = true;
+                    node->type = DataType::BANK.getValue();
+                    nodeList.push_back(node);
+                }
+//                std::cout << "Created top node containing " << node->getDataTypeObj().toString() << std::endl;
+
+                // The event is an evio bank so recursively swap it as such
+                swapStructure(node, srcBuffer, destBuffer, nodeList,
+                              storeNodes, swapData, inPlace,
+                              srcPos + 8, destPos + 8);
+
+                if (inPlace) {
+                    srcBuffer->order(destOrder);
+                }
+        }
+
+
+        /**
+          * <p>This method reads and swaps an evio bank header.
+          * It can also return information about the bank.
+          * Position and limit of neither buffer argument is changed.</p>
+          * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+          *
+          * @param node       object in which to store data about the bank
+          *                   in destBuffer after swap; may be null
+          * @param srcBuffer  buffer containing bank header to be swapped
+          * @param destBuffer buffer in which to place swapped bank header
+          * @param srcPos     position in srcBuffer to start reading bank header
+          * @param destPos    position in destBuffer to start writing swapped bank header
+          *
+          * @throws EvioException if srcBuffer too little data;
+          *                       if destBuffer is too small to contain swapped data
+          */
+        static void swapBankHeader(std::shared_ptr<EvioNode> & node, std::shared_ptr<ByteBuffer> & srcBuffer,
+                                   std::shared_ptr<ByteBuffer> & destBuffer, size_t srcPos=0, size_t destPos=0) {
+
+                try {
+                    // Read & swap first bank header word
+                    int length = srcBuffer->getInt(srcPos);
+                    destBuffer->putInt(destPos, length);
+                    srcPos  += 4;
+                    destPos += 4;
+
+                    // Read & swap second bank header word
+                    uint32_t word = srcBuffer->getUInt(srcPos);
+                    destBuffer->putInt(destPos, word);
+
+                    // node is never null
+                    node->tag = word >> 16;
+
+                    uint32_t dt = (word >> 8) & 0xff;
+                    node->dataType = dt & 0x3f;
+                    node->pad = dt >> 6;
+
+                    // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                    // This regularly happens with composite data.
+                    // However, it that MAY also be the legacy tagsegment type
+                    // with no padding information. Ignore this as having tag & num
+                    // in legacy code is probably rare.
+                    //if (dt == 0x40) {
+                    //    node->dataType = DataType::TAGSEGMENT.getValue();
+                    //    node->pad = 0;
+                    //}
+
+                    node->num     = word & 0xff;
+                    node->len     = length;
+                    node->pos     = destPos - 4;
+                    node->dataPos = destPos + 4;
+                    node->dataLen = length - 1;
+                }
+                catch (std::overflow_error & e) {
+                    throw EvioException("destBuffer too small to hold swapped data");
+                }
+                catch (std::underflow_error & e) {
+                    throw EvioException("srcBuffer data underflow");
+                }
+        }
+
+
+        /**
+         * <p>This method reads and swaps an evio segment header.
+         * It can also return information about the segment.
+         * Position and limit of neither buffer argument is changed.</p>
+         * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+         *
+         * @param node       object in which to store data about the segment
+         *                   in destBuffer after swap; may be null
+         * @param srcBuffer  buffer containing segment header to be swapped
+         * @param destBuffer buffer in which to place swapped segment header
+         * @param srcPos     position in srcBuffer to start reading segment header
+         * @param destPos    position in destBuffer to start writing swapped segment header
+         *
+         * @throws EvioException if srcBuffer too little data;
+         *                       if destBuffer is too small to contain swapped data
+         */
+        static void swapSegmentHeader(std::shared_ptr<EvioNode> & node, std::shared_ptr<ByteBuffer> & srcBuffer,
+                                      std::shared_ptr<ByteBuffer> & destBuffer, size_t srcPos=0, size_t destPos=0) {
+
+                try {
+                    // Read & swap segment header word
+                    uint32_t word = srcBuffer->getUInt(srcPos);
+                    destBuffer->putInt(destPos, word);
+
+                    // node is never null
+                    node->tag = word >> 24;
+
+                    uint32_t dt = (word >> 16) & 0xff;
+                    node->dataType = dt & 0x3f;
+                    node->pad = dt >> 6;
+
+                    node->len     = word & 0xffff;
+                    node->num     = 0;
+                    node->pos     = destPos;
+                    node->dataPos = destPos + 4;
+                    node->dataLen = node->len;
+                }
+                catch (std::overflow_error & e) {
+                    throw EvioException("destBuffer too small to hold swapped data");
+                }
+                catch (std::underflow_error & e) {
+                    throw EvioException("srcBuffer data underflow");
+                }
+        }
+
+
+        /**
+         * <p>This method reads and swaps an evio tagsegment header.
+         * It can also return information about the tagsegment.
+         * Position and limit of neither buffer argument is changed.</p>
+         * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+         *
+         * @param node       object in which to store data about the tagsegment
+         *                   in destBuffer after swap; may be null
+         * @param srcBuffer  buffer containing tagsegment header to be swapped
+         * @param destBuffer buffer in which to place swapped tagsegment header
+         * @param srcPos     position in srcBuffer to start reading tagsegment header
+         * @param destPos    position in destBuffer to start writing swapped tagsegment header
+         *
+         * @throws EvioException if srcBuffer too little data;
+         *                       if destBuffer is too small to contain swapped data
+         */
+        static void swapTagSegmentHeader(std::shared_ptr<EvioNode> & node, std::shared_ptr<ByteBuffer> & srcBuffer,
+                                         std::shared_ptr<ByteBuffer> & destBuffer, size_t srcPos=0, size_t destPos=0) {
+
+                try {
+                    // Read & swap tagsegment header word
+                    uint32_t word = srcBuffer->getUInt(srcPos);
+                    destBuffer->putInt(destPos, word);
+
+                    // node is never null
+                    node->tag      = word >> 20;
+                    node->dataType = (word >> 16) & 0xf;
+                    node->len      = word & 0xffff;
+                    node->num      = 0;
+                    node->pad      = 0;
+                    node->pos      = destPos;
+                    node->dataPos  = destPos + 4;
+                    node->dataLen  = node->len;
+                }
+                catch (std::overflow_error & e) {
+                    throw EvioException("destBuffer too small to hold swapped data");
+                }
+                catch (std::underflow_error & e) {
+                    throw EvioException("srcBuffer data underflow");
+                }
+        }
+
+
+        /**
+         * This method swaps the data of an evio leaf structure. In other words the
+         * structure being swapped does not contain evio structures.
+         *
+         * @param type       type of data being swapped
+         * @param srcBuffer  buffer containing data to be swapped
+         * @param destBuffer buffer in which to place swapped data
+         * @param srcPos     position in srcBuffer to start reading data
+         * @param destPos    position in destBuffer to start writing swapped data
+         * @param len        length of data in 32 bit words
+         * @param inPlace    if true, data is swapped in srcBuffer
+         *
+         * @throws EvioException if srcBuffer not in evio format;
+         *                       if destBuffer too small;
+         *                       if bad values for srcPos and/or destPos;
+         */
+        static void swapData(DataType const & type, std::shared_ptr<ByteBuffer> & srcBuffer,
+                             std::shared_ptr<ByteBuffer> & destBuffer,
+                             uint32_t len, bool inPlace = false,
+                             size_t srcPos=0, size_t destPos=0) {
+
+            // We end here
+            uint32_t endPos = srcPos + 4*len;
+
+            // 64 bit swap
+            if (type == DataType::LONG64  ||
+                type == DataType::ULONG64 ||
+                type ==  DataType::DOUBLE64) {
+
+                // When only swapping, no need to convert to double & back
+                for (; srcPos < endPos; srcPos += 8, destPos += 8) {
+                    destBuffer->putLong(destPos, srcBuffer->getLong(srcPos));
+                }
+            }
+            // 32 bit swap
+            else if (type == DataType::INT32  ||
+                     type == DataType::UINT32 ||
+                     type == DataType::FLOAT32) {
+                // When only swapping, no need to convert to float & back
+                for (; srcPos < endPos; srcPos += 4, destPos += 4) {
+                    destBuffer->putInt(destPos, srcBuffer->getInt(srcPos));
+                }
+            }
+            // 16 bit swap
+            else if (type == DataType::SHORT16  ||
+                     type == DataType::USHORT16) {
+                for (; srcPos < endPos; srcPos += 2, destPos += 2) {
+                    destBuffer->putShort(destPos, srcBuffer->getShort(srcPos));
+                }
+            }
+            // no swap
+            else if (type == DataType::UNKNOWN32 ||
+                     type == DataType::CHAR8     ||
+                     type == DataType::UCHAR8    ||
+                     type == DataType::CHARSTAR8) {
+
+                // 8 bit swap - no swap needed, but need to copy if destBuf != srcBuf
+                if (!inPlace) {
+                    for (; srcPos < endPos; srcPos++, destPos++) {
+                        destBuffer->put(destPos, srcBuffer->getByte(srcPos));
+                    }
+                }
+            }
+            else if (type == DataType::COMPOSITE) {
+                // new composite type
+                CompositeData::swapAll(srcBuffer, destBuffer, srcPos, destPos, len);
+
+            }
+        }
+
+
+        /**
+         * Swap an evio structure. If it is a structure of structures,
+         * such as a bank of banks, swap recursively.
+         *
+         * @param node       info from parsed header
+         * @param srcBuffer  buffer containing structure to swap.
+         * @param destBuffer buffer in which to place the swapped structure.
+         * @param nodeList   if not null, store all node objects here -
+         *                   one for each swapped evio structure in destBuffer.
+         * @param storeNodes if true, store generated EvioNodes in nodeList.
+         * @param swapData   if false, do NOT swap data, else swap data too.
+         * @param inPlace    if true, data is swapped in srcBuffer
+         * @param srcPos     position in srcBuffer to start reading structure
+         * @param destPos    position in destBuffer to start writing swapped structure
+         *
+         * @throws EvioException if args are null;
+         *                       IF srcBuffer not in evio format;
+         *                       if destBuffer too small;
+         *                       if bad values for srcPos and/or destPos;
+         */
+        static void swapStructure(std::shared_ptr<EvioNode> & node,
+                                  std::shared_ptr<ByteBuffer> & srcBuffer,
+                                  std::shared_ptr<ByteBuffer> & destBuffer,
+                                  std::vector<std::shared_ptr<EvioNode>> & nodeList,
+                                  bool storeNodes=false, bool swapData=true, bool inPlace=false,
+                                  size_t srcPos=0, size_t destPos=0) {
+
+            if (srcBuffer == nullptr || destBuffer == nullptr || node == nullptr) {
+                throw EvioException("arg(s) are null");
+            }
+
+//            std::cout << "swapStructure: storeNodes = " << storeNodes << ", swapData = " << swapData <<
+//            ", inPlace = " << inPlace << ", srcPos = " << srcPos << ", destPos = " << destPos << std::endl;
+
+            // Pass in header info through node object.
+            // Reuse this node object if not storing in a list of all nodes.
+            DataType dataType = node->getDataTypeObj();
+            uint32_t length = node->dataLen;
+//            std::cout << "swapStructure: dataType = " << dataType.toString() << ", len = " << length << std::endl;
+
+            // If not a structure of structures, swap the data and return - no more recursion.
+            if (!dataType.isStructure()) {
+                // swap raw data here
+                if (swapData) EvioSwap::swapData(dataType, srcBuffer, destBuffer, length, inPlace, srcPos, destPos);
+                //std::cout << "HIT END_OF_LINE" << std::endl;
+                return;
+            }
+
+            uint32_t offset = 0;
+            size_t sPos = srcPos, dPos = destPos;
+
+            std::shared_ptr<EvioNode> firstNode = nullptr;
+            if (!nodeList.empty()) {
+                try {
+                    firstNode = nodeList.at(0);
+                    node = EvioNode::createEvioNode(firstNode);
+                } catch (const std::out_of_range &e) {
+                    std::cerr << "Exception: " << e.what() << std::endl;
+                    throw EvioException(e.what());
+                }
+            }
+
+            // change 32-bit words to bytes
+            length *= 4;
+
+            // This structure contains banks
+            if (dataType.isBank()) {
+                // Swap all banks contained in this structure
+                while (offset < length) {
+                    swapBankHeader(node, srcBuffer, destBuffer, sPos, dPos);
+
+                    // Position offset to start of next header
+                    offset += 4 * (node->len + 1); // plus 1 for length word
+
+                    // Recursive call, reuse node object if not storing
+                    swapStructure(node, srcBuffer, destBuffer, nodeList,
+                                  storeNodes, swapData, inPlace,
+                                  sPos + 8, dPos + 8);
+
+                    sPos = srcPos  + offset;
+                    dPos = destPos + offset;
+
+                    // Store node objects
+                    if (storeNodes) {
+                        node->type = DataType::BANK.getValue();
+                        nodeList.push_back(node);
+                        if (offset < length) {
+                            node = EvioNode::createEvioNode(firstNode);
+                        }
+                    }
+                }
+            }
+            else if (dataType.isSegment()) {
+                // extract all the segments from this bank.
+                while (offset < length) {
+                    swapSegmentHeader(node, srcBuffer, destBuffer, sPos, dPos);
+
+                    offset += 4 * (node->len + 1);
+
+                    swapStructure(node, srcBuffer, destBuffer, nodeList,
+                                  storeNodes, swapData, inPlace,
+                                  sPos + 4, dPos + 4);
+
+                    sPos = srcPos + offset;
+                    dPos = destPos + offset;
+
+                    // Store node objects
+                    if (storeNodes) {
+                        node->type = DataType::SEGMENT.getValue();
+                        nodeList.push_back(node);
+                        if (offset < length) {
+                            node = EvioNode::createEvioNode(firstNode);
+                        }
+                    }
+                }
+            }
+            else if (dataType.isTagSegment()) {
+                // extract all the tag segments from this bank.
+                while (offset < length) {
+
+                    swapTagSegmentHeader(node, srcBuffer, destBuffer, sPos, dPos);
+
+                    offset += 4 * (node->len + 1);
+
+                    swapStructure(node, srcBuffer, destBuffer, nodeList,
+                                  storeNodes, swapData, inPlace,
+                                  sPos + 4, dPos + 4);
+
+                    sPos = srcPos + offset;
+                    dPos = destPos + offset;
+
+                    if (storeNodes) {
+                        node->type = DataType::TAGSEGMENT.getValue();
+                        nodeList.push_back(node);
+                        if (offset < length) {
+                            node = EvioNode::createEvioNode(firstNode);
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /**
          * Method to swap the endianness of an evio event (bank).
          *
          * @author: Elliott Wolin, 21-nov-2003
@@ -52,6 +571,41 @@ namespace evio {
          */
         static void swapEvent(uint32_t *buf, int tolocal, uint32_t *dest) {
             swapBank(buf, tolocal, dest);
+        }
+
+
+        /**
+          * Method to swap the endianness of an evio event (bank).
+          *
+          * @author: Carl Timmer, mar-2025
+          *
+          * @param buf     buffer of evio event data to be swapped
+          * @param dest    buffer to place swapped data into.
+          *                If this is null, then dest = buf.
+          */
+        static void swapEvent(ByteBuffer & buf, ByteBuffer & dest) {
+
+            bool tolocal = buf.order() != ByteOrder::nativeOrder();
+            swapBank(reinterpret_cast<uint32_t *>(buf.array()), tolocal,
+                     reinterpret_cast<uint32_t *>(dest.array()));
+        }
+
+
+        /**
+          * Method to swap the endianness of an evio event (bank).
+          *
+          * @author: Carl Timmer, mar-2025
+          *
+          * @param buf     buffer of evio event data to be swapped
+          * @param dest    buffer to place swapped data into.
+          *                If this is null, then dest = buf.
+          */
+        static void swapEvent(std::shared_ptr<ByteBuffer> & buf,
+                              std::shared_ptr<ByteBuffer> & dest) {
+
+            bool tolocal = buf->order() != ByteOrder::nativeOrder();
+            swapBank(reinterpret_cast<uint32_t *>(buf->array()), tolocal,
+                     reinterpret_cast<uint32_t *>(dest->array()));
         }
 
 
@@ -81,6 +635,7 @@ namespace evio {
 
             dataLength = p[0] - 1;
             dataType = (p[1] >> 8) & 0x3f; // padding info in top 2 bits of type byte
+std::cout << "swapBank: dataLen = " << dataLength << std::endl;
 
             // Swap header if buf is local endian
             if (!toLocal) {
