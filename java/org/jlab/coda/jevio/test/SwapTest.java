@@ -110,7 +110,7 @@ public class SwapTest {
         String asciiFormat = CompositeData.stringsToFormat(s);
         // Format to write an unsigned int, unsigned char, and N number of
         // M ascii characters & 1 64-bit int.
-        System.out.println("ascii format = " + asciiFormat);
+//System.out.println("ascii format = " + asciiFormat);
         String format2 = "i,c,N(" + asciiFormat + ",L)";
         myData2.addString(s);
         myData2.addLong(24L);
