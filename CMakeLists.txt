@@ -241,7 +241,6 @@ if("${SYSTEM_HOSTNAME}" MATCHES ".*jlab.org")
 endif()
 find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem CONFIG
     HINTS ${BOOST_HINTS}
-    #   # Adds hint on where to find if on jlab system
     PATH_SUFFIXES Boost-*
     NO_DEFAULT_PATH
 )
@@ -250,7 +249,7 @@ if (Boost_FOUND)
     link_directories(${Boost_LIBRARY_DIRS})
     include_directories(${Boost_INCLUDE_DIRS})
     elseif(NOT DEFINED C_ONLY)
-    message(FATAL_ERROR "Boost cannot be found, cmake will exit." )
+        message(FATAL_ERROR "Boost cannot be found, cmake will exit." )
 endif()
 
 
