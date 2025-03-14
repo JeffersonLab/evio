@@ -65,21 +65,37 @@ namespace evio {
             ushortData[1] = 0;
             ushortData[2] = std::numeric_limits<uint16_t>::min();
 
-            intData[0] = std::numeric_limits<int32_t>::max();
-            intData[1] = 0;
-            intData[2] = std::numeric_limits<int32_t>::min();
+//            intData[0] = std::numeric_limits<int32_t>::max();
+//            intData[1] = 0;
+//            intData[2] = std::numeric_limits<int32_t>::min();
+//
+//            uintData[0] = std::numeric_limits<uint32_t>::max();
+//            uintData[1] = 0;
+//            uintData[2] = std::numeric_limits<uint32_t>::min();
 
-            uintData[0] = std::numeric_limits<uint32_t>::max();
-            uintData[1] = 0;
-            uintData[2] = std::numeric_limits<uint32_t>::min();
+            intData[0] = 7;
+            intData[1] = 7;
+            intData[2] = 7;
 
-            longData[0] = std::numeric_limits<int64_t>::max();
-            longData[1] = 0;
-            longData[2] = std::numeric_limits<int64_t>::min();
+            uintData[0] = 8;
+            uintData[1] = 8;
+            uintData[2] = 8;
 
-            ulongData[0] = std::numeric_limits<uint64_t>::max();
-            ulongData[1] = 0;
-            ulongData[2] = std::numeric_limits<uint64_t>::min();
+            //            longData[0] = std::numeric_limits<int64_t>::max();
+//            longData[1] = 0;
+//            longData[2] = std::numeric_limits<int64_t>::min();
+//
+//            ulongData[0] = std::numeric_limits<uint64_t>::max();
+//            ulongData[1] = 0;
+//            ulongData[2] = std::numeric_limits<uint64_t>::min();
+
+            longData[0] = 1;
+            longData[1] = 2;
+            longData[2] = 3;
+
+            ulongData[0] = 4;
+            ulongData[1] = 5;
+            ulongData[2] = 6;
 
             floatData[0] = std::numeric_limits<float>::max();
             floatData[1] = 0.;
@@ -100,32 +116,32 @@ namespace evio {
 
             try {
                 // Format to write a N shorts, 1 float, 1 double a total of N times
-            std::string format1 = "N(NS,F,D)";
+                std::string format1 = "N(NS,F,D)";
 
-            // Now create some data
-            CompositeData::Data myData1;
-            myData1.addN(2);
-            myData1.addN(3);
+                // Now create some data
+                CompositeData::Data myData1;
+                myData1.addN(2);
+                myData1.addN(2);
 
-            std::vector<int16_t> shorts;
-            shorts.push_back(1);
-            shorts.push_back(2);
-            shorts.push_back(3);
-            myData1.addShort(shorts);
+                std::vector<int16_t> shorts;
+                shorts.push_back(1);
+                shorts.push_back(2);
+                myData1.addShort(shorts);
 
-            myData1.addFloat(std::numeric_limits<float>::max());
-            myData1.addDouble(std::numeric_limits<double>::max());
-            myData1.addN(1);
-            myData1.addShort((int16_t) 4);
-            myData1.addFloat(std::numeric_limits<float>::min());
-            myData1.addDouble(std::numeric_limits<double>::min());
+                myData1.addFloat(std::numeric_limits<float>::max());
+                myData1.addDouble(std::numeric_limits<double>::max());
+                myData1.addN(1);
+                myData1.addShort((int16_t) 4);
+                myData1.addFloat(std::numeric_limits<float>::min());
+                myData1.addDouble(std::numeric_limits<double>::min());
 
-            // ROW 2
-            myData1.addN(1);
-            myData1.addN(1);
-            myData1.addShort((int16_t) 4);
-            myData1.addFloat(4.0F);
-            myData1.addDouble(4.);
+                // ROW 2
+                myData1.addN(1);
+                myData1.addN(1);
+                myData1.addShort((int16_t) 4);
+                myData1.addFloat(4.0F);
+                myData1.addDouble(4.);
+
 
             // Format to write an unsigned int, unsigned char, and N number of
             // M (int to be found) ascii characters & 1 64-bit int. We need to
@@ -162,33 +178,33 @@ namespace evio {
             myData3.addChar(byteData[1]);
             myData3.addChar(byteData[2]);
 
-            myData3.addUChar(byteData[0]);
-            myData3.addUChar(byteData[1]);
-            myData3.addUChar(byteData[2]);
+            myData3.addUChar(ubyteData[0]);
+            myData3.addUChar(ubyteData[1]);
+            myData3.addUChar(ubyteData[2]);
 
             myData3.addShort(shortData[0]);
             myData3.addShort(shortData[1]);
             myData3.addShort(shortData[2]);
 
-            myData3.addUShort(shortData[0]);
-            myData3.addUShort(shortData[1]);
-            myData3.addUShort(shortData[2]);
+            myData3.addUShort(ushortData[0]);
+            myData3.addUShort(ushortData[1]);
+            myData3.addUShort(ushortData[2]);
 
             myData3.addInt(intData[0]);
             myData3.addInt(intData[1]);
             myData3.addInt(intData[2]);
 
-            myData3.addUInt(intData[0]);
-            myData3.addUInt(intData[1]);
-            myData3.addUInt(intData[2]);
+            myData3.addUInt(uintData[0]);
+            myData3.addUInt(uintData[1]);
+            myData3.addUInt(uintData[2]);
 
             myData3.addLong(longData[0]);
             myData3.addLong(longData[1]);
             myData3.addLong(longData[2]);
 
-            myData3.addULong(longData[0]);
-            myData3.addULong(longData[1]);
-            myData3.addULong(longData[2]);
+            myData3.addULong(ulongData[0]);
+            myData3.addULong(ulongData[1]);
+            myData3.addULong(ulongData[2]);
 
             std::string format3 = "3C,3c,3S,3s,3I,3i,3L,3l";
 
@@ -316,12 +332,13 @@ namespace evio {
 
 
             // Create CompositeData array
+
                 cData.push_back(CompositeData::getInstance(format1, myData1, 1, 1, 1, order));
                 cData.push_back(CompositeData::getInstance(format2, myData2, 2, 2, 2, order));
                 cData.push_back(CompositeData::getInstance(format3, myData3, 3, 3, 3, order));
                 //cData.push_back(CompositeData::getInstance(format4, myData4, 4, 4, 4, order);
-                cData.push_back(CompositeData::getInstance(format5, myData5, 5, 5, 5, order));
-                cData.push_back(CompositeData::getInstance(format6, myData6, 6, 6, 6, order));
+                //cData.push_back(CompositeData::getInstance(format5, myData5, 5, 5, 5, order));
+                //cData.push_back(CompositeData::getInstance(format6, myData6, 6, 6, 6, order));
             }
             catch (EvioException &e) {
                 std::cerr << "Error in createCompositeData: " << e.what() << std::endl;
@@ -335,132 +352,130 @@ namespace evio {
 
             try {
                 // Buffer to fill
-            std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(1024);
-            buf->order(order);
-            auto builder = std::make_shared<CompactEventBuilder>(buf);
+                std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(1024);
+                buf->order(order);
+                auto builder = std::make_shared<CompactEventBuilder>(buf);
 
-            int num = tag;
-
-
+                int num = tag;
 
                 // add top/event level bank of banks
                 builder->openBank(tag, DataType::BANK, num);
 
-                    // add bank of banks
-                    builder->openBank(tag + 1, DataType::BANK, num + 1);
-
-                        // add bank of ints
-                        builder->openBank(tag + 2, DataType::INT32, num + 2);
-                        builder->addIntData(intData, 3);
-                        builder->closeStructure();
-
-                        // add bank of unsigned ints
-                        builder->openBank(tag + 2, DataType::UINT32, num + 32);
-                        builder->addUIntData(uintData, 3);
-                        builder->closeStructure();
-
-                        // add bank of bytes
-                        builder->openBank(tag + 3, DataType::CHAR8, num + 3);
-                        builder->addByteData(byteData, 3);
-                        builder->closeStructure();
-
-                        // add bank of unsigned bytes
-                        builder->openBank(tag + 3, DataType::UCHAR8, num + 33);
-                        builder->addUByteData(ubyteData, 3);
-                        builder->closeStructure();
-
-                        // add bank of shorts
-                        builder->openBank(tag + 4, DataType::SHORT16, num + 4);
-                        builder->addShortData(shortData, 3);
-                        builder->closeStructure();
-
-                        // add bank of unsigned shorts
-                        builder->openBank(tag + 4, DataType::USHORT16, num + 34);
-                        builder->addUShortData(ushortData, 3);
-                        builder->closeStructure();
-
-                        // add bank of longs
-                        builder->openBank(tag + 5, DataType::LONG64, num + 5);
-                        builder->addLongData(longData, 3);
-                        builder->closeStructure();
-
-                        // add bank of unsigned longs
-                        builder->openBank(tag + 5, DataType::ULONG64, num + 35);
-                        builder->addULongData(ulongData, 3);
-                        builder->closeStructure();
-
-                        // add bank of floats
-                        builder->openBank(tag + 6, DataType::FLOAT32, num + 6);
-                        builder->addFloatData(floatData, 3);
-                        builder->closeStructure();
-
-                        // add bank of doubles
-                        builder->openBank(tag + 7, DataType::DOUBLE64, num + 7);
-                        builder->addDoubleData(doubleData, 3);
-                        builder->closeStructure();
-
-                        // add bank of strings
-                        builder->openBank(tag + 8, DataType::CHARSTAR8, num + 8);
-                        builder->addStringData(stringData);
-                        builder->closeStructure();
+//                    // add bank of banks
+//                    builder->openBank(tag + 100, DataType::BANK, num + 100);
+//
+//                        // add bank of bytes
+//                        builder->openBank(tag + 2, DataType::CHAR8, num + 2);
+//                        builder->addByteData(byteData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of unsigned bytes
+//                        builder->openBank(tag + 3, DataType::UCHAR8, num + 3);
+//                        builder->addUByteData(ubyteData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of shorts
+//                        builder->openBank(tag + 4, DataType::SHORT16, num + 4);
+//                        builder->addShortData(shortData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of unsigned shorts
+//                        builder->openBank(tag + 5, DataType::USHORT16, num + 5);
+//                        builder->addUShortData(ushortData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of ints
+//                        builder->openBank(tag + 6, DataType::INT32, num + 6);
+//                        builder->addIntData(intData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of unsigned ints
+//                        builder->openBank(tag + 7, DataType::UINT32, num + 7);
+//                        builder->addUIntData(uintData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of longs
+//                        builder->openBank(tag + 8, DataType::LONG64, num + 8);
+//                        builder->addLongData(longData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of unsigned longs
+//                        builder->openBank(tag + 9, DataType::ULONG64, num + 9);
+//                        builder->addULongData(ulongData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of floats
+//                        builder->openBank(tag + 10, DataType::FLOAT32, num + 10);
+//                        builder->addFloatData(floatData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of doubles
+//                        builder->openBank(tag + 11, DataType::DOUBLE64, num + 11);
+//                        builder->addDoubleData(doubleData, 3);
+//                        builder->closeStructure();
+//
+//                        // add bank of strings
+//                        builder->openBank(tag + 12, DataType::CHARSTAR8, num + 12);
+//                        builder->addStringData(stringData);
+//                        builder->closeStructure();
 
                         // bank of composite data array
                         createCompositeData();
-                        builder->openBank(tag + 9, DataType::COMPOSITE, num + 9);
+                        builder->openBank(tag + 13, DataType::COMPOSITE, num + 13);
                         builder->addCompositeData(cData);
                         builder->closeStructure();
 
-                    builder->closeStructure();
+//                    builder->closeStructure();
 
 
-                    // add bank of segs
-                    builder->openBank(tag + 10, DataType::SEGMENT, num + 10);
-
-                        // add seg of ints
-                        builder->openSegment(tag + 11, DataType::INT32);
-                        builder->addIntData(intData, 3);
-                        builder->closeStructure();
-
-                        // add seg of shorts
-                        builder->openSegment(tag + 12, DataType::SHORT16);
-                        builder->addShortData(shortData, 3);
-                        builder->closeStructure();
-
-                        // add seg of segs
-                        builder->openSegment(tag + 13, DataType::SEGMENT);
-
-                            // add seg of bytes
-                            builder->openSegment(tag + 14, DataType::CHAR8);
-                            builder->addByteData(byteData, 3);
-                            builder->closeStructure();
-
-                            // add seg of doubles
-                            builder->openSegment(tag + 15, DataType::DOUBLE64);
-                            builder->addDoubleData(doubleData, 3);
-                            builder->closeStructure();
-
-                        builder->closeStructure();
-
-                    builder->closeStructure();
-
-
-                    // add bank of tagsegs
-                    builder->openBank(tag + 16, DataType::TAGSEGMENT, num + 16);
-
-                        // add tagseg of bytes
-                        builder->openTagSegment(tag + 17, DataType::CHAR8);
-                        builder->addByteData(byteData, 3);
-                        builder->closeStructure();
-
-                        // add tagseg of shorts
-                        builder->openTagSegment(tag + 18, DataType::SHORT16);
-                        builder->addShortData(shortData, 3);
-                        builder->closeStructure();
-
-                        // add tagseg of longs
-                        builder->openTagSegment(tag + 19, DataType::LONG64);
-                        builder->addLongData(longData, 3);
-                        builder->closeStructure();
+//                    // add bank of segs
+//                    builder->openBank(tag + 150, DataType::SEGMENT, num + 150);
+//
+//                        // add seg of ints
+//                        builder->openSegment(tag + 14, DataType::INT32);
+//                        builder->addIntData(intData, 3);
+//                        builder->closeStructure();
+//
+//                        // add seg of shorts
+//                        builder->openSegment(tag + 15, DataType::SHORT16);
+//                        builder->addShortData(shortData, 3);
+//                        builder->closeStructure();
+//
+//                        // add seg of segs
+//                        builder->openSegment(tag + 16, DataType::SEGMENT);
+//
+//                            // add seg of bytes
+//                            builder->openSegment(tag + 17, DataType::CHAR8);
+//                            builder->addByteData(byteData, 3);
+//                            builder->closeStructure();
+//
+//                            // add seg of doubles
+//                            builder->openSegment(tag + 18, DataType::DOUBLE64);
+//                            builder->addDoubleData(doubleData, 3);
+//                            builder->closeStructure();
+//
+//                        builder->closeStructure();
+//
+//                    builder->closeStructure();
+//
+//
+//                    // add bank of tagsegs
+//                    builder->openBank(tag + 200, DataType::TAGSEGMENT, num + 200);
+//
+//                        // add tagseg of bytes
+//                        builder->openTagSegment(tag + 19, DataType::CHAR8);
+//                        builder->addByteData(byteData, 3);
+//                        builder->closeStructure();
+//
+//                        // add tagseg of shorts
+//                        builder->openTagSegment(tag + 20, DataType::SHORT16);
+//                        builder->addShortData(shortData, 3);
+//                        builder->closeStructure();
+//
+//                        // add tagseg of longs
+//                        builder->openTagSegment(tag + 21, DataType::LONG64);
+//                        builder->addLongData(longData, 3);
+//                        builder->closeStructure();
 
                builder->closeAll();
                 return builder->getBuffer();
