@@ -308,6 +308,8 @@ Friends</h2></td></tr>
 <tr class="separator:a32f95a8849a0400219cb3f9d977dd9b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a435cc111ebc622be277c403cdf71c36a"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a435cc111ebc622be277c403cdf71c36a">EvioCompactStructureHandler</a></td></tr>
 <tr class="separator:a435cc111ebc622be277c403cdf71c36a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb65bec91764a99014c4288067b9bc02"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#adb65bec91764a99014c4288067b9bc02">EvioSwap</a></td></tr>
+<tr class="separator:adb65bec91764a99014c4288067b9bc02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This class is used to store relevant info about an evio container (bank, segment, or tag segment), without having to de-serialize it into many objects and arrays. It is not thread-safe and is designed for speed.</p>
@@ -536,7 +538,7 @@ template&lt;class ... Args&gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>shared pointer of created object. </dd></dl>
 
-<p class="reference">Referenced by <a class="el" href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#a5fb39ddb835491b5a5f9e111c2ba9f95">evio::EvioCompactReaderV4::addStructure()</a>, <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a74bf9b26657a57b3a7508f2b929a9b90">extractEventNode()</a>, <a class="el" href="../../de/dce/classevio_1_1_compact_event_builder.html#a14cd5da1c84c052c8a446235dd67f03c">evio::CompactEventBuilder::openBank()</a>, <a class="el" href="../../de/dce/classevio_1_1_compact_event_builder.html#a565d005085544e6e8c66e410fd1e8a8a">evio::CompactEventBuilder::openSegment()</a>, <a class="el" href="../../de/dce/classevio_1_1_compact_event_builder.html#a9b7812e1d18349d5fec68cd1611dfcf8">evio::CompactEventBuilder::openTagSegment()</a>, and <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a13984f5cb22828f75d636400064b147e">scanStructure()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#a5fb39ddb835491b5a5f9e111c2ba9f95">evio::EvioCompactReaderV4::addStructure()</a>, <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a74bf9b26657a57b3a7508f2b929a9b90">extractEventNode()</a>, <a class="el" href="../../de/dce/classevio_1_1_compact_event_builder.html#a14cd5da1c84c052c8a446235dd67f03c">evio::CompactEventBuilder::openBank()</a>, <a class="el" href="../../de/dce/classevio_1_1_compact_event_builder.html#a565d005085544e6e8c66e410fd1e8a8a">evio::CompactEventBuilder::openSegment()</a>, <a class="el" href="../../de/dce/classevio_1_1_compact_event_builder.html#a9b7812e1d18349d5fec68cd1611dfcf8">evio::CompactEventBuilder::openTagSegment()</a>, <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#a13984f5cb22828f75d636400064b147e">scanStructure()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a9944cdc543dd2234f350777746e8bb11">evio::EvioSwap::swapEvent()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">evio::EvioSwap::swapStructure()</a>.</p>
 
 </div>
 </div>
@@ -2111,6 +2113,28 @@ template&lt;class ... Args&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">friend class <a class="el" href="../../db/d63/classevio_1_1_evio_compact_structure_handler.html">EvioCompactStructureHandler</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adb65bec91764a99014c4288067b9bc02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb65bec91764a99014c4288067b9bc02">&#9670;&nbsp;</a></span>EvioSwap</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html">EvioSwap</a></td>
         </tr>
       </table>
   </td>

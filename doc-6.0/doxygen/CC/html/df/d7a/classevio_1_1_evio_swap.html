@@ -97,9 +97,33 @@ $(document).ready(function(){initNavTree('df/d7a/classevio_1_1_evio_swap.html','
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr class="memitem:afd0eed6f1231b3108f189d6b5aaad4a0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#afd0eed6f1231b3108f189d6b5aaad4a0">swapArray32</a> (uint8_t *data, uint32_t dataLen)</td></tr>
+<tr class="memdesc:afd0eed6f1231b3108f189d6b5aaad4a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swap byte array in place assuming bytes are 32 bit ints.  <a href="../../df/d7a/classevio_1_1_evio_swap.html#afd0eed6f1231b3108f189d6b5aaad4a0">More...</a><br /></td></tr>
+<tr class="separator:afd0eed6f1231b3108f189d6b5aaad4a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9944cdc543dd2234f350777746e8bb11"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a9944cdc543dd2234f350777746e8bb11">swapEvent</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;srcBuffer, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;destBuffer, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&gt; &amp;nodeList, bool storeNodes=false, bool <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData</a>=true, size_t srcPos=0, size_t destPos=0)</td></tr>
+<tr class="memdesc:a9944cdc543dd2234f350777746e8bb11"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method swaps the byte order of an entire evio event or bank.  <a href="../../df/d7a/classevio_1_1_evio_swap.html#a9944cdc543dd2234f350777746e8bb11">More...</a><br /></td></tr>
+<tr class="separator:a9944cdc543dd2234f350777746e8bb11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c7c011a901c27c972b2315a8d45c172"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a4c7c011a901c27c972b2315a8d45c172">swapBankHeader</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;srcBuffer, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;destBuffer, size_t srcPos=0, size_t destPos=0)</td></tr>
+<tr class="separator:a4c7c011a901c27c972b2315a8d45c172"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2599421431a0c47d0eb898f4dd811ba2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a2599421431a0c47d0eb898f4dd811ba2">swapSegmentHeader</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;srcBuffer, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;destBuffer, size_t srcPos=0, size_t destPos=0)</td></tr>
+<tr class="separator:a2599421431a0c47d0eb898f4dd811ba2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75c619846a704673511836a6b74b0f1e"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a75c619846a704673511836a6b74b0f1e">swapTagSegmentHeader</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;srcBuffer, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;destBuffer, size_t srcPos=0, size_t destPos=0)</td></tr>
+<tr class="separator:a75c619846a704673511836a6b74b0f1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd7ad375a15b26554c6a50c53580ad64"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData</a> (<a class="el" href="../../d5/d23/classevio_1_1_data_type.html">DataType</a> const &amp;type, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;srcBuffer, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;destBuffer, uint32_t len, bool inPlace=false, size_t srcPos=0, size_t destPos=0)</td></tr>
+<tr class="memdesc:acd7ad375a15b26554c6a50c53580ad64"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method swaps the data of an evio leaf structure.  <a href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">More...</a><br /></td></tr>
+<tr class="separator:acd7ad375a15b26554c6a50c53580ad64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1231fb7c50aba8bce65bed131f1b0443"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">swapStructure</a> (std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;node, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;srcBuffer, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;destBuffer, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&gt; &amp;nodeList, bool storeNodes=false, bool <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData</a>=true, bool inPlace=false, size_t srcPos=0, size_t destPos=0)</td></tr>
+<tr class="memdesc:a1231fb7c50aba8bce65bed131f1b0443"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swap an evio structure.  <a href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">More...</a><br /></td></tr>
+<tr class="separator:a1231fb7c50aba8bce65bed131f1b0443"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefb920407520e2ac716e8cd1daf51656"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aefb920407520e2ac716e8cd1daf51656">swapEvent</a> (uint32_t *buf, int tolocal, uint32_t *dest)</td></tr>
 <tr class="memdesc:aefb920407520e2ac716e8cd1daf51656"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method to swap the endianness of an evio event (bank).  <a href="../../df/d7a/classevio_1_1_evio_swap.html#aefb920407520e2ac716e8cd1daf51656">More...</a><br /></td></tr>
 <tr class="separator:aefb920407520e2ac716e8cd1daf51656"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fad1b1a7b7afedb03df3997fcf58630"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a4fad1b1a7b7afedb03df3997fcf58630">swapEvent</a> (<a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;buf, <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;dest)</td></tr>
+<tr class="memdesc:a4fad1b1a7b7afedb03df3997fcf58630"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method to swap the endianness of an evio event (bank).  <a href="../../df/d7a/classevio_1_1_evio_swap.html#a4fad1b1a7b7afedb03df3997fcf58630">More...</a><br /></td></tr>
+<tr class="separator:a4fad1b1a7b7afedb03df3997fcf58630"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57e993afaac512e7b97b79a9a8f8fd57"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a57e993afaac512e7b97b79a9a8f8fd57">swapEvent</a> (std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;buf, std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;dest)</td></tr>
+<tr class="memdesc:a57e993afaac512e7b97b79a9a8f8fd57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method to swap the endianness of an evio event (bank).  <a href="../../df/d7a/classevio_1_1_evio_swap.html#a57e993afaac512e7b97b79a9a8f8fd57">More...</a><br /></td></tr>
+<tr class="separator:a57e993afaac512e7b97b79a9a8f8fd57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6ffbe34e5acec4a4a34277a4db200a7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#ad6ffbe34e5acec4a4a34277a4db200a7">swapBank</a> (uint32_t *buf, bool toLocal, uint32_t *dest)</td></tr>
 <tr class="memdesc:ad6ffbe34e5acec4a4a34277a4db200a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Routine to swap the endianness of an evio bank.  <a href="../../df/d7a/classevio_1_1_evio_swap.html#ad6ffbe34e5acec4a4a34277a4db200a7">More...</a><br /></td></tr>
 <tr class="separator:ad6ffbe34e5acec4a4a34277a4db200a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,6 +151,58 @@ Static Public Member Functions</h2></td></tr>
 <dl class="section date"><dt>Date</dt><dd>7/17/2020 </dd></dl>
 <dl class="section author"><dt>Author</dt><dd>timmer </dd></dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="afd0eed6f1231b3108f189d6b5aaad4a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd0eed6f1231b3108f189d6b5aaad4a0">&#9670;&nbsp;</a></span>swapArray32()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapArray32 </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>dataLen</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Swap byte array in place assuming bytes are 32 bit ints. </p>
+<p>Number of array elements must be multiple of 4.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>byte array to convert. </td></tr>
+    <tr><td class="paramname">dataLen</td><td>number of bytes to convert. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if data is null; dataLen is not a multiple of 4. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ad6ffbe34e5acec4a4a34277a4db200a7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad6ffbe34e5acec4a4a34277a4db200a7">&#9670;&nbsp;</a></span>swapBank()</h2>
 
@@ -181,14 +257,179 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData()</a>.</p>
+<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aefb920407520e2ac716e8cd1daf51656">swapEvent()</a>.</p>
 
 </div>
 </div>
+<a id="a4c7c011a901c27c972b2315a8d45c172"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c7c011a901c27c972b2315a8d45c172">&#9670;&nbsp;</a></span>swapBankHeader()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapBankHeader </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>srcBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>destBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>srcPos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>destPos</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>This method reads and swaps an evio bank header. It can also return information about the bank. Position and limit of neither buffer argument is changed.</p>
+<p><b>This only swaps data if buffer arguments have opposite byte order!</b></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>object in which to store data about the bank in destBuffer after swap; may be null </td></tr>
+    <tr><td class="paramname">srcBuffer</td><td>buffer containing bank header to be swapped </td></tr>
+    <tr><td class="paramname">destBuffer</td><td>buffer in which to place swapped bank header </td></tr>
+    <tr><td class="paramname">srcPos</td><td>position in srcBuffer to start reading bank header </td></tr>
+    <tr><td class="paramname">destPos</td><td>position in destBuffer to start writing swapped bank header</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if srcBuffer too little data; if destBuffer is too small to contain swapped data </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a9944cdc543dd2234f350777746e8bb11">swapEvent()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">swapStructure()</a>.</p>
+
+</div>
+</div>
+<a id="acd7ad375a15b26554c6a50c53580ad64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd7ad375a15b26554c6a50c53580ad64">&#9670;&nbsp;</a></span>swapData() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapData </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d5/d23/classevio_1_1_data_type.html">DataType</a> const &amp;&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>srcBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>destBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>inPlace</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>srcPos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>destPos</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This method swaps the data of an evio leaf structure. </p>
+<p>In other words the structure being swapped does not contain evio structures.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>type of data being swapped </td></tr>
+    <tr><td class="paramname">srcBuffer</td><td>buffer containing data to be swapped </td></tr>
+    <tr><td class="paramname">destBuffer</td><td>buffer in which to place swapped data </td></tr>
+    <tr><td class="paramname">srcPos</td><td>position in srcBuffer to start reading data </td></tr>
+    <tr><td class="paramname">destPos</td><td>position in destBuffer to start writing swapped data </td></tr>
+    <tr><td class="paramname">len</td><td>length of data in 32 bit words </td></tr>
+    <tr><td class="paramname">inPlace</td><td>if true, data is swapped in srcBuffer</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if srcBuffer not in evio format; if destBuffer too small; if bad values for srcPos and/or destPos; </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a9a9803199ba7b5236f9fb5ccaacc9c6d">evio::DataType::CHAR8</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a44ebcac2851a8e66b41605ab55bc6708">evio::DataType::CHARSTAR8</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a9790e6d2d964cd17518b510cade71013">evio::DataType::COMPOSITE</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812">evio::DataType::DOUBLE64</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a15212317494206aed89652808e36ffcb">evio::DataType::FLOAT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#ae23b05542b144e3b7d72628280532195">evio::DataType::INT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a0ad3467f252ad341a3f630f0210bc9e1">evio::DataType::LONG64</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a227fb12c5f747c91239e4d305fa83447">evio::DataType::SHORT16</a>, <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html#a5c0eb22575479c3b31e77daad6ad0049">evio::CompositeData::swapAll()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a1d561abba7301ebf74fefad8b29fa8ae">evio::DataType::UCHAR8</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#ab594570d76a48584ae27c5e2276b3c04">evio::DataType::UINT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a0f556bae625e41a9adc3bae9949112d3">evio::DataType::ULONG64</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a2b3013fda814a931239319319790c761">evio::DataType::UNKNOWN32</a>, and <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#aa4dc041c0f0796a4b7dd12d11a9c325a">evio::DataType::USHORT16</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#ad6ffbe34e5acec4a4a34277a4db200a7">swapBank()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a012a366e3bc1f9eee1972e655856c833">swapData()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a9944cdc543dd2234f350777746e8bb11">swapEvent()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa73f2fbf22342d37418a28a8b67db4f9">swapSegment()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">swapStructure()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#abb4f489ac9d0af245aa08b6844b5bbcb">swapTagsegment()</a>.</p>
+
+</div>
+</div>
 <a id="a012a366e3bc1f9eee1972e655856c833"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a012a366e3bc1f9eee1972e655856c833">&#9670;&nbsp;</a></span>swapData() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a012a366e3bc1f9eee1972e655856c833">&#9670;&nbsp;</a></span>swapData() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,12 +463,12 @@ Static Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section author"><dt>Author</dt><dd>: Carl Timmer, 7/28/2020 </dd></dl>
 
-<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff">evio::ByteOrder::byteSwap16()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">evio::ByteOrder::byteSwap64()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812">evio::DataType::DOUBLE64</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a15212317494206aed89652808e36ffcb">evio::DataType::FLOAT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#ae23b05542b144e3b7d72628280532195">evio::DataType::INT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a0ad3467f252ad341a3f630f0210bc9e1">evio::DataType::LONG64</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a227fb12c5f747c91239e4d305fa83447">evio::DataType::SHORT16</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#ab594570d76a48584ae27c5e2276b3c04">evio::DataType::UINT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a0f556bae625e41a9adc3bae9949112d3">evio::DataType::ULONG64</a>, and <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#aa4dc041c0f0796a4b7dd12d11a9c325a">evio::DataType::USHORT16</a>.</p>
+<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff">evio::ByteOrder::byteSwap16()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">evio::ByteOrder::byteSwap64()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a018e0280b01ac441c63dc529f391c812">evio::DataType::DOUBLE64</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a15212317494206aed89652808e36ffcb">evio::DataType::FLOAT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#ae23b05542b144e3b7d72628280532195">evio::DataType::INT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a0ad3467f252ad341a3f630f0210bc9e1">evio::DataType::LONG64</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a227fb12c5f747c91239e4d305fa83447">evio::DataType::SHORT16</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#ab594570d76a48584ae27c5e2276b3c04">evio::DataType::UINT32</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a0f556bae625e41a9adc3bae9949112d3">evio::DataType::ULONG64</a>, and <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#aa4dc041c0f0796a4b7dd12d11a9c325a">evio::DataType::USHORT16</a>.</p>
 
 </div>
 </div>
 <a id="aa32ca389e1efa5f06333ee14126c5352"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa32ca389e1efa5f06333ee14126c5352">&#9670;&nbsp;</a></span>swapData() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa32ca389e1efa5f06333ee14126c5352">&#9670;&nbsp;</a></span>swapData() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -296,12 +537,196 @@ Static Public Member Functions</h2></td></tr>
 
 <p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a5fcee1f9ff458a9b14595551c1b3a77c">evio::ByteOrder::byteNoSwap32()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a4ba6cdff823495b629ad3283c18e5cff">evio::ByteOrder::byteSwap16()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#ab57f0490234e6d17fedb0c39cf5093c1">evio::ByteOrder::byteSwap64()</a>, <a class="el" href="../../d5/d4b/classevio_1_1_composite_data.html#a5c0eb22575479c3b31e77daad6ad0049">evio::CompositeData::swapAll()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#ad6ffbe34e5acec4a4a34277a4db200a7">swapBank()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa73f2fbf22342d37418a28a8b67db4f9">swapSegment()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#abb4f489ac9d0af245aa08b6844b5bbcb">swapTagsegment()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#ad6ffbe34e5acec4a4a34277a4db200a7">swapBank()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a012a366e3bc1f9eee1972e655856c833">swapData()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa73f2fbf22342d37418a28a8b67db4f9">swapSegment()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#abb4f489ac9d0af245aa08b6844b5bbcb">swapTagsegment()</a>.</p>
+</div>
+</div>
+<a id="a4fad1b1a7b7afedb03df3997fcf58630"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fad1b1a7b7afedb03df3997fcf58630">&#9670;&nbsp;</a></span>swapEvent() <span class="overload">[1/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapEvent </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>dest</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Method to swap the endianness of an evio event (bank). </p>
+<dl class="section author"><dt>Author</dt><dd>: Carl Timmer, mar-2025</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buf</td><td>buffer of evio event data to be swapped </td></tr>
+    <tr><td class="paramname">dest</td><td>buffer to place swapped data into. If this is null, then dest = buf. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#aa0e335238a57eaa0bffee8f968e5995f">evio::ByteBuffer::array()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#aa96046df3a55b85a31f2c33e4d903cf1">evio::ByteOrder::nativeOrder()</a>, <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#a3d5f0120189717ffc8d2d480d89cb91a">evio::ByteBuffer::order()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#ad6ffbe34e5acec4a4a34277a4db200a7">swapBank()</a>.</p>
+
+</div>
+</div>
+<a id="a57e993afaac512e7b97b79a9a8f8fd57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57e993afaac512e7b97b79a9a8f8fd57">&#9670;&nbsp;</a></span>swapEvent() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapEvent </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>dest</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Method to swap the endianness of an evio event (bank). </p>
+<dl class="section author"><dt>Author</dt><dd>: Carl Timmer, mar-2025</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buf</td><td>buffer of evio event data to be swapped </td></tr>
+    <tr><td class="paramname">dest</td><td>buffer to place swapped data into. If this is null, then dest = buf. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#aa96046df3a55b85a31f2c33e4d903cf1">evio::ByteOrder::nativeOrder()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#ad6ffbe34e5acec4a4a34277a4db200a7">swapBank()</a>.</p>
+
+</div>
+</div>
+<a id="a9944cdc543dd2234f350777746e8bb11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9944cdc543dd2234f350777746e8bb11">&#9670;&nbsp;</a></span>swapEvent() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapEvent </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>srcBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>destBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>nodeList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>storeNodes</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>swapData</em> = <code>true</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>srcPos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>destPos</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This method swaps the byte order of an entire evio event or bank. </p>
+<p>The byte order of the swapped buffer will be opposite to the byte order of the source buffer argument. If the swap is done in place, the byte order of the source buffer will be switched upon completion and the destPos arg will be set equal to the srcPos arg. The positions of the source and destination buffers are not changed. A <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html" title="This class is copied from one of the same name in the Java programming language.">ByteBuffer</a>'s current byte order can be found by calling <a class="el" href="../../">java.nio.ByteBuffer#order()</a>.</p>
+<p>The data to be swapped must <b>not</b> be in the evio file format (with record headers). Data must only consist of bytes representing a single event/bank. Position and limit of neither buffer is changed.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">srcBuffer</td><td>buffer containing event to swap. </td></tr>
+    <tr><td class="paramname">destBuffer</td><td>buffer in which to place the swapped event. If null, or identical to srcBuffer, the data is swapped in place. </td></tr>
+    <tr><td class="paramname">nodeList</td><td>if not null, generate and store node objects here - one for each swapped evio structure in destBuffer. </td></tr>
+    <tr><td class="paramname">storeNodes</td><td>if true, store generated EvioNodes in nodeList. </td></tr>
+    <tr><td class="paramname">swapData</td><td>if false, do NOT swap data, else swap data too. </td></tr>
+    <tr><td class="paramname">srcPos</td><td>position in srcBuffer to start reading event. </td></tr>
+    <tr><td class="paramname">destPos</td><td>position in destBuffer to start writing swapped event.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if srcBuffer arg is null; if any buffer position is not zero </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a9abb7776dd6a75467243aa15eded907d">evio::DataType::BANK</a>, <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#af3dd84dc04f07970c43fa99c3096c126">evio::EvioNode::createEvioNode()</a>, <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a5240c7673d80d6e03e890b3472ac00d4">evio::ByteOrder::getOppositeEndian()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a69fcde1e86a8cbad2a2ab213d070f3c8">evio::DataType::getValue()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a4c7c011a901c27c972b2315a8d45c172">swapBankHeader()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">swapStructure()</a>.</p>
 
 </div>
 </div>
 <a id="aefb920407520e2ac716e8cd1daf51656"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aefb920407520e2ac716e8cd1daf51656">&#9670;&nbsp;</a></span>swapEvent()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aefb920407520e2ac716e8cd1daf51656">&#9670;&nbsp;</a></span>swapEvent() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -573,9 +998,188 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData()</a>.</p>
+<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData()</a>.</p>
+
+</div>
+</div>
+<a id="a2599421431a0c47d0eb898f4dd811ba2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2599421431a0c47d0eb898f4dd811ba2">&#9670;&nbsp;</a></span>swapSegmentHeader()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapSegmentHeader </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>srcBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>destBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>srcPos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>destPos</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>This method reads and swaps an evio segment header. It can also return information about the segment. Position and limit of neither buffer argument is changed.</p>
+<p><b>This only swaps data if buffer arguments have opposite byte order!</b></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>object in which to store data about the segment in destBuffer after swap; may be null </td></tr>
+    <tr><td class="paramname">srcBuffer</td><td>buffer containing segment header to be swapped </td></tr>
+    <tr><td class="paramname">destBuffer</td><td>buffer in which to place swapped segment header </td></tr>
+    <tr><td class="paramname">srcPos</td><td>position in srcBuffer to start reading segment header </td></tr>
+    <tr><td class="paramname">destPos</td><td>position in destBuffer to start writing swapped segment header</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if srcBuffer too little data; if destBuffer is too small to contain swapped data </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">swapStructure()</a>.</p>
+
+</div>
+</div>
+<a id="a1231fb7c50aba8bce65bed131f1b0443"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1231fb7c50aba8bce65bed131f1b0443">&#9670;&nbsp;</a></span>swapStructure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapStructure </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>srcBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>destBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>nodeList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>storeNodes</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>swapData</em> = <code>true</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>inPlace</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>srcPos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>destPos</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Swap an evio structure. </p>
+<p>If it is a structure of structures, such as a bank of banks, swap recursively.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>info from parsed header </td></tr>
+    <tr><td class="paramname">srcBuffer</td><td>buffer containing structure to swap. </td></tr>
+    <tr><td class="paramname">destBuffer</td><td>buffer in which to place the swapped structure. </td></tr>
+    <tr><td class="paramname">nodeList</td><td>if not null, store all node objects here - one for each swapped evio structure in destBuffer. </td></tr>
+    <tr><td class="paramname">storeNodes</td><td>if true, store generated EvioNodes in nodeList. </td></tr>
+    <tr><td class="paramname">swapData</td><td>if false, do NOT swap data, else swap data too. </td></tr>
+    <tr><td class="paramname">inPlace</td><td>if true, data is swapped in srcBuffer </td></tr>
+    <tr><td class="paramname">srcPos</td><td>position in srcBuffer to start reading structure </td></tr>
+    <tr><td class="paramname">destPos</td><td>position in destBuffer to start writing swapped structure</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if args are null; IF srcBuffer not in evio format; if destBuffer too small; if bad values for srcPos and/or destPos; </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">References <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a9abb7776dd6a75467243aa15eded907d">evio::DataType::BANK</a>, <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html#af3dd84dc04f07970c43fa99c3096c126">evio::EvioNode::createEvioNode()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a69fcde1e86a8cbad2a2ab213d070f3c8">evio::DataType::getValue()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a43fa2881329c62cf42020bbc9b786106">evio::DataType::isBank()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a8c5bd7f199a30c163c274be1f51d6da3">evio::DataType::isSegment()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#add9555ba07e3b576ff8c395d7687425c">evio::DataType::isStructure()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#afafccc742f056bb1740cc7dd31a1955f">evio::DataType::isTagSegment()</a>, <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#aa696a1e106a458b808fbb6892432ae59">evio::DataType::SEGMENT</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a4c7c011a901c27c972b2315a8d45c172">swapBankHeader()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a2599421431a0c47d0eb898f4dd811ba2">swapSegmentHeader()</a>, <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a75c619846a704673511836a6b74b0f1e">swapTagSegmentHeader()</a>, and <a class="el" href="../../d5/d23/classevio_1_1_data_type.html#a96276904feb345922470078df8b5e5c7">evio::DataType::TAGSEGMENT</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a9944cdc543dd2234f350777746e8bb11">swapEvent()</a>.</p>
 
 </div>
 </div>
@@ -633,9 +1237,83 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData()</a>.</p>
+<p class="reference">References <a class="el" href="../../da/d7d/classevio_1_1_byte_order.html#a60983271868534fd949d944087e32db3">evio::ByteOrder::byteSwap32()</a>, and <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#acd7ad375a15b26554c6a50c53580ad64">swapData()</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#aa32ca389e1efa5f06333ee14126c5352">swapData()</a>.</p>
+
+</div>
+</div>
+<a id="a75c619846a704673511836a6b74b0f1e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75c619846a704673511836a6b74b0f1e">&#9670;&nbsp;</a></span>swapTagSegmentHeader()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void evio::EvioSwap::swapTagSegmentHeader </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>srcBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html">ByteBuffer</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>destBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>srcPos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>destPos</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>This method reads and swaps an evio tagsegment header. It can also return information about the tagsegment. Position and limit of neither buffer argument is changed.</p>
+<p><b>This only swaps data if buffer arguments have opposite byte order!</b></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>object in which to store data about the tagsegment in destBuffer after swap; may be null </td></tr>
+    <tr><td class="paramname">srcBuffer</td><td>buffer containing tagsegment header to be swapped </td></tr>
+    <tr><td class="paramname">destBuffer</td><td>buffer in which to place swapped tagsegment header </td></tr>
+    <tr><td class="paramname">srcPos</td><td>position in srcBuffer to start reading tagsegment header </td></tr>
+    <tr><td class="paramname">destPos</td><td>position in destBuffer to start writing swapped tagsegment header</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="../../d0/d0b/classevio_1_1_evio_exception.html" title="Exception class for Evio software package.">EvioException</a></td><td>if srcBuffer too little data; if destBuffer is too small to contain swapped data </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="reference">Referenced by <a class="el" href="../../df/d7a/classevio_1_1_evio_swap.html#a1231fb7c50aba8bce65bed131f1b0443">swapStructure()</a>.</p>
 
 </div>
 </div>
