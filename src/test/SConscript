@@ -24,6 +24,7 @@ if BOOST_ROOT != '':
 
 # Compile C++ files and install
 for fileName in ccfileList:
+    if("TestBase.cpp" in fileName): continue # Already compiled into shared library
     compiledFile = env.Program(source  = fileName,
                             LIBS = LIBS,
                             LIBPATH = LIBPATH,

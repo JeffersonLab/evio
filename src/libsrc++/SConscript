@@ -5,7 +5,7 @@ Import('env', 'platform', 'archDir', 'incInstallDir', 'libInstallDir', 'binInsta
 headerList = Glob('*.h', strings=True)
 
 # Files to compile
-fileList = Glob('*.cpp',  strings=True)
+fileList = Glob('*.cpp',  strings=True) + Glob('#src/test/TestBase.cpp', strings=True)
 
 env.AppendUnique(CPPPATH = ['/usr/local/include', '/usr/include/boost', '/usr/local/include/boost', disruptorHome])
 
