@@ -871,13 +871,13 @@ namespace evio {
 
 
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                             size_t nBytes, const std::vector<uint16_t> & ifmt);
+                             size_t nBytes, uint32_t padding, const std::vector<uint16_t> & ifmt);
         static void swapData(std::shared_ptr<ByteBuffer> & srcBuf,
                              std::shared_ptr<ByteBuffer> & destBuf,
-                             size_t srcPos, size_t destPos, size_t nBytes,
+                             size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                              const std::vector<uint16_t> & ifmt);
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                             size_t srcPos, size_t destPos, size_t nBytes,
+                             size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                              const std::vector<uint16_t> & ifmt);
         static void swapData(int32_t *src, int32_t *dest, size_t nwrd,
                              const std::vector<uint16_t> & ifmt,

@@ -70,7 +70,7 @@ namespace evio {
         // CANNOT create EvioTagSegment or EvioBank objects since that will create a
         // circular dependency between this class and BaseStructure!
         // That, in turn, will not allow EvioBank or EvioTagSegment to inherit from BaseStructure.
-        // This is where Java really surpasses C++. Find another way write data.
+        // This is where Java really surpasses C++. Find another way to write data.
 
         std::vector<std::string> strings;
         strings.push_back(format);
@@ -1325,7 +1325,7 @@ namespace evio {
             byteLen = 4*node->getDataLength();
 
             // Swap data (accounting for padding)
-            CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node->getPad()), fmtInts);
+            CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node->getPad()), node->getPad(), fmtInts);
 
             // Move past bank data
             srcPos    += byteLen;
@@ -1367,9 +1367,9 @@ namespace evio {
      *                       if src & dest not identical but overlap.
      */
     void CompositeData::swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                                 size_t nBytes, const std::vector<uint16_t> & ifmt) {
+                                 size_t nBytes, uint32_t padding, const std::vector<uint16_t> & ifmt) {
 
-        swapData(srcBuf, destBuf, srcBuf.position(), destBuf.position(), nBytes, ifmt);
+        swapData(srcBuf, destBuf, srcBuf.position(), destBuf.position(), nBytes, padding, ifmt);
     }
 
 
@@ -1388,7 +1388,8 @@ namespace evio {
      * @param srcPos   position in srcBuf to beginning swapping
      * @param destPos  position in destBuf to beginning writing swapped data unless
      *                 data is swapped in place (then set to srcPos).
-     * @param nBytes   length of data to swap in bytes (be sure to account for padding)
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt empty or nBytes &lt; 8;
@@ -1397,9 +1398,9 @@ namespace evio {
      */
     void CompositeData::swapData(std::shared_ptr<ByteBuffer> & srcBuf,
                                  std::shared_ptr<ByteBuffer> & destBuf,
-                                 size_t srcPos, size_t destPos, size_t nBytes,
+                                 size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                                  const std::vector<uint16_t> & ifmt) {
-        swapData(*srcBuf, *destBuf, srcPos, destPos, nBytes, ifmt);
+        swapData(*srcBuf, *destBuf, srcPos, destPos, nBytes, padding, ifmt);
     }
 
 
@@ -1418,7 +1419,8 @@ namespace evio {
      * @param srcPos   position in srcBuf to beginning swapping
      * @param destPos  position in destBuf to beginning writing swapped data unless
      *                 data is swapped in place (then set to srcPos).
-     * @param nBytes   length of data to swap in bytes (be sure to account for padding)
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt empty or nBytes &lt; 8;
@@ -1426,7 +1428,7 @@ namespace evio {
      *                       if src & dest not identical but overlap.
      */
     void CompositeData::swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                                 size_t srcPos, size_t destPos, size_t nBytes,
+                                 size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                                  const std::vector<uint16_t> & ifmt) {
 
         // check args
@@ -1452,8 +1454,7 @@ namespace evio {
             // different endianness.
             srcBuf.duplicate(destBuf);
             // Byte order of swapped data
-            destOrder = (srcBuf.order() == ByteOrder::ENDIAN_BIG) ?
-                        ByteOrder::ENDIAN_LITTLE : ByteOrder::ENDIAN_BIG;
+            destOrder = srcBuf.order().getOppositeEndian();
 
             destBuf.order(destOrder);
             destPos = srcPos;
@@ -1467,6 +1468,15 @@ namespace evio {
             if (((destPtr + nBytes) > srcPtr) && (destPtr < (srcPtr + nBytes))) {
                 throw EvioException("src and dest memory not identical but overlaps");
             }
+
+            // Clear padding so double swapped data can be easily checked
+            //std::cout << "+++ swapData: clear padding bytes, " << padding << ", len = " << (srcPos + nBytes) << std::endl;
+            for (uint32_t i=0; i < padding; i++) {
+                uint8_t * endData = destPtr + destBuf.arrayOffset() + srcPos + nBytes;
+                //std::cout << "+++ swapData1: clear bytes at " << + (*(endData + i)) << std::endl;
+                *(endData + i) = 0;
+            }
+
         }
 
         // Check to see if buffers are too small to handle this operation
@@ -1826,6 +1836,14 @@ namespace evio {
             // Check to see if src & dest memories overlap
             if (((dest + nwrd) > src) && (dest < (src + nwrd))) {
                 throw EvioException("src & dest memories not identical but overlap");
+            }
+
+            // Clear padding so double swapped data can be checked easily
+            auto endOfData = reinterpret_cast<uint8_t *>(dest + nwrd);
+            endOfData -= padding;
+            for (uint32_t i=0; i < padding; i++) {
+                //std::cout << "+++ swapData2: cleared padding at " << i << std::endl;
+                *(endOfData + i) = 0;
             }
         }
 

@@ -1767,7 +1767,7 @@ public final class CompositeData implements Cloneable {
             destBuffer.position(destOff + dataOff);
 
             // Swap data
-            swapData(srcBuffer, destBuffer, dataLength, formatInts);
+            swapData(srcBuffer, destBuffer, dataLength, padding, formatInts);
 
             // Set buffer positions and offset
             dataOff += dataLength + padding;
@@ -1884,7 +1884,7 @@ public final class CompositeData implements Cloneable {
             byteLen = 4*node.dataLen;
 
             // Swap data (accounting for padding)
-            swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), formatInts);
+            swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), node.pad, formatInts);
 
             // Move past bank data
             srcPos    += byteLen;
@@ -1918,7 +1918,8 @@ public final class CompositeData implements Cloneable {
      * @param srcOff   offset into source data array
      * @param dest     destination data array (of 32 bit words)
      * @param destOff  offset into destination data array
-     * @param nBytes   length of data to swap in bytes
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      * @param srcOrder byte order of the src data array
      *
@@ -1928,7 +1929,7 @@ public final class CompositeData implements Cloneable {
      *                       buffer limit/position combo too small;
      */
     public static void swapData(byte[] src, int srcOff, byte[] dest, int destOff,
-                                int nBytes, List<Integer> ifmt, ByteOrder srcOrder)
+                                int nBytes, int padding, List<Integer> ifmt, ByteOrder srcOrder)
                         throws EvioException {
 
         if (src == null) throw new EvioException("src arg cannot be null");
@@ -1942,7 +1943,7 @@ public final class CompositeData implements Cloneable {
             destBuf = ByteBuffer.wrap(dest, destOff, nBytes);
         }
 
-        swapData(srcBuf, destBuf, nBytes, ifmt);
+        swapData(srcBuf, destBuf, nBytes, padding, ifmt);
     }
 
 
@@ -1958,7 +1959,8 @@ public final class CompositeData implements Cloneable {
      *
      * @param srcBuf   source data buffer
      * @param destBuf  destination data buffer; if null, use srcBuf as destination
-     * @param nBytes   length of data to swap in bytes
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
      * @throws EvioException if ifmt null; ifmt size &lt; 1; nBytes &lt; 8;
@@ -1966,7 +1968,7 @@ public final class CompositeData implements Cloneable {
      *                       buffer limit/position combo too small;
      */
     public static void swapData(ByteBuffer srcBuf, ByteBuffer destBuf,
-                                int nBytes, List<Integer> ifmt)
+                                int nBytes, int padding, List<Integer> ifmt)
                         throws EvioException {
 
         if (srcBuf == null) {
@@ -1981,7 +1983,7 @@ public final class CompositeData implements Cloneable {
             destPos = srcBuf.position();
         }
 
-        swapData(srcBuf, destBuf, srcBuf.position(), destPos, nBytes, ifmt);
+        swapData(srcBuf, destBuf, srcBuf.position(), destPos, nBytes, padding, ifmt);
     }
 
 
@@ -2001,7 +2003,8 @@ public final class CompositeData implements Cloneable {
      * @param destBuf  destination data buffer; if null, use srcBuf as destination
      * @param srcPos   position in srcBuf to beginning swapping
      * @param destPos  position in destBuf to beginning writing swapped data
-     * @param nBytes   length of data to swap in bytes (be sure to account for padding)
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
      * @throws EvioException if ifmt null; ifmt size &lt; 1; nBytes &lt; 8;
@@ -2009,7 +2012,7 @@ public final class CompositeData implements Cloneable {
      *                       buffer limit/position combo too small;
      */
     public static void swapData(ByteBuffer srcBuf, ByteBuffer destBuf,
-                                int srcPos, int destPos, int nBytes, List<Integer> ifmt)
+                                int srcPos, int destPos, int nBytes, int padding, List<Integer> ifmt)
                         throws EvioException {
 
         boolean debug = false;
@@ -2051,6 +2054,11 @@ public final class CompositeData implements Cloneable {
         }
         else {
             destOrder = destBuf.order();
+
+            // Clear padding so double swapped data can be checked easily
+            for (int i=0; i < padding; i++) {
+                destBuf.put(destPos + nBytes + i, (byte)0);
+            }
         }
 
         // Check position args
