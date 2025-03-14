@@ -429,7 +429,7 @@ namespace evio {
              * Add an unsigned 32 bit integer to the data.
              * @param i unsigned integer to add.
              */
-            void addUint(uint32_t i) {
+            void addUInt(uint32_t i) {
                 DataItem mem;
                 mem.item.ui32 = i;
                 dataItems.push_back(mem);
@@ -441,7 +441,7 @@ namespace evio {
              * Add an vector of unsigned 32 bit integers to the data.
              * @param i vector of unsigned integers to add.
              */
-            void addUint(std::vector<uint32_t> const & i) {
+            void addUInt(std::vector<uint32_t> const & i) {
                 for (auto ii : i) {
                     DataItem mem;
                     mem.item.ui32 = ii;
