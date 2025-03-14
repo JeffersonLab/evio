@@ -32,9 +32,9 @@ project(evio VERSION 6.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
-#set(CMAKE_BUILD_TYPE Debug)
-#add_compile_options(-g)
-add_compile_options(-Wall)
+set(CMAKE_BUILD_TYPE Debug)
+add_compile_options(-g)
+#add_compile_options(-Wall)
 
 set(MAKE_EXAMPLES 1)
 
@@ -205,6 +205,7 @@ set(TEST
         src/test/Tree_Buf_Composite_Builder_Test.cpp
         src/test/hallDEventFiles.cpp
         src/test/FileWriteTest.cpp
+        src/test/SwapTest.cpp
         )
 
 
