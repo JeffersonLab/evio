@@ -141,7 +141,7 @@ namespace evio {
 
         void ByteBufferTest() {
 
-            uint8_t* array = new uint8_t[]{(uint8_t) 1, (uint8_t) 2, (uint8_t) 3, (uint8_t) 4};
+            uint8_t* array = new uint8_t[4] {(uint8_t) 1, (uint8_t) 2, (uint8_t) 3, (uint8_t) 4};
             auto bb1 = std::make_shared<ByteBuffer>(array, 4);
 
             std::cout << "Wrapped array: " << std::endl;
