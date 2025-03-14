@@ -232,7 +232,7 @@ include(FindPackageHandleStandardArgs)
 
 
 # search for boost libs
-find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem CONFIG)
+find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem)
 
 
 if (Boost_FOUND)
