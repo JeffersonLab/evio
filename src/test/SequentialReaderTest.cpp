@@ -25,9 +25,6 @@ namespace evio {
      * @author timmer
      */
     class SequentialReaderTest : public TestBase {
-
-        public:
-
     };
 }
 
