@@ -54,6 +54,7 @@ var classevio_1_1_reader =
     [ "readUserHeader", "d3/d56/classevio_1_1_reader.html#a31e48758d1652e9104bcea1c6b95c2d5", null ],
     [ "removeEvent", "d3/d56/classevio_1_1_reader.html#a6658c1981cd2ab8abbe8a8c6357df388", null ],
     [ "removeStructure", "d3/d56/classevio_1_1_reader.html#a20dccea3833e50fdeebbae49ab787fde", null ],
+    [ "rewind", "d3/d56/classevio_1_1_reader.html#abddae1690f117992edff0a2c49e20b26", null ],
     [ "scanBuffer", "d3/d56/classevio_1_1_reader.html#a2df955f07faf6a4cd92cc8184eaa5d04", null ],
     [ "scanFile", "d3/d56/classevio_1_1_reader.html#a7a3c02dd9c1c87a57f4b73076071bced", null ],
     [ "scanUncompressedBuffer", "d3/d56/classevio_1_1_reader.html#a703075aab48cc798dbccc8cb14d74725", null ],

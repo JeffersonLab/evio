@@ -115,6 +115,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a4a03589aaecd0cb9c819dec50ccbc132"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a75ad257fe61c79c1ebb2a079aa9ab0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d56/classevio_1_1_reader.html#a3a75ad257fe61c79c1ebb2a079aa9ab0">~Reader</a> ()=default</td></tr>
 <tr class="separator:a3a75ad257fe61c79c1ebb2a079aa9ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abddae1690f117992edff0a2c49e20b26"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d56/classevio_1_1_reader.html#abddae1690f117992edff0a2c49e20b26">rewind</a> ()</td></tr>
+<tr class="memdesc:abddae1690f117992edff0a2c49e20b26"><td class="mdescLeft">&#160;</td><td class="mdescRight">The equivalent of rewinding the file.  <a href="../../d3/d56/classevio_1_1_reader.html#abddae1690f117992edff0a2c49e20b26">More...</a><br /></td></tr>
+<tr class="separator:abddae1690f117992edff0a2c49e20b26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a783002c7c34ba467b9880ec4bd66158d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d56/classevio_1_1_reader.html#a783002c7c34ba467b9880ec4bd66158d">open</a> (std::string const &amp;filename, bool scan=true)</td></tr>
 <tr class="memdesc:a783002c7c34ba467b9880ec4bd66158d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens an input stream in binary mode.  <a href="../../d3/d56/classevio_1_1_reader.html#a783002c7c34ba467b9880ec4bd66158d">More...</a><br /></td></tr>
 <tr class="separator:a783002c7c34ba467b9880ec4bd66158d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2043,6 +2046,26 @@ uncompressed data length in bytes (no padding, w/o record header) </li>
 <p class="reference">References <a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a0e09d731589bcfe2705d0c606192f6eb">evio::RecordHeader::HEADER_SIZE_BYTES</a>, <a class="el" href="../../d8/d64/classevio_1_1_record_header.html#a1b0ce8aa63d88b861fca36a5561c7122">evio::RecordHeader::INDEX_ARRAY_OFFSET</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a61126c219647016814078a04da66c998">isCompressed()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a3c79ae478e1f977a14cd766778054419">isFile()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a6658c1981cd2ab8abbe8a8c6357df388">removeEvent()</a>, <a class="el" href="../../d3/d56/classevio_1_1_reader.html#a2df955f07faf6a4cd92cc8184eaa5d04">scanBuffer()</a>, <a class="el" href="../../da/d08/classevio_1_1_compressor.html#aed2330d08ee8c96b2690fec7f9a68747a056585718cbf5c7808c0e37b1f88dbb9">evio::Compressor::UNCOMPRESSED</a>, and <a class="el" href="../../d8/d64/classevio_1_1_record_header.html#aa8e92627a8294434d3e4762fd42e4dff">evio::RecordHeader::UNCOMPRESSED_LENGTH_OFFSET</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="../../dd/d94/classevio_1_1_evio_compact_reader_v6.html#ad33330c96cc9389999749effde83292f">evio::EvioCompactReaderV6::removeStructure()</a>.</p>
+
+</div>
+</div>
+<a id="abddae1690f117992edff0a2c49e20b26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abddae1690f117992edff0a2c49e20b26">&#9670;&nbsp;</a></span>rewind()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void evio::Reader::rewind </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The equivalent of rewinding the file. </p>
+<p>What it actually does is set the position of the sequential index back to the beginning. This allows a mix of sequential calls with those that are not sequential. </p>
 
 </div>
 </div>

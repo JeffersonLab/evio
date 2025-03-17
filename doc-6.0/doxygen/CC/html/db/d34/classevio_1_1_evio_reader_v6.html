@@ -309,7 +309,7 @@ Public Member Functions</h2></td></tr>
   <a href="../../db/d34/classevio_1_1_evio_reader_v6.html#a54401688329ae72d5b3f7068ca32ddeb">More...</a><br /></td></tr>
 <tr class="separator:a54401688329ae72d5b3f7068ca32ddeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65bfd0c084c274716e16ac90f7b7084b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d34/classevio_1_1_evio_reader_v6.html#a65bfd0c084c274716e16ac90f7b7084b">rewind</a> () override</td></tr>
-<tr class="memdesc:a65bfd0c084c274716e16ac90f7b7084b"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method is not relevant in evio 6 and does nothing.  <a href="../../db/d34/classevio_1_1_evio_reader_v6.html#a65bfd0c084c274716e16ac90f7b7084b">More...</a><br /></td></tr>
+<tr class="memdesc:a65bfd0c084c274716e16ac90f7b7084b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The equivalent of rewinding the file.  <a href="../../db/d34/classevio_1_1_evio_reader_v6.html#a65bfd0c084c274716e16ac90f7b7084b">More...</a><br /></td></tr>
 <tr class="separator:a65bfd0c084c274716e16ac90f7b7084b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ee5892d045c14faeec288341f005288"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d34/classevio_1_1_evio_reader_v6.html#a1ee5892d045c14faeec288341f005288">position</a> () override</td></tr>
 <tr class="memdesc:a1ee5892d045c14faeec288341f005288"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method is not relevant in evio 6, does nothing, and returns 0.  <a href="../../db/d34/classevio_1_1_evio_reader_v6.html#a1ee5892d045c14faeec288341f005288">More...</a><br /></td></tr>
@@ -1511,7 +1511,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>This method is not relevant in evio 6 and does nothing. </p>
+<p>The equivalent of rewinding the file. </p>
+<p>What it actually does is set the position of the sequential index back to the beginning. This allows a mix of sequential calls with those that are not sequential. </p>
 
 <p>Implements <a class="el" href="../../de/d97/classevio_1_1_i_evio_reader.html#a73cb48511f980029d7a55ce70c34765b">evio::IEvioReader</a>.</p>
 

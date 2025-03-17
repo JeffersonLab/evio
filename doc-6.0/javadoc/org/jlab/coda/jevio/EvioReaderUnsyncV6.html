@@ -376,7 +376,7 @@ implements <a href="../../../../org/jlab/coda/jevio/IEvioReader.html" title="int
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../org/jlab/coda/jevio/EvioReaderUnsyncV6.html#rewind--">rewind</a></span>()</code>
-<div class="block">This method is not relevant in evio 6 and does nothing.</div>
+<div class="block">The equivalent of rewinding the file.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
@@ -1032,7 +1032,9 @@ implements <a href="../../../../org/jlab/coda/jevio/IEvioReader.html" title="int
 <li class="blockList">
 <h4>rewind</h4>
 <pre>public&nbsp;void&nbsp;rewind()</pre>
-<div class="block">This method is not relevant in evio 6 and does nothing.</div>
+<div class="block">The equivalent of rewinding the file. What it actually does
+ is set the position of the sequential index back to the beginning.
+ This allows a mix of sequential calls with those that are not sequential.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../org/jlab/coda/jevio/IEvioReader.html#rewind--">rewind</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jlab/coda/jevio/IEvioReader.html" title="interface in org.jlab.coda.jevio">IEvioReader</a></code></dd>
