@@ -454,6 +454,13 @@ public class Reader {
     }
 
     /**
+     * The equivalent of rewinding the file. What it actually does
+     * is set the position of the sequential index back to the beginning.
+     * This allows a mix of sequential calls with those that are not sequential.
+     */
+    public void rewind() {sequentialIndex = -1;}
+
+    /**
      * Opens an input stream in binary mode. Scans for
      * records in the file and stores record information
      * in internal array. Each record can be read from the file.

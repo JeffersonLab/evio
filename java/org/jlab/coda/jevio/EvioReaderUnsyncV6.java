@@ -376,9 +376,13 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
     }
 
 
-	/** This method is not relevant in evio 6 and does nothing. */
+    /**
+     * The equivalent of rewinding the file. What it actually does
+     * is set the position of the sequential index back to the beginning.
+     * This allows a mix of sequential calls with those that are not sequential.
+     */
     @Override
-    public void rewind() {}
+    public void rewind() {reader.rewind();}
 
 
     /** This method is not relevant in evio 6, does nothing, and returns 0. */
