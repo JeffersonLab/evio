@@ -206,6 +206,8 @@ set(TEST
         src/test/hallDEventFiles.cpp
         src/test/FileWriteTest.cpp
         src/test/SwapTest.cpp
+        src/test/ReadSequenceTest.cpp
+        src/test/SequentialReaderTest.cpp
         )
 
 
