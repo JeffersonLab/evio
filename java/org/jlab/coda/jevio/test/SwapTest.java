@@ -73,8 +73,8 @@ public class SwapTest {
         // Now create some data
         CompositeData.Data myData1 = new CompositeData.Data();
         myData1.addN(2);
-        myData1.addN(3);
-        myData1.addShort(new short[]{1, 2, 3}); // use array for convenience
+        myData1.addN(2);
+        myData1.addShort(new short[]{1, 2}); // use array for convenience
         myData1.addFloat(Float.MAX_VALUE);
         myData1.addDouble(Double.MAX_VALUE);
         myData1.addN(1);
@@ -173,8 +173,8 @@ public class SwapTest {
         // Now create some data
         CompositeData.Data myData5 = new CompositeData.Data();
         myData5.addN(2);
-        myData5.addN(3);
-        myData5.addShort(new short[]{1, 2, 3}); // use array for convenience
+        myData5.addN(2);
+        myData5.addShort(new short[]{1, 2}); // use array for convenience
         myData5.addInt(1);
         myData5.addInt(2);
         myData5.addInt(3);
@@ -208,7 +208,6 @@ public class SwapTest {
         myData6.addDouble(3.);
         myData6.addDouble(3.);
         myData6.addDouble(3.);
-
 
         myData6.addFloat((float)3.e-10);
         myData6.addFloat((float)3.e10);
@@ -282,7 +281,6 @@ public class SwapTest {
             cData[0] = new CompositeData(format1, 1, myData1, 1, 1, order);
             cData[1] = new CompositeData(format2, 2, myData2, 2, 2, order);
             cData[2] = new CompositeData(format3, 3, myData3, 3, 3, order);
-//            cData[3] = new CompositeData(format4, 4, myData4, 4, 4, order);
             cData[3] = new CompositeData(format5, 5, myData5, 5, 5, order);
             cData[4] = new CompositeData(format6, 6, myData6, 6, 6, order);
         }
@@ -311,25 +309,15 @@ public class SwapTest {
             builder.openBank(tag, num, DataType.BANK);
 
                 // add bank of banks
-                builder.openBank(tag+1, num+1, DataType.BANK);
-
-                    // add bank of ints
-                    builder.openBank(tag+2, num+2, DataType.INT32);
-                    builder.addIntData(intData);
-                    builder.closeStructure();
-
-                    // add bank of unsigned ints
-                    builder.openBank(tag+2, num+32, DataType.UINT32);
-                    builder.addIntData(intData);
-                    builder.closeStructure();
+                builder.openBank(tag+100, num+100, DataType.BANK);
 
                     // add bank of bytes
-                    builder.openBank(tag+3, num+3, DataType.CHAR8);
+                    builder.openBank(tag+2, num+2, DataType.CHAR8);
                     builder.addByteData(byteData);
                     builder.closeStructure();
 
                     // add bank of unsigned bytes
-                    builder.openBank(tag+3, num+33, DataType.UCHAR8);
+                    builder.openBank(tag+3, num+3, DataType.UCHAR8);
                     builder.addByteData(byteData);
                     builder.closeStructure();
 
@@ -339,38 +327,48 @@ public class SwapTest {
                     builder.closeStructure();
 
                     // add bank of unsigned shorts
-                    builder.openBank(tag+4, num+34, DataType.USHORT16);
+                    builder.openBank(tag+5, num+5, DataType.USHORT16);
                     builder.addShortData(shortData);
                     builder.closeStructure();
 
+                    // add bank of ints
+                    builder.openBank(tag+6, num+6, DataType.INT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
+
+                    // add bank of unsigned ints
+                    builder.openBank(tag+7, num+7, DataType.UINT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
+
                     // add bank of longs
-                    builder.openBank(tag+5, num+5, DataType.LONG64);
+                    builder.openBank(tag+8, num+8, DataType.LONG64);
                     builder.addLongData(longData);
                     builder.closeStructure();
 
                     // add bank of unsigned longs
-                    builder.openBank(tag+5, num+35, DataType.ULONG64);
+                    builder.openBank(tag+9, num+9, DataType.ULONG64);
                     builder.addLongData(longData);
                     builder.closeStructure();
 
                     // add bank of floats
-                    builder.openBank(tag+6, num+6, DataType.FLOAT32);
+                    builder.openBank(tag+10, num+10, DataType.FLOAT32);
                     builder.addFloatData(floatData);
                     builder.closeStructure();
 
                     // add bank of doubles
-                    builder.openBank(tag+7, num+7, DataType.DOUBLE64);
+                    builder.openBank(tag+11, num+11, DataType.DOUBLE64);
                     builder.addDoubleData(doubleData);
                     builder.closeStructure();
 
                     // add bank of strings
-                    builder.openBank(tag+8, num+8, DataType.CHARSTAR8);
+                    builder.openBank(tag+12, num+12, DataType.CHARSTAR8);
                     builder.addStringData(stringData);
                     builder.closeStructure();
 
                     // bank of composite data array
                     CompositeData[] cdata = createCompositeData();
-                    builder.openBank(tag+9, num+9, DataType.COMPOSITE);
+                    builder.openBank(tag+13, num+13, DataType.COMPOSITE);
                     builder.addCompositeData(cdata);
                     builder.closeStructure();
 
@@ -378,28 +376,28 @@ public class SwapTest {
 
 
                 // add bank of segs
-                builder.openBank(tag+10, num+10, DataType.SEGMENT);
+                builder.openBank(tag+150, num+150, DataType.SEGMENT);
 
                     // add seg of ints
-                    builder.openSegment(tag+11, DataType.INT32);
+                    builder.openSegment(tag+14, DataType.INT32);
                     builder.addIntData(intData);
                     builder.closeStructure();
 
                     // add seg of shorts
-                    builder.openSegment(tag+12, DataType.SHORT16);
+                    builder.openSegment(tag+15, DataType.SHORT16);
                     builder.addShortData(shortData);
                     builder.closeStructure();
 
                     // add seg of segs
-                    builder.openSegment(tag+13, DataType.SEGMENT);
+                    builder.openSegment(tag+16, DataType.SEGMENT);
 
                         // add seg of bytes
-                        builder.openSegment(tag+14, DataType.CHAR8);
+                        builder.openSegment(tag+17, DataType.CHAR8);
                         builder.addByteData(byteData);
                         builder.closeStructure();
 
                         // add seg of doubles
-                        builder.openSegment(tag+15, DataType.DOUBLE64);
+                        builder.openSegment(tag+18, DataType.DOUBLE64);
                         builder.addDoubleData(doubleData);
                         builder.closeStructure();
 
@@ -408,20 +406,20 @@ public class SwapTest {
 
 
             // add bank of tagsegs
-            builder.openBank(tag+16, num+16, DataType.TAGSEGMENT);
+            builder.openBank(tag+200, num+200, DataType.TAGSEGMENT);
 
                 // add tagseg of bytes
-                builder.openTagSegment(tag+17, DataType.CHAR8);
+                builder.openTagSegment(tag+19, DataType.CHAR8);
                 builder.addByteData(byteData);
                 builder.closeStructure();
 
                 // add tagseg of shorts
-                builder.openTagSegment(tag+18, DataType.SHORT16);
+                builder.openTagSegment(tag+20, DataType.SHORT16);
                 builder.addShortData(shortData);
                 builder.closeStructure();
 
                 // add tagseg of longs
-                builder.openTagSegment(tag+19, DataType.LONG64);
+                builder.openTagSegment(tag+21, DataType.LONG64);
                 builder.addLongData(longData);
                 builder.closeStructure();
 
