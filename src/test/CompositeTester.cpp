@@ -93,7 +93,7 @@ namespace evio {
             bank[11] = (uint32_t) (dl >> 32) & 0xffffffff;    // higher 32 bits
             bank[12] = (uint32_t)  dl;                        // lower 32 bits
             // Float
-            float f = (float)(PI*(-1.e-24));
+            auto f = (float)(PI*(-1.e-24));
             uint32_t  fi = floatToIntBits(f);
             bank[13] = fi;
 
@@ -120,7 +120,7 @@ namespace evio {
                 std::cout << "\n_________ TEST 1 _________\n" << std::endl;
 
                 // change int array into byte array
-                uint8_t *byteArray = new uint8_t[4*22];
+                auto *byteArray = new uint8_t[4*22];
                 Util::toByteArray(allData, 22, ByteOrder::ENDIAN_BIG, byteArray);
 
                 // wrap bytes in ByteBuffer for ease of printing later
@@ -185,7 +185,7 @@ namespace evio {
                 std::cout << "Short  = " << cData->getShort() << std::endl;
                 std::cout << "Short  = " << cData->getShort() << std::endl;
                 std::vector<std::string> strs = cData->getStrings();
-                for (std::string s : strs) std::cout << "String = " + s << std::endl;
+                for (const std::string & s : strs) std::cout << "String = " + s << std::endl;
 
                 // use toString() method to print out
                 std::cout << "\ntoString =\n" + cData->toString("     ", true) << std::dec << std::endl;
@@ -303,7 +303,7 @@ namespace evio {
             try {
                 cData2 = CompositeData::getInstance(format2, myData2, 1, 0 , 0, ByteOrder::ENDIAN_BIG);
             }
-            catch (EvioException e) {
+            catch (EvioException & e) {
                 std::cout << "PROBLEM: " << e.what() << std::endl;
                 exit(-1);
             }
@@ -350,7 +350,7 @@ namespace evio {
             try {
                 cData = CompositeData::getInstance(format, myData, 1, 1 , 0, ByteOrder::nativeOrder());
             }
-            catch (EvioException e) {
+            catch (EvioException & e) {
                 std::cout << "PROBLEM: " << e.what() << std::endl;
                 exit(-1);
             }
@@ -373,7 +373,7 @@ namespace evio {
             try {
                 cData2 = CompositeData::getInstance(format, myData2, 2, 2 , 0, ByteOrder::nativeOrder());
             }
-            catch (EvioException e) {
+            catch (EvioException & e) {
                 std::cout << "PROBLEM: " << e.what() << std::endl;
                 exit(-1);
             }
@@ -400,7 +400,7 @@ namespace evio {
             try {
                 cData3 = CompositeData::getInstance(format3, myData3, 3, 3 , 0, ByteOrder::nativeOrder());
             }
-            catch (EvioException e) {
+            catch (EvioException & e) {
                 std::cout << "PROBLEM: " << e.what() << std::endl;
                 exit(-1);
             }
@@ -543,7 +543,7 @@ namespace evio {
             try {
                 cData1 = CompositeData::getInstance(format1, myData1, 1, 1, 1, ByteOrder::ENDIAN_BIG);
             }
-            catch (EvioException e) {
+            catch (EvioException & e) {
                 std::cout << "PROBLEM: " << e.what() << std::endl;
                 exit(-1);
             }
@@ -557,7 +557,7 @@ namespace evio {
             try {
                 cData2 = CompositeData::getInstance(format1, myData2, 2, 2, 2, ByteOrder::ENDIAN_BIG);
             }
-            catch (EvioException e) {
+            catch (EvioException & e) {
                 std::cout << "PROBLEM: " << e.what() << std::endl;
                 exit(-1);
             }
@@ -571,7 +571,7 @@ namespace evio {
             try {
                 cData3 = CompositeData::getInstance(format1, myData3, 3, 3, 3, ByteOrder::ENDIAN_BIG);
             }
-            catch (EvioException e) {
+            catch (EvioException & e) {
                 std::cout << "PROBLEM: " << e.what() << std::endl;
                 exit(-1);
             }
@@ -651,7 +651,7 @@ namespace evio {
 
             std::cout << std::showbase << std::hex;
 
-            for (int i=0; i < len; i++) {
+            for (size_t i=0; i < len; i++) {
                 CompositeData::DataItem &dataItem = items[i];
                 evio::DataType & type = types[i];
                 std::printf("type = %9s, val = ", type.toString().c_str());
@@ -679,7 +679,7 @@ namespace evio {
                     std::cout << j << std::endl;
                 }
                 else if (type == evio::DataType::USHORT16) {
-                    int16_t j = dataItem.item.us16;
+                    uint16_t j = dataItem.item.us16;
                     std::cout << j << std::endl;
                 }
                 else if (type == evio::DataType::mVALUE ||
