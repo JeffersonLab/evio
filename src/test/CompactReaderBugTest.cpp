@@ -196,8 +196,8 @@ int main(int argc, char **argv) {
         auto buf = std::make_shared<evio::ByteBuffer>(byteData, byteLen);
 
         evio::EvioCompactReader reader(buf);
-        int evCount = reader.getEventCount();
-        for (int i=0; i < evCount; i++) {
+        uint32_t evCount = reader.getEventCount();
+        for (uint32_t i=0; i < evCount; i++) {
             auto node = reader.getEvent(i+1);
             std::cout << "\nEvent " << (i+1) << ": tag=" << node->getTag() << ", num=" << node->getNum() <<
                                ", dataPos=" << node->getDataPosition() << ", type=" << node->getDataTypeObj().toString() <<
@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
             std::cout << "Buf: limit = " << bb->limit() << ", cap = " <<
                                bb->capacity() << ", pos = " << bb->position() << std::endl;
 
-            for (int j=0; j < bb->remaining(); j++) {
+            for (size_t j=0; j < bb->remaining(); j++) {
                 std::cout << "data[" << j << "] = " << +(bb->getByte(bb->position() + j)) << std::endl;
             }
         }

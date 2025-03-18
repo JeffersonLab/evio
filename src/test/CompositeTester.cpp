@@ -161,7 +161,7 @@ namespace evio {
                 std::cout << "CHECK FOR DIFFERENCES:" << std::endl;
                 bool goodSwap = true;
                 for (int i=0; i < 22; i++) {
-                    if (buf->getInt(4*i) != bank[i+2]) {
+                    if (buf->getUInt(4*i) != bank[i+2]) {
                         std::cout << "orig = " << allData[i] << ", double swapped = " << buf->getInt(4*i) << std::endl;
                         goodSwap = false;
                     }
