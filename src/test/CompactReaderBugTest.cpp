@@ -145,7 +145,7 @@ namespace evio {
             auto bb1 = std::make_shared<ByteBuffer>(array, 4);
 
             std::cout << "Wrapped array: " << std::endl;
-            for (int i = 0; i < 4; i++) {
+            for (size_t i = 0; i < 4; i++) {
                 std::cout << "array[" << i << "] = " << +array[i] << std::endl;
             }
 
@@ -154,7 +154,7 @@ namespace evio {
 
 
             std::cout << "\nDuplicate array: " << std::endl;
-            for (int i = 0; i < bbDup->remaining(); i++) {
+            for (size_t i = 0; i < bbDup->remaining(); i++) {
                 std::cout << "array[" << i << "] = " << +bbDup->getByte(i) << std::endl;
             }
 
@@ -163,7 +163,7 @@ namespace evio {
             bbSlice->clear();
 
             std::cout << "\nSlice array: " << std::endl;
-            for (int i = 0; i < bbSlice->remaining(); i++) {
+            for (size_t i = 0; i < bbSlice->remaining(); i++) {
                 std::cout << "array[" << i << "] = " << +bbSlice->getByte(i) << std::endl;
             }
 
@@ -173,7 +173,7 @@ namespace evio {
             bbSlice->clear();
 
             std::cout << "\nSlice of Duplicate array: " << std::endl;
-            for (int i = 0; i < bbSlice->remaining(); i++) {
+            for (size_t i = 0; i < bbSlice->remaining(); i++) {
                 std::cout << "array[" << i << "] = " << +bbSlice->getByte(i) << std::endl;
             }
         }
