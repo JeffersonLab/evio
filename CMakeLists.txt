@@ -38,6 +38,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
 add_compile_options(-Wall)
 
+# Add custom find_package for Disruptor
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+
 # Build examples by default, but allow disabling
 option(MAKE_EXAMPLES "Build examples and tests" ON)
 option(C_ONLY "Build only C library (no C++)" OFF)
@@ -290,122 +293,16 @@ endif()
 
 # If building C++ version, handle Disruptor dependency
 if(NOT C_ONLY)
-    # Option to use external Disruptor (default to external if DISRUPTOR_CPP_HOME is set)
-    if(DEFINED ENV{DISRUPTOR_CPP_HOME})
-        set(DEFAULT_USE_EXTERNAL_DISRUPTOR ON)
+
+    find_package(Disruptor REQUIRED)  # or find_package(Disruptor)
+
+    # If found, it defines:
+    #   DISRUPTOR_FOUND, DISRUPTOR_INCLUDE_DIR, DISRUPTOR_LIBRARIES
+    # Possibly also the library target if you do so inside the subdirectory
+    if(DISRUPTOR_FOUND)
+        message(STATUS "Disruptor found: library=${DISRUPTOR_LIBRARIES}, include=${DISRUPTOR_INCLUDE_DIR}")
     else()
-        set(DEFAULT_USE_EXTERNAL_DISRUPTOR OFF)
-    endif()
-
-    option(USE_EXTERNAL_DISRUPTOR "Use external Disruptor library instead of FetchContent" ${DEFAULT_USE_EXTERNAL_DISRUPTOR})
-
-    if(USE_EXTERNAL_DISRUPTOR)
-        message(STATUS "Attempting to use external Disruptor library")
-
-        # First try with DISRUPTOR_CPP_HOME environment variable
-        if(ENV{DISRUPTOR_CPP_HOME} || DISRUPTOR_CPP_HOME || DISRUPTOR_CPP_DIR)
-            message(STATUS "Looking for Disruptor using DISRUPTOR_CPP_HOME = $ENV{DISRUPTOR_CPP_HOME}")
-
-            # Try both development and installed layouts
-            find_path(DISRUPTOR_INCLUDE_DIR
-                    NAMES Disruptor.h
-                    PATHS
-                    ${DISRUPTOR_CPP_HOME}
-                    ${DISRUPTOR_CPP_HOME}/Disruptor
-                    ${DISRUPTOR_CPP_HOME}/include/Disruptor
-                    ${DISRUPTOR_CPP_DIR}
-                    ${DISRUPTOR_CPP_DIR}/Disruptor
-                    ${DISRUPTOR_CPP_DIR}/include/Disruptor
-                    $ENV{DISRUPTOR_CPP_HOME}/Disruptor
-                    $ENV{DISRUPTOR_CPP_HOME}/include/Disruptor
-                    NO_DEFAULT_PATH
-            )
-
-            # Try to find the library
-            find_library(DISRUPTOR_LIBRARY
-                    NAMES Disruptor
-                    PATHS
-                    ${DISRUPTOR_CPP_HOME}
-                    ${DISRUPTOR_CPP_HOME}/build/Disruptor
-                    ${DISRUPTOR_CPP_HOME}/lib
-                    ${DISRUPTOR_CPP_DIR}
-                    ${DISRUPTOR_CPP_DIR}/build/Disruptor
-                    ${DISRUPTOR_CPP_DIR}/lib
-                    $ENV{DISRUPTOR_CPP_HOME}/build/Disruptor
-                    $ENV{DISRUPTOR_CPP_HOME}/lib
-                    NO_DEFAULT_PATH
-            )
-
-            # Adjust include path if needed
-            if(DISRUPTOR_INCLUDE_DIR)
-                if(DISRUPTOR_INCLUDE_DIR MATCHES ".*/include/Disruptor$")
-                    # For installed layout, need to point to include dir
-                    get_filename_component(DISRUPTOR_INCLUDE_DIR ${DISRUPTOR_INCLUDE_DIR} DIRECTORY)
-                    message(STATUS "Found Disruptor.h in installed layout")
-                elseif(DISRUPTOR_INCLUDE_DIR MATCHES ".*/Disruptor$")
-                    # For development layout, need to point to source root
-                    get_filename_component(DISRUPTOR_INCLUDE_DIR ${DISRUPTOR_INCLUDE_DIR} DIRECTORY)
-                    message(STATUS "Found Disruptor.h in development layout")
-                endif()
-            endif()
-        else()
-            # Try standard system locations as fallback
-            find_path(DISRUPTOR_INCLUDE_DIR
-                    NAMES Disruptor/Disruptor.h
-                    PATHS /usr/include /usr/local/include
-            )
-
-            find_library(DISRUPTOR_LIBRARY
-                    NAMES Disruptor
-                    PATHS /usr/lib /usr/local/lib /usr/lib64 /usr/local/lib64
-            )
-        endif()
-
-        # Check if we found what we need
-        if(DISRUPTOR_INCLUDE_DIR AND DISRUPTOR_LIBRARY)
-            message(STATUS "External Disruptor found:")
-            message(STATUS "  Include directory: ${DISRUPTOR_INCLUDE_DIR}")
-            message(STATUS "  Library: ${DISRUPTOR_LIBRARY}")
-        else()
-            message(FATAL_ERROR "External Disruptor not found. Set DISRUPTOR_CPP_HOME to the Disruptor install directory, or disable USE_EXTERNAL_DISRUPTOR to use FetchContent.")
-        endif()
-    else()
-        # Use FetchContent to download and build Disruptor
-        message(STATUS "Using FetchContent to fetch and build Disruptor")
-        include(FetchContent)
-
-        FetchContent_Declare(
-                disruptor
-                GIT_REPOSITORY https://github.com/JeffersonLab/disruptor-cpp.git
-                GIT_TAG master
-        )
-
-        FetchContent_GetProperties(disruptor)
-        if(NOT disruptor_POPULATED)
-            FetchContent_Populate(disruptor)
-
-            # Just set these two options
-            set(DISRUPTOR_BUILD_TESTS OFF CACHE BOOL "Don't build Disruptor tests" FORCE)
-            set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation directory for Disruptor" FORCE)
-
-            add_subdirectory(${disruptor_SOURCE_DIR} ${disruptor_BINARY_DIR})
-        endif()
-
-        # Set variables for later use
-        set(DISRUPTOR_INCLUDE_DIR ${disruptor_SOURCE_DIR})
-        # Use the library target created by FetchContent
-        set(DISRUPTOR_LIBRARY DisruptorShared)
-
-        message(STATUS "Disruptor fetched successfully")
-        message(STATUS "  Source directory: ${disruptor_SOURCE_DIR}")
-        message(STATUS "  Binary directory: ${disruptor_BINARY_DIR}")
-        message(STATUS "  Will install to: ${INSTALL_DIR}")
-
-        # Add required includes for C++ types that seem to be missing
-        # add_definitions(-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS)
-
-        # Ensure necessary standard C++ includes are added
-        include_directories(SYSTEM ${disruptor_SOURCE_DIR} )
+        message(FATAL_ERROR "Could not find Disruptor. Please set DISRUPTOR_DIR or DISRUPTOR_CPP_HOME, or enable fetch by DISRUPTOR_ALLOW_FETCH option")
     endif()
 
     # Shared evio C++ library
@@ -540,20 +437,6 @@ if(NOT C_ONLY)
     install(FILES ${CPP_HEADER_FILES}
             DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
-
-    # Handle Disruptor if using internal version
-    if(NOT USE_EXTERNAL_DISRUPTOR)
-        install(TARGETS DisruptorShared
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        )
-
-        install(DIRECTORY ${disruptor_SOURCE_DIR}/Disruptor/
-                DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Disruptor
-                FILES_MATCHING PATTERN "*.h"
-        )
-    endif()
 endif()
 
 
