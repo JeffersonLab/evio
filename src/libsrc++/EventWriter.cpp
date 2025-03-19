@@ -10,7 +10,7 @@
 
 #include "EventWriter.h"
 #ifdef USE_FILESYSTEMLIB
-    #include <filesystem> 
+    #include <filesystem>
     namespace fs = std::filesystem;
 #endif
 
