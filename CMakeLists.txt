@@ -45,6 +45,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 option(MAKE_EXAMPLES "Build examples and tests" ON)
 option(C_ONLY "Build only C library (no C++)" OFF)
 
+# Option to enable/disable usage of <filesystem>
+option(USE_FILESYSTEMLIB "Use C++17 <filesystem> instead of Boost" OFF)
+
+# Later, when creating your library or executable, add a compile definition if it's ON
+if(USE_FILESYSTEMLIB)
+    add_compile_definitions(USE_FILESYSTEMLIB=1)
+endif()
+
 # Place libs & binaries in build/lib and bin (this is not for installation)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -247,49 +255,41 @@ elseif(NOT C_ONLY)
     message(FATAL_ERROR "Boost cannot be found, cmake will exit." )
 endif()
 
-# search for lz4 libs
-find_package_handle_standard_args(LZ4 REQUIRED_VARS LZ4_LIBRARY LZ4_INCLUDE_DIR HANDLE_COMPONENTS)
+# --------------------------------------------------
+# LZ4 detection
+# --------------------------------------------------
+find_path(LZ4_INCLUDE_DIR
+        NAMES lz4.h
+        PATHS /usr/local/include /usr/include /usr/include/linux
+)
 
-if(LZ4_FOUND)
-    message(STATUS "LZ4 Found")
-    message(STATUS "LZ4 include directory = ${LZ4_INCLUDE_DIR}")
-    message(STATUS "LZ4 library = ${LZ4_LIBRARY}")
-    set(CMAKE_REQUIRED_INCLUDES ${LZ4_INCLUDE_DIRS})
-    set(CMAKE_REQUIRED_LIBRARIES ${LZ4_LIBRARY})
+find_library(LZ4_LIBRARY
+        NAMES lz4 liblz4
+        PATHS
+        /usr/local/lib
+        /usr/lib64
+        /usr/lib
+        /lib/x86_64-linux-gnu
+        /usr/lib/x86_64-linux-gnu
+        /usr/lib/x86_64-linux-gnu/mesa
+)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(LZ4
+        REQUIRED_VARS LZ4_LIBRARY LZ4_INCLUDE_DIR
+        HANDLE_COMPONENTS
+)
+
+if(NOT LZ4_FOUND)
+    message(STATUS "LZ4 NOT found with the initial search; trying alternative approach ...")
+
+    # Fallback or manual search logic if you have other unique paths or want
+    # to do something different. Or just fail here if that's your preference.
+    # e.g. message(FATAL_ERROR "No LZ4 found!")
 else()
-    message("LZ4 NOT Found, trying alternative approach...")
-
-    # On Linux lz4 cannot be found for some reason.
-    # This is where it is on my system.
-    find_path(LZ4_INCLUDE_DIR
-            NAMES lz4.h
-            PATHS /usr/local/include /usr/include /usr/include/linux
-    )
-
-    find_library(LZ4_LIBRARY
-            NAMES lz4 liblz4
-            PATHS
-            /usr/local/lib
-            /usr/lib64
-            /usr/lib
-            /lib/x86_64-linux-gnu
-            /usr/lib/x86_64-linux-gnu
-            /usr/lib/x86_64-linux-gnu/mesa
-    )
-
-    if(NOT C_ONLY)
-        if(NOT LZ4_INCLUDE_DIR)
-            message(FATAL_ERROR "lz4.h cannot be found, cmake will exit." )
-        endif()
-
-        if (NOT LZ4_LIBRARY)
-            message(FATAL_ERROR "lz4 library cannot be found, cmake will exit." )
-        endif()
-    endif()
-
-    message(STATUS "Found LZ4 include directory = ${LZ4_INCLUDE_DIR}")
-    message(STATUS "Found LZ4 library = ${LZ4_LIBRARY}")
+    message(STATUS "LZ4 Found: library = ${LZ4_LIBRARY}, include = ${LZ4_INCLUDE_DIR}")
 endif()
+
 
 # If building C++ version, handle Disruptor dependency
 if(NOT C_ONLY)
@@ -452,3 +452,10 @@ if(NOT TARGET uninstall)
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
     )
 endif()
+
+# Options printout
+message(STATUS "Options table: ")
+message(STATUS "   C_ONLY               : ${C_ONLY}")
+message(STATUS "   MAKE_EXAMPLES        : ${MAKE_EXAMPLES}")
+message(STATUS "   USE_FILESYSTEMLIB    : ${USE_FILESYSTEMLIB}")
+message(STATUS "   DISRUPTOR_ALLOW_FETCH: ${DISRUPTOR_ALLOW_FETCH}")
