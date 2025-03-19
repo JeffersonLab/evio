@@ -2019,7 +2019,7 @@ public class ByteDataTransformer {
     /**
      * This method swaps the byte order of an entire evio event or bank.
      * The byte order of the swapped buffer will be opposite to the byte order
-     * of the the source buffer argument. If the swap is done in place, the
+     * of the source buffer argument. If the swap is done in place, the
      * byte order of the source buffer will be switched upon completion and
      * the destPos arg will be set equal to the srcPos arg.
      * The positions of the source and destination buffers are not changed.
@@ -2027,11 +2027,11 @@ public class ByteDataTransformer {
      * {@link java.nio.ByteBuffer#order()}.<p>
      *
      * The data to be swapped must <b>not</b> be in the evio file format (with
-     * block headers). Data must only consist of bytes representing a single event/bank.
+     * record headers). Data must only consist of bytes representing a single event/bank.
      * Position and limit of neither buffer is changed.
      *
      * @param srcBuffer  buffer containing event to swap.
-     * @param destBuffer buffer in which to placed the swapped event.
+     * @param destBuffer buffer in which to place the swapped event.
      *                   If null, or identical to srcBuffer, the data is swapped in place.
      * @param srcPos     position in srcBuffer to start reading event
      * @param destPos    position in destBuffer to start writing swapped event

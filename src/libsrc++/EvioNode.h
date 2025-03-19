@@ -50,6 +50,7 @@ namespace evio {
         friend class EvioCompactReaderV4;
         friend class EvioCompactReaderV6;
         friend class EvioCompactStructureHandler;
+        friend class EvioSwap;
 
     private:
 

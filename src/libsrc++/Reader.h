@@ -281,6 +281,7 @@ namespace evio {
 
         ~Reader() = default;
 
+        void rewind();
         void open(std::string const & filename, bool scan = true);
         void close();
 

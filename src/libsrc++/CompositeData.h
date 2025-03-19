@@ -429,7 +429,7 @@ namespace evio {
              * Add an unsigned 32 bit integer to the data.
              * @param i unsigned integer to add.
              */
-            void addUint(uint32_t i) {
+            void addUInt(uint32_t i) {
                 DataItem mem;
                 mem.item.ui32 = i;
                 dataItems.push_back(mem);
@@ -441,7 +441,7 @@ namespace evio {
              * Add an vector of unsigned 32 bit integers to the data.
              * @param i vector of unsigned integers to add.
              */
-            void addUint(std::vector<uint32_t> const & i) {
+            void addUInt(std::vector<uint32_t> const & i) {
                 for (auto ii : i) {
                     DataItem mem;
                     mem.item.ui32 = ii;
@@ -871,13 +871,13 @@ namespace evio {
 
 
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                             size_t nBytes, const std::vector<uint16_t> & ifmt);
+                             size_t nBytes, uint32_t padding, const std::vector<uint16_t> & ifmt);
         static void swapData(std::shared_ptr<ByteBuffer> & srcBuf,
                              std::shared_ptr<ByteBuffer> & destBuf,
-                             size_t srcPos, size_t destPos, size_t nBytes,
+                             size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                              const std::vector<uint16_t> & ifmt);
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                             size_t srcPos, size_t destPos, size_t nBytes,
+                             size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                              const std::vector<uint16_t> & ifmt);
         static void swapData(int32_t *src, int32_t *dest, size_t nwrd,
                              const std::vector<uint16_t> & ifmt,

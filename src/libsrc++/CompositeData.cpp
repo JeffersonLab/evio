@@ -56,6 +56,7 @@ namespace evio {
         }
 
         // Analyze format string
+        formatInts.clear();
         compositeFormatToInt(format, formatInts);
         if (formatInts.empty()) {
             throw EvioException("format string is empty");
@@ -70,7 +71,7 @@ namespace evio {
         // CANNOT create EvioTagSegment or EvioBank objects since that will create a
         // circular dependency between this class and BaseStructure!
         // That, in turn, will not allow EvioBank or EvioTagSegment to inherit from BaseStructure.
-        // This is where Java really surpasses C++. Find another way write data.
+        // This is where Java really surpasses C++. Find another way to write data.
 
         std::vector<std::string> strings;
         strings.push_back(format);
@@ -169,7 +170,7 @@ namespace evio {
         }
 
         // Transform string format into int array format
-        std::vector<uint16_t> fmtInts;
+       // std::vector<uint16_t> fmtInts;
         CompositeData::compositeFormatToInt(format, formatInts);
         if (formatInts.empty()) {
             throw EvioException("bad format string data");
@@ -822,177 +823,189 @@ namespace evio {
      */
     int CompositeData::compositeFormatToInt(const std::string & formatStr, std::vector<uint16_t> & ifmt) {
 
-        char ch;
-        int  l, n, kf, lev, nr, nn, nb;
-        size_t fmt_len;
+        try {
 
-        ifmt.clear();
-        ifmt.reserve(40);
+            int n, kf, lev, nr, nn, nb;
+            size_t fmt_len;
 
-        n   = 0; /* ifmt[] index */
-        nr  = 0;
-        nn  = 1;
-        lev = 0;
-        nb  = 0; /* the number of bytes in length taken from data */
+            ifmt.clear();
+            ifmt.reserve(40);
+
+            n = 0; /* ifmt[] index */
+            nr = 0;
+            nn = 1;
+            lev = 0;
+            nb = 0; /* the number of bytes in length taken from data */
 
 #ifdef COMPOSITE_DEBUG
-        std::cout << std::endl << "=== eviofmt start, fmt >" << formatStr << "< ===" << std::endl;
+            std::cout << std::endl << "=== eviofmt start, fmt >" << formatStr << "< ===" << std::endl;
 #endif
 
-        /* loop over format string */
-        fmt_len = formatStr.size();
-        if (fmt_len > INT_MAX) return (-1);
-        for (l=0; l < (int)fmt_len; l++)
-        {
-            ch = formatStr[l];
-            if (ch == ' ') continue;
+            /* loop over format string */
+            fmt_len = formatStr.size();
+            if (fmt_len > INT_MAX) return (-1);
+
+            for (char ch : formatStr) {
+                if (ch == ' ') continue;
+
 #ifdef COMPOSITE_DEBUG
-            std::cout << ch << std::endl;
+                std::cout << ch << std::endl;
 #endif
-            /* if digit, we have hard coded 'number', following before komma will be repeated 'number' times;
-            forming 'nr' */
-            if (isdigit(ch))
-            {
-                if (nr < 0) return(-1);
-                nr = 10*std::max(0,nr) + atoi((char *)&ch);
-                if (nr > 15) return(-2);
+                /* if digit, we have hard coded 'number', following before komma will be repeated 'number' times forming 'nr' */
+                if (isdigit(ch)) {
+                    // change char into number
+                    int chNum = ch - '0';
+
+                    if (nr < 0) return (-1);
+                    nr = 10 * std::max(0, nr) + chNum;
+                    if (nr > 15) return (-2);
 #ifdef COMPOSITE_DEBUG
-                std::cout << "the number of repeats nr=" << nr << std::endl;
+                    std::cout << "the number of repeats nr=" << nr << std::endl;
 #endif
-            }
+                }
 
                 /* a left parenthesis -> 16*nr + 0 */
-            else if (ch == '(')
-            {
-                if (nr < 0) return(-3);
-                lev++;
+                else if (ch == '(') {
+                    if (nr < 0) return (-3);
+                    lev++;
 #ifdef COMPOSITE_DEBUG
-                std::cout << "111: nn=" << nn << " nr=" << nr << std::endl;
+                    std::cout << "111: nn=" << nn << " nr=" << nr << std::endl;
 #endif
 
-                if (nn == 0) /*special case: if #repeats is in data, set bits [15:14] */
-                {
-                    if(nb==4)      {ifmt.push_back(1<<14); ++n;}
-                    else if(nb==2) {ifmt.push_back(2<<14); ++n;}
-                    else if(nb==1) {ifmt.push_back(3<<14); ++n;}
-                    else {printf("eviofmt ERROR: unknown nb=%d\n",nb);exit(0);}
-                }
-                else /* #repeats hardcoded */
-                {
-                    ifmt.push_back((std::max(nn,nr)&0x3F) << 8);
-                    ++n;
-                }
-
-                nn = 1;
-                nr = 0;
-#ifdef COMPOSITE_DEBUG
-                debugprint(n-1);
-#endif
-            }
-                /* a right parenthesis -> (0<<8) + 0 */
-            else if (ch == ')')
-            {
-                if (nr >= 0) return(-4);
-                lev--;
-                ifmt.push_back(0);
-                ++n;
-                nr = -1;
-#ifdef COMPOSITE_DEBUG
-                debugprint(n-1);
-#endif
-            }
-                /* a komma, reset nr */
-            else if (ch == ',')
-            {
-                if (nr >= 0) return(-5);
-                nr = 0;
-#ifdef COMPOSITE_DEBUG
-                std::cout << "komma, nr=" << nr << std::endl;
-#endif
-            }
-                /* variable length format (int32) */
-            else if (ch == 'N')
-            {
-                nn = 0;
-                nb = 4;
-#ifdef COMPOSITE_DEBUG
-                std::cout << "N, nb=" << nb << std::endl;
-#endif
-            }
-                /* variable length format (int16) */
-            else if (ch == 'n')
-            {
-                nn = 0;
-                nb = 2;
-#ifdef COMPOSITE_DEBUG
-                std::cout << "n, nb=" << nb << std::endl;
-#endif
-            }
-                /* variable length format (int8) */
-            else if (ch == 'm')
-            {
-                nn = 0;
-                nb = 1;
-#ifdef COMPOSITE_DEBUG
-                std::cout << "m, nb=" << nb << std::endl;
-#endif
-            }
-                /* actual format */
-            else
-            {
-                if(     ch == 'i') kf = 1;  /* 32 */
-                else if(ch == 'F') kf = 2;  /* 32 */
-                else if(ch == 'a') kf = 3;  /*  8 */
-                else if(ch == 'S') kf = 4;  /* 16 */
-                else if(ch == 's') kf = 5;  /* 16 */
-                else if(ch == 'C') kf = 6;  /*  8 */
-                else if(ch == 'c') kf = 7;  /*  8 */
-                else if(ch == 'D') kf = 8;  /* 64 */
-                else if(ch == 'L') kf = 9;  /* 64 */
-                else if(ch == 'l') kf = 10; /* 64 */
-                else if(ch == 'I') kf = 11; /* 32 */
-                else if(ch == 'A') kf = 12; /* 32 */
-                else               kf = 0;
-
-                if (kf != 0)
-                {
-                    if (nr < 0) return(-6);
-#ifdef COMPOSITE_DEBUG
-                    std::cout << "222: nn=" << nn << " nr=" << nr << std::endl;
-#endif
-
-                    int ifmtVal = ((std::max(nn,nr) & 0x3F) << 8) + kf;
-
-                    if (nb > 0) {
-                        if (nb==4)      ifmtVal |= (1 << 14);
-                        else if (nb==2) ifmtVal |= (2 << 14);
-                        else if (nb==1) ifmtVal |= (3 << 14);
-                        else {throw EvioException("unknown nb=" + std::to_string(nb));}
+                    if (nn == 0) /*special case: if #repeats is in data, set bits [15:14] */
+                    {
+                        if (nb == 4) {
+                            ifmt.push_back(1 << 14);
+                            ++n;
+                        }
+                        else if (nb == 2) {
+                            ifmt.push_back(2 << 14);
+                            ++n;
+                        }
+                        else if (nb == 1) {
+                            ifmt.push_back(3 << 14);
+                            ++n;
+                        }
+                        else {
+                            printf("eviofmt ERROR: unknown nb=%d, exit\n", nb);
+                            exit(0);
+                        }
+                    }
+                    else /* #repeats hardcoded */
+                    {
+                        ifmt.push_back((std::max(nn, nr) & 0x3F) << 8);
+                        ++n;
                     }
 
-                    ifmt.push_back(ifmtVal);
-                    ++n;
-                    nn=1;
+                    nn = 1;
+                    nr = 0;
 #ifdef COMPOSITE_DEBUG
                     debugprint(n-1);
 #endif
                 }
-                else
-                {
-                    /* illegal character */
-                    return(-7);
-                }
-                nr = -1;
-            }
-        }
-
-        if (lev != 0) return(-8);
-
+                    /* a right parenthesis -> (0<<8) + 0 */
+                else if (ch == ')') {
+                    if (nr >= 0) return (-4);
+                    lev--;
+                    ifmt.push_back(0);
+                    ++n;
+                    nr = -1;
 #ifdef COMPOSITE_DEBUG
-        std::cout << "=== eviofmt end ===" << std::endl;
+                    debugprint(n-1);
+#endif
+                }
+                /* a komma, reset nr */
+                else if (ch == ',') {
+                    if (nr >= 0) return (-5);
+                    nr = 0;
+#ifdef COMPOSITE_DEBUG
+                    std::cout << "komma, nr=" << nr << std::endl;
+#endif
+                }
+                /* variable length format (int32) */
+                else if (ch == 'N') {
+                    nn = 0;
+                    nb = 4;
+#ifdef COMPOSITE_DEBUG
+                    std::cout << "N, nb=" << nb << std::endl;
+#endif
+                }
+                /* variable length format (int16) */
+                else if (ch == 'n') {
+                    nn = 0;
+                    nb = 2;
+#ifdef COMPOSITE_DEBUG
+                    std::cout << "n, nb=" << nb << std::endl;
+#endif
+                }
+                /* variable length format (int8) */
+                else if (ch == 'm') {
+                    nn = 0;
+                    nb = 1;
+#ifdef COMPOSITE_DEBUG
+                    std::cout << "m, nb=" << nb << std::endl;
+#endif
+                }
+                /* actual format */
+                else {
+                    if (ch == 'i') kf = 1;  /* 32 */
+                    else if (ch == 'F') kf = 2;  /* 32 */
+                    else if (ch == 'a') kf = 3;  /*  8 */
+                    else if (ch == 'S') kf = 4;  /* 16 */
+                    else if (ch == 's') kf = 5;  /* 16 */
+                    else if (ch == 'C') kf = 6;  /*  8 */
+                    else if (ch == 'c') kf = 7;  /*  8 */
+                    else if (ch == 'D') kf = 8;  /* 64 */
+                    else if (ch == 'L') kf = 9;  /* 64 */
+                    else if (ch == 'l') kf = 10; /* 64 */
+                    else if (ch == 'I') kf = 11; /* 32 */
+                    else if (ch == 'A') kf = 12; /* 32 */
+                    else kf = 0;
+
+                    if (kf != 0) {
+                        if (nr < 0) return (-6);
+#ifdef COMPOSITE_DEBUG
+                        std::cout << "222: nn=" << nn << " nr=" << nr << std::endl;
 #endif
 
-        return(n);
+                        int ifmtVal = ((std::max(nn, nr) & 0x3F) << 8) + kf;
+
+                        if (nb > 0) {
+                            if (nb == 4) ifmtVal |= (1 << 14);
+                            else if (nb == 2) ifmtVal |= (2 << 14);
+                            else if (nb == 1) ifmtVal |= (3 << 14);
+                            else { throw EvioException("unknown nb=" + std::to_string(nb)); }
+                        }
+
+                        ifmt.push_back(ifmtVal);
+                        ++n;
+                        nn = 1;
+#ifdef COMPOSITE_DEBUG
+                        debugprint(n-1);
+#endif
+                    }
+                    else {
+                        /* illegal character */
+                        return (-7);
+                    }
+                    nr = -1;
+                }
+            }
+
+            if (lev != 0) {
+                return (-8);
+            }
+
+#ifdef COMPOSITE_DEBUG
+            std::cout << "=== eviofmt end ===" << std::endl;
+#endif
+
+            return (n);
+        }
+        catch (std::runtime_error & e) {
+            std::cout << "compositeFormatToInt: error: " << e.what() << std::endl;
+            throw EvioException(e);
+        }
     }
 
 
@@ -1325,7 +1338,7 @@ namespace evio {
             byteLen = 4*node->getDataLength();
 
             // Swap data (accounting for padding)
-            CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node->getPad()), fmtInts);
+            CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node->getPad()), node->getPad(), fmtInts);
 
             // Move past bank data
             srcPos    += byteLen;
@@ -1367,9 +1380,9 @@ namespace evio {
      *                       if src & dest not identical but overlap.
      */
     void CompositeData::swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                                 size_t nBytes, const std::vector<uint16_t> & ifmt) {
+                                 size_t nBytes, uint32_t padding, const std::vector<uint16_t> & ifmt) {
 
-        swapData(srcBuf, destBuf, srcBuf.position(), destBuf.position(), nBytes, ifmt);
+        swapData(srcBuf, destBuf, srcBuf.position(), destBuf.position(), nBytes, padding, ifmt);
     }
 
 
@@ -1388,7 +1401,8 @@ namespace evio {
      * @param srcPos   position in srcBuf to beginning swapping
      * @param destPos  position in destBuf to beginning writing swapped data unless
      *                 data is swapped in place (then set to srcPos).
-     * @param nBytes   length of data to swap in bytes (be sure to account for padding)
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt empty or nBytes &lt; 8;
@@ -1397,9 +1411,9 @@ namespace evio {
      */
     void CompositeData::swapData(std::shared_ptr<ByteBuffer> & srcBuf,
                                  std::shared_ptr<ByteBuffer> & destBuf,
-                                 size_t srcPos, size_t destPos, size_t nBytes,
+                                 size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                                  const std::vector<uint16_t> & ifmt) {
-        swapData(*srcBuf, *destBuf, srcPos, destPos, nBytes, ifmt);
+        swapData(*srcBuf, *destBuf, srcPos, destPos, nBytes, padding, ifmt);
     }
 
 
@@ -1418,7 +1432,8 @@ namespace evio {
      * @param srcPos   position in srcBuf to beginning swapping
      * @param destPos  position in destBuf to beginning writing swapped data unless
      *                 data is swapped in place (then set to srcPos).
-     * @param nBytes   length of data to swap in bytes (be sure to account for padding)
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(const std::string &, std::vector<uint16_t> &)}
      *
      * @throws EvioException if ifmt empty or nBytes &lt; 8;
@@ -1426,7 +1441,7 @@ namespace evio {
      *                       if src & dest not identical but overlap.
      */
     void CompositeData::swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
-                                 size_t srcPos, size_t destPos, size_t nBytes,
+                                 size_t srcPos, size_t destPos, size_t nBytes, uint32_t padding,
                                  const std::vector<uint16_t> & ifmt) {
 
         // check args
@@ -1452,8 +1467,7 @@ namespace evio {
             // different endianness.
             srcBuf.duplicate(destBuf);
             // Byte order of swapped data
-            destOrder = (srcBuf.order() == ByteOrder::ENDIAN_BIG) ?
-                        ByteOrder::ENDIAN_LITTLE : ByteOrder::ENDIAN_BIG;
+            destOrder = srcBuf.order().getOppositeEndian();
 
             destBuf.order(destOrder);
             destPos = srcPos;
@@ -1467,6 +1481,15 @@ namespace evio {
             if (((destPtr + nBytes) > srcPtr) && (destPtr < (srcPtr + nBytes))) {
                 throw EvioException("src and dest memory not identical but overlaps");
             }
+
+            // Clear padding so double swapped data can be easily checked
+            //std::cout << "+++ swapData: clear padding bytes, " << padding << ", len = " << (srcPos + nBytes) << std::endl;
+            for (uint32_t i=0; i < padding; i++) {
+                uint8_t * endData = destPtr + destBuf.arrayOffset() + srcPos + nBytes;
+                //std::cout << "+++ swapData1: clear bytes at " << + (*(endData + i)) << std::endl;
+                *(endData + i) = 0;
+            }
+
         }
 
         // Check to see if buffers are too small to handle this operation
@@ -1826,6 +1849,14 @@ namespace evio {
             // Check to see if src & dest memories overlap
             if (((dest + nwrd) > src) && (dest < (src + nwrd))) {
                 throw EvioException("src & dest memories not identical but overlap");
+            }
+
+            // Clear padding so double swapped data can be checked easily
+            auto endOfData = reinterpret_cast<uint8_t *>(dest + nwrd);
+            endOfData -= padding;
+            for (uint32_t i=0; i < padding; i++) {
+                //std::cout << "+++ swapData2: cleared padding at " << i << std::endl;
+                *(endOfData + i) = 0;
             }
         }
 
@@ -2510,7 +2541,7 @@ namespace evio {
         // check args
 
         // size of format list
-        int nfmt = ifmt.size();
+        int nfmt = (int)ifmt.size();
         if (ifmt.empty()) {
             throw EvioException("empty format list");
         }
@@ -2523,7 +2554,7 @@ namespace evio {
 //        int iterm = 0;
 
         int itemIndex = 0;
-        int itemCount = data.dataItems.size();
+        int itemCount = (int)data.dataItems.size();
 
         // write each item
         for (itemIndex = 0; itemIndex < itemCount;) {

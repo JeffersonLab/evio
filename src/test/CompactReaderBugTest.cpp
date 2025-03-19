@@ -141,11 +141,11 @@ namespace evio {
 
         void ByteBufferTest() {
 
-            uint8_t* array = new uint8_t[]{(uint8_t) 1, (uint8_t) 2, (uint8_t) 3, (uint8_t) 4};
+            uint8_t* array = new uint8_t[4] {(uint8_t) 1, (uint8_t) 2, (uint8_t) 3, (uint8_t) 4};
             auto bb1 = std::make_shared<ByteBuffer>(array, 4);
 
             std::cout << "Wrapped array: " << std::endl;
-            for (int i = 0; i < 4; i++) {
+            for (size_t i = 0; i < 4; i++) {
                 std::cout << "array[" << i << "] = " << +array[i] << std::endl;
             }
 
@@ -154,7 +154,7 @@ namespace evio {
 
 
             std::cout << "\nDuplicate array: " << std::endl;
-            for (int i = 0; i < bbDup->remaining(); i++) {
+            for (size_t i = 0; i < bbDup->remaining(); i++) {
                 std::cout << "array[" << i << "] = " << +bbDup->getByte(i) << std::endl;
             }
 
@@ -163,7 +163,7 @@ namespace evio {
             bbSlice->clear();
 
             std::cout << "\nSlice array: " << std::endl;
-            for (int i = 0; i < bbSlice->remaining(); i++) {
+            for (size_t i = 0; i < bbSlice->remaining(); i++) {
                 std::cout << "array[" << i << "] = " << +bbSlice->getByte(i) << std::endl;
             }
 
@@ -173,7 +173,7 @@ namespace evio {
             bbSlice->clear();
 
             std::cout << "\nSlice of Duplicate array: " << std::endl;
-            for (int i = 0; i < bbSlice->remaining(); i++) {
+            for (size_t i = 0; i < bbSlice->remaining(); i++) {
                 std::cout << "array[" << i << "] = " << +bbSlice->getByte(i) << std::endl;
             }
         }
@@ -196,8 +196,8 @@ int main(int argc, char **argv) {
         auto buf = std::make_shared<evio::ByteBuffer>(byteData, byteLen);
 
         evio::EvioCompactReader reader(buf);
-        int evCount = reader.getEventCount();
-        for (int i=0; i < evCount; i++) {
+        uint32_t evCount = reader.getEventCount();
+        for (uint32_t i=0; i < evCount; i++) {
             auto node = reader.getEvent(i+1);
             std::cout << "\nEvent " << (i+1) << ": tag=" << node->getTag() << ", num=" << node->getNum() <<
                                ", dataPos=" << node->getDataPosition() << ", type=" << node->getDataTypeObj().toString() <<
@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
             std::cout << "Buf: limit = " << bb->limit() << ", cap = " <<
                                bb->capacity() << ", pos = " << bb->position() << std::endl;
 
-            for (int j=0; j < bb->remaining(); j++) {
+            for (size_t j=0; j < bb->remaining(); j++) {
                 std::cout << "data[" << j << "] = " << +(bb->getByte(bb->position() + j)) << std::endl;
             }
         }

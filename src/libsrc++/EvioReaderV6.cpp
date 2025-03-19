@@ -261,8 +261,12 @@ namespace evio {
     }
 
 
-    /** This method is not relevant in evio 6 and does nothing. */
-    void EvioReaderV6::rewind() {}
+    /**
+     * The equivalent of rewinding the file. What it actually does
+     * is set the position of the sequential index back to the beginning.
+     * This allows a mix of sequential calls with those that are not sequential.
+     */
+    void EvioReaderV6::rewind() {reader->rewind();}
 
 
     /**

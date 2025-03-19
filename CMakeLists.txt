@@ -207,7 +207,11 @@ set(TEST
         src/test/Tree_Buf_Composite_Builder_Test.cpp
         src/test/hallDEventFiles.cpp
         src/test/FileWriteTest.cpp
-)
+        src/test/SwapTest.cpp
+        src/test/ReadSequenceTest.cpp
+        src/test/SequentialReaderTest.cpp
+        src/test/SplitTest2.cpp
+        )
 
 set(TESTC
         src/testC/evReadPipe.c
@@ -230,7 +234,7 @@ set(TESTC
 include(FindPackageHandleStandardArgs)
 
 # search for boost libs
-find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem CONFIG)
+find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem)
 
 if (Boost_FOUND)
     message(STATUS "Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
