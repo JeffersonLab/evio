@@ -7,7 +7,7 @@ headerList = Glob('*.h', strings=True)
 # Files to compile
 fileList = Glob('*.cpp',  strings=True)
 
-env.AppendUnique(CPPPATH = ['/usr/local/include', '/usr/include/boost', '/usr/local/include/boost', disruptorHome])
+env.AppendUnique(CPPPATH = ['#src/test', '/usr/local/include', '/usr/include/boost', '/usr/local/include/boost', disruptorHome])
 
 #evioNewLib = env.StaticLibrary(target = 'eviocc'+debugSuffix, source = fileList)
 evioNewLib = env.SharedLibrary(target = 'eviocc'+debugSuffix, source = fileList)

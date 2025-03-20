@@ -2,8 +2,10 @@
 Import('env', 'platform', 'archDir', 'incInstallDir', 'libInstallDir', 'binInstallDir', 'archIncInstallDir', 'execLibs', 'debugSuffix', 'disruptorHome')
 
 
-# lists of all C++ files
-ccfileList = Glob('*.cpp', strings=True)
+ccTestBase = 'TestBase.cpp'
+excluded_files = ccTestBase
+# list of all C++ files (excluding TestBase.cpp)
+ccfileList = [f for f in Glob('*.cpp', strings=True) if f not in excluded_files]
 
 
 boostThdLib = 'boost_thread'
@@ -13,11 +15,11 @@ if platform == 'Darwin':
 
 # Compile C++ files and install
 for fileName in ccfileList:
-    compiledFile = env.Program(source  = fileName,
+    compiledFile = env.Program(source  = [fileName, ccTestBase],
                             LIBS    = ['eviocc'+debugSuffix, 'Disruptor',
                                        'boost_system', boostThdLib,  'boost_chrono',  execLibs],
                             LIBPATH = ['#src/libsrc++/'+archDir, '/usr/lib64', '/usr/lib', '/usr/local/lib', str(disruptorHome)+'/build/Disruptor'],
-                            CPPPATH = ['#src/libsrc++', disruptorHome, '/usr/local/include',
+                            CPPPATH = ['#src/libsrc++', '#src/test', disruptorHome, '/usr/local/include',
                                       '/usr/include/boost', '/usr/local/include/boost'])
 
     if 'install' in COMMAND_LINE_TARGETS:

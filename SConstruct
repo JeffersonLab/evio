@@ -177,15 +177,13 @@ env.AppendUnique(CPPDEFINES = ['USE_GZIP'])
 
 if platform == 'Darwin':
     if onlyC:
-        execLibs = ['pthread', 'dl', 'expat', 'z']
+        execLibs = ['pthread', 'expat', 'z']
     else:
-        #execLibs = ['pthread', 'expat', 'z', 'lz4', 'dl', 'm']
-        execLibs = ['pthread', 'dl', 'expat', 'z', 'lz4']
+        execLibs = ['pthread', 'expat', 'z', 'lz4']
 
     env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-undefined','dynamic_lookup'])
     #env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
     env.Append(CCFLAGS = ['-fmessage-length=0'])
-    #env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
 
 
 if is64bits and use32bits:
