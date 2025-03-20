@@ -33,7 +33,7 @@
 #include <mutex>
 
 
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
 #include <filesystem>
 namespace fs = std::filesystem;
 #endif
@@ -390,7 +390,7 @@ namespace evio {
             /** File currently being written to. */
             std::string currentFileName;
 
-#ifdef __cpp_lib_filesystem
+#ifdef USE_FILESYSTEMLIB
             /** Path object corresponding to file currently being written. */
             fs::path currentFilePath;
 #endif

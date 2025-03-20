@@ -13,7 +13,7 @@
 
 
 #include <string>
-
+#include <cstdint>
 
 namespace evio {
 

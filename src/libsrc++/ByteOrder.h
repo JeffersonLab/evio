@@ -14,7 +14,7 @@
 
 #include <string>
 #include <iostream>
-
+#include <cstdint>
 
 namespace evio {
 
