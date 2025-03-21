@@ -61,25 +61,31 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(ARCH ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
 message(STATUS "ARCH = " ${ARCH})
 
-# Install into $CODA_INSTALL directory
-if (DEFINED CODA_INSTALL)
-    message(STATUS "CODA_INSTALL = " ${CODA_INSTALL})
+# Installation directory
+# Give preference to the CMAKE_INSTALL_PREFIX value if the user actually
+# set it. If not, check if they set CODA_INSTALL. If neither of those,
+# then check for the CODA envar. 
+# Check if CMAKE_INSTALL_PREFIX was explicitly set by the user
+if(NOT CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    message(STATUS "Using user-specified CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
     set(INSTALL_DIR_DEFINED 1)
-    set(CMAKE_INSTALL_PREFIX ${CODA_INSTALL}/${ARCH})
-    set(CMAKE_INSTALL_INCLUDEDIR ${CODA_INSTALL}/common/include)
-    message(STATUS "CMAKE_INSTALL_PREFIX reset to " ${CMAKE_INSTALL_PREFIX})
-    # Install into $CODA directory
-elseif (DEFINED ENV{CODA})
-    message(STATUS "CODA = " $ENV{CODA})
-    set(INSTALL_DIR_DEFINED 1)
-    set(CMAKE_INSTALL_PREFIX $ENV{CODA}/${ARCH})
-    set(CMAKE_INSTALL_INCLUDEDIR $ENV{CODA}/common/include)
-    message(STATUS "CMAKE_INSTALL_PREFIX reset to " ${CMAKE_INSTALL_PREFIX})
 else()
-    # Always define installation, even without CODA, using the default CMAKE_INSTALL_PREFIX
-    set(INSTALL_DIR_DEFINED 1)
-    message(STATUS "No CODA environment - will install to default location: ${CMAKE_INSTALL_PREFIX}")
-    # Don't set CMAKE_INSTALL_PREFIX here - use the CMake default
+    # Otherwise, use CODA_INSTALL or the CODA env var
+    if(DEFINED CODA_INSTALL)
+        message(STATUS "CODA_INSTALL = ${CODA_INSTALL}")
+        set(INSTALL_DIR_DEFINED 1)
+        set(CMAKE_INSTALL_PREFIX "${CODA_INSTALL}/${ARCH}")
+        set(CMAKE_INSTALL_INCLUDEDIR "${CODA_INSTALL}/common/include")
+        message(STATUS "CMAKE_INSTALL_PREFIX reset to ${CMAKE_INSTALL_PREFIX}")
+    elseif(DEFINED ENV{CODA})
+        message(STATUS "CODA = $ENV{CODA}")
+        set(INSTALL_DIR_DEFINED 1)
+        set(CMAKE_INSTALL_PREFIX "$ENV{CODA}/${ARCH}")
+        set(CMAKE_INSTALL_INCLUDEDIR "$ENV{CODA}/common/include")
+        message(STATUS "CMAKE_INSTALL_PREFIX reset to ${CMAKE_INSTALL_PREFIX}")
+    else()
+        message(STATUS "Use -DCMAKE_INSTALL_PREFIX=... or -DCODA_INSTALL=... or set the \"CODA\" env var to specify the installation directory.")
+    endif()
 endif()
 
 set(C_HEADER_FILES
