@@ -17,7 +17,7 @@
 #include <functional>
 
 
-#include "Disruptor/Sequence.h"
+#include <Disruptor/Sequence.h>
 #include "RecordOutput.h"
 #include "ByteOrder.h"
 #include "Compressor.h"
