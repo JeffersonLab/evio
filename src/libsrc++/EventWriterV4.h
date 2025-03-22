@@ -81,7 +81,8 @@ namespace evio {
          */
         FileCloserV4(int poolSize) {
             // Create a work object to keep the io_context busy
-            boost::asio::io_context::work work(ioContext);
+            auto workGuard = boost::asio::make_work_guard(ioContext);
+            // boost::asio::io_context::work work(ioContext);
 
             // Add multiple threads to pool
             for (int i = 0; i < poolSize; ++i) {
@@ -103,7 +104,8 @@ namespace evio {
          */
         void closeAsyncFile(std::shared_ptr<std::fstream> & afc,
                             std::shared_ptr<std::future<void>> future) {
-            ioContext.post([=]() {
+            boost::asio::post(ioContext, [=]() {
+            // ioContext.post([=]() {
                 try {
                     // There may be a simultaneous write in progress,
                     // wait for it to finish.
