@@ -10,14 +10,20 @@ include(FetchContent)
 option(DISRUPTOR_ALLOW_FETCH "Allow FetchContent fallback if Disruptor is not found locally" ON)
 
 # 1. Check if user explicitly provided DISRUPTOR_DIR or DISRUPTOR_CPP_HOME on command line
-if(DISRUPTOR_DIR)
-    set(_DISRUPTOR_HINTS "${DISRUPTOR_DIR}")
+if(DISRUPTOR_CPP_DIR)
+    message(STATUS "Found DISRUPTOR_CPP_DIR")
+    set(_DISRUPTOR_HINTS "${DISRUPTOR_CPP_DIR}")
 elseif(DISRUPTOR_CPP_HOME)
+    message(STATUS "Found DISRUPTOR_CPP_HOME")
     set(_DISRUPTOR_HINTS "${DISRUPTOR_CPP_HOME}")
 endif()
 
 # 2. If no hints set, check environment
-if(NOT _DISRUPTOR_HINTS AND DEFINED ENV{DISRUPTOR_CPP_HOME})
+if(NOT _DISRUPTOR_HINTS AND DEFINED ENV{DISRUPTOR_CPP_DIR})
+    message(STATUS "Found DISRUPTOR_CPP_DIR env var")
+    set(_DISRUPTOR_HINTS "$ENV{DISRUPTOR_CPP_DIR}")
+elseif(NOT _DISRUPTOR_HINTS AND DEFINED ENV{DISRUPTOR_CPP_HOME})
+    message(STATUS "Found DISRUPTOR_CPP_HOME env var")
     set(_DISRUPTOR_HINTS "$ENV{DISRUPTOR_CPP_HOME}")
 endif()
 
@@ -63,13 +69,16 @@ if(NOT DISRUPTOR_FOUND AND DISRUPTOR_ALLOW_FETCH)
     )
     FetchContent_GetProperties(disruptor)
     if(NOT disruptor_POPULATED)
-        FetchContent_Populate(disruptor)
+        message(STATUS "[FindDisruptor.cmake] getting and making disruptor in _deps ...")
+        #FetchContent_Populate(disruptor)
+        FetchContent_MakeAvailable(disruptor)
 
         # Turn off tests from disruptor-cpp
         set(DISRUPTOR_BUILD_TESTS OFF CACHE BOOL "Don't build Disruptor tests" FORCE)
 
-        add_subdirectory(${disruptor_SOURCE_DIR} ${disruptor_BINARY_DIR})
+        #add_subdirectory(${disruptor_SOURCE_DIR} ${disruptor_BINARY_DIR})
     else()
+        message(STATUS "[FindDisruptor.cmake] _deps already exists")
         # Already populated in a previous configure
         add_subdirectory(${disruptor_SOURCE_DIR} ${disruptor_BINARY_DIR})
     endif()
