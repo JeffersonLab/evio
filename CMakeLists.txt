@@ -17,7 +17,7 @@
 #   % make install
 
 # This call must be placed BEFORE "project" command
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.22)
 
 # in cmake v 3.30 and later, new way to look for boost
 if(POLICY CMP0167)
@@ -302,7 +302,7 @@ if(NOT C_ONLY)
     if(DISRUPTOR_FOUND)
         message(STATUS "Disruptor found: library=${DISRUPTOR_LIBRARIES}, include=${DISRUPTOR_INCLUDE_DIR}")
     else()
-        message(FATAL_ERROR "Could not find Disruptor. Please set DISRUPTOR_DIR or DISRUPTOR_CPP_HOME, or enable fetch by DISRUPTOR_ALLOW_FETCH option")
+        message(FATAL_ERROR "Could not find Disruptor. Please set DISRUPTOR_CPP_DIR or DISRUPTOR_CPP_HOME, or enable fetch by DISRUPTOR_ALLOW_FETCH option")
     endif()
 
     # Shared evio C++ library
