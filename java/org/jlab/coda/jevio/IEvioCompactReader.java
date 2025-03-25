@@ -176,7 +176,8 @@ public interface IEvioCompactReader {
     /**
      * Get the EvioNode object associated with a particular event number
      * which has been scanned so all substructures are contained in the
-     * node.allNodes list.
+     * node.allNodes list. Order is how they appear in the buffer which is depth-first.
+     *
      * @param eventNumber number of event (place in file/buffer) starting at 1.
      * @return  EvioNode object associated with a particular event number,
      *          or null if there is none.
