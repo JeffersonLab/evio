@@ -30,7 +30,6 @@ var classevio_1_1_writer =
     [ "open", "d6/dca/classevio_1_1_writer.html#a1f64043951e4d8ff7f186fced75052fb", null ],
     [ "open", "d6/dca/classevio_1_1_writer.html#aecf32909431959a361a4db46af8495db", null ],
     [ "open", "d6/dca/classevio_1_1_writer.html#a04ed6382f82d976aef36ac78d6a001fc", null ],
-    [ "reset", "d6/dca/classevio_1_1_writer.html#a17cd4aa42143d1f6578422f6ef36151a", null ],
     [ "setCompressionType", "d6/dca/classevio_1_1_writer.html#a278331c3a1a91c7a7584fea9f4910d5d", null ],
     [ "writeRecord", "d6/dca/classevio_1_1_writer.html#a0d0f549a6ceaae794eca73130957a23d", null ]
 ];

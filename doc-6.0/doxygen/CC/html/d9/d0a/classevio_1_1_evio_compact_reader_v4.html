@@ -192,7 +192,7 @@ Public Member Functions</h2></td></tr>
   <a href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#a036485b1e01dfcee36961023e7f95e45">More...</a><br /></td></tr>
 <tr class="separator:a036485b1e01dfcee36961023e7f95e45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab22b48c7413382c6174b1588c95820b7"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d0a/classevio_1_1_evio_compact_reader_v4.html#ab22b48c7413382c6174b1588c95820b7">getScannedEvent</a> (size_t eventNumber) override</td></tr>
-<tr class="memdesc:ab22b48c7413382c6174b1588c95820b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memdesc:ab22b48c7413382c6174b1588c95820b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list.Order is how they appear in the buffer which is depth-first.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">eventNumber</td><td>number of event (place in file/buffer) starting at 1. </td></tr>
   </table>
@@ -1365,7 +1365,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list.<dl class="params"><dt>Parameters</dt><dd>
+<p>Get the <a class="el" href="../../de/dd0/classevio_1_1_evio_node.html">EvioNode</a> object associated with a particular event number which has been scanned so all substructures are contained in the node.allNodes list.Order is how they appear in the buffer which is depth-first.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">eventNumber</td><td>number of event (place in file/buffer) starting at 1. </td></tr>
   </table>

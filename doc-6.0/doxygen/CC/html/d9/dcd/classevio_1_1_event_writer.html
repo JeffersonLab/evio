@@ -734,7 +734,7 @@ Protected Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>This method flushes any remaining data to file and disables this object. </p>
-<p>May not call this when simultaneously calling writeEvent, flush, setFirstEvent, or getByteBuffer. </p>
+<p>This needs to be called before getting buffer through <a class="el" href="../../d9/dcd/classevio_1_1_event_writer.html#ab9f560ab96c146e6a3c288d202cadb1e">getByteBuffer()</a> so that the buffer is ready to read. May not call this when simultaneously calling writeEvent, flush, setFirstEvent, or getByteBuffer. </p>
 
 <p class="reference">References <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#aa0e335238a57eaa0bffee8f968e5995f">evio::ByteBuffer::array()</a>, <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#a3d5f0120189717ffc8d2d480d89cb91a">evio::ByteBuffer::order()</a>, <a class="el" href="../../dc/d30/classevio_1_1_byte_buffer.html#a8bc5745c6525ec0e5bfaee09db9b5c60">evio::ByteBuffer::putInt()</a>, and <a class="el" href="../../d1/da6/classevio_1_1_file_header.html#a13a655d1b16e70688ec555e1f6cd7f5b">evio::FileHeader::RECORD_COUNT_OFFSET</a>.</p>
 
