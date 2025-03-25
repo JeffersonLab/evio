@@ -1271,6 +1271,8 @@ namespace evio {
 
     /**
      * This method flushes any remaining data to file and disables this object.
+     * This needs to be called before getting buffer through
+     * {@link #getByteBuffer()} so that the buffer is ready to read.
      * May not call this when simultaneously calling
      * writeEvent, flush, setFirstEvent, or getByteBuffer.
      */

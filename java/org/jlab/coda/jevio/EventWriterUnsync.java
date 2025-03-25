@@ -2269,6 +2269,8 @@ public class EventWriterUnsync implements AutoCloseable {
 
     /**
      * This method flushes any remaining data to file and disables this object.
+     * This needs to be called before getting buffer through
+     * {@link #getByteBuffer()} so that the buffer is ready to read.
      *
      * <p>
      * Do not call this while simultaneously calling
