@@ -67,6 +67,8 @@ namespace evio {
         void setULongData(std::shared_ptr<BaseStructure> structure, uint64_t* data, size_t count);
         void setCharData(std::shared_ptr<BaseStructure> structure, char* data, size_t count);
         void setUCharData(std::shared_ptr<BaseStructure> structure, unsigned char* data, size_t count);
+        void setByteData(std::shared_ptr<BaseStructure> structure, int8_t* data, size_t count);
+        void setUByteData(std::shared_ptr<BaseStructure> structure, uint8_t* data, size_t count);
         void setFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count);
         void setDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
 
@@ -83,6 +85,8 @@ namespace evio {
         void appendULongData(std::shared_ptr<BaseStructure> structure, uint64_t* data, size_t count);
         void appendCharData(std::shared_ptr<BaseStructure> structure, char* data, size_t count);
         void appendUCharData(std::shared_ptr<BaseStructure> structure, unsigned char* data, size_t count);
+        void appendByteData(std::shared_ptr<BaseStructure> structure, int8_t* data, size_t count);
+        void appendUByteData(std::shared_ptr<BaseStructure> structure, uint8_t* data, size_t count);
         void appendFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count);
         void appendDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
         void appendStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count);

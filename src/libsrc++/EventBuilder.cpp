@@ -298,6 +298,31 @@ namespace evio {
 
 
     /**
+     * Set byte data in the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of int8_t) to write.
+     * @param count number of bytes to write.
+     * @throws EvioException if structure or data arg(s) is null.
+     */
+    void EventBuilder::setByteData(std::shared_ptr<BaseStructure> structure, int8_t* data, size_t count) {
+        setUCharData(structure, reinterpret_cast<unsigned char *>(data), count);
+    }
+
+    /**
+     * Set unsigned byte data in the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of uint8_t) to write.
+     * @param count number of bytes to write.
+     * @throws EvioException if structure or data arg(s) is null.
+     */
+    void EventBuilder::setUByteData(std::shared_ptr<BaseStructure> structure, uint8_t* data, size_t count) {
+        setCharData(structure, reinterpret_cast<char *>(data), count);
+    }
+
+
+    /**
      * Set char data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
@@ -657,6 +682,32 @@ namespace evio {
         }
         structure->updateUCharData();
         setAllHeaderLengths();
+    }
+
+
+    /**
+     * Append byte data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of int8_t) to append.
+     * @param count number of chars to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not char.
+     */
+    void EventBuilder::appendByteData(std::shared_ptr<BaseStructure> structure, int8_t* data, size_t count) {
+        appendCharData(structure, reinterpret_cast<char *>(data), count);
+    }
+
+
+    /**
+     * Append unsigned byte data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of uint8_t) to append.
+     * @param count number of chars to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not unsigned char.
+     */
+    void EventBuilder::appendUByteData(std::shared_ptr<BaseStructure> structure, uint8_t* data, size_t count) {
+        appendUCharData(structure, reinterpret_cast<unsigned char *>(data), count);
     }
 
 
