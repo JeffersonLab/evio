@@ -108,7 +108,7 @@ To build it, do this on the Mac:
     cd Disruptor-cpp
     mkdir build
     cd build
-    cmake .. -DCMAKE_BUILD_TYPE=Release
+    cmake ..
     make
     setenv DISRUPTOR_CPP_HOME <../>
     
@@ -118,7 +118,7 @@ If using Jefferson Lab’s Redhat Enterprise 7 do:
     cd Disruptor-cpp
     mkdir build
     cd build
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++
+    cmake .. -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++
     make
     setenv DISRUPTOR_CPP_HOME <../>
 
@@ -184,7 +184,8 @@ Although fairly self-explanatory, if on Jefferson Lab's CUE system with Redhat 7
 
     use gcc/5.3.0
     cd <evio dir>
-    scons install
+    scons install     or
+    scons –-prefix=/my/installation/directory install
     
 will compile and install all the code.
 Note that for C/C++, only Linux and Darwin (Mac OSX) operating systems are supported.
@@ -202,52 +203,70 @@ To compile a debug version, execute:
 ### Cmake
 
 
-Evio can also be compiled with cmake using the included CMakeLists.txt file.
-To build the C and C++ libraries and executables on the Mac:
+**Preferable to scons, cmake is the best way to compile evio.** Experience shows that cmake is
+simpler, more powerful and more complete than scons. If the disruptor library is not
+immediately accessible, cmake can automatically fetch and build it.
+Cmake uses the included CMakeLists.txt file.
+
+To build the C and C++ libraries and executables, start with:
 
     cd <evio dir>
     mkdir build
-    cd build
-    cmake .. –DCMAKE_BUILD_TYPE=Release
-    make
-    
-If on Jefferson Lab's redhat 7 linux this will be:
-    
-    cd <evio dir>
-    mkdir build
-    cd build
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++
-    make
-    
-    
-To build only C code, place –DC_ONLY=1 on the cmake command line.
-In order to compile all the examples as well, place –DMAKE_EXAMPLES=1 on the cmake command line.
-The above commands will place everything in the current _**build**_ directory and will keep generated
-files from mixing with the source and config files.
+    cd build    
 
+At this point, several choices can be made.
 
-In addition to a having a copy in the build directory, installing the library, binary and include
-files can be done by calling cmake in 2 ways:
+Evio will fetch and compile its own copy of the Disruptor if neither of the environmental variables
+pointing to an existing Disruptor repository, DISRUPTOR_CPP_DIR or DISRUPTOR_CPP_HOME, is defined.
+If an existing repository can be found, it will use the includes and libs found there. Simply do:
 
-    cmake .. –DCMAKE_BUILD_TYPE=Release –DCODA_INSTALL=<install dir>
-    make install
-    
-or
-    
-    cmake .. –DCMAKE_BUILD_TYPE=Release
-    make install
+    cmake ..
 
-The first option explicitly sets the installation directory. The second option installs in the directory
-given in the CODA environmental variable. If neither are defined, an error is given.
-The libraries and executables are placed into the _**build/lib**_ and _**build/bin**_ subdirectories.
-When doing an install, they are also placed into the _**[install dir]/[arch]/lib**_ and _**bin**_ subdirectories
-(eg. Darwin-x86_64/lib). If cmake was run previously, remove the CMakeCache.txt file so
-new values are generated and used.
+To define the Disruptor location on the command line:
 
+    cmake .. -DDISRUPTOR_CPP_HOME=<dir> or
+    cmake .. -DDISRUPTOR_CPP_DIR=<dir>
+
+To force Disruptor to be used from an existing local directory:
+
+    cmake .. -DDISRUPTOR_ALLOW_FETCH=OFF -DDISRUPTOR_CPP_HOME=<dir>
+
+When using C++17 and later, #include <filesystem> can be used to access the routines in std::filesystem to deal with the local file system. This can be turned on by defining USE_FILESYSTEMLIB when running cmake.
+
+    cmake .. -DUSE_FILESYSTEMLIB=ON …
+      
+In addition, one can create evioConfig.cmake during install. This allows users to simply use find_package(evio) in their CMake setups.
+
+If you happen to be building on an older version of linux, such as redhat 7, you’ll need to make sure your g++ is at least version 5. This may look like:
+
+    cmake ..  -DCMAKE_C_COMPILER=/apps/gcc/5.3.0/bin/gcc
+              -DCMAKE_CXX_COMPILER=/apps/gcc/5.3.0/bin/g++ …
+
+To build only C code, place –DC_ONLY=1 on the cmake command line:
+
+    cmake .. -DC_ONLY=1 …
+
+To build all the examples as well as libs and programs, place –DMAKE_EXAMPLES=1 on the cmake command line.
+
+    cmake .. -DMAKE_EXAMPLES=1 …
+
+One can also define the directory in which to install the resulting libs, includes and executables upon compilation:
+
+    cmake .. -DINSTALL=<my_installation_dir> …
+
+So, for compiling C++ code while fetching the Disruptor and making examples, one might do something like:
+
+    cmake .. -DMAKE_EXAMPLES=1
+
+The final step is to call make:
+
+    make -j 4 install
 
 To uninstall simply do:
 
-    make uninstall
+	make uninstall
+
+
 
 
 ------------------------------
@@ -339,8 +358,11 @@ Thus, it may be safely ignored or removed.
 ## **Building**
 
 
-The java evio uses ant to compile. To get a listing of all the options available to the ant command,
-run _**ant help**_ in the evio top level directory to get this output:
+The java evio uses ant to compile. To get a listing of all the options available to the ant command, run
+
+    ant help
+
+in the evio top level directory to get this output:
 
     help: 
         [echo] Usage: ant [ant options] <target1> [target2 | target3 | ...]
@@ -366,8 +388,12 @@ run _**ant help**_ in the evio top level directory to get this output:
 
 
 Although this is fairly self-explanatory, executing _**ant**_ is the same as ant compile.
-That will compile all the java. All compiled code is placed in the generated _**build**_ directory.
-If the user wants a jar file, execute _**ant jar**_ to place the resulting file in the _**build/lib**_ directory.
+That will compile all the java. All compiled code is placed in the generated _**jbuild**_ directory.
+If the user wants a jar file, execute
+
+    ant jar
+
+to place the resulting file in the _**jbuild/lib**_ directory.
 The java command in the user’s path will be the one used to do the compilation.
 
 ----------------------------
