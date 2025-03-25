@@ -215,7 +215,6 @@ namespace evio {
         void addEvent(std::shared_ptr<EvioBank> bank);
         void addEvent(std::shared_ptr<EvioNode> & node);
 
-        void reset();
         void close();
 
     private:
