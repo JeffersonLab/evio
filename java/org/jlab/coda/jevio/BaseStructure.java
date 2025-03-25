@@ -802,7 +802,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 	/**
 	 * Get the raw data of the structure.
-	 * 
+	 * Warning, there are circumstances in which rawBytes is null.
+	 * For example if this structure contains other structures.
 	 * @return the raw data of the structure.
 	 */
 	public byte[] getRawBytes() {
