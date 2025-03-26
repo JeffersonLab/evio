@@ -4,7 +4,7 @@ name: Documentation generation CI
 
 on:
   push:
-    branches: [ evio-5.2 ]
+    branches: [ evio-5.3 ]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # checkout the evio-5.2 branch
+      # checkout the evio-5.3 branch
       - uses: actions/checkout@v2
 
       # generate the C doxygen files
@@ -48,7 +48,7 @@ jobs:
 
       # store the doc files
       - name: Upload Output Directory
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: evio-doc-files
           path: doc
@@ -67,10 +67,10 @@ jobs:
 
       # download the doc files, most of which are generated above
       - name: Download Output Directory
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: evio-doc-files
-          path: doc-5.2
+          path: doc-5.3
 
       # add, commit and push to gh-pages
       - name: Commit changes
@@ -80,4 +80,4 @@ jobs:
           author_email: timmer@jlab.org
           message: 'Update docs'
           branch: gh-pages
-          add: '["doc-5.2/doxygen/C/html/*", "doc-5.2/doxygen/CC/html/*", "doc-5.2/javadoc/", "doc-5.2/users_guide/evio_Users_Guide.pdf"]'
+          add: '["doc-5.3/doxygen/C/html/*", "doc-5.3/doxygen/CC/html/*", "doc-5.3/javadoc/", "doc-5.3/users_guide/evio_Users_Guide.pdf"]'
