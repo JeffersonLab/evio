@@ -1,0 +1,25 @@
+var classevio_1_1evio_socket_channel =
+[
+    [ "evioSocketChannel", "d5/d46/classevio_1_1evio_socket_channel.html#a2b4e350b2bfb6bc92b9a9d2e3393920d", null ],
+    [ "evioSocketChannel", "d5/d46/classevio_1_1evio_socket_channel.html#a5e7a8904040cf5ea42a004ff42dca03a", null ],
+    [ "~evioSocketChannel", "d5/d46/classevio_1_1evio_socket_channel.html#a0ecfbe41a061ca30552288a6ade027c5", null ],
+    [ "close", "d5/d46/classevio_1_1evio_socket_channel.html#abb764b72b4bcb8f97c9f4ced58028b6f", null ],
+    [ "getBuffer", "d5/d46/classevio_1_1evio_socket_channel.html#a2f870cc55bed3a16c22d80a989a73494", null ],
+    [ "getBufSize", "d5/d46/classevio_1_1evio_socket_channel.html#a9495ca0b819ad8a063205a4286b921f3", null ],
+    [ "getMode", "d5/d46/classevio_1_1evio_socket_channel.html#a4af9852a7bdcb5ed2106598bb6d34783", null ],
+    [ "getNoCopyBuffer", "d5/d46/classevio_1_1evio_socket_channel.html#a5ecba6db555a8505e4cd8df4961e01ba", null ],
+    [ "getSocketFD", "d5/d46/classevio_1_1evio_socket_channel.html#ae0f99eb432b8a17ed42807630f1425e5", null ],
+    [ "getSocketXMLDictionary", "d5/d46/classevio_1_1evio_socket_channel.html#a4a62bf617de1be3f158601dc9c96e5df", null ],
+    [ "ioctl", "d5/d46/classevio_1_1evio_socket_channel.html#a0cba8521a8b28b7d5fd47e04c6045f97", null ],
+    [ "open", "d5/d46/classevio_1_1evio_socket_channel.html#aef273fedfc37f4197588cfed97b6aefe", null ],
+    [ "read", "d5/d46/classevio_1_1evio_socket_channel.html#a945a6c049b76b6be161c3d35ffb399f2", null ],
+    [ "read", "d5/d46/classevio_1_1evio_socket_channel.html#aecf510a9f3638fb07d68d2b041f1f4fb", null ],
+    [ "readAlloc", "d5/d46/classevio_1_1evio_socket_channel.html#a5c7de26f5f90e780ec1e58b9b7a0e6b6", null ],
+    [ "readNoCopy", "d5/d46/classevio_1_1evio_socket_channel.html#a067a617ba40747d31d999e8df3401f7c", null ],
+    [ "write", "d5/d46/classevio_1_1evio_socket_channel.html#ae7a7ba02c73e99526dfbbf1713371c0a", null ],
+    [ "write", "d5/d46/classevio_1_1evio_socket_channel.html#a7a85645e57e6350e97cabded941fa78c", null ],
+    [ "write", "d5/d46/classevio_1_1evio_socket_channel.html#ab16744d292cf56c797b09e399e1c12b8", null ],
+    [ "write", "d5/d46/classevio_1_1evio_socket_channel.html#a37144917aada6948c3de86a0b12650cf", null ],
+    [ "write", "d5/d46/classevio_1_1evio_socket_channel.html#ae4fcff0ce87f1c4ac142d37f0183607c", null ],
+    [ "write", "d5/d46/classevio_1_1evio_socket_channel.html#affd1eaeed8474db1686068e07d8cb94c", null ]
+];
