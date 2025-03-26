@@ -19,6 +19,7 @@ ___________________________
 ## **Version 6.0**
 
 * [User's Guide PDF](https://jeffersonlab.github.io/evio/doc-6.0/users_guide/evio_Users_Guide.pdf)
+* [Format Guide PDF](https://jeffersonlab.github.io/evio/doc-6.0/format_guide/evio_Formats.pdf)
 * [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc-6.0/javadoc/index.html)
 * [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/C/html/index.html)
 * [Doxygen for C++ Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
