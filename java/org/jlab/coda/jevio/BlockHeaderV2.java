@@ -1,5 +1,7 @@
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.CompressionType;
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -11,7 +13,7 @@ import java.nio.ByteOrder;
  * (events) will sometimes cross physical record boundaries.
  *
  *
- * <pre>
+ * <pre><code>
  * ####################################
  * Evio block header, versions 1,2 &amp; 3:
  * ####################################
@@ -47,13 +49,13 @@ import java.nio.ByteOrder;
  *      Reserved 1    = reserved
  *      Magic #       = magic number (0xc0da0100) used to check endianness
  *
- * </pre>
+ * </code></pre>
  *
  *
  * @author heddle
  *
  */
-public final class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
+public final class BlockHeaderV2 implements Cloneable, IEvioWriter, IBlockHeader {
 
 	/**
 	 * The maximum block size in 32 bit ints in this implementation of evio.
@@ -171,26 +173,37 @@ public final class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
     }
 
 
-    /**
-     * This copy constructor creates an evio version 1-3 BlockHeader
-     * from another object of this class.
-     * @param blkHeader block header object to copy
-     */
-    public BlockHeaderV2(BlockHeaderV2 blkHeader) {
-        if (blkHeader == null) {
-            return;
-        }
-        size         = blkHeader.size;
-        number       = blkHeader.number;
-        headerLength = blkHeader.headerLength;
-        version      = blkHeader.version;
-        end          = blkHeader.end;
-        start        = blkHeader.start;
-        reserved1    = blkHeader.reserved1;
+	/**
+	 * This copy constructor creates an evio version 1-3 BlockHeader
+	 * from another object of this class.
+	 * @param blkHeader block header object to copy
+	 */
+	public BlockHeaderV2(BlockHeaderV2 blkHeader) {
+		copy(blkHeader);
+	}
+
+
+	/**
+	 * This copies an evio version 1-3 BlockHeader
+	 * from another object of this class.
+	 * @param blkHeader block header object to copy
+	 */
+	public void copy(BlockHeaderV2 blkHeader) {
+		if (blkHeader == null) {
+			return;
+		}
+		size         = blkHeader.size;
+		number       = blkHeader.number;
+		headerLength = blkHeader.headerLength;
+		version      = blkHeader.version;
+		end          = blkHeader.end;
+		start        = blkHeader.start;
+		reserved1    = blkHeader.reserved1;
 		byteOrder    = blkHeader.byteOrder;
 		magicNumber  = blkHeader.magicNumber;
-        bufferStartingPosition = blkHeader.bufferStartingPosition;
-    }
+		bufferStartingPosition = blkHeader.bufferStartingPosition;
+	}
+
 
 	/*** {@inheritDoc}  */
 	public Object clone() {
@@ -212,16 +225,29 @@ public final class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
         return false;
     }
 
-    /**
-     * Is this the last block in the file or being sent over the network?
-     * This is not implemented in evio versions 1-3. Just return false.
-     *
-     * @return always returns false for evio versions 1-3
-     */
-    public boolean isLastBlock() {
-        return false;
-    }
+	/**
+	 * Is this the last block in the file or being sent over the network?
+	 * This is not implemented in evio versions 1-3. Just return false.
+	 *
+	 * @return always returns false for evio versions 1-3
+	 */
+	public boolean isLastBlock() {
+		return false;
+	}
 
+	/**
+	 * Is this the data in this block compressed?
+	 * This is always false in evio versions 1-3.
+	 * @return <code>false</code>.
+	 */
+	public boolean isCompressed() {return false;}
+
+	/**
+	 * Get the type of data compression used.
+	 * This is always {@link CompressionType#RECORD_UNCOMPRESSED} in evio versions 1-3.
+	 * @return type of data compression used.
+	 */
+	public CompressionType getCompressionType() {return CompressionType.RECORD_UNCOMPRESSED;}
 
 	/**
 	 * Set the size of the block (physical record). Some trivial checking is done.

@@ -29,19 +29,18 @@
     <groupId>org.jlab.coda</groupId>
 
     <!-- current rolling version using snapshot release -->
-    <version>6.3-SNAPSHOT</version>
+    <version>6.0-SNAPSHOT</version>
 
     <properties>
 
-        <!-- Make java version 7 jar -->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <!-- Make java version 8 jar -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <!-- define version numbers, for convenience below -->
         <!-- the "1.0" are fake, for jars that come with jevio but w/o a version -->
-        <lz4.version>1.4.0</lz4.version>
-        <disruptor.version>3.3</disruptor.version>
-        <proguard.version>1.0</proguard.version>
+        <lz4.version>1.8.0</lz4.version>
+        <disruptor.version>3.4.3</disruptor.version>
         <aha.version>1.0</aha.version>
 
     </properties>
@@ -61,14 +60,21 @@
             <version>${disruptor.version}</version>
         </dependency>
         <dependency>
-            <groupId>proguard</groupId>
-            <artifactId>proguard</artifactId>
-            <version>${proguard.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.aha.compression</groupId>
             <artifactId>AHACompressionAPI</artifactId>
             <version>${aha.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -134,18 +140,6 @@
                             <groupId>net.jpountz.lz4</groupId>
                             <artifactId>lz4-java</artifactId>
                             <version>${lz4.version}</version>
-                            <packaging>jar</packaging>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>proguard</id>
-                        <phase>clean</phase>
-                        <goals><goal>install-file</goal></goals>
-                        <configuration>
-                            <file>java/jars/proguard.jar</file>
-                            <groupId>proguard</groupId>
-                            <artifactId>proguard</artifactId>
-                            <version>${proguard.version}</version>
                             <packaging>jar</packaging>
                         </configuration>
                     </execution>

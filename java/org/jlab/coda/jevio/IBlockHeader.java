@@ -1,5 +1,7 @@
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.CompressionType;
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -138,6 +140,18 @@ public interface IBlockHeader {
      *         over the network, else <code>false</code>.
      */
     boolean isLastBlock();
+
+    /**
+     * Is this the data in this block compressed?
+     * @return <code>true</code> if the data in this block is compressed, else <code>false</code>.
+     */
+    boolean isCompressed();
+
+    /**
+     * Get the type of data compression used.
+     * @return type of data compression used.
+     */
+    CompressionType getCompressionType();
 
 // TODO: this needs to throw an exception right?? Or is the return enough?
     /**

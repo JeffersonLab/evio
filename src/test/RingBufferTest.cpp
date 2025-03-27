@@ -49,7 +49,7 @@ namespace evio {
             /** Function to create Integers by RingBuffer. */
             static const std::function< std::shared_ptr<Integer> () >& eventFactory() {
                 static std::function< std::shared_ptr<Integer> () > result([] {
-                    return std::move(std::make_shared<Integer>());
+                    return std::make_shared<Integer>();
                 });
                 return result;
             }
@@ -85,7 +85,7 @@ namespace evio {
           * @param writeBar
           * @param gateSeq
           */
-        Writer(std::shared_ptr<RingBuffer< std::shared_ptr<Integer>>> & ringBuf,
+        Writer(std::shared_ptr<RingBuffer< std::shared_ptr<Integer>>> ringBuf,
                std::shared_ptr<Disruptor::ISequenceBarrier> & barrier,
                std::shared_ptr<Disruptor::ISequence> sequence) :
             ringBuffer(ringBuf), writeBarrier(barrier), gateSequence(sequence)  {}
@@ -122,7 +122,7 @@ namespace evio {
                     std::shared_ptr<Integer> & item = ((*ringBuffer.get())[nextWriteSeq]);
                     cout << "Writing item " << item->get() << endl;
                     gateSequence->setValue(nextWriteSeq++);
-                    std::this_thread::sleep_for(2s);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
             catch (std::exception & e) {
@@ -169,8 +169,8 @@ namespace evio {
                    std::shared_ptr<RingBuffer< std::shared_ptr<Integer>>> & ringBuf,
                    std::shared_ptr<Disruptor::ISequenceBarrier> & barrier,
                    std::shared_ptr<Disruptor::ISequence> sequence) :
-        threadNumber(threadNum), threadCount(threadCnt), ringBuffer(ringBuf),
-        compBarrier(barrier), compSequence(sequence)  {}
+        ringBuffer(ringBuf), compBarrier(barrier), compSequence(sequence),
+        threadNumber(threadNum), threadCount(threadCnt) {}
 
 
         /** Create and start a thread to execute the run() method of this class. */
@@ -214,7 +214,7 @@ cout << "Comp " << threadNumber << ":  " << item->get() << ", next " << (nextWri
                     compSequence->setValue(nextWriteSeq);
                     nextWriteSeq += threadCount;
 
-                    std::this_thread::sleep_for(2s);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
             catch (std::exception & e) {
@@ -285,7 +285,7 @@ cout << "Comp " << threadNumber << ":  " << item->get() << ", next " << (nextWri
             availableCompressSeqs.reserve(compressionThreadCount);
             compressorThreads.reserve(compressionThreadCount);
 
-            for (int i=0; i < compressionThreadCount; i++) {
+            for (uint32_t i=0; i < compressionThreadCount; i++) {
                 // Create seq with usual initial value
                 std::shared_ptr<Disruptor::Sequence> seq = std::make_shared<Disruptor::Sequence>(Disruptor::Sequence::InitialCursorValue);
 
@@ -319,7 +319,7 @@ cout << "EventWriter constr: created " << compressionThreadCount << " number of 
 
 
             // Start compression threads
-            for (int i=0; i < compressionThreadCount; i++) {
+            for (uint32_t i=0; i < compressionThreadCount; i++) {
                 compressorThreads[i].startThread();
             }
 

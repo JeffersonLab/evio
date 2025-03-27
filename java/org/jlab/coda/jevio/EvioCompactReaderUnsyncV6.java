@@ -24,22 +24,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is used to read an evio format version 6 formatted file or buffer.
+ * <p>This class is used to read an evio format version 6 formatted file or buffer.
  * It's essentially a wrapper for the hipo.Reader class so the user can have
- * access to the EvioCompactReader methods. It is NOT thread-safe.<p>
+ * access to the EvioCompactReader methods. It is NOT thread-safe.</p>
+ *
+ * <p>Although this class can be used directly, it's generally used by
+ * using {@link EvioCompactReader} which, in turn, uses this class.</p>
  *
  * @author timmer
  */
 class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
     /** The reader object which does all the work. */
-    private Reader reader;
+    protected Reader reader;
 
     /** Is this object currently closed? */
-    private boolean closed;
+    protected boolean closed;
 
     /** Dictionary object created from dictionaryXML string. */
-    private EvioXMLDictionary dictionary;
+    protected EvioXMLDictionary dictionary;
 
 
     
@@ -62,7 +65,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      * Constructor for reading a buffer.
      *
      * @param byteBuffer the buffer that contains events.
-     * @param pool pool of EvioNode objects.
+     * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
      *
      * @see EventWriter
      * @throws EvioException if buffer arg is null,
@@ -88,7 +91,10 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Is this reader reading a file? Always false for this class.
+     * @return false.
+     */
     public boolean isFile() {return false;}
 
     /** {@inheritDoc} */
@@ -96,18 +102,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
     /** {@inheritDoc} */
     public void setBuffer(ByteBuffer buf) throws EvioException {
-        try {
-            reader.setBuffer(buf);
-            if (!reader.isEvioFormat()) {
-                throw new EvioException("buffer not in evio format");
-            }
-        }
-        catch (HipoException e) {
-            throw new EvioException(e);
-        }
-
-        dictionary = null;
-        closed = false;
+        setBuffer(buf, null);
     }
 
     /** {@inheritDoc} */
@@ -229,6 +224,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      * which has been scanned so all substructures are contained in the
      * node.allNodes list.
      * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
      * @return  EvioNode object associated with a particular event number,
      *          or null if eventNumber is out of bounds, reading a file or data is
      *          compressed.
@@ -237,7 +233,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
         try {
             return scanStructure(eventNumber, nodeSource);
         }
-        catch (IndexOutOfBoundsException e) { }
+        catch (IndexOutOfBoundsException e) {}
         return null;
     }
 
@@ -257,7 +253,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      *         or null if eventNumber is out of bounds, reading a file or data is
      *         compressed.
      */
-    private EvioNode scanStructure(int eventNumber) {
+    protected EvioNode scanStructure(int eventNumber) {
 
         // Node corresponding to event
         EvioNode node = reader.getEventNode(eventNumber - 1);
@@ -276,6 +272,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
         return node;
     }
 
+
     /**
      * This method scans the given event number in the buffer.
      * It returns an EvioNode object representing the event.
@@ -288,7 +285,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      *         or null if eventNumber is out of bounds, reading a file or data is
      *         compressed.
      */
-    private EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
+    protected EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
 
         // Node corresponding to event
         EvioNode node = reader.getEventNode(eventNumber - 1);
@@ -350,8 +347,44 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
     /** {@inheritDoc} */
     public  List<EvioNode> searchEvent(int eventNumber, String dictName,
-                                      EvioXMLDictionary dictionary)
-                                 throws EvioException {
+                                       EvioXMLDictionary dictionary)
+            throws EvioException {
+
+        if (dictName == null) {
+            throw new EvioException("null dictionary entry name");
+        }
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        // If no dictionary is specified, use the one provided with the
+        // file/buffer. If that does not exist, throw an exception.
+        Integer tag, num;
+
+        if (dictionary == null && hasDictionary())  {
+            dictionary = getDictionary();
+        }
+
+        if (dictionary != null) {
+            tag = dictionary.getTag(dictName);
+            num = dictionary.getNum(dictName);
+            if (tag == null || num == null) {
+                throw new EvioException("no dictionary entry for " + dictName);
+            }
+        }
+        else {
+            throw new EvioException("no dictionary available");
+        }
+
+        return searchEvent(eventNumber, tag, num);
+    }
+
+
+    /** {@inheritDoc} */
+    public  List<EvioNode> searchEventOrig(int eventNumber, String dictName,
+                                       EvioXMLDictionary dictionary)
+            throws EvioException {
 
         if (dictName == null) {
             throw new EvioException("null dictionary entry name");
@@ -431,6 +464,7 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      *                       if node was not found in any event;
      *                       if internal programming error;
      *                       if buffer has compressed data.
+     *                       if using file, not buffer;
      */
     public  ByteBuffer removeStructure(EvioNode removeNode) throws EvioException {
         try {
@@ -444,7 +478,8 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
     /**
      * This method adds an evio container (bank, segment, or tag segment) as the last
-     * structure contained in an event. It is the responsibility of the caller to make
+     * structure contained in an event. Generally, this will be a bank since an event
+     * is defined to be a bank of banks. It is the responsibility of the caller to make
      * sure that the buffer argument contains valid evio data (only data representing
      * the structure to be added - not in file format with record header and the like)
      * which is compatible with the type of data stored in the given event.<p>
@@ -469,7 +504,8 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      *                       if added data is not the proper length (i.e. multiple of 4 bytes);
      *                       if the event number does not correspond to an existing event;
      *                       if there is an internal programming error;
-     *                       if object closed
+     *                       if object closed;
+     *                       if using file, not buffer;
      */
     public  ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
         try {

@@ -263,7 +263,8 @@ public class ByteDataTransformer {
         byte array[] = new byte[size];
 
         if (byteBuffer.hasArray()) {
-            System.arraycopy(byteBuffer.array(), byteBuffer.arrayOffset(),
+            System.arraycopy(byteBuffer.array(),
+                      byteBuffer.position() + byteBuffer.arrayOffset(),
                              array, 0, size);
         }
         else {
@@ -292,7 +293,9 @@ public class ByteDataTransformer {
             int len = byteBuffer.remaining()/4;
             int[] array = new int[len];
             try {
-                toIntArray(backingArray, backingArrayOffset, byteBuffer.remaining(),
+                toIntArray(backingArray,
+                        byteBuffer.position() + backingArrayOffset,
+                           byteBuffer.remaining(),
                            byteBuffer.order(), array, 0);
             }
             catch (EvioException e) {/* never happen */}
@@ -331,7 +334,8 @@ public class ByteDataTransformer {
             byte[] backingArray = byteBuffer.array();
             int backingArrayOffset = byteBuffer.arrayOffset();
             try {
-                toIntArray(backingArray, backingArrayOffset,
+                toIntArray(backingArray,
+                        byteBuffer.position() + backingArrayOffset,
                            byteBuffer.order(), dest, 0);
             }
             catch (EvioException e) {/* never happen */}
@@ -1683,6 +1687,45 @@ public class ByteDataTransformer {
         }
     }
 
+
+    /**
+     * Turn byte array into an long array.
+     *
+     * @param data byte array to convert
+     * @param dataOffset offset into data array.
+     * @param dataLen    number of bytes to convert.
+     * @param byteOrder byte order of supplied bytes (big endian if null)
+     * @param dest array in which to write converted bytes
+     * @param destOffset offset into dest array
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
+     */
+    public static void toLongArray(byte[] data, int dataOffset, int dataLen,
+                                   ByteOrder byteOrder, long[] dest, int destOffset)
+            throws EvioException {
+
+        if (data == null ||
+                dataOffset < 0 || dataOffset > data.length - 1 ||
+                dataLen < 0 || dataLen > (data.length - dataOffset) ||
+                dest == null ||
+                8*(dest.length - destOffset) < dataLen ||
+                destOffset < 0) {
+            throw new EvioException("bad arg");
+        }
+
+        for (int i = 0; i < data.length-7; i+=8) {
+            dest[i/8+destOffset] = toLong(data[i + dataOffset],
+                    data[i + 1 + dataOffset],
+                    data[i + 2 + dataOffset],
+                    data[i + 3 + dataOffset],
+                    data[i + 4 + dataOffset],
+                    data[i + 5 + dataOffset],
+                    data[i + 6 + dataOffset],
+                    data[i + 7 + dataOffset],
+                    byteOrder);
+        }
+    }
+
+
     // =========================
 
     /**
@@ -1913,7 +1956,7 @@ public class ByteDataTransformer {
     /**
      * This method swaps the byte order of an entire evio event or bank.
      * The byte order of the swapped buffer will be opposite to the byte order
-     * of the the source buffer argument. If the swap is done in place, the
+     * of the source buffer argument. If the swap is done in place, the
      * byte order of the source buffer will be switched upon completion and
      * the destPos arg will be set equal to the srcPos arg.
      * The positions of the source and destination buffers are not changed.
@@ -1925,7 +1968,7 @@ public class ByteDataTransformer {
      * Position and limit of neither buffer is changed.
      *
      * @param srcBuffer  buffer containing event to swap.
-     * @param destBuffer buffer in which to placed the swapped event.
+     * @param destBuffer buffer in which to place the swapped event.
      *                   If null, or identical to srcBuffer, the data is swapped in place.
      * @param srcPos     position in srcBuffer to start reading event
      * @param destPos    position in destBuffer to start writing swapped event
@@ -1976,7 +2019,7 @@ public class ByteDataTransformer {
     /**
      * This method swaps the byte order of an entire evio event or bank.
      * The byte order of the swapped buffer will be opposite to the byte order
-     * of the the source buffer argument. If the swap is done in place, the
+     * of the source buffer argument. If the swap is done in place, the
      * byte order of the source buffer will be switched upon completion and
      * the destPos arg will be set equal to the srcPos arg.
      * The positions of the source and destination buffers are not changed.
@@ -1984,11 +2027,11 @@ public class ByteDataTransformer {
      * {@link java.nio.ByteBuffer#order()}.<p>
      *
      * The data to be swapped must <b>not</b> be in the evio file format (with
-     * block headers). Data must only consist of bytes representing a single event/bank.
+     * record headers). Data must only consist of bytes representing a single event/bank.
      * Position and limit of neither buffer is changed.
      *
      * @param srcBuffer  buffer containing event to swap.
-     * @param destBuffer buffer in which to placed the swapped event.
+     * @param destBuffer buffer in which to place the swapped event.
      *                   If null, or identical to srcBuffer, the data is swapped in place.
      * @param srcPos     position in srcBuffer to start reading event
      * @param destPos    position in destBuffer to start writing swapped event
@@ -2005,7 +2048,7 @@ public class ByteDataTransformer {
             throws EvioException {
 
         if (srcBuffer == null) {
-            throw new EvioException("Null event in parseEvent.");
+            throw new EvioException("Null event in swapEvent");
         }
 
         // Find the destination byte order and if it is to be swapped in place
@@ -2060,9 +2103,9 @@ public class ByteDataTransformer {
 
 
     /**
-     * This method reads and swaps an evio bank header.
+     * <p>This method reads and swaps an evio bank header.
      * It can also return information about the bank.
-     * Position and limit of neither buffer argument is changed.<p></p>
+     * Position and limit of neither buffer argument is changed.</p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the bank
@@ -2122,9 +2165,9 @@ public class ByteDataTransformer {
 
 
     /**
-     * This method reads and swaps an evio segment header.
+     * <p>This method reads and swaps an evio segment header.
      * It can also return information about the segment.
-     * Position and limit of neither buffer argument is changed.<p></p>
+     * Position and limit of neither buffer argument is changed.</p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the segment
@@ -2178,9 +2221,9 @@ public class ByteDataTransformer {
 
 
     /**
-     * This method reads and swaps an evio tagsegment header.
+     * <p>This method reads and swaps an evio tagsegment header.
      * It can also return information about the tagsegment.
-     * Position and limit of neither buffer argument is changed.<p></p>
+     * Position and limit of neither buffer argument is changed.</p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the tagsegment
@@ -2312,7 +2355,6 @@ public class ByteDataTransformer {
      * @param nodeList   if not null, store all node objects here -
      *                   one for each swapped evio structure in destBuffer.
      *
-     * @throws EvioException
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;

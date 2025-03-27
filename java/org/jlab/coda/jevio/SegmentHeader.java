@@ -28,7 +28,12 @@ public final class SegmentHeader extends BaseStructureHeader {
 		super(tag, dataType);
 	}
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getDataLength() {return length;}
+
+	/**
      * {@inheritDoc}
      */
     public int getHeaderLength() {return 1;}
@@ -62,8 +67,7 @@ public final class SegmentHeader extends BaseStructureHeader {
 	 * @return the number of bytes written, which for a SegmentHeader is 4.
 	 */
 	public int write(ByteBuffer byteBuffer) {
-		int word = (tag << 24 | (byte)((dataType.getValue() & 0x3f) |
-				   (padding << 6)) << 16 | (length & 0xffff));
+		int word = (tag << 24 | ((dataType.getValue() & 0x3f) | (padding << 6)) << 16 | (length & 0xffff));
 		byteBuffer.putInt(word);
 		return 4;
 	}

@@ -17,6 +17,8 @@ public final class BankHeader extends BaseStructureHeader {
 	 * Null constructor.
 	 */
 	public BankHeader() {
+		// For a bank there is 1 int besides the length word.
+		length = 1;
 	}
 
 	/**
@@ -27,8 +29,13 @@ public final class BankHeader extends BaseStructureHeader {
 	 */
 	public BankHeader(int tag, DataType dataType, int num) {
 		super(tag, dataType, num);
+		length = 1;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getDataLength() {return length - 1;}
 
     /**
      * {@inheritDoc}
@@ -67,7 +74,7 @@ public final class BankHeader extends BaseStructureHeader {
 	 */
 	public int write(ByteBuffer byteBuffer) {
 		byteBuffer.putInt(length);
-		int word = (tag << 16 | (byte)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | (number & 0xffff));
+		int word = (tag << 16 | ((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | (number & 0xffff));
 		byteBuffer.putInt(word);
 
 		return 8;

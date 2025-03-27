@@ -3,14 +3,14 @@ package org.jlab.coda.jevio;
 /**
  * This interface allows applications to create filters so that they only recieve certain structures
  * when events are being processed. Below is a filter that accepts any structure that has tag = 400.
- * <pre>
+ * <pre><code>
  * IEvioFilter myFilter = new IEvioFilter() {
  *     public boolean accept(StructureType structureType, IEvioStructure structure) {
  *         return (structure.getHeader().getTag() == 400);
  *     }
  * };
  * EventParser.getInstance().setEvioFilter(myFilter);
- * </pre>
+ * </code></pre>
  * @author heddle
  *
  */

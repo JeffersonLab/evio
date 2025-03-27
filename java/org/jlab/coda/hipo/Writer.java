@@ -7,9 +7,7 @@
 
 package org.jlab.coda.hipo;
 
-import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioBank;
-import org.jlab.coda.jevio.EvioException;
 import org.jlab.coda.jevio.EvioNode;
 
 import java.io.IOException;
@@ -80,6 +78,8 @@ public class Writer implements AutoCloseable {
     private ByteBuffer dictionaryFirstEventBuffer;
     /** Evio format "first" event to store in file header's user header. */
     private byte[] firstEvent;
+    /** Length in bytes of firstEvent. */
+    private int firstEventLength;
 
     /** Byte order of data to write to file/buffer. */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -124,9 +124,7 @@ public class Writer implements AutoCloseable {
      * <b>No</b> file is opened. Any file will have little endian byte order.
      */
     public Writer() {
-        outputRecord = new RecordOutputStream();
-        fileHeader = new FileHeader(true);
-        headerBuffer.order(byteOrder);
+        this(HeaderType.EVIO_FILE, ByteOrder.LITTLE_ENDIAN, 0, 0);
     }
 
     /**
@@ -153,7 +151,7 @@ public class Writer implements AutoCloseable {
      *                      Value of &lt; 8MB results in default of 8MB.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize) {
-        this(hType, order, maxEventCount, maxBufferSize, null, null,
+        this(hType, order, maxEventCount, maxBufferSize, null, null, 0,
              CompressionType.RECORD_UNCOMPRESSED, false);
     }
 
@@ -172,11 +170,13 @@ public class Writer implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
+     * @param firstEventLen number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+     *                      this is set to firstEvent.length.
      * @param compType      type of data compression to use.
      * @param addTrailerIndex if true, we add a record index to the trailer.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize,
-                  String dictionary, byte[] firstEvent,
+                  String dictionary, byte[] firstEvent, int firstEventLen,
                   CompressionType compType, boolean addTrailerIndex) {
 
         if (order != null) {
@@ -186,6 +186,15 @@ public class Writer implements AutoCloseable {
         this.firstEvent = firstEvent;
         this.compressionType = compType;
         this.addTrailerIndex = addTrailerIndex;
+
+        if (firstEvent == null) {
+            firstEventLen = 0;
+        }
+        else if (firstEventLen < 1) {
+            firstEventLen = firstEvent.length;
+        }
+        firstEventLength = firstEventLen;
+
         headerBuffer.order(byteOrder);
 
         // Create a place to store records currently being written
@@ -265,17 +274,18 @@ public class Writer implements AutoCloseable {
      * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf) throws HipoException {
-        this(buf, 0, 0, null, null);
+        this(buf, 0, 0, null, null, 0);
     }
 
     /**
      * Constructor for writing to a ByteBuffer with a user header. Byte order is taken from the buffer.
      * No compression.
      * @param buf buffer in to which to write events and/or records.
+     * @param userHeader array containing user header.
      * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf, byte[] userHeader) throws HipoException {
-        this(buf, 0, 0, null, null);
+        this(buf, 0, 0, null, null, 0);
         open(buf, userHeader, 0, userHeader.length);
     }
 
@@ -292,10 +302,13 @@ public class Writer implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
+     * @param firstEventLen number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+     *                      this is set to firstEvent.length.
      * @throws HipoException if buf arg is null.
      */
     public Writer(ByteBuffer buf, int maxEventCount, int maxBufferSize,
-                  String dictionary, byte[] firstEvent) throws HipoException {
+                  String dictionary, byte[] firstEvent, int firstEventLen)
+            throws HipoException {
 
         if (buf == null) {
             throw new HipoException("buf arg is null");
@@ -307,6 +320,14 @@ public class Writer implements AutoCloseable {
 
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
+        if (firstEvent == null) {
+            firstEventLen = 0;
+        }
+        else if (firstEventLen < 1) {
+            firstEventLen = firstEvent.length;
+        }
+        firstEventLength = firstEventLen;
+
         outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize, CompressionType.RECORD_UNCOMPRESSED);
 
         haveDictionary = dictionary != null;
@@ -423,8 +444,39 @@ public class Writer implements AutoCloseable {
         }
     }
 
+    /** Called by open(), needed if open called multiple times in succession. */
+    private void clear() {
+        // If writing to file ...
+        if (toFile) {
+            future1 = null;
+            future2 = null;
+            futureIndex = 0;
+            fileWritingPosition = 0L;
+
+            internalRecords[0].reset();
+            internalRecords[1].reset();
+            internalRecords[2].reset();
+            outputRecord = internalRecords[0];
+
+            usedRecords[0] = null;
+            usedRecords[1] = null;
+        }
+
+        // For both files & buffers
+        outputRecord.reset();
+        headerBuffer.clear();
+        recordLengths.clear();
+        writerBytesWritten = 0;
+        recordNumber = 1;
+        closed = false;
+        opened = false;
+        firstRecordWritten = false;
+    }
+
     /**
      * Open a new file and write file header with no user header.
+     * Will not overwrite existing file.
+     * Existing file is NOT overwritten.
      * @param filename output file name
      * @throws HipoException if open already called without being followed by calling close.
      * @throws IOException if file cannot be found or IO error writing to file
@@ -436,6 +488,7 @@ public class Writer implements AutoCloseable {
     /**
      * Open a file and write file header with given user header.
      * User header is automatically padded when written.
+     * Existing file is NOT overwritten.
      * @param filename   name of file to write to.
      * @param userHeader byte array representing the optional user's header.
      *                   If this is null AND dictionary and/or first event are given,
@@ -447,6 +500,27 @@ public class Writer implements AutoCloseable {
      */
     public final void open(String filename, byte[] userHeader)
             throws HipoException, IOException {
+        open (filename, userHeader, false);
+    }
+
+
+    /**
+     * Open a file and write file header with given user header.
+     * User header is automatically padded when written.
+     * @param filename   name of file to write to.
+     * @param userHeader byte array representing the optional user's header.
+     *                   If this is null AND dictionary and/or first event are given,
+     *                   the dictionary and/or first event will be placed in its
+     *                   own record and written as the user header.
+     * @param overwrite  if true, overwrite any existing file.
+     * @throws HipoException filename arg is null, if constructor specified writing to a buffer,
+     *                       or if open() was already called without being followed by reset().
+     * @throws IOException   if IO error writing to file,
+     *                       or if overwrite is false and file exists.
+     */
+    public final void open(String filename, byte[] userHeader, boolean overwrite)
+            throws HipoException, IOException {
+
 
         if (opened) {
             throw new HipoException("currently open, call reset() first");
@@ -458,6 +532,8 @@ public class Writer implements AutoCloseable {
         if (filename == null) {
             throw new HipoException("filename arg is null");
         }
+
+        clear();
 
         ByteBuffer headBuffer;
         haveUserHeader = false;
@@ -483,11 +559,17 @@ public class Writer implements AutoCloseable {
         // Path object corresponding to file currently being written
         Path currentFilePath = Paths.get(filename);
 
-        asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
-                                //StandardOpenOption.TRUNCATE_EXISTING,
-                                StandardOpenOption.CREATE_NEW,
-                                StandardOpenOption.CREATE,
-                                StandardOpenOption.WRITE);
+        if (overwrite) {
+            asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE);
+        }
+        else {
+            asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                    StandardOpenOption.CREATE_NEW,
+                    StandardOpenOption.WRITE);
+        }
 
         asyncFileChannel.write(headBuffer, 0L);
         fileWritingPosition = fileHeader.getLength();
@@ -544,6 +626,8 @@ public class Writer implements AutoCloseable {
             throw new HipoException("bad arg");
         }
 
+        clear();
+
         if (userHdr == null) {
             if (dictionaryFirstEventBuffer != null) {
                 userHeader = dictionaryFirstEventBuffer.array();
@@ -592,23 +676,26 @@ public class Writer implements AutoCloseable {
      *         Null if both are null.
      */
     private ByteBuffer createDictionaryRecord() {
-        return createRecord(dictionary, firstEvent, byteOrder, fileHeader, null);
+        return createRecord(dictionary, firstEvent, firstEventLength,
+                            byteOrder, fileHeader, null);
     }
 
     /**
      * Create a buffer representation of a record
      * containing dictionary and/or first event.
      * No compression.
-     * @param dictionary   dictionary xml string
-     * @param firstEvent   bytes representing evio event
-     * @param byteOrder    byte order of returned byte array
-     * @param fileHeader   file header to update with dictionary/first-event info (may be null).
-     * @param recordHeader record header to update with dictionary/first-event info (may be null).
+     * @param dictionary     dictionary xml string.
+     * @param firstEvent     bytes representing evio event.
+     * @param firstEventLen  number of valid bytes in "firstEvent".
+     * @param byteOrder      byte order of returned byte array.
+     * @param fileHeader     file header to update with dictionary/first-event info (may be null).
+     * @param recordHeader   record header to update with dictionary info (may be null).
      * @return buffer representation of record
      *         containing dictionary and/or first event.
      *         Null if both are null.
      */
     static public ByteBuffer createRecord(String dictionary, byte[] firstEvent,
+                                          int firstEventLen,
                                           ByteOrder byteOrder,
                                           FileHeader fileHeader,
                                           RecordHeader recordHeader) {
@@ -622,14 +709,13 @@ public class Writer implements AutoCloseable {
 
         // How much data we got?
         int bytes = 0;
-        
+
         if (dictionary != null) {
             bytes += dictionary.length();
         }
 
         if (firstEvent != null) {
-System.out.println("createRecord: add first event bytes " + firstEvent.length);
-            bytes += firstEvent.length;
+            bytes += firstEventLen;
         }
 
         // If we have huge dictionary/first event ...
@@ -646,12 +732,11 @@ System.out.println("createRecord: add first event bytes " + firstEvent.length);
             if (recordHeader != null) recordHeader.hasDictionary(true);
         }
 
-        // Add first event to record
+        // Add first event to file header but NOT record
         if (firstEvent != null) {
-System.out.println("createRecord: add first event to record");
-            record.addEvent(firstEvent);
+            record.addEvent(firstEvent, 0, firstEventLen, 0);
             if (fileHeader   != null)   fileHeader.hasFirstEvent(true);
-            if (recordHeader != null) recordHeader.hasFirstEvent(true);
+            //if (recordHeader != null) recordHeader.hasFirstEvent(true);
         }
 
         // Make events into record. Pos = 0, limit = # valid bytes.
@@ -1184,21 +1269,6 @@ System.out.println("createRecord: add first event to record");
 
 
     //---------------------------------------------------------------------
-
-
-    /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(String)}. */
-    public void reset() {
-        outputRecord.reset();
-        fileHeader.reset();
-        writerBytesWritten = 0L;
-        recordNumber = 1;
-        addTrailer = false;
-        firstRecordWritten = false;
-
-        closed = false;
-        opened = false;
-    }
 
 
     /**

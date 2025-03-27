@@ -13,13 +13,15 @@ import org.jlab.coda.jevio.Utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
 /**
- * <pre>
+ *
+ * This class represents the record header in an evio or hipo format file.
+ *
+ * <pre><code>
  *
  * GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
@@ -67,16 +69,20 @@ import java.util.List;
  * -------------------
  *     0-7  = version
  *     8    = true if dictionary is included (relevant for first record only)
- *     9    = true if this record has "first" event (to be in every split file)
- *    10    = true if this record is the last in file or stream
- *    11-14 = type of events contained: 0 = ROC Raw,
+ *     9    = true if this record is the last in file or stream
+ *    10-13 = type of events contained: 0 = ROC Raw,
  *                                      1 = Physics
  *                                      2 = PartialPhysics
  *                                      3 = DisentangledPhysics
  *                                      4 = User
  *                                      5 = Control
+ *                                      6 = Mixed
+ *                                      8 = RocRawStreaming
+ *                                      9 = PhysicsStreaming
  *                                     15 = Other
- *    15-19 = reserved
+ *    14    = true if this record has "first" event (to be in every split file)
+ *
+ *    16-19 = reserved
  *    20-21 = pad 1
  *    22-23 = pad 2
  *    24-25 = pad 3
@@ -128,9 +134,9 @@ import java.util.List;
  * -------------------
  *     0-7  = 6
  *     8    = 0
- *     9    = 0
- *    10    = 1
- *    11-14 = 0
+ *     9    = 1
+ *    10-13 = 0
+ *    14    = 0
  *    15-19 = 0
  *    20-21 = 0
  *    22-23 = 0
@@ -140,7 +146,7 @@ import java.util.List;
  *
  *
  * ------------------------------------------------------------
- * </pre>
+ * </code></pre>
  *
  * @version 6.0
  * @since 6.0 9/6/17
@@ -186,36 +192,41 @@ public class RecordHeader implements IBlockHeader {
     /** Byte offset from beginning of header to the user register #2. */
     public final static int   REGISTER2_OFFSET = 48;
 
-    // Bits in bit info word
-    
-    /** 8th bit set in bitInfo word in header means contains dictionary. */
-    final static int   DICTIONARY_BIT = 0x100;
-    /** 9th bit set in bitInfo word in header means every split file has same first event. */
-    final static int   FIRST_EVENT_BIT = 0x200;
-    /** 10th bit set in bitInfo word in header means is last in stream or file. */
-    final static int   LAST_RECORD_BIT = 0x400;
+    // Bits in bit info word (starting at 0)
 
-    /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
+    /** 8th bit (starting at 0) set in bitInfo word in header means contains dictionary. */
+    final static int   DICTIONARY_BIT = 0x100;
+    /** 9th bit set in bitInfo word in header means is last in stream or file. */
+    final static int   LAST_RECORD_BIT = 0x200;
+    /** 14th bit set in bitInfo word in header means contains first event. */
+    final static int   FIRSTEVENT_BIT = 0x4000;
+
+    /** 10-13th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
     final static int   DATA_ROC_RAW_BITS = 0x000;
-    /** 11-14th bits in bitInfo word in header for CODA data type, physics = 1. */
-    final static int   DATA_PHYSICS_BITS = 0x800;
-    /** 11-14th bits in bitInfo word in header for CODA data type, partial physics = 2. */
-    final static int   DATA_PARTIAL_BITS = 0x1000;
-    /** 11-14th bits in bitInfo word in header for CODA data type, disentangled = 3. */
-    final static int   DATA_DISENTANGLED_BITS = 0x1800;
-    /** 11-14th bits in bitInfo word in header for CODA data type, user = 4. */
-    final static int   DATA_USER_BITS    = 0x2000;
-    /** 11-14th bits in bitInfo word in record header for CODA data type, control = 5. */
-    final static int   DATA_CONTROL_BITS = 0x2800;
-    /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
-    final static int   DATA_OTHER_BITS   = 0x7800;
+    /** 10-13th bits in bitInfo word in header for CODA data type, physics = 1. */
+    final static int   DATA_PHYSICS_BITS = 0x400;
+    /** 10-13th bits in bitInfo word in header for CODA data type, partial physics = 2. */
+    final static int   DATA_PARTIAL_BITS = 0x800;
+    /** 10-13th bits in bitInfo word in header for CODA data type, disentangled = 3. */
+    final static int   DATA_DISENTANGLED_BITS = 0xC00;
+    /** 10-13th bits in bitInfo word in header for CODA data type, user = 4. */
+    final static int   DATA_USER_BITS    = 0x1000;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, control = 5. */
+    final static int   DATA_CONTROL_BITS = 0x1400;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, mixed = 6. */
+    final static int   DATA_MIXED_BITS = 0x1800;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, Roc Raw Streaming = 8. */
+    final static int   DATA_ROCRAW_STREAM_BITS = 0x2000;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, Physics Streaming = 9. */
+    final static int   DATA_PHYSICS_STREAM_BITS = 0x2400;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, other = 15. */
+    final static int   DATA_OTHER_BITS   = 0x3C00;
+
 
     // Bit masks
 
     /** Mask to get version number from 6th int in header. */
     public final static int VERSION_MASK = 0xff;
-    /** "Last record" is 11th bit in bitInfo word. */
-    public static final int LAST_RECORD_MASK = 0x400;
 
     /** Compressed data padding mask. */
     private static final int COMP_PADDING_MASK = 0x03000000;
@@ -248,8 +259,8 @@ public class RecordHeader implements IBlockHeader {
     private int  bitInfo = -1;
     /**
      * Type of events in record, encoded in bitInfo word
-     * (0=ROC raw, 1=Physics, 2=Partial Physics, 3=Disentangled,
-     * 4=User, 5=Control, 15=Other).
+     * (0=RocRaw, 1=Physics, 2=Partial Physics, 3=Disentangled,
+     * 4=User, 5=Control, 6=Mixed, 8=RocRawStream, 9=PhysicsStream, 15=Other).
      */
     private int  eventType;
     /** Length of this header NOT including user header or index (bytes). */
@@ -482,7 +493,8 @@ public class RecordHeader implements IBlockHeader {
     public int  getEntries() {return entries;}
 
     /**
-     * Get the type of compression used. 0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip.
+     * Get the type of compression used.
+     * Can be none, LZ4 fast, LZ4 best, or gzip.
      * @return type of compression used.
      */
     public CompressionType getCompressionType() {return compressionType;}
@@ -554,6 +566,15 @@ public class RecordHeader implements IBlockHeader {
    	public int getHeaderWords() {return headerLengthWords;}
 
     /**
+     * Get the length of the regular header + index + user header (including padding) in bytes.
+     * This will be a multiple of 4.
+     * @return length of the regular header + index + user header + user header padding in bytes.
+     */
+   	public int getTotalHeaderLength() {
+   	    return (headerLength + indexLength + 4*userHeaderLengthWords);
+    }
+
+    /**
      * Get the record number.
      * @return record number.
      */
@@ -588,12 +609,10 @@ public class RecordHeader implements IBlockHeader {
      * Set the bit info word for a record header.
      * Current value of bitInfo is lost.
      * @param isLastRecord   true if record is last in stream or file.
-     * @param haveFirstEvent true if record has first event in user header.
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
      */
     public int  setBitInfo(boolean isLastRecord,
-                           boolean haveFirstEvent,
                            boolean haveDictionary) {
 
         bitInfo = (headerType.getValue()       << 28) |
@@ -603,7 +622,6 @@ public class RecordHeader implements IBlockHeader {
                   (headerVersion & 0xFF);
 
         if (haveDictionary) bitInfo |= DICTIONARY_BIT;
-        if (haveFirstEvent) bitInfo |= FIRST_EVENT_BIT;
         if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
 
         return bitInfo;
@@ -668,7 +686,7 @@ public class RecordHeader implements IBlockHeader {
      * Calculates the sixth word of this header which has the version number
      * in the lowest 8 bits. The arg hasDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-     * (event type) are set in bits 11-14.
+     * (event type) are set in bits 10-13.
      *
      * @param version evio version number
      * @param hasDictionary does this block include an evio xml dictionary as the first event?
@@ -687,7 +705,7 @@ public class RecordHeader implements IBlockHeader {
       * Calculates the sixth word of this header which has the version number (4)
       * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
       * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-      * (event type) are set in bits 11-14.
+      * (event type) are set in bits 10-13.
       *
       * @param bSet Bitset containing all bits to be set
       * @param version evio version number
@@ -712,8 +730,8 @@ public class RecordHeader implements IBlockHeader {
              }
          }
 
-         v =  hasDictionary ? (v | 0x100) : v;
-         v =  isEnd ? (v | 0x200) : v;
+         v =  hasDictionary ? (v | DICTIONARY_BIT) : v;
+         v =  isEnd ? (v | LAST_RECORD_BIT) : v;
          v |= ((eventType & 0xf) << 10);
 
          return v;
@@ -740,34 +758,52 @@ public class RecordHeader implements IBlockHeader {
         }
 
         // Data type
-        eventType = (word >> 11) & 0xf;
+        eventType = (word >> 10) & 0xf;
     }
 
-
-    /**
-     * Set the bit which says record has a first event in the user header.
-     * @param hasFirst  true if record has a first event in the user header.
-     * @return new bitInfo word.
-     */
-    public int hasFirstEvent(boolean hasFirst) {
-        if (hasFirst) {
-            // set bit
-            bitInfo |= FIRST_EVENT_BIT;
-        }
-        else {
-            // clear bit
-            bitInfo &= ~FIRST_EVENT_BIT;
-        }
-
-        return bitInfo;
-    }
 
     /**
      * Does this header have a first event in the user header?
      * @return true if header has a first event in the user header, else false.
      */
-    public boolean hasFirstEvent() {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
+    public boolean hasFirstEvent() {return false;}
 
+    /**
+     * Encode the "is first event" into the bit info word
+     * which will be in CODA evio block header.
+     * Used in CODA's emu.
+     *
+     * @param bSet bit set which will become part of the bit info word
+     *             starting at 2nd byte.
+     */
+    static public void setFirstEvent(BitSet bSet) {
+        // check arg
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+
+        // Encoding words 15th bit (7th in set)
+        bSet.set(6, true);
+    }
+
+
+    /**
+     * Encode the "is NOT first event" into the bit info word
+     * which will be in CODA evio block header.
+     * 7th bit of bitinfo, but 15th bit of header bitInfo word.
+     * Used in CODA's emu.
+     *
+     * @param bSet bit set which will become part of the bit info word
+     *             starting at 2nd byte.
+     */
+    static public void unsetFirstEvent(BitSet bSet) {
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+        bSet.set(6, false);
+    }
+
+    
     /**
      * Set the bit which says record has a dictionary in the user header.
      * @param hasFirst  true if record has a dictionary in the user header.
@@ -830,6 +866,12 @@ public class RecordHeader implements IBlockHeader {
      */
     static public boolean isLastRecord(int bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
 
+    /**
+     * Clear the bit in the given arg to indicate it is NOT the last record.
+     * @param i integer in which to clear the last-record bit
+     * @return arg with last-record bit cleared
+     */
+    static public int clearLastRecordBit(int i) {return (i & ~LAST_RECORD_BIT);}
 
     /**
      * Does this header indicate compressed data?
@@ -900,52 +942,81 @@ public class RecordHeader implements IBlockHeader {
 
 
     /**
-     * Clear the bit in the given arg to indicate it is NOT the last record.
-     * @param i integer in which to clear the last-record bit
-     * @return arg with last-record bit cleared
+     * Help encode the CODA event type into the bitInfo word
+     * which will be in each evio block header.
+     * In the BitSet arg, place the event type into bits 2-5 (starting at 0).
+     * Since version is in the first 8 bits of the bitInfo word, this bitSet
+     * corresponds to bits 10-13 of that word.
+     * Used in CODA's emu.
+     *
+     * @param bSet bit set which will become part of the bit info word
+     * @param type integer value of event type to be encoded
      */
-    static public int clearLastRecordBit(int i) {return (i & ~LAST_RECORD_MASK);}
+    static public void setEventType(BitSet bSet, int type) {
+        // check args
+        if (type < 0) type = 0;
+        else if (type > 15) type = 15;
+
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+        // do the encoding (BitSet index starts at 0)
+        int startingBit = 2;
+        for (int i=startingBit; i < 7; i++) {
+            bSet.set(i, ((type >>> (i - startingBit)) & 0x1) > 0);
+        }
+    }
+
 
     /**
-     * Set the bit info of a record header for a specified CODA event type.
-     * Must be called AFTER {@link #setBitInfo(boolean, boolean, boolean)} or
+     * Set the bit info of a CODA record header for a specified CODA event type.
+     * Must be called AFTER {@link #setBitInfo(boolean, boolean)} or
      * {@link #setBitInfoWord(int)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
-     *             3=Disentangled, 4=User, 5=Control, 15=Other,
+     *             3=Disentangled, 4=User, 5=Control, 6=Mixed,
+     *             8=RocRawStreaming, 9=PhysicsStreaming, 15=Other,
      *             else = nothing set).
      * @return new bit info word.
      */
     public int  setBitInfoEventType (int type) {
+        eventType = type;
+
+        // First clear those 4 event type bits
+        bitInfo &= 0xffffc3ff;  // ff ff 1100 0011 ff
+
         switch(type) {
             case 0:
                 bitInfo |= DATA_ROC_RAW_BITS;
-                eventType = type;
                 break;
             case 1:
                 bitInfo |= DATA_PHYSICS_BITS;
-                eventType = type;
                 break;
             case 2:
                 bitInfo |= DATA_PARTIAL_BITS;
-                eventType = type;
                 break;
             case 3:
                 bitInfo |= DATA_DISENTANGLED_BITS;
-                eventType = type;
                 break;
             case 4:
                 bitInfo |= DATA_USER_BITS;
-                eventType = type;
                 break;
             case 5:
                 bitInfo |= DATA_CONTROL_BITS;
-                eventType = type;
+                break;
+            case 6:
+                bitInfo |= DATA_MIXED_BITS;
+                break;
+            case 8:
+                bitInfo |= DATA_ROCRAW_STREAM_BITS;
+                break;
+            case 9:
+                bitInfo |= DATA_PHYSICS_STREAM_BITS;
                 break;
             case 15:
-                bitInfo |= DATA_OTHER_BITS;
-                eventType = type;
-                break;
             default:
+                bitInfo |= DATA_OTHER_BITS;
+                eventType = 15;
+                break;
         }
         return bitInfo;
     }
@@ -1155,11 +1226,12 @@ public class RecordHeader implements IBlockHeader {
      * @param array byte array to write trailer into.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
+     * @return trailer bytes written into array.
      * @throws HipoException if array arg is null or too small to hold trailer
      */
-    static public void writeTrailer(byte[] array, int recordNumber, ByteOrder order)
+    static public int writeTrailer(byte[] array, int recordNumber, ByteOrder order)
             throws HipoException {
-        writeTrailer(array, 0, recordNumber, order, null);
+        return writeTrailer(array, 0, recordNumber, order, null);
     }
 
     /**
@@ -1170,9 +1242,10 @@ public class RecordHeader implements IBlockHeader {
      * @param order byte order of data to be written.
      * @param index list of record lengths interspersed with event counts
      *              to be written to trailer. Null if no index list.
+     * @return trailer bytes written into array.
      * @throws HipoException if array arg is null, array too small to hold trailer + index.
      */
-    static public void writeTrailer(byte[] array, int off, int recordNumber,
+    static public int writeTrailer(byte[] array, int off, int recordNumber,
                                     ByteOrder order, List<Integer> index)
             throws HipoException {
 
@@ -1206,26 +1279,29 @@ public class RecordHeader implements IBlockHeader {
 
             // Second the index
             if (indexLength > 0) {
-                System.out.println("writeTrailer []: put index");
+//System.out.println("writeTrailer []: put index");
                 for (int i=0; i < index.size(); i++) {
                     ByteDataTransformer.toBytes(index.get(i), order, array, 56+off+4*i);
                 }
             }
         }
         catch (EvioException e) {/* never happen */}
+        return wholeLength;
     }
 
 
     /**
      * Writes a trailer with an optional index array into the given buffer.
+     * Buffer's limit and position will set ready to read again after this method called.
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNumber record number of trailer.
      * @param index list of record lengths interspersed with event counts
      *              to be written to trailer. Null if no index list.
+     * @return trailer bytes written into array.
      * @throws HipoException if buf arg is null, buf too small to hold trailer + index.
      */
-    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
+    static public int writeTrailer(ByteBuffer buf, int off, int recordNumber,
                                     List<Integer> index)
             throws HipoException {
 
@@ -1235,20 +1311,23 @@ public class RecordHeader implements IBlockHeader {
             indexLength = 4*index.size();
             wholeLength += indexLength;
         }
+        int origPos = buf.position();
 
         // Check arg
         if (buf == null || (buf.capacity() < wholeLength + off)) {
             throw new HipoException("buf null or too small");
         }
-System.out.println("writeTrailer buf: writing with order = " + buf.order());
+
         // Make sure the limit allows writing
         buf.limit(off + wholeLength).position(off);
 
         if (buf.hasArray()) {
+//System.out.println("writeTrailer buf: WITH backing array");
             writeTrailer(buf.array(), buf.arrayOffset() + off, recordNumber, buf.order(), index);
-            buf.position(buf.limit());
         }
         else {
+//System.out.println("writeTrailer buf: no backing array");
+
             int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
 
             // First the general header part
@@ -1268,24 +1347,32 @@ System.out.println("writeTrailer buf: writing with order = " + buf.order());
             if (indexLength > 0) {
                 //public ByteBuffer put(byte[] src, int offset, int length) {
                 // relative bulk copy
-System.out.println("writeTrailer buf: put index");
+//System.out.println("writeTrailer buf: put index");
                 for (int i : index) {
                     buf.putInt(i);
                 }
             }
         }
+
+        // Set buf to read
+        buf.limit(off + wholeLength).position(origPos);
+//System.out.println("writeTrailer buf: set lim to " + (off + wholeLength) + ", set pos = "+ origPos);
+
+        return wholeLength;
     }
 
 
     /**
      * Writes an empty trailer into the given buffer.
+     * Buffer's limit and position will set ready to read again after this method called.
      * @param buf   ByteBuffer to write trailer into.
      * @param recordNumber record number of trailer.
+     * @return trailer bytes written into array.
      * @throws HipoException if buf arg is null or too small to hold trailer
      */
-    static public void writeTrailer(ByteBuffer buf, int recordNumber)
+    static public int writeTrailer(ByteBuffer buf, int recordNumber)
             throws HipoException {
-        writeTrailer(buf, 0, recordNumber, null);
+        return writeTrailer(buf, 0, recordNumber, null);
     }
 
 
@@ -1308,6 +1395,7 @@ System.out.println("writeTrailer buf: put index");
 
         // First read the magic word to establish endianness
         int headerMagicWord = buffer.getInt(MAGIC_OFFSET + offset);
+        ByteOrder originalOrder = buffer.order();
         ByteOrder byteOrder;
         
         // If it's NOT in the proper byte order ...
@@ -1329,6 +1417,7 @@ System.out.println("writeTrailer buf: put index");
         }
 
         int compressionWord = buffer.getInt(COMPRESSION_TYPE_OFFSET + offset);
+        buffer.order(originalOrder);
         return ((compressionWord >>> 28) != 0);
     }
 
@@ -1500,17 +1589,23 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
     private String eventTypeToString() {
         switch (eventType) {
             case 0:
-                return "ROC Raw";
+                return "RocRaw";
             case 1:
                 return "Physics";
             case 2:
-                return "Partial Physics";
+                return "PartialPhysics";
             case 3:
                 return "Disentangled";
             case 4:
                 return "User";
             case 5:
                 return "Control";
+            case 6:
+                return "Mixed";
+            case 8:
+                return "RocRawStreaming";
+            case 9:
+                return "PhysicsStreaming";
             case 15:
                 return "Other";
             default:

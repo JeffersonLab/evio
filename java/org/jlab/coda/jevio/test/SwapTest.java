@@ -2,11 +2,9 @@ package org.jlab.coda.jevio.test;
 
 import org.jlab.coda.jevio.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.nio.channels.FileChannel;
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,22 +53,6 @@ public class SwapTest {
 
 
     // data
-//    static      byte[]   byteData   = new byte[]   {};
-//    static      short[]  shortData  = new short[]  {};
-//    static      int[]    intData    = new int[]    {};
-//    static      long[]   longData   = new long[]   {};
-//    static      float[]  floatData  = new float[]  {};
-//    static      double[] doubleData = new double[] {};
-//    static      String[] stringData = new String[] {};
-
-//    static      byte[]   byteData   = new byte[]   {1};
-//    static      short[]  shortData  = new short[]  {1};
-//    static      int[]    intData    = new int[]    {1};
-//    static      long[]   longData   = new long[]   {1};
-//    static      float[]  floatData  = new float[]  {1.F};
-//    static      double[] doubleData = new double[] {1.};
-//    static      String[] stringData = new String[] {"1"};
-
     static      byte[]   byteData   = new byte[]   {(byte)0xff, 0, (byte)0x80};
     static      short[]  shortData  = new short[]  {(short)0xffff, 0, (short)0x8000};
     static      int[]    intData    = new int[]    {0xffffffff, 0, 0x80000000};
@@ -80,43 +62,6 @@ public class SwapTest {
     static      String[] stringData = new String[] {"123", "456", "789"};
 
 
-    static ByteBuffer firstBlockHeader = ByteBuffer.allocate(32);
-    static ByteBuffer emptyLastHeader  = ByteBuffer.allocate(32);
-
-    static {
-        emptyLastHeader.putInt(0,  8);
-        emptyLastHeader.putInt(4,  2);
-        emptyLastHeader.putInt(8,  8);
-        emptyLastHeader.putInt(12, 0);
-        emptyLastHeader.putInt(16, 0);
-        emptyLastHeader.putInt(20, 0x204);
-        emptyLastHeader.putInt(24, 0);
-        emptyLastHeader.putInt(28, 0xc0da0100);
-    }
-
-
-    static void setFirstBlockHeader(int words, int count) {
-        firstBlockHeader.putInt(0, words + 8);
-        firstBlockHeader.putInt(4,  1);
-        firstBlockHeader.putInt(8,  8);
-        firstBlockHeader.putInt(12, count);
-        firstBlockHeader.putInt(16, 0);
-        firstBlockHeader.putInt(20, 4);
-        firstBlockHeader.putInt(24, 0);
-        firstBlockHeader.putInt(28, 0xc0da0100);
-    }
-
-
-    static void swapBlockHeader(ByteBuffer buf, int index) {
-        buf.putInt(index,    Integer.reverseBytes(buf.getInt(index)));
-        buf.putInt(index+4,  Integer.reverseBytes(buf.getInt(index + 4)));
-        buf.putInt(index+8,  Integer.reverseBytes(buf.getInt(index + 8)));
-        buf.putInt(index+12, Integer.reverseBytes(buf.getInt(index + 12)));
-        buf.putInt(index+16, Integer.reverseBytes(buf.getInt(index + 16)));
-        buf.putInt(index+20, Integer.reverseBytes(buf.getInt(index + 20)));
-        buf.putInt(index+24, Integer.reverseBytes(buf.getInt(index + 24)));
-        buf.putInt(index+28, Integer.reverseBytes(buf.getInt(index + 28)));
-    }
 
 
     static CompositeData[] createCompositeData() {
@@ -128,8 +73,8 @@ public class SwapTest {
         // Now create some data
         CompositeData.Data myData1 = new CompositeData.Data();
         myData1.addN(2);
-        myData1.addN(3);
-        myData1.addShort(new short[]{1, 2, 3}); // use array for convenience
+        myData1.addN(2);
+        myData1.addShort(new short[]{1, 2}); // use array for convenience
         myData1.addFloat(Float.MAX_VALUE);
         myData1.addDouble(Double.MAX_VALUE);
         myData1.addN(1);
@@ -165,7 +110,7 @@ public class SwapTest {
         String asciiFormat = CompositeData.stringsToFormat(s);
         // Format to write an unsigned int, unsigned char, and N number of
         // M ascii characters & 1 64-bit int.
-        System.out.println("ascii format = " + asciiFormat);
+//System.out.println("ascii format = " + asciiFormat);
         String format2 = "i,c,N(" + asciiFormat + ",L)";
         myData2.addString(s);
         myData2.addLong(24L);
@@ -228,8 +173,8 @@ public class SwapTest {
         // Now create some data
         CompositeData.Data myData5 = new CompositeData.Data();
         myData5.addN(2);
-        myData5.addN(3);
-        myData5.addShort(new short[]{1, 2, 3}); // use array for convenience
+        myData5.addN(2);
+        myData5.addShort(new short[]{1, 2}); // use array for convenience
         myData5.addInt(1);
         myData5.addInt(2);
         myData5.addInt(3);
@@ -263,7 +208,6 @@ public class SwapTest {
         myData6.addDouble(3.);
         myData6.addDouble(3.);
         myData6.addDouble(3.);
-
 
         myData6.addFloat((float)3.e-10);
         myData6.addFloat((float)3.e10);
@@ -333,12 +277,12 @@ public class SwapTest {
         // Create CompositeData array
         CompositeData[] cData = new CompositeData[5];
         try {
-            cData[0] = new CompositeData(format1, 1, myData1, 1, 1);
-            cData[1] = new CompositeData(format2, 2, myData2, 2, 2);
-            cData[2] = new CompositeData(format3, 3, myData3, 3, 3);
-//            cData[3] = new CompositeData(format4, 4, myData4, 4, 4);
-            cData[3] = new CompositeData(format5, 5, myData5, 5, 5);
-            cData[4] = new CompositeData(format6, 6, myData6, 6, 6);
+            ByteOrder order = ByteOrder.BIG_ENDIAN;
+            cData[0] = new CompositeData(format1, 1, myData1, 1, 1, order);
+            cData[1] = new CompositeData(format2, 2, myData2, 2, 2, order);
+            cData[2] = new CompositeData(format3, 3, myData3, 3, 3, order);
+            cData[3] = new CompositeData(format5, 5, myData5, 5, 5, order);
+            cData[4] = new CompositeData(format6, 6, myData6, 6, 6, order);
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -348,166 +292,6 @@ public class SwapTest {
         return cData;
     }
 
-
-    /** Build an event with an EventBuilder. */
-    static EvioEvent createSingleEvent(int tag) {
-
-        // Top level event
-        EvioEvent event = null;
-
-        try {
-            // Build event (bank of banks) with EventBuilder object
-            EventBuilder builder = new EventBuilder(tag, DataType.BANK, 1);
-            event = builder.getEvent();
-
-
-                // bank of banks
-                EvioBank bankBanks = new EvioBank(tag+1, DataType.BANK, 2);
-                builder.addChild(event, bankBanks);
-
-                    // bank of ints
-                    EvioBank bankInts = new EvioBank(tag+2, DataType.INT32, 3);
-                    //bankInts.appendIntData(intData);
-                    builder.setIntData(bankInts, intData);
-                    builder.addChild(bankBanks, bankInts);
-
-                    // bank of unsigned ints
-                    EvioBank bankUInts = new EvioBank(tag+2, DataType.UINT32, 33);
-                    builder.setIntData(bankUInts, intData);
-                    builder.addChild(bankBanks, bankUInts);
-
-                    // bank of bytes
-                    EvioBank bankBytes = new EvioBank(tag+3, DataType.CHAR8, 4);
-                    //bankBytes.appendByteData(byteData);
-                    builder.setByteData(bankBytes, byteData);
-                    builder.addChild(bankBanks, bankBytes);
-
-                    // bank of unsigned bytes
-                    EvioBank bankUBytes = new EvioBank(tag+3, DataType.UCHAR8, 34);
-                    builder.setByteData(bankUBytes, byteData);
-                    builder.addChild(bankBanks, bankUBytes);
-
-                    // bank of shorts
-                    EvioBank bankShorts = new EvioBank(tag+4, DataType.SHORT16, 5);
-                    bankShorts.appendShortData(shortData);
-                    builder.addChild(bankBanks, bankShorts);
-
-                    // bank of unsigned shorts
-                    EvioBank bankUShorts = new EvioBank(tag+4, DataType.USHORT16, 35);
-                    bankUShorts.appendShortData(shortData);
-                    builder.addChild(bankBanks, bankUShorts);
-
-                    // bank of longs
-                    EvioBank bankLongs = new EvioBank(tag+5, DataType.LONG64, 6);
-                    bankLongs.appendLongData(longData);
-                    builder.addChild(bankBanks, bankLongs);
-
-                    // bank of unsigned longs
-                    EvioBank bankULongs = new EvioBank(tag+5, DataType.ULONG64, 6);
-                    bankULongs.appendLongData(longData);
-                    builder.addChild(bankBanks, bankULongs);
-
-                    // bank of floats
-                    EvioBank bankFloats = new EvioBank(tag+6, DataType.FLOAT32, 7);
-                    bankFloats.appendFloatData(floatData);
-                    builder.addChild(bankBanks, bankFloats);
-
-                    // bank of doubles
-                    EvioBank bankDoubles = new EvioBank(tag+7, DataType.DOUBLE64, 8);
-                    bankDoubles.appendDoubleData(doubleData);
-                    builder.addChild(bankBanks, bankDoubles);
-
-                    // bank of strings
-                    EvioBank bankStrings = new EvioBank(tag+8, DataType.CHARSTAR8, 9);
-                    bankStrings.appendStringData(stringData);
-                    builder.addChild(bankBanks, bankStrings);
-
-                    // bank of composite data array
-                    CompositeData[] cdata = createCompositeData();
-                    EvioBank bankComps = new EvioBank(tag+9, DataType.COMPOSITE, 10);
-                    bankComps.appendCompositeData(cdata);
-                    builder.addChild(bankBanks, bankComps);
-
-
-                // Bank of segs
-                EvioBank bankBanks2 = new EvioBank(tag+10, DataType.SEGMENT, 11);
-                builder.addChild(event, bankBanks2);
-
-                    // segment of ints
-                    EvioSegment segInts = new EvioSegment(tag+11, DataType.INT32);
-                    segInts.appendIntData(intData);
-                    builder.addChild(bankBanks2, segInts);
-
-                    // segment of shorts
-                    EvioSegment segShorts = new EvioSegment(tag+12, DataType.SHORT16);
-                    segShorts.appendShortData(shortData);
-                    builder.addChild(bankBanks2, segShorts);
-
-
-                    // segment of segments
-                    EvioSegment segSegments = new EvioSegment(tag+13, DataType.SEGMENT);
-                    builder.addChild(bankBanks2, segSegments);
-
-                        // segment of bytes
-                        EvioSegment segBytes = new EvioSegment(tag+14, DataType.CHAR8);
-                        segBytes.appendByteData(byteData);
-                        builder.addChild(segSegments, segBytes);
-
-                        // segment of doubles
-                        EvioSegment segDoubles = new EvioSegment(tag+15, DataType.DOUBLE64);
-                        segDoubles.appendDoubleData(doubleData);
-                        builder.addChild(segSegments, segDoubles);
-
-
-                // Bank of tag segs
-                EvioBank bankBanks4 = new EvioBank(tag+16, DataType.TAGSEGMENT, 17);
-                builder.addChild(event, bankBanks4);
-
-                    // tag segment of bytes
-                    EvioTagSegment tagSegBytes = new EvioTagSegment(tag+17, DataType.CHAR8);
-                    tagSegBytes.appendByteData(byteData);
-                    builder.addChild(bankBanks4, tagSegBytes);
-
-                    // tag segment of shorts
-                    EvioTagSegment tagSegShorts = new EvioTagSegment(tag+18, DataType.SHORT16);
-                    tagSegShorts.appendShortData(shortData);
-                    builder.addChild(bankBanks4, tagSegShorts);
-
-                    // tag seg of longs
-                    EvioTagSegment tagsegLongs = new EvioTagSegment(tag+19, DataType.LONG64);
-                    tagsegLongs.appendLongData(longData);
-                    builder.addChild(bankBanks4, tagsegLongs);
-
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-
-        return event;
-    }
-
-    /** Build an event with an EventBuilder. */
-    static EvioEvent createBabyEvent(int tag) {
-
-        // Top level event
-        EvioEvent event = null;
-
-        try {
-            // Build event (bank of banks) with EventBuilder object
-            EventBuilder builder = new EventBuilder(tag, DataType.BANK, 1);
-            event = builder.getEvent();
-
-                    // bank of ints
-                    EvioBank bankInts = new EvioBank(tag+2, DataType.INT32, 3);
-                    builder.setIntData(bankInts, intData);
-                    builder.addChild(event, bankInts);
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-
-        return event;
-    }
 
 
     /** Build the same event as above but with a CompactEventBuilder instead of an EventBuilder. */
@@ -525,25 +309,15 @@ public class SwapTest {
             builder.openBank(tag, num, DataType.BANK);
 
                 // add bank of banks
-                builder.openBank(tag+1, num+1, DataType.BANK);
-
-                    // add bank of ints
-                    builder.openBank(tag+2, num+2, DataType.INT32);
-                    builder.addIntData(intData);
-                    builder.closeStructure();
-
-                    // add bank of unsigned ints
-                    builder.openBank(tag+2, num+32, DataType.UINT32);
-                    builder.addIntData(intData);
-                    builder.closeStructure();
+                builder.openBank(tag+100, num+100, DataType.BANK);
 
                     // add bank of bytes
-                    builder.openBank(tag+3, num+3, DataType.CHAR8);
+                    builder.openBank(tag+2, num+2, DataType.CHAR8);
                     builder.addByteData(byteData);
                     builder.closeStructure();
 
                     // add bank of unsigned bytes
-                    builder.openBank(tag+3, num+33, DataType.UCHAR8);
+                    builder.openBank(tag+3, num+3, DataType.UCHAR8);
                     builder.addByteData(byteData);
                     builder.closeStructure();
 
@@ -553,38 +327,48 @@ public class SwapTest {
                     builder.closeStructure();
 
                     // add bank of unsigned shorts
-                    builder.openBank(tag+4, num+34, DataType.USHORT16);
+                    builder.openBank(tag+5, num+5, DataType.USHORT16);
                     builder.addShortData(shortData);
                     builder.closeStructure();
 
+                    // add bank of ints
+                    builder.openBank(tag+6, num+6, DataType.INT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
+
+                    // add bank of unsigned ints
+                    builder.openBank(tag+7, num+7, DataType.UINT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
+
                     // add bank of longs
-                    builder.openBank(tag+5, num+5, DataType.LONG64);
+                    builder.openBank(tag+8, num+8, DataType.LONG64);
                     builder.addLongData(longData);
                     builder.closeStructure();
 
                     // add bank of unsigned longs
-                    builder.openBank(tag+5, num+35, DataType.ULONG64);
+                    builder.openBank(tag+9, num+9, DataType.ULONG64);
                     builder.addLongData(longData);
                     builder.closeStructure();
 
                     // add bank of floats
-                    builder.openBank(tag+6, num+6, DataType.FLOAT32);
+                    builder.openBank(tag+10, num+10, DataType.FLOAT32);
                     builder.addFloatData(floatData);
                     builder.closeStructure();
 
                     // add bank of doubles
-                    builder.openBank(tag+7, num+7, DataType.DOUBLE64);
+                    builder.openBank(tag+11, num+11, DataType.DOUBLE64);
                     builder.addDoubleData(doubleData);
                     builder.closeStructure();
 
                     // add bank of strings
-                    builder.openBank(tag+8, num+8, DataType.CHARSTAR8);
+                    builder.openBank(tag+12, num+12, DataType.CHARSTAR8);
                     builder.addStringData(stringData);
                     builder.closeStructure();
 
                     // bank of composite data array
                     CompositeData[] cdata = createCompositeData();
-                    builder.openBank(tag+9, num+9, DataType.COMPOSITE);
+                    builder.openBank(tag+13, num+13, DataType.COMPOSITE);
                     builder.addCompositeData(cdata);
                     builder.closeStructure();
 
@@ -592,28 +376,28 @@ public class SwapTest {
 
 
                 // add bank of segs
-                builder.openBank(tag+10, num+10, DataType.SEGMENT);
+                builder.openBank(tag+150, num+150, DataType.SEGMENT);
 
                     // add seg of ints
-                    builder.openSegment(tag+11, DataType.INT32);
+                    builder.openSegment(tag+14, DataType.INT32);
                     builder.addIntData(intData);
                     builder.closeStructure();
 
                     // add seg of shorts
-                    builder.openSegment(tag+12, DataType.SHORT16);
+                    builder.openSegment(tag+15, DataType.SHORT16);
                     builder.addShortData(shortData);
                     builder.closeStructure();
 
                     // add seg of segs
-                    builder.openSegment(tag+13, DataType.SEGMENT);
+                    builder.openSegment(tag+16, DataType.SEGMENT);
 
                         // add seg of bytes
-                        builder.openSegment(tag+14, DataType.CHAR8);
+                        builder.openSegment(tag+17, DataType.CHAR8);
                         builder.addByteData(byteData);
                         builder.closeStructure();
 
                         // add seg of doubles
-                        builder.openSegment(tag+15, DataType.DOUBLE64);
+                        builder.openSegment(tag+18, DataType.DOUBLE64);
                         builder.addDoubleData(doubleData);
                         builder.closeStructure();
 
@@ -622,20 +406,20 @@ public class SwapTest {
 
 
             // add bank of tagsegs
-            builder.openBank(tag+16, num+16, DataType.TAGSEGMENT);
+            builder.openBank(tag+200, num+200, DataType.TAGSEGMENT);
 
                 // add tagseg of bytes
-                builder.openTagSegment(tag+17, DataType.CHAR8);
+                builder.openTagSegment(tag+19, DataType.CHAR8);
                 builder.addByteData(byteData);
                 builder.closeStructure();
 
                 // add tagseg of shorts
-                builder.openTagSegment(tag+18, DataType.SHORT16);
+                builder.openTagSegment(tag+20, DataType.SHORT16);
                 builder.addShortData(shortData);
                 builder.closeStructure();
 
                 // add tagseg of longs
-                builder.openTagSegment(tag+19, DataType.LONG64);
+                builder.openTagSegment(tag+21, DataType.LONG64);
                 builder.addLongData(longData);
                 builder.closeStructure();
 
@@ -649,343 +433,38 @@ public class SwapTest {
     }
 
 
-    /** Build the same event as above but with a CompactEventBuilder instead of an EventBuilder. */
-    static ByteBuffer createCompactBabyEvent(int tag) {
 
-        // Buffer to fill
-        ByteBuffer buffer = ByteBuffer.allocate(1048);
-        CompactEventBuilder builder = null;
-        int num = tag;
-
-        try {
-            builder = new CompactEventBuilder(buffer);
-
-            // add top/event level bank of banks
-            builder.openBank(tag, num, DataType.BANK);
-
-                    // add bank of ints
-                    builder.openBank(tag+2, num+2, DataType.INT32);
-                    builder.addIntData(intData);
-                    builder.closeStructure();
-
-           builder.closeAll();
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-
-        return builder.getBuffer();
-    }
-
-
-    /** For testing only */
-    public static void main1(String args[]) {
-
-        try {
-            EvioEvent bank = createSingleEvent(1);
-            int byteSize = bank.getTotalBytes();
-
-            ByteBuffer bb1 = ByteBuffer.allocate(byteSize);
-            ByteBuffer bb2 = ByteBuffer.allocate(byteSize);
-
-            // Write events
-            bank.write(bb1);
-
-            // Get ready to read buffer
-            bb1.flip();
-
-            // Get JIT compiler to speed things up first
-            for (int i=0; i < 2000000; i++) {
-                ByteDataTransformer.swapEvent(bb1, bb2, 0, 0);
-                ByteDataTransformer.swapEvent(bb2, bb1, 0, 0);
-            }
-
-
-            long t1 = System.currentTimeMillis();
-
-            for (int i=0; i < 2000000; i++) {
-                ByteDataTransformer.swapEvent(bb1, bb2, 0, 0);
-                ByteDataTransformer.swapEvent(bb2, bb1, 0, 0);
-            }
-
-            long t2 = System.currentTimeMillis();
-
-            System.out.println("Time = " + (t2 - t1) + " millisec");
-
-//            List<EvioNode> nodeList =  new ArrayList<EvioNode>(20);
-//            ByteDataTransformer.swapEvent(bb1, bb2, 0, 0, nodeList);
-//
-//            for (EvioNode node : nodeList) {
-//                System.out.println("node: " + node.getDataTypeObj());
-//            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /** Write 2 events to one file. */
-    public static void main2(String args[]) {
-        boolean useEventBuilder = false;
-        ByteBuffer bb;
-        int byteSize, byteSize2;
-
-        try {
-
-            if (useEventBuilder) {
-                EvioEvent bank = createSingleEvent(1);
-                byteSize = bank.getTotalBytes();
-
-                EvioEvent bank2 = createBabyEvent(100);
-                byteSize2 = bank2.getTotalBytes();
-
-                bb = ByteBuffer.allocate(byteSize + byteSize2 + 2 * (32));
-
-                // Write first block header
-                setFirstBlockHeader(byteSize / 4, 2);
-                bb.put(firstBlockHeader);
-                firstBlockHeader.position(0);
-
-                // Write events
-                bank.write(bb);
-                bank2.write(bb);
-            }
-            // if using CompactEventBuilder ...
-            else {
-                ByteBuffer buffie = createCompactSingleEvent(1);
-                byteSize = buffie.limit();
-
-                ByteBuffer buffie2 = createCompactBabyEvent(100);
-                byteSize2 = buffie2.limit();
-
-                bb = ByteBuffer.allocate(byteSize + byteSize2 + 2 * (32));
-
-                // Write first block header
-                setFirstBlockHeader(byteSize / 4, 2);
-                bb.put(firstBlockHeader);
-                firstBlockHeader.position(0);
-
-                // Write events
-                bb.put(buffie);
-                bb.put(buffie2);
-            }
-
-            // Write last block header
-            bb.put(emptyLastHeader);
-            emptyLastHeader.position(0);
-
-            // Get ready to read buffer
-            bb.flip();
-
-            File evFile = new File("/home/timmer/evioTestFiles/xmlTests/regularEvent2.evio");
-            FileOutputStream fileOutputStream = new FileOutputStream(evFile);
-            FileChannel fileChannel = fileOutputStream.getChannel();
-            fileChannel.write(bb);
-            fileChannel.close();
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-    /** Write event to one file and it swapped version to another file. */
+    /** Create event and swap it twice. */
     public static void main(String args[]) {
-        boolean useEventBuilder = false;
-        ByteBuffer bb1, bb2;
-        int byteSize = 0;
 
         try {
 
-            if (useEventBuilder) {
-                EvioEvent bank = createSingleEvent(1);
-                byteSize = bank.getTotalBytes();
+            ByteBuffer buffie = createCompactSingleEvent(1);
+            int byteSize = buffie.limit();
 
-                bb1 = ByteBuffer.allocate(byteSize + 2 * (32));
-                bb2 = ByteBuffer.allocate(byteSize + 2 * (32));
-
-                // Write first block header
-                setFirstBlockHeader(byteSize / 4, 1);
-                bb1.put(firstBlockHeader);
-                firstBlockHeader.position(0);
-
-                // Write events
-                bank.write(bb1);
-            }
-            // if using CompactEventBuilder ...
-            else {
-                ByteBuffer buffie = createCompactSingleEvent(1);
-                byteSize = buffie.limit();
-
-                bb1 = ByteBuffer.allocate(byteSize + 2 * (32));
-                bb2 = ByteBuffer.allocate(byteSize + 2 * (32));
-
-                // Write first block header
-                setFirstBlockHeader(byteSize / 4, 1);
-                bb1.put(firstBlockHeader);
-                firstBlockHeader.position(0);
-
-                // Write events
-                bb1.put(buffie);
-            }
-
-            // Write last block header
-            bb1.put(emptyLastHeader);
-            emptyLastHeader.position(0);
-
-            // Get ready to read buffer
-            bb1.flip();
+            ByteBuffer swappedBuffie = ByteBuffer.allocate(byteSize);
+            ByteBuffer origBuffie = ByteBuffer.allocate(byteSize);
 
             // Take buffer and swap it
-            ByteDataTransformer.swapEvent(bb1, bb2, 32, 32);
+            ByteDataTransformer.swapEvent(buffie, swappedBuffie, 0, 0);
+            // Take and swap the swapped buffer
+            ByteDataTransformer.swapEvent(swappedBuffie, origBuffie, 0, 0);
 
-            // Be sure to get evio block headers right so we
-            // can read swapped event with an EvioReader
-            bb2.position(0);
-            bb2.put(firstBlockHeader);
-            firstBlockHeader.position(0);
-            swapBlockHeader(bb2, 0);
-
-            bb2.position(32 + byteSize);
-            bb2.put(emptyLastHeader);
-            emptyLastHeader.position(0);
-            swapBlockHeader(bb2, 32 + byteSize);
-
-            bb2.position(0);
-
-            File evFile = new File("/home/timmer/evioTestFiles/xmlTests/regularEvent.evio");
-            FileOutputStream fileOutputStream = new FileOutputStream(evFile);
-            FileChannel fileChannel = fileOutputStream.getChannel();
-            fileChannel.write(bb1);
-            fileChannel.close();
-
-            File evFile2 = new File("/home/timmer/evioTestFiles/xmlTests/swappedEvent.evio");
-            fileOutputStream = new FileOutputStream(evFile2);
-            fileChannel = fileOutputStream.getChannel();
-            fileChannel.write(bb2);
-            fileChannel.close();
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /** For testing only */
-    public static void main3(String args[]) {
-
-        try {
-            EvioEvent bank = createSingleEvent(1);
-            int byteSize = bank.getTotalBytes();
-
-            ByteBuffer bb1 = ByteBuffer.allocate(byteSize + 2*(32));
-            ByteBuffer bb2 = ByteBuffer.allocate(byteSize + 2*(32));
-            ByteBuffer bb3 = ByteBuffer.allocate(byteSize + 2*(32));
-
-            // Write first block header
-            setFirstBlockHeader(byteSize/4, 1);
-            bb1.put(firstBlockHeader);
-            firstBlockHeader.position(0);
-
-            // Write events
-            bank.write(bb1);
-
-            // Write last block header
-            bb1.put(emptyLastHeader);
-            emptyLastHeader.position(0);
-
-            // Get ready to read buffer
-            bb1.flip();
-
-            System.out.println("bb1 limit = " + bb1.limit() + ", pos = " + bb1.position() + ", cap = " + bb1.capacity());
-
-            System.out.println("XML:\n" + bank.toXML());
-
-            System.out.println("\n*************\n");
-
-//            // Change byte buffer back into an event
-//            EvioReader reader = new EvioReader(bb1);
-//            EvioEvent ev = reader.parseEvent(1);
-//            bb1.position(0);
-//
-//            System.out.println("\n\n reconstituted XML:\n" + ev.toXML());
-
-            // Take buffer and swap it
-            ByteDataTransformer.swapEvent(bb1, bb2, 32, 32);
-
-            // Be sure to get evio block headers right so we
-            // can read swapped event with an EvioReader
-            bb2.position(0);
-            bb2.put(firstBlockHeader);
-            firstBlockHeader.position(0);
-            swapBlockHeader(bb2, 0);
-
-            bb2.position(32 + byteSize);
-            bb2.put(emptyLastHeader);
-            emptyLastHeader.position(0);
-            swapBlockHeader(bb2, 32 + byteSize);
-
-//            // Change byte buffer back into an event
-//            EvioReader reader = new EvioReader(bb2);
-//            EvioEvent ev = reader.parseEvent(1);
-//            bb2.position(0);
-//
-//            System.out.println("\n\n reconstituted XML:\n" + ev.toXML());
-
-
-            // Take swapped buffer and swap it again
-            ByteDataTransformer.swapEvent(bb2, bb3, 32, 32);
-
-            // Be sure to get evio block headers right so we
-            // can read swapped event with an EvioReader
-            bb3.position(0);
-            bb3.put(firstBlockHeader);
-            firstBlockHeader.position(0);
-            swapBlockHeader(bb3, 0);
-            swapBlockHeader(bb3, 0);
-
-            bb3.position(32 + byteSize);
-            bb3.put(emptyLastHeader);
-            emptyLastHeader.position(0);
-            swapBlockHeader(bb3, 32 + byteSize);
-            swapBlockHeader(bb3, 32 + byteSize);
-
-            // Change byte buffer back into an event
-            EvioReader reader = new EvioReader(bb3);
-            EvioEvent ev = reader.parseEvent(1);
-            bb3.position(0);
-
-
-            System.out.println("\n\n reconstituted XML:\n" + ev.toXML());
-
-            System.out.println("bb1 limit = " + bb1.limit() + ", pos = " + bb1.position() + ", cap = " + bb1.capacity());
-            System.out.println("bb3 limit = " + bb3.limit() + ", pos = " + bb3.position() + ", cap = " + bb3.capacity());
-
-            IntBuffer ibuf1 = bb1.asIntBuffer();
-            IntBuffer ibuf2 = bb3.asIntBuffer();
-            int lenInInts = ibuf1.limit() < ibuf1.capacity() ? ibuf1.limit() : ibuf1.capacity();
-            System.out.println("ibuf1 limit = " + ibuf1.limit() + ", cap = " + ibuf1.capacity());
-            System.out.println("ibuf2 limit = " + ibuf2.limit() + ", cap = " + ibuf2.capacity());
-            System.out.println("bb1           bb2\n---------------------------");
-            for (int i=0; i < lenInInts; i++) {
-                if (ibuf1.get(i) != ibuf2.get(i)) {
-                    System.out.println("index " + i + ": 0x" + Integer.toHexString(ibuf1.get(i)) +
-                                               " swapped to 0x" +Integer.toHexString(ibuf2.get(i)));
+            boolean goodSwap = true;
+            for (int i=0; i < byteSize; i++) {
+                if (buffie.get(i) != origBuffie.get(i)) {
+                    System.out.println("SwapTest: data differs at index = " + i);
+                    goodSwap = false;
                 }
-//                System.out.println("0x" + Integer.toHexString(ibuf1.get(i)) +
-//                                           "    0x" + Integer.toHexString(ibuf1.get(i)));
+            }
+
+            if (goodSwap) {
+                System.out.println("SwapTest: double swap successful!!");
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
 }

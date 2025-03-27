@@ -3,22 +3,20 @@
 # ignore all files/dirs beginning with _
 _*
 
-# except this one
+# except these two
 !.gitignore
+!.github/
 
 # ignore generated files/dirs
+cmake-*
+cmake_install.cmake
 coda.pyc
 build/
-cmake-build-*/
-cmake-build-debug
-cmake_install.cmake
-Makefile
+jbuild/
 doxyerrors.log
 /target/
 doc/javadoc
 doc/doxygen/CC
 doc/doxygen/C
-ccBuild/
-cMakeFiles/
-cMakeCache.txt
+doc/source/
 config.log

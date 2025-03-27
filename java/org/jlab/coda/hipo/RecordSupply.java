@@ -20,7 +20,7 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  * fills the record with data, and finally does a {@link #publish(RecordRingItem)}
  * to let consumers know the data is ready.<p>
  *
- * This class is setup to handle 2 types of consumers.
+ * This class is set up to handle 2 types of consumers.
  * The first type is a thread which compresses a record's data.
  * The number of such consumers is set in the constructor.
  * Each of these will call {@link #getToCompress(int)} to get a record
@@ -58,15 +58,15 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  *
  *                       ||
  *                       ||  writeBarrier
- *           >           ||
+ *          ^            ||
  *         /            _____
  *    Write thread     /  |  \
- *              --->  /1 _|_ 2\  <---- Compression Threads 1-M
+ *              ---&gt;  /1 _|_ 2\  &lt;---- Compression Threads 1-M
  *  ================ |__/   \__|               |
  *                   |6 |   | 3|               V
  *             ^     |__|___|__| ==========================
  *             |      \ 5 | 4 /       compressBarrier
- *         Producer->  \__|__/
+ *         Producer-&gt;  \__|__/
  *
  *
  * </code></pre>
@@ -455,15 +455,12 @@ public class RecordSupply {
      * item is released but will still be used in some manner.
      *
      * @param item item in ring buffer to release for reuse.
-     * @return false if item not released since item is null, else true.
+     * @return false if item not released since item is null or is already released, else true.
      */
     public boolean releaseWriter(RecordRingItem item) {
-        if (item == null) {
-            return false;
-        }
 
-        if (item.isAlreadyReleased()) {
-//System.out.println("RecordSupply: item already released!");
+        if (item == null || item.isAlreadyReleased()) {
+            //System.out.println("RecordSupply: item already released!");
             return false;
         }
 

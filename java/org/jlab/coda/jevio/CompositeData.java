@@ -55,7 +55,7 @@ import java.util.List;
  * @author timmer
  * 
  */
-public final class CompositeData {
+public final class CompositeData implements Cloneable {
 
     /** String containing data format. */
     private String format;
@@ -105,12 +105,17 @@ public final class CompositeData {
     /** Index used in getting data items from the {@link #items} list. */
     private int getIndex;
 
-
+    /**
+     * Class used to track using the data format.
+     */
     static final class LV {
-      int left;    // index of ifmt[] element containing left parenthesis "("
-      int nrepeat; // how many times format in parenthesis must be repeated
-      int irepeat; // right parenthesis ")" counter, or how many times format
-                   // in parenthesis already repeated
+        /** index of ifmt[] element containing left parenthesis "(". */
+        int left;
+        /** how many times format in the parenthesis must be repeated. */
+        int nrepeat;
+        /** right parenthesis ")" counter, or how many times format
+         * in the parenthesis already repeated. */
+        int irepeat;
     };
 
 
@@ -124,13 +129,14 @@ public final class CompositeData {
      *
      * @param format format String defining data
      * @param data data in given format
+     * @param byteOrder byte order of resulting data.
      *
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    public CompositeData(String format, CompositeData.Data data)
+    public CompositeData(String format, CompositeData.Data data, ByteOrder byteOrder)
                                 throws EvioException {
-        this(format, data.formatTag, data, data.dataTag, data.dataNum);
+        this(format, data.formatTag, data, data.dataTag, data.dataNum, byteOrder);
     }
 
 
@@ -142,18 +148,20 @@ public final class CompositeData {
      * @param data data in given format
      * @param dataTag tag used in bank containing data
      * @param dataNum num used in bank containing data
+     * @param byteOrder byte order of resulting data.
      *
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
     public CompositeData(String format, int formatTag,
-                         CompositeData.Data data, int dataTag, int dataNum)
+                         CompositeData.Data data, int dataTag, int dataNum,
+                         ByteOrder byteOrder)
                                 throws EvioException {
 
         boolean debug = false;
 
         this.format = format;
-        byteOrder = ByteOrder.BIG_ENDIAN;
+        this.byteOrder = byteOrder;
 
         if (debug) System.out.println("Analyzing composite data:");
 
@@ -325,6 +333,80 @@ public final class CompositeData {
 
 
     /**
+     * Reset the data in this object.
+     * This is designed to use the format, formatTag, dataTag, and dataNum
+     * from the intitial constructor call.
+     *
+     * @param data data in given format
+     *
+     * @throws EvioException data arg = null;
+     */
+    public void resetData(CompositeData.Data data)
+            throws EvioException {
+
+        // Check args
+        if (data == null) {
+            throw new EvioException("data arg is null");
+        }
+
+        items = data.dataItems;
+        types = data.dataTypes;
+        NList = data.Nlist;
+        nList = data.nlist;
+        mList = data.mlist;
+
+        EvioTagSegment tagSegment = new EvioTagSegment(tsHeader.getTag(), DataType.CHARSTAR8);
+        try {
+            // Add format string
+            tagSegment.appendStringData(format);
+        }
+        catch (EvioException e) {/* never happen */ }
+
+        // How many bytes do we skip over at the end?
+        dataPadding = data.getPadding();
+
+        // How big is the data in bytes (including padding) ?
+        dataBytes = data.getDataSize();
+
+        // Set data length in bank header (includes 2nd bank header word)
+        bHeader.setLength(1 + dataBytes/4);
+
+        // Length of everything except data (32 bit words)
+        dataOffset = bHeader.getHeaderLength() +
+                tsHeader.getHeaderLength() +
+                tsHeader.getLength();
+
+        // Length of everything in bytes
+        int totalByteLen = dataBytes + 4*dataOffset;
+
+        // Create a big enough array to hold everything
+        if (rawBytes.length < totalByteLen) {
+            rawBytes = new byte[totalByteLen];
+        }
+
+        // Create ByteBuffer object around array
+        ByteBuffer allDataBuffer = ByteBuffer.wrap(rawBytes, 0, totalByteLen);
+        allDataBuffer.order(byteOrder);
+
+        // Write tagsegment to buffer
+        tagSegment.write(allDataBuffer);
+
+        // Write bank header to buffer
+        bHeader.write(allDataBuffer);
+
+        // Write data into the dataBuffer
+        dataToRawBytes(allDataBuffer, data, formatInts);
+
+        // Set data buffer for completeness
+        dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
+        dataBuffer.order(byteOrder);
+
+        // How big is the data in bytes (without padding) ?
+        dataBytes -= data.getPadding();
+    }
+
+
+    /**
      * This method parses an array of raw bytes into an array of CompositeData objects.
      *
      * @param rawBytes  array of raw bytes to parse
@@ -374,7 +456,8 @@ public final class CompositeData {
 
             if (debug) {
                 System.out.println("    tagseg: type = " + cd.tsHeader.getDataType() +
-                                    ", tag = " + cd.tsHeader.getTag() + ", len = " + cd.tsHeader.getLength());
+                                    ", tag = " + cd.tsHeader.getTag() +
+                                    ", len = " + cd.tsHeader.getLength());
             }
 
             // Hop over tagseg header
@@ -428,8 +511,9 @@ public final class CompositeData {
             }
 
             // Make copy of only the rawbytes for this CompositeData object (including padding)
-            cd.rawBytes = new byte[byteCount];
-            System.arraycopy(rawBytes, rawBytesOffset, cd.rawBytes, 0, byteCount);
+            cd.rawBytes = new byte[byteCount - cd.dataPadding];
+            System.arraycopy(rawBytes, rawBytesOffset, cd.rawBytes,
+                    0, byteCount-cd.dataPadding);
 
             // Put only actual data into ByteBuffer object
             cd.dataBuffer = ByteBuffer.wrap(cd.rawBytes, 4*cd.dataOffset, cd.dataBytes).slice();
@@ -494,9 +578,11 @@ public final class CompositeData {
             len = cd.getRawBytes().length;
             if (cd.byteOrder != order) {
                 // This CompositeData object has a rawBytes array of the wrong byte order, so swap it
-                swapAll(cd.getRawBytes(), 0, rawBytes, offset, len/4, order);
+//System.out.println("CompositeData.generateRawBytes: call swapAll(), data in " + cd.byteOrder);
+                swapAll(cd.getRawBytes(), 0, rawBytes, offset, len/4, cd.byteOrder);
             }
             else {
+//System.out.println("CompositeData.generateRawBytes: call arraycopy()");
                 System.arraycopy(cd.getRawBytes(), 0, rawBytes, offset, len);
             }
             offset += len;
@@ -577,6 +663,10 @@ public final class CompositeData {
      */
     public static final class Data  {
 
+        /** Convenient way to calculate padding. */
+        static private int[] pads = {0,3,2,1};
+
+
         /** Keep a running total of how many bytes the data take without padding.
          *  This includes both the dataItems and N values and thus assumes all N
          *  values will be written. */
@@ -584,9 +674,6 @@ public final class CompositeData {
 
         /** The number of bytes needed to complete a 4-byte boundary. */
         private int paddingBytes;
-
-        /** Convenient way to calculate padding. */
-        private int[] pads = {0,3,2,1};
 
         /** List of data objects. */
         private ArrayList<Object> dataItems = new ArrayList<Object>(100);
@@ -620,6 +707,53 @@ public final class CompositeData {
         /** Constructor. */
         public Data() {}
 
+
+        /** Clear all existing data in this object to prepare for reuse. */
+        public void clear() {
+            dataItems.clear();
+            dataTypes.clear();
+            Nlist.clear();
+            nlist.clear();
+            mlist.clear();
+            dataBytes = paddingBytes = formatTag = dataTag = dataNum = 0;
+        }
+
+        /**
+         * Copy data from another object.
+         * @param dataToCopy object to copy.
+         */
+        public void copy(Data dataToCopy) {
+            dataBytes = dataToCopy.dataBytes;
+            paddingBytes = dataToCopy.paddingBytes;
+            formatTag = dataToCopy.formatTag;
+            dataTag = dataToCopy.dataTag;
+            dataNum = dataToCopy.dataNum;
+
+            dataItems.clear();
+            if (dataToCopy.dataItems.size() > 0) {
+                dataItems.addAll(dataToCopy.dataItems);
+            }
+
+            dataTypes.clear();
+            if (dataToCopy.dataTypes.size() > 0) {
+                dataTypes.addAll(dataToCopy.dataTypes);
+            }
+
+            Nlist.clear();
+            if (dataToCopy.Nlist.size() > 0) {
+                Nlist.addAll(dataToCopy.Nlist);
+            }
+
+            nlist.clear();
+            if (dataToCopy.nlist.size() > 0) {
+                nlist.addAll(dataToCopy.nlist);
+            }
+
+            mlist.clear();
+            if (dataToCopy.mlist.size() > 0) {
+                mlist.addAll(dataToCopy.mlist);
+            }
+        }
 
         /**
          * This method sets the tag in the segment containing the format string.
@@ -704,7 +838,7 @@ public final class CompositeData {
         synchronized public void addN(int N) {
             Nlist.add(N);
             dataItems.add(N);
-            dataTypes.add(DataType.INT32);
+            dataTypes.add(DataType.NVALUE);
             addBytesToData(4);
         }
 
@@ -716,7 +850,7 @@ public final class CompositeData {
         synchronized public void addn(short n) {
             nlist.add(n);
             dataItems.add(n);
-            dataTypes.add(DataType.SHORT16);
+            dataTypes.add(DataType.nVALUE);
             addBytesToData(2);
         }
 
@@ -728,7 +862,7 @@ public final class CompositeData {
         synchronized public void addm(byte m) {
             mlist.add(m);
             dataItems.add(m);
-            dataTypes.add(DataType.CHAR8);
+            dataTypes.add(DataType.mVALUE);
             addBytesToData(1);
         }
 
@@ -1004,8 +1138,8 @@ public final class CompositeData {
      * @param strings array of strings to eventually put into a
      *                CompositeData object.
      * @return string representing its format to be used in the
-     *                CompositeData object's format string
-     * @return null if arg is null or has 0 length
+     *                CompositeData object's format string, or
+     *                null if arg is null or has 0 length.
      */
     public static String stringsToFormat(String[] strings) {
         byte[] rawBuf = BaseStructure.stringsToRawBytes(strings);
@@ -1108,8 +1242,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item as an Integer object.
-     * @return Integer object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit signed or
+     * @return Integer object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit signed or
      *         unsigned integer
      */
     public Integer getInt() {
@@ -1129,8 +1263,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next N value item as an Integer object.
-     * @return Integer object, if the correct type of the next data item is NVALUE.
-     * @return null if no more data items or data item is not an NVALUE type.
+     * @return Integer object, if the correct type of the next data item is NVALUE,
+     *         or null if no more data items or data item is not an NVALUE type.
      */
     public Integer getNValue() {
         if (getIndex > types.size()) return null;
@@ -1141,8 +1275,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next n value item as an Integer object.
-     * @return Integer object, if the correct type of the next data item is nVALUE.
-     * @return null if no more data items or data item is not an nVALUE type.
+     * @return Integer object, if the correct type of the next data item is nVALUE,
+     *         or null if no more data items or data item is not an nVALUE type.
      */
     public Integer getnValue() {
         if (getIndex > types.size()) return null;
@@ -1153,8 +1287,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next m value item as an Integer object.
-     * @return Integer object, if the correct type of the next data item is mVALUE.
-     * @return null if no more data items or data item is not an mVALUE type.
+     * @return Integer object, if the correct type of the next data item is mVALUE,
+     *         or null if no more data items or data item is not an mVALUE type.
      */
     public Integer getmValue() {
         if (getIndex > types.size()) return null;
@@ -1165,8 +1299,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item (which is of Hollerit type) as an Integer object.
-     * @return Integer object, if Hollerit is the type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit signed or
+     * @return Integer object, if Hollerit is the type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit signed or
      *         unsigned integer
      */
     public Integer getHollerit() {
@@ -1178,8 +1312,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item as a Byte object.
-     * @return Byte object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 8 bit signed or
+     * @return Byte object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 8 bit signed or
      *         unsigned integer
      */
     public Byte getByte() {
@@ -1191,8 +1325,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item as a Short object.
-     * @return Short object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 16 bit signed or
+     * @return Short object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 16 bit signed or
      *         unsigned integer
      */
     public Short getShort() {
@@ -1204,8 +1338,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item as a Long object.
-     * @return Long object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 64 bit signed or
+     * @return Long object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 64 bit signed or
      *         unsigned integer
      */
     public Long getLong() {
@@ -1217,8 +1351,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item as a Float object.
-     * @return Float object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit float.
+     * @return Float object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit float.
      */
     public Float getFloat() {
         if (getIndex > types.size()) return null;
@@ -1229,8 +1363,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item as a Double object.
-     * @return Double object, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a 32 bit double.
+     * @return Double object, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a 32 bit double.
      */
     public Double getDouble() {
         if (getIndex > types.size()) return null;
@@ -1241,8 +1375,8 @@ public final class CompositeData {
 
     /**
      * This method gets the next data item as a String array.
-     * @return String array, if that is the correct type of the next data item.
-     * @return null if no more data items or data item is not a string or string array.
+     * @return String array, if that is the correct type of the next data item,
+     *         or null if no more data items or data item is not a string or string array.
      */
     public String[] getStrings() {
         if (getIndex > types.size()) return null;
@@ -1252,23 +1386,14 @@ public final class CompositeData {
     }
 
 
-    static int max(int a, int b) {
-        return (a > b ? a : b);
-    }
-
-    static int min(int a, int b) {
-        return (a < b ? a : b);
-    }
-
-
     /**
      *  This method transforms a composite, format-containing
      *  ASCII string to an int array. It is to be used in
      *  conjunction with {@link #swapData(ByteBuffer, ByteBuffer, int, List)}
      *  to swap the endianness of composite data.
      *  It's translated from the eviofmt C function.
-     *  <pre>
-     *   format code bits <- format in ascii form
+     * <pre><code>
+     *   format code bits &lt;- format in ascii form
      *    [15:14] [13:8] [7:0]
      *      Nnm      #     0           #'('
      *        0      0     0            ')'
@@ -1298,7 +1423,7 @@ public final class CompositeData {
      *       will be repeated until all data processed; if there are no parenthesis
      *       in format, data processing will be started from the beginning of the format
      *       (FORTRAN agreement)
-     * </pre>
+     * </code></pre>
      *  @param  fmt composite data format string
      *  @return List of ints resulting from transformation of "fmt" string
      *  @throws EvioException if improper format string
@@ -1338,7 +1463,7 @@ public final class CompositeData {
                     System.out.println("the number of repeats before, nr = " + nr);
                 }
                 if (nr < 0) throw new EvioException("no negative repeats");
-                nr = 10*max(0,nr) + Character.digit(ch,10);
+                nr = 10*Math.max(0,nr) + Character.digit(ch,10);
                 if (nr > 15) throw new EvioException("no more than 15 repeats allowed");
                 if (debug) {
                     System.out.println("the number of repeats nr = " + nr);
@@ -1363,7 +1488,7 @@ public final class CompositeData {
                 }
                 // # repeats hardcoded
                 else {
-                    ifmt.add((max(nn,nr) & 0x3F) << 8);
+                    ifmt.add((Math.max(nn,nr) & 0x3F) << 8);
                     n++;
                 }
 
@@ -1450,7 +1575,7 @@ public final class CompositeData {
                     if (nr < 0) throw new EvioException("no negative repeats");
 //                    if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
 
-                    int ifmtVal = ((max(nn,nr) & 0x3F) << 8) + kf;
+                    int ifmtVal = ((Math.max(nn,nr) & 0x3F) << 8) + kf;
 
                     if (nb > 0) {
                         if (nb==4)      ifmtVal |= (1 << 14);
@@ -1519,7 +1644,7 @@ public final class CompositeData {
      * @param length   length of data array in 32 bit words
      * @param srcOrder the byte order of data in src
      *
-     * @throws EvioException if offsets or length &lt; 0; if src = null;
+     * @throws EvioException if offsets &lt; 0; if length &lt; 4; if src = null;
      *                       if src or dest is too small
      */
     public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
@@ -1536,21 +1661,24 @@ public final class CompositeData {
             inPlace = true;
         }
 
-        if (srcOff < 0 || destOff < 0 || length < 0) {
-            throw new EvioException("offsets or length must be >= 0");
+        if (srcOff < 0 || destOff < 0) {
+            throw new EvioException("offsets must be >= 0");
+        }
+
+        if (length < 4) {
+            throw new EvioException("length must be >= 4");
         }
 
         // Byte order of swapped data
         ByteOrder destOrder = (srcOrder == ByteOrder.BIG_ENDIAN) ?
                                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
 
-
         // How many unused bytes are left in the src array?
         int totalBytes   = 4*length;
         int srcBytesLeft = totalBytes;
 
         // How many bytes taken for this CompositeData object?
-        int dataOffset = 0;
+        int dataOff = 0;
 
         // Wrap input & output arrays in ByteBuffers for convenience
         ByteBuffer  srcBuffer = ByteBuffer.wrap( src, srcOff,  4*length);
@@ -1560,11 +1688,13 @@ public final class CompositeData {
         srcBuffer.order(srcOrder);
         destBuffer.order(destOrder);
 
+//Utilities.printBytes(src, srcOff, 32, "CD src bytes");
+
         while (srcBytesLeft > 0) {
-//System.out.println("start src offset = " + (srcOff + dataOffset));
+//System.out.println("start src offset = " + (srcOff + dataOff));
 
             // First read the tag segment header
-            TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOffset, srcOrder);
+            TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOff, srcOrder);
             int headerLen  = tsHeader.getHeaderLength();
             int dataLength = tsHeader.getLength() - (headerLen - 1);
 
@@ -1579,10 +1709,10 @@ public final class CompositeData {
             tsHeader.write(destBuffer);
 
             // Move to beginning of string data
-            dataOffset += 4*headerLen;
+            dataOff += 4*headerLen;
 
             // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
+            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOff,
                                                                   4*(tsHeader.getLength()));
 
             if (strs.length < 1) {
@@ -1599,21 +1729,23 @@ public final class CompositeData {
             // Char data does not get swapped but needs
             // to be copied if not swapping in place.
             if (!inPlace) {
-                System.arraycopy(src,   srcOff + dataOffset,
-                                 dest, destOff + dataOffset, 4*dataLength);
+                System.arraycopy(src,   srcOff + dataOff,
+                                 dest, destOff + dataOff, 4*dataLength);
             }
 
             // Move to beginning of bank header
-            dataOffset += 4*dataLength;
+            dataOff += 4*dataLength;
 
             // Read the data bank header
-            BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOffset, srcOrder);
+            BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOff, srcOrder);
             headerLen  = bHeader.getHeaderLength();
             dataLength = bHeader.getLength() - (headerLen - 1);
 
 //System.out.println("swapAll: bank len = " + bHeader.getLength() + ", dataLen = " + dataLength +
-//", tag = " + bHeader.getTag() + ", num = " + bHeader.getNumber() + ", type = " + bHeader.getDataTypeName() +
-//", pad = " + bHeader.getPadding());
+//        ", tag = " + bHeader.getTag() +
+//        ", num = " + bHeader.getNumber() +
+//        ", type = " + bHeader.getDataTypeName() +
+//        ", pad = " + bHeader.getPadding());
 
             // Oops, no data
             if (dataLength < 1) {
@@ -1626,25 +1758,25 @@ public final class CompositeData {
             dataLength = 4*dataLength - padding;
 
             // Got all we needed from the bank header, now swap as it's written out.
-            destBuffer.position(destOff + dataOffset);
+            destBuffer.position(destOff + dataOff);
             bHeader.write(destBuffer);
 
             // Move to beginning of data
-            dataOffset += 4*headerLen;
-            srcBuffer.position(  srcOff + dataOffset);
-            destBuffer.position(destOff + dataOffset);
+            dataOff += 4*headerLen;
+            srcBuffer.position(  srcOff + dataOff);
+            destBuffer.position(destOff + dataOff);
 
             // Swap data
-            swapData(srcBuffer, destBuffer, dataLength, formatInts);
+            swapData(srcBuffer, destBuffer, dataLength, padding, formatInts);
 
             // Set buffer positions and offset
-            dataOffset += dataLength;
-            srcBuffer.position( srcOff + dataOffset);
-            destBuffer.position(srcOff + dataOffset);
+            dataOff += dataLength + padding;
+            srcBuffer.position( srcOff + dataOff);
+            destBuffer.position(srcOff + dataOff);
 
-            srcBytesLeft = totalBytes - (dataOffset + padding);
+            srcBytesLeft = totalBytes - dataOff;
 
-//System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOffset + ", padding = " + padding);
+//System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOff + ", padding = " + padding);
 //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
         }
 
@@ -1657,7 +1789,7 @@ public final class CompositeData {
 
     /**
      * This method converts (swaps) a buffer, containing EVIO composite type,
-     * between big & little endian. It swaps the entire type including the beginning
+     * between big and little endian. It swaps the entire type including the beginning
      * tagsegment header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src buffer may contain an array of
      * composite type items and all will be swapped.
@@ -1673,8 +1805,8 @@ public final class CompositeData {
      *                       if destBuffer too small;
      *                       if bad values for srcPos/destPos/len args;
      */
-    static void swapAll(ByteBuffer srcBuffer, ByteBuffer destBuffer,
-                        int srcPos, int destPos, int len, boolean inPlace)
+    public static void swapAll(ByteBuffer srcBuffer, ByteBuffer destBuffer,
+                               int srcPos, int destPos, int len, boolean inPlace)
                 throws EvioException {
 
         // Minimum size of 4 words for composite data
@@ -1689,10 +1821,10 @@ public final class CompositeData {
         // Bytes to swap
         int totalBytes   = 4*len;
         int srcBytesLeft = totalBytes;
-        int dataOffset, byteLen;
+        int dataOff, byteLen;
 
         // Initialize
-        dataOffset = 0;
+        dataOff = 0;
 
         while (srcBytesLeft > 0) {
 
@@ -1701,12 +1833,15 @@ public final class CompositeData {
             ByteDataTransformer.swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
             // Move to beginning of string data
-            srcPos     += 4;
-            destPos    += 4;
-            dataOffset += 4;
+            srcPos  += 4;
+            destPos += 4;
+            dataOff += 4;
+
+            // String data length in bytes
+            byteLen = 4*node.dataLen;
 
             // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, 4*node.dataLen);
+            String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, byteLen);
 
             if (strs.length < 1) {
                 throw new EvioException("bad format string data");
@@ -1719,9 +1854,6 @@ public final class CompositeData {
                 throw new EvioException("bad format string data");
             }
 
-            // String data length in bytes
-            byteLen = 4*node.dataLen;
-
             // Char data does not get swapped but needs
             // to be copied if not swapping in place.
             if (!inPlace) {
@@ -1731,9 +1863,9 @@ public final class CompositeData {
             }
 
             // Move to beginning of bank header
-            srcPos     += byteLen;
-            destPos    += byteLen;
-            dataOffset += byteLen;
+            srcPos  += byteLen;
+            destPos += byteLen;
+            dataOff += byteLen;
 
             // Read & swap data bank header
             ByteDataTransformer.swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
@@ -1744,21 +1876,21 @@ public final class CompositeData {
             }
 
             // Move to beginning of bank data
-            srcPos     += 8;
-            destPos    += 8;
-            dataOffset += 8;
+            srcPos  += 8;
+            destPos += 8;
+            dataOff += 8;
 
             // Bank data length in bytes
             byteLen = 4*node.dataLen;
 
             // Swap data (accounting for padding)
-            swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), formatInts);
+            swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), node.pad, formatInts);
 
             // Move past bank data
-            srcPos       += byteLen;
-            destPos      += byteLen;
-            dataOffset   += byteLen;
-            srcBytesLeft  = totalBytes - dataOffset;
+            srcPos    += byteLen;
+            destPos   += byteLen;
+            dataOff   += byteLen;
+            srcBytesLeft  = totalBytes - dataOff;
 
             //System.out.println("bytes left = " + srcBytesLeft);
             //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
@@ -1786,7 +1918,8 @@ public final class CompositeData {
      * @param srcOff   offset into source data array
      * @param dest     destination data array (of 32 bit words)
      * @param destOff  offset into destination data array
-     * @param nBytes   length of data to swap in bytes
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      * @param srcOrder byte order of the src data array
      *
@@ -1796,7 +1929,7 @@ public final class CompositeData {
      *                       buffer limit/position combo too small;
      */
     public static void swapData(byte[] src, int srcOff, byte[] dest, int destOff,
-                                int nBytes, List<Integer> ifmt, ByteOrder srcOrder)
+                                int nBytes, int padding, List<Integer> ifmt, ByteOrder srcOrder)
                         throws EvioException {
 
         if (src == null) throw new EvioException("src arg cannot be null");
@@ -1810,7 +1943,7 @@ public final class CompositeData {
             destBuf = ByteBuffer.wrap(dest, destOff, nBytes);
         }
 
-        swapData(srcBuf, destBuf, nBytes, ifmt);
+        swapData(srcBuf, destBuf, nBytes, padding, ifmt);
     }
 
 
@@ -1826,7 +1959,8 @@ public final class CompositeData {
      *
      * @param srcBuf   source data buffer
      * @param destBuf  destination data buffer; if null, use srcBuf as destination
-     * @param nBytes   length of data to swap in bytes
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
      * @throws EvioException if ifmt null; ifmt size &lt; 1; nBytes &lt; 8;
@@ -1834,7 +1968,7 @@ public final class CompositeData {
      *                       buffer limit/position combo too small;
      */
     public static void swapData(ByteBuffer srcBuf, ByteBuffer destBuf,
-                                int nBytes, List<Integer> ifmt)
+                                int nBytes, int padding, List<Integer> ifmt)
                         throws EvioException {
 
         if (srcBuf == null) {
@@ -1849,7 +1983,7 @@ public final class CompositeData {
             destPos = srcBuf.position();
         }
 
-        swapData(srcBuf, destBuf, srcBuf.position(), destPos, nBytes, ifmt);
+        swapData(srcBuf, destBuf, srcBuf.position(), destPos, nBytes, padding, ifmt);
     }
 
 
@@ -1869,7 +2003,8 @@ public final class CompositeData {
      * @param destBuf  destination data buffer; if null, use srcBuf as destination
      * @param srcPos   position in srcBuf to beginning swapping
      * @param destPos  position in destBuf to beginning writing swapped data
-     * @param nBytes   length of data to swap in bytes (be sure to account for padding)
+     * @param nBytes   length of data to swap in bytes (be sure to subtract padding)
+     * @param padding  # of padding bytes at end.
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
      * @throws EvioException if ifmt null; ifmt size &lt; 1; nBytes &lt; 8;
@@ -1877,7 +2012,7 @@ public final class CompositeData {
      *                       buffer limit/position combo too small;
      */
     public static void swapData(ByteBuffer srcBuf, ByteBuffer destBuf,
-                                int srcPos, int destPos, int nBytes, List<Integer> ifmt)
+                                int srcPos, int destPos, int nBytes, int padding, List<Integer> ifmt)
                         throws EvioException {
 
         boolean debug = false;
@@ -1919,6 +2054,11 @@ public final class CompositeData {
         }
         else {
             destOrder = destBuf.order();
+
+            // Clear padding so double swapped data can be checked easily
+            for (int i=0; i < padding; i++) {
+                destBuf.put(destPos + nBytes + i, (byte)0);
+            }
         }
 
         // Check position args
@@ -2274,8 +2414,9 @@ public final class CompositeData {
                             mcnf = 0;
 
                             // get "N" value from List
-                            if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                                throw new EvioException("Data type mismatch");
+                            if (data.dataTypes.get(itemIndex) != DataType.NVALUE) {
+                                throw new EvioException("Data type mismatch, N val is not NVALUE, got " +
+                                        data.dataTypes.get(itemIndex));
                             }
                             ncnf = (Integer)data.dataItems.get(itemIndex++);
                             if (debug) System.out.println("ncnf from list = " + ncnf + " (code 15)");
@@ -2289,8 +2430,9 @@ public final class CompositeData {
                             mcnf = 0;
 
                             // get "n" value from List
-                            if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                                throw new EvioException("Data type mismatch");
+                            if (data.dataTypes.get(itemIndex) != DataType.nVALUE) {
+                                throw new EvioException("Data type mismatch, n val is not nVALUE, got " +
+                                        data.dataTypes.get(itemIndex));
                             }
                             // Get rid of sign extension to allow n to be unsigned
                             ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
@@ -2305,8 +2447,9 @@ public final class CompositeData {
                             mcnf = 0;
 
                             // get "m" value from List
-                            if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                                throw new EvioException("Data type mismatch");
+                            if (data.dataTypes.get(itemIndex) != DataType.mVALUE) {
+                                throw new EvioException("Data type mismatch, m val is not mVALUE, got " +
+                                        data.dataTypes.get(itemIndex));
                             }
                             // Get rid of sign extension to allow m to be unsigned
                             ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
@@ -2352,8 +2495,9 @@ public final class CompositeData {
 
                 if (mcnf == 1) {
                     // get "N" value from List
-                    if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                        throw new EvioException("Data type mismatch");
+                    if (data.dataTypes.get(itemIndex) != DataType.NVALUE) {
+                        throw new EvioException("Data type mismatch, N val is not NVALUE, got " +
+                                data.dataTypes.get(itemIndex));
                     }
                     ncnf = (Integer) data.dataItems.get(itemIndex++);
 
@@ -2364,8 +2508,9 @@ public final class CompositeData {
                 }
                 else if (mcnf == 2) {
                     // get "n" value from List
-                    if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                        throw new EvioException("Data type mismatch");
+                    if (data.dataTypes.get(itemIndex) != DataType.nVALUE) {
+                        throw new EvioException("Data type mismatch, n val is not nVALUE, got " +
+                                                data.dataTypes.get(itemIndex));
                     }
                     ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
                     rawBuf.putShort((short)ncnf);
@@ -2373,8 +2518,9 @@ public final class CompositeData {
                  }
                  else if (mcnf == 3) {
                     // get "m" value from List
-                    if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                        throw new EvioException("Data type mismatch");
+                    if (data.dataTypes.get(itemIndex) != DataType.mVALUE) {
+                        throw new EvioException("Data type mismatch, m val is not mVALUE, got " +
+                                data.dataTypes.get(itemIndex));
                     }
                     ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
                     rawBuf.put((byte)ncnf);
@@ -2563,7 +2709,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
 
         while (dataIndex < endIndex) {
-            if (debug) System.out.println(String.format("+++ %d %d\n", dataIndex, endIndex));
+            if (debug) System.out.println(String.format("+++ %d %d", dataIndex, endIndex));
 
             // get next format code
             while (true) {
@@ -2610,6 +2756,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                             NList.add(ncnf);
                             items.add(ncnf);
                             types.add(DataType.NVALUE);
+                            if (debug) System.out.println(String.format("+++ adding N %d", ncnf));
 
                             dataIndex += 4;
                         }
@@ -2622,6 +2769,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                             nList.add((short)ncnf);
                             items.add((short)ncnf);
                             types.add(DataType.nVALUE);
+                            if (debug) System.out.println(String.format("+++ adding n %hd", (short)ncnf));
                             dataIndex += 2;
                         }
 
@@ -2633,6 +2781,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                             mList.add((byte)ncnf);
                             items.add((byte)ncnf);
                             types.add(DataType.mVALUE);
+                            if (debug) System.out.println(String.format("+++ adding m %c", (byte)ncnf));
                             dataIndex++;
                         }
 
@@ -2683,6 +2832,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     NList.add(ncnf);
                     items.add(ncnf);
                     types.add(DataType.NVALUE);
+                    if (debug) System.out.println(String.format("+++ adding N %d", ncnf));
                     dataIndex += 4;
                 }
                 else if (mcnf == 2) {
@@ -2691,6 +2841,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     nList.add((short)ncnf);
                     items.add((short)ncnf);
                     types.add(DataType.nVALUE);
+                    if (debug) System.out.println(String.format("+++ adding n %hd", (short)ncnf));
                     dataIndex += 2;
                 }
                 else if (mcnf == 3) {
@@ -2699,6 +2850,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     mList.add((byte)ncnf);
                     items.add((byte)ncnf);
                     types.add(DataType.mVALUE);
+                    if (debug) System.out.println(String.format("+++ adding m %c", (byte)ncnf));
                     dataIndex++;
                 }
             }
@@ -2808,6 +2960,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 // reset position
                 dataBuffer.position(0);
+                if (debug) System.out.println("pushing type = " + DataType.getDataType(kcnf).toString() + " onto types");
 
                 types.add(DataType.getDataType(kcnf));
                 dataIndex += ncnf;
@@ -2943,6 +3096,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param bs evio container object that called this method. Allows us to use
      *           some convenient methods.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException if writing bad format XML
      */
     void toXML(XMLStreamWriter xmlWriter, BaseStructure bs, boolean hex)
                         throws XMLStreamException {
@@ -3576,6 +3730,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param xmlWriter the writer used to write the events to XML.
      * @param xmlIndent indentation for writing XML.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException if writing bad format XML
      */
     void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
                         throws XMLStreamException {

@@ -186,13 +186,10 @@ public class EvioEvent extends EvioBank {
             sb.append(")");
         }
 
-        // todo: can be more thorough here for datalen calculation
-
-//        sb.append("  len=");
-//        sb.append(header.length);
 
         if (rawBytes == null) {
-            sb.append("  dataLen=0");
+            sb.append("  dataLen=");
+            sb.append(header.getDataLength());
         }
         else {
             sb.append("  dataLen=");

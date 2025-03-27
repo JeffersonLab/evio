@@ -38,22 +38,27 @@ import java.nio.ByteOrder;
  * for access to the structures. For those familiar with XML, the event is processed DOM-like.
  * <p>
  *
+ * This class is a NOT thread safe version of EvioReaderV6, but presumably faster.<p>
+ *
+ * Although this class can be used directly, it's generally used by
+ * using {@link EvioCompactReader} which, in turn, uses this class.<p>
+ *
  * @since version 6
  * @author timmer
  */
 public class EvioReaderUnsyncV6 implements IEvioReader {
 
     /** The reader object which does all the work. */
-    private Reader reader;
+    protected Reader reader;
 
     /** Is this object currently closed? */
-    private boolean closed;
+    protected boolean closed;
 
     /** Root element tag for XML file */
-    private static final String ROOT_ELEMENT = "evio-data";
+    protected static final String ROOT_ELEMENT = "evio-data";
 
     /** Parser object for file/buffer. */
-    private EventParser parser;
+    protected EventParser parser;
 
 
     //------------------------
@@ -120,7 +125,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
                                         throws EvioException, IOException {
 
         try {
-            reader = new Reader(file.getPath(), checkRecNumSeq);
+            reader = new Reader(file.getPath(), checkRecNumSeq, true);
             parser = new EventParser();
         }
         catch (HipoException e) {
@@ -241,7 +246,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
     public EvioEvent getFirstEvent() {
         try {
             byte[] rawBytes = reader.getFirstEvent();
-            return EvioReader.getEvent(rawBytes, 0, reader.getByteOrder());
+            return EvioReader.parseEvent(rawBytes, 0, reader.getByteOrder());
         }
         catch (EvioException e) {}
 
@@ -279,7 +284,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
      * Get the event in the file/buffer at a given index (starting at 1).
      * As useful as this sounds, most applications will probably call
      * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.<p>
+     * since it combines getting an event with parsing it.<p>
      *
      * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
      * @return the event in the file/buffer at the given index or null if none
@@ -314,6 +319,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
         byte[] bytes;
         try {
             bytes = reader.getNextEvent();
+            if (bytes == null) return null;
         }
         catch (HipoException e) {
             throw new EvioException(e);
@@ -370,9 +376,13 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
     }
 
 
-	/** This method is not relevant in evio 6 and does nothing. */
+    /**
+     * The equivalent of rewinding the file. What it actually does
+     * is set the position of the sequential index back to the beginning.
+     * This allows a mix of sequential calls with those that are not sequential.
+     */
     @Override
-    public void rewind() {}
+    public void rewind() {reader.rewind();}
 
 
     /** This method is not relevant in evio 6, does nothing, and returns 0. */

@@ -23,18 +23,6 @@
 uint32_t *makeEvent();
 #define MIN(a,b) (a<b)? a : b
 
-char *dictionary =
-"<xmlDict>\n"
-"  <xmldumpDictEntry name=\"Tag1-Num1\"   tag=\"1\"   num=\"1\"/>\n"
-"  <xmldumpDictEntry name=\"Tag2-Num2\"   tag=\"2\"   num=\"2\"/>\n"
-"  <xmldumpDictEntry name=\"Tag3-Num3\"   tag=\"3\"   num=\"3\"/>\n"
-"  <xmldumpDictEntry name=\"Tag4-Num4\"   tag=\"4\"   num=\"4\"/>\n"
-"  <xmldumpDictEntry name=\"Tag5-Num5\"   tag=\"5\"   num=\"5\"/>\n"
-"  <xmldumpDictEntry name=\"Tag6-Num6\"   tag=\"6\"   num=\"6\"/>\n"
-"  <xmldumpDictEntry name=\"Tag7-Num7\"   tag=\"7\"   num=\"7\"/>\n"
-"  <xmldumpDictEntry name=\"Tag8-Num8\"   tag=\"8\"   num=\"8\"/>\n"
-"</xmlDict>\n";
-
 
 int main()
 {
@@ -72,7 +60,7 @@ int main()
     status = evGetDictionary(handle, &dict, &dictLen);
     printf ("    get dictionary, status = %#x\n\n", status);
 
-    if (dictionary != NULL) {
+    if (dict != NULL) {
         printf("DICTIONARY =\n%s\n", dict);
         free(dict);
     }

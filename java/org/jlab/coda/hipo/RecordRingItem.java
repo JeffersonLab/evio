@@ -65,9 +65,9 @@ public class RecordRingItem {
      * Constructor.
      * @param order         byte order of built record byte arrays.
      * @param maxEventCount max number of events record can hold.
-     *                      Value <= O means use default (1M).
+     *                      Value &lt;= O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @param compressionType type of data compression to do.
      */
     RecordRingItem(ByteOrder order, int maxEventCount, int maxBufferSize, CompressionType compressionType) {

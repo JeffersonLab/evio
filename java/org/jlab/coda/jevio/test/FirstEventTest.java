@@ -16,7 +16,7 @@ import java.nio.ByteOrder;
 public class FirstEventTest {
 
     /** For testing first event defined in constructor. */
-    public static void main1(String args[]) {
+    public static void test1() {
 
         boolean useBuffer = false, append = false;
 
@@ -33,10 +33,6 @@ public class FirstEventTest {
                 "</xmlDict>";
 
         // data
-//        int[] intData1 = new int[256];
-//        for (int i=0; i < 256; i++) {
-//            intData1[i] = i+1;
-//        }
         int[] intData1 = new int[] {1,2,3,4,5,6,7};
         int[] intData2 = new int[] {8,9,10,11,12,13,14};
 
@@ -53,163 +49,66 @@ public class FirstEventTest {
             event = EB2.getEvent();
             event.appendIntData(intData2);
 
-            if (!useBuffer) {
-                //int split = 312;
-                int split = 100;
-                System.out.println("FirstEventTest: create EventWriter for file");
-
-                EventWriter ER = new EventWriter(fileName, null, "runType", 1, split,
-                                                 4*1000, 4,
-                                                 ByteOrder.BIG_ENDIAN, dictionary,
-                                                 true, false, eventFirst,
-                                                 0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
-
-                System.out.println("FirstEventTest: write event #1");
-                ER.writeEvent(event);
-                System.out.println("FirstEventTest: write event #2");
-                ER.writeEvent(event);
-                System.out.println("FirstEventTest: write event #3");
-                ER.writeEvent(event);
-
-                // All done writing
-                ER.close();
-
-                if (append) {
-                    split = 0;
-
-                    // Append 1 event onto 1st file
-                    System.out.println("FirstEventTest: opening first file");
-                    ER = new EventWriter(fileName + ".0", null, "runType", 1, split,
-                                                   4*1000, 4,
-                                                   ByteOrder.BIG_ENDIAN, null,
-                                                   true, true, null,
-                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
-
-                    System.out.println("FirstEventTest: append event #1");
-                    ER.writeEvent(event);
-                    // All done appending
-                    ER.close();
-                }
-            }
-            else {
-                System.out.println("FirstEventTest: create EventWriter for buffer");
-
-                EventWriter ER = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, eventFirst,
-                                                  CompressionType.RECORD_UNCOMPRESSED);
-
-                System.out.println("FirstEventTest: write event #1");
-                ER.writeEvent(event);
-                System.out.println("FirstEventTest: write event #2");
-                ER.writeEvent(event);
-                System.out.println("FirstEventTest: write event #3");
-                ER.writeEvent(event);
-
-                // All done writing
-                ER.close();
-
-                // Write buf to file
-                myBuf.flip();
-                System.out.println("FirstEventTest: before writing to file, buf pos = " + myBuf.position() +
-                                           ", lim = " + myBuf.limit());
-
-                // Does not mess with buf pos or limit
-                Utilities.bufferToFile(fileName, myBuf, true, false);
-
-            }
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-    /** For testing first event set by method in writing files. */
-    public static void main(String args[]) {
-
-        //create an event writer to write out the test events.
-        String fileName = "/tmp/firstEventTestJava.ev";
-        ByteBuffer myBuf = ByteBuffer.allocate(800);
-
-        // xml dictionary
-        String dictionary =
-                "<xmlDict>\n" +
-                        "  <dictEntry name=\"regular event\" tag=\"1\"   num=\"1\"/>\n" +
-                        "  <dictEntry name=\"FIRST EVENT\"   tag=\"2\"   num=\"2\"/>\n" +
-                "</xmlDict>";
-
-        // data
-//        int[] intData1 = new int[256];
-//        for (int i=0; i < 256; i++) {
-//            intData1[i] = i+1;
-//        }
-        int[] intData1 = new int[] {1,2,3,4,5,6,7};
-        int[] intData2 = new int[] {8,9,10,11,12,13,14};
-
-        EvioEvent eventFirst, event;
-
-        try {
-            // First event - bank of ints
-            EventBuilder EB = new EventBuilder(2, DataType.UINT32, 2);
-            eventFirst = EB.getEvent();
-            eventFirst.appendIntData(intData1);
-
-            // Regular event - bank of ints
-            EventBuilder EB2 = new EventBuilder(1, DataType.UINT32, 1);
-            event = EB2.getEvent();
-            event.appendIntData(intData2);
-
-
+            //int split = 312;
             int split = 100;
-
-            // Create buffer writer
-            System.out.println("FirstEventTest: create EventWriter for buffer w/o first event");
-            EventWriter bufWriter = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, null,
-                                                     CompressionType.RECORD_UNCOMPRESSED);
-
-            // Write first event into buf as a regular event
-            bufWriter.writeEvent(eventFirst);
-            bufWriter.close();
-
-            // Duplicate just-written-buffer (ready to read)
-            ByteBuffer dataBuf = bufWriter.getByteBuffer();
-
-            // Change first event into a node by reading it
-            EvioCompactReader cReader = new EvioCompactReader(dataBuf);
-            EvioNode firstEventNode = cReader.getEvent(1);
-
-            // Create a writer to a file to do this
             System.out.println("FirstEventTest: create EventWriter for file");
-            EventWriter ER = new EventWriter(fileName, null, "runType", 1, split,
-                                             4*1000, 4,
-                                             ByteOrder.BIG_ENDIAN, dictionary,
-                                             true, false, null,
-                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
+            EventWriter ER = new EventWriter(fileName, null, "runType", 1, split,
+                    4*1000, 4,
+                    ByteOrder.BIG_ENDIAN, dictionary,
+                    true, false, eventFirst,
+                    0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
             System.out.println("FirstEventTest: write event #1");
             ER.writeEvent(event);
-
-            // Write the first event as a EvioEvent object
-            System.out.println("FirstEventTest: set first event");
-            ER.setFirstEvent(eventFirst);
-
-            // Write this first event as a EvioNode object
-            //ER.setFirstEvent(firstEventNode);
-
             System.out.println("FirstEventTest: write event #2");
             ER.writeEvent(event);
-
             System.out.println("FirstEventTest: write event #3");
             ER.writeEvent(event);
 
             // All done writing
             ER.close();
+
+            // Now read it back
+            EvioReader reader = new EvioReader(fileName + ".0");
+            EvioEvent fe = reader.getFirstEvent();
+            byte[] feData = fe.getRawBytes();
+            int[] feIntData = ByteDataTransformer.toIntArray(feData, ByteOrder.BIG_ENDIAN);
+            // Compare
+            if (feIntData.length != intData1.length) {
+                System.out.println("FirstEventTest: orig first event, and the one read back are of different lengths");
+            }
+            else {
+                boolean bad = false;
+                for (int i=0; i < feIntData.length; i++) {
+                    if (feIntData[i] != intData1[i]) {
+                        bad = true;
+                        System.out.println("FirstEventTest: element " + i + " differs between orig and read first ev");
+                    }
+                }
+                if (!bad) {
+                    System.out.println("FirstEventTest: orig first event and the one read back are the SAME");
+                }
+            }
+
+
+            if (append) {
+                split = 0;
+
+                // Append 1 event onto 1st file
+                System.out.println("FirstEventTest: opening first file");
+                ER = new EventWriter(fileName + ".0", null, "runType", 1, split,
+                        4*1000, 4,
+                        ByteOrder.BIG_ENDIAN, null,
+                        true, true, null,
+                        0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
+
+                System.out.println("FirstEventTest: append event #1");
+                ER.writeEvent(event);
+                // All done appending
+                ER.close();
+            }
+
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -220,6 +119,9 @@ public class FirstEventTest {
     }
 
 
+    public static void main(String args[]) {
+        test1();
+    }
 
 
 }

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ */
+
 package org.jlab.coda.jevio;
 
 import org.jlab.coda.hipo.RecordHeader;
@@ -448,7 +458,7 @@ public class EvioReader implements IEvioReader {
      * @return an EvioEvent object parsed from the given array.
      * @throws EvioException if null arg, too little data, length too large, or data not in evio format.
      */
-    static EvioEvent getEvent(byte[] array, int offset, ByteOrder order) throws EvioException {
+    public static EvioEvent getEvent(byte[] array, int offset, ByteOrder order) throws EvioException {
 
         if (array == null || array.length - offset < 8) {
             throw new EvioException("arg null or too little data");

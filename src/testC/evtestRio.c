@@ -333,7 +333,7 @@ int main111() {
     const uint32_t *ip;
     uint32_t evCount, buffer[2048];
 
-    memset(buffer, 0, 2048);
+    memset(buffer, 0, 2048*sizeof(uint32_t));
 
     createFile("./mydata");
     printFile("./mydata");
@@ -548,12 +548,14 @@ int main1() {
     uint32_t **pTable;
     uint32_t evCount, len = 0L, bufLen;
 
+    /*
     char *dictionary =
             "<xmlDict>\n"
             "  <xmldumpDictEntry name=\"Tag1-Num1\"   tag=\"1\"   num=\"1\"/>\n"
             "  <xmldumpDictEntry name=\"Tag2-Num2\"   tag=\"2\"   num=\"2\"/>\n"
             "  <xmldumpDictEntry name=\"Tag3-Num3\"   tag=\"3\"   num=\"3\"/>\n"
             "</xmlDict>\n";
+    */
 
     printf("Open file for writing of dictionary & event\n");
     status = evOpen("./mydata", "w", &handle);
@@ -633,7 +635,7 @@ int main2() {
     uint32_t *ip, *pBuf, buffer[2048];
     int i;
 
-    memset(buffer, 0, 2048);
+    memset(buffer, 0, 2048*sizeof(uint32_t));
 
     printf("\nEvent I/O tests...\nTest buffer first:\n");
     

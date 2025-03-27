@@ -61,7 +61,7 @@ public class EvioNode implements Cloneable {
      *  then this object is obsolete. */
     boolean obsolete;
 
-    /** Block containing this node. */
+    /** Block containing this node which may be null. */
     public BlockNode blockNode;
 
     /** ByteBuffer that this node is associated with. */
@@ -122,7 +122,10 @@ public class EvioNode implements Cloneable {
         allNodes.add(this);
     }
 
-    /** Constructor used when swapping data. */
+    /**
+     * Constructor used when swapping data.
+     * @param firstNode node of event containing this node or null if this is an event node.
+     */
     EvioNode(EvioNode firstNode) {
         allNodes = new ArrayList<>(50);
         allNodes.add(this);
@@ -276,7 +279,7 @@ public class EvioNode implements Cloneable {
      * placing into EvioNode obtained from an EvioNodeSource.
      * @param parent parent of the object.
      */
-    final private void copyParentForScan(EvioNode parent) {
+    private void copyParentForScan(EvioNode parent) {
         blockNode  = parent.blockNode;
         buffer     = parent.buffer;
         allNodes   = parent.allNodes;
@@ -412,7 +415,7 @@ public class EvioNode implements Cloneable {
      * @return EvioNode object containing evio event information
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractEventNode(ByteBuffer buffer,
+    static public EvioNode extractEventNode(ByteBuffer buffer,
                                                   EvioNodeSource pool,
                                                   BlockNode blockNode,
                                                   int position, int place)
@@ -454,7 +457,7 @@ public class EvioNode implements Cloneable {
      * @return EvioNode object containing evio event information
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractEventNode(ByteBuffer buffer, EvioNodeSource pool,
+    static public EvioNode extractEventNode(ByteBuffer buffer, EvioNodeSource pool,
                                                   int recPosition, int position, int place)
             throws EvioException {
 
@@ -489,7 +492,7 @@ public class EvioNode implements Cloneable {
      * @return EvioNode bankNode arg filled with appropriate data.
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractNode(EvioNode bankNode, int position)
+    static public EvioNode extractNode(EvioNode bankNode, int position)
             throws EvioException {
 
         // Make sure there is enough data to at least read evio header
@@ -552,7 +555,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
      *
      * @param node node being scanned
      */
-    static final void scanStructure(EvioNode node) {
+    static void scanStructure(EvioNode node) {
 
         int dType = node.dataType;
 
@@ -961,7 +964,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
      * Remove a node from this child list and, along with its descendants,
      * from the list of all nodes contained in event.
      * If not a child, do nothing.
-     * @param node node to remove from child & allNodes lists.
+     * @param node node to remove from child and allNodes lists.
      */
     final void removeChild(EvioNode node) {
         if (node == null) {
@@ -980,7 +983,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
     }
 
     /**
-     * Get the object representing the block header.
+     * Get the object representing the block header (might be null).
      * @return object representing the block header.
      */
     final BlockNode getBlockNode() {
@@ -1080,8 +1083,38 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
     }
 
     /**
-     * Get the object containing the buffer that this node is associated with.
-     * @return object containing the buffer that this node is associated with.
+     * Get the number of children that this node contains at a single
+     * level of the evio tree.
+     * This is meaningful only if this node has been scanned,
+     * otherwise it returns 0.
+     *
+     * @param level go down this many levels in evio structure to count children.
+     *              A level of 0 means immediate children, 1 means
+     *              grandchildren, etc.
+     * @return number of children that this node contains at the given level;
+     *         0 if not scanned or level &lt; 0.
+     */
+    final public int getChildCount(int level) {
+        if (childNodes == null || childNodes.size() == 0 || level < 0) {
+            return 0;
+        }
+
+        if (level == 0) {
+            return childNodes.size();
+        }
+
+        int kidCount = 0;
+        for (EvioNode n : childNodes) {
+            kidCount += n.getChildCount(level - 1);
+        }
+
+        return kidCount;
+    }
+
+    /**
+     * Get the buffer containing this node.
+     * Note, buffer's position and limit may not be set according to this node's position and limit.
+     * @return buffer containing this node.
      */
     final public ByteBuffer getBuffer() {
         return buffer;
@@ -1123,7 +1156,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
     }
 
     /**
-     * Get the padding of this evio structure.
+     * Get the padding in bytes of this evio structure.
      * Will be zero for segments and tagsegments.
      * @return padding of this evio structure
      */

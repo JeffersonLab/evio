@@ -1,0 +1,70 @@
+#!/bin/csh -f
+
+# Script to setup the evio directory to use to correct version
+# of the supporting jar files.
+# The choice is based on the version of java in the path.
+# If java is not in the path, then default to java 8.
+# This can be overwritten by giving the major java version number as an arg
+
+# Use java 8 jars by default
+set majorVersion = 8
+
+# Check if "java" is in the PATH
+set javaPath = `which java >& /dev/null`
+
+# Check the exit status of the "which" command
+if ($status != 0) then
+    echo "Java is not in the PATH, use java 8 jars by default"
+else
+    set javaPath = `which java`
+    echo "Java is located at: $javaPath"
+
+    # Capture the Java version string
+    set javaVersion = `java -version |& grep "version" | awk '{print $3}' | tr -d '"'`
+
+    # Extract the major version
+    set majorVersion = `echo $javaVersion | awk -F. '{print $1}'`
+
+    # If major version is "1", extract the second number (for Java 1.x, where x is the real version)
+    if ( "$majorVersion" == "1" ) then
+        set majorVersion = `echo $javaVersion | awk -F. '{print $2}'`
+    endif
+
+    # Output the major Java version
+    echo "Found java major version $majorVersion in path"
+endif
+
+
+# Check if there is exactly one argument which can override java version
+if ($#argv == 1) then
+    # Check if the argument is an integer (0 - 99)
+    if ("$argv[1]" =~ [0-9] || "$argv[1]" =~ [0-9][0-9]) then
+        # Parse the argument as an integer
+        set majorVersion = $argv[1]
+        echo "Argument is a valid integer, set java major version: $majorVersion"
+    else
+        echo "Argument $argv[1] is NOT a valid integer"
+    endif
+endif
+
+
+# Define the destination directory
+set destDir = "java/jars"
+
+# Remove all jar files from destination
+rm $destDir/*.jar
+
+
+# Define the source directory
+if ($majorVersion < 15) then
+    set srcDir = "java/jars/java8"
+    echo "Copy jar files from $srcDir"
+    # Copy all jar files from source to destination
+    cp $srcDir/disruptor-3.4.3.jar $destDir/.
+    cp $srcDir/lz4-java.1.8.0.jar $destDir/.
+else
+    set srcDir = "java/jars/java15"
+    echo "Copy jar files from $srcDir"
+    cp $srcDir/disruptor-4.0.0.jar $destDir/.
+    cp $srcDir/lz4-java.1.8.0.jar $destDir/.
+endif

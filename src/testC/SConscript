@@ -8,8 +8,8 @@ cfileList  = Glob('*.c',  strings=True)
 for fileName in cfileList:
     compiledFile = env.Program(source  = fileName,
                                LIBS    = ['evio'+debugSuffix] + execLibs,
-                               LIBPATH = ['#src/libCsrc/'+archDir, '/usr/local/lib'],
-                               CPPPATH = ['.', '#src/libCsrc', '/usr/local/include'])
+                               LIBPATH = ['#src/libsrc/'+archDir, '/usr/local/lib'],
+                               CPPPATH = ['.', '#src/libsrc', '/usr/local/include'])
     
     if 'install' in COMMAND_LINE_TARGETS:
         env.Alias('install', env.Install(target = binInstallDir+'/test', source = compiledFile))

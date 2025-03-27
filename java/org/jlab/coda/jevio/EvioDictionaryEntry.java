@@ -289,6 +289,8 @@ public class EvioDictionaryEntry {
         if (parentEntry != null && otherParent != null) {
             Integer pNum = parentEntry.getNum();
             match = match && parentEntry.getTag().equals(otherParent.getTag());
+//            System.out.println(" ====: 2 parents compared, tag " + parentEntry.getTag() +
+//                    " with other's tag " + otherParent.getTag());
             if (pNum == null) {
                 if (otherParent.getNum() != null) {
                     return false;
@@ -313,22 +315,77 @@ public class EvioDictionaryEntry {
             case TAG_NUM:
                 builder.append("(tag=");
                 builder.append(tag);
-                builder.append(",num =");
-                builder.append(num);
-                builder.append(")");
+                builder.append(",num=");
+                builder.append(+num);
+                if (type == null) {
+                    builder.append(",datatype=UNKNOWN32");
+                }
+                else {
+                    builder.append(",datatype=");
+                    builder.append(type.toString());
+                }
+                builder.append(",entrytype=TAG_NUM");
                 break;
             case TAG_ONLY:
                 builder.append("(tag=");
                 builder.append(tag);
-                builder.append(")");
+                if (type == null) {
+                    builder.append(",datatype=UNKNOWN32");
+                }
+                else {
+                    builder.append(",datatype=");
+                    builder.append(type.toString());
+                }
+                builder.append(",entrytype=TAG_ONLY");
                 break;
             case TAG_RANGE:
                 builder.append("(tag=");
                 builder.append(tag);
                 builder.append("-");
                 builder.append(tagEnd);
-                builder.append(")");
+                if (type == null) {
+                    builder.append(",datatype=UNKNOWN32");
+                }
+                else {
+                    builder.append(",datatype=");
+                    builder.append(type.toString());
+                }
+                builder.append(",entrytype=TAG_RANGE");
         }
+
+        if (parentEntry != null) {
+            builder.append(",parent=");
+            builder.append(parentEntry.getTag());
+            builder.append("/");
+            Integer n = parentEntry.getNum();
+            if (n == null) {
+                builder.append("undefined");
+            }
+            else {
+                builder.append(n);
+            }
+            builder.append("/");
+            builder.append(parentEntry.getTagEnd());
+        }
+
+        builder.append(")");
+
+        if (format != null || description != null) {
+            builder.append("\n");
+        }
+
+        if (format != null) {
+            builder.append("    format = ");
+            builder.append(format);
+            builder.append("\n");
+        }
+
+        if (description != null) {
+            builder.append("    description = ");
+            builder.append(description);
+            builder.append("\n");
+        }
+
 
         return builder.toString();
     }

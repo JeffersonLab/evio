@@ -57,20 +57,21 @@ public class EventBuilder {
 	 * This clears all the data fields in a structure, but not the parent or the children. This keeps the
 	 * existing tree structure intact. To remove a structure (and, consequently, all its descendants) from the
 	 * tree, use <code>remove</code>
-	 * @param structure the segment to clear.
+	 * @param structure the structure to clear.
 	 */
 	public void clearData(BaseStructure structure) {
 		if (structure != null) {
-			structure.rawBytes    = null;
-			structure.doubleData  = null;
-			structure.floatData   = null;
-			structure.intData     = null;
-			structure.longData    = null;
-            structure.shortData   = null;
-            structure.charData    = null;
-            structure.stringData  = null;
-            structure.stringsList = null;
-            structure.stringEnd   = 0;
+			structure.rawBytes        = null;
+			structure.doubleData      = null;
+			structure.floatData       = null;
+			structure.compositeData   = null;
+			structure.intData         = null;
+			structure.longData        = null;
+            structure.shortData       = null;
+            structure.charData        = null;
+            structure.stringData      = null;
+            structure.stringsList     = null;
+            structure.stringEnd       = 0;
             structure.numberDataItems = 0;
 		}
 	}
@@ -131,10 +132,10 @@ public class EventBuilder {
 			" cannot have children.";
 			throw new EvioException(errStr);
 		}
-		
+
 
 		parent.insert(child);
-        child.setParent(parent);
+		child.setParent(parent);
 		setAllHeaderLengths();
 	}
 	
@@ -274,6 +275,25 @@ public class EventBuilder {
 
 
     /**
+     * Set composite data in the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data the string data to write.
+     * @throws EvioException if structure arg is null
+     */
+    public void setCompositeData(BaseStructure structure, CompositeData data[]) throws EvioException {
+        if (structure == null) {
+            throw new EvioException("Tried to set composite data to a null structure.");
+        }
+        structure.setCompositeData(data);
+        setAllHeaderLengths();
+    }
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+    /**
      * Appends int data to the structure. If the structure has no data, then this
      * is the same as setting the data.
      * @param structure the structure to receive the data, which is appended.
@@ -369,20 +389,52 @@ public class EventBuilder {
     }
 
 
-    /**
-     * Appends string data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the string to append, or set if there is no existing data.
+	/**
+	 * Appends a single string to the structure. If the structure has no data, then this
+	 * is the same as setting the data.
+	 * @param structure the structure to receive the data, which is appended.
+	 * @param data the string to append, or set if there is no existing data.
 	 * @throws EvioException if structure arg is null.
-     */
-    public void appendStringData(BaseStructure structure, String data) throws EvioException {
-        if (structure == null) {
-            throw new EvioException("Tried to append String to a null structure.");
-        }
-        structure.appendStringData(data);
-        setAllHeaderLengths();
-    }
+	 */
+	public void appendStringData(BaseStructure structure, String data) throws EvioException {
+		if (structure == null) {
+			throw new EvioException("Tried to append a single String to a null structure.");
+		}
+		structure.appendStringData(data);
+		setAllHeaderLengths();
+	}
+
+
+	/**
+	 * Appends string data to the structure. If the structure has no data, then this
+	 * is the same as setting the data.
+	 * @param structure the structure to receive the data, which is appended.
+	 * @param data the string data to append, or set if there is no existing data.
+	 * @throws EvioException if structure arg is null.
+	 */
+	public void appendStringData(BaseStructure structure, String[] data) throws EvioException {
+		if (structure == null) {
+			throw new EvioException("Tried to append String array to a null structure.");
+		}
+		structure.appendStringData(data);
+		setAllHeaderLengths();
+	}
+
+
+	/**
+	 * Appends composite data to the structure. If the structure has no data, then this
+	 * is the same as setting the data.
+	 * @param structure the structure to receive the data, which is appended.
+	 * @param data the composite data to append, or set if there is no existing data.
+	 * @throws EvioException if structure arg is null.
+	 */
+	public void appendCompositeData(BaseStructure structure, CompositeData[] data) throws EvioException {
+		if (structure == null) {
+			throw new EvioException("Tried to append String to a null structure.");
+		}
+		structure.appendCompositeData(data);
+		setAllHeaderLengths();
+	}
 
 
 	/**

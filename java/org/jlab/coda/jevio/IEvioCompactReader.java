@@ -14,29 +14,31 @@ import java.nio.MappedByteBuffer;
 import java.util.List;
 
 /**
+ * <p>
  * This is an interface for a compact reader of evio format files and buffers.
  * The word "compact" refers to using the EvioNode class as a compact or
  * lightweight means to refer to an evio event or structure in a buffer.
  * Compact readers do not use EvioEvent, EvioBank, EvioSegment or EvioTagSegment
  * classes which require a full parsing of each event and the creation of a large
- * number of objects.
+ * number of objects.</p>
+ *
+ * <p>
+ * Of the classes implementing this interface,
+ * EvioCompactReaderUnsyncV4 and EvioCompactReaderV4 can read both files and buffers.
+ * Whereas EvioCompactReaderUnsyncV6 and EvioCompactReaderV6 can read only buffers.</p>
+ *
+ * Note that when reading a file, a memory map is created as an MappedByteBuffer.
+ * This type of buffer is <b>NOT</b> backed by a byte array.
+ * Thus, a call to the array() method of any returned ByteBuffer objects
+ * (such as from {@link #getEventBuffer(int)} or {@link #getStructureBuffer(EvioNode)})
+ * will throw an UnsupportedOperationException, unless the returned buffer is a <b>copy</b>.
+ * Note also that when reading a buffer, returned buffers will have a backing array
+ * if the original buffer has one or the returned buffer is a copy.
  *
  * @author timmer
  * @since 11/1/17.
  */
 public interface IEvioCompactReader {
-    /**
-	 * This <code>enum</code> denotes the status of a read. <br>
-	 * SUCCESS indicates a successful read. <br>
-	 * END_OF_FILE indicates that we cannot read because an END_OF_FILE has occurred. Technically this means that what
-	 * ever we are trying to read is larger than the buffer's unread bytes.<br>
-	 * EVIO_EXCEPTION indicates that an EvioException was thrown during a read, possibly due to out of range values,
-	 * such as a negative start position.<br>
-	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
-	 */
-	enum ReadStatus {
-		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
-	}
 
     /**  Offset to get magic number from start of file for every evio version. */
     int MAGIC_OFFSET = 28;
@@ -67,6 +69,7 @@ public interface IEvioCompactReader {
      *
      * @param buf ByteBuffer to be read
      * @throws EvioException if arg is null;
+     *                       buf too small (if evio v6);
      *                       if failure to read first block header;
      *                       buf not in evio format.
      */
@@ -82,6 +85,7 @@ public interface IEvioCompactReader {
      * @param buf  ByteBuffer to be read
      * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
      * @throws EvioException if arg is null;
+     *                       buf too small (if evio V6);
      *                       if failure to read first block header;
      *                       buf not in evio format.
      */
@@ -102,8 +106,8 @@ public interface IEvioCompactReader {
     ByteOrder getByteOrder();
 
     /**
-     * Get the evio version number.
-     * @return evio version number.
+     * Get the evio version number of file/buffer being read.
+     * @return evio version number of file/buffer being read.
      */
     int getEvioVersion();
 
@@ -172,7 +176,8 @@ public interface IEvioCompactReader {
     /**
      * Get the EvioNode object associated with a particular event number
      * which has been scanned so all substructures are contained in the
-     * node.allNodes list.
+     * node.allNodes list. Order is how they appear in the buffer which is depth-first.
+     *
      * @param eventNumber number of event (place in file/buffer) starting at 1.
      * @return  EvioNode object associated with a particular event number,
      *          or null if there is none.

@@ -10,9 +10,13 @@ package org.jlab.coda.jevio;
  */
 public enum StructureType {
 
-	UNKNOWN32(0x0), 
-	TAGSEGMENT(0xc), 
+    /** Unknown structure. */
+	UNKNOWN32(0x0),
+    /** Tag segment structure. */
+	TAGSEGMENT(0xc),
+    /** Segment structure. */
 	SEGMENT(0x20, 0xd),
+    /** Bank structure. */
 	BANK(0x10, 0xe);
 
 

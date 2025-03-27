@@ -16,21 +16,12 @@
  */
 
 
-#include <string>
 #include <cstdint>
-#include <cstdlib>
-#include <cstdio>
 #include <chrono>
 #include <thread>
 #include <memory>
 #include <regex>
-#include <limits>
-#include <cstdio>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <fstream>
-#include <sys/mman.h>
 
 #include "eviocc.h"
 
@@ -40,14 +31,20 @@ using namespace std;
 
 namespace evio {
 
+    //-------------------------------------------------------------
+    // Class used to test RecordSupply and RecordRingItem classes.
+    // These are never used by the user directly.
+    //-------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////
 
 
     /**
-      * Class used to compressed items, "write" them, and put them back.
+      * Class used to get compressed items, "write" them, and put them back.
       * Last barrier on ring.
-      * It is an interruptible thread from the boost library, and only 1 exists.
+      * It is an interruptable thread from the boost library, and only 1 exists.
       */
     class Writer2 {
 
@@ -62,7 +59,7 @@ namespace evio {
 
         /**
          * Constructor.
-         * @param recSupply
+         * @param recSupply RecordSupply object.
          */
         Writer2(std::shared_ptr<RecordSupply> recSupply) : supply(recSupply)  {}
 
@@ -118,14 +115,11 @@ namespace evio {
 
           /**
            * Constructor.
-           * @param threadNum
-           * @param threadCount
-           * @param ringBuf
-           * @param barrier
-           * @param sequence
+           * @param threadNum thread id number.
+           * @param recSupply RecordSupply object.
            */
         Compressor2(uint32_t threadNum, std::shared_ptr<RecordSupply> & recSupply) :
-                    threadNumber(threadNum), supply(recSupply)  {}
+                    supply(recSupply), threadNumber(threadNum)  {}
 
 
         /** Create and start a thread to execute the run() method of this class. */
@@ -163,7 +157,7 @@ namespace evio {
                     // Release back to supply
                     supply->releaseCompressor(item);
 
-                    std::this_thread::sleep_for(2s);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
             catch (std::exception & e) {
@@ -203,12 +197,12 @@ namespace evio {
 
         // Create compression threads
         compressorThreads.reserve(compressionThreadCount);
-        for (int i=0; i < compressionThreadCount; i++) {
+        for (uint32_t i=0; i < compressionThreadCount; i++) {
             compressorThreads.emplace_back(i, supply);
         }
 
         // Start compression threads
-        for (int i=0; i < compressionThreadCount; i++) {
+        for (uint32_t i=0; i < compressionThreadCount; i++) {
             compressorThreads[i].startThread();
         }
 

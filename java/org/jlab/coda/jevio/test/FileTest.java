@@ -6,9 +6,15 @@ import org.jlab.coda.jevio.*;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
+
 
 /**
  * Test program.
@@ -17,8 +23,53 @@ import java.util.List;
  */
 public class FileTest {
 
+
+
+    /**
+     * Test how the AsynchronousFileChannel affect its ByteBuffer arg
+     * when reading and writing. Does buffer position advance on write?
+     * on read?
+     *
+     * @param args
+     */
+    public static void main(String args[]) throws IOException {
+        String fileName = "/tmp/fileTest";
+
+        Path currentFilePath = Paths.get(fileName);
+        File currentFile = currentFilePath.toFile();
+
+        ByteBuffer buffer = ByteBuffer.allocate(64);
+
+        buffer.putInt(1);
+        buffer.flip();
+
+        System.out.println("Before write pos = " + buffer.position() + ", remaining = " + buffer.remaining());
+
+        // For reading existing file and preparing for stream writes
+        AsynchronousFileChannel asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                StandardOpenOption.READ,
+                StandardOpenOption.WRITE);
+
+
+        Future<Integer> future = asyncFileChannel.write(buffer, 0);
+
+        try {
+            int partial = future.get();
+        }
+        catch (Exception e) {
+            throw new IOException(e);
+        }
+
+        asyncFileChannel.write(buffer, 0);
+        asyncFileChannel.close();
+
+        System.out.println("After write pos = " + buffer.position());
+    }
+
+
+
     /** For WRITING a local file. */
-    public static void main(String args[]) {
+    public static void main4(String args[]) {
         File f = new File("/dev/shm/someTestFile");
         long freeSpace = f.getFreeSpace();
         File f2 = new File("/dev/shm");
@@ -32,8 +83,239 @@ public class FileTest {
     }
 
 
+    /**
+     * For WRITING an event too large for the desired record size.
+     */
+    public static void main5(String args[]) {
+
+        // String fileName  = "./myData.ev";
+        String fileName  = "./codaFileTest.ev";
+        File file = new File(fileName);
+
+        String xmlDictionary = null;
+
+        // data, 4 bytes / event
+        int[] littleIntData  = new int[1];
+        littleIntData[0] = 123;
+
+
+        try {
+
+            int targetRecordBytes = 910000; // 910KB
+            int bufferBytes = 1000000; // 1MB
+
+            EventWriter writer = new EventWriter(
+                    file.getPath(), null, null, 1, 0,
+                    targetRecordBytes, 100000,
+                    ByteOrder.nativeOrder(), xmlDictionary,
+                    true, false, null,
+                    0, 0, 1, 1,
+                    CompressionType.RECORD_UNCOMPRESSED, 0, 0,
+                    bufferBytes);
+
+            // Build little event
+            EventBuilder builder2 = new EventBuilder(100, DataType.INT32, 100);
+            EvioEvent event2 = builder2.getEvent();
+            event2.setIntData(littleIntData);
+
+
+            // Write events to test if writer's internal buffer can handle 1 event > that size
+            boolean wroteIt = writer.writeEvent(event2, false, true);
+            System.out.println("FileTest, little event, wroteIt = " + wroteIt);
+
+            wroteIt = writer.writeEvent(event2, false, true);
+            System.out.println("FileTest, little event again, wroteIt = " + wroteIt);
+
+            wroteIt = writer.writeEvent(event2, false, true);
+            System.out.println("FileTest, little event again, wroteIt = " + wroteIt);
+
+            wroteIt = writer.writeEvent(event2, false, true);
+            System.out.println("FileTest, little event again, wroteIt = " + wroteIt);
+
+            // All done writing
+            writer.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * For WRITING an event too large for the desired record size.
+     */
+    public static void main6(String args[]) {
+
+        // String fileName  = "./myData.ev";
+        String fileName  = "./codaFileTest.ev";
+        File file = new File(fileName);
+        ByteBuffer myBuf = null;
+
+        String xmlDictionary = null;
+
+        // data, 1M data bytes for each complete event
+        int wordSize = 250000;
+        int[] bigIntData  = new int[wordSize];
+        for (int i=0; i < wordSize; i++) {
+            bigIntData[i] = i;
+        }
+
+        // data, 4 bytes / event
+        int[] littleIntData  = new int[1];
+        littleIntData[0] = 123;
+
+        // data, 300k data bytes for each complete event
+        int medWordSize = 75000;
+        int[] medIntData  = new int[medWordSize];
+        for (int i=0; i < medWordSize; i++) {
+            medIntData[i] = i;
+        }
+
+        try {
+
+            int targetRecordBytes = 910000; // 910KB
+            int bufferBytes = 1000000; // 1MB
+
+            EventWriterUnsync writer = new EventWriterUnsync(
+                    file.getPath(), null, null, 1, 0,
+                    targetRecordBytes, 100000,
+                    ByteOrder.nativeOrder(), xmlDictionary,
+                    true, false, null,
+                    0, 0, 1, 1,
+                    CompressionType.RECORD_UNCOMPRESSED, 0, 0,
+                    bufferBytes);
+
+            // Build big event
+            EventBuilder builder = new EventBuilder(10, DataType.INT32, 10);
+            EvioEvent event = builder.getEvent();
+            event.setIntData(bigIntData);
+
+            // Build little event
+            EventBuilder builder2 = new EventBuilder(100, DataType.INT32, 100);
+            EvioEvent event2 = builder2.getEvent();
+            event2.setIntData(littleIntData);
+
+            // Build medium event
+            EventBuilder builder3 = new EventBuilder(200, DataType.INT32, 200);
+            EvioEvent event3 = builder3.getEvent();
+            event3.setIntData(medIntData);
+
+            // Write events to test if writer's internal buffer can handle 1 event > that size
+//            boolean wroteIt = writer.writeEventToFile(event2, null, false);
+//            System.out.println("FileTest, little event, wroteIt = " + wroteIt);
+//
+//            wroteIt = writer.writeEventToFile(event, null, false);
+//            System.out.println("FileTest, big event, wroteIt = " + wroteIt);
+//
+//            wroteIt = writer.writeEventToFile(event2, null, false);
+//            System.out.println("FileTest, little event again, wroteIt = " + wroteIt);
+//
+//            wroteIt = writer.writeEventToFile(event, null, false);
+//            System.out.println("FileTest, big event again, wroteIt = " + wroteIt);
+//
+//            wroteIt = writer.writeEventToFile(event2, null, false);
+//            System.out.println("FileTest, little event again, wroteIt = " + wroteIt);
+//
+//            wroteIt = writer.writeEventToFile(event, null, false);
+//            System.out.println("FileTest, big event again, wroteIt = " + wroteIt);
+//
+//            wroteIt = writer.writeEventToFile(event2, null, false);
+//            System.out.println("FileTest, little event again, wroteIt = " + wroteIt);
+//
+//            wroteIt = writer.writeEventToFile(event, null, false);
+//            System.out.println("FileTest, big event again, wroteIt = " + wroteIt);
+
+
+            // Test to see the resulting record sizes in the written file.
+            // 3 medium size events should be all that fits into 1, 9.1kB record.
+
+            boolean wroteIt = writer.writeEventToFile(event3, null, false, false);
+            System.out.println("FileTest, med event, wroteIt = " + wroteIt);
+
+            wroteIt = writer.writeEventToFile(event3, null, false, false);
+            System.out.println("FileTest, med event again, wroteIt = " + wroteIt);
+            wroteIt = writer.writeEventToFile(event3, null, false, false);
+            System.out.println("FileTest, med event again, wroteIt = " + wroteIt);
+            wroteIt = writer.writeEventToFile(event3, null, false, false);
+            System.out.println("FileTest, med event again, wroteIt = " + wroteIt);
+            wroteIt = writer.writeEventToFile(event3, null, false, false);
+            System.out.println("FileTest, med event again, wroteIt = " + wroteIt);
+            wroteIt = writer.writeEventToFile(event3, null, false, false);
+            System.out.println("FileTest, med event again, wroteIt = " + wroteIt);
+            wroteIt = writer.writeEventToFile(event3, null, false, false);
+            System.out.println("FileTest, med event again, wroteIt = " + wroteIt);
+
+            wroteIt = writer.writeEventToFile(event, null, false, false);
+            System.out.println("FileTest, big event, wroteIt = " + wroteIt);
+
+
+            // All done writing
+            writer.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * For WRITING a single event repeatedly to a local file in order to
+     * test the file structure to see if record sizes are correct.
+     */
+    public static void main7(String args[]) {
+
+        // String fileName  = "./myData.ev";
+        String fileName  = "./codaFileTest.ev";
+        File file = new File(fileName);
+        ByteBuffer myBuf = null;
+
+        String xmlDictionary = null;
+
+        // data, 10,000 data bytes for each complete event
+        int wordSize = 2500 - 2;
+        int[] bigIntData  = new int[wordSize];
+        for (int i=0; i < wordSize; i++) {
+            bigIntData[i] = i;
+        }
+
+        try {
+
+            int targetRecordBytes = 0; // 8MB
+            int bufferBytes = 64000000; // 64MB
+
+            EventWriterUnsync writer = new EventWriterUnsync(
+                    file.getPath(), null, null, 1, 0,
+                    targetRecordBytes, 100000,
+                    ByteOrder.nativeOrder(), xmlDictionary,
+                    true, false, null,
+                    0, 0, 1, 1,
+                    CompressionType.RECORD_UNCOMPRESSED, 0, 0,
+                    bufferBytes);
+
+            // Build event
+            EventBuilder builder = new EventBuilder(10, DataType.INT32, 10);
+            EvioEvent event = builder.getEvent();
+            event.appendIntData(bigIntData);
+
+            // Write 200MB file
+            for (int i=0; i < 20000; i++) {
+                // Write events to file
+                writer.writeEvent(event);
+            }
+
+                // All done writing
+            System.out.println("FileTest, call close()");
+            writer.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
     /** For WRITING a local file. */
-    public static void main2(String args[]) {
+    public static void main8(String args[]) {
 
         // String fileName  = "./myData.ev";
         String fileName  = "/home/timmer/fileTestSmall.ev";
@@ -125,7 +407,7 @@ public class FileTest {
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
                 //myBuf.order(ByteOrder.LITTLE_ENDIAN);
-                writer = new  EventWriter(myBuf, 4*28, 1000, null, 1, null,
+                writer = new EventWriter(myBuf, 4*28, 1000, null, 1,
                                           CompressionType.RECORD_UNCOMPRESSED);
             }
 

@@ -54,6 +54,7 @@ uint32_t dataFirst[] = {
         0x00000600
 };
 
+/*
 static char *xmlDictionary =
         "<xmlDict>\n"
         "  <bank name=\"My Event\"       tag=\"1\"   num=\"1\">\n"
@@ -67,6 +68,7 @@ static char *xmlDictionary =
         "  <dictEntry name=\"First Event\" tag=\"100\"  num=\"100\"/>\n"
         "  <dictEntry name=\"Test Bank\" tag=\"1\" />\n"
         "</xmlDict>";
+*/
 
 int mainAppend() {
 

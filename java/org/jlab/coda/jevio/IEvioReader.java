@@ -5,6 +5,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * This interface is used to abstract various file and buffer reading functions.
+ * There are different readers for various evio versions and which are synchronized
+ * or unsynchronized.
  * Created by timmer on 10/23/18.
  */
 public interface IEvioReader {
@@ -135,7 +138,7 @@ public interface IEvioReader {
      * Get the event in the file/buffer at a given index (starting at 1).
      * As useful as this sounds, most applications will probably call
      * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.<p>
+     * since it combines getting an event with parsing it.<p>
      *
      * @param  index number of event desired, starting at 1, from beginning of file/buffer
      * @return the event in the file/buffer at the given index or null if none
@@ -201,7 +204,7 @@ public interface IEvioReader {
      * (banks, segments, and tagsegments) and notify any interested listeners.<p>
      *
      * As useful as this sounds, most applications will probably call {@link #parseNextEvent()}
-     * instead, since it combines combines getting the next event with parsing the next event.<p>
+     * instead, since it combines getting the next event with parsing the next event.<p>
      *
      * This method is only called by synchronized methods and therefore is not synchronized.
      *

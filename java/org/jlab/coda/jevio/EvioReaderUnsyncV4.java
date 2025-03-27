@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ */
+
 package org.jlab.coda.jevio;
 
 import javax.xml.stream.FactoryConfigurationError;
@@ -37,6 +47,9 @@ import java.nio.channels.FileChannel;
  * therefore it's not thread safe.
  * <p>
  *
+ * Although this class can be used directly, it's generally used by
+ * using {@link EvioReader} which, in turn, uses this class.<p>
+ *
  * @author heddle
  * @author timmer
  *
@@ -44,125 +57,125 @@ import java.nio.channels.FileChannel;
 public class EvioReaderUnsyncV4 implements IEvioReader {
 
     /**  Offset to get magic number from start of file. */
-    private static final int MAGIC_OFFSET = 28;
+    protected static final int MAGIC_OFFSET = 28;
 
     /** Offset to get version number from start of file. */
-    private static final int VERSION_OFFSET = 20;
+    protected static final int VERSION_OFFSET = 20;
 
     /** Offset to get block size from start of block. */
-    private static final int BLOCK_SIZE_OFFSET = 0;
+    protected static final int BLOCK_SIZE_OFFSET = 0;
 
     /** Mask to get version number from 6th int in block. */
-    private static final int VERSION_MASK = 0xff;
+    protected static final int VERSION_MASK = 0xff;
 
     /** Root element tag for XML file */
-    private static final String ROOT_ELEMENT = "evio-data";
+    protected static final String ROOT_ELEMENT = "evio-data";
 
     /** Default size for a single file read in bytes when reading
      *  evio format 1-3. Equivalent to 500, 32,768 byte blocks.
      *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
-    private static final int DEFAULT_READ_BYTES = 32768 * 500; // 16384000 bytes
+    protected static final int DEFAULT_READ_BYTES = 32768 * 500; // 16384000 bytes
 
 
 
     /** When doing a sequential read, used to assign a transient
      * number [1..n] to events as they are being read. */
-    private int eventNumber = 0;
+    protected int eventNumber = 0;
 
     /**
      * This is the number of events in the file. It is not computed unless asked for,
      * and if asked for it is computed and cached in this variable.
      */
-    private int eventCount = -1;
+    protected int eventCount = -1;
 
     /** Evio version number (1-4). Obtain this by reading first block header. */
-    private int evioVersion;
+    protected int evioVersion;
 
     /**
      * Endianness of the data being read, either
      * {@link ByteOrder#BIG_ENDIAN} or
      * {@link ByteOrder#LITTLE_ENDIAN}.
      */
-    private ByteOrder byteOrder;
+    protected ByteOrder byteOrder;
 
     /** Size of the first block in bytes. */
-    private int firstBlockSize;
+    protected int firstBlockSize;
 
     /**
      * This is the number of blocks in the file including the empty block at the
      * end of the version 4 files. It is not computed unless asked for,
      * and if asked for it is computed and cached in this variable.
      */
-    private int blockCount = -1;
+    protected int blockCount = -1;
 
 	/** The current block header for evio versions 1-3. */
-    private BlockHeaderV2 blockHeader2 = new BlockHeaderV2();
+    protected BlockHeaderV2 blockHeader2 = new BlockHeaderV2();
 
     /** The current block header for evio version 4. */
-    private BlockHeaderV4 blockHeader4 = new BlockHeaderV4();
+    protected BlockHeaderV4 blockHeader4 = new BlockHeaderV4();
 
     /** Reference to current block header, any version, through interface.
      *  This must be the same object as either blockHeader2 or blockHeader4
      *  depending on which evio format version the data is in. */
-    private IBlockHeader blockHeader;
+    protected IBlockHeader blockHeader;
 
     /** Reference to first block header. */
-    private IBlockHeader firstBlockHeader;
+    protected IBlockHeader firstBlockHeader;
 
     /** Block number expected when reading. Used to check sequence of blocks. */
-    private int blockNumberExpected = 1;
+    protected int blockNumberExpected = 1;
 
     /** If true, throw an exception if block numbers are out of sequence. */
-    private boolean checkBlockNumberSequence;
+    protected boolean checkBlockNumberSequence;
 
     /** Is this the last block in the file or buffer? */
-    private boolean lastBlock;
+    protected boolean lastBlock;
 
     /**
      * Version 4 files may have an xml format dictionary in the
      * first event of the first block.
      */
-    private String dictionaryXML;
+    protected String dictionaryXML;
 
     /** The buffer being read. */
-    private ByteBuffer byteBuffer;
+    protected ByteBuffer byteBuffer;
 
     /** Parser object for this file/buffer. */
-    private EventParser parser;
+    protected EventParser parser;
 
     /** Initial position of buffer or mappedByteBuffer when reading a file. */
-    private int initialPosition;
+    protected int initialPosition;
 
     //------------------------
     // File specific members
     //------------------------
 
     /** Use this object to handle files > 2.1 GBytes but still use memory mapping. */
-    private MappedMemoryHandler mappedMemoryHandler;
+    protected MappedMemoryHandler mappedMemoryHandler;
 
     /** Absolute path of the underlying file. */
-    private String path;
+    protected String path;
 
     /** File object. */
-    private File file;
+    protected File file;
 
     /** File size in bytes. */
-    private long fileSize;
+    protected long fileSize;
 
     /** File channel used to read data and access file position. */
-    private FileChannel fileChannel;
+    protected FileChannel fileChannel;
 
     /** Data stream used to read data. */
-    private DataInputStream dataStream;
+    protected DataInputStream dataStream;
 
     /** Do we need to swap data from file? */
-    private boolean swap;
+    protected boolean swap;
 
     /**
      * Read this file sequentially and not using a memory mapped buffer.
      * If the file being read > 2.1 GBytes, then this is always true.
      */
-    private boolean sequentialRead;
+    protected boolean sequentialRead;
 
 
     //------------------------
@@ -170,13 +183,13 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
     //------------------------
 
     /** Is this object currently closed? */
-    private boolean closed;
+    protected boolean closed;
 
     /**
      * This class stores the state of this reader so it can be recovered
      * after a state-changing method has been called -- like {@link #rewind()}.
      */
-    private static final class ReaderState {
+    protected static final class ReaderState {
         private boolean lastBlock;
         private int eventNumber;
         private long filePosition;
@@ -192,7 +205,7 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
      * This method saves the current state of this EvioReader object.
      * @return the current state of this EvioReader object.
      */
-    private ReaderState getState() {
+    protected ReaderState getState() {
         ReaderState currentState = new ReaderState();
         currentState.lastBlock   = lastBlock;
         currentState.eventNumber = eventNumber;
@@ -228,7 +241,7 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
      * This method restores a previously saved state of this EvioReader object.
      * @param state a previously stored state of this EvioReader object.
      */
-    private void restoreState(ReaderState state) {
+    protected void restoreState(ReaderState state) {
         lastBlock   = state.lastBlock;
         eventNumber = state.eventNumber;
         blockNumberExpected = state.blockNumberExpected;
@@ -264,7 +277,7 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
      * @param buf buffer to be printed out
      * @param lenInInts length of data in ints to be printed
      */
-    private void printBuffer(ByteBuffer buf, int lenInInts) {
+    protected void printBuffer(ByteBuffer buf, int lenInInts) {
         IntBuffer ibuf = buf.asIntBuffer();
         lenInInts = lenInInts > ibuf.capacity() ? ibuf.capacity() : lenInInts;
         for (int i=0; i < lenInInts; i++) {
@@ -734,6 +747,7 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
      * the evio version # and endianness of the file or buffer in question. These things
      * do <b>not</b> need to be examined in subsequent block headers.
      *
+     * @param headerBuf buffer to parse header from.
      * @throws EvioException if buffer too small, contains invalid data,
      *                       or bad block # sequence
      */
@@ -868,7 +882,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
      *
      * @throws IOException if file access problems
      */
-    private void prepareForSequentialRead() throws IOException {
+    protected void prepareForSequentialRead() throws IOException {
         // Create a buffer to hold a chunk of data.
         int bytesToRead;
 
@@ -905,7 +919,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
      * Sets the proper buffer position for first-time read AFTER the first header.
      * @param buffer buffer to prepare
      */
-    private void prepareForBufferRead(ByteBuffer buffer) {
+    protected void prepareForBufferRead(ByteBuffer buffer) {
         // Position after header
         int pos = 32;
         buffer.position(pos);
@@ -1131,7 +1145,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
     /**
      * This method is only called once at the very beginning if buffer is known to have
-     * a dictionary. It then reads that dictionary. Only called in format versions 4 & up.
+     * a dictionary. It then reads that dictionary. Only called in format versions 4 and up.
      * Position buffer after dictionary.
      *
      * @since 4.0
@@ -1139,7 +1153,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws EvioException if failed read due to bad buffer format;
      *                       if version 3 or earlier
      */
-     private void readDictionary(ByteBuffer buffer) throws EvioException {
+     protected void readDictionary(ByteBuffer buffer) throws EvioException {
 
          if (evioVersion < 4) {
              throw new EvioException("Unsupported version (" + evioVersion + ")");
@@ -1215,7 +1229,7 @@ System.err.println("ERROR endOfBuffer " + a);
             return gotoEventNumber(index, false);
         }
 
-        //  Version 4 and up && non sequential
+        //  Version 4 and up && non-sequential
         return getEventV4(index);
     }
 
@@ -1225,17 +1239,16 @@ System.err.println("ERROR endOfBuffer " + a);
      * It is only valid for evio versions 4+.
      * As useful as this sounds, most applications will probably call
      * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.
+     * since it combines getting an event with parsing it.
      * Only called if not sequential reading.<p>
      *
-     * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
+     * @param  index the event number in a 1,2,...N counting sense, from beginning of file/buffer.
      * @return the event in the file/buffer at the given index or null if none
-     * @throws IOException   if failed file access
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if out of memory;
      *                       if object closed
      */
-    private EvioEvent getEventV4(int index) throws EvioException {
+    protected EvioEvent getEventV4(int index) throws EvioException {
 
         if (index > mappedMemoryHandler.getEventCount()) {
             return null;
@@ -1527,7 +1540,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * (banks, segments, and tagsegments) and notify any interested listeners.<p>
 	 *
 	 * As useful as this sounds, most applications will probably call {@link #parseNextEvent()}
-     * instead, since it combines combines getting the next event with parsing the next event.<p>
+     * instead, since it combines getting the next event with parsing the next event.<p>
      *
 	 * @param evioEvent the event to parse.
 	 * @throws EvioException if bad format
@@ -1632,7 +1645,7 @@ System.err.println("ERROR endOfBuffer " + a);
    	 *
    	 * @return the number of bytes remaining in the current block (physical record).
         */
-   	private int bufferBytesRemaining() {
+   	protected int bufferBytesRemaining() {
         return byteBuffer.remaining();
    	}
 
@@ -1643,7 +1656,7 @@ System.err.println("ERROR endOfBuffer " + a);
    	 *
    	 * @return the number of bytes remaining in the current block (physical record).
         */
-   	private int blockBytesRemaining() {
+   	protected int blockBytesRemaining() {
    		try {
                return blockHeader.bytesRemaining(byteBuffer.position());
    		}
@@ -1835,7 +1848,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException if failed file access
      * @throws EvioException if object closed
      */
-    private EvioEvent gotoEventNumber(int evNumber, boolean parse)
+    protected EvioEvent gotoEventNumber(int evNumber, boolean parse)
             throws IOException, EvioException {
 
         if (evNumber < 1) {
@@ -2047,6 +2060,7 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("object closed");
         }
 
+        // sequentialRead is always false for reading buffer
         if (!sequentialRead && evioVersion > 3) {
             return mappedMemoryHandler.getEventCount();
         }

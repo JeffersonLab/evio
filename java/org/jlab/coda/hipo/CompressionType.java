@@ -1,20 +1,43 @@
 package org.jlab.coda.hipo;
 
+/**
+ * This an enum used to represent different types of data compression.
+ * @author timmer
+ */
 public enum CompressionType {
     /** No data compression. */
-    RECORD_UNCOMPRESSED(0),
+    RECORD_UNCOMPRESSED(0, "None"),
     /** Data compression using fastest LZ4 method. */
-    RECORD_COMPRESSION_LZ4(1),
+    RECORD_COMPRESSION_LZ4(1, "Lz4"),
     /** Data compression using slowest but most compact LZ4 method. */
-    RECORD_COMPRESSION_LZ4_BEST(2),
+    RECORD_COMPRESSION_LZ4_BEST(2, "Lz4 best"),
     /** Data compression using gzip method. */
-    RECORD_COMPRESSION_GZIP(3);
+    RECORD_COMPRESSION_GZIP(3, "Gzip");
 
     /** Value of this compression type. */
-    private int value;
+    private final int value;
 
-    /** Constructor. */
-    CompressionType(int val) {value = val;}
+    /** Shortened string describing this compression type. */
+    private final String description;
+
+    /**
+     * Constructor.
+     * @param val numerical value associated with this compression type.
+     * @param d string describing this compression type.
+     */
+    CompressionType(int val, String d) {
+        value = val;
+        description = d;
+    }
+
+
+    /**
+     * Get the description.
+     * @return description.
+     */
+    public String getDescription() {
+        return description;
+    }
 
     /**
      * Get the integer value associated with this header type.

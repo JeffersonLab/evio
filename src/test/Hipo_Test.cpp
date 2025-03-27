@@ -8,15 +8,10 @@
 // (757)-269-7100
 
 
-#include <string>
-#include <cstdint>
-#include <cstdlib>
-#include <cstdio>
-#include <chrono>
-#include <memory>
-#include <limits>
-#include <unistd.h>
+#include <iostream>
+#include <fstream>
 
+#include "TestBase.h"
 #include "eviocc.h"
 
 
@@ -29,403 +24,158 @@ namespace evio {
      * @date 08/27/2020
      * @author timmer
      */
-    class HipoTester {
+    class HipoTester : public TestBase {
 
     public:
 
-        uint32_t *int1;
-        uint8_t *byte1;
-        uint16_t *short1;
-        uint64_t *long1;
-        float *float1;
-        double *double1;
-
-        std::vector<uint32_t> intVec;
-        std::vector<uint8_t> byteVec;
-        std::vector<uint16_t> shortVec;
-        std::vector<uint64_t> longVec;
-        std::vector<float> floatVec;
-        std::vector<double> doubleVec;
-        std::vector<std::string> stringsVec;
-
-        int runLoops = 1;
-        int bufferLoops = 1;
-        int dataElementCount = 3;
-        int skip = 0;
-        int bufSize = 200000;
-
-        bool oldEvio = false;
-        bool useBuf = false;
-
-        std::shared_ptr<ByteBuffer> buffer;
-
-        // files for input & output
-        std::string writeFileName1 = "./compactEvioBuild.ev";
-        std::string writeFileName0 = "./compactEvioBuildOld.ev";
-        std::string writeFileName2 = "./rawEvioStructure.ev";
-
-        ByteOrder order{ByteOrder::ENDIAN_LOCAL};
-
-        std::string dictionary;
 
 
-        HipoTester() {
-
-            uint16_t tag = 1;
-            uint8_t num = 1;
-            buffer = std::make_shared<ByteBuffer>(bufSize);
-            buffer->order(order);
-
-
-            std::cout << "Running with:" << std::endl;
-            std::cout << " data elements = " << dataElementCount << std::endl;
-            std::cout << "       bufSize = " << bufSize << std::endl;
-            std::cout << "         loops = " << bufferLoops << std::endl;
-            std::cout << "          runs = " << runLoops << std::endl;
-            std::cout << "        useBuf = " << useBuf << std::endl;
-            std::cout << "      old evio = " << oldEvio << std::endl;
-
-
-            setDataSize(dataElementCount);
-
-            //            if (oldEvio) {
-            //                createObjectEvents(tag, num);
-            //            }
-            //            else {
-            //                createCompactEvents(tag, num);
-            //            }
-
-            std::stringstream ss;
-
-            ss << "<xmlDict>\n" <<
-               "  <bank name=\"HallD\"             tag=\"6-8\"  type=\"bank\" >\n" <<
-               "      <description format=\"New Format\" >hall_d_tag_range</description>\n" <<
-               "      <bank name=\"DC(%t)\"        tag=\"6\" num=\"4\" >\n" <<
-               "          <leaf name=\"xpos(%n)\"  tag=\"6\" num=\"5\" />\n" <<
-               "          <bank name=\"ypos(%n)\"  tag=\"6\" num=\"6\" />\n" <<
-               "      </bank >\n" <<
-               "      <bank name=\"TOF\"     tag=\"8\" num=\"0\" >\n" <<
-               "          <leaf name=\"x\"   tag=\"8\" num=\"1\" />\n" <<
-               "          <bank name=\"y\"   tag=\"8\" num=\"2\" />\n" <<
-               "      </bank >\n" <<
-               "      <bank name=\"BCAL\"      tag=\"7\" >\n" <<
-               "          <leaf name=\"x(%n)\" tag=\"7\" num=\"1-3\" />\n" <<
-               "      </bank >\n" <<
-               "  </bank >\n" <<
-               "  <dictEntry name=\"JUNK\" tag=\"5\" num=\"0\" />\n" <<
-               "  <dictEntry name=\"SEG5\" tag=\"5\" >\n" <<
-               "       <description format=\"Old Format\" >tag 5 description</description>\n" <<
-               "  </dictEntry>\n" <<
-               "  <bank name=\"Rangy\" tag=\"75 - 78\" >\n" <<
-               "      <leaf name=\"BigTag\" tag=\"76\" />\n" <<
-               "  </bank >\n" <<
-               "</xmlDict>";
-
-            dictionary = ss.str();
-
-            std::cout << "Const: dictionary = " << dictionary << std::endl;
-
-
-        }
-
-
-        void setDataSize(int elementCount) {
-
-            int1 = new uint32_t[elementCount];
-            byte1 = new uint8_t[elementCount];
-            short1 = new uint16_t[elementCount];
-            long1 = new uint64_t[elementCount];
-            float1 = new float[elementCount];
-            double1 = new double[elementCount];
-
-            intVec.reserve(elementCount);
-            byteVec.reserve(elementCount);
-            shortVec.reserve(elementCount);
-            longVec.reserve(elementCount);
-            floatVec.reserve(elementCount);
-            doubleVec.reserve(elementCount);
-            stringsVec.reserve(elementCount);
-
-            for (int i = 0; i < elementCount; i++) {
-                int1[i] = i + 1;
-                byte1[i] = (uint8_t) ((i + 1) % std::numeric_limits<uint8_t>::max());
-                short1[i] = (uint16_t) ((i + 1) % std::numeric_limits<uint16_t>::max());
-                long1[i] = i + 1;
-                float1[i] = (float) (i + 1);
-                double1[i] = (double) (i + 1);
-
-                intVec.push_back(i + 1);
-                byteVec.push_back((uint8_t) ((i + 1) % std::numeric_limits<uint8_t>::max()));
-                shortVec.push_back((uint16_t) ((i + 1) % std::numeric_limits<uint16_t>::max()));
-                longVec.push_back(i + 1);
-                floatVec.push_back(static_cast<float>(i + 1));
-                doubleVec.push_back(static_cast<double>(i + 1));
-
-                stringsVec.push_back("0x" + std::to_string(i + 1));
+        static std::streamsize getFileSize(const std::string& filePath) {
+            std::ifstream file(filePath, std::ios::binary | std::ios::ate); // Open file in binary mode at the end
+            if (!file) {
+                std::cerr << "Error opening file: " << filePath << std::endl;
+                return -1;
             }
+            return file.tellg(); // Get the position, which is the file size
         }
 
 
-        /** Writing to a buffer using new interface. */
-        void createCompactEvents(uint16_t tag, uint8_t num) {
+
+        /** Writing to a buffer using CompactEventBuilder interface. */
+        void testCompactEventCreation(uint16_t tag, uint8_t num) {
 
             try {
+                bool addTrailerIndex = true;
 
-                CompactEventBuilder builder(buffer);
+                // Create ByteBuffer with EvioEvent in it
+                buffer = createCompactEventBuffer(tag, num);
 
-                // add top/event level bank of banks
-                builder.openBank(tag, DataType::BANK, num);
-
-                // add bank of banks
-                builder.openBank(tag + 1, DataType::BANK, num + 1);
-
-                // add bank of ints
-                builder.openBank(tag + 2, DataType::UINT32, num + 2);
-                builder.addIntData(int1, dataElementCount);
-                builder.closeStructure();
-
-                // add bank of bytes
-                builder.openBank(tag + 3, DataType::UCHAR8, num + 3);
-                builder.addByteData(byte1, dataElementCount);
-                builder.closeStructure();
-
-                // add bank of shorts
-                builder.openBank(tag + 4, DataType::USHORT16, num + 4);
-                builder.addShortData(short1, dataElementCount);
-                builder.closeStructure();
-
-                // add bank of longs
-                builder.openBank(tag + 40, DataType::ULONG64, num + 40);
-                builder.addLongData(long1, dataElementCount);
-                builder.closeStructure();
-
-                // add bank of banks
-                builder.openBank(tag + 1000, DataType::BANK, num + 1000);
-
-                    // add bank of shorts
-                    builder.openBank(tag + 1200, DataType::USHORT16, num + 1200);
-                    builder.addShortData(short1, dataElementCount);
-                    builder.closeStructure();
-
-                builder.closeStructure();
-
-                // add bank of floats
-                builder.openBank(tag + 5, DataType::FLOAT32, num + 5);
-                builder.addFloatData(float1, dataElementCount);
-                builder.closeStructure();
-
-                // add bank of doubles
-                builder.openBank(tag + 6, DataType::DOUBLE64, num + 6);
-                builder.addDoubleData(double1, dataElementCount);
-                builder.closeStructure();
-
-                // add bank of strings
-                builder.openBank(tag + 7, DataType::CHARSTAR8, num + 7);
-                builder.addStringData(stringsVec);
-                builder.closeStructure();
-
-                // add bank of composite data
-                builder.openBank(tag + 100, DataType::COMPOSITE, num + 100);
-
-                    // Now create some COMPOSITE data
-                    // Format to write 1 int and 1 float a total of N times
-                    std::string format = "N(I,F)";
-
-                    CompositeData::Data myData;
-                    myData.addN(2);
-                    myData.addInt(1);
-                    myData.addFloat(1.0F);
-                    myData.addInt(2);
-                    myData.addFloat(2.0F);
-
-                    // Create CompositeData object
-                    auto cData = CompositeData::getInstance(format, myData, 1, 1, 1);
-                    std::vector<std::shared_ptr<CompositeData>> cDataVec;
-                    cDataVec.push_back(cData);
-
-                // Add to bank
-                builder.addCompositeData(cDataVec);
-                builder.closeStructure();
-
-                // add bank of segs
-                builder.openBank(tag + 14, DataType::SEGMENT, num + 14);
-
-                // add seg of ints
-                builder.openSegment(tag + 8, DataType::INT32);
-                builder.addIntData(int1, dataElementCount);
-                builder.closeStructure();
-
-                // add seg of bytes
-                builder.openSegment(tag + 9, DataType::CHAR8);
-                builder.addByteData(byte1, dataElementCount);
-                builder.closeStructure();
-
-                // add seg of shorts
-                builder.openSegment(tag + 10, DataType::SHORT16);
-                builder.addShortData(short1, dataElementCount);
-                builder.closeStructure();
-
-                // add seg of longs
-                builder.openSegment(tag + 40, DataType::LONG64);
-                builder.addLongData(long1, dataElementCount);
-                builder.closeStructure();
-
-                // add seg of floats
-                builder.openSegment(tag + 11, DataType::FLOAT32);
-                builder.addFloatData(float1, dataElementCount);
-                builder.closeStructure();
-
-                // add seg of doubles
-                builder.openSegment(tag + 12, DataType::DOUBLE64);
-                builder.addDoubleData(double1, dataElementCount);
-                builder.closeStructure();
-
-                // add seg of strings
-                builder.openSegment(tag + 13, DataType::CHARSTAR8);
-                builder.addStringData(stringsVec);
-                builder.closeStructure();
-
-                builder.closeStructure();
-
-
-                // add bank of tagsegs
-                builder.openBank(tag + 15, DataType::TAGSEGMENT, num + 15);
-
-                // add tagseg of ints
-                builder.openTagSegment(tag + 16, DataType::UINT32);
-                builder.addIntData(int1, dataElementCount);
-                builder.closeStructure();
-
-                // add tagseg of bytes
-                builder.openTagSegment(tag + 17, DataType::UCHAR8);
-                builder.addByteData(byte1, dataElementCount);
-                builder.closeStructure();
-
-                // add tagseg of shorts
-                builder.openTagSegment(tag + 18, DataType::USHORT16);
-                builder.addShortData(short1, dataElementCount);
-                builder.closeStructure();
-
-                // add tagseg of longs
-                builder.openTagSegment(tag + 40, DataType::ULONG64);
-                builder.addLongData(long1, dataElementCount);
-                builder.closeStructure();
-
-                // add tagseg of floats
-                builder.openTagSegment(tag + 19, DataType::FLOAT32);
-                builder.addFloatData(float1, dataElementCount);
-                builder.closeStructure();
-
-                // add tagseg of doubles
-                builder.openTagSegment(tag + 20, DataType::DOUBLE64);
-                builder.addDoubleData(double1, dataElementCount);
-                builder.closeStructure();
-
-                // add tagseg of strings
-                builder.openTagSegment(tag + 21, DataType::CHARSTAR8);
-                builder.addStringData(stringsVec);
-                builder.closeStructure();
-
-                builder.closeAll();
-
-                // Make this call to set proper pos & lim
-                buffer = builder.getBuffer();
-
-
-                Util::printBytes(buffer, 0, 100, "BUFFER BYTES");
-
+                Util::printBytes(buffer, 0, buffer->limit(), "BUFFER BYTES");
                 std::cout << "\nBuffer -> \n" << buffer->toString() << "\n";
 
+                //------------------------------
+                // Create record to test writer.writeRecord(recOut);
+                // This will not change position of buffer.
+                //------------------------------
+                RecordOutput recOut(order);
+                recOut.addEvent(buffer, 0);
+                //------------------------------
+
+                // Create node from this buffer
+                std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(buffer, 0, 0, 0);
+
 
                 //
-                // Write file
+                // Write file.
+                // Dictionary and first event end up as user header in file header.
                 //
+//                Writer writer(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
+//                              0, 0, "", nullptr, 0,
+//                              Compressor::UNCOMPRESSED, false);
 
-//                explicit Writer(const HeaderType & hType,
-//                                const ByteOrder & order = ByteOrder::ENDIAN_LOCAL,
-//                                uint32_t maxEventCount = 0,
-//                                uint32_t maxBufferSize = 0,
-//                                const std::string & dictionary = std::string(""),
-//                                uint8_t* firstEvent = nullptr,
-//                                uint32_t firstEventLength = 0,
-//                                const Compressor::CompressionType & compressionType = Compressor::UNCOMPRESSED,
-//                                bool addTrailerIndex = false);
+                WriterMT writer(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
+                                0, 0, dictionary, buffer->array(), buffer->limit(),
+                                Compressor::UNCOMPRESSED, 1, addTrailerIndex);
 
+                WriterMT writer2(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
+                                0, 0, dictionary, buffer->array(), buffer->limit(),
+                                Compressor::LZ4_BEST, 3, addTrailerIndex);
 
-                Writer writer(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LOCAL,
-                                0, 0, "", nullptr, 0,
-                              Compressor::UNCOMPRESSED, false);
-
-                writer.open(writeFileName1);
+                writer.open(writeFileName1, nullptr, true);
                 writer.addEvent(buffer);
                 writer.close();
+                std::cout << "File size of " << writeFileName1 << " is " << getFileSize(writeFileName1) << std::endl;
+                Util::printBytes(writeFileName1, 0, 200, "WRITTEN FILE BYTES");
 
+                writer.open(writeFileName1, nullptr, true);
+                std::cout << std::endl<< "Call open again, rewrite 3 events to file" << std::endl;
+                writer.addEvent(buffer);
+                writer.addEvent(buffer);
+                writer.addEvent(buffer);
+                std::cout << "add entire record" << std::endl;
+                writer.writeRecord(recOut);
 
-                Util::printBytes(writeFileName1, 0, 100, "WRITTEN FILE BYTES");
+                writer.addEvent(node);
 
-                std::cout << "\n\nAfter writer closed ... \n";
+                writer.close();
+                std::cout << "File size of " << writeFileName1 << " is now " << getFileSize(writeFileName1) << std::endl;
 
-                    // Read event back out of file
-                    Reader reader(writeFileName1);
+                Util::printBytes(writeFileName1, 0, 200, "WRITTEN FILE BYTES 2");
 
-                    std::cout << "createCompactEvents: have dictionary? " << reader.hasDictionary() << std::endl;
-                    std::string xmlDict = reader.getDictionary();
-                    std::cout << "createCompactEvents: read dictionary ->\n\n" << xmlDict << std::endl << std::endl;
+                std::cout << "\n\nRead file ...\n";
 
-//                    std::cout << "createCompactEvents: have first event? " << reader.hasFirstEvent() << std::endl;
-//                std::shared_ptr<uint8_t> & fe = reader.getFirstEvent();
-//                auto feSz = reader.getFirstEventSize();
-//                    std::cout << "createCompactEvents: read first event -> size = " << feSz << std::endl;
-//
-                std::cout << "createCompactEvents: try getting getNextEvent" << std::endl;
+                // Read event back out of file
+                Reader reader(writeFileName1);
+
+                std::cout << "have dictionary? " << reader.hasDictionary() << std::endl;
+                std::string xmlDict = reader.getDictionary();
+                if (reader.hasDictionary()) {
+                    std::cout << "dictionary ->\n\n" << xmlDict << std::endl << std::endl;
+                }
+
+                std::cout << "have first event? " << reader.hasFirstEvent() << std::endl;
+                if (reader.hasFirstEvent()) {
+                    uint32_t feSize = 0;
+                    std::shared_ptr<uint8_t> fe = reader.getFirstEvent(&feSize);
+                    std::cout << "first event len = " << feSize << std::endl;
+                }
+
+                std::cout << "\ntry getting getNextEvent" << std::endl;
+                if (reader.getEventCount() < 1) {
+                    std::cout << "no data events in file" << std::endl;
+                    return;
+                }
+
+                std::cout << "event count = " << reader.getEventCount() << std::endl;
 
                 uint32_t len;
                 std::shared_ptr<uint8_t> bytes = reader.getNextEvent(&len);
                 auto ev = EvioReader::getEvent(bytes.get(), len, reader.getByteOrder());
-                std::cout << "createCompactEvents: next event ->\n" << ev->treeToString("") << std::endl;
+                if (bytes != nullptr) {
+                    std::cout << "next evio event ->\n" << ev->treeToString("") << std::endl;
+                }
 
-                std::shared_ptr<uint8_t> bytes2 = reader.getEvent(0, &len);
+                bytes = reader.getEvent(0, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(0), size = " << std::to_string(len) << std::endl;
+                }
+
+                bytes = reader.getEvent(1, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(1), size = " << std::to_string(len) << std::endl;
+                }
+
+                bytes = reader.getEvent(2, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(2), size = " << std::to_string(len) << std::endl;
+                }
+
+                bytes = reader.getEvent(3, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(3), size = " << std::to_string(len) << std::endl;
+                }
+
+                // This event was added with reader.recordWrite()
+                bytes = reader.getEvent(4, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(4), size = " << std::to_string(len) << std::endl;
+                }
+
+                bytes = reader.getEvent(20, &len);
+                if (bytes != nullptr) {
+                    std::cout << "getEvent(20), size = " << std::to_string(len) << std::endl;
+                }
+                else {
+                    std::cout << "getEvent(20), no such event!" << std::endl;
+                }
+
                 ByteBuffer bb1(20000);
                 reader.getEvent(bb1, 0);
-                std::cout << "createCompactEvents: event 1,  bb1 limit ->\n" << bb1.limit() << std::endl;
-
+                std::cout << "event 1,  ByteBuffer limit = " << bb1.limit() << std::endl;
 
                 auto bb2 = std::make_shared<ByteBuffer>(20000);
                 reader.getEvent(bb2, 0);
-                std::cout << "createCompactEvents: event 1,  bb2 limit ->\n" << bb2->limit() << std::endl;
-
-
-
-                //                // Write into a buffer
-//                auto newBuf = std::make_shared<ByteBuffer>(1000);
-//                EventWriter writer(newBuf);
-//                writer.writeEvent(cebEvbuf);
-//                writer.close();
-//                auto writerBuf = writer.getByteBuffer();
-//
-//                //Util::printBytes(newBuf, 0 , 260, "From EventWriter");
-//
-//                // Read event back out of buffer
-//                EvioReader reader(writerBuf);
-//                auto cebEv = reader.parseEvent(1);
-//
-//                std::cout << "Event written to and read from buffer:\n" << cebEv->treeToString("") << std::endl;
-//
-//                // Write into a file
-//                std::string filename = "./eventData.dat";
-//                EventWriter writer2(filename);
-//                writer2.writeEvent(cebEvbuf);
-//                writer2.close();
-//
-//                //Util::printBytes(newBuf, 0 , 260, "From EventWriter");
-//
-//                // Read event back out of buffer
-//                EvioReader reader2(filename);
-//                auto cebEv2 = reader2.parseEvent(1);
-//
-//                std::cout << "\nEvent written to and read from file:\n" << cebEv2->treeToString("") << std::endl;
-//
-
+                std::cout << "event 1, std::shared_ptr<ByteBuffer> limit = " << bb2->limit() << std::endl;
             }
             catch (EvioException &e) {
                 std::cout << e.what() << std::endl;
@@ -433,262 +183,341 @@ namespace evio {
         }
 
 
-        /** Writing to a buffer using original evio interface. */
-        void createObjectEvents(uint16_t tag, uint8_t num) {
+        /** Writing to a buffer using original evio tree interface. */
+        void testTreeEventCreation(uint16_t tag, uint8_t num) {
 
             try {
-
                 // Build event (bank of banks) with EventBuilder object
-                EventBuilder builder(tag, DataType::BANK, num);
-                std::shared_ptr<EvioEvent> event = builder.getEvent();
+                std::shared_ptr<EvioEvent> event = createTreeEvent(tag, num);
 
-                // bank of banks
-                auto bankBanks = EvioBank::getInstance(tag + 1, DataType::BANK, num + 1);
-                builder.addChild(event, bankBanks);
-
-                // bank of ints
-                auto bankInts = EvioBank::getInstance(tag + 2, DataType::UINT32, num + 2);
-                auto &iData = bankInts->getUIntData();
-                iData.insert(iData.begin(), intVec.begin(), intVec.end());
-                bankInts->updateUIntData();
-                builder.addChild(bankBanks, bankInts);
-
-                // bank of bytes
-                auto bankBytes = EvioBank::getInstance(tag + 3, DataType::UCHAR8, num + 3);
-                auto &cData = bankBytes->getUCharData();
-                cData.insert(cData.begin(), byteVec.begin(), byteVec.end());
-                bankBytes->updateUCharData();
-                builder.addChild(bankBanks, bankBytes);
-
-                // bank of shorts
-                auto bankShorts = EvioBank::getInstance(tag + 4, DataType::USHORT16, num + 4);
-                auto &sData = bankShorts->getUShortData();
-                sData.insert(sData.begin(), shortVec.begin(), shortVec.end());
-                bankShorts->updateUShortData();
-                builder.addChild(bankBanks, bankShorts);
-
-                // bank of longs
-                auto bankLongs = EvioBank::getInstance(tag + 40, DataType::ULONG64, num + 40);
-                auto &lData = bankLongs->getULongData();
-                lData.insert(lData.begin(), longVec.begin(), longVec.end());
-                bankLongs->updateULongData();
-                builder.addChild(bankBanks, bankLongs);
-
-
-                // bank of banks
-                auto bankBanks2 = EvioBank::getInstance(tag + 100, DataType::BANK, num + 100);
-                builder.addChild(bankBanks, bankBanks2);
-
-                    // bank of shorts
-                    auto bankShorts2 = EvioBank::getInstance(tag + 104, DataType::USHORT16, num + 104);
-                    auto &sData2 = bankShorts2->getUShortData();
-                    sData2.insert(sData2.begin(), shortVec.begin(), shortVec.end());
-                    bankShorts2->updateUShortData();
-                    builder.addChild(bankBanks2, bankShorts2);
-
-
-                // bank of floats
-                auto bankFloats = EvioBank::getInstance(tag + 5, DataType::FLOAT32, num + 5);
-                auto &fData = bankFloats->getFloatData();
-                fData.insert(fData.begin(), floatVec.begin(), floatVec.end());
-                bankFloats->updateFloatData();
-                builder.addChild(bankBanks, bankFloats);
-
-                // bank of doubles
-                auto bankDoubles = EvioBank::getInstance(tag + 6, DataType::DOUBLE64, num + 6);
-                auto &dData = bankDoubles->getDoubleData();
-                dData.insert(dData.begin(), doubleVec.begin(), doubleVec.end());
-                bankDoubles->updateDoubleData();
-                builder.addChild(bankBanks, bankDoubles);
-
-                // bank of strings
-                auto bankStrings = EvioBank::getInstance(tag + 7, DataType::CHARSTAR8, num + 7);
-                auto &stData = bankStrings->getStringData();
-                stData.insert(stData.begin(), stringsVec.begin(), stringsVec.end());
-                bankStrings->updateStringData();
-                builder.addChild(bankBanks, bankStrings);
-
-                // bank of composite data
-                auto bankComp = EvioBank::getInstance(tag + 1000, DataType::COMPOSITE, num + 1000);
-
-                    // Now create some COMPOSITE data
-                    // Format to write 1 int and 1 float a total of N times
-                    std::string format = "N(I,F)";
-
-                    CompositeData::Data myData;
-                    myData.addN(2);
-                    myData.addInt(1);
-                    myData.addFloat(1.0F);
-                    myData.addInt(2);
-                    myData.addFloat(2.0F);
-
-                    // Create CompositeData object
-                    std::shared_ptr<CompositeData> compData = CompositeData::getInstance(format, myData, 1, 1, 1);
-                    std::vector<std::shared_ptr<CompositeData>> cDataVec;
-                    cDataVec.push_back(compData);
-
-                // Add to bank
-                auto &oldCompData = bankComp->getCompositeData();
-                oldCompData.insert(oldCompData.begin(), cDataVec.begin(), cDataVec.end());
-                bankComp->updateCompositeData();
-                builder.addChild(bankBanks, bankComp);
-
-                // bank of segments
-                auto bankSegs = EvioBank::getInstance(tag + 14, DataType::SEGMENT, num + 14);
-                builder.addChild(event, bankSegs);
-
-                // seg of ints
-                auto segInts = EvioSegment::getInstance(tag + 8, DataType::INT32);
-                auto &siData = segInts->getIntData();
-                siData.insert(siData.begin(), intVec.begin(), intVec.end());
-                segInts->updateIntData();
-                builder.addChild(bankSegs, segInts);
-
-                // seg of bytes
-                auto segBytes = EvioSegment::getInstance(tag + 9, DataType::CHAR8);
-                auto &scData = segBytes->getCharData();
-                scData.insert(scData.begin(), byteVec.begin(), byteVec.end());
-                segBytes->updateCharData();
-                builder.addChild(bankSegs, segBytes);
-
-                // seg of shorts
-                auto segShorts = EvioSegment::getInstance(tag + 10, DataType::SHORT16);
-                auto &ssData = segShorts->getShortData();
-                ssData.insert(ssData.begin(), shortVec.begin(), shortVec.end());
-                segShorts->updateShortData();
-                builder.addChild(bankSegs, segShorts);
-
-                // seg of longs
-                auto segLongs = EvioSegment::getInstance(tag + 40, DataType::LONG64);
-                auto &slData = segLongs->getLongData();
-                slData.insert(slData.begin(), longVec.begin(), longVec.end());
-                segLongs->updateLongData();
-                builder.addChild(bankSegs, segLongs);
-
-                // seg of floats
-                auto segFloats = EvioSegment::getInstance(tag + 11, DataType::FLOAT32);
-                auto &sfData = segFloats->getFloatData();
-                sfData.insert(sfData.begin(), floatVec.begin(), floatVec.end());
-                segFloats->updateFloatData();
-                builder.addChild(bankSegs, segFloats);
-
-                // seg of doubles
-                auto segDoubles = EvioSegment::getInstance(tag + 12, DataType::DOUBLE64);
-                auto &sdData = segDoubles->getDoubleData();
-                sdData.insert(sdData.begin(), doubleVec.begin(), doubleVec.end());
-                segDoubles->updateDoubleData();
-                builder.addChild(bankSegs, segDoubles);
-
-                // seg of strings
-                auto segStrings = EvioSegment::getInstance(tag + 13, DataType::CHARSTAR8);
-                auto &sstData = segStrings->getStringData();
-                sstData.insert(sstData.begin(), stringsVec.begin(), stringsVec.end());
-                segStrings->updateStringData();
-                builder.addChild(bankSegs, segStrings);
-
-
-
-                // bank of tagsegments
-                auto bankTsegs = EvioBank::getInstance(tag + 15, DataType::TAGSEGMENT, num + 15);
-                builder.addChild(event, bankTsegs);
-
-                // tagsegments of ints
-                auto tsegInts = EvioTagSegment::getInstance(tag + 16, DataType::UINT32);
-                auto &tiData = tsegInts->getUIntData();
-                tiData.insert(tiData.begin(), intVec.begin(), intVec.end());
-                tsegInts->updateUIntData();
-                builder.addChild(bankTsegs, tsegInts);
-
-                // tagsegments of bytes
-                auto tsegBytes = EvioTagSegment::getInstance(tag + 17, DataType::UCHAR8);
-                auto &tcData = tsegBytes->getUCharData();
-                tcData.insert(tcData.begin(), byteVec.begin(), byteVec.end());
-                tsegBytes->updateUCharData();
-                builder.addChild(bankTsegs, tsegBytes);
-
-                // tagsegments of shorts
-                auto tsegShorts = EvioTagSegment::getInstance(tag + 18, DataType::USHORT16);
-                auto &tsData = tsegShorts->getUShortData();
-                tsData.insert(tsData.begin(), shortVec.begin(), shortVec.end());
-                tsegShorts->updateUShortData();
-                builder.addChild(bankTsegs, tsegShorts);
-
-                // tagsegments of longs
-                auto tsegLongs = EvioTagSegment::getInstance(tag + 40, DataType::ULONG64);
-                auto &tlData = tsegLongs->getULongData();
-                tlData.insert(tlData.begin(), longVec.begin(), longVec.end());
-                tsegLongs->updateULongData();
-                builder.addChild(bankTsegs, tsegLongs);
-
-                // tagsegments of floats
-                auto tsegFloats = EvioTagSegment::getInstance(tag + 19, DataType::FLOAT32);
-                auto &tfData = tsegFloats->getFloatData();
-                tfData.insert(tfData.begin(), floatVec.begin(), floatVec.end());
-                tsegFloats->updateFloatData();
-                builder.addChild(bankTsegs, tsegFloats);
-
-                // tagsegments of doubles
-                auto tsegDoubles = EvioTagSegment::getInstance(tag + 20, DataType::DOUBLE64);
-                auto &tdData = tsegDoubles->getDoubleData();
-                tdData.insert(tdData.begin(), doubleVec.begin(), doubleVec.end());
-                tsegDoubles->updateDoubleData();
-                builder.addChild(bankTsegs, tsegDoubles);
-
-                // tagsegments of strings
-                auto tsegStrings = EvioTagSegment::getInstance(tag + 21, DataType::CHARSTAR8);
-                auto &tstData = tsegStrings->getStringData();
-                tstData.insert(tstData.begin(), stringsVec.begin(), stringsVec.end());
-                tsegStrings->updateStringData();
-                builder.addChild(bankTsegs, tsegStrings);
-
-
-                // Remove middle bank
-                if (false) {
-                    std::cout << "    createObjectEvents:removing banks of segs" << std::endl;
-                    builder.remove(bankSegs);
-                }
-
-
-                std::cout << "Event:\n" << event->treeToString("") << std::endl;
+                std::cout << "\n\nEvent (created by tree methods):\n" << event->treeToString("") << std::endl;
                 std::cout << "Event Header:\n" << event->getHeader()->toString() << std::endl;
 
                 // Take event & write it into buffer
-                std::cout << "Write event to " << writeFileName1 << " as compressed LZ4" << std::endl;
-                EventWriter writer(writeFileName1, "", "runType", 1, 0L, 0, 0,
-                                   ByteOrder::ENDIAN_LOCAL, dictionary, true, false, nullptr, 1, 1, 1, 1,
+                std::cout << "Write event to " << writeFileName2 << " as compressed LZ4" << std::endl;
+                EventWriter writer(writeFileName2, "", "runType", 1, 0L, 0, 0,
+                                   ByteOrder::ENDIAN_LOCAL, dictionary, true, false, event, 1, 1, 1, 1,
                                    Compressor::LZ4, 2, 16, 0);
 
-                writer.setFirstEvent(event);
+                //writer.setFirstEvent(event);
                 writer.writeEvent(event);
+                std::cout << "    call writer.close()" << std::endl;
                 writer.close();
 
                 // Read event back out of file
-                EvioReader reader(writeFileName1);
+                std::cout << "    create EvioReader" << std::endl;
+                EvioReader reader(writeFileName2);
 
-                std::cout << "    createObjectEvents: have dictionary? " << reader.hasDictionaryXML() << std::endl;
-                std::string xmlDict = reader.getDictionaryXML();
-                std::cout << "    createObjectEvents: read dictionary ->\n\n" << xmlDict << std::endl << std::endl;
+                std::cout << "    have dictionary? " << reader.hasDictionaryXML() << std::endl;
+                if (reader.hasDictionaryXML()) {
+                    std::string xmlDict = reader.getDictionaryXML();
+                    std::cout << "    read dictionary ->\n\n" << xmlDict << std::endl << std::endl;
+                }
 
-                std::cout << "    createObjectEvents: have first event? " << reader.hasFirstEvent() << std::endl;
-                auto fe = reader.getFirstEvent();
-                std::cout << "    createObjectEvents: read first event ->\n\n" << fe->treeToString("") << std::endl << std::endl;
+                std::cout << "    have first event? " << reader.hasFirstEvent() << std::endl;
+                if (reader.hasFirstEvent()) {
+                    auto fe = reader.getFirstEvent();
+                    std::cout << "    read first event ->\n\n" << fe->treeToString("") << std::endl << std::endl;
+                }
 
-                std::cout << "    createObjectEvents: try getting ev #1" << std::endl;
+                std::cout << "    try getting ev #1" << std::endl;
                 auto ev = reader.parseEvent(1);
-                std::cout << "    createObjectEvents: event ->\n" << ev->treeToString("") << std::endl;
-
-
+                std::cout << "    event ->\n" << ev->treeToString("") << std::endl;
             }
             catch (EvioException &e) {
                 std::cout << e.what() << std::endl;
             }
+        }
 
+
+        void writeAndReadBuffer(uint16_t tag, uint8_t num) {
+
+            std::cout << std::endl << std::endl;
+            std::cout << "--------------------------------------------\n";
+            std::cout << "--------------------------------------------\n";
+            std::cout << "------------- NOW BUFFERS ------------------\n";
+            std::cout << "--------------------------------------------\n";
+            std::cout << "--------------------------------------------\n";
+            std::cout << std::endl << std::endl;
+
+            // Create Buffer
+            ByteOrder order = ByteOrder::ENDIAN_LOCAL;
+            size_t bufSize = 3000;
+            auto buffer = std::make_shared<ByteBuffer>(bufSize);
+            buffer->order(order);
+
+            // user header data
+            uint8_t userHdr[10];
+            for (uint8_t i = 0; i < 10; i++) {
+                userHdr[i] = i + 16;
+            }
+
+            // No compression allowed with buffers
+
+            //Writer writer(buffer, 0, 0, dictionary, userHdr, 10);
+            Writer writer(buffer, userHdr, 10);
+
+            // Create an evio bank of ints
+            auto evioDataBuf = createEventBuilderBuffer(tag, num, order);
+            // Create node from this buffer
+            auto node = EvioNode::extractEventNode(evioDataBuf, 0, 0, 0);
+
+            writer.addEvent(node);
+            writer.close();
+
+            // Get ready-to-read buffer
+            buffer = writer.getBuffer();
+
+            // 2 ways to copy
+            auto copy  = std::make_shared<ByteBuffer>(*buffer);
+            auto copy2 = ByteBuffer::copyBuffer(buffer);
+
+            std::cout << "Finished buffer ->\n" << buffer->toString() << std::endl;
+            std::cout << "COPY1 ->\n" << copy->toString() << std::endl;
+            std::cout << "COPY2 ->\n" << copy2->toString() << std::endl;
+
+            // Compare original with copy
+            bool unchanged = true;
+            size_t index = 0;
+            for (size_t i = 0; i < buffer->capacity(); i++) {
+                if (buffer->array()[i] != copy->array()[i]) {
+                    unchanged = false;
+                    index = i;
+                    std::cout << "Orig buffer CHANGED at byte #" << index << std::endl;
+                    std::cout << std::showbase << std::hex << ", " << +copy->array()[i] << " changed to "
+                              << +buffer->array()[i] << std::endl;
+                    Util::printBytes(buffer, 0, 200, "Buffer Bytes");
+                    break;
+                }
+            }
+            if (unchanged) {
+                std::cout << "ORIGINAL buffer Unchanged!\n";
+            }
+
+            Util::printBytes(buffer, 0, buffer->limit(), "Buffer Bytes");
+
+            std::cout << "--------------------------------------------\n";
+            std::cout << "------------------ Reader ------------------\n";
+            std::cout << "--------------------------------------------\n";
+
+            Reader reader(buffer);
+
+            uint32_t evCount = reader.getEventCount();
+            std::cout << "   Got " << evCount << " events" << std::endl;
+
+            std::string dict = reader.getDictionary();
+            std::cout << "   Have dictionary = " << reader.hasDictionary() << std::endl;
+
+            uint32_t feBytes;
+            std::shared_ptr<uint8_t> pFE = reader.getFirstEvent(&feBytes);
+            if (pFE != nullptr) {
+                std::cout << "   First Event bytes = " << feBytes << std::endl;
+                std::cout << "   First Event values = " << std::endl << "   ";
+                for (uint32_t i = 0; i < feBytes; i++) {
+                    std::cout << (uint32_t) ((pFE.get())[i]) << ",  ";
+                }
+                std::cout << std::endl << std::endl;
+            }
+
+            std::cout << "   Print out regular events:" << std::endl;
+            uint32_t byteLen;
+            std::shared_ptr<uint8_t> data;
+            for (uint32_t i = 0; i < evCount; i++) {
+                // Because this is a Reader object, it does not parse evio, it only gets a bunch of bytes.
+                // For parsing evio, use EvioCompactReader or EvioReader.
+                data = reader.getEvent(i, &byteLen);
+                std::cout << "      Event " << (i+1) << " len = " << byteLen << " bytes" << std::endl;
+            }
+
+
+            std::cout << "--------------------------------------------\n";
+            std::cout << "------------ EvioCompactReader -------------\n";
+            std::cout << "--------------------------------------------\n";
+
+            std::shared_ptr<ByteBuffer> dataBuf = nullptr;
+
+            try {
+                EvioCompactReader reader2(copy);
+
+                uint32_t evCount2 = reader2.getEventCount();
+                std::cout << "   Got " << evCount2 << " events" << std::endl;
+
+                std::string dict2 = reader2.getDictionaryXML();
+                std::cout << "   Have dictionary = " << reader2.hasDictionary() << std::endl;
+
+                // Compact reader does not deal with first events, so skip over it
+
+                std::cout << "   Print out regular events:" << std::endl;
+
+                for (uint32_t i = 0; i < evCount2; i++) {
+                    std::shared_ptr<EvioNode> compactNode = reader2.getScannedEvent(i + 1);
+
+                    // This node and possibly other nodes have the same underlying buffer.
+                    // Next copy out this node's portion of the underlying buffer into its own buffer.
+                    // Make it the right size.
+                    dataBuf = std::make_shared<ByteBuffer>(compactNode->getTotalBytes());
+                    // Get the byte order right.
+                    dataBuf->order(order);
+                    // Do the copy
+                    compactNode->getByteData(dataBuf, true);
+
+                    std::cout << "      Event " << (i+1) << " len = " << compactNode->getTotalBytes() << " bytes" << std::endl;
+                    //                    Util::printBytes(dataBuf, dataBuf->position(), dataBuf->remaining(),
+                    //                                     "      Event #" + std::to_string(i+1) + " at pos " + std::to_string(dataBuf->position()));
+                }
+
+                // Comparing last events together, one from reader, the other from reader2
+                unchanged = true;
+                for (size_t i=0; i < dataBuf->limit(); i++) {
+                    if ((data.get()[i+8] != dataBuf->array()[i])) {
+                        unchanged = false;
+                        index = i;
+                        std::cout << "Reader different than EvioCompactReader at byte #" << index << std::endl;
+                        std::cout << std::showbase << std::hex << +data.get()[i] << " changed to " << +dataBuf->array()[i] << std::dec << std::endl;
+                        break;
+                    }
+                }
+                if (unchanged) {
+                    std::cout << std::endl << "Last event same whether using Reader or EvioCompactReader!" << std::endl;
+                }
+            }
+            catch (EvioException &e) {
+                std::cout << "PROBLEM: " << e.what() << std::endl;
+            }
+
+
+            std::cout << "--------------------------------------------\n";
+            std::cout << "-------------- EvioReader ------------------\n";
+            std::cout << "--------------------------------------------\n";
+
+            try {
+                EvioReader reader3(copy2);
+
+                ///////////////////////////////////
+                // Do a parsing listener test here
+                auto parser = reader3.getParser();
+
+
+                // Define a listener to be used with an event parser
+                class myListener : public IEvioListener {
+                public:
+                    void gotStructure(std::shared_ptr<BaseStructure> topStructure,
+                                      std::shared_ptr<BaseStructure> structure) override {
+                        std::cout << "  GOT: struct 1 = " << structure->toString() << std::endl;
+                    }
+
+                    // We're not parsing so these are not used ...
+                    void startEventParse(std::shared_ptr<BaseStructure> structure) override {
+                        std::cout << "  START: parsing event 1 = " << structure->toString() << std::endl;
+                    }
+                    void endEventParse(std::shared_ptr<BaseStructure> structure) override {
+                        std::cout << "  END: parsing event 1 = " << structure->toString() << std::endl;
+                    }
+                };
+
+                auto listener1 = std::make_shared<myListener>();
+
+
+
+                // Define another listener to be used with an event parser
+                class myListener2 : public IEvioListener {
+                public:
+                    void gotStructure(std::shared_ptr<BaseStructure> topStructure,
+                                      std::shared_ptr<BaseStructure> structure) override {
+                        std::cout << "  GOT: struct 2 = " << structure->toString() << std::endl << std::endl;
+                    }
+
+                    // We're not parsing so these are not used ...
+                    void startEventParse(std::shared_ptr<BaseStructure> structure) override {
+                        std::cout << "  START: parsing event 2 = " << structure->toString() << std::endl << std::endl;
+                    }
+                    void endEventParse(std::shared_ptr<BaseStructure> structure) override {
+                        std::cout << "  END: parsing event 2 = " << structure->toString() << std::endl << std::endl;
+                    }
+                };
+
+                auto listener2 = std::make_shared<myListener2>();
+
+
+                // Add the 2 listeners to the parser
+                parser->addEvioListener(listener2);
+                parser->addEvioListener(listener1);
+
+                // Define a filter to select everything (not much of a filter!)
+                class myFilter : public IEvioFilter {
+                public:
+                    bool accept(StructureType const & type, std::shared_ptr<BaseStructure> struc) override {
+                        return (true);
+                    }
+                };
+
+                auto filter = std::make_shared<myFilter>();
+
+                // Add the filter to the parser
+                parser->setEvioFilter(filter);
+
+                // Now parse some event
+                std::cout << "Run custom filter and listener, placed in reader's parser, on first event:" << std::endl << std::endl;
+                auto ev = reader3.parseEvent(1);
+
+                ///////////////////////////////////
+
+                int32_t evCount3 = reader3.getEventCount();
+                std::cout << "   Got " << evCount3 << " events" << std::endl;
+
+                std::string dict3 = reader3.getDictionaryXML();
+                std::cout << "   Got dictionary = " << reader3.hasDictionaryXML() << std::endl;
+
+                std::shared_ptr<EvioEvent> fe = reader3.getFirstEvent();
+                if (fe != nullptr) {
+                    std::cout << "   First Event bytes = " << fe->getTotalBytes() << std::endl;
+                    std::cout << "   First Event values = " << std::endl << "   ";
+                    std::vector<uint8_t> & rawByteVector = fe->getRawBytes();
+                    for (size_t i = 0; i < rawByteVector.size(); i++) {
+                        std::cout << (uint32_t) (rawByteVector[i]) << ",  ";
+                    }
+                    std::cout << std::endl << std::endl;
+                }
+
+                // Remove all listeners & filter
+                parser->removeEvioListener(listener2);
+                parser->removeEvioListener(listener1);
+                parser->setEvioFilter(nullptr);
+
+                std::vector<uint8_t> dataVec;
+
+                std::cout << "   Print out regular events:" << std::endl;
+                for (int i = 0; i < evCount3; i++) {
+                    std::shared_ptr<EvioEvent> evt = reader3.parseEvent(i + 1);
+                    std::cout << "      Event " << (i+1) << " len = " << evt->getTotalBytes() << " bytes" << std::endl;
+
+                    dataVec = evt->getRawBytes();
+//                    Util::printBytes(dataVec.data(), dataVec.size(), "  Event #" + std::to_string(i));
+                }
+
+                std::cout << std::endl << "Comparing data with dataVec\n";
+                unchanged = true;
+                for (size_t i=0; i < dataVec.size(); i++) {
+                    if ((data.get()[i+8] != dataVec[i]) && (i > 3)) {
+                        unchanged = false;
+                        index = i;
+                        std::cout << "Reader different than EvioReader at byte #" << index << std::endl;
+                        std::cout << std::showbase << std::hex << +data.get()[i] << " changed to " << +dataVec[i] << std::dec << std::endl;
+                        break;
+                    }
+                }
+                if (unchanged) {
+                    std::cout << "EVENT same whether using Reader or EvioReader!\n\n";
+                }
+
+            }
+            catch (EvioException &e) {
+                std::cout << "PROBLEM: " << e.what() << std::endl;
+            }
         }
 
 
     };
-
-
 
 
 }
@@ -697,8 +526,14 @@ namespace evio {
 
 int main(int argc, char **argv) {
     auto tester = evio::HipoTester();
-    tester.createCompactEvents(0,0);
-    //tester.createObjectEvents(0,0);
+
+    // FILES
+    tester.testCompactEventCreation(1,1);
+    tester.testTreeEventCreation(1,1);
+
+    // BUFFERS
+    tester.writeAndReadBuffer(1,1);
+
     return 0;
 }
 

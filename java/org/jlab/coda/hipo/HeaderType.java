@@ -7,22 +7,30 @@
 package org.jlab.coda.hipo;
 
 /**
- * Numerical values associated with types or variations of RecordHeader.
+ * Numerical values associated with types of record headers, file headers and trailers.
  * The value associated with each enum member is stored in the
- * record header's bit-info word in the top 4 bits.
+ * header's bit-info word in the top 4 bits.
  * 
  * @version 6.0
  * @since 6.0 9/6/17
  * @author timmer
  */
 public enum HeaderType {
+    /** Evio record header. */
     EVIO_RECORD        (0),
+    /** Evio file header. */
     EVIO_FILE          (1),
+    /** Evio extended file header. */
     EVIO_FILE_EXTENDED (2),
+    /** Evio trailer. */
     EVIO_TRAILER       (3),
+    /** Hioo record header. */
     HIPO_RECORD        (4),
+    /** Hipo file header. */
     HIPO_FILE          (5),
+    /** Hipo extended file header. */
     HIPO_FILE_EXTENDED (6),
+    /** Hipo trailer. */
     HIPO_TRAILER       (7);
 
     /** Value of this header type. */

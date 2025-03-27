@@ -14,8 +14,8 @@ import java.nio.ByteOrder;
 
 /**
  * Class which handles the creation and use of Evio and HIPO Records.
- *     
- * <pre>
+ *
+ * <pre><code>
  * RECORD STRUCTURE:
  *
  *               Uncompressed                                      Compressed
@@ -76,7 +76,7 @@ import java.nio.ByteOrder;
  *    +--                              --+
  * 14 +                                  |
  *    +----------------------------------+
- * </pre>
+ * </code></pre>
  *
  * @version 6.0
  * @since 6.0 9/6/17
@@ -85,7 +85,7 @@ import java.nio.ByteOrder;
  */
 public class RecordOutputStream {
     
-    /** Maximum number of events per record. */
+    /** Define constant. */
     private static final int ONE_MEG = 1024*1024;
 
 
@@ -156,7 +156,7 @@ public class RecordOutputStream {
     private boolean userProvidedBuffer;
 
 
-    /** Default, no-arg constructor. Little endian. LZ4 compression. */
+    /** Default, no-arg constructor. Little endian. No compression. */
     public RecordOutputStream() {
         dataCompressor = Compressor.getInstance();
         header = new RecordHeader();
@@ -291,11 +291,10 @@ public class RecordOutputStream {
         userBufferSize = buf.capacity() - startingPosition;
         buf.limit(buf.capacity());
 
-        MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
-        RECORD_BUFFER_SIZE = userBufferSize;
-
         // Only re-allocate memory if current buffers are too small
         if (userBufferSize > RECORD_BUFFER_SIZE) {
+            MAX_BUFFER_SIZE = userBufferSize/100*91;
+            RECORD_BUFFER_SIZE = userBufferSize;
             allocate();
         }
 
@@ -845,7 +844,7 @@ public class RecordOutputStream {
         indexSize  = 0;
         eventSize  = 0;
         eventCount = 0;
-        startingPosition = 0;
+        //startingPosition = 0;
 
         recordData.clear();
         recordIndex.clear();
@@ -945,7 +944,7 @@ public class RecordOutputStream {
             else {
                 recordBinary.position(recBinPastHdr);
                 recordBinary.put(recordIndex.array(), 0, indexSize);
-//System.out.println("build: recordBinary pos = " + recBinPos +
+//System.out.println("build: recordBinary pos = " + recBinPastHdr +
 //                   ", eventSize = " + eventSize + ", recordEvents.array().len = " +
 //                   recordEvents.array().length);
                 recordBinary.put(recordEvents.array(), 0, eventSize);

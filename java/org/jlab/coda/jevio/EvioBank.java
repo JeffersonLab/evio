@@ -2,10 +2,11 @@ package org.jlab.coda.jevio;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.nio.ByteBuffer;
 
 /**
  * This holds a CODA Bank structure. Mostly it has a header
- * (a <code>BankHeader</code>) and the raw data stored as an
+ * (a <code>BankHeader</code>) and the raw data stored as a
  * byte array.
  * 
  * @author heddle
@@ -137,11 +138,23 @@ public class EvioBank extends BaseStructure implements Cloneable {
      * @return byte array containing evio format data of this bank in currently set byte order
      */
     byte[] toArray() {
-        byte[] bArray = new byte[rawBytes.length + header.getHeaderLength()*4];
-        // write the header
-        header.toArray(bArray, 0, byteOrder);
-        // write the rest
-        System.arraycopy(rawBytes, 0, bArray, header.getHeaderLength()*4, rawBytes.length);
+
+		byte[] bArray;
+
+		if (rawBytes != null) {
+			bArray = new byte[rawBytes.length + header.getHeaderLength() * 4];
+			// write the header
+			header.toArray(bArray, 0, byteOrder);
+			// write the rest
+			System.arraycopy(rawBytes, 0, bArray, header.getHeaderLength() * 4, rawBytes.length);
+		}
+		else {
+			bArray = new byte[getTotalBytes()];
+			ByteBuffer buf = ByteBuffer.wrap(bArray);
+			buf.order(byteOrder);
+			// write everything, header + data
+			write(buf);
+		}
         return bArray;
     }
 

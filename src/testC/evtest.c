@@ -51,8 +51,8 @@ int main()
 
     pBuf = ip = makeEvent2();
 
-    memset(buffer, 0, 2048);
-    memset(swappedBuffer, 0, 2048);
+    memset(buffer, 0, 2048*sizeof(uint32_t));
+    memset(swappedBuffer, 0, 2048*sizeof(uint32_t));
     
     evioswap(pBuf, 0, swappedBuffer);
     evioswap(swappedBuffer, 1, buffer);

@@ -27,6 +27,10 @@ public final class TagSegmentHeader extends BaseStructureHeader {
         super(tag, dataType);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getDataLength() {return length;}
 
     /**
      * {@inheritDoc}

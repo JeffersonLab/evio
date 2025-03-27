@@ -17,9 +17,9 @@ import java.util.Arrays;
  * The data can be retrieved using <code>toByteArray()</code> and
  * <code>toString()</code>.
  * <p>
- * Closing a <tt>ByteArrayOutputStream</tt> has no effect. The methods in
+ * Closing a <b>ByteArrayOutputStream</b> has no effect. The methods in
  * this class can be called after the stream has been closed without
- * generating an <tt>IOException</tt>.
+ * generating an <b>IOException</b>.
  *
  * @author  Arthur van Hoff
  * @since   JDK1.0
@@ -196,16 +196,15 @@ public class EvioByteArrayOutputStream extends OutputStream {
      *
      * @return  the value of the <code>count</code> field, which is the number
      *          of valid bytes in this output stream.
-     * @see     java.io.ByteArrayOutputStream#count
      */
     public int size() {
         return count;
     }
 
     /**
-     * Closing a <tt>ByteArrayOutputStream</tt> has no effect. The methods in
+     * Closing a <b>ByteArrayOutputStream</b> has no effect. The methods in
      * this class can be called after the stream has been closed without
-     * generating an <tt>IOException</tt>.
+     * generating an <b>IOException</b>.
      */
     public void close() throws IOException {
     }

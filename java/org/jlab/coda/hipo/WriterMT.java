@@ -12,19 +12,20 @@ import org.jlab.coda.jevio.EvioBank;
 import org.jlab.coda.jevio.EvioNode;
 import org.jlab.coda.jevio.Utilities;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class is for writing Evio/HIPO files only (not buffers).
- * It's able to multithread the compression of data.<p>
+ * This class is for writing Evio/HIPO files only (not buffers)
+ * while multithreading the compression of data.<p>
  *
  * At the center of how this class works is an ultra-fast ring buffer containing
  * a store of empty records. As the user calls one of the {@link #addEvent} methods,
@@ -113,8 +114,6 @@ public class WriterMT implements AutoCloseable {
     private boolean closed;
     /** Has open() been called? */
     private boolean opened;
-    /** Has the first record been written already? */
-    private boolean firstRecordWritten;
     /** Has a dictionary been defined? */
     private boolean haveDictionary;
     /** Has a first event been defined? */
@@ -129,13 +128,11 @@ public class WriterMT implements AutoCloseable {
      * 1M max event count and 8M max buffer size.
      */
     public WriterMT() {
-        fileHeader = new FileHeader(true); // evio file
-        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, CompressionType.RECORD_UNCOMPRESSED);
-
-        // Get a single blank record to start writing into
-        ringItem = supply.get();
-        outputRecord = ringItem.getRecord();
+        this(HeaderType.EVIO_FILE, ByteOrder.LITTLE_ENDIAN, 0, 0,
+                null, null, 0, CompressionType.RECORD_UNCOMPRESSED,
+                1, false, 8);
     }
+
 
     /**
      * Constructor with byte order. <b>No</b> file is opened.
@@ -159,7 +156,8 @@ public class WriterMT implements AutoCloseable {
             throws IllegalArgumentException {
 
         this(HeaderType.EVIO_FILE, order, maxEventCount, maxBufferSize,
-             null, null, 0, compressionType, compressionThreads, false, ringSize);
+             null, null, 0, compressionType,
+                compressionThreads, false, ringSize);
     }
 
 
@@ -179,7 +177,8 @@ public class WriterMT implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
-     * @param firstEventLen number of valid bytes in firstEvent.
+     * @param firstEventLen number of valid bytes in firstEvent. If 0, then if firstEvent is not null,
+     *                      this is set to firstEvent.length.
      * @param compType      type of data compression to do (one, lz4 fast, lz4 best, gzip)
      * @param compressionThreads number of threads doing compression simultaneously
      * @param addTrailerIndex if true, we add a record index to the trailer.
@@ -197,9 +196,13 @@ public class WriterMT implements AutoCloseable {
 
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
-        if (firstEvent == null || firstEventLen < 0) {
+        if (firstEvent == null) {
             firstEventLen = 0;
         }
+        else if (firstEventLen < 1) {
+            firstEventLen = firstEvent.length;
+        }
+
         firstEventLength     = firstEventLen;
         this.maxEventCount   = maxEventCount;
         this.maxBufferSize   = maxBufferSize;
@@ -219,21 +222,11 @@ public class WriterMT implements AutoCloseable {
             fileHeader = new FileHeader(true);
         }
 
-        haveDictionary = dictionary.length() > 0;
-        haveFirstEvent = (firstEvent != null && firstEventLen > 0);
-
-        if (haveDictionary) {
-            System.out.println("WriterMT CON: create dict, len = " + dictionary.length());
-        }
-
-        if (haveFirstEvent) {
-            System.out.println("WriterMT CON: create first event, len = " + firstEventLen);
-        }
+        haveDictionary = (dictionary != null) && (dictionary.length() > 0);
+        haveFirstEvent = (firstEvent != null) && (firstEventLen > 0);
 
         if (haveDictionary || haveFirstEvent)  {
             dictionaryFirstEventBuffer = createDictionaryRecord();
-System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteOrder +
-        ", dic/fe buff remaining = " + dictionaryFirstEventBuffer.remaining());
         }
 
         // Number of ring items must be >= compressionThreads
@@ -244,9 +237,10 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
         // AND is must be multiple of 2
         finalRingSize = Utilities.powerOfTwo(finalRingSize, true);
 
-        if (finalRingSize != ringSize) {
-            System.out.println("WriterMT: change to ring size = " + finalRingSize);
-        }
+//        if (finalRingSize != ringSize) {
+//            System.out.println("WriterMT: change to ring size from " +
+//                                ringSize + " to " + finalRingSize);
+//        }
 
         supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
                                   maxEventCount, maxBufferSize, compressionType);
@@ -352,11 +346,11 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToCompress
                 // which means we're all done.
-System.out.println("   Compressor: thread " + num + " INTERRUPTED");
+//System.out.println("   Compressor: thread " + num + " INTERRUPTED");
             }
             catch (AlertException e) {
                  // We've been notified that an error has occurred
- System.out.println("   Compressor: thread " + num + " exiting due to error of some sort");
+ //System.out.println("   Compressor: thread " + num + " exiting due to ring alert exception");
              }
          }
     }
@@ -370,15 +364,42 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
     class RecordWriter extends Thread {
 
         /** The highest sequence to have been currently processed. */
-        private volatile long lastSeqProcessed = -1;
+    //    private volatile long lastSeqProcessed = -1;
+        private AtomicLong lastSeqProcessed = new AtomicLong(-1);
+
+        /** Stop the thread. */
+        void stopThread() {
+            try {
+                // Send signal to interrupt it
+                this.interrupt();
+
+                // Wait for it to stop
+                this.join();
+
+                // Do NOT call supply.errorAlert since run() will exit
+                // in a way that lastSeqProcessed doesn't get
+                // properly set so waitForLastItem routine never returns.
+
+//                if (this.isAlive()) {
+//                    // If that didn't work, send Alert signal to ring
+//                    supply.errorAlert();
+//                    this.join();
+//                }
+            }
+            catch (InterruptedException e) {}
+        }
 
         /** Wait for the last item to be processed, then exit thread. */
         void waitForLastItem() {
-            while (supply.getLastSequence() > lastSeqProcessed) {
-                Thread.yield();
+            try {
+                while (supply.getLastSequence() > lastSeqProcessed.get()) {
+                    Thread.yield();
+                }
             }
-            // Interrupt this thread, not the calling thread
-            this.interrupt();
+            catch (Exception e) {}
+
+            // Stop this thread, not the calling thread
+            stopThread();
         }
 
         @Override
@@ -391,7 +412,7 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
                         return;
                     }
 
-//System.out.println("   Writer: try getting record to write");
+//System.out.println("   RecordWriter: try getting record to write");
                     // Get the next record for this thread to write
                     RecordRingItem item = supply.getToWrite();
                     currentSeq = item.getSequence();
@@ -400,7 +421,7 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
 
                     // Do write
                     RecordHeader header = record.getHeader();
-//System.out.println("   Writer: got record, header = \n" + header);
+//System.out.println("   RecordWriter: got record, header = \n" + header);
                     int bytesToWrite = header.getLength();
                     // Record length of this record
                     recordLengths.add(bytesToWrite);
@@ -411,12 +432,12 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
                     try {
                         ByteBuffer buf = record.getBinaryBuffer();
                         if (buf.hasArray()) {
-//System.out.println("   Writer: use outStream to write file, buf pos = " + buf.position() +
+//System.out.println("   RecordWriter: use outStream to write file, buf pos = " + buf.position() +
 //        ", lim = " + buf.limit() + ", bytesToWrite = " + bytesToWrite);
                             outStream.write(buf.array(), 0, bytesToWrite);
                         }
                         else {
-//System.out.println("   Writer: use fileChannel to write file");
+//System.out.println("   RecordWriter: use fileChannel to write file");
                             // binary buffer is ready to read after build()
                             fileChannel.write(buf);
                         }
@@ -427,21 +448,28 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
                     }
 
                     // Release back to supply
-//System.out.println("   Writer: release ring item back to supply");
+//System.out.println("   RecordWriter: release ring item back to supply");
                     supply.releaseWriter(item);
 
                     // Now we're done with this sequence
-                    lastSeqProcessed = currentSeq;
+                    lastSeqProcessed.set(currentSeq);
                 }
             }
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToWrite
                 // which means we're all done.
-System.out.println("   Writer: thread INTERRUPTED");
+//System.out.println("   RecordWriter: thread INTERRUPTED");
+
+                // Make sure waitForLastItem() returns
+                if (supply.getLastSequence() > lastSeqProcessed.get()) {
+                    lastSeqProcessed.set(supply.getLastSequence());
+//                    System.out.println("   RecordWriter: thread INTERRUPTED, set lastSeqProcessed to " +
+//                            (supply.getLastSequence() + 1));
+                }
             }
             catch (AlertException e) {
                  // We've been notified that an error has occurred
- System.out.println("   Writer: thread exiting due to error of some sort");
+ //System.out.println("   RecordWriter: thread exiting due to ring alert exception");
              }
         }
     }
@@ -455,7 +483,7 @@ System.out.println("   Writer: thread INTERRUPTED");
      *         of zero size if first event and dictionary don't exist.
      */
     ByteBuffer createDictionaryRecord() {
-        return Writer.createRecord(dictionary, firstEvent,
+        return Writer.createRecord(dictionary, firstEvent, firstEventLength,
                                    byteOrder, fileHeader, null);
     }
 
@@ -523,8 +551,23 @@ System.out.println("   Writer: thread INTERRUPTED");
         }
     }
 
+    /** Called by open(), needed if open called multiple times in succession. */
+    private void clear() {
+        // outputRecord belongs to ringItem which is taken from supply and is put back in close()
+        if (outputRecord == null || ringItem == null) {
+            ringItem = supply.get();
+            outputRecord = ringItem.getRecord();
+        }
+
+        writerBytesWritten = 0L;
+        recordNumber = 1;
+        closed = false;
+        opened = false;
+    }
+
     /**
      * Open a new file and write file header with no user header.
+     * Existing file is NOT overwritten.
      * @param filename output file name
      * @throws HipoException if filename arg is null or bad,
      *                       if this method already called without being
@@ -537,6 +580,7 @@ System.out.println("   Writer: thread INTERRUPTED");
     /**
      * Open a file and write file header with given user's header.
      * User header is automatically padded when written.
+     * Existing file is NOT overwritten.
      * @param filename disk file name.
      * @param userHdr byte array representing the optional user's header.
      * @throws HipoException if filename arg is null or bad,
@@ -544,7 +588,20 @@ System.out.println("   Writer: thread INTERRUPTED");
      *                       followed by reset.
      */
     public final void open(String filename, byte[] userHdr) throws HipoException {
+        open(filename, userHdr, false);
+    }
 
+    /**
+     * Open a file and write file header with given user's header.
+     * User header is automatically padded when written.
+     * @param filename disk file name.
+     * @param userHdr byte array representing the optional user's header.
+     * @param overwrite  if true, overwrite any existing file.
+     * @throws HipoException if filename arg is null or bad,
+     *                       if this method already called without being followed by reset,
+     *                       or if overwrite is false and file exists.
+     */
+    public final void open(String filename, byte[] userHdr, boolean overwrite) throws HipoException {
         if (opened) {
            throw new HipoException("currently open, call reset() first");
         }
@@ -553,37 +610,52 @@ System.out.println("   Writer: thread INTERRUPTED");
             throw new HipoException("bad filename");
         }
 
+        clear();
+
         ByteBuffer fileHeaderBuffer;
         haveUserHeader = false;
 
         // User header given as arg has precedent
         if (userHdr != null) {
             haveUserHeader = true;
-System.out.println("writerMT::open: given a valid user header to write");
+//System.out.println("writerMT::open: given a valid user header to write");
             fileHeaderBuffer = createHeader(userHdr);
         }
         else {
             // If dictionary & firstEvent not defined and user header not given ...
-            if (dictionaryFirstEventBuffer.remaining() < 1) {
+            if (dictionaryFirstEventBuffer == null ||
+                dictionaryFirstEventBuffer.remaining() < 1) {
                 fileHeaderBuffer = createHeader((byte []) null);
             }
             // else place dictionary and/or firstEvent into
             // record which becomes user header
             else {
-System.out.println("writerMT::open: given a valid dict/first ev header to write");
+//System.out.println("writerMT::open: given a valid dict/first ev header to write");
                 fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
             }
         }
 
         try {
-            outStream = new RandomAccessFile(filename, "rw");
+            if (overwrite) {
+                outStream = new RandomAccessFile(filename, "rw");
+                // Truncate the file to 0 length to overwrite it
+                outStream.setLength(0);
+            }
+            else {
+                File file = new File(filename);
+
+                // Check if the file exists
+                if (file.exists()) {
+                    throw new HipoException("File already exists: " + file.getName());
+                }
+
+                outStream = new RandomAccessFile(filename, "rw");
+            }
             fileChannel = outStream.getChannel();
             outStream.write(fileHeaderBuffer.array());
-
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (Exception ex) {
+           throw new HipoException(ex);
         }
 
         writerBytesWritten = (long) (fileHeader.getLength());
@@ -667,7 +739,6 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      *
      * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
      * @return buffer containing a file header followed by the user-defined header.
-     * @throws HipoException if writing to buffer, not file.
      */
     ByteBuffer createHeader(ByteBuffer userHdr) {
 
@@ -998,16 +1069,6 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
 
     //---------------------------------------------------------------------
 
-    /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(String)}. */
-    public void reset() {
-        outputRecord.reset();
-        fileHeader.reset();
-        writerBytesWritten = 0L;
-        recordNumber = 1;
-        addingTrailer = false;
-    }
-
     /**
      * Close opened file. If the output record contains events,
      * they will be flushed to file. Trailer and its optional index
@@ -1021,6 +1082,9 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
             // Put it back in supply for compressing
             supply.publish(ringItem);
         }
+
+        outputRecord = null;
+        ringItem = null;
 
         // Since the writer thread is the last to process each record,
         // wait until it's done with the last item, then exit the thread.

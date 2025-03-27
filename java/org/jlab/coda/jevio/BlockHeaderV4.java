@@ -1,5 +1,7 @@
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.CompressionType;
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,7 +16,7 @@ import java.util.BitSet;
  * The information stored in this block header has also changed.
  *
  *
- * <pre>
+ * <pre><code>
  * ################################
  * Evio block header, version 4:
  * ################################
@@ -39,6 +41,7 @@ import java.util.BitSet;
  * |             Magic Int               |
  * |_____________________________________|
  *
+ * The following bit #s start with 0.
  *
  *      Block Length       = number of ints in block (including this one).
  *      Block Number       = id number (starting at 1)
@@ -47,37 +50,35 @@ import java.util.BitSet;
  *                           NOTE: this value should not be used to parse the following
  *                           events since the first block may have a dictionary whose
  *                           presence is not included in this count.
- *      Reserved 1         = If bits 11-14 in bit info are RocRaw (1), then (in the first block)
+ *      Reserved 1         = If bits 10-13 in bit info are RocRaw (1), then (in the first block)
  *                           this contains the CODA id of the source
  *      Bit info &amp; Version = Lowest 8 bits are the version number (4).
  *                           Upper 24 bits contain bit info.
- *                           If a dictionary is included as the first event, bit #9 is set (=1)
- *                           If a last block, bit #10 is set (=1)
+ *                           If a dictionary is included as the first event, bit #8 is set (=1)
+ *                           If a last block, bit #9 is set (=1)
  *      Reserved 2         = unused
  *      Magic Int          = magic number (0xc0da0100) used to check endianness
  *
  *
  *
- * Bit info has the following bits defined (bit #s start with 1):
- *   Bit  9     = true if dictionary is included (relevant for first block only)
+ * Bit info has the following bits defined (bit #s start with 0):
+ *   Bit  8     = true if dictionary is included (relevant for first block only)
  *
- *   Bit  10    = true if this block is the last block in file or network transmission
+ *   Bit  9     = true if this block is the last block in file or network transmission
  *
- *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
- *                DisentangledPhysics = 3, User = 4, Control = 5, Other = 15).
+ *   Bits 10-13 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
+ *                DisentangledPhysics = 3, User = 4, Control = 5, Mixed = 6, Other = 15).
  *
- *   Bit 15     = true if next (non-dictionary) event in this block is a "first event" to
+ *   Bit 14     = true if next (non-dictionary) event in this block is a "first event" to
  *                be placed at the beginning of each written file and its splits.
  *
- *                Bits 11-15 are useful ONLY for the CODA online use of evio.
+ *                Bits 10-14 are useful ONLY for the CODA online use of evio.
  *                That's because only a single CODA event type is placed into
  *                a single (ET, cMsg) buffer, and each user or control event has its own
  *                buffer as well. That buffer then is parsed by an EvioReader or
  *                EvioCompactReader object. Thus all events will be of a single CODA type.
  *
- *
- *
- * </pre>
+ * </code></pre>
  *
  *
  * @author heddle
@@ -176,7 +177,7 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
 		size = 0;
 		number = 1;
 		headerLength = 0;
-		version = 0;
+		version = 4;
 		eventCount = 0;
         reserved1 = 0;
         reserved2 = 0;
@@ -213,6 +214,15 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
      * @param blkHeader block header object to copy
      */
     public BlockHeaderV4(BlockHeaderV4 blkHeader) {
+        copy(blkHeader);
+    }
+
+    /**
+     * This copies an evio version 4 BlockHeader
+     * from another object of this class.
+     * @param blkHeader block header object to copy
+     */
+    public void copy(BlockHeaderV4 blkHeader) {
         if (blkHeader == null) {
             return;
         }
@@ -379,6 +389,20 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
     public boolean isLastBlock() {
         return bitInfo.get(1);
     }
+
+    /**
+     * Is this the data in this block compressed?
+     * This is always false in evio version 4.
+     * @return <code>false</code>.
+     */
+    public boolean isCompressed() {return false;}
+
+    /**
+     * Get the type of data compression used.
+     * This is always {@link CompressionType#RECORD_UNCOMPRESSED} in evio version 4.
+     * @return type of data compression used.
+     */
+    public CompressionType getCompressionType() {return CompressionType.RECORD_UNCOMPRESSED;}
 
     /**
      * Does this block contain the "first event"
@@ -589,30 +613,18 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
 
     /**
      * Calculates the sixth word of this header which has the version number (4)
-     * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
+     * in the lowest 8 bits and the set in the upper 24 bits. The arg hasDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit.
      *
      * @param bSet Bitset containing all bits to be set
-     * @param hasDictionary does this block include an evio xml dictionary as the first event?
-     * @param isEnd is this the last block of a file or a buffer?
+     * @param hasDictionary true if this block includes an evio xml dictionary.
+     * @param isEnd true if this the last block of a file or a buffer.
      * @return generated sixth word of this header.
      */
     static public int generateSixthWord(BitSet bSet, boolean hasDictionary, boolean isEnd) {
-        int v = 4; // version
 
-        for (int i=0; i < bSet.length(); i++) {
-            if (i > 23) {
-                break;
-            }
-            if (bSet.get(i)) {
-                v |= (0x1 << (8+i));
-            }
-        }
-
-        v =  hasDictionary ? (v | 0x100) : v;
-        v =  isEnd ? (v | 0x200) : v;
-
-        return v;
+        return generateSixthWord(bSet, 4, hasDictionary, isEnd, 0,
+                false, false);
     }
 
     /**
@@ -622,53 +634,84 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
      * (event type) are set in bits 11-14.
      *
      * @param version evio version number
-     * @param hasDictionary does this block include an evio xml dictionary as the first event?
-     * @param isEnd is this the last block of a file or a buffer?
-     * @param eventType 4 bit type of events header is containing
+     * @param hasDictionary true if this block includes an evio xml dictionary.
+     * @param isEnd true if this the last block of a file or a buffer.
+     * @param eventType 4 bit type of events header is containing.
      * @return generated sixth word of this header.
      */
     static public int generateSixthWord(int version, boolean hasDictionary,
                                         boolean isEnd, int eventType) {
 
-        return generateSixthWord(null, version, hasDictionary, isEnd, eventType);
+        return generateSixthWord(null, version, hasDictionary, isEnd, eventType,
+                false, false);
     }
 
 
     /**
-      * Calculates the sixth word of this header which has the version number (4)
-      * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
-      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-      * (event type) are set in bits 11-14.
-      *
-      * @param bSet Bitset containing all bits to be set
-      * @param version evio version number
-      * @param hasDictionary does this block include an evio xml dictionary as the first event?
-      * @param isEnd is this the last block of a file or a buffer?
-      * @param eventType 4 bit type of events header is containing
-      * @return generated sixth word of this header.
-      */
+     * Calculates the sixth word of this header which has the version number (4)
+     * in the lowest 8 bits and the set in the upper 24 bits. The arg hasDictionary
+     * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+     * (event type) are set in bits 11-14.
+     *
+     * @param bSet Bitset containing all bits to be set
+     * @param version evio version number
+     * @param hasDictionary true if this block includes an evio xml dictionary.
+     * @param isEnd true if this the last block of a file or a buffer.
+     * @param eventType 4 bit type of events header is containing.
+     * @return generated sixth word of this header.
+     */
      static public int generateSixthWord(BitSet bSet, int version,
                                          boolean hasDictionary,
                                          boolean isEnd, int eventType) {
-         int v = version; // version
 
-         if (bSet != null) {
-             for (int i=0; i < bSet.length(); i++) {
-                 if (i > 23) {
-                     break;
-                 }
-                 if (bSet.get(i)) {
-                     v |= (0x1 << (8+i));
-                 }
-             }
-         }
-
-         v =  hasDictionary ? (v | 0x100) : v;
-         v =  isEnd ? (v | 0x200) : v;
-         v |= ((eventType & 0xf) << 10);
-
-         return v;
+         return generateSixthWord(bSet, version, hasDictionary, isEnd, eventType,
+                 false, false);
      }
+
+
+    /**
+     * Calculates the sixth word of this header which has the version number (4)
+     * in the lowest 8 bits and the set in the upper 24 bits. The arg hasDictionary
+     * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+     * (event type) are set in bits 11-14. The hasFirstEv arg is set in the 15th bit
+     * and the isStreaming is set in the 16th bit.
+     *
+     * @param bSet Bitset containing all bits to be set
+     * @param version evio version number
+     * @param hasDictionary true if this block includes an evio xml dictionary.
+     * @param isEnd true if this the last block of a file or a buffer.
+     * @param eventType 4 bit type of events header is containing.
+     * @param hasFirstEv true if this block includes a first event
+     *                   (after dictionary, first in each split file).
+     *                   Note this is only relevant for the first block in file/buf.
+     * @param isStreaming true if the context of this block header a streaming DAQ.
+     * @return generated sixth word of this header.
+     */
+    static public int generateSixthWord(BitSet bSet, int version,
+                                        boolean hasDictionary,
+                                        boolean isEnd, int eventType,
+                                        boolean hasFirstEv, boolean isStreaming) {
+        int v = version;
+
+        if (bSet != null) {
+            for (int i=0; i < bSet.length(); i++) {
+                if (i > 23) {
+                    break;
+                }
+                if (bSet.get(i)) {
+                    v |= (0x1 << (8+i));
+                }
+            }
+        }
+
+        v =  hasDictionary ? (v | 0x100) : v;
+        v =  isEnd ? (v | 0x200) : v;
+        v |= ((eventType & 0xf) << 10);
+        v =  hasFirstEv ? (v | 0x4000) : v;
+        v =  isStreaming ? (v | 0x8000) : v;
+
+        return v;
+    }
 
 
     /**

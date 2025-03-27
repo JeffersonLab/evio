@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>    /* for bcopy */
+#include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -27,9 +28,10 @@
 #include <arpa/inet.h>
 #include <sys/errno.h>
 #include <netinet/tcp.h> /* TCP_NODELAY def */
+
 #include "evio.h"
 
-#if defined sun || defined linux || defined VXWORKS
+#if defined sun || defined VXWORKS
 #define socklen_t int
 #endif
 

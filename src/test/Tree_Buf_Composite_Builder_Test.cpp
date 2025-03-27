@@ -61,45 +61,57 @@ namespace evio {
         std::cout << "EvioBank: local intData size = " << fData.size() << std::endl;
         childBank->updateFloatData();
 
+        std::cout << std::endl;
+        std::cout << "--------------------------------------------" << std::endl;
+        std::cout << "----------- Test Tree Methods --------------" << std::endl;
+        std::cout << "--------------------------------------------" << std::endl;
+
         // Create tree
-        topBank->add(midBank);
         topBank->add(midBank2);
+        std::cout << std::endl << "Added midBank2 to topBank (" << topBank->getChildCount() << " kids)" << std::endl;
+        topBank->add(midBank);
+        std::cout << "Added midBank to topBank (" << topBank->getChildCount() << " kids)" << std::endl;
         // add it again should make no difference
         topBank->add(midBank2);
+        std::cout << "Added midBank2 to topBank again (" << topBank->getChildCount() << " kids)" << std::endl;
         midBank->add(childBank);
+        std::cout << "Added childBank to midBank, topBank has " << topBank->getChildCount() << " kids" << std::endl;
 
 
         std::cout << std::endl << "TopBank = " << topBank->toString() << std::endl;
         std::cout << std::boolalpha;
         std::cout << "Is child descendant of Top bank? " << topBank->isNodeDescendant(childBank) << std::endl;
-        std::cout << "Is Top bank ancestor of child? " << childBank->isNodeAncestor(topBank) << std::endl;
-        std::cout << "Depth at Top bank = " << topBank->getDepth() << std::endl << std::endl;
-        std::cout << "Depth at Mid bank = " << midBank->getDepth() << std::endl << std::endl;
+        std::cout << "Is Top bank ancestor of child? " << childBank->isNodeAncestor(topBank) << std::endl << std::endl;
+        std::cout << "Depth at Top bank = " << topBank->getDepth() << std::endl;
+        std::cout << "Depth at Mid bank = " << midBank->getDepth() << std::endl;
         std::cout << "Depth at Child bank = " << childBank->getDepth() << std::endl << std::endl;
         std::cout << "Level at top bank = " << topBank->getLevel() << std::endl;
-        std::cout << "Level at child = " << childBank->getLevel() << std::endl;
+        std::cout << "Level at child = " << childBank->getLevel() << std::endl << std::endl;
 
         std::cout << "Remove child from midBank:" << std::endl;
         midBank->remove(childBank);
         std::cout << "midBank = " << midBank->toString() << std::endl;
         std::cout << "Is child descendant of top bank? " << topBank->isNodeDescendant(childBank) << std::endl;
-        std::cout << "Is top bank ancestor of child? " << childBank->isNodeAncestor(topBank) << std::endl;
+        std::cout << "Is top bank ancestor of child? " << childBank->isNodeAncestor(topBank) << std::endl << std::endl;
 
         // add child again
+        std::cout << "Add child back to midBank:" << std::endl;
         midBank->add(childBank);
-        std::cout << std::endl << "midBank = " << midBank->toString() << std::endl;
-        midBank->removeAllChildren();
-        std::cout << "Remove all children from bank:" << std::endl;
         std::cout << "midBank = " << midBank->toString() << std::endl;
+        midBank->removeAllChildren();
+        std::cout << "Remove all children from midBank:" << std::endl;
+        std::cout << "midBank = " << midBank->toString() << std::endl << std::endl;
 
         // add child again
+        std::cout << "Add 1 child back to midBank:" << std::endl;
         midBank->add(childBank);
-        std::cout << std::endl << "midBank = " << midBank->toString() << std::endl;
+        std::cout << "midBank = " << midBank->toString() << std::endl;
         childBank->removeFromParent();
         std::cout << "Remove child from parent:" << std::endl;
-        std::cout << "midBank = " << midBank->toString() << std::endl;
+        std::cout << "midBank = " << midBank->toString() << std::endl << std::endl;
 
         // add child again
+        std::cout << "Add child back to midBank:" << std::endl;
         midBank->add(childBank);
         std::cout << "Level at top bank = " << topBank->getLevel() << std::endl;
         std::cout << "Level at child = " << childBank->getLevel() << std::endl;
@@ -108,10 +120,10 @@ namespace evio {
         std::cout << std::endl << "CALL sharedAncestor for both mid banks" << std::endl;
         auto strc = midBank2->getSharedAncestor(midBank);
         if (strc != nullptr) {
-            std::cout << std::endl << "shared ancestor of midBank 1&2 = " << strc->toString() << std::endl << std::endl;
+            std::cout << "shared ancestor of midBank 1&2 = " << strc->toString() << std::endl << std::endl;
         }
         else {
-            std::cout << std::endl << "shared ancestor of midBank 1&2 = NONE" << std::endl << std::endl;
+            std::cout << "shared ancestor of midBank 1&2 = NONE" << std::endl << std::endl;
         }
 
         auto path = childBank->getPath();
@@ -122,7 +134,7 @@ namespace evio {
 
         uint32_t kidCount = topBank->getChildCount();
         std::cout << std::endl << "topBank has " << kidCount << " children" << std::endl;
-        for (int i=0; i < kidCount; i++) {
+        for (uint32_t i=0; i < kidCount; i++) {
             std::cout << "   child at index " << i << " = " << topBank->getChildAt(i)->toString() << std::endl;
             std::cout << "       child getIndex = " << topBank->getIndex(topBank->getChildAt(i)) << std::endl;
         }
@@ -142,20 +154,37 @@ namespace evio {
             std::cout << "ERROR: " << e.what() << std::endl;
         }
 
-        std::cout << std::endl << "iterate thru topBank children" << std::endl;
-        auto beginIter = topBank->childrenBegin();
-        auto endIter = topBank->childrenEnd();
+        std::cout << std::endl << "iterate breadth-first thru topBank" << std::endl;
+        auto beginIter = topBank->bbegin();
+        auto endIter = topBank->bend();
         for (; beginIter != endIter; beginIter++) {
             auto kid = *beginIter;
             std::cout << "  kid = " << kid->toString() << std::endl;
         }
 
-            std::cout << std::endl << "Remove topBank's first child" << std::endl;
+        std::cout << std::endl << "iterate depth-first thru topBank" << std::endl;
+        auto beginIter3 = topBank->begin();
+        auto endIter3 = topBank->end();
+        for (; beginIter3 != endIter3; beginIter3++) {
+            auto kid = *beginIter3;
+            std::cout << "  kid = " << kid->toString() << std::endl;
+        }
+
+        std::cout << std::endl << "iterate thru topBank children" << std::endl;
+        auto beginIter2 = topBank->childrenBegin();
+        auto endIter2 = topBank->childrenEnd();
+        for (; beginIter2 != endIter2; beginIter2++) {
+            auto kid = *beginIter2;
+            std::cout << "  kid = " << kid->toString() << std::endl;
+        }
+
+        std::cout << std::endl << "Remove topBank's first child" << std::endl;
             topBank->remove(0);
-            std::cout << "    topBank has " << kidCount << " children" << std::endl;
+            std::cout << "    topBank has " << topBank->getChildCount() << " children" << std::endl;
             std::cout << "    topBank = " << topBank->toString() << std::endl;
             // reinsert
-            topBank->insert( midBank, 0);
+        std::cout << "Add topBank's first child back" << std::endl;
+        topBank->insert( midBank, 0);
 
             auto parent = topBank->getParent();
             if (parent == nullptr) {
@@ -182,7 +211,7 @@ namespace evio {
             std::cout << "Is topBank root = " << topBank->isRoot() << std::endl << std::endl;
 
             std::shared_ptr<BaseStructure> node = topBank;
-            std::cout << std::endl << "Starting from root:" << std::endl;
+            std::cout << "Starting from root:" << std::endl;
             do {
                 node = node->getNextNode();
                 if (node == nullptr) {
@@ -219,8 +248,8 @@ namespace evio {
                 }
             } while (node != nullptr);
 
-            std::cout << std::endl << "is childBank child of topBank = " << topBank->isNodeChild(childBank) << std::endl;
-            std::cout << "is midBank3 child of topBank = " << topBank->isNodeChild(midBank3) << std::endl;
+            std::cout << std::endl << "Is childBank child of topBank = " << topBank->isNodeChild(childBank) << std::endl;
+            std::cout << "Is midBank3 child of topBank = " << topBank->isNodeChild(midBank3) << std::endl;
 
             std::cout << std::endl << "first child of topBank = " << topBank->getFirstChild()->toString() << std::endl;
             std::cout << "last child of topBank = " << topBank->getLastChild()->toString() << std::endl;
@@ -275,7 +304,7 @@ namespace evio {
             std::cout << "childBank prev Leaf = " << childBank->getPreviousLeaf() << std::endl << std::endl;
 
 
-            std::cout << std::endl << "Add 1 child to topBank with same tag (4) as first leaf but num = 20" << std::endl;
+            std::cout << "Add 1 child to topBank with same tag (4) as first leaf but num = 20" << std::endl;
             auto midBank4 = EvioBank::getInstance(4, DataType::BANK, 20);
             topBank->add(midBank4);
 
@@ -283,7 +312,7 @@ namespace evio {
             // FINDING STRUCTURES
             //////////////////////////////////////////////////////
 
-            std::cout << "Search for all banks of tag = 4 Using StructureFinder, got the following:" << std::endl;
+            std::cout << "Search for all banks of tag = 4 / num = 4 Using StructureFinder, got the following:" << std::endl;
             uint16_t tag = 4;
             uint8_t  num = 4;
             std::vector<std::shared_ptr<BaseStructure>> vec;
@@ -297,7 +326,8 @@ namespace evio {
 
             std::cout << "Search for all banks of tag = 4, got the following:" << std::endl;
             class myFilter : public IEvioFilter {
-                uint16_t tag; uint8_t num = 0;
+                uint16_t tag;
+                //uint8_t num = 0;
             public:
                 myFilter(uint16_t tag) : tag(tag) {}
                 bool accept(StructureType const & type, std::shared_ptr<BaseStructure> struc) override {
@@ -318,7 +348,7 @@ namespace evio {
                 void gotStructure(std::shared_ptr<BaseStructure> topStructure,
                                   std::shared_ptr<BaseStructure> structure) {
                     std::cout << "  TOP struct = " << topStructure->toString() << std::endl;
-                    std::cout << "  GOT struct = " << structure->toString() << std::endl << std::endl;
+                    std::cout << "  GOT struct = " << structure->toString() << std::endl;
                 }
 
                 // We're not parsing so these are not used ...
@@ -348,6 +378,11 @@ namespace evio {
          b.putInt(12, 4);
          b.putInt(16, 5);
          b.putInt(20, 6);
+
+         std::cout << std::endl;
+         std::cout << "--------------------------------------------" << std::endl;
+         std::cout << "-------- Test ByteBuffer.slice() -----------" << std::endl;
+         std::cout << "--------------------------------------------" << std::endl << std::endl;
 
          Util::printBytes(b, 0, 24, "original");
          std::cout << "orig buf: pos = " << b.position() << ", lim = " <<  b.limit() << ", cap = " << b.capacity() <<
@@ -401,6 +436,11 @@ namespace evio {
         b.putInt(12, 4);
         b.putInt(16, 5);
         b.putInt(20, 6);
+
+        std::cout << std::endl;
+        std::cout << "--------------------------------------------" << std::endl;
+        std::cout << "----- Test ByteBuffer w/ mmap file ---------" << std::endl;
+        std::cout << "--------------------------------------------" << std::endl << std::endl;
 
         // Write this into a file
         size_t fileSz = 4*6;
@@ -539,6 +579,11 @@ namespace evio {
 
             // analyze format string
             std::string format = "N(I,D,F,2S,8a)";
+
+            std::cout << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+            std::cout << "-----      Test Composite Data       -------" << std::endl;
+            std::cout << "--------------------------------------------" << std::endl << std::endl;
 
             try {
 
@@ -707,6 +752,11 @@ namespace evio {
          */
         static int test2() {
 
+            std::cout << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+            std::cout << "-----      Test Composite Data 2     -------" << std::endl;
+            std::cout << "--------------------------------------------" << std::endl << std::endl;
+
             // Create a CompositeData object ...
 
             // Format to write an int and a string
@@ -739,6 +789,11 @@ namespace evio {
          * in order to create a CompositeData object.
          */
         static int test3() {
+
+            std::cout << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+            std::cout << "-----      Test Composite Data  3    -------" << std::endl;
+            std::cout << "--------------------------------------------" << std::endl << std::endl;
 
             // Create a CompositeData object ...
 
@@ -825,6 +880,11 @@ namespace evio {
          */
         static int test4() {
 
+            std::cout << std::endl;
+            std::cout << "--------------------------------------------" << std::endl;
+            std::cout << "-----      Test Composite Data  4    -------" << std::endl;
+            std::cout << "--------------------------------------------" << std::endl << std::endl;
+
             // Format to write 1 int and 1 float a total of N times
             std::string format = "N(I,F)";
 
@@ -864,7 +924,11 @@ namespace evio {
 
             try {
                 auto ev = EvioEvent::getInstance(0, DataType::COMPOSITE, 0);
-                auto & compDataVec = ev->getCompositeData();
+                auto & comps = ev->getCompositeData();
+                comps.push_back(cData0);
+                comps.push_back(cData1);
+                comps.push_back(cData2);
+                ev->updateCompositeData();
 
                 // Write it to this file
                 std::string fileName  = "./composite.dat";
@@ -967,70 +1031,6 @@ namespace evio {
     };
 
 
-    // Test the EventBuilder and CompactEventBuilder classes
-    static void EventBuilderTest() {
-        //---------------------------
-        // Test regular EventBuilder:
-        //---------------------------
-
-        uint16_t tag = 1;
-        DataType dataType = DataType::BANK;
-        uint8_t num = 1;
-
-        EventBuilder eb(tag, dataType, num);
-        //EventBuilder(std::shared_ptr<EvioEvent> & event);
-        auto ev = eb.getEvent();
-
-        EventBuilder eb2(tag+1, DataType::SHORT16, num+1);
-        auto ev2 = eb2.getEvent();
-        short sData[3] = {1, 2, 3};
-        eb2.appendShortData(ev2, sData, 3);
-        eb.addChild(ev, ev2);
-
-
-        std::cout << "EventBuilder's ev:\n" << ev->toString() << std::endl;
-        std::cout << "EventBuilder's ev2:\n" << ev2->toString() << std::endl;
-
-        EventBuilder eb3(tag+2, DataType::UINT32, num+2);
-        auto ev3 = eb3.getEvent();
-        eb.setEvent(ev3);
-        uint32_t iData[4] = {11, 22, 33, 44};
-        eb.appendUIntData(ev3, iData, 4);
-
-        std::cout << "EventBuilder's ev3:\n" << ev3->toString() << std::endl;
-
-        //---------------------------
-        // Test CompactEventBuilder:
-        //---------------------------
-
-        size_t bufSize = 1000;
-        CompactEventBuilder ceb(bufSize, ByteOrder::ENDIAN_LOCAL, true);
-        //explicit CompactEventBuilder(std::shared_ptr<ByteBuffer> buffer, bool generateNodes = false);
-        ceb.openBank(4, DataType::SEGMENT, 4);
-        ceb.openSegment(5, DataType::DOUBLE64);
-        double dd[3] = {1.11, 2.22, 3.33};
-        ceb.addDoubleData(dd, 3);
-        ceb.closeAll();
-        auto cebEvbuf = ceb.getBuffer();
-
-        //Util::printBytes(cebEvbuf, 0 , 200, "From CompactEventBuilder");
-
-        // Write into a buffer
-        auto newBuf = std::make_shared<ByteBuffer>(1000);
-        EventWriter writer(newBuf);
-        writer.writeEvent(cebEvbuf);
-        writer.close();
-        auto writerBuf = writer.getByteBuffer();
-
-        //Util::printBytes(newBuf, 0 , 200, "From EventWriter");
-
-        // Read event back out of buffer
-        EvioReader reader(writerBuf);
-        auto cebEv = reader.getEvent(1);
-
-        std::cout << "CompactEventBuilder's cebEv:\n" << cebEv->toString() << std::endl;
-    }
-
 
 }
 
@@ -1038,13 +1038,12 @@ namespace evio {
 
 int main(int argc, char **argv) {
     evio::TreeTest();
-    //evio::ByteBufferTest1();
-    //evio::myByteBufferTest2();
-    //evio::CompositeTester::test1();
-    //evio::CompositeTester::test2();
-    //evio::CompositeTester::test3();
-    //evio::CompositeTester::test4();
-    //evio::EventBuilderTest();
+//    evio::ByteBufferTest1();
+//    evio::ByteBufferTest2();
+//    evio::CompositeTester::test1();
+//    evio::CompositeTester::test2();
+//    evio::CompositeTester::test3();
+//    evio::CompositeTester::test4();
     return 0;
 }
 
