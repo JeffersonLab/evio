@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 
 public class HipoTest extends TestBase {
 
@@ -230,7 +229,8 @@ public class HipoTest extends TestBase {
         // Create a new ByteBuffer with the same capacity
         ByteBuffer copy = ByteBuffer.allocate(original.capacity());
         // Duplicate the contents (avoid changing pos/lim of original)
-        ByteBuffer duplicate = original.duplicate().limit(original.capacity()).position(0);
+        ByteBuffer duplicate = original.duplicate();
+        duplicate.limit(original.capacity()).position(0);
         copy.put(duplicate);
         copy.limit(original.limit()).position(original.position());
         return copy;
