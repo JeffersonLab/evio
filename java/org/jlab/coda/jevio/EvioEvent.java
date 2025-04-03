@@ -15,9 +15,7 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class EvioEvent extends EvioBank {
 		
-	/**
-	 * The XML record tag for an event.
-	 */
+	/** The XML record tag for an event. */
 	public static final String ELEMENT_NAME = "event";
 
 	/**
@@ -32,10 +30,11 @@ public class EvioEvent extends EvioBank {
 	 */
 	private int eventNumber;
 
-    /**
-     * There may be a dictionary in xml associated with this event. Or there may not.
-     */
+    /** There may be a dictionary in xml associated with this event. Or there may not. */
     private String dictionaryXML;
+
+    /** Has this been parsed yet or not? */
+    protected boolean parsed;
     
 
 

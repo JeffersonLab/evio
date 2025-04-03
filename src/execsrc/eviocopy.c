@@ -58,7 +58,7 @@ int user_event_select(unsigned int *buf);
 int main (int argc, char **argv) {
 
   int status;
-  int l;
+  // int l;
   
 
   /* decode command line */
@@ -138,6 +138,7 @@ int user_event_select(unsigned int *buf) {
     return(1);
   }
 
+  return(0);
 }
 
 

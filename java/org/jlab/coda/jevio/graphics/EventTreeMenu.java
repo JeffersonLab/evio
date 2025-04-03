@@ -26,60 +26,60 @@ public class EventTreeMenu {
     //----------------------
 
     /** A button for selecting "next" event. */
-    protected JButton nextButton;
+    JButton nextButton;
 
     /** A button for selecting "previous" event. */
-    protected JButton prevButton;
+    JButton prevButton;
 
 	/** Menu item for exporting file to XML. */
-    protected JMenuItem xmlExportItem;
+	private JMenuItem xmlExportItem;
 
     /** Menu item for opening event file. */
-    protected JMenuItem openEventFile;
+    private JMenuItem openEventFile;
 
     /** Menu item setting the number of the event (from a file) to be displayed. */
-    protected JTextField eventNumberInput;
+    private JTextField eventNumberInput;
 
     /** The panel that holds the tree and all associated widgets. */
-    protected EventTreePanel eventTreePanel;
+	private EventTreePanel eventTreePanel;
 
     /** Number of event currently being displayed. */
-    protected int eventIndex;
+    private int eventIndex;
 
     //----------------------
     // file stuff
     //----------------------
 
-    /** Last selected data file. */
-    protected String dataFilePath;
+     /** Last selected data file. */
+    private String dataFilePath;
 
     /** Last selected dictionary file. */
-    protected String dictionaryFilePath;
+    private String dictionaryFilePath;
 
     /** Last selected xml file to export event file into. */
-    protected String xmlFilePath;
+    private String xmlFilePath;
 
     /** Filter so only files with specified extensions are seen in file viewer. */
-    protected FileNameExtensionFilter evioFileFilter;
+    private FileNameExtensionFilter evioFileFilter;
 
     /** The reader object for the currently viewed evio file. */
-    protected EvioReader evioFileReader;
+    private EvioReader evioFileReader;
 
     //----------------------
     // dictionary stuff
     //----------------------
 
     /** Is the user-selected or file-embedded dictionary currently used? */
-    protected boolean isUserDictionary;
+    private boolean isUserDictionary;
 
     /** User-selected dictionary file. */
-    protected INameProvider userDictionary;
+    private INameProvider userDictionary;
 
     /** Dictionary embedded with opened evio file. */
-    protected INameProvider fileDictionary;
+    private INameProvider fileDictionary;
 
     /** Dictionary currently in use. */
-    protected INameProvider currentDictionary;
+    private INameProvider currentDictionary;
 
 
     //----------------------------
@@ -88,7 +88,7 @@ public class EventTreeMenu {
 	/**
 	 * Listener list for structures (banks, segments, tagsegments) encountered while processing an event.
 	 */
-    protected EventListenerList evioListenerList;
+	private EventListenerList evioListenerList;
 
 
 
@@ -112,7 +112,7 @@ public class EventTreeMenu {
     /**
      * Create a panel to change events in viewer.
      */
-    protected void addEventControlPanel() {
+    void addEventControlPanel() {
 
         nextButton = new JButton("next >");
 
@@ -122,19 +122,11 @@ public class EventTreeMenu {
                 // If we're looking at a file, there are multiple events contained in it
                 if (evioFileReader != null) {
                     try {
-                        // If we've reached the upper limit, do nothing
-                        if (eventIndex + 1 <= evioFileReader.getEventCount()) {
-                            EvioEvent event = evioFileReader.parseEvent(++eventIndex);
-                            if (event != null) {
-                                eventTreePanel.setEvent(event);
-                            }
-                            if (eventIndex > 1) {
-                                prevButton.setEnabled(true);
-                            }
-                            if (eventIndex >= evioFileReader.getEventCount()) {
-                                nextButton.setEnabled(false);
-                            }
+                        EvioEvent event = evioFileReader.parseEvent(++eventIndex);
+                        if (event != null) {
+                            eventTreePanel.setEvent(event);
                         }
+                        if (eventIndex > 1) prevButton.setEnabled(true);
                     }
                     catch (IOException e1) {
                         eventIndex--;
@@ -165,9 +157,6 @@ public class EventTreeMenu {
                             EvioEvent event = evioFileReader.parseEvent(--eventIndex);
                             if (event != null) {
                                 eventTreePanel.setEvent(event);
-                            }
-                            if (eventIndex < evioFileReader.getEventCount()) {
-                                nextButton.setEnabled(true);
                             }
                             if (eventIndex < 2) {
                                 prevButton.setEnabled(false);
@@ -203,20 +192,6 @@ public class EventTreeMenu {
                             EvioEvent event = evioFileReader.gotoEventNumber(eventIndex);
                             if (event != null) {
                                 eventTreePanel.setEvent(event);
-                            }
-
-                            if (eventIndex > 1) {
-                                prevButton.setEnabled(true);
-                            }
-                            else {
-                                prevButton.setEnabled(false);
-                            }
-
-                            if (eventIndex >= evioFileReader.getEventCount()) {
-                                nextButton.setEnabled(false);
-                            }
-                            else {
-                                nextButton.setEnabled(true);
                             }
                         }
                         else {
@@ -358,7 +333,7 @@ public class EventTreeMenu {
     /**
      * Select and open an event file.
      */
-    protected void doOpenEventFile() {
+    private void doOpenEventFile() {
         EvioReader eFile    = evioFileReader;
         EvioReader evioFile = openEventFile();
         // handle cancel button properly
@@ -566,7 +541,7 @@ public class EventTreeMenu {
             }
         }
         connectEvioListeners();     // Connect Listeners to the parser.
-
+        
         return evioFileReader;
     }
 
@@ -702,19 +677,19 @@ public class EventTreeMenu {
 	/**
 	 * Connect the listeners in the evioListenerList to the EventParser
 	 */
-    protected void connectEvioListeners(){
-
+	private void connectEvioListeners(){
+		
 		if (evioListenerList == null) {
 			return;
 		}
 
 		EventParser parser = getEvioFileReader().getParser();
-
+		
 		EventListener listeners[] = evioListenerList.getListeners(IEvioListener.class);
 
 		for (int i = 0; i < listeners.length; i++) {
 			parser.addEvioListener((IEvioListener)listeners[i]);
-		}
+		}		
 	}
 
 }

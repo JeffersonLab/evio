@@ -62,26 +62,27 @@ int main(int argc, char **argv) {
     } else {
       cerr << endl << "test *ln2==(2,6) failed" << endl << endl;
     }
-
-
-    // hang leaf nodes off cn1, note dereferencing of cn1
-    *cn1 << ln2
-        << evioDOMNode::createEvioDOMNode(tag=2, num=7, dBuf, 10) 
-        << evioDOMNode::createEvioDOMNode(tag=2, num=8, lVec);
+    
+    
+    // hang leaf nodes off cn1, note dereferencing of pointer cn1
+    evioDOMNodeP ln3 = evioDOMNode::createEvioDOMNode(tag=2, num=7, dBuf, 10);
+    evioDOMNodeP ln4 = evioDOMNode::createEvioDOMNode(tag=2, num=8, lVec);
+    *cn1 << ln2 << ln3 << ln4;
     
     
     // add some more data to ln2
     *ln2 << uVec2 << uVec1;
-
+    
     
     // create another sub-tree
     evioDOMNodeP cn3 = evioDOMNode::createEvioDOMNode(tag=30, num=35, cType=BANK);
-    *cn3 << evioDOMNode::createEvioDOMNode(tag=31, num=36, uVec1)
-         << evioDOMNode::createEvioDOMNode(tag=32, num=37, lVec)
-         << evioDOMNode::createEvioDOMNode(tag=10, num=20, iBuf, 10)
-         << evioDOMNode::createEvioDOMNode(tag=11, num=21, dBuf, 5)
-         << evioDOMNode::createEvioDOMNode(tag=12, num=22, lVec);
-
+    ln2 = evioDOMNode::createEvioDOMNode(tag=31, num=36, uVec1);
+    ln3 = evioDOMNode::createEvioDOMNode(tag=32, num=37, lVec);
+    ln4 = evioDOMNode::createEvioDOMNode(tag=10, num=20, iBuf, 10);
+    evioDOMNodeP ln5 = evioDOMNode::createEvioDOMNode(tag=11, num=21, dBuf, 5);
+    evioDOMNodeP ln6 = evioDOMNode::createEvioDOMNode(tag=12, num=22, lVec);
+    *cn3 << ln2 << ln3 << ln4 << ln5 << ln6;
+    
 
     // hang cn3 off cn1
     *cn1 << cn3;

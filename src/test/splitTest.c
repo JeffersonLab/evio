@@ -23,6 +23,7 @@ static uint32_t eventBuffer1[] =
     0x00000003
 }; /* len = 8 words */
 
+/*
 static uint32_t eventBuffer2[] =
 {
     0x00000011,
@@ -43,8 +44,9 @@ static uint32_t eventBuffer2[] =
     0x0000000b,
     0x0000000c,
     0x0000000d
-};/* len = 18 words */
+}; *//* len = 18 words */
 
+/*
 static uint32_t eventBuffer4[] =
 {
     0x00000013,
@@ -67,8 +69,9 @@ static uint32_t eventBuffer4[] =
     0x0000000d,
     0x0000000e,
     0x0000000f
-};/* len = 20 words */
+}; */ /* len = 20 words */
 
+/*
 static uint32_t eventBuffer3[] =
 {
     0x0000000f,
@@ -87,7 +90,7 @@ static uint32_t eventBuffer3[] =
     0x00000009,
     0x0000000a,
     0x0000000b
-};/* len = 16 words */
+}; *//* len = 16 words */
 
 
 static char *filename  = "/daqfs/home/timmer/coda/evio-4.1/my$(FILE_ENV)run_%d_.dat_%4d";
@@ -95,6 +98,7 @@ static char *filename2 = "/daqfs/home/timmer/coda/evio-4.1/myFile";
 
 
 /* xml dictionary */
+/*
 static char *xmlDictionary =
         "<xmlDict>\n"
         "  <bank name=\"My Event\"       tag=\"1\"   num=\"1\">\n"
@@ -108,30 +112,28 @@ static char *xmlDictionary =
         "  <dictEntry name=\"Last Bank\" tag=\"33\"  num=\"66\"/>\n"
         "  <dictEntry name=\"Test Bank\" tag=\"1\" />\n"
         "</xmlDict>";
+*/
 
 static char *xmlDictionary2 =
         "<xmlDict>\n"
         "  <dictEntry name=\"TAG1_NUM1\" tag=\"1\" num=\"1\"/>\n"
         "</xmlDict>\n";
 
-static void printI(int i) {
-    printf(" i = %d\n", i);
-}
 
 int main (int argc, char **argv)
 {
-    int i, err, handle, arg;
-    int evCount = 5;
-    uint32_t bufLen = 60, buffer[60];
+    int err, handle, arg;
 
     /* open file for writing & create a buffer */
     /*
+    uint32_t bufLen = 60, buffer[60];;
     err = evOpenBuffer(buffer, bufLen, "w", &handle);
     if (err != S_SUCCESS) {
         printf("Error in evOpen(), err = %x\n", err);
         exit(0);
     }
     */
+    
     /* open file for splitting */
     err = evOpen(filename2, "w", &handle);
     if (err != S_SUCCESS) {
@@ -254,12 +256,12 @@ int main (int argc, char **argv)
 int mainBuffer (int argc, char **argv)
 {
     int i, err, handle, arg;
-    int evCount = 5;
     uint64_t split;
     uint32_t bufLen = 60, buffer[60];
 
+    
     /* open file for writing */
-    err = evOpenBuffer(buffer, bufLen, "w", &handle);
+    err = evOpenBuffer((char *)buffer, bufLen, "w", &handle);
     if (err != S_SUCCESS) {
         printf("Error in evOpen(), err = %x\n", err);
         exit(0);
@@ -346,10 +348,10 @@ int mainBuffer (int argc, char **argv)
 int mainFile (int argc, char **argv)
 {
     int i, err, handle, arg;
-    int evCount = 5;
+    // int evCount = 5;
     uint64_t split;
     uint32_t eventBuffer5[60];
-    char stuff[128];
+    // char stuff[128];
 
     eventBuffer5[0] = 0x0000003b;
     eventBuffer5[1] = 0x00011001;

@@ -3,8 +3,10 @@ package org.jlab.coda.jevio.test;
 import org.jlab.coda.jevio.*;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.*;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -456,7 +458,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
             else {
                 long t2, t1 = System.currentTimeMillis();
@@ -491,7 +493,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
 
         }
@@ -842,7 +844,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
             else {
                 long t2, t1 = System.currentTimeMillis();
@@ -871,7 +873,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
 
         }
@@ -1000,8 +1002,135 @@ public class CompactReaderTest {
 
 
 
-    /** For WRITING a local file. */
+    /**
+       3 block headers (first 2 have 2 extra words each, last has 1 extra word).
+       First block has 2 events. Second has 3 events.
+       Last is empty final block.
+    */
+    static int data1[] = {
+        0x00000014,
+        0x00000001,
+        0x0000000A,
+        0x00000002,
+        0x00000000,
+        0x00000004,
+        0x00000000,
+        0xc0da0100,
+        0x00000003,
+        0x00000002,
+
+        0x00000004,
+        0x00010101,
+        0x00000001,
+        0x00000001,
+        0x00000001,
+
+        0x00000004,
+        0x00010101,
+        0x00000002,
+        0x00000002,
+        0x00000002,
+
+        0x0000000f,
+        0x00000002,
+        0x0000000A,
+        0x00000002,
+        0x00000000,
+        0x00000004,
+        0x00000000,
+        0xc0da0100,
+        0x00000001,
+        0x00000002,
+
+            0x00000004,
+            0x00010101,
+            0x00000003,
+            0x00000003,
+            0x00000003,
+
+            0x00000004,
+            0x00010101,
+            0x00000003,
+            0x00000003,
+            0x00000003,
+    };
+
+
+
+
+    /** For reading a local file/buffer, take events and put them into
+     *  a EvioCompactEventWriter and write a file with it. */
     public static void main(String args[]) {
+
+        int evCount;
+
+        String fileName  = "/tmp/testFile.ev";
+        System.out.println("Write file " + fileName);
+
+
+        // Write evio file that has extra words in headers
+        try {
+            byte[] be  = ByteDataTransformer.toBytes(data1, ByteOrder.BIG_ENDIAN);
+            ByteBuffer buf = ByteBuffer.wrap(be);
+            File file = new File(fileName);
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            FileChannel fileChannel = fileOutputStream.getChannel();
+            fileChannel.write(buf);
+            fileChannel.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+
+        System.out.println("\nRead file " + fileName);
+
+        File fileIn = new File(fileName);
+
+        System.out.println("\nEvioReader file: " + fileName);
+        try {
+            EvioReader reader = new EvioReader(fileName);
+            System.out.println("\nev count= " + reader.getEventCount());
+            System.out.println("dictionary = " + reader.getDictionaryXML() + "\n");
+
+
+            System.out.println("ev count = " + reader.getEventCount());
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\nCompactEvioReader file: " + fileName);
+        try {
+            EvioCompactReader reader = new EvioCompactReader(fileName);
+            System.out.println("\nev count= " + reader.getEventCount());
+            System.out.println("dictionary = " + reader.getDictionaryXML() + "\n");
+
+
+            System.out.println("ev count = " + reader.getEventCount());
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+
+        fileIn.delete();
+
+    }
+
+
+
+
+    /** For WRITING a local file. */
+    public static void main00(String args[]) {
 
         // Create buffer with 5 events
         int count = 5, evCount;

@@ -31,7 +31,7 @@ char *dictionary =
 "  <xmldumpDictEntry name=\"Tag4-Num4\"   tag=\"4\"   num=\"4\"/>\n"
 "</xmlDict>\n";
 
-static int32_t *makeEvent();
+static uint32_t *makeEvent();
 
 
 /**
@@ -97,9 +97,8 @@ static void printEvent(uint32_t eventNum, uint32_t *buffer) {
 
 int main(int argc, char **argv)
 {
-    int handle, status, nevents, nwords, debug=0;
+    int i, handle, status, debug=0;
     uint32_t *buffer;
-    int i, maxEvBlk = 2;
     char *filename;
 
 
@@ -133,13 +132,13 @@ int main(int argc, char **argv)
 }
 
 
-static int32_t *makeEvent()
+static uint32_t *makeEvent()
 {
-    int32_t *bank, *segment;
+    uint32_t *bank, *segment;
     short *word;
 
 
-    bank = (int *) calloc(1, 11*sizeof(int32_t));
+    bank = (uint32_t *) calloc(1, 11*sizeof(int32_t));
     bank[0] = 10;                    /* event length = 10 */
     bank[1] = 1 << 16 | 0x20 << 8;   /* tag = 1, bank 1 contains segments */
 

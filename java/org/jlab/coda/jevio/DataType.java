@@ -1,8 +1,6 @@
 package org.jlab.coda.jevio;
 
 
-import java.util.HashMap;
-
 /**
  * This an enum used to convert data type numerical values to a more meaningful name.
  * For example, the data type with value 0x20 corresponds to the enum BANK.
@@ -42,25 +40,23 @@ public enum DataType {
 
     // These 2 types are only used when dealing with COMPOSITE data.
     // They are never transported independently and are stored in integers.
-    HOLLERIT       (0x41),
-    NVALUE         (0x42);
+    HOLLERIT       (0x21),
+    NVALUE         (0x22);
+
 
     /** Each name is associated with a specific evio integer value. */
     private int value;
 
 
-    /** Faster way to convert integer values into names. */
-    private static HashMap<Integer, String> names = new HashMap<Integer, String>(32);
-
-    /** Faster way to convert integer values into DataType objects. */
-    private static HashMap<Integer, DataType> dataTypes = new HashMap<Integer, DataType>(32);
+    /** Fast way to convert integer values into DataType objects. */
+    private static DataType[] intToType;
 
 
-    // Fill static hashmaps after all enum objects created
+    // Fill array after all enum objects created
     static {
-        for (DataType item : DataType.values()) {
-            dataTypes.put(item.value, item);
-            names.put(item.value, item.name());
+        intToType = new DataType[0x42 + 1];
+        for (DataType type : values()) {
+            intToType[type.value] = type;
         }
     }
 
@@ -72,7 +68,8 @@ public enum DataType {
 	 * @return the matching enum, or <code>null</code>.
 	 */
     public static DataType getDataType(int val) {
-        return dataTypes.get(val);
+        if (val > 0x42 || val < 0) return null;
+        return intToType[val];
     }
 
 
@@ -83,9 +80,10 @@ public enum DataType {
      * @return the name, or "UNKNOWN".
      */
     public static String getName(int val) {
-        String n = names.get(val);
-        if (n != null) return n;
-        return "UNKNOWN";
+        if (val > 0x42 || val < 0) return "UNKNOWN";
+        DataType type = getDataType(val);
+        if (type == null) return "UNKNOWN";
+        return type.name();
     }
 
 
@@ -140,4 +138,24 @@ public enum DataType {
 			return false;
 		}
 	}
+
+    /**
+   	 * Convenience routine to see if the given integer arg represents a data type which
+     * is a structure (a container).
+   	 * @return <code>true</code> if the data type corresponds to one of the structure
+   	 * types: BANK, SEGMENT, or TAGSEGMENT.
+   	 */
+   	static public boolean isStructure(int dataType) {
+   		switch (getDataType(dataType)) {
+   		case BANK:
+   		case SEGMENT:
+   		case TAGSEGMENT:
+   		case ALSOBANK:
+   		case ALSOSEGMENT:
+   			return true;
+   		default:
+   			return false;
+   		}
+   	}
+
 }

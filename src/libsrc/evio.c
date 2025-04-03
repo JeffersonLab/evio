@@ -81,11 +81,11 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <ctype.h>
 #include "evio.h"
 
 
@@ -225,7 +225,7 @@
  *      Magic #            = magic number (0xc0da0100) used to check endianness
  *
  *
- *   Bit info (24 bits) has the following bits defined:
+ *   Bit info (24 bits) has the following bits defined (starting at 1):
  * 
  *   Bit  9     = true if dictionary is included (relevant for first block only)
  *   Bit  10    = true if this block is the last block in file or network transmission
@@ -326,6 +326,8 @@
     (a)[EV_HD_MAGIC]  = EV_MAGIC; \
 } \
 
+/* Prototypes for swap routine in evioswap.c */
+uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest);
 
 /* Prototypes for static routines */
 static  int      fileExists(char *filename);
@@ -518,7 +520,9 @@ void evPrintBuffer(uint32_t *p, uint32_t len, int swap) {
     printf("\nBUFFER:\n");
     for (i=0; i < len; i++) {
         if (swap) {
-            printf("%u   0x%08x\n", i, EVIO_SWAP32(*(p++)));
+            uint32_t p_tmp = (uint32_t) EVIO_SWAP32(*p);
+            printf("%u   0x%08x\n", i, p_tmp);
+            p++;
         }
         else {
             printf("%u   0x%08x\n", i, *(p++));
@@ -1011,7 +1015,7 @@ char *evStrReplace(char *orig, const char *replace, const char *with) {
     if (!with) with = "";
     len_with = strlen(with);
 
-    for (count = 0; tmp = strstr(ins, replace); ++count) {
+    for (count = 0; (tmp = strstr(ins, replace)); ++count) {
         ins = tmp + len_rep;
     }
 
@@ -1130,7 +1134,7 @@ char *evStrFindSpecifiers(const char *orig, int *specifierCount) {
     char oldSpecifier[25];  /* format specifier as it appears in orig */
     char newSpecifier[25];  /* format specifier desired */
     char c, *result;
-    int i, debug=0;
+    int debug=0;
     int count=0;            /* number of valid specifiers in orig */
     int digitCount;         /* number of digits in a specifier between % and x/d */
     
@@ -1149,7 +1153,7 @@ char *evStrFindSpecifiers(const char *orig, int *specifierCount) {
         c = *(++start);
         memset(digits, 0, 20);
         digits[0] = c;
-        if (debug) printf("Found %, first char = %c\n", c);
+        if (debug) printf("Found %%, first char = %c\n", c);
         
         /* Read all digits between the % and the first non-digit char */
         digitCount = 0;
@@ -1241,12 +1245,12 @@ char *evStrRemoveSpecifiers(const char *orig) {
     if (!result) return NULL;
 
     /* Look for C integer printing specifiers (starting with % and using x & d) */
-    while (pChar = strstr(pChar, "%")) {
+    while ( (pChar = strstr(pChar, "%")) ) {
         /* remember where specifier starts */
         pSpec = pChar;
         
         c = *(++pChar);
-        if (debug) printf("evStrRemoveSpecifiers found %, first char = %c\n", c);
+        if (debug) printf("evStrRemoveSpecifiers found %%, first char = %c\n", c);
         
         /* Read all digits between the % and the first non-digit char */
         digitCount = 0;
@@ -1730,9 +1734,9 @@ static int evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, i
     char *filename, *buffer, *baseName;
 
     uint32_t blk_size, temp, headerInfo, blkHdrSize, header[EV_HDSIZ];
-    uint32_t rwBufSize, nBytes, bytesToRead;
+    uint32_t rwBufSize, bytesToRead;
 
-    int i, err, version, ihandle;
+    int err, version, ihandle, nBytes;
     int debug=0, useFile=0, useBuffer=0, useSocket=0;
     int reading=0, randomAccess=0, append=0, splitting=0, specifierCount=0;
 
@@ -1913,7 +1917,6 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
         /**********************************/
 if (debug) {
     int j;
-    char *str;
     for (j=0; j < 8; j++) {
         printf("header[%d] = 0x%x\n", j, header[j]);
     }
@@ -2635,7 +2638,7 @@ static int generatePointerTable(EVFILE *a)
         }
 
         /* For each event in block, store its location */
-        for (i=0; i < blockEventCount; i++) {
+        for (i=0; i < (int)blockEventCount; i++) {
             /* Sanity check - must have at least 2 ints left */
             if (bytesLeft < 8) {
                 free(a->pTable);
@@ -2686,7 +2689,7 @@ static int generatePointerTable(EVFILE *a)
  */
 static int toAppendPosition(EVFILE *a)
 {
-    int         err, debug=0, usingBuffer=0;
+    int         debug=0, usingBuffer=0;
     uint32_t    nBytes, bytesToWrite;
     uint32_t   *pmem, sixthWord, header[EV_HDSIZ], *pHeader;
     uint32_t    blockBitInfo, blockEventCount, blockSize, blockHeaderSize, blockNumber=1;
@@ -2916,7 +2919,7 @@ if (debug) printf("toAppendPosition: prepare to write, back up 1 header to pos =
 static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 {
     uint32_t *buf, *pBuf;
-    int       error, status;
+    int       status;
     uint32_t  nleft, ncopy, len;
 
 
@@ -3097,7 +3100,7 @@ int evread_
 int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 {
     EVFILE   *a;
-    int       error, status,  swap;
+    int       status,  swap;
     uint32_t  nleft, ncopy;
     uint32_t *temp_buffer, *temp_ptr=NULL;
 
@@ -3457,7 +3460,7 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t
 static int evGetNewBuffer(EVFILE *a)
 {
     uint32_t *newBuf, blkHdrSize;
-    size_t    nBytes, bytesToRead;
+    size_t    nBytes=0, bytesToRead;
     int       debug=0, status = S_SUCCESS;
 
     
@@ -3651,9 +3654,9 @@ if (debug) printf("HEADER IS TOO BIG, reading an extra %lu bytes\n", bytesToRead
 
 /**
  * Calculates the sixth word of the block header which has the version number
- * in the lowest 8 bits. The arg hasDictionary is set in the 9th bit and
+ * in the lowest 8 bits (1-8). The arg hasDictionary is set in the 9th bit and
  * isEnd is set in the 10th bit.
- * Four bits of an int (event type) are set in bits 10-13.
+ * Four bits of an int (event type) are set in bits 11-14.
  *
  * @param version evio version number
  * @param hasDictionary does this block include an evio xml dictionary as the first event?
@@ -4112,7 +4115,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
     }
     
     if (debug && a->splitting) {
-printf("evWrite: splitting, bytesToFile = %lu (bytes), event bytes = %u, bytesToBuf = %u, split = %lu\n",
+printf("evWrite: splitting, bytesToFile = %llu (bytes), event bytes = %u, bytesToBuf = %u, split = %llu\n",
                a->bytesToFile, (4*nToWrite), a->bytesToBuf, a->split );
     }
     
@@ -4166,11 +4169,11 @@ if (debug) printf("evWrite: account for adding empty last block when splitting\n
 /* If dictionary was written, do NOT include that when deciding to split */
 /* totalSize -= a->dictLength; */
 
-if (debug) printf("evWrite: splitting = %s: total size = %lu >? split = %lu\n",
+if (debug) printf("evWrite: splitting = %s: total size = %llu >? split = %llu\n",
                           (totalSize > a->split ? "True" : "False"),
                           totalSize, a->split);
 
-if (debug) printf("evWrite: total size components: bytesToFile = %lu, bytesToBuf = %u, ev bytes = %u, additional headers = %d * 32, dictlen = %u\n",
+if (debug) printf("evWrite: total size components: bytesToFile = %llu, bytesToBuf = %u, ev bytes = %u, additional headers = %d * 32, dictlen = %u\n",
         a->bytesToFile, a->bytesToBuf, 4*nToWrite, headerCount, a->dictLength);
 
         /* If we're going to split the file ... */
@@ -4377,7 +4380,7 @@ if (debug) {
         printf("         internal buffer cnt = %u\n", a->eventsToBuf);
         printf("         block cnt = %u\n", a->blkEvCount);
         printf("         bytes-to-buf  = %u\n", a->bytesToBuf);
-        printf("         bytes-to-file = %u\n", a->bytesToFile);
+        printf("         bytes-to-file = %llu\n", a->bytesToFile);
         printf("         block # = %u\n", a->blknum);
 }
 
@@ -4410,7 +4413,7 @@ if (debug) {
  */
 static int evFlush(EVFILE *a) {
     long pos;
-    uint32_t nBytes, debug=0, bytesToWrite=0, blockHeaderBytes = 4*EV_HDSIZ;
+    uint32_t nBytes=0, debug=0, bytesToWrite=0, blockHeaderBytes = 4*EV_HDSIZ;
 
     
     /* If nothing to write ... */
@@ -4493,7 +4496,9 @@ if (debug) printf("    evFlush: write %d bytes\n", bytesToWrite);
 
         /* Write block to file */
         nBytes = fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
-        fflush(a->file);
+
+// I suspect this line kills performance so just remove it for now.
+//        fflush(a->file);
         
         /* Return for error condition of file stream */
         if (ferror(a->file)) return(S_FAILURE);
@@ -4529,7 +4534,7 @@ if (debug) printf("    evFlush: file cnt total = %u\n", a->eventsToFile);
  */
 static int splitFile(EVFILE *a) {
     char *fname;
-    int err, status=1, debug=0;
+    int err=0, status=1, debug=0;
 
     
     /* Only makes sense when writing to files */
@@ -4875,7 +4880,6 @@ int evIoctl(int handle, char *request, void *argp)
     uint32_t *newBuf, *pHeader;
     int       err, debug=0;
     char     *runType;
-    int32_t   lockOff;
     uint32_t  eventsMax, blockSize, bufferSize, runNumber;
     uint64_t  splitSize;
 
@@ -5188,14 +5192,14 @@ printf("DEcreasing internal buffer size to %u words\n", bufferSize);
             /* Smallest possible evio format file = 18 32-bit ints.
              * Must also be bigger than a single buffer. */
             if (splitSize < 4*18 || splitSize < 4*a->bufSize) {
-if (debug) printf("evIoctl: split file size is too small! (%lu bytes), must be min %u\n",
+if (debug) printf("evIoctl: split file size is too small! (%llu bytes), must be min %u\n",
                   splitSize, 4*a->bufSize);
                 handleWriteUnlock(handle);
                 return(S_EVFILE_BADSIZEREQ);
             }
             
             a->split = splitSize;
-if (debug) printf("evIoctl: split file at %lu (0x%x) bytes\n", splitSize, splitSize);
+if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, splitSize);
             break;
 
         /************************************************/
@@ -5286,7 +5290,7 @@ if (debug) printf("evIoctl: split file at %lu (0x%x) bytes\n", splitSize, splitS
  * @return S_EVFILE_BADARG     if table or len arg(s) is NULL
  * @return S_EVFILE_BADHANDLE  if bad handle arg
  */
-int evGetRandomAccessTable(int handle, const uint32_t ***table, uint32_t *len) {
+int evGetRandomAccessTable(int handle, uint32_t *** const table, uint32_t *len) {
     EVFILE *a;
 
     

@@ -20,7 +20,7 @@
 #include <string.h>
 #include "evio.h"
 
-int32_t *makeEvent();
+uint32_t *makeEvent();
 #define MIN(a,b) (a<b)? a : b
 
 char *dictionary =
@@ -39,9 +39,9 @@ char *dictionary =
 int main()
 {
     int handle, status, nevents, nwords;
-    int buffer[2048], i, maxEvBlk = 2;
-    int *ip, *pBuf, *dict, dictLen, bufLen;
-    char eventBuffer[4*4096];
+    int i, maxEvBlk = 2;
+    uint32_t *ip, *pBuf, buffer[2048], bufLen, dictLen;
+    char eventBuffer[4*4096], *dict;
 
     memset(eventBuffer, 0, 4*4096);
 
@@ -167,13 +167,13 @@ int main()
 }
 
 
-int32_t *makeEvent()
+uint32_t *makeEvent()
 {
-    int32_t *bank, *segment;
+    uint32_t *bank, *segment;
     short *word;
 
 
-    bank = (int *) calloc(1, 11*sizeof(int32_t));
+    bank = (uint32_t *) calloc(1, 11*sizeof(int32_t));
     bank[0] = 10;                    /* event length = 10 */
     bank[1] = 1 << 16 | 0x20 << 8;   /* tag = 1, bank 1 contains segments */
 

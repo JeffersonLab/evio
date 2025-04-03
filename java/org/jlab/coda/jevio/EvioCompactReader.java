@@ -5,7 +5,6 @@ import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -58,10 +57,10 @@ public class EvioCompactReader {
     private static final int VERSION_MASK = 0xff;
 
     /** Stores info of all the (top-level) events. */
-    public final ArrayList<EvioNode> eventNodes = new ArrayList<EvioNode>(200000);
+    public final ArrayList<EvioNode> eventNodes = new ArrayList<EvioNode>(1000);
 
     /** Store info of all block headers. */
-    private final HashMap<Integer, BlockNode> blockNodes = new HashMap<Integer, BlockNode>(1000);
+    private final HashMap<Integer, BlockNode> blockNodes = new HashMap<Integer, BlockNode>(20);
 
 
     /**
@@ -114,6 +113,9 @@ public class EvioCompactReader {
     /** The buffer being read. */
     private ByteBuffer byteBuffer;
 
+    /** Object containing buffer and its parsed information. */
+    BufferNode bufferNode;
+
     /** Initial position of buffer (mappedByteBuffer if reading a file). */
     private int initialPosition;
 
@@ -123,6 +125,10 @@ public class EvioCompactReader {
 
     /** Is this object currently closed? */
     private boolean closed;
+
+    /** Skip things like keeping track of blocks for the sake of speed? */
+    private boolean fast = true;
+
 
     //------------------------
     // File specific members
@@ -255,7 +261,21 @@ public class EvioCompactReader {
      * @throws EvioException if arg is null;
      *                       if failure to read first block header
      */
-    public synchronized void setBuffer(ByteBuffer buf) throws EvioException {
+    public void setBuffer(ByteBuffer buf) throws EvioException {
+        setBuffer(buf, true);
+    }
+
+    /**
+     * This method can be used to avoid creating additional EvioCompactReader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.
+     *
+     * @param buf ByteBuffer to be read
+     * @param fast ignore things like tracking block info for the sake of speed
+     * @throws EvioException if arg is null;
+     *                       if failure to read first block header
+     */
+    synchronized void setBuffer(ByteBuffer buf, boolean fast) throws EvioException {
 
         if (buf == null) {
             throw new EvioException("arg is null");
@@ -263,14 +283,18 @@ public class EvioCompactReader {
 
         close();
 
-        blockNodes.clear();
+        this.fast = fast;
+
+        if (!fast) {
+            blockNodes.clear();
+        }
         eventNodes.clear();
 
-        blockCount          = -1;
-        eventCount          = -1;
-        dictionaryXML       = null;
-        initialPosition     = buf.position();
-        this.byteBuffer     = buf;
+        blockCount      = -1;
+        eventCount      = -1;
+        dictionaryXML   = null;
+        initialPosition = buf.position();
+        this.byteBuffer = buf;
 
         if (readFirstHeader() != ReadStatus.SUCCESS) {
             throw new EvioException("Failed reading first block header/dictionary");
@@ -287,6 +311,12 @@ public class EvioCompactReader {
      * @return {@code true} if this object closed, else {@code false}.
      */
     public synchronized boolean isClosed() {return closed;}
+
+    /**
+     * Get the byte order of the file/buffer being read.
+     * @return byte order of the file/buffer being read.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
 
     /**
      * Get the evio version number.
@@ -427,54 +457,121 @@ public class EvioCompactReader {
 
 
     /**
+     * Get the EvioNode object associated with a particular event number
+     * which has been scanned so all substructures are contained in the
+     * node.allNodes list.
+     * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @return  EvioNode object associated with a particular event number,
+     *
+     *         or null if there is none.
+     */
+    public EvioNode getScannedEvent(int eventNumber) {
+        try {
+            return scanStructure(eventNumber);
+        }
+        catch (IndexOutOfBoundsException e) { }
+        return null;
+    }
+
+
+    /**
      * Generate a table (ArrayList) of positions of events in file/buffer.
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Uses only absolute gets so byteBuffer position
-     * does not change. Called only in constructors and setBuffer.
+     * does not change. Called only in constructors and
+     * {@link #setBuffer(java.nio.ByteBuffer)}.
      *
      * @throws EvioException if bytes not in evio format
      */
     private void generateEventPositionTable() throws EvioException {
 
-        int      ver, len, byteLen, blockHdrSize, position;
-        boolean  curLastBlock=false, firstBlock=true, hasDictionary=false;
+        int      byteInfo, byteLen, blockHdrSize, blockSize, blockEventCount, magicNum;
+        boolean  firstBlock=true, hasDictionary=false;
+        //boolean  curLastBlock=false;
 
 //        long t2, t1 = System.currentTimeMillis();
 
+        bufferNode = new BufferNode(byteBuffer);
+
         // Start at the beginning of byteBuffer without changing
         // its current position. Do this with absolute gets.
-        position = initialPosition;
+        int position  = initialPosition;
+        int bytesLeft = byteBuffer.limit() - position;
 
         // Keep track of the # of blocks, events, and valid words in file/buffer
         blockCount = 0;
         eventCount = 0;
         validDataWords = 0;
-        BlockNode blockNode;
+        BlockNode blockNode=null, previousBlockNode=null;
 
         try {
 
-            while (!curLastBlock) {
-
-                // File is now positioned before block header.
-                // Look at block header to get info.
-                blockNode = new BlockNode();
-                blockNodes.put(blockCount, blockNode);
-                blockNode.pos = position;
-//System.out.println("generateEventPositionTable: goto buf pos = " + position);
+            while (bytesLeft > 0) {
+                // Need enough data to at least read 1 block header (32 bytes)
+                if (bytesLeft < 32) {
+                    throw new EvioException("Bad evio format: extra " + bytesLeft +
+                                                    " bytes at file end");
+                }
 
                 // Swapping is taken care of
-                blockNode.len   = byteBuffer.getInt(position);
-                ver             = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_VERSION);
+                blockSize       = byteBuffer.getInt(position);
+                byteInfo        = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_VERSION);
                 blockHdrSize    = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
-                blockNode.count = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
+                blockEventCount = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
+                magicNum        = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_MAGIC);
 
-                blockNode.place = blockCount++;
-                validDataWords += blockNode.len;
-                curLastBlock    = BlockHeaderV4.isLastBlock(ver);
-                if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(ver);
+//                System.out.println("    genEvTablePos: blk ev count = " + blockEventCount +
+//                                           ", blockSize = " + blockSize +
+//                                           ", blockHdrSize = " + blockHdrSize +
+//                                           ", byteInfo  = " + byteInfo);
+
+                // If magic # is not right, file is not in proper format
+                if (magicNum != BlockHeaderV4.MAGIC_NUMBER) {
+                    throw new EvioException("Bad evio format: block header magic # incorrect");
+                }
+
+                if (blockSize < 8 || blockHdrSize < 8) {
+                    throw new EvioException("Bad evio format (block: len = " +
+                                                    blockSize + ", blk header len = " + blockHdrSize + ")" );
+                }
+
+                // Check to see if the whole block is there
+                if (4*blockSize > bytesLeft) {
+//System.out.println("    4*blockSize = " + (4*blockSize) + " >? bytesLeft = " + bytesLeft +
+//                   ", pos = " + position);
+                    throw new EvioException("Bad evio format: not enough data to read block");
+                }
+
+                if (!fast) {
+                    // File is now positioned before block header.
+                    // Look at block header to get info.
+                    blockNode = new BlockNode();
+
+                    blockNode.pos = position;
+                    blockNode.len   = blockSize;
+                    blockNode.count = blockEventCount;
+
+                    blockNodes.put(blockCount, blockNode);
+                    bufferNode.blockNodes.add(blockNode);
+
+                    blockNode.place = blockCount++;
+
+                    // Make linked list of blocks
+                    if (previousBlockNode != null) {
+                        previousBlockNode.nextBlock = blockNode;
+                    }
+                    else {
+                        previousBlockNode = blockNode;
+                    }
+                }
+
+                validDataWords += blockSize;
+//                curLastBlock    = BlockHeaderV4.isLastBlock(byteInfo);
+                if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(byteInfo);
 
                 // Hop over block header to events
-                position += 4*blockHdrSize;
+                position  += 4*blockHdrSize;
+                bytesLeft -= 4*blockHdrSize;
 
 //System.out.println("    hopped blk hdr, pos = " + position + ", is last blk = " + curLastBlock);
 
@@ -489,29 +586,42 @@ public class EvioCompactReader {
 
                     // Skip over dictionary
                     position  += byteLen;
-    //System.out.println("    hopped dict, pos = " + position);
+                    bytesLeft -= byteLen;
+//System.out.println("    hopped dict, pos = " + position);
                 }
 
                 // For each event in block, store its location
-                for (int i=0; i < blockNode.count; i++) {
-                    EvioNode node = extractNode(byteBuffer, blockNode,
-                                                null, DataType.BANK, position,
-                                                eventCount + i, true);
-    //System.out.println("genTable event "+i+" w/ pos = " + node.pos + ", dataPos = " + node.dataPos);
+                for (int i=0; i < blockEventCount; i++) {
+                    // Sanity check - must have at least 1 header's amount left
+                    if (bytesLeft < 8) {
+                        throw new EvioException("Bad evio format: not enough data to read event (bad bank len?)");
+                    }
+
+                    EvioNode node = extractEventNode(bufferNode, blockNode,
+                                                     position, eventCount + i);
+//System.out.println("      event "+i+" in block: pos = " + node.pos +
+//                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
                     eventNodes.add(node);
+                    if (!fast) blockNode.allEventNodes.add(node);
 
                     // Hop over header + data
-                    len = 8 + 4*node.dataLen;
-                    position  += len;
-    //System.out.println("    hopped event, pos = " + position + "\n");
+                    byteLen = 8 + 4*node.dataLen;
+                    position  += byteLen;
+                    bytesLeft -= byteLen;
+
+                    if (byteLen < 8 || bytesLeft < 0) {
+                        throw new EvioException("Bad evio format: bad bank length");
+                    }
+
+//System.out.println("    hopped event " + (i+1) + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
                 }
 
-                eventCount += blockNode.count;
-
+                eventCount += blockEventCount;
             }
         }
         catch (IndexOutOfBoundsException e) {
-            throw new EvioException("File/buffer bad format", e);
+            bufferNode = null;
+            throw new EvioException("Bad evio format", e);
         }
 
 //        t2 = System.currentTimeMillis();
@@ -554,6 +664,7 @@ public class EvioCompactReader {
                 else {
                     byteOrder = ByteOrder.BIG_ENDIAN;
                 }
+//System.out.println("EvioCompactReader: switch endianness to " + byteOrder);
                 byteBuffer.order(byteOrder);
 
                 // Reread magic number to make sure things are OK
@@ -570,7 +681,7 @@ System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right
             int bitInfo = byteBuffer.getInt(pos + VERSION_OFFSET);
             evioVersion = bitInfo & VERSION_MASK;
             if (evioVersion < 4)  {
-System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompactReader class");
+System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion + ")");
                 return ReadStatus.EVIO_EXCEPTION;
             }
 
@@ -592,6 +703,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             blockHeader.setVersion(evioVersion);
             blockHeader.setReserved2(0);  // not used
             blockHeader.setMagicNumber(magicNumber);
+            blockHeader.setByteOrder(byteOrder);
         }
         catch (EvioException a) {
             byteBuffer.clear();
@@ -666,144 +778,80 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
 
     /**
-     * This method extracts an EvioNode object from a given buffer, a
+     * This method extracts an EvioNode object representing an
+     * evio event (top level evio bank) from a given buffer, a
      * location in the buffer, and a few other things. An EvioNode
      * object represents an evio container - either a bank, segment,
      * or tag segment.
      *
-     * @param buffer    buffer to examine
-     * @param blockNode object holding data about block header
-     * @param eventNode object holding data about containing event (null if isEvent = true)
-     * @param type      type of evio structure to extract
-     * @param position  position in buffer
-     * @param place     place of event in buffer (starting at 0)
-     * @param isEvent   is the node being extracted an event (top-level bank)?
+     * @param bufferNode buffer to examine
+     * @param blockNode  object holding data about block header
+     * @param position   position in buffer
+     * @param place      place of event in buffer (starting at 0)
      *
-     * @return          EvioNode object containing evio event information
-     * @throws EvioException if file/buffer not in evio format
+     * @return EvioNode object containing evio event information
+     * @throws EvioException if file/buffer too small
      */
-    private EvioNode extractNode(ByteBuffer buffer, BlockNode blockNode,
-                                 EvioNode eventNode, DataType type,
-                                 int position, int place, boolean isEvent)
+    static private EvioNode extractEventNode(BufferNode bufferNode, BlockNode blockNode,
+                                             int position, int place)
             throws EvioException {
 
-        // Store current evio info without de-serializing
-        EvioNode node = new EvioNode();
-        node.pos = position;
-        node.place = place; // Which # event from beginning am I?
-        node.blockNode = blockNode;  // Block associated with this event
-        node.eventNode = eventNode;
-        node.isEvent = isEvent;
-        node.type = type.getValue();
+        // Make sure there is enough data to at least read evio header
+        ByteBuffer buffer = bufferNode.buffer;
+        if (buffer.remaining() < 8) {
+            throw new EvioException("buffer underflow");
+        }
 
-        switch (type) {
+        // Store evio event info, without de-serializing, into EvioNode object
+        EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
 
-            case BANK:
-            case ALSOBANK:
+        // Get length of current event
+        node.len = buffer.getInt(position);
+        // Position of data for a bank
+        node.dataPos = position + 8;
+        // Len of data for a bank
+        node.dataLen = node.len - 1;
 
-                // Get length of current event
-                node.len = buffer.getInt(position);
-                // Position of data for a bank
-                node.dataPos = position + 8;
-                // Len of data for a bank
-                node.dataLen = node.len - 1;
+        // Make sure there is enough data to read full event
+        // even though it is NOT completely read at this time.
+        if (buffer.remaining() < 4*(node.len + 1)) {
+//System.out.println("ERROR: remaining = " + buffer.remaining() +
+//            ", node len bytes = " + ( 4*(node.len + 1)));
+            throw new EvioException("buffer underflow");
+        }
 
-                // Hop over length word
-                position += 4;
+        // Hop over length word
+        position += 4;
 
+        // Read second header word
+        if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+            node.tag = buffer.getShort(position) & 0xffff;
+            position += 2;
 
-                // Read second header word
-                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                    node.tag = buffer.getShort(position) & 0x0000ffff;
-                    position += 2;
+            int dt = buffer.get(position++) & 0xff;
+            node.dataType = dt & 0x3f;
+            node.pad  = dt >>> 6;
+            // If only 7th bit set, that can only be the legacy tagsegment type
+            // with no padding information - convert it properly.
+            if (dt == 0x40) {
+                node.dataType = DataType.TAGSEGMENT.getValue();
+                node.pad = 0;
+            }
 
-                    int dt = buffer.get(position++) & 0x000000ff;
-                    node.dataType = dt & 0x3f;
-                    node.pad  = dt >>> 6;
-                    // If only 7th bit set, that can only be the legacy tagsegment type
-                    // with no padding information - convert it properly.
-                    if (dt == 0x40) {
-                        node.dataType = DataType.TAGSEGMENT.getValue();
-                        node.pad = 0;
-                    }
+            node.num = buffer.get(position) & 0xff;
+        }
+        else {
+            node.num = buffer.get(position++) & 0xff;
 
-                    node.num = buffer.get(position) & 0x000000ff;
-                }
-                else {
-                    node.num = buffer.get(position++) & 0x000000ff;
+            int dt = buffer.get(position++) & 0xff;
+            node.dataType = dt & 0x3f;
+            node.pad  = dt >>> 6;
+            if (dt == 0x40) {
+                node.dataType = DataType.TAGSEGMENT.getValue();
+                node.pad = 0;
+            }
 
-                    int dt = buffer.get(position++) & 0x000000ff;
-                    node.dataType = dt & 0x3f;
-                    node.pad  = dt >>> 6;
-                    if (dt == 0x40) {
-                        node.dataType = DataType.TAGSEGMENT.getValue();
-                        node.pad = 0;
-                    }
-
-                    node.tag = buffer.getShort(position) & 0x0000ffff;
-                }
-                break;
-
-            case SEGMENT:
-            case ALSOSEGMENT:
-
-                node.dataPos = position + 4;
-
-                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                    node.tag = buffer.get(position++) & 0x000000ff;
-
-                    int dt = buffer.get(position++) & 0x000000ff;
-                    node.dataType = dt & 0x3f;
-                    node.pad = dt >>> 6;
-                    if (dt == 0x40) {
-                        node.dataType = DataType.TAGSEGMENT.getValue();
-                        node.pad = 0;
-                    }
-
-                    node.len = buffer.getShort(position) & 0x0000ffff;
-                }
-                else {
-                    node.len = buffer.getShort(position) & 0x0000ffff;
-                    position += 2;
-                    int dt = buffer.get(position++) & 0x000000ff;
-                    node.dataType = dt & 0x3f;
-                    node.pad = dt >>> 6;
-                    if (dt == 0x40) {
-                        node.dataType = DataType.TAGSEGMENT.getValue();
-                        node.pad = 0;
-                    }
-                    node.tag = buffer.get(position) & 0x000000ff;
-                }
-
-                node.dataLen = node.len;
-
-                break;
-
-            case TAGSEGMENT:
-
-                node.dataPos = position + 4;
-
-                if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                    int temp = buffer.getShort(position) & 0x0000ffff;
-                    position += 2;
-                    node.tag = temp >>> 4;
-                    node.dataType = temp & 0xF;
-                    node.len = buffer.getShort(position) & 0x0000ffff;
-                }
-                else {
-                    node.len = buffer.getShort(position) & 0x0000ffff;
-                    position += 2;
-                    int temp = buffer.getShort(position) & 0x0000ffff;
-                    node.tag = temp >>> 4;
-                    node.dataType = temp & 0xF;
-                }
-
-                node.dataLen = node.len;
-
-                break;
-
-            default:
-                throw new EvioException("File/buffer bad format");
+            node.tag = buffer.getShort(position) & 0xffff;
         }
 
         return node;
@@ -813,37 +861,33 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
     /**
      * This method recursively stores, in the given list, all the information
      * about an evio structure's children found in the given ByteBuffer object.
-     * It uses absolute gets so buffer's position does <b>not</> change.
+     * It uses absolute gets so buffer's position does <b>not</b> change.
      *
-     * @param buffer     buffer to be scanned
-     * @param eventNode  event containing structure being scanned
-     * @param blockNode  block header containing structure being scanned
-     * @param type       type of evio structure being scanned
-     * @param length     length of evio structure being scanned
-     * @param position   position of evio structure being scanned
-     * @param list       add any leaf children of structure being scanned into this list
+     * @param node node being scanned
      */
-    static private void scanStructure(ByteBuffer buffer,
-                                      EvioNode eventNode, BlockNode blockNode,
-                                      DataType type, int length, int position,
-                                      List<EvioNode> list) {
+    static private void scanStructure(EvioNode node) {
 
-//System.out.println("scanStructure: scanning struct with len = " + length);
-//System.out.println("scanStructure: data type of node to be scanned = " + type);
+        // Type of evio structure being scanned
+        DataType type = node.getDataTypeObj();
 
         // If node does not contain containers, return since we can't drill any further down
         if (!type.isStructure()) {
-//System.out.println("scanStructure: NODE is not a structure, return");
             return;
         }
+ //System.out.println("scanStructure: scanning evio struct with len = " + node.dataLen);
+ //System.out.println("scanStructure: data type of node to be scanned = " + type);
 
-        // Look through node's children starting in node's data
-        // (not in its header), and don't go past the data's end.
-        int dataBytes = 4*length;
-        int endingPos = position + dataBytes;
+        // Start at beginning position of evio structure being scanned
+        int position = node.dataPos;
+        // Don't go past the data's end which is (position + length)
+        // of evio structure being scanned in bytes.
+        int endingPos = position + 4*node.dataLen;
+        // Buffer we're using
+        ByteBuffer buffer = node.bufferNode.buffer;
+//System.out.println("scanStructure: pos = " + position + ", ending pos = " + endingPos +
+//", lim = " + buffer.limit() + ", cap = " + buffer.capacity());
 
         int dt, dataType, dataLen, len, pad, tag, num;
-        DataType dType;
 
         // Do something different depending on what node contains
         switch (type) {
@@ -851,23 +895,24 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             case ALSOBANK:
 
                 // Extract all the banks from this bank of banks.
-                while (position < endingPos) {
-//System.out.println("scanStructure: start at pos " + position + " < end " + endingPos + " ?");
-
+                // Make allowance for reading header (2 ints).
+                while (position <= endingPos - 8) {
 //System.out.println("scanStructure: buf is at pos " + buffer.position() +
-//                           ", limit =  " + buffer.limit() + ", remaning = " + buffer.remaining() +
-//                           ", capacity = " + buffer.capacity());
+//                   ", limit =  " + buffer.limit() + ", remaining = " + buffer.remaining() +
+//                   ", capacity = " + buffer.capacity());
+
                     // Read first header word
                     len = buffer.getInt(position);
-                    dataLen = len - 1; // Len of data (no header) for a bank
+                    // Len of data (no header) for a bank
+                    dataLen = len - 1;
                     position += 4;
 
                     // Read & parse second header word
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        tag = buffer.getShort(position) & 0x0000ffff;
+                        tag = buffer.getShort(position) & 0xffff;
                         position += 2;
 
-                        dt = buffer.get(position++) & 0x000000ff;
+                        dt = buffer.get(position++) & 0xff;
                         dataType = dt & 0x3f;
                         pad  = dt >>> 6;
                         // If only 7th bit set, that can only be the legacy tagsegment type
@@ -877,12 +922,12 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
                             pad = 0;
                         }
 
-                        num = buffer.get(position++) & 0x000000ff;
+                        num = buffer.get(position++) & 0xff;
                     }
                     else {
-                        num = buffer.get(position++) & 0x000000ff;
+                        num = buffer.get(position++) & 0xff;
 
-                        dt = buffer.get(position++) & 0x000000ff;
+                        dt = buffer.get(position++) & 0xff;
                         dataType = dt & 0x3f;
                         pad  = dt >>> 6;
                         if (dt == 0x40) {
@@ -890,38 +935,40 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
                             pad = 0;
                         }
 
-                        tag = buffer.getShort(position) & 0x0000ffff;
+                        tag = buffer.getShort(position) & 0xffff;
                         position += 2;
                     }
-//System.out.println("found tag/num = " + tag + ", " + num);
-                    dType = DataType.getDataType(dataType);
 
-                    // Put this in the list
-                    EvioNode kidNode = new EvioNode();
+                    // Cloning is a fast copy that eliminates the need
+                    // for setting stuff that's the same as the parent.
+                    EvioNode kidNode = (EvioNode)node.clone();
+
                     kidNode.len  = len;
-                    kidNode.type = DataType.BANK.getValue();  // This is a bank
                     kidNode.pos  = position - 8;
+                    kidNode.type = DataType.BANK.getValue();  // This is a bank
 
-                    kidNode.dataLen = dataLen;
+                    kidNode.dataLen  = dataLen;
+                    kidNode.dataPos  = position;
                     kidNode.dataType = dataType;
-                    kidNode.dataPos = position;
-
-                    kidNode.eventNode = eventNode;
-                    kidNode.blockNode = blockNode;
 
                     kidNode.pad = pad;
                     kidNode.tag = tag;
                     kidNode.num = num;
-                    list.add(kidNode);
+
+                    // Create the tree structure
+                    kidNode.isEvent = false;
+                    kidNode.parentNode = node;
+
+                    // Add this to list of children and to list of all nodes in the event
+                    node.addChild(kidNode);
 
 //System.out.println("scanStructure: kid bank at pos = " + kidNode.pos +
-//                    " with type " + dType + ", tag/num = " + kidNode.tag +
-//                    "/" + kidNode.num + ", list size = " + list.size());
+//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
+//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
 
                     // Only scan through this child if it's a container
-                    if (dType.isStructure()) {
-                        scanStructure(buffer, eventNode, blockNode,
-                                  dType, dataLen, position, list);
+                    if (DataType.isStructure(dataType)) {
+                        scanStructure(kidNode);
                     }
 
                     // Set position to start of next header (hop over kid's data)
@@ -934,62 +981,58 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             case ALSOSEGMENT:
 
                 // Extract all the segments from this bank of segments.
-                while (position < endingPos) {
+                // Make allowance for reading header (1 int).
+                while (position <= endingPos - 4) {
 
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        tag = buffer.get(position++) & 0x000000ff;
-                        dt = buffer.get(position++) & 0x000000ff;
+                        tag = buffer.get(position++) & 0xff;
+                        dt = buffer.get(position++) & 0xff;
                         dataType = dt & 0x3f;
                         pad = dt >>> 6;
                         if (dt == 0x40) {
                             dataType = DataType.TAGSEGMENT.getValue();
                             pad = 0;
                         }
-                        len = buffer.getShort(position) & 0x0000ffff;
+                        len = buffer.getShort(position) & 0xffff;
                         position += 2;
                     }
                     else {
-                        len = buffer.getShort(position) & 0x0000ffff;
+                        len = buffer.getShort(position) & 0xffff;
                         position += 2;
-                        dt = buffer.get(position++) & 0x000000ff;
+                        dt = buffer.get(position++) & 0xff;
                         dataType = dt & 0x3f;
                         pad = dt >>> 6;
                         if (dt == 0x40) {
                             dataType = DataType.TAGSEGMENT.getValue();
                             pad = 0;
                         }
-                        tag = buffer.get(position++) & 0x000000ff;
+                        tag = buffer.get(position++) & 0xff;
                     }
-//System.out.println("found tag/num = " + tag + ", 0");
-                    dType = DataType.getDataType(dataType);
 
-                    // Put this in the list
-                    EvioNode kidNode = new EvioNode();
+                    EvioNode kidNode = (EvioNode)node.clone();
+
                     kidNode.len  = len;
-                    kidNode.type = DataType.SEGMENT.getValue();  // This is a bank
                     kidNode.pos  = position - 4;
+                    kidNode.type = DataType.SEGMENT.getValue();  // This is a segment
 
-                    kidNode.dataLen = len;
+                    kidNode.dataLen  = len;
+                    kidNode.dataPos  = position;
                     kidNode.dataType = dataType;
-                    kidNode.dataPos = position;
-
-                    kidNode.eventNode = eventNode;
-                    kidNode.blockNode = blockNode;
 
                     kidNode.pad = pad;
                     kidNode.tag = tag;
                     kidNode.num = 0;
-                    list.add(kidNode);
 
-//System.out.println("scanStructure: kid seg at pos = " + kidNode.pos +
-//                           " with type " + dType + ", tag/num = " + kidNode.tag +
-//                           "/" + kidNode.num + ", list size = " + list.size());
+                    kidNode.isEvent = false;
+                    kidNode.parentNode = node;
 
-                    // Only scan through this child if it's a container
-                    if (dType.isStructure()) {
-                        // Scan through this child
-                        scanStructure(buffer, eventNode, blockNode,
-                                  dType, len, position, list);
+                    node.addChild(kidNode);
+
+// System.out.println("scanStructure: kid seg at pos = " + kidNode.pos +
+//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
+//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
+                    if (DataType.isStructure(dataType)) {
+                        scanStructure(kidNode);
                     }
 
                     position += 4*len;
@@ -1000,54 +1043,50 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             case TAGSEGMENT:
 
                 // Extract all the tag segments from this bank of tag segments.
-                while (position < endingPos) {
+                // Make allowance for reading header (1 int).
+                while (position <= endingPos - 4) {
 
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        int temp = buffer.getShort(position) & 0x0000ffff;
+                        int temp = buffer.getShort(position) & 0xffff;
                         position += 2;
                         tag = temp >>> 4;
-                        dataType = temp & 0xF;
-                        len = buffer.getShort(position) & 0x0000ffff;
+                        dataType = temp & 0xf;
+                        len = buffer.getShort(position) & 0xffff;
                         position += 2;
                     }
                     else {
-                        len = buffer.getShort(position) & 0x0000ffff;
+                        len = buffer.getShort(position) & 0xffff;
                         position += 2;
-                        int temp = buffer.getShort(position) & 0x0000ffff;
+                        int temp = buffer.getShort(position) & 0xffff;
                         position += 2;
                         tag = temp >>> 4;
-                        dataType = temp & 0xF;
+                        dataType = temp & 0xf;
                     }
-//System.out.println("found tag/num = " + tag + ", 0");
 
-                    dType = DataType.getDataType(dataType);
+                    EvioNode kidNode = (EvioNode)node.clone();
 
-                    // Put this in the list
-                    EvioNode kidNode = new EvioNode();
                     kidNode.len  = len;
-                    kidNode.type = DataType.TAGSEGMENT.getValue();  // This is a bank
                     kidNode.pos  = position - 4;
+                    kidNode.type = DataType.TAGSEGMENT.getValue();  // This is a tag segment
 
-                    kidNode.dataLen = len;
+                    kidNode.dataLen  = len;
+                    kidNode.dataPos  = position;
                     kidNode.dataType = dataType;
-                    kidNode.dataPos = position;
-
-                    kidNode.eventNode = eventNode;
-                    kidNode.blockNode = blockNode;
 
                     kidNode.pad = 0;
                     kidNode.tag = tag;
                     kidNode.num = 0;
-                    list.add(kidNode);
 
-//System.out.println("scanStructure: kid tagseg at pos = " + kidNode.pos +
-//                           " with type " + dType + ", tag/num = " + kidNode.tag +
-//                           "/" + kidNode.num + ", list size = " + list.size());
-                    // Only scan through this child if it's a container
-                    if (dType.isStructure()) {
-                        // Scan through this child
-                        scanStructure(buffer, eventNode, blockNode,
-                                  dType, len, position, list);
+                    kidNode.isEvent = false;
+                    kidNode.parentNode = node;
+
+                    node.addChild(kidNode);
+
+// System.out.println("scanStructure: kid tagseg at pos = " + kidNode.pos +
+//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
+//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
+                   if (DataType.isStructure(dataType)) {
+                        scanStructure(kidNode);
                     }
 
                     position += 4*len;
@@ -1062,31 +1101,29 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
     /**
      * This method scans the given event number in the buffer.
-     * It returns a list of EvioNode
-     * objects representing all evio structures (banks, segs, tagsegs).
+     * It returns an EvioNode object representing the event.
+     * All the event's substructures, as EvioNode objects, are
+     * contained in the node.allNodes list (including the event itself).
      *
      * @param eventNumber number of the event to be scanned starting at 1
-     * @return the list of objects (evio structures) obtained from the scan
+     * @return the EvioNode object corresponding to the given event number
      */
-    private LinkedList<EvioNode> scanStructure(int eventNumber) {
+    private EvioNode scanStructure(int eventNumber) {
 
         // Node corresponding to event
         EvioNode node = eventNodes.get(eventNumber - 1);
 
-        // Create list to hold all nodes associated with event
-        LinkedList<EvioNode> list = new LinkedList<EvioNode>();
+        if (node.scanned) {
+            node.clearLists();
+        }
 
-        // All nodes, including the event itself, go into the list
-        list.add(node);
+        // Do this before actual scan so clone() sets all "scanned" fields
+        // of child nodes to "true" as well.
+        node.scanned = true;
 
-//System.out.println("scanStructure: scanning event "+ eventNumber +" with len = " + node.getLength() +
-//" dataLen = " + node.getDataLength() + " pos = " + node.getPosition());
+        scanStructure(node);
 
-        scanStructure(byteBuffer, node, node.blockNode,
-                      node.getDataTypeObj(),
-                      node.dataLen, node.dataPos, list);
-
-        return list;
+        return node;
     }
 
 
@@ -1115,10 +1152,10 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             throw new EvioException("object closed");
         }
 
-        LinkedList<EvioNode> returnList = new LinkedList<EvioNode>();
+        ArrayList<EvioNode> returnList = new ArrayList<EvioNode>(100);
 
         // Scan the node
-        LinkedList<EvioNode> list = scanStructure(eventNumber);
+        ArrayList<EvioNode> list = scanStructure(eventNumber).allNodes;
 //System.out.println("searchEvent: ev# = " + eventNumber + ", list size = " + list.size() +
 //" for tag/num = " + tag + "/" + num);
 
@@ -1251,7 +1288,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             eventNode = eventNodes.get(eventNumber - 1);
         }
         catch (IndexOutOfBoundsException e) {
-            throw new EvioException("event " + eventNumber + " does not exist");
+            throw new EvioException("event " + eventNumber + " does not exist", e);
         }
 
         // Position in byteBuffer just past end of event
@@ -1282,18 +1319,21 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
         // Create a new buffer
         ByteBuffer newBuffer = ByteBuffer.allocate(4*validDataWords + appendDataLen);
         newBuffer.order(byteOrder);
+
         // Copy beginning part of existing buffer into new buffer
-        byteBuffer.position(initialPosition).limit(endPos);
+        byteBuffer.limit(endPos).position(initialPosition);
         newBuffer.put(byteBuffer);
-        // Remember position where we put new data into new buffer
-        int newDataPos = newBuffer.position();
+
         // Copy new structure into new buffer
         newBuffer.put(addBuffer);
+
         // Copy ending part of existing buffer into new buffer
-        byteBuffer.position(endPos).limit(4*validDataWords + initialPosition);
+        byteBuffer.limit(4*validDataWords + initialPosition).position(endPos);
         newBuffer.put(byteBuffer);
+
         // Get new buffer ready for reading
         newBuffer.flip();
+
         // Restore original positions of buffers
         byteBuffer.position(initialPosition);
         addBuffer.position(origAddBufPos);
@@ -1423,35 +1463,14 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
-     *        view into this reader object's buffer.
+     *             view into this reader object's buffer.
      * @throws EvioException if object closed
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
     public synchronized ByteBuffer getData(EvioNode node, boolean copy)
                             throws EvioException {
-        if (closed) {
-            throw new EvioException("object closed");
-        }
-
-        int pos = byteBuffer.position();
-        int lim = byteBuffer.limit();
-        byteBuffer.position(node.dataPos).limit(node.dataPos + 4*node.dataLen - node.pad);
-
-        if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(4 * node.dataLen);
-            // Relative get and put changes position in both buffers
-            newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
-            newBuf.flip();
-            byteBuffer.position(pos).limit(lim);
-            return newBuf;
-        }
-
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
-        byteBuffer.position(pos).limit(lim);
-        return buf;
+        return node.getByteData(copy);
     }
 
 
@@ -1506,24 +1525,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             throw new EvioException("event " + eventNumber + " does not exist");
         }
 
-        int pos = byteBuffer.position();
-        int lim = byteBuffer.limit();
-        byteBuffer.position(node.pos).limit(node.dataPos + 4*node.dataLen);
-
-        if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(node.dataPos + 4*node.dataLen - node.pos);
-            // Relative get and put changes position in both buffers
-            newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
-            newBuf.flip();
-            byteBuffer.position(pos).limit(lim);
-            return newBuf;
-        }
-
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
-        byteBuffer.position(pos).limit(lim);
-        return buf;
+        return node.getStructureBuffer(copy);
     }
 
 
@@ -1568,24 +1570,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             throw new EvioException("object closed");
         }
 
-        int pos = byteBuffer.position();
-        int lim = byteBuffer.limit();
-        byteBuffer.position(node.pos).limit(node.dataPos + 4*node.dataLen);
-
-        if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(node.dataPos + 4*node.dataLen - node.pos);
-            // Relative get and put changes position in both buffers
-            newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
-            newBuf.flip();
-            byteBuffer.position(pos).limit(lim);
-            return newBuf;
-        }
-
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
-        byteBuffer.position(pos).limit(lim);
-        return buf;
+        return node.getStructureBuffer(copy);
     }
 
 

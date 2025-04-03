@@ -445,7 +445,7 @@ string evioFileChannel::getFileXMLDictionary(void) const {
  * @param table Pointer to table
  * @param len Length of table
  */
-void evioFileChannel::getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException) {
+void evioFileChannel::getRandomAccessTable(uint32_t *** const table, uint32_t *len) const throw(evioException) {
   if(handle==0)throw(evioException(0,"evioFileChannel::getRandomAccessTable...0 handle",__FILE__,__FUNCTION__,__LINE__));
   evGetRandomAccessTable(handle,table,len);
 }

@@ -57,7 +57,7 @@
 */
 
 
-static void printEvent(uint32_t eventNum, uint32_t *buffer) {
+static void printEvent(uint32_t eventNum, const uint32_t *buffer) {
     int i, nwords;
 
     if (buffer == NULL) return;
@@ -83,8 +83,9 @@ static void printEvent(uint32_t eventNum, uint32_t *buffer) {
 
 int main(int argc, char **argv)
 {
-    int handle, status, nwords, i, *ip, debug=1;
-    uint32_t buffer[204800], nevents, *buf, bufLen;
+    int handle, status, debug=1;
+    uint32_t buffer[204800], *buf2,  nevents, bufLen;
+    const uint32_t *buf;
     
     /* Tell evio to read from stdin */
     char *filename = "-";
@@ -114,7 +115,7 @@ int main(int argc, char **argv)
 
 
     
-    status = evReadAlloc(handle, &buf, &bufLen);
+    status = evReadAlloc(handle, &buf2, &bufLen);
     if (status == EOF) {
         if (debug) printf("    Last read, reached EOF!\n"); goto end;
     }
@@ -122,8 +123,9 @@ int main(int argc, char **argv)
         if (debug) printf ("    Last evRead status = 0x%0x, %s\n", status, evPerror(status)); goto end;
     }
     else {
-        if (debug) printEvent(++nevents, buf);
-        free(buf);
+        
+        if (debug) printEvent(++nevents, buf2);
+        free(buf2);
     }
 
 

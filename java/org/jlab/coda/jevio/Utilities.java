@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.util.IllegalFormatException;
 import java.util.regex.Matcher;
@@ -195,11 +196,13 @@ public class Utilities {
      * @param fileName       name of file to write
      * @param buf            buffer to write to file
      * @param overWriteOK    if {@code true}, OK to overwrite previously existing file
+     * @param addBlockHeader if {@code true}, add evio block header for proper evio file format
      * @throws IOException   if trouble writing to file
      * @throws EvioException if file exists but overwriting is not permitted;
      *                       if null arg(s)
      */
-    public static void bufferToFile(String fileName, ByteBuffer buf, boolean overWriteOK)
+    public static void bufferToFile(String fileName, ByteBuffer buf,
+                                    boolean overWriteOK, boolean addBlockHeader)
             throws IOException, EvioException{
 
         if (fileName == null || buf == null) {
@@ -219,9 +222,57 @@ public class Utilities {
 
         FileOutputStream fileOutputStream = new FileOutputStream(file);
         FileChannel fileChannel = fileOutputStream.getChannel();
+
+        if (addBlockHeader) {
+            ByteBuffer blockHead = ByteBuffer.allocate(32);
+            blockHead.order(buf.order());
+            blockHead.putInt(8 + (limit - position)/4);   // total len of block in words
+            blockHead.putInt(1);                          // block number
+            blockHead.putInt(8);                          // header len in words
+            blockHead.putInt(1);                          // event count
+            blockHead.putInt(0);                          // reserved
+            blockHead.putInt(0x204);                      // last block, version 4
+            blockHead.putInt(0);                          // reserved
+            blockHead.putInt(BlockHeaderV4.MAGIC_NUMBER); // 0xcoda0100
+            blockHead.flip();
+            fileChannel.write(blockHead);
+        }
+
         fileChannel.write(buf);
         fileChannel.close();
         buf.limit(limit).position(position);
     }
+
+
+    /**
+     * This method takes a byte buffer and prints out the desired number of words
+     * from the given position.
+     *
+     * @param buf            buffer to print out
+     * @param position       position of data (bytes) in buffer to start printing
+     * @param words          number of 32 bit words to print in hex
+     * @param label          a label to print as header
+     */
+    synchronized public static void printBuffer(ByteBuffer buf, int position, int words, String label) {
+
+        if (buf == null) {
+            System.out.println("printBuffer: buf arg is null");
+            return;
+        }
+
+        int origPos = buf.position();
+        buf.position(position);
+
+        if (label != null) System.out.println(label + ":");
+
+        IntBuffer ibuf = buf.asIntBuffer();
+        words = words > ibuf.capacity() ? ibuf.capacity() : words;
+        for (int i=0; i < words; i++) {
+            System.out.println("  Buf(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
+        }
+        System.out.println();
+
+        buf.position(origPos);
+   }
 
 }

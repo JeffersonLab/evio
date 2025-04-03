@@ -21,7 +21,6 @@
 #include <string.h>
 #include "evio.h"
 
-int32_t *makeEvent();
 #define MIN(a,b) (a<b)? a : b
 
 char *dictionary =
@@ -36,8 +35,8 @@ char *dictionary =
 "  <xmldumpDictEntry name=\"Tag8-Num8\"   tag=\"8\"   num=\"8\"/>\n"
 "</xmlDict>\n";
 
-int32_t *makeEvent();
-int32_t *makeEvent2();
+uint32_t *makeEvent();
+uint32_t *makeEvent2();
 
 int main()
 {
@@ -161,13 +160,13 @@ int main()
 }
 
 
-int32_t *makeEvent()
+uint32_t *makeEvent()
 {
-    int32_t *bank, *segment;
+    uint32_t *bank, *segment;
     short *word;
 
 
-    bank = (int *) calloc(1, 11*sizeof(int32_t));
+    bank = (uint32_t *) calloc(1, 11*sizeof(int32_t));
     bank[0] = 10;                    /* event length = 10 */
     bank[1] = 1 << 16 | 0x20 << 8;   /* tag = 1, bank 1 contains segments */
 
@@ -194,16 +193,16 @@ int32_t *makeEvent()
     return(bank);
 }
 
-int32_t *makeEvent2()
+uint32_t *makeEvent2()
 {
     short *shortWord;
     float  data;
     double doubl;
     uint64_t bigInt, *bigWord;
-    int32_t *bank, *segment, *tagseg, *intWord;
+    uint32_t *bank, *segment, *tagseg, *intWord;
 
 
-    bank = (int *) calloc(1, 39*sizeof(int32_t));
+    bank = (uint32_t *) calloc(1, 39*sizeof(int32_t));
 
     /* bank of banks */
     bank[0] = 38;                        /* bank length (not including this int) */

@@ -1,10 +1,11 @@
 package org.jlab.coda.jevio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.BitSet;
 
 /**
- * This holds a evio block header, also known as a physical record header.
+ * This holds an evio block header, also known as a physical record header.
  * Unfortunately, in versions 1, 2 & 3, evio files impose an anachronistic
  * block structure. The complication that arises is that logical records
  * (events) will sometimes cross physical record boundaries. This block structure
@@ -55,7 +56,7 @@ import java.util.BitSet;
  *
  *
  *
- * Bit info has the following bits defined:
+ * Bit info has the following bits defined (bit #s start with 1):
  *   Bit  9     = true if dictionary is included (relevant for first block only)
  *
  *   Bit  10    = true if this block is the last block in file or network transmission
@@ -91,7 +92,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /** Position of word for size of block in 32-bit words. */
     public static final int EV_BLOCKSIZE = 0;
-    /** Position of word for block number, starting at 0. */
+    /** Position of word for block number, starting at 1. */
     public static final int EV_BLOCKNUM = 1;
     /** Position of word for size of header in 32-bit words (=8). */
     public static final int EV_HEADERSIZE = 2;
@@ -136,9 +137,11 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     /** Bit information. Bit one: is the first event a dictionary? */
     private BitSet bitInfo = new BitSet(24);
 
-
 	/** This is the magic word, 0xc0da0100, used to check endianness. */
 	private int magicNumber;
+
+    /** This is the byte order of the data being read. */
+    private ByteOrder byteOrder;
 
 	/**
 	 * This is not part of the block header proper. It is a position in a memory buffer
@@ -156,11 +159,11 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	}
 
 	/**
-	 * Null constructor initializes all fields to zero.
+	 * Null constructor initializes all fields to zero, except block# = 1.
 	 */
 	public BlockHeaderV4() {
 		size = 0;
-		number = 0;
+		number = 1;
 		headerLength = 0;
 		version = 0;
 		eventCount = 0;
@@ -260,7 +263,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
 	/**
-	 * Get the block number for this block (physical record). In a file, this is usually sequential.
+	 * Get the block number for this block (physical record).
+     * In a file, this is usually sequential, starting at 1.
 	 *
 	 * @return the block number for this block (physical record).
 	 */
@@ -270,8 +274,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
 	/**
 	 * Set the block number for this block (physical record).
-     * In a file, this is usually sequential. This is not
-	 * checked.
+     * In a file, this is usually sequential starting at 1.
+     * This is not checked.
 	 *
 	 * @param number the number of the block (physical record).
 	 */
@@ -520,7 +524,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Calculates the sixth word of this header which has the version number
      * in the lowest 8 bits. The arg hasDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-     * (event type) are set in bits 10-13.
+     * (event type) are set in bits 11-14.
      *
      * @param version evio version number
      * @param hasDictionary does this block include an evio xml dictionary as the first event?
@@ -539,7 +543,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
       * Calculates the sixth word of this header which has the version number (4)
       * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
       * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-      * (event type) are set in bits 10-13.
+      * (event type) are set in bits 11-14.
       *
       * @param bSet Bitset containing all bits to be set
       * @param version evio version number
@@ -658,6 +662,18 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 		this.magicNumber = magicNumber;
 	}
 
+    /** {@inheritDoc} */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+    /**
+   	 * Sets the byte order of data being read.
+   	 *
+   	 * @param byteOrder the new value for data's byte order.
+   	 */
+   	public void setByteOrder(ByteOrder byteOrder) {
+   		this.byteOrder = byteOrder;
+   	}
+
 	/**
 	 * Obtain a string representation of the block (physical record) header.
 	 *
@@ -759,7 +775,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	}
 
 	/**
-	 * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.
+	 * Write myself out a byte buffer. This write is relative--i.e.,
+     * it uses the current position of the buffer.
 	 *
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written, which for a BlockHeader is 32.

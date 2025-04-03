@@ -3,7 +3,7 @@ package org.jlab.coda.jevio;
 import java.nio.ByteBuffer;
 
 /**
- * This is implemented by objects that will be writing themselve's to en evio file.
+ * This is implemented by objects that will be writing themselves to en evio file.
  * @author heddle
  *
  */

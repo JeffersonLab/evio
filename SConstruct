@@ -22,11 +22,11 @@ from subprocess import Popen, PIPE
 import coda
 
 # Created files & dirs will have this permission
-os.umask(0x002)
+os.umask(002)
 
 # Software version
 versionMajor = '4'
-versionMinor = '3.4'
+versionMinor = '4.6'
 
 # Determine the os and machine names
 uname    = os.uname();
@@ -50,9 +50,9 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 # a configure-type test.
 is64bits = coda.is64BitMachine(env, platform, machine)
 if is64bits:
-    print("We're on a 64-bit machine")
+    print "We're on a 64-bit machine"
 else:
-    print("We're on a 32-bit machine")
+    print "We're on a 32-bit machine"
 
 
 #############################################
@@ -65,25 +65,25 @@ Help('\nlocal scons OPTIONS:\n')
 # debug option
 AddOption('--dbg', dest='ddebug', default=False, action='store_true')
 debug = GetOption('ddebug')
-if debug: print("Enable debugging")
+if debug: print "Enable debugging"
 Help('--dbg               compile with debug flag\n')
 
 # vxworks 5.5 option
 AddOption('--vx5.5', dest='doVX55', default=False, action='store_true')
 useVxworks55 = GetOption('doVX55')
-if useVxworks55: print("Use vxWorks version 5.5")
+if useVxworks55: print "Use vxWorks version 5.5"
 Help('--vx5.5             cross compile for vxworks 5.5\n')
 
 # vxworks 6.0 option
 AddOption('--vx6.0', dest='doVX60', default=False, action='store_true')
 useVxworks60 = GetOption('doVX60')
-if useVxworks60: print("Use vxWorks version 6.0")
+if useVxworks60: print "Use vxWorks version 6.0"
 Help('--vx6.0             cross compile for vxworks 6.0\n')
 
 # 32 bit option
 AddOption('--32bits', dest='use32bits', default=False, action='store_true')
 use32bits = GetOption('use32bits')
-if use32bits: print("use 32-bit libs & executables even on 64 bit system")
+if use32bits: print "use 32-bit libs & executables even on 64 bit system"
 Help('--32bits            compile 32bit libs & executables on 64bit system\n')
 
 # install directory option
@@ -153,7 +153,7 @@ if useVxworks:
     osname = 'vxworks'+ str(vxVersion) + '-ppc'
 
     if not coda.configureVxworks(env, vxVersion, platform):
-        print('\nCannot set enviroment for vxWorks ' + str(vxVersion) + ', exiting\n')
+        print '\nCannot set enviroment for vxWorks ' + str(vxVersion) + ', exiting\n'
         Exit(0)
 
 else:
@@ -166,18 +166,16 @@ else:
         env.Append(CPPDEFINES = ['_GNU_SOURCE', '_REENTRANT', '_POSIX_PTHREAD_SEMANTICS', 'SunOS'])
 
     elif platform == 'Darwin':
-        execLibs = ['pthread', 'dl', 'expat', 'z', 'evio']
-        # env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-flat_namespace', 'suppress'])
-        env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-flat_namespace'])
+        execLibs = ['pthread', 'dl', 'expat', 'z']
+        env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined','suppress','-undefined','dynamic_lookup'])
         env.Append(CCFLAGS = ['-fmessage-length=0'])
-        env.Append(LIBPATH=[Dir('#src/libsrc/.Darwin-arm64')])
-        # env.Append(LIBPATH=['../libsrc/.Darwin-arm64/'])
+
 
 
 if is64bits and use32bits and not useVxworks:
     osname = osname + '-32'
 
-print("OSNAME =", osname)
+print "OSNAME =", osname
 
 # hidden sub directory into which variant builds go
 archDir = '.' + osname + debugSuffix
@@ -214,15 +212,15 @@ if 'install' in COMMAND_LINE_TARGETS:
     # Create the include directories (make symbolic link if possible)
     coda.makeIncludeDirs(incInstallDir, archIncInstallDir, osDir, archIncLocalLink)
 
-    print('Main install dir  = ', mainInstallDir)
-    print('bin  install dir  = ', binInstallDir)
-    print('lib  install dir  = ', libInstallDir)
-    print('inc  install dirs = ', incInstallDir, ", ", archIncInstallDir)
+    print 'Main install dir  = ', mainInstallDir
+    print 'bin  install dir  = ', binInstallDir
+    print 'lib  install dir  = ', libInstallDir
+    print 'inc  install dirs = ', incInstallDir, ", ", archIncInstallDir
 
 else:
-    print('No installation being done')
+    print 'No installation being done'
 
-print()
+print
 
 # use "install" on command line to install libs & headers
 Help('install             install libs, headers, and binaries\n')
@@ -255,7 +253,7 @@ Help('undoc               remove javadoc (in ./doc)\n')
 
 if 'tar' in COMMAND_LINE_TARGETS:
     if platform == 'SunOS':
-        print('\nMake tar file from Linux or MacOS please\n')
+        print '\nMake tar file from Linux or MacOS please\n'
         Exit(0)
     coda.generateTarFile(env, 'evio', versionMajor, versionMinor)
 

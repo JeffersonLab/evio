@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.BitSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * An EventWriter object is used for writing events to a file or to a byte buffer.
@@ -186,9 +188,9 @@ public class EventWriter {
 
     /**
      * Total number of events written to buffer or file (although may not be flushed yet).
-     * Will be the same as eventsWrittenToBuffer if writing to buffer. If the file being
-     * written to is split, this value refers to all split files taken together.
-     * Does NOT include dictionary(ies).
+     * Will be the same as eventsWrittenToBuffer (- dictionary) if writing to buffer.
+     * If the file being written to is split, this value refers to all split files
+     * taken together. Does NOT include dictionary(ies).
      */
     private int eventsWrittenTotal;
 
@@ -198,7 +200,7 @@ public class EventWriter {
     /** Size in 32-bit words of the currently-being-used block (includes entire block header). */
     private int currentBlockSize;
 
-    /** Number of events written to the currently-being-used block (not counting dictionary). */
+    /** Number of events written to the currently-being-used block (including dictionary if first blk). */
     private int currentBlockEventCount;
 
     /** Total size of the buffer in bytes. */
@@ -219,10 +221,10 @@ public class EventWriter {
 
     private File currentFile;
 
-    /** The output stream used for writing a file. */
-    private FileOutputStream fileOutputStream;
+    /** The object used for writing a file. */
+    private RandomAccessFile raf;
 
-    /** The file channel, used for writing a file, derived from fileOutputStream. */
+    /** The file channel, used for writing a file, derived from raf. */
     private FileChannel fileChannel;
 
     /** Running count of split output files. */
@@ -246,13 +248,61 @@ public class EventWriter {
     /** Is it OK to overwrite a previously existing file? */
     private boolean overWriteOK;
 
-    /** Number of bytes flushed to the current file (including ending header),
+    /** Number of bytes written to the current file (including ending header),
      *  not the total in all split files. */
     private long bytesWrittenToFile;
 
-    /** Number of events flushed to the current file - not the total in
+    /** Number of events written to the current file - not the total in
      * all split files. */
     private int eventsWrittenToFile;
+
+
+    /** Class used to close files in order received, each in its own thread,
+     *  to avoid slowing down while file splitting. */
+    private final class FileCloser {
+
+        /** Thread pool with 1 thread. */
+        private final ExecutorService threadPool;
+
+        FileCloser() {
+            threadPool = Executors.newSingleThreadExecutor();
+        }
+
+        /**
+         * Close the given file, in the order received, in a separate thread.
+         * @param raf file to close
+         */
+        void closeFile(RandomAccessFile raf) {
+            threadPool.submit(new CloseThd(raf));
+        }
+
+        /** Close the thread pool in this object while executing all existing tasks. */
+        void close() {
+            threadPool.shutdown();
+        }
+
+        private class CloseThd implements Runnable {
+            private RandomAccessFile raf;
+
+            CloseThd(RandomAccessFile raf) {
+                this.raf = raf;
+            }
+
+            public void run() {
+                try {
+                    raf.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    /** Object used to close files in a separate thread when splitting
+     *  so as to allow writing speed not to dip so low. */
+    private FileCloser fileCloser;
+
 
     //---------------------------------------------
     // FILE Constructors
@@ -528,7 +578,29 @@ public class EventWriter {
      * append these events to an existing file is <code>true</code>,
      * in which case everything is fine. If the file doesn't exist,
      * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.
+     * File can be split while writing.<p>
+     *
+     * The base file name may contain up to 2, C-style integer format specifiers using
+     * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
+     * If more than 2 are found, an exception will be thrown.
+     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
+     * it will be added automatically in order to avoid spaces in the file name.
+     * The first specifier will be substituted with the given runNumber value.
+     * If the file is being split, the second will be substituted with the split number
+     * which starts at 0.
+     * If 2 specifiers exist and the file is not being split, no substitutions are made.
+     * If no specifier for the splitNumber exists, it is tacked onto the end of the file
+     * name after a dot (.).
+     * <p>
+     *
+     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
+     * which will be substituted with the value of the associated environmental
+     * variable or a blank string if none is found.<p>
+     *
+     * The base file name may also contain occurrences of the string "%s"
+     * which will be substituted with the value of the runType arg or nothing if
+     * the runType is null.<p>
+     *
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
@@ -643,7 +715,7 @@ public class EventWriter {
         // If we can't overwrite or append and file exists, throw exception
         if (!overWriteOK && !append && (currentFile.exists() && currentFile.isFile())) {
             throw new EvioException("File exists but user requested no over-writing or appending, "
-                    + currentFile.getAbsolutePath());
+                    + currentFile.getPath());
         }
 
         // Create internal storage buffer
@@ -659,9 +731,12 @@ public class EventWriter {
         // Keep track of how many 32 bit words in current block (after writing header below)
         currentBlockSize = 8;
 
+        // Object to close files in a separate thread when splitting, to speed things up
+        if (split > 0) fileCloser = new FileCloser();
+
 		try {
             if (append) {
-                RandomAccessFile raf = new RandomAccessFile(currentFile, "rw");
+                raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
 
                 // If we have an empty file, that's OK.
@@ -690,11 +765,11 @@ public class EventWriter {
 		}
         catch (FileNotFoundException e) {
             throw new EvioException("File could not be opened for writing, " +
-                    currentFile.getAbsolutePath(), e);
+                    currentFile.getPath(), e);
         }
         catch (IOException e) {
             throw new EvioException("File could not be positioned for appending, " +
-                    currentFile.getAbsolutePath(), e);
+                    currentFile.getPath(), e);
         }
 
         // Write out the beginning block header
@@ -783,6 +858,7 @@ public class EventWriter {
 
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
      * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
@@ -822,16 +898,19 @@ public class EventWriter {
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
      *                       NOTE: only CODA (i.e. EMU) software should use this.
+     * @param blockNumber    number at which to start block number counting.
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits; if buf arg is null
      */
     public EventWriter(ByteBuffer buf, int blockSizeMax, int blockCountMax,
-                       String xmlDictionary, BitSet bitInfo, int reserved1) throws EvioException {
+                       String xmlDictionary, BitSet bitInfo, int reserved1, int blockNumber) throws EvioException {
 
-        this(buf, blockSizeMax, blockCountMax, xmlDictionary, bitInfo, reserved1, false);
+        initializeBuffer(buf, blockSizeMax, blockCountMax, xmlDictionary,
+                         bitInfo, reserved1, blockNumber, false);
     }
 
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
      * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
@@ -856,7 +935,7 @@ public class EventWriter {
                         boolean append) throws EvioException {
 
         initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, append);
+                         xmlDictionary, bitInfo, reserved1, 0, append);
     }
 
     /**
@@ -874,6 +953,7 @@ public class EventWriter {
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
      *                       NOTE: only CODA (i.e. EMU) software should use this.
+     * @param blockNumber    number at which to start block number counting.
      * @param append         if <code>true</code>, all events to be written will be
      *                       appended to the end of the buffer.
      *
@@ -883,7 +963,7 @@ public class EventWriter {
      */
     private void initializeBuffer(ByteBuffer buf, int blockSizeMax, int blockCountMax,
                                   String xmlDictionary, BitSet bitInfo, int reserved1,
-                                  boolean append) throws EvioException {
+                                  int blockNumber, boolean append) throws EvioException {
 
         if (blockSizeMax < MIN_BLOCK_SIZE) {
             throw new EvioException("Max block size arg (" + blockSizeMax + ") must be >= " +
@@ -917,6 +997,7 @@ public class EventWriter {
         this.buffer        = buf;
         this.byteOrder     = buf.order();
         this.reserved1     = reserved1;
+        this.blockNumber   = blockNumber;
         this.blockSizeMax  = blockSizeMax;
         this.blockCountMax = blockCountMax;
         this.xmlDictionary = xmlDictionary;
@@ -925,7 +1006,6 @@ public class EventWriter {
         split  = 0L;
         toFile = false;
         closed = false;
-        blockNumber = 1;
         eventsWrittenTotal = 0;
         eventsWrittenToBuffer = 0;
         bytesWrittenToBuffer = 0;
@@ -964,17 +1044,52 @@ public class EventWriter {
         // (size & count words are updated when writing events).
         // currentHeaderPosition is set in writeNewHeader() below.
         if (xmlDictionary == null) {
-            writeNewHeader(8,0,blockNumber++,bitInfo,false,false,true, false);
+            writeNewHeader(8,0,this.blockNumber++,bitInfo,false,false,true, false);
         }
         else {
-            writeNewHeader(8,0,blockNumber++,bitInfo,true,false,true,false);
+            writeNewHeader(8,0,this.blockNumber++,bitInfo,true,false,true,false);
 
             // Write dictionary (currentBlockSize updated)
             writeDictionary();
         }
 
         // Write out the ending block header so buffer is in proper evio 4 format
-        writeEmptyLastBlockHeader(blockNumber);
+        writeEmptyLastBlockHeader(this.blockNumber);
+    }
+
+
+    /**
+     * If writing to a buffer, get the number of bytes written to it
+     * including the ending header.
+     * @return number of bytes written to buffer
+     */
+    public long getBytesWrittenToBuffer() {
+        return bytesWrittenToBuffer;
+    }
+
+
+    /**
+     * Set the buffer being written into (initially set in constructor).
+     * This method allows the user to avoid having to create a new EventWriter
+     * each time a bank needs to be written to a different buffer.
+     * This does nothing if writing to a file.<p>
+     * Do <b>not</b> use this method unless you know what you are doing.
+     *
+     * @param buf the buffer to write to.
+     * @param bitInfo        set of bits to include in first block header.
+     * @param blockNumber    number at which to start block number counting.
+     * @throws EvioException if this object was not closed prior to resetting the buffer,
+     *                       or buffer arg is null.
+     */
+    public void setBuffer(ByteBuffer buf, BitSet bitInfo, int blockNumber) throws EvioException {
+        if (toFile) return;
+        if (!closed) {
+            throw new EvioException("close EventWriter before changing buffers");
+        }
+        this.bitInfo = bitInfo;
+
+        initializeBuffer(buf, blockSizeMax, blockCountMax,
+                         xmlDictionary, bitInfo, reserved1, blockNumber, append);
     }
 
 
@@ -996,7 +1111,7 @@ public class EventWriter {
         }
 
         initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, append);
+                         xmlDictionary, bitInfo, reserved1, 1, append);
     }
 
 
@@ -1004,10 +1119,52 @@ public class EventWriter {
      * Get the buffer being written into.
      * If writing to a buffer, this was initially supplied by user in constructor.
      * If writing to a file, this is the internal buffer.
+     * Although this method may seems useful, it requires a detailed knowledge of
+     * this class's internals. The {@link #getByteBuffer()} method is much more
+     * useful to the user.
      *
-     * @return buffer being written into.
+     * @return buffer being written into
      */
-    public ByteBuffer getBuffer() {return buffer;}
+    private ByteBuffer getBuffer() {return buffer;}
+
+
+    /**
+     * If writing to a file, return null.
+     * If writing to a buffer, get a duplicate of the user-given buffer
+     * being written into. The buffer's position will be 0 and its
+     * limit will be the size of the valid data. Basically, it's
+     * ready to be read from. The returned buffer shares data with the
+     * original buffer but has separate limit, position, and mark.
+     * Useful if trying to send buffer over the network.
+     *
+     * @return buffer being written into, made ready for reading;
+     *         null if writing to file
+     */
+    public ByteBuffer getByteBuffer() {
+        // It does NOT make sense to give the caller the internal buffer
+        // used in writing to files. That buffer may contain nothing and
+        // most probably won't contain the full file contents.
+        if (toFile()) return null;
+
+        // We synchronize here so we do not write/close in the middle
+        // of our messing with the buffer.
+        ByteBuffer buf;
+        synchronized (this) {
+            buf = buffer.duplicate().order(buffer.order());
+
+            // If this writer is not closed, then the position is just before the
+            // last empty block. Otherwise it is at the actual end.
+            // Make sure we don't throw an exception.
+            if (!closed && (buf.position() < buf.capacity() - EventWriter.headerBytes)) {
+                buf.position(buf.position() + EventWriter.headerBytes);
+            }
+        }
+
+        // Get buffer ready for reading
+        buf.flip();
+
+        return buf;
+    }
 
 
     /**
@@ -1033,7 +1190,20 @@ public class EventWriter {
      */
     public String getCurrentFilename() {
         if (currentFile != null) {
-            return currentFile.getAbsolutePath();
+            return currentFile.getName();
+        }
+        return null;
+    }
+
+
+    /**
+     * Get the full name or path of the current file being written to.
+     * Returns null if no file.
+     * @return the full name or path of the current file being written to.
+     */
+    public String getCurrentFilePath() {
+        if (currentFile != null) {
+            return currentFile.getPath();
         }
         return null;
     }
@@ -1068,6 +1238,13 @@ public class EventWriter {
 
 
     /**
+     * Get the byte order of the buffer/file being written into.
+     * @return byte order of the buffer/file being written into.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+
+    /**
      * Set the number with which to start block numbers.
      * This method does nothing if events have already been written.
      * @param startingBlockNumber  the number with which to start block numbers.
@@ -1089,7 +1266,7 @@ if (debug) System.out.println("close: called");
         try {
             if (toFile) {
 if(debug) System.out.println("close: flush what we have to file");
-                flushToFile();
+                flushToFile(true);
             }
             else {
                 // Data is written, but current position is
@@ -1102,8 +1279,11 @@ if(debug) System.out.println("close: flush what we have to file");
 
         // Close everything including its associated channel
         try {
-            if (toFile && fileOutputStream != null) {
-                fileOutputStream.close();
+            if (toFile && raf != null) {
+                // Close current file
+                raf.close();
+                // Close all the split files
+                if (fileCloser != null) fileCloser.close();
             }
         }
         catch (IOException e) {}
@@ -1494,6 +1674,7 @@ System.err.println("ERROR endOfBuffer " + a);
 //        System.out.println("EventWriter (header): words = " + words +
 //                ", block# = " + blockNumber + ", ev Cnt = " + eventCount +
 //                ", 6th wd = " + sixthWord);
+//        System.out.println("Evio header: block# = " + blockNumber + ", last = " + isLast);
 
         // Write header words, some of which will be
         // overwritten later when the values are determined.
@@ -1695,14 +1876,15 @@ if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = 
         // If we wrote a dictionary and it's the first block,
         // don't count dictionary in block header's event count
         if (wroteDictionary && (blockNumber == 2) && (currentBlockEventCount > 1)) {
-if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in dictionary's blk");
+if (debug)  System.out.println("  writeEventToBuffer: subtract ev cnt since in dictionary's blk, cnt = " +
+                                      (currentBlockEventCount - 1));
             buffer.putInt(currentHeaderPosition + EventWriter.EVENT_COUNT_OFFSET,
                           currentBlockEventCount - 1);
         }
 
-        if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
-                bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount = " +
-                currentBlockEventCount);
+if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
+                bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount (w/ dict) = " +
+                currentBlockEventCount + ", blk # = " + blockNumber + ", wrote Dict = " + wroteDictionary);
 
         // If we're writing over the last empty block header, clear last block bit
         int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
@@ -1727,7 +1909,7 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
             System.out.println("         cnt total (no dict) = " + eventsWrittenTotal);
             System.out.println("         file cnt total = " + eventsWrittenToFile);
             System.out.println("         internal buffer cnt = " + eventsWrittenToBuffer);
-            System.out.println("         block cnt = " + currentBlockEventCount);
+            System.out.println("         block cnt (w/ dict) = " + currentBlockEventCount);
             System.out.println("         bytes-to-buf  = " + bytesWrittenToBuffer);
             System.out.println("         bytes-to-file = " + bytesWrittenToFile);
             System.out.println("         block # = " + blockNumber);
@@ -1736,9 +1918,48 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
 
 
     /**
+     * Is there room to write this many bytes to an output buffer as a single event?
+     * Will always return true when writing to a file.
+     * @param bytes number of bytes to write
+     * @return {@code true} if there still room in the output buffer, else {@code false}.
+     */
+    public boolean hasRoom(int bytes) {
+//System.out.println("Buffer size = " + bufferSize + ", bytesWritten = " + bytesWrittenToBuffer +
+//        ", <? " + (bytes + headerBytes));
+        return toFile() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
+    }
+
+
+    /**
+     * Write an event (bank) to the buffer in evio version 4 format.
+     * If the internal buffer is full, it will be flushed to the file if writing to a file.
+     * Otherwise an exception will be thrown.
+     *
+     * @param node   object representing the event to write in buffer form
+     * @param force  if writing to disk, force it to write event to the disk.
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
+     */
+    public void writeEvent(EvioNode node, boolean force)
+            throws EvioException, IOException {
+
+        // Duplicate buffer so we can set pos & limit without messing others up
+        ByteBuffer bb = node.getBufferNode().getBuffer();
+        ByteBuffer eventBuffer = bb.duplicate().order(bb.order());
+        int pos = node.getPosition();
+        eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
+        writeEvent(null, eventBuffer, force);
+    }
+
+    /**
      * Write an event (bank) to the buffer in evio version 4 format.
      * The given event buffer must contain only the event's data (event header
-     * and event data) and must <b>not</b> be in complete evio format.
+     * and event data) and must <b>not</b> be in complete evio file format.
      * If the internal buffer is full, it will be flushed to the file if writing to a file.
      * Otherwise an exception will be thrown.
      *
@@ -1753,7 +1974,7 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
      */
     public void writeEvent(ByteBuffer eventBuffer)
             throws EvioException, IOException {
-        writeEvent(null, eventBuffer);
+        writeEvent(null, eventBuffer, false);
     }
 
     /**
@@ -1773,7 +1994,58 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
      */
     public void writeEvent(EvioBank bank)
             throws EvioException, IOException {
-        writeEvent(bank, null);
+        writeEvent(bank, null, false);
+    }
+
+
+    /**
+     * Write an event (bank) to the buffer in evio version 4 format.
+     * The given event buffer must contain only the event's data (event header
+     * and event data) and must <b>not</b> be in complete evio file format.
+     * If the internal buffer is full, it will be flushed to the file if
+     * writing to a file. Otherwise an exception will be thrown.<p>
+     * Be warned that injudicious use of the 2nd arg, the force flag, will
+     * <b>kill</b> performance.
+     *
+     * @param bankBuffer the bank (as a ByteBuffer object) to write.
+     * @param force      if writing to disk, force it to write event to the disk.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
+     */
+    public void writeEvent(ByteBuffer bankBuffer, boolean force)
+            throws EvioException, IOException {
+        writeEvent(null, bankBuffer, force);
+    }
+
+
+    /**
+     * Write an event (bank) to a buffer containing evio version 4 format blocks.
+     * Each block has an integral number of events. There are limits to the
+     * number of events in each block and the total size of each block.
+     * If writing to a file, each full buffer is written - one at a time -
+     * and may contain multiple blocks. Dictionary is never written with
+     * this method.<p>
+     * Be warned that injudicious use of the 2nd arg, the force flag, will
+     * <b>kill</b> performance.
+     *
+     * @param bank   the bank to write.
+     * @param force  if writing to disk, force it to write event to the disk.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if close() already called;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
+     */
+    public void writeEvent(EvioBank bank, boolean force)
+            throws EvioException, IOException {
+        writeEvent(bank, null, force);
     }
 
 
@@ -1783,10 +2055,13 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
      * The first is as an EvioBank object and the second is as a ByteBuffer
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
-     * The first non-null of the bank arguments will be written.
+     * The first non-null of the bank arguments will be written.<p>
+     * Be warned that injudicious use of the 2nd arg, the force flag, will
+     *<b>kill</b> performance.
      *
      * @param bank the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
+     * @param force      if writing to disk, force it to write event to the disk.
      *
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
@@ -1796,7 +2071,7 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    synchronized private void writeEvent(EvioBank bank, ByteBuffer bankBuffer)
+    synchronized private void writeEvent(EvioBank bank, ByteBuffer bankBuffer, boolean force)
             throws EvioException, IOException {
 
         if (closed) {
@@ -1819,7 +2094,7 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
         }
         else if (bankBuffer != null) {
             if (bankBuffer.order() != byteOrder) {
-                throw new EvioException("event is in wrong byte order");
+                throw new EvioException("event buf is " + bankBuffer.order() + ", and writer is " + byteOrder);
             }
 
             // Event size in bytes (from buffer ready to read)
@@ -1840,23 +2115,24 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
         if ( (((currentEventBytes + 4*currentBlockSize) <= targetBlockSize) &&
                 currentBlockEventCount < blockCountMax) || currentBlockEventCount < 1) {
             writeNewBlockHeader = false;
-if (debug) System.out.println("evWrite: do NOT need a new blk header");
+//if (debug) System.out.println("evWrite: do NOT need a new blk header");
         }
-        else {
-if (debug) System.out.println("evWrite: DO need a new blk header: blkTarget = " +
-                    targetBlockSize + " will use " +
-                    (currentEventBytes + 4*currentBlockSize + headerBytes) + " (bytes)" );
-            if (currentBlockEventCount >= blockCountMax) {
-if (debug) System.out.println("evWrite: too many events in block, already have " + currentBlockEventCount );
-            }
-        }
+//        else {
+//if (debug) System.out.println("evWrite: DO need a new blk header: blkTarget = " +
+//                    targetBlockSize + " will use " +
+//                    (currentEventBytes + 4*currentBlockSize + headerBytes) + " (bytes)" );
+//            if (currentBlockEventCount >= blockCountMax) {
+//if (debug) System.out.println("evWrite: too many events in block, already have " + currentBlockEventCount );
+//            }
+//        }
 
         // Are we splitting files in general?
         while (split > 0) {
-            int headerCount=0;
+//            int headerCount=0;
+
             // If all that is written so far is a dictionary, don't split after writing it
             if (wroteDictionary && (blockNumber - 1) == 1 && eventsWrittenToBuffer < 2) {
-if (debug) System.out.println("evWrite: don't split file cause only dictionary written so far");
+//if (debug) System.out.println("evWrite: don't split file cause only dictionary written so far");
                 break;
             }
 
@@ -1868,25 +2144,25 @@ if (debug) System.out.println("evWrite: don't split file cause only dictionary w
             // But only if it doesn't write over an existing ending block.
             if (writeNewBlockHeader && bytesWrittenToFile < 1) {
                 totalSize += headerBytes;
-                headerCount++;
-if (debug) System.out.println("evWrite: account for another block header when splitting");
+//                headerCount++;
+//if (debug) System.out.println("evWrite: account for another block header when splitting");
             }
 
             // If an ending empty block was not added yet (first time thru), account for it
             int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
             if (BlockHeaderV4.isLastBlock(headerInfoWord)) {
                 totalSize += headerBytes;
-                headerCount++;
-if (debug) System.out.println("evWrite: account for adding empty last block when splitting");
+//                headerCount++;
+//if (debug) System.out.println("evWrite: account for adding empty last block when splitting");
             }
 
-if (debug) System.out.println("evWrite: splitting = " + (totalSize > split) +
-                    ": total size = " + totalSize + " >? split = " + split);
+//if (debug) System.out.println("evWrite: splitting = " + (totalSize > split) +
+//                    ": total size = " + totalSize + " >? split = " + split);
 
-if (debug) System.out.println("evWrite: total size components: bytesToFile = " +
-                bytesWrittenToFile + ", bytesToBuf = " + bytesWrittenToBuffer +
-                ", ev bytes = " + currentEventBytes + ", additional headers = " +
-                headerCount + " * 32");
+//if (debug) System.out.println("evWrite: total size components: bytesToFile = " +
+//                bytesWrittenToFile + ", bytesToBuf = " + bytesWrittenToBuffer +
+//                ", ev bytes = " + currentEventBytes + ", additional headers = " +
+//                headerCount + " * 32");
 
             // If we're going to split the file ...
             if (totalSize > split) {
@@ -1903,46 +2179,57 @@ if (debug) System.out.println("evWrite: total size components: bytesToFile = " +
             break;
         }
 
-if (debug) System.out.println("evWrite: bufSize = " + bufferSize +
-                              " <? bytesToWrite = " + currentEventBytes +
-                              " + 64 = " + (currentEventBytes + 64));
+//if (debug) System.out.println("evWrite: bufSize = " + bufferSize +
+//                              " <? bytesToWrite = " + currentEventBytes +
+//                              " + 64 = " + (currentEventBytes + 64));
 
         // Is this event (by itself) too big for the current internal buffer?
         // Internal buffer needs room for first block header, event, and ending empty block.
         if (bufferSize < currentEventBytes + 2*headerBytes) {
             if (!toFile) {
+                System.out.println("evWrite: bufSize = " + bufferSize +
+                   " <? current event bytes = " + currentEventBytes +
+                   " + 2 headers (64), total = " + (currentEventBytes + 64) +
+                   ", room = " + (bufferSize - bytesWrittenToBuffer - headerBytes) );
                 throw new EvioException("Buffer too small to write event");
             }
             roomInBuffer = false;
             needBiggerBuffer = true;
-if(debug) System.out.println("  NEED another buffer & block for 1 big event, bufferSize = " + bufferSize);
+//if(debug) System.out.println("  NEED another buffer & block for 1 big event, bufferSize = " + bufferSize);
         }
         // Is this event, in combination with events previously written
-        // to the current internal buffer, too big for it? Remember, if we're here,
-        // events were previously written to this block and therefore an ending
-        // empty block has already been written and included in bytesWrittenToBuffer.
-        // Also, if we're here, this event is not a dictionary.
+        // to the current internal buffer, too big for it?
         else if ((!writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes)) ||
                  ( writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + headerBytes)))  {
+
+            // If we're here, events were previously written to this block and therefore an ending
+            // empty block has already been written and included in bytesWrittenToBuffer.
+            // Also, if we're here, this event is not a dictionary.
+
             if (!toFile) {
                 throw new EvioException("Buffer too small to write event");
             }
 
-            if (debug) {
-System.out.println("evWrite: # events written to buf so far = " + eventsWrittenToBuffer +
-", bytes to buf so far = " + bytesWrittenToBuffer);
-                System.out.println("evWrite: NEED to flush buffer and re-use, ");
-                if (writeNewBlockHeader) {
-                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
-                                       ", needed = "  + (currentEventBytes + headerBytes));
-                }
-                else {
-                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
-                            ", needed = "  + currentEventBytes);
-                }
-            }
+//            if (debug) {
+//System.out.println("evWrite: # events written to buf so far = " + eventsWrittenToBuffer +
+//", bytes to buf so far = " + bytesWrittenToBuffer);
+//                System.out.println("evWrite: NEED to flush buffer and re-use, ");
+//                if (writeNewBlockHeader) {
+//                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
+//                                       ", needed = "  + (currentEventBytes + headerBytes));
+//                }
+//                else {
+//                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
+//                            ", needed = "  + currentEventBytes);
+//                }
+//            }
             roomInBuffer = false;
         }
+//        else if (currentBlockEventCount < 1) {
+//            // If we're here, there is room to add event into existing buffer.
+//            // As we're the very first event, we need to set blockNumber.
+//            blockNumber = 1;
+//        }
 
 
         // If there is no room in the buffer for this event ...
@@ -1957,10 +2244,9 @@ System.out.println("evWrite: # events written to buf so far = " + eventsWrittenT
             doFlush = true;
         }
 
-
         // Do we flush?
         if (doFlush) {
-            flushToFile();
+            flushToFile(false);
         }
 
         // Do we split the file?
@@ -1992,11 +2278,11 @@ System.out.println("evWrite: # events written to buf so far = " + eventsWrittenT
         // existing dictionary as the first event & block in the new file
         // before we write the event.
         //********************************************************************
-        if (splittingFile && xmlDictionary != null) {
+        if (xmlDictionary != null && splittingFile) {
             // Memory needed to write: dictionary + 3 block headers
             // (beginning, after dict, and ending) + event
             int neededBytes = dictionaryBankBytes + 3*headerBytes + currentEventBytes;
-if (debug) System.out.println("evWrite: write DICTIONARY after splitting, needed bytes = " + neededBytes);
+//if (debug) System.out.println("evWrite: write DICTIONARY after splitting, needed bytes = " + neededBytes);
 
             // Write block header after dictionary
             writeNewBlockHeader = true;
@@ -2021,39 +2307,46 @@ if (debug) System.out.println("evWrite: write DICTIONARY after splitting, needed
             // write over last empty block
             writeNewHeader(currentBlockSize, 1, blockNumber++, null, false, false, true, false);
             bytesWrittenToBuffer -= headerBytes;
-if (debug) System.out.println("evWrite: wrote new block header, bytesToBuf = " +
-                               bytesWrittenToBuffer);
+//if (debug) System.out.println("evWrite: wrote new block header, bytesToBuf = " +
+//                               bytesWrittenToBuffer);
         }
         else {
             // Write over last empty block ... only if not first write
             int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
             if (!BlockHeaderV4.isLastBlock(headerInfoWord)) {
-if (debug) System.out.println("evWrite: no block header, WRITE OVER LAST EMPTY BLOCK");
+//if (debug) System.out.println("evWrite: no block header, WRITE OVER LAST EMPTY BLOCK, block#="+blockNumber);
                 bytesWrittenToBuffer -= headerBytes;
             }
             else {
-if (debug) System.out.println("evWrite: did NOT write new block header");
+//if (debug) System.out.println("evWrite: did NOT write new block header");
             }
         }
 
         // Write out the event and an ending empty block immediately after
         writeEventToBuffer(bank, bankBuffer, currentEventBytes);
+
+        // If caller wants to flush the event to disk (say, prestart event) ...
+        if (force && toFile) {
+            // This will kill performance!
+            flushToFile(true);
+            resetBuffer(false);
+        }
     }
 
 
     /**
      * Flush everything in buffer to file.
-     * Does nothing if object already closed.<p>
+     * Does nothing if object already closed.
+     * Only called by synchronized methods.<p>
      *
-     * Generally speaking, this method should <b>NOT</b>
-     * be used except internally in this package.
+     * @param force force it to write event to the disk.
      *
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
      */
-    synchronized public void flushToFile() throws EvioException, IOException {
+    private void flushToFile(boolean force) throws EvioException, IOException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -2065,10 +2358,10 @@ if (debug) System.out.println("evWrite: did NOT write new block header");
 
         // If nothing to write ...
         if (eventsWrittenToBuffer < 1) {
-if (debug) System.out.println("    flushToFile(): nothing to write, return");
+//if (debug) System.out.println("    flushToFile(): nothing to write, return");
             return;
         }
-if (debug) System.out.println("    flushToFile(): try writing " + eventsWrittenToBuffer + " events");
+//if (debug) System.out.println("    flushToFile(): try writing " + eventsWrittenToBuffer + " events");
 
         // In general, the byteBuffer position is always just before the
         // last block header (which is where new events are inserted).
@@ -2081,30 +2374,34 @@ if (debug) System.out.println("    flushToFile(): try writing " + eventsWrittenT
 
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
-if (debug) System.out.println("    flushToFile(): create file!");
-if (debug) System.out.println("\nCreating file " + currentFile.getAbsolutePath());
+//if (debug) System.out.println("    flushToFile(): create file " + currentFile.getName());
             try {
-                fileOutputStream = new FileOutputStream(currentFile, false);  // no appending
-                fileChannel = fileOutputStream.getChannel();
+                raf = new RandomAccessFile(currentFile, "rw");
+                fileChannel = raf.getChannel();
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
-                        currentFile.getAbsolutePath(), e);
+                        currentFile.getPath(), e);
             }
         }
         // If appending to existing data, write over last block header (back up 32 bytes)
         else {
             bytesWrittenToFile -= 32L;
             fileChannel.position(fileChannel.position() - 32L);
-if (debug) System.out.println("    flushToFile(): at pos " + fileChannel.position());
+//if (debug) System.out.println("    flushToFile(): at pos " + fileChannel.position());
         }
 
         // Write everything in internal buffer out to file
         int bytesWritten = buffer.remaining();
-        fileChannel.write(buffer);
-        // Make sure it writes to the physical file on disk
-        fileChannel.force(true);
-if (debug) System.out.println("    flushToFile(): after write, remaining = " + buffer.remaining());
+        while (buffer.hasRemaining()) {
+            fileChannel.write(buffer);
+        }
+
+        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
+        // but don't bother writing the metdata (arg to force()) since that slows it
+        // down too.
+        if (force) fileChannel.force(false);
+//if (debug) System.out.println("    flushToFile(): after write, remaining = " + buffer.remaining());
 
         // Go back to the beginning of the buffer & set limit
         buffer.position(0);
@@ -2133,20 +2430,14 @@ if (debug) System.out.println("    flushToFile(): after write, remaining = " + b
         bytesWrittenToFile  = 0;
         eventsWrittenToFile = 0;
 
-        // Make sure it writes to the physical file on disk
-        // TODO: This may not be necessary!
-        fileChannel.force(true);
-
-        // Close existing file
-        if (fileOutputStream != null) {
-            fileOutputStream.close();
-        }
-        else {
-            fileChannel.close();
+        // Close existing file (in separate thread for speed)
+        // which will also flush remaining data.
+        if (raf != null) {
+            fileCloser.closeFile(raf);
         }
 
         // Right now no file is open for writing
-        fileOutputStream = null;
+        raf = null;
 
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
@@ -2156,10 +2447,9 @@ if (debug) System.out.println("    flushToFile(): after write, remaining = " + b
         // If we can't overwrite and file exists, throw exception
         if (!overWriteOK && (currentFile.exists() && currentFile.isFile())) {
             throw new EvioException("File exists but user requested no over-writing, "
-                    + currentFile.getAbsolutePath());
+                    + currentFile.getPath());
         }
 
 if (debug) System.out.println("splitFile: generated file name = " + fileName);
     }
-
 }

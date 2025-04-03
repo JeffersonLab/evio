@@ -49,6 +49,11 @@ public class EventParser {
 			throw new EvioException("Null event in parseEvent.");
 		}
 
+        if (evioEvent.parsed) {
+            System.out.println("Event already parsed");
+            return;
+        }
+
         //let listeners know we started
         notifyStart(evioEvent);
 
@@ -56,8 +61,10 @@ public class EventParser {
 		// parse it as such. The recursive drill down will take care of the rest.
 		parseStructure(evioEvent, evioEvent);
 
-        //let listeners know we stopped
-        notifyStop(evioEvent);        
+        evioEvent.parsed = true;
+
+        // let listeners know we stopped
+        notifyStop(evioEvent);
 	}
 
 	/**
@@ -67,7 +74,7 @@ public class EventParser {
 	 * 
 	 * @param evioEvent the parent event being processed.
 	 * @param structure the structure being processed.
-	 * @throws EvioException
+	 * @throws EvioException if data not in evio format
 	 */
 	private void parseStructure(EvioEvent evioEvent, BaseStructure structure) throws EvioException {
 
@@ -190,7 +197,6 @@ public class EventParser {
 		notifyEvioListeners(evioEvent, structure);
 	}
 
-
     /**
      * Create a bank header from the first eight bytes of the data array.
      *
@@ -261,54 +267,6 @@ public class EventParser {
 
 
     /**
-     * Create a bank header from the first eight bytes of the data array.
-     *
-     * @param bytes the byte array, probably from a bank that encloses this new bank.
-     * @param offset the offset to start reading from the byte array.
-     * @param byteOrder byte order of array, {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
-     * @return the new header.
-     */
-    private BankHeader createBankHeaderOrig(byte bytes[], int offset, ByteOrder byteOrder) {
-        BankHeader header = new BankHeader();
-        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
-        byteBuffer.position(offset);
-
-        header.setLength(byteBuffer.getInt());
-
-        if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            // interested in bit pattern, not negative numbers
-            header.setTag(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-            int dt = ByteDataTransformer.byteBitsToInt(byteBuffer.get());
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            // If only 7th bit set, that can only be the legacy tagsegment type
-            // with no padding information - convert it properly.
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-            header.setNumber(ByteDataTransformer.byteBitsToInt(byteBuffer.get()));
-        }
-        else {
-            header.setNumber(ByteDataTransformer.byteBitsToInt(byteBuffer.get()));
-            int dt = ByteDataTransformer.byteBitsToInt(byteBuffer.get());
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-            header.setTag(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-        }
-        return header;
-    }
-
-
-    /**
      * Create a segment header from the first four bytes of the data array.
      *
      * @param bytes the byte array, probably from a bank that encloses this new segment.
@@ -350,10 +308,10 @@ public class EventParser {
 
             // Remember, offset has been advanced here, thus the + 2 instead of + 4
             if ((len < 1) || (4*len + 2 + offset > bytes.length)) {
-                //throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
-System.out.println("bad seg header len:");
-System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
-                   ") > bytes.len (" + bytes.length + ")");
+System.out.println("Type = " + DataType.getDataType(type) + ", offset = " + offset +
+                   ", len = " + len);
+                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")," +
+                "4(len + 1) + off = " + (4*len + 4 + offset) + " > limit = " + (bytes.length));
             }
 
             header.setLength(len);
@@ -363,10 +321,7 @@ System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
             int len = ByteDataTransformer.shortBitsToInt(
                           ByteDataTransformer.toShort(bytes, byteOrder, offset));
             if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
-//                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
-System.out.println("bad seg header len:");
-System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
-                   ") > bytes.len (" + bytes.length + ")");
+                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
             }
 
             header.setLength(len);
@@ -388,67 +343,21 @@ System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
     }
 
 
-    /**
-     * Create a segment header from the first four bytes of the data array.
-     *
-     * @param bytes the byte array, probably from a bank that encloses this new segment.
-     * @param offset the offset to start reading from the byte array.
-     * @param byteOrder byte order of array, {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
-     * @return the new header.
-     */
-    private SegmentHeader createSegmentHeaderOrig(byte bytes[], int offset, ByteOrder byteOrder) {
-        SegmentHeader header = new SegmentHeader();
-        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
-        byteBuffer.position(offset);
-
-        if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            header.setTag(ByteDataTransformer.byteBitsToInt(byteBuffer.get()));
-            int dt = ByteDataTransformer.byteBitsToInt(byteBuffer.get());
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            // If only 7th bit set, that can only be the legacy tagsegment type
-            // with no padding information - convert it properly.
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-            header.setLength(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-        }
-        else {
-            header.setLength(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-            int dt = ByteDataTransformer.byteBitsToInt(byteBuffer.get());
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-            header.setTag(ByteDataTransformer.byteBitsToInt(byteBuffer.get()));
-        }
-
-        return header;
-    }
-
-
-    /**
-     * Create a tag segment header from the first four bytes of the data array.
-     *
-     * @param bytes the byte array, probably from a bank that encloses this new tag segment.
-     * @param offset the offset to start reading from the byte array.
+	/**
+	 * Create a tag segment header from the first four bytes of the data array.
+	 * 
+	 * @param bytes the byte array, probably from a bank that encloses this new tag segment.
+	 * @param offset the offset to start reading from the byte array.
      * @param byteOrder byte order of array, {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
      *
      * @throws EvioException if data not in evio format.
      * @return the new tagsegment header.
-     */
-    static TagSegmentHeader createTagSegmentHeader(byte bytes[], int offset, ByteOrder byteOrder)
+	 */
+	static TagSegmentHeader createTagSegmentHeader(byte bytes[], int offset, ByteOrder byteOrder)
             throws EvioException {
 
         TagSegmentHeader header = new TagSegmentHeader();
-        int temp;
+		int temp;
 
         // Can we read at least 1 tagseg header?
         if (offset + 4 > bytes.length) {
@@ -467,7 +376,7 @@ System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
                 int len = ByteDataTransformer.shortBitsToInt(
                         ByteDataTransformer.toShort(bytes, byteOrder, offset));
                 if ((len < 1) || (4*len + 2 + offset > bytes.length)) {
-//                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
+                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
                 }
 
                 header.setLength(len);
@@ -477,7 +386,7 @@ System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
                 int len = ByteDataTransformer.shortBitsToInt(
                         ByteDataTransformer.toShort(bytes, byteOrder, offset));
                 if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
-//                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
+                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
                 }
 
                 header.setLength(len);
@@ -491,39 +400,8 @@ System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
         catch (EvioException e) {/* never happen */}
 
         return header;
-    }
+	}
 
-
-    /**
-     * Create a tag segment header from the first four bytes of the data array.
-     *
-     * @param bytes the byte array, probably from a bank that encloses this new tag segment.
-     * @param offset the offset to start reading from the byte array.
-     * @param byteOrder byte order of array, {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
-     * @return the new header.
-     */
-    private TagSegmentHeader createTagSegmentHeaderOrig(byte bytes[], int offset, ByteOrder byteOrder) {
-        TagSegmentHeader header = new TagSegmentHeader();
-        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
-        byteBuffer.position(offset);
-
-        int temp;
-
-        if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            temp = ByteDataTransformer.shortBitsToInt(byteBuffer.getShort());
-            header.setTag(temp >>> 4);
-            header.setDataType(temp & 0xF);
-            header.setLength(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-        }
-        else {
-            header.setLength(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-            temp = ByteDataTransformer.shortBitsToInt(byteBuffer.getShort());
-            header.setTag(temp >>> 4);
-            header.setDataType(temp & 0xF);
-        }
-
-        return header;
-    }
 
 	/**
 	 * This is when a structure is encountered while parsing an event.

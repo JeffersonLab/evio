@@ -8,6 +8,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,10 +46,12 @@ public class DictTest {
                 "<leaf name='leaf21' tag= '2.1' num = '2.1' />"  +
                 "<leaf name='leaf2'  tag= '2'   num = '2' />"  +
                 "<leaf name='leaf3'  tag= '2'   num = '2' />"  +
+
+                "<dictEntry name='pretty-print'  tag= '456' />"  +
                 "<dictEntry name='first'  tag= '123'   num = '123' />"  +
                 "<dictEntry name='second'  tag= '123'   num = '123' />"  +
-
                 "<dictEntry name='a' tag= '1.7'   num = '1.8' />"  +
+
                 "<bank name='b1' tag= '10' num='0' attr ='gobbledy gook' >"  +
                     "<bank name='b2' tag= '20' num='20' >"  +
                         "<leaf name='l1' tag= '30' num='31'>"  +
@@ -56,6 +60,7 @@ public class DictTest {
                         "<leaf name='l2' tag= '31' num='32' />"  +
                     "</bank>"  +
                 "</bank>"  +
+
             "</xmlDict>" +
 
             "<xmlDict>"  +
@@ -88,7 +93,7 @@ public class DictTest {
             ;
 
 
-    public static void main(String args[]) {
+    public static void main1(String args[]) {
 
         EvioXMLDictionary dict = new EvioXMLDictionary(xmlDict5);
 
@@ -123,6 +128,33 @@ public class DictTest {
 
     }
 
+
+    public static void main(String args[]) {
+
+        EvioXMLDictionary dict = new EvioXMLDictionary(xmlDict4);
+        Map<String, EvioDictionaryEntry> map = dict.getMap();
+
+        Set<String> keys = map.keySet();
+        for (String key : keys) {
+            System.out.println("key = " + key + ", tag = " + dict.getTag(key) + ", num = " + dict.getTag(key));
+        }
+
+        int i=0;
+        Set<Map.Entry<String, EvioDictionaryEntry>> set = map.entrySet();
+        for (Map.Entry<String, EvioDictionaryEntry> entry : set) {
+            String entryName =  entry.getKey();
+            EvioDictionaryEntry entryData = entry.getValue();
+            System.out.println("entry " + (++i) + ": name = " + entryName + ", tag = " +
+                                       entryData.getTag() + ", num = " + entryData.getTag());
+        }
+
+
+        EvioEvent bank20 = new EvioEvent(456, DataType.BANK, 20);
+
+        String dictName = dict.getName(bank20);
+        System.out.println("Bank-20 corresponds to dictionary entry, \"" + dictName + "\"");
+
+    }
 
     public static void main2(String args[]) {
 

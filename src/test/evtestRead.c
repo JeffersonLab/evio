@@ -24,8 +24,8 @@
 
 int main()
 {
-    int handle, status, nevents, nwords, i, buffer[204800], *ip;
-
+    int handle, status, nevents, nwords /* , i */;
+    uint32_t  buffer[204800], *ip;
 
     status = evOpen("/daqfs/home/timmer/coda/output-evio4.ev", "r", &handle);
     nevents = 0;

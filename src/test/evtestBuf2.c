@@ -44,10 +44,8 @@ static void printBuffer(uint32_t *p, int len) {
 
 int main()
 {
-    int handle, status, nevents, nwords;
-    int buffer[2048], i, maxEvBlk = 2;
-    int *ip, *pBuf, *dict, dictLen, bufLen, bufLenBytes;
-    uint32_t bank1[3], bank2[3], bank3[3];
+    int handle, status, maxEvBlk = 2, bufLen;
+    uint32_t bufLenBytes, bank1[3], bank2[3], bank3[3];
     char eventBuffer[4 * ((4*8) + (5*3))];
     bufLen = (4*8) + (5*3);
     bufLenBytes = 4 * bufLen;
@@ -85,7 +83,7 @@ int main()
     }
 
     status = evGetBufferLength(handle, &bufLenBytes);
-    printf ("    Wrote %d bytes to buffer\n", bufLenBytes);
+    printf ("    Wrote %u bytes to buffer\n", bufLenBytes);
     
 printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
 
@@ -97,7 +95,7 @@ printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
     }
 
     status = evGetBufferLength(handle, &bufLenBytes);
-    printf ("    Wrote %d bytes to buffer\n", bufLenBytes);
+    printf ("    Wrote %u bytes to buffer\n", bufLenBytes);
 
 printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
 
@@ -109,7 +107,7 @@ printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
     }
 
     status = evGetBufferLength(handle, &bufLenBytes);
-    printf ("    Wrote %d bytes to buffer\n", bufLenBytes);
+    printf ("    Wrote %u bytes to buffer\n", bufLenBytes);
 
 printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
 
@@ -121,7 +119,7 @@ printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
     }
 
     status = evGetBufferLength(handle, &bufLenBytes);
-    printf ("    Wrote %d bytes to buffer\n", bufLenBytes);
+    printf ("    Wrote %u bytes to buffer\n", bufLenBytes);
     
 printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
 
@@ -133,7 +131,7 @@ printBuffer((uint32_t *) eventBuffer, bufLenBytes/4);
     }
 
     status = evGetBufferLength(handle, &bufLenBytes);
-    printf ("    Wrote %d bytes to buffer\n", bufLenBytes);
+    printf ("    Wrote %u bytes to buffer\n", bufLenBytes);
 
     status = evClose(handle);
     printf ("    \"Closed\" buffer, status = %#x\n\n", status);

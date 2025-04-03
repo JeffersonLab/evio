@@ -1,9 +1,21 @@
+/*
+ * Copyright (c) 2015, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ */
+
 package org.jlab.coda.jevio;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -109,7 +121,8 @@ public class EvioXMLDictionary implements INameProvider {
      * Using a hashmap ensures entries are unique.
      * @since 4.0
      */
-    private LinkedHashMap<EntryData,String> dictMap = new LinkedHashMap<EntryData,String>(1000);
+    private LinkedHashMap<EvioDictionaryEntry,String> dictMap =
+            new LinkedHashMap<EvioDictionaryEntry,String>(100);
 
     /**
      * Some dictionary entries have only a tag and no num. These entries
@@ -117,7 +130,7 @@ public class EvioXMLDictionary implements INameProvider {
      * there is no exact match in dictMap, but does match a tag in this map.
      * @since 4.1
      */
-    private LinkedHashMap<Integer,String> tagOnlyMap = new LinkedHashMap<Integer,String>(1000);
+    private LinkedHashMap<Integer,String> tagOnlyMap = new LinkedHashMap<Integer,String>(100);
 
     /**
      * This is a hashmap in which the key is a name and the value is composed
@@ -125,7 +138,8 @@ public class EvioXMLDictionary implements INameProvider {
      * It's the reverse of the dictMap mapping.
      * @since 4.0
      */
-    private LinkedHashMap<String,EntryData> reverseMap = new LinkedHashMap<String,EntryData>(1000);
+    private LinkedHashMap<String,EvioDictionaryEntry> reverseMap =
+            new LinkedHashMap<String,EvioDictionaryEntry>(100);
 
     /**
      * Top level xml Node object of xml DOM representation of dictionary.
@@ -146,95 +160,6 @@ public class EvioXMLDictionary implements INameProvider {
     private String xmlRepresentation;
 
 
-    /**
-     * Class to facilitate use of entry data as a key or value in a hash table.
-     */
-    private final class EntryData {
-
-        private final Integer  tag;
-        // "num" may be null if not given in xml entry
-        private final Integer  num;
-
-        private DataType type;
-
-        private final String   format;
-        private final String   description;
-
-        public EntryData(Integer tag) {
-            this(tag, null, null, null, null);
-        }
-
-        public EntryData(Integer tag, Integer num) {
-            this(tag, num, null, null, null);
-        }
-
-        public EntryData(Integer tag, Integer num, String type) {
-            this(tag, num, type, null, null);
-        }
-
-        public EntryData(Integer tag, Integer num, String type, String description) {
-            this(tag, num, type, description, null);
-        }
-
-        public EntryData(Integer tag, Integer num, String type, String description, String format) {
-            this.tag = tag;
-            this.num = num;
-            this.format = format;
-            this.description = description;
-            this.type = null;
-            if (type != null) {
-                try {
-                    this.type = DataType.valueOf(type.toUpperCase());
-                }
-                catch (IllegalArgumentException e) {
-                }
-            }
-        }
-
-        public final int hashCode() {
-            int hashTag = tag.hashCode();
-            int hashNum = num.hashCode();
-
-            return (hashTag + hashNum) * hashNum + hashTag;
-        }
-
-        // Objects equal eachother if tag & num are the same
-        public final boolean equals(Object other) {
-            if (other instanceof EntryData) {
-                EntryData otherPair = (EntryData) other;
-                boolean match = tag.equals(otherPair.tag);
-                if (num == null) {
-                    if (otherPair.num != null) return false;
-                }
-                else {
-                    match &= num.equals(otherPair.num);
-                }
-                return match;
-            }
-
-            return false;
-        }
-
-        public final String toString() {
-            String s = "(tag=" + tag;
-
-            if (num != null) {
-                s += ",num =" + num;
-            }
-            if (type != null) {
-                s += ",type=" + type;
-            }
-            s += ")";
-
-            return s;
-        }
-
-        public final Integer  getTag()         {return tag;}
-        public final Integer  getNum()         {return num;}
-        public final DataType getType()        {return type;}
-        public final String   getFormat()      {return format;}
-        public final String   getDescription() {return description;}
-    }
 
     /**
      * Create an EvioXMLDictionary from an xml file.
@@ -418,7 +343,7 @@ public class EvioXMLDictionary implements INameProvider {
                     if (!tagOnlyMap.containsKey(tag)) {
                         // See if this tag exists among the regular entries as well
                         boolean forgetIt = false;
-                        for (EntryData data : dictMap.keySet()) {
+                        for (EvioDictionaryEntry data : dictMap.keySet()) {
                             if (data.getTag() == tag) {
                                 forgetIt = true;
                                 break;
@@ -438,7 +363,7 @@ public class EvioXMLDictionary implements INameProvider {
                 }
                 else {
                     // Transform tag/num pair into single object
-                    EntryData key = new EntryData(tag, num, type, description, format);
+                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, type, description, format);
 
                     // Only add to dictionary if both name and tag/num pair are unique
                     if (!dictMap.containsKey(key) && !reverseMap.containsKey(name))  {
@@ -458,6 +383,16 @@ public class EvioXMLDictionary implements INameProvider {
 
 	} // end Constructor
 
+
+    /**
+     * Get the map in which the key is the entry name and the value is an object
+     * containing its data (tag, num, type, etc.).
+     * @return  map in which the key is the entry name and the value is an object
+     *          containing its data (tag, num, type, etc.).
+     */
+    public Map<String, EvioDictionaryEntry> getMap() {
+        return Collections.unmodifiableMap(reverseMap);
+    }
 
 
     /**
@@ -585,7 +520,7 @@ public class EvioXMLDictionary implements INameProvider {
                     if (!tagOnlyMap.containsKey(tag)) {
                         // See if this tag exists among the regular entries as well
                         boolean forgetIt = false;
-                        for (EntryData data : dictMap.keySet()) {
+                        for (EvioDictionaryEntry data : dictMap.keySet()) {
                             if (data.getTag() == tag) {
                                 forgetIt = true;
                                 break;
@@ -605,7 +540,7 @@ public class EvioXMLDictionary implements INameProvider {
                 }
                 else {
                     // Transform tag/num pair into single object
-                    EntryData key = new EntryData(tag, num, type, description, format);
+                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, type, description, format);
 
                     // Only add to dictionary if both name and tag/num pair are unique
                     if (!dictMap.containsKey(key) && !reverseMap.containsKey(name))  {
@@ -650,7 +585,7 @@ public class EvioXMLDictionary implements INameProvider {
      * @return a descriptive name or ??? if none found
      */
     public String getName(int tag, int num) {
-        EntryData key = new EntryData(tag, num);
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
 
         String name = dictMap.get(key);
         if (name == null) {
@@ -676,7 +611,7 @@ public class EvioXMLDictionary implements INameProvider {
         // Need to find the description associated with given tag/num.
         // First create an EntryData object to get associated name.
         // (This works because of overriding the equals() method).
-        EntryData key = new EntryData(tag, num);
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
 
         String name = dictMap.get(key);
         if (name == null) {
@@ -686,7 +621,7 @@ public class EvioXMLDictionary implements INameProvider {
 
         // Now that we have the name, use that to find the
         // original EntryData object with the description in it.
-        EntryData origKey = reverseMap.get(name);
+        EvioDictionaryEntry origKey = reverseMap.get(name);
         if (origKey == null) {
             System.out.println("getDescription: no orig entry for that key (tag/num)");
             return null;
@@ -703,7 +638,7 @@ public class EvioXMLDictionary implements INameProvider {
      * @return description; null if name or is unknown or no description is associated with it
      */
     public String getDescription(String name) {
-        EntryData entry = reverseMap.get(name);
+        EvioDictionaryEntry entry = reverseMap.get(name);
         if (entry == null) {
             return null;
         }
@@ -723,14 +658,14 @@ public class EvioXMLDictionary implements INameProvider {
         // Need to find the format associated with given tag/num.
         // First create an EntryData object to get associated name.
         // (This works because of overriding the equals() method).
-        EntryData key = new EntryData(tag, num);
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
 
         String name = dictMap.get(key);
         if (name == null) return null;
 
         // Now that we have the name, use that to find the
         // original EntryData object with the format in it.
-        EntryData origKey = reverseMap.get(name);
+        EvioDictionaryEntry origKey = reverseMap.get(name);
         if (origKey == null) {
             return null;
         }
@@ -746,7 +681,7 @@ public class EvioXMLDictionary implements INameProvider {
      * @return format; null if name or is unknown or no format is associated with it
      */
     public String getFormat(String name) {
-        EntryData data = reverseMap.get(name);
+        EvioDictionaryEntry data = reverseMap.get(name);
         if (data == null) {
             return null;
         }
@@ -766,14 +701,14 @@ public class EvioXMLDictionary implements INameProvider {
         // Need to find the type associated with given tag/num.
         // First create an EntryData object to get associated name.
         // (This works because of overriding the equals() method).
-        EntryData key = new EntryData(tag, num);
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
 
         String name = dictMap.get(key);
         if (name == null) return null;
 
         // Now that we have the name, use that to find the
         // original EntryData object with the type in it.
-        EntryData origKey = reverseMap.get(name);
+        EvioDictionaryEntry origKey = reverseMap.get(name);
         if (origKey == null) {
             return null;
         }
@@ -789,7 +724,7 @@ public class EvioXMLDictionary implements INameProvider {
      * @return type; null if name or is unknown or no type is associated with it
      */
     public DataType getType(String name) {
-        EntryData data = reverseMap.get(name);
+        EvioDictionaryEntry data = reverseMap.get(name);
         if (data == null) {
             return null;
         }
@@ -808,7 +743,7 @@ public class EvioXMLDictionary implements INameProvider {
      */
     public int[] getTagNum(String name) {
         // Get the tag/num pair
-        EntryData pair = reverseMap.get(name);
+        EvioDictionaryEntry pair = reverseMap.get(name);
         if (pair == null) {
             return null;
         }
@@ -825,7 +760,7 @@ public class EvioXMLDictionary implements INameProvider {
      */
     public int getTag(String name) {
         // Get the data
-        EntryData data = reverseMap.get(name);
+        EvioDictionaryEntry data = reverseMap.get(name);
         if (data == null) {
             for (Map.Entry<Integer, String> entry : tagOnlyMap.entrySet()) {
                 if (entry.getValue().equals(name)) {
@@ -847,7 +782,7 @@ public class EvioXMLDictionary implements INameProvider {
      */
     public int getNum(String name) {
         // Get the data
-        EntryData data = reverseMap.get(name);
+        EvioDictionaryEntry data = reverseMap.get(name);
         if (data == null) {
             return -1;
         }
@@ -968,14 +903,14 @@ public class EvioXMLDictionary implements INameProvider {
     public String toString() {
         if (stringRepresentation != null) return stringRepresentation;
 
-        EntryData pair;
+        EvioDictionaryEntry pair;
         StringBuilder sb = new StringBuilder(4096);
         sb.append("-- Dictionary --\n");
 
         for (String name : reverseMap.keySet()) {
             // Get the tag/num pair
             pair = reverseMap.get(name);
-            sb.append(String.format("tag: %-15s num: %-15s name: %s\n", pair.tag, pair.num, name));
+            sb.append(String.format("tag: %-15s num: %-15s name: %s\n", pair.getTag(), pair.getNum(), name));
 
         }
 

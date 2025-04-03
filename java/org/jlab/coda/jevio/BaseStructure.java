@@ -84,12 +84,12 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     /**
      * Used if raw data should be interpreted as a string.
      */
-    protected StringBuffer stringData;
+    protected StringBuilder stringData;
 
     /**
      * Used if raw data should be interpreted as a string.
      */
-    protected LinkedList<String> stringsList;
+    protected ArrayList<String> stringsList;
 
     /**
      * Keep track of end of the last string added to stringData (including null but not padding).
@@ -141,7 +141,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * Holds the children of this structure. This is used for creating trees for a variety of purposes
      * (not necessarily graphical.)
 	 */
-	protected Vector<BaseStructure> children;
+	protected ArrayList<BaseStructure> children;
 
     /**
      * Keep track of whether header length data is up-to-date or not.
@@ -199,7 +199,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             children.clear();
         }
         else {
-            children = new Vector<BaseStructure>(10);
+            children = new ArrayList<BaseStructure>(10);
         }
 
         // copy over some stuff from other structure
@@ -261,9 +261,9 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
             case CHARSTAR8:
                 if (structure.stringsList != null) {
-                    stringsList = new LinkedList<String>();
+                    stringsList = new ArrayList<String>(structure.stringsList.size());
                     stringsList.addAll(structure.stringsList);
-                    stringData = new StringBuffer(structure.stringData);
+                    stringData = new StringBuilder(structure.stringData);
                     stringEnd = structure.stringEnd;
                 }
                 break;
@@ -360,9 +360,9 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
                 case CHARSTAR8:
                     if (stringsList != null) {
-                        bs.stringsList = new LinkedList<String>();
+                        bs.stringsList = new ArrayList<String>(stringsList.size());
                         bs.stringsList.addAll(stringsList);
-                        bs.stringData = new StringBuffer(stringData);
+                        bs.stringData = new StringBuilder(stringData);
                         bs.stringEnd  = stringEnd;
                     }
                     break;
@@ -383,7 +383,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 case SEGMENT:
                 case TAGSEGMENT:
                     // Create kid storage since we're a container type
-                    bs.children = new Vector<BaseStructure>(10);
+                    bs.children = new ArrayList<BaseStructure>(10);
 
                     // Clone kids
                     for (BaseStructure kid : children) {
@@ -630,6 +630,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             sb.append(header.tag);
             sb.append("(0x");
             sb.append(Integer.toHexString(header.tag));
+
             sb.append(")");
             if (this instanceof EvioBank) {
                 sb.append("  num=");
@@ -644,13 +645,16 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 //        sb.append("  len=");
 //        sb.append(header.length);
-
         if (rawBytes == null) {
-            sb.append("  dataLen=0");
+            sb.append("  dataLen=" + header.padding);
         }
         else {
             sb.append("  dataLen=");
             sb.append(rawBytes.length/4);
+        }
+
+        if (header.padding != 0) {
+            sb.append("  pad="+header.padding);
         }
 
         int numChildren = (children == null) ? 0 : children.size();
@@ -1011,7 +1015,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
     /**
      * This method returns the number of bytes in a raw
-     * evio format of the given string array.
+     * evio format of the given string array, not including header.
      *
      * @param strings array of String objects to size
      * @return the number of bytes in a raw evio format of the given string array
@@ -1040,7 +1044,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 
     /**
-     * This method transforms an array of Strings into raw evio format data.
+     * This method transforms an array of Strings into raw evio format data,
+     * not including header.
      *
      * @param strings array of String objects to transform
      * @return byte array containing evio format string array
@@ -1109,14 +1114,14 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         if (rawBytes == null || offset < 0) return null;
 
         int length = rawBytes.length - offset;
-        StringBuffer stringData = new StringBuffer();
+        StringBuilder stringData = null;
         try {
             // stringData contains all elements of rawBytes
-            stringData = new StringBuffer(new String(rawBytes, offset, length, "US-ASCII"));
+            stringData = new StringBuilder(new String(rawBytes, offset, length, "US-ASCII"));
         }
         catch (UnsupportedEncodingException e) { /* will never happen */ }
 
-        return stringBufferToStrings(stringData);
+        return stringBuilderToStrings(stringData);
     }
 
 
@@ -1133,27 +1138,57 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         if (buffer == null || pos < 0 || length < 1) return null;
 
         ByteBuffer stringBuf = buffer.duplicate();
-        stringBuf.position(pos).limit(pos+length);
+        stringBuf.limit(pos+length).position(pos);
 
-        StringBuffer stringData = null;
+        StringBuilder stringData = null;
         try {
             Charset charset = Charset.forName("US-ASCII");
             CharsetDecoder decoder = charset.newDecoder();
-            stringData = new StringBuffer(decoder.decode(stringBuf));
+            stringData = new StringBuilder(decoder.decode(stringBuf));
         }
         catch (CharacterCodingException e) {/* should not happen */}
 
-        return stringBufferToStrings(stringData);
+        return stringBuilderToStrings(stringData);
+    }
+
+     // TODO: try this for performance reasons
+    /**
+     * This method extracts an array of strings from buffer containing raw evio string data.
+     *
+     * @param buffer  buffer containing evio string data
+     * @param pos     position of string data in buffer
+     * @param length  length of string data in buffer in bytes
+     * @return array of Strings or null if processing error
+     */
+    static String[] unpackRawBytesToStringsNew(ByteBuffer buffer, int pos, int length) {
+
+        if (buffer == null || pos < 0 || length < 1) return null;
+
+        int oldPos = buffer.position();
+        int oldLim = buffer.limit();
+
+        StringBuilder stringData = null;
+        try {
+            Charset charset = Charset.forName("US-ASCII");
+            CharsetDecoder decoder = charset.newDecoder();
+            stringData = new StringBuilder(decoder.decode(buffer));
+        }
+        catch (CharacterCodingException e) {/* should not happen */}
+
+        String[] strs = stringBuilderToStrings(stringData);
+        buffer.limit(oldLim).position(oldPos);
+
+        return  strs;
     }
 
 
     /**
-     * This method extracts an array of strings from StringBuffer containing string data.
+     * This method extracts an array of strings from StringBuilder containing string data.
      *
      * @param stringData  buffer containing string data
      * @return array of Strings or null if processing error
      */
-    static private String[] stringBufferToStrings(StringBuffer stringData) {
+    static private String[] stringBuilderToStrings(StringBuilder stringData) {
 
         // Each string is terminated with a null (char val = 0)
         // and in addition, the end is padded by ASCII 4's (char val = 4).
@@ -1169,8 +1204,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
 
         char c;
-        LinkedList<String> stringsList = new LinkedList<String>();
-        LinkedList<Integer> nullIndexList = new LinkedList<Integer>();
+        ArrayList<String> stringsList = new ArrayList<String>(20);
+        ArrayList<Integer> nullIndexList = new ArrayList<Integer>(20);
 
         for (int i=0; i < stringData.length(); i++) {
             c = stringData.charAt(i);
@@ -1217,14 +1252,14 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
         try {
             // stringData contains all elements of rawBytes
-            stringData = new StringBuffer(new String(rawBytes, "US-ASCII"));
+            stringData = new StringBuilder(new String(rawBytes, "US-ASCII"));
         }
         catch (UnsupportedEncodingException e) { /* will never happen */ }
 
         // Each string is terminated with a null (char val = 0)
         // and in addition, the end is padded by ASCII 4's (char val = 4).
         // However, in the legacy versions of evio, there is only one
-        // null-terminated string and anything as padding. To accomodate legacy evio, if
+        // null-terminated string and anything as padding. To accommodate legacy evio, if
         // there is not an ending ASCII value 4, anything past the first null is ignored.
         // After doing so, split at the nulls. Do not use the String
         // method "split" as any empty trailing strings are unfortunately discarded.
@@ -1235,8 +1270,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
 
         char c;
-        stringsList = new LinkedList<String>();
-        LinkedList<Integer> nullIndexList = new LinkedList<Integer>();
+        stringsList = new ArrayList<String>(20);
+        ArrayList<Integer> nullIndexList = new ArrayList<Integer>(20);
 
         for (int i=0; i < stringData.length(); i++) {
             c = stringData.charAt(i);
@@ -1324,7 +1359,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 		if (children == null) {
 			return DefaultMutableTreeNode.EMPTY_ENUMERATION;
 		}
-		return children.elements();
+        return Collections.enumeration(children);
 	}
 
 	/**
@@ -1335,7 +1370,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 */
 	public void insert(MutableTreeNode child, int index) {
 		if (children == null) {
-			children = new Vector<BaseStructure>(10);
+			children = new ArrayList<BaseStructure>(10);
 		}
 		children.add(index, (BaseStructure) child);
         child.setParent(this);
@@ -1351,7 +1386,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 */
 	public void insert(MutableTreeNode child) {
 		if (children == null) {
-			children = new Vector<BaseStructure>(10);
+			children = new ArrayList<BaseStructure>(10);
 		}
 		//add to end
 		insert(child, children.size());
@@ -1511,7 +1546,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
         BaseStructure b = null;
         try {
-            b = children.elementAt(index);
+            b = children.get(index);
         }
         catch (ArrayIndexOutOfBoundsException e) { }
         return b;
@@ -1797,14 +1832,24 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 	}
 
-	/**
-	 * Get the children of this structure.
-	 * 
-	 * @return the children of this structure.
-	 */
-	public Vector<BaseStructure> getChildren() {
-		return children;
-	}
+    /**
+   	 * Get the children of this structure.
+     * Use {@link #getChildrenList()} instead.
+   	 *
+     * @deprecated child structures are no longer keep in a Vector
+   	 * @return the children of this structure.
+   	 */
+   	public Vector<BaseStructure> getChildren() {
+        if (children == null) return null;
+        return new Vector<BaseStructure>(children);
+    }
+
+    /**
+   	 * Get the children of this structure.
+   	 *
+   	 * @return the children of this structure.
+   	 */
+   	public List<BaseStructure> getChildrenList() {return children;}
 
     /**
      * Get whether the lengths of all header fields for this structure
@@ -2514,6 +2559,18 @@ System.err.println("Non leaf with null children!");
      * @throws EvioException if adding data to a structure of a different data type
      */
     public void appendStringData(String s) throws EvioException {
+        appendStringData(new String[] {s});
+    }
+
+    /**
+     * Appends an array of strings to the structure (as ascii).
+     * If the structure has no data, then this
+     * is the same as setting the data. Don't worry about checking for size limits since
+     * jevio structures will never contain a char array > {@link Integer#MAX_VALUE} in size.
+     * @param s the strings to append (as ascii), or set if there is no existing data.
+     * @throws EvioException if adding data to a structure of a different data type
+     */
+    public void appendStringData(String[] s) throws EvioException {
 
         DataType dataType = header.getDataType();
         if (dataType != DataType.CHARSTAR8) {
@@ -2529,32 +2586,38 @@ System.err.println("Non leaf with null children!");
 		    // if no raw data, things are easy
             if (rawBytes == null) {
                 // create some storage
-                stringsList = new LinkedList<String>();
-                stringData  = new StringBuffer(s.length() + 1);
-                numberDataItems = 1;
+                stringsList = new ArrayList<String>(s.length > 20 ? s.length + 20 : 20);
+                int len = 3; // max padding
+                for (int i=0; i < s.length; i++) {
+                    len += s.length + 1;
+                }
+                stringData = new StringBuilder(len);
+                numberDataItems = s.length;
             }
             // otherwise expand raw data first, then add string
             else {
                 unpackRawBytesToStrings();
                 // remove any existing padding
                 stringData.delete(stringEnd, stringData.length());
-                numberDataItems = stringsList.size() + 1;
+                numberDataItems = stringsList.size() + s.length;
             }
         }
         else {
             // remove any existing padding
             stringData.delete(stringEnd, stringData.length());
-            numberDataItems++;
+            numberDataItems += s.length;
         }
 
-        // store string
-        stringsList.add(s);
+        for (int i=0; i < s.length; i++) {
+            // store string
+            stringsList.add(s[i]);
 
-        // add string
-        stringData.append(s);
+            // add string
+            stringData.append(s[i]);
 
-        // add ending null
-        stringData.append('\000');
+            // add ending null
+            stringData.append('\000');
+        }
 
         // mark end of data before adding padding
         stringEnd = stringData.length();
@@ -2588,7 +2651,6 @@ System.err.println("Non leaf with null children!");
         lengthsUpToDate(false);
         setAllHeaderLengths();
     }
-
 
     /**
 	 * Appends double data to the structure. If the structure has no data, then this
@@ -2993,10 +3055,8 @@ System.err.println("Non leaf with null children!");
         }
 
         clearData();
-        for (String str : data) {
-            try {appendStringData(str);}
-            catch (EvioException e) {/* never happen */}
-        }
+        try {appendStringData(data);}
+        catch (EvioException e) {/* never happen */}
     }
 
     /**

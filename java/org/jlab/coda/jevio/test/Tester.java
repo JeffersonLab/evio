@@ -314,14 +314,14 @@ System.out.println("Tag, int = " + tag + ", str = " + tagStr + ", bad entry = " 
 //
 //        for (int j=0; j < LOOPS; j++) {
 //            pos = 0;
-//            srcBuffer.position(pos).limit(endPos);
+//            srcBuffer.limit(endPos).position(pos);
 //            LongBuffer db = srcBuffer.asLongBuffer();
-//            destBuffer.position(pos).limit(endPos);
+//            destBuffer.limit(endPos).position(pos);
 //            LongBuffer db2 = destBuffer.asLongBuffer();
 //            db2.put(db);
 //        }
-//        destBuffer.position(position).limit(limit);
-//        srcBuffer.position(position).limit(limit);
+//        destBuffer.limit(limit).position(position);
+//        srcBuffer.limit(limit).position(position);
 //
 //        t2 = System.currentTimeMillis();
 //        deltaT = t2 - t1;
@@ -499,25 +499,6 @@ System.out.println("Tag, int = " + tag + ", str = " + tagStr + ", bad entry = " 
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
-            // option 9
-
-            try {
-                byte[] bArray = new byte[8*doubleData.length];
-                t1 = System.currentTimeMillis();
-                for (int j=0; j < LOOPS; j++) {
-                    byteBuffer.clear();
-                    ByteDataTransformer.toBytes2(doubleData, byteBuffer.order(), bArray, 0);
-                    byteBuffer.put(bArray);
-                }
-                t2 = System.currentTimeMillis();
-                deltaT = t2 - t1;
-                freq = (double) LOOPS / deltaT * 1000;
-                System.out.printf("loopRate D8: %2.3g Hz,  time = %2.3g sec\n", freq, (deltaT/1000.));
-                //printDoubleBuffer(byteBuffer);
-            }
-            catch (EvioException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
 
         }
 

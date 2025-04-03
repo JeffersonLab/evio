@@ -201,17 +201,39 @@ typedef struct evfilestruct {
 } EVFILE;
 
 
+/** Structure for Sergei Boiarinov's use. */
+typedef struct evioBlockHeaderV4_t {
+
+	uint32_t length;       /**< total length of block in 32-bit words including this complete header. */
+	uint32_t blockNumber;  /**< block id # starting at 1. */
+	uint32_t headerLength; /**< length of this block header in 32-bit words (always 8). */
+	uint32_t eventCount;   /**< # of events in this block (not counting dictionary). */
+	uint32_t reserved1;    /**< reserved for future use. */
+	uint32_t bitInfo;      /**< Contains version # in lowest 8 bits.
+                                If dictionary is included as the first event, bit #9 is set.
+                                If is a last block, bit #10 is set. */
+	uint32_t reserved2;    /**< reserved for future use. */
+	uint32_t magicNumber;  /**< written as 0xc0da0100 and used to check endianness. */
+
+} evioBlockHeaderV4;
+
+/** Offset in bytes from beginning of block header to block length. */
+#define EVIO_BH_LEN_OFFSET 0
+/** Offset in bytes from beginning of block header to block number. */
+#define EVIO_BH_BLKNUM_OFFSET 32
+/** Offset in bytes from beginning of block header to header length. */
+#define EVIO_BH_HDRLEN_OFFSET 64
+/** Offset in bytes from beginning of block header to event count. */
+#define EVIO_BH_EVCOUNT_OFFSET 96
+/** Offset in bytes from beginning of block header to bitInfo. */
+#define EVIO_BH_BITINFO_OFFSET 160
+/** Offset in bytes from beginning of block header to magic number. */
+#define EVIO_BH_MAGNUM_OFFSET 224
 
 /* prototypes */
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* entry points */
-extern void evioswap(uint32_t *buffer, int tolocal, uint32_t*dest);
-extern int32_t swap_int32_t_value(int32_t val);
-extern uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest);
-
 
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
@@ -224,7 +246,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t size);
 int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen);
 int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen);
 int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t eventNumber);
-int evGetRandomAccessTable(int handle, const uint32_t ***table, uint32_t *len);
+int evGetRandomAccessTable(int handle, uint32_t *** const table, uint32_t *len);
 
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);

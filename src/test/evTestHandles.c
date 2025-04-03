@@ -15,8 +15,8 @@
 
 int main (int argc, char **argv) {
 
-    int i, handle, bufLen, status, maxloop = 11;
-    uint32_t *buf;
+    int i, handle, status, maxloop = 11;
+    uint32_t *buf, bufLen;
 
     
     if(argc < 2) {

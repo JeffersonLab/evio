@@ -96,7 +96,7 @@ static uint32_t data1[] = {
     0x00000003,
     };
     
-/* one block header with 1 event */
+/* one block header with 1 event
 static uint32_t data2[] = {
         0x0000000d,
         0x00000001,
@@ -113,8 +113,7 @@ static uint32_t data2[] = {
         0x00000002,
         0x00000003
 };
-
-
+*/
 
 static char *dictionary =
 "<xmlDict>\n"
@@ -133,9 +132,9 @@ static void *writeThread(void *arg);
 static int handle;
 
 int main1() {
-    int status, nevents, nwords;
-    int i, maxEvBlk = 2;
-    int *ip, *pBuf, *dict, dictLen, bufLen;
+    int status;
+    int maxEvBlk = 2;
+    int *ip, bufLen;
     size_t bufSize = 10000;
     char eventBuffer[4*bufSize];
     pthread_t  tid;
@@ -165,12 +164,12 @@ int main1() {
         }
         nanosleep(&wait, NULL);
     }
+    return(0);
 }
 
 int main() {
-    int status, nevents, nwords;
-    int i, maxEvBlk = 2;
-    int *ip, *pBuf, *dict, dictLen, bufLen;
+    int status;
+    int maxEvBlk = 2;
     size_t bufSize = 100000;
     char eventBuffer[4*bufSize];
     pthread_t  tid1, tid2;
@@ -206,6 +205,7 @@ int main() {
         sched_yield();
         nanosleep(&wait, NULL);
     }
+    return(0);
 }
 
 static void *writeThread(void *arg) {
@@ -223,6 +223,7 @@ static void *writeThread(void *arg) {
         sched_yield();
         nanosleep(&wait, NULL);
     }
+    return(0);
 }
 
 
@@ -235,5 +236,5 @@ static void *closeThread(void *arg) {
     printf ("    *** Call evClose() in close thread\n");
     status = evClose(handle);
     printf ("    \"Closed\" buffer, status = %#x\n\n", status);
-
+    return(0);
 }

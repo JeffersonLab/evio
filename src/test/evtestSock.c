@@ -23,10 +23,9 @@
 #include <pthread.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <sys/errno.h>
 #include <netinet/tcp.h> /* TCP_NODELAY def */
-#include <arpa/inet.h>
-
 #include "evio.h"
 
 #if defined sun || defined linux || defined VXWORKS
@@ -42,19 +41,6 @@
 /* prototypes */
 static int  tcp_listen(unsigned short port, int size);
 static int  Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
-static int32_t *makeEvent();
-
-static char *dictionary2 =
-"<xmlDict>\n"
-"  <xmldumpDictEntry name=\"Tag1-Num1\"   tag=\"1\"   num=\"1\"/>\n"
-"  <xmldumpDictEntry name=\"Tag2-Num2\"   tag=\"2\"   num=\"2\"/>\n"
-"  <xmldumpDictEntry name=\"Tag3-Num3\"   tag=\"3\"   num=\"3\"/>\n"
-"  <xmldumpDictEntry name=\"Tag4-Num4\"   tag=\"4\"   num=\"4\"/>\n"
-"  <xmldumpDictEntry name=\"Tag5-Num5\"   tag=\"5\"   num=\"5\"/>\n"
-"  <xmldumpDictEntry name=\"Tag6-Num6\"   tag=\"6\"   num=\"6\"/>\n"
-"  <xmldumpDictEntry name=\"Tag7-Num7\"   tag=\"7\"   num=\"7\"/>\n"
-"  <xmldumpDictEntry name=\"Tag8-Num8\"   tag=\"8\"   num=\"8\"/>\n"
-"</xmlDict>\n";
 
 static char *dictionary =
         "<xmlDict>\n"
@@ -71,13 +57,12 @@ static int     recvFd;
 
 
 static void *receiverThread(void *arg) {
-    int listenfd=0, handle, status, nevents, nwords, *ip;
-    int buffer[2048], i;
-    int *dict, dictLen;
+    int listenfd=0, handle, status, nevents, nwords;
+    int i;
+    uint32_t dictLen, buffer[2048], *ip;
+    char *dict;
     struct sockaddr_in cliaddr;
-    socklen_t          len;
-
-    len = sizeof(cliaddr);
+    socklen_t len = sizeof(cliaddr);
     
 printf("Receiver thread: listen on server socket\n");
 
@@ -148,6 +133,7 @@ printf("\nReceiver thread: Last read, status = %x\n", status);
     
     status = evClose(handle);
     printf ("Receiver thread: Closed socket, status = %#x\n\n", status);
+    return(0);
 }
 
 
@@ -155,7 +141,7 @@ printf("\nReceiver thread: Last read, status = %x\n", status);
 static int createSendFd() {
 
     struct sockaddr_in sin;
-    int   sendFd, on=1, off=0;
+    int   sendFd, on=1;
     struct hostent  *hp;
 
 
@@ -232,83 +218,6 @@ static int tcpWrite(int fd, const void *vptr, int n)
 }
 
 
-int main2()
-{
-    int i, handle, status, sendFd, maxEvBlk=2;
-    int *ip, *pBuf;
-    pthread_t tid;
-
-    /* Try sending extra big block headers ... */
-    uint32_t data[] = {
-        0x0000000f,
-        0x00000001,
-        0x0000000A,
-        0x00000001,
-        0x00000000,
-        0x00000004,
-        0x00000000,
-        0xc0da0100,
-        0x00000001,
-        0x00000002,
-
-        0x00000004,
-        0x00010101,
-        0x00000001,
-        0x00000002,
-        0x00000003,
-        
-        0x0000000f,
-        0x00000001,
-        0x0000000A,
-        0x00000001,
-        0x00000000,
-        0x00000004,
-        0x00000000,
-        0xc0da0100,
-        0x00000001,
-        0x00000002,
-
-        0x00000004,
-        0x00010101,
-        0x00000001,
-        0x00000002,
-        0x00000003,
-        
-        0x00000009,
-        0x00000002,
-        0x00000009,
-        0x00000000,
-        0x00000000,
-        0x00000204,
-        0x00000000,
-        0xc0da0100,
-        0x00000003,
-    };
-
-    printf("Try running Receiver thread\n");
-      
-    /* run receiver thread */
-    pthread_create(&tid, NULL, receiverThread, (void *) NULL);
-
-    /* give it a chance to start */
-    sleep(2);
-
-    /* Create sending socket */
-    sendFd = createSendFd();
-
-    printf("Sending socket fd = %d\n\n", sendFd);
-
-    /* write data by hand over network */
-    tcpWrite(sendFd, data, 156);
-    
-    status = evClose(handle);
-    printf ("    \"Closed\" buffer, status = %#x\n\n", status);
-
-    free(pBuf);
-
-    /* Don't exit the program before the receiver thread can do its stuff. */
-    sleep(6);
-}
 
 /* Bank with bank of int (data ranges from 4 to 12 to 14 to 16 words */
 
@@ -324,6 +233,7 @@ static uint32_t evBuf_8[] =
     0x00000003
 }; /* len = 8 words */
 
+/*
 static uint32_t evBuf_16[] =
 {
     0x0000000f,
@@ -342,7 +252,7 @@ static uint32_t evBuf_16[] =
     0x00000009,
     0x0000000a,
     0x0000000b
-};/* len = 16 words */
+}; */ /* len = 16 words */
 
 static uint32_t evBuf_18[] =
 {
@@ -395,7 +305,7 @@ int main()
 {
     int i, handle, status, sendFd, maxEvBlk=2;
     pthread_t tid;
-    char stuff[128];
+    // char stuff[128];
 
 
     printf("Try running Receiver thread\n");
@@ -497,26 +407,10 @@ int main()
 
 
 
-static int32_t *makeEvent()
-{
-    int32_t *bank;
-
-    bank = (int *) calloc(1, 5*sizeof(int32_t));
-    bank[0] = 4;                    /* event length = 4 */
-    bank[1] = 1 << 16 | 0x1 << 8;   /* tag = 1, bank 1 contains ints */
-    bank[2] = 1;
-    bank[3] = 2;
-    bank[4] = 3;
-
-    return(bank);
-}
-
-
-
 /*****************************************************/
 static int tcp_listen(unsigned short port, int size) {
 
-    int                 listenfd, err, rcvBufSize;
+    int                 listenfd, err;
     const int           debug=1, on=1;
     struct sockaddr_in  servaddr;
 

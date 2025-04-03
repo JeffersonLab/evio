@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
 
     // close buffer channel
-    int streamBufSize = chan->getEVIOBufferLength();
+    // int streamBufSize = chan->getEVIOBufferLength();
     chan->close();
     delete(chan);
 

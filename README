@@ -8,7 +8,7 @@ CODA software, but is now being used offline and in other applications as
 well.
 
 
-There is a C library as well as a C++ library which is primarely a
+There is a C library as well as a C++ library which is primarily a
 wrapper around the C. There are a few utility programs included.
 The Java version is a jar file containing all the capabilities
 of the C and C++ libraries with a more extensive, user-friendly

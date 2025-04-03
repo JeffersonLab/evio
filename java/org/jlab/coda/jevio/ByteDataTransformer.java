@@ -26,6 +26,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
      * @return the raw bytes converted into an int array.
+     * @deprecated
      */
     public static int[] getAsIntArray(byte bytes[], ByteOrder byteOrder) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -46,6 +47,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
      * @return the raw bytes converted into an int array.
+     * @deprecated
      */
     public static short[] getAsShortArray(byte bytes[], ByteOrder byteOrder) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -67,6 +69,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into an int array.
+     * @deprecated
 	 */
 	public static short[] getAsShortArray(byte bytes[], int padding, ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -90,6 +93,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into a long array.
+     * @deprecated
 	 */
 	public static long[] getAsLongArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -109,6 +113,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into a double array.
+     * @deprecated
 	 */
 	public static double[] getAsDoubleArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -128,6 +133,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into a float array.
+     * @deprecated
 	 */
 	public static float[] getAsFloatArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -182,13 +188,17 @@ public class ByteDataTransformer {
      */
     public static byte[] toByteArray(ByteBuffer byteBuffer) {
         if (byteBuffer == null) return null;
-
         int size = byteBuffer.remaining();
         byte array[] = new byte[size];
 
-        if (byteBuffer.hasArray()) {
-            byte[] ba = byteBuffer.array();
-            System.arraycopy(ba, byteBuffer.position(), array, 0, byteBuffer.remaining());
+        // Avoid potential disaster if byteBuffer is a slice.
+        // In that case, it's backing array can be bigger than its capacity
+        // with no way to tell what the proper offset is. In this case do NOT
+        // do the arraycopy.
+
+        if (byteBuffer.hasArray() && (byteBuffer.array().length == byteBuffer.capacity())) {
+            System.arraycopy(byteBuffer.array(), byteBuffer.position(),
+                             array, 0, byteBuffer.remaining());
         }
         else {
             int pos = byteBuffer.position();
@@ -287,6 +297,21 @@ public class ByteDataTransformer {
         double array[] = new double[size];
         dbuf.get(array, 0, size);
         return array;
+    }
+
+
+    /**
+     * Converts an ByteBuffer object containing evio String data into a String array.
+     *
+     * @param byteBuffer the buffer to convert.
+     * @return the ByteBuffer converted into a String array; null if bad format.
+     */
+    public static String[] toStringArray(ByteBuffer byteBuffer) {
+        if (byteBuffer == null) return null;
+
+        return BaseStructure.unpackRawBytesToStrings(byteBuffer,
+                                                     byteBuffer.position(),
+                                                     byteBuffer.limit() - byteBuffer.position());
     }
 
 
@@ -962,78 +987,6 @@ public class ByteDataTransformer {
         return;
     }
 
-    /**
-     * Turn double array into byte array.
-     * Slower than {@link #toBytes(double[], ByteOrder)}.
-     * Keep this around for completeness purposes - a record
-     * of what was already tried and found wanting. Tried this
-     * for all data types.
-     *
-     * @param data double array to convert
-     * @param byteOrder byte order of returned bytes (big endian if null)
-     * @return byte array representing double array or null if data is null
-     * @throws EvioException if data array has too many elements to
-     *                       convert to a byte array
-     */
-    public static byte[] toBytes2(double[] data, ByteOrder byteOrder) throws EvioException {
-
-        if (data == null) return null;
-        if (data.length > Integer.MAX_VALUE/8) {
-            throw new EvioException("double array has too many elements to convert to byte array");
-        }
-
-        byte[] stor = new byte[8];
-        byte[] byts = new byte[data.length*8];
-
-        try {
-            for (int i = 0; i < data.length; i++) {
-                toBytes(data[i], byteOrder, stor, 0);
-                System.arraycopy(stor, 0, byts, i*8, 8);
-            }
-        }
-        catch (EvioException e) {/* never happen */}
-
-        return byts;
-    }
-
-    /**
-     * Turn double array into byte array.
-     * Avoids creation of new byte array with each call.
-     * Slower than {@link #toBytes(double[], ByteOrder, byte[], int)}.
-     * Keep this around for completeness purposes - a record
-     * of what was already tried and found wanting. Tried this
-     * for all data types.
-     *
-     * @param data double array to convert
-     * @param byteOrder byte order of returned bytes (big endian if null)
-     * @param dest array in which to store returned bytes
-     * @param off offset into dest array where returned bytes are placed
-     * @throws EvioException if data is null, dest is null or too small, or offset negative;
-     *                       if data array has too many elements to convert to a byte array
-     */
-    public static void toBytes2(double[] data, ByteOrder byteOrder, byte[] dest, int off)
-            throws EvioException{
-
-        if (data == null || dest == null || dest.length < 8*data.length+off || off < 0) {
-            throw new EvioException("bad arg(s)");
-        }
-        if (data.length > Integer.MAX_VALUE/8) {
-            throw new EvioException("double array has too many elements to convert to byte array");
-        }
-
-        byte[] stor = new byte[8];
-
-        try {
-            for (int i = 0; i < data.length; i++) {
-                toBytes(data[i], byteOrder, stor, 0);
-                System.arraycopy(stor, 0, dest, off + i*8, 8);
-            }
-        }
-        catch (EvioException e) {/* never happen */}
-
-        return;
-    }
-
     // =========================
     // byte[] --> primitive type
     // =========================
@@ -1696,6 +1649,40 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                                  int srcPos, int destPos, List<EvioNode> nodeList)
             throws EvioException {
 
+        swapEvent(srcBuffer, destBuffer, srcPos, destPos, true, nodeList);
+    }
+
+
+    /**
+     * This method swaps the byte order of an entire evio event or bank.
+     * The byte order of the swapped buffer will be opposite to the byte order
+     * of the the source buffer argument. If the swap is done in place, the
+     * byte order of the source buffer will be switched upon completion and
+     * the destPos arg will be set equal to the srcPos arg.
+     * A ByteBuffer's current byte order can be found by calling
+     * {@link java.nio.ByteBuffer#order()}.<p>
+     *
+     * The data to be swapped must <b>not</b> be in the evio file format (with
+     * block headers). Data must only consist of bytes representing a single event/bank.
+     * Position and limit of neither buffer is changed.
+     *
+     * @param srcBuffer  buffer containing event to swap.
+     * @param destBuffer buffer in which to placed the swapped event.
+     *                   If null, or identical to srcBuffer, the data is swapped in place.
+     * @param srcPos     position in srcBuffer to start reading event
+     * @param destPos    position in destBuffer to start writing swapped event
+     * @param swapData   if false, do NOT swap data, else swap data too
+     * @param nodeList   if not null, generate & store node objects here -
+     *                   one for each swapped evio structure in destBuffer.
+     *
+     * @throws EvioException if srcBuffer arg is null;
+     *                       if any buffer position is not zero
+     */
+    public static void swapEvent(ByteBuffer srcBuffer, ByteBuffer destBuffer,
+                                 int srcPos, int destPos, boolean swapData,
+                                 List<EvioNode> nodeList)
+            throws EvioException {
+
         if (srcBuffer == null) {
             throw new EvioException("Null event in parseEvent.");
         }
@@ -1743,7 +1730,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 
         // The event is an evio bank so recursively swap it as such
         swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                      srcPos + 8, destPos + 8, node.dataLen, inPlace, nodeList);
+                      srcPos + 8, destPos + 8, node.dataLen, inPlace, swapData, nodeList);
 
         if (inPlace) {
             srcBuffer.order(destOrder);
@@ -2036,7 +2023,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;
      */
-    private static void swapData(DataType type, ByteBuffer srcBuffer,
+    static void swapData(DataType type, ByteBuffer srcBuffer,
                                  ByteBuffer destBuffer, int srcPos, int destPos,
                                  int len, boolean inPlace)
                 throws EvioException {
@@ -2108,6 +2095,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      * @param destPos    position in destBuffer to start writing swapped structure
      * @param length     length of structure in 32-bit words
      * @param inPlace    if true, data is swapped in srcBuffer
+     * @param swapData   if false, data is NOT swapped, else it is
      * @param nodeList   if not null, store all node objects here -
      *                   one for each swapped evio structure in destBuffer.
      *
@@ -2116,15 +2104,16 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;
      */
-    private static void swapStructure(DataType dataType, ByteBuffer srcBuffer,
-                                      ByteBuffer destBuffer, int srcPos, int destPos,
-                                      int length, boolean inPlace, List<EvioNode> nodeList)
+    static void swapStructure(DataType dataType, ByteBuffer srcBuffer,
+                              ByteBuffer destBuffer, int srcPos, int destPos,
+                              int length, boolean inPlace, boolean swapData,
+                              List<EvioNode> nodeList)
              throws EvioException {
 
         // If not a structure of structures, swap the data and return - no more recursion.
         if (!dataType.isStructure()) {
             // swap raw data here
-            swapData(dataType, srcBuffer, destBuffer, srcPos, destPos, length, inPlace);
+            if (swapData) swapData(dataType, srcBuffer, destBuffer, srcPos, destPos, length, inPlace);
 //System.out.println("HIT END_OF_LINE");
             return;
         }
@@ -2153,7 +2142,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 //System.out.println("Create bank node for struct holding " + node.getDataTypeObj());
 
                     swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+8, dPos+8, node.dataLen, inPlace, nodeList);
+                                  sPos+8, dPos+8, node.dataLen, inPlace, swapData, nodeList);
 
                     // Position offset to start of next header
                     offset += 4 * (node.len + 1); // plus 1 for length word
@@ -2183,7 +2172,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 
 //System.out.println("Create seg node for struct holding " + node.getDataTypeObj());
                     swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+4, dPos+4, node.dataLen, inPlace, nodeList);
+                                  sPos+4, dPos+4, node.dataLen, inPlace, swapData, nodeList);
 
                     offset += 4 * (node.len + 1);
                     sPos = srcPos  + offset;
@@ -2214,7 +2203,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 //System.out.println("Create tagseg node for struct holding " + node.getDataTypeObj());
 
                     swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+4, dPos+4, node.dataLen, inPlace, nodeList);
+                                  sPos+4, dPos+4, node.dataLen, inPlace, swapData, nodeList);
 
                     offset += 4 * (node.len + 1);
                     sPos = srcPos  + offset;

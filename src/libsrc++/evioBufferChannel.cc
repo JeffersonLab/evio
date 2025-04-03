@@ -463,7 +463,7 @@ string evioBufferChannel::getBufferXMLDictionary(void) const {
  * @param table Pointer to table
  * @param len Length of table
  */
-void evioBufferChannel::getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException) {
+void evioBufferChannel::getRandomAccessTable(uint32_t *** const table, uint32_t *len) const throw(evioException) {
   if(handle==0)throw(evioException(0,"evioBufferChannel::getRandomAccessTable...0 handle",__FILE__,__FUNCTION__,__LINE__));
   evGetRandomAccessTable(handle,table,len);
 }
