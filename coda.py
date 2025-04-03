@@ -16,17 +16,17 @@ from SCons.Builder import Builder
 def recursiveDirs(root) :
     """Return a list of all subdirectories of root, top down,
        including root, but without .svn and .<arch> directories"""
-    return list(filter( (lambda a : (a.rfind( ".svn")==-1) and \
+    return filter( (lambda a : (a.rfind( ".svn")==-1) and \
                                (a.rfind( ".Linux")==-1) and \
                                (a.rfind( ".SunOS")==-1) and \
                                (a.rfind( ".Darwin")==-1) and \
-                               (a.rfind( ".vxworks")==-1)),  [ a[0] for a in os.walk(root)]  ))
+                               (a.rfind( ".vxworks")==-1)),  [ a[0] for a in os.walk(root)]  )
 
 
 
 def unique(list) :
     """Remove duplicates from list"""
-    return list(dict.fromkeys(list).keys())
+    return dict.fromkeys(list).keys()
 
 
 
@@ -38,14 +38,14 @@ def scanFiles(dir, accept=["*.cpp"], reject=[]) :
         for pattern in accept :
             sources+=glob.glob(path+"/"+pattern)
     for pattern in reject :
-        sources = list(filter( (lambda a : a.rfind(pattern)==-1 ),  sources ))
+        sources = filter( (lambda a : a.rfind(pattern)==-1 ),  sources )
     return unique(sources)
 
 
 
 def subdirsContaining(root, patterns):
     """Return a list of subdirectories containing files of the given pattern"""
-    dirs = unique(list(map(os.path.dirname, scanFiles(root, patterns))))
+    dirs = unique(map(os.path.dirname, scanFiles(root, patterns)))
     dirs.sort()
     return dirs
 
@@ -101,7 +101,7 @@ def is64BitMachine(env, platform, machine):
         ret = conf.CheckBits(ccflags)
         env = conf.Finish()
         if ret < 1:
-            print('Cannot run test, assume 64 bit system')
+            print ('Cannot run test, assume 64 bit system')
             return True
         elif ret == 64:
             # Test shows 64 bit system'
@@ -112,7 +112,7 @@ def is64BitMachine(env, platform, machine):
 
 
 
-def configure32bits(env, use32bits, platform):
+def configure32bits(env, use32bits, platform, machine):
     """Setup environment on 64 bit machine to handle 32 or 64 bit libs and executables."""
     if platform == 'SunOS':
         if not use32bits:
@@ -136,82 +136,6 @@ def configure32bits(env, use32bits, platform):
 
 
 
-def configureVxworks(env, vxVersion, platform):
-    """Setup everything for vxWorks cross compilation."""
-    ## Figure out which version of vxworks is being used.
-    ## Do this by finding out which ccppc is first in our PATH.
-    #vxCompilerPath = Popen('which ccppc', shell=True, stdout=PIPE, stderr=PIPE).communicate()[0]
-    
-    ## Then ty to grab the major version number from the PATH
-    #matchResult = re.match('/site/vxworks/(\\d).+', vxCompilerPath)
-    #if matchResult != None:
-        ## Test if version number was obtained
-        #try:
-            #vxVersion = int(matchResult.group(1))
-        #except IndexError:
-            #print 'ERROR finding vxworks version, set to 6 by default\n'
-    
-    vxInc = ''
-
-    if vxVersion == 5.5:
-        vxbase = '/site/vxworks/5.5/ppc'
-        vxInc  = [vxbase + '/target/h']
-        env.Append(CPPDEFINES = ['VXWORKS_5'])
-    elif vxVersion == 6.0:
-        vxbase = '/site/vxworks/6.0/ppc/gnu/3.3.2-vxworks60'
-        vxInc  = ['/site/vxworks/6.0/ppc/vxworks-6.0/target/h',
-                  '/site/vxworks/6.0/ppc/vxworks-6.0/target/h/wrn/coreip']
-        env.Append(CPPDEFINES = ['VXWORKS_6'])
-    else:
-        print('Unknown version of vxWorks, exiting')
-        return 0
-
-
-    if platform == 'Linux':
-        if vxVersion == 5.5:
-            vxbin = vxbase + '/host/x86-linux/bin/'
-        else:
-            vxbin = vxbase + '/x86-linux2/bin/'
-    elif platform == 'SunOS':
-        if vxVersion >= 6:
-            print('\nVxworks 6.x compilation not allowed on solaris')
-            return 0
-        vxbin = vxbase + '/host/sun4-solaris2/bin/'
-        if machine == 'i86pc':
-            print('\nVxworks compilation not allowed on x86 solaris')
-            return 0
-    else:
-        print('\nVxworks compilation not allowed on ' + platform)
-        return 0
-        
-                    
-    # If the supplied vxworks path is bad, rely
-    # on the PATH to find vxworks executables
-    if not os.path.exists(vxbin):
-        vxbin = ''
-    
-
-    env.Replace(SHLIBSUFFIX = '.o')
-    # Get rid of -shared and use -r
-    env.Replace(SHLINKFLAGS = '-r')
-    # Redefine SHCFLAGS/SHCCFLAGS to get rid of -fPIC (in Linux)
-    vxFlags = '-fno-builtin -fvolatile -fstrength-reduce -mlongcall -mcpu=604'
-    env.Replace(SHCFLAGS  = vxFlags)
-    env.Replace(SHCCFLAGS = vxFlags)
-    env.Append(CFLAGS     = vxFlags)
-    env.Append(CCFLAGS    = vxFlags)
-    env.Append(CPPPATH    = vxInc)
-    env.Append(CPPDEFINES = ['CPU=PPC604', 'VXWORKS', '_GNU_TOOL', 'VXWORKSPPC', 'POSIX_MISTAKE', 'NO_RW_LOCK'])
-    env['CC']     = vxbin + 'ccppc'
-    env['CXX']    = vxbin + 'g++ppc'
-    env['SHLINK'] = vxbin + 'ldppc'
-    env['AR']     = vxbin + 'arppc'
-    env['RANLIB'] = vxbin + 'ranlibppc'
-    
-    return 1
-
-
-
 ###########################
 # Installation Directories
 ###########################
@@ -229,8 +153,8 @@ def getInstallationDirs(osname, prefix, incdir, libdir, bindir):
         # prefix not defined try CODA env var
         if codaHomeEnv == "":
             if (incdir == None) or (libdir == None) or (bindir == None):
-                print("\nNeed to define CODA, or use the --prefix option,")
-                print("or all the --incdir, --libdir, and --bindir options.\n")
+                print ("\nNeed to define CODA, or use the --prefix option,")
+                print ("or all the --incdir, --libdir, and --bindir options.\n")
                 raise SystemExit
         else:
             prefix = codaHomeEnv
@@ -278,9 +202,9 @@ def makeIncludeDirs(includeDir, archIncludeDir, archDir, archIncLocalLink):
         os.makedirs(includeDir)
     # Make sure it's a directory (if we didn't create it)
     elif not os.path.isdir(includeDir):
-        print()
-        print("Error:", includeDir, "is NOT a directory")
-        print()
+        print
+        print ("Error:", includeDir, "is NOT a directory")
+        print
         raise SystemExit
 
     if includeDir == archIncludeDir:
@@ -296,9 +220,9 @@ def makeIncludeDirs(includeDir, archIncludeDir, archDir, archIncLocalLink):
         except OSError:
             return
     elif not os.path.isdir(archDir):
-        print()
-        print("Error:", archDir, "is NOT a directory")
-        print()
+        print
+        print ("Error:", archDir, "is NOT a directory")
+        print
         raise SystemExit
 
     #
@@ -308,18 +232,18 @@ def makeIncludeDirs(includeDir, archIncludeDir, archDir, archIncLocalLink):
     if not os.path.exists(archIncludeDir):
         # Create symbolic link: symlink(source, linkname)
         try:
-    	    if (archIncLocalLink == None) or (archIncLocalLink == ''):
-	    	symlink(includeDir, archIncludeDir)
+            if (archIncLocalLink == None) or (archIncLocalLink == ''):
+                symlink(includeDir, archIncludeDir)
             else:
-	    	symlink(archIncLocalLink, archIncludeDir)
+                symlink(archIncLocalLink, archIncludeDir)
         except OSError:
             # Failed to create symbolic link, so
             # just make it a regular directory
             os.makedirs(archIncludeDir)
     elif not os.path.isdir(archIncludeDir):
-        print()
-        print("Error:", archIncludeDir, "is NOT a directory")
-        print()
+        print
+        print ("Error:", archIncludeDir, "is NOT a directory")
+        print
         raise SystemExit
 
     return
@@ -342,18 +266,18 @@ def configureJNI(env):
             java_base = '/System/Library/Frameworks/JavaVM.framework'
         else:
             # Search for the java compiler
-            print("JAVA_HOME environment variable not set. Searching for javac to find jni.h ...")
+            print ("JAVA_HOME environment variable not set. Searching for javac to find jni.h ...")
             if not env.get('JAVAC'):
-                print("The Java compiler must be installed and in the current path, exiting")
+                print ("The Java compiler must be installed and in the current path, exiting")
                 return 0
             jcdir = os.path.dirname(env.WhereIs('javac'))
             if not jcdir:
-                print("   not found, exiting")
+                print ("   not found, exiting")
                 return 0
             # assuming the compiler found is in some directory like
             # /usr/jdkX.X/bin/javac, java's home directory is /usr/jdkX.X
             java_base = os.path.join(jcdir, "..")
-            print("  found, dir = " + java_base)        
+            print ("  found, dir = " + java_base)
         
     if sys.platform == 'darwin':
         # Apple does not use Sun's naming convention
@@ -399,49 +323,59 @@ def configureJNI(env):
 # Documentation
 ###################
 
-def generateDocs(env, doC=False, doCPP=False, doJava=False, javaDir=''):
+def generateDocs(env, doCPP=False, doC=False, doJava=False):
     """Generate and install generated documentation (doxygen & javadoc)."""
 
-    if doC:
-        # Function that does the documentation creation
-        def docGeneratorC(target, source, env):
-            cmd = 'doxygen doc/doxygen/DoxyfileC'
-            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
-            return
-            
-        # Doc files builders
-        docBuildC = Builder(action = docGeneratorC)
-        env.Append(BUILDERS = {'DocGenC' : docBuildC})
-        
-        # Generate documentation
-        env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/C/html/index.html'],
-              source = scanFiles("src/libsrc", accept=["*.[ch]"]) ))
-    
-    
+
     if doCPP:
+        # remove target files so documentation always gets rebuilt
+        rmcmd = 'rm -fr doc/javadoc doc/doxygen/CC'
+        os.popen(rmcmd).read()
+
         def docGeneratorCC(target, source, env):
             cmd = 'doxygen doc/doxygen/DoxyfileCC'
-            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+            Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
             return
         
         docBuildCC = Builder(action = docGeneratorCC)
         env.Append(BUILDERS = {'DocGenCC' : docBuildCC})
         
         env.Alias('doc', env.DocGenCC(target = ['#/doc/doxygen/CC/html/index.html'],
-              source = scanFiles("src/libsrc++", accept=["*.[ch]", "*.cc", "*.hxx"]) ))
-    
-    
+                                      source = scanFiles("src/libsrc", accept=["*.cpp", "*.h"])))
+
+
+    if doC:
+        # remove target files so documentation always gets rebuilt
+        rmcmd = 'rm -fr doc/javadoc doc/doxygen/C'
+        os.popen(rmcmd).read()
+
+        def docGeneratorC(target, source, env):
+            cmd = 'doxygen doc/doxygen/DoxyfileC'
+            Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=None)
+            return
+
+        docBuildC = Builder(action = docGeneratorC)
+        env.Append(BUILDERS = {'DocGenC' : docBuildC})
+
+        env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/C/html/index.html'],
+                                      source = scanFiles("src/libCsrc", accept=["*.c", "*.h"])))
+
+
     if doJava:
+        # remove target files so documentation always gets rebuilt
+        rmcmd = 'rm -fr doc/javadoc'
+        os.popen(rmcmd).read()
+
         def docGeneratorJava(target, source, env):
             cmd = 'ant javadoc'
-            output = os.popen(cmd).read()
+            os.popen(cmd).read()
             return
         
         docBuildJava = Builder(action = docGeneratorJava)
         env.Append(BUILDERS = {'DocGenJava' : docBuildJava})
         
         env.Alias('doc', env.DocGenJava(target = ['#/doc/javadoc/index.html'],
-            source = scanFiles(javaDir, accept=["*.java"]) ))
+            source = scanFiles("java/org/jlab/coda", accept=["*.java"]) ))
     
     return 1
 
@@ -452,7 +386,7 @@ def removeDocs(env):
     """Remove all generated documentation (doxygen & javadoc)."""
 
     def docRemover(target, source, env):
-        cmd = 'rm -fr doc/javadoc doc/doxygen/C doc/doxygen/CC'
+        cmd = 'rm -fr doc/javadoc doc/doxygen/CC doc/doxygen/C'
         output = os.popen(cmd).read()
         return
     

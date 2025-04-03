@@ -22,37 +22,52 @@ from subprocess import Popen, PIPE
 import coda
 
 # Created files & dirs will have this permission
-os.umask(0o002)
+os.umask(2)
 
 # Software version
 versionMajor = '4'
-versionMinor = '4.6'
+versionMinor = '4'
 
 # Determine the os and machine names
-uname    = os.uname();
+uname    = os.uname()
 platform = uname[0]
 machine  = uname[4]
 osname   = os.getenv('CODA_OSNAME', platform + '-' +  machine)
 
-# Create an environment while importing the user's PATH.
-# This allows us to get to the vxworks compiler for example.
-# So for vxworks, make sure the tools are in your PATH
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
+# Create an environment while importing the user's PATH & LD_LIBRARY_PATH.
+# This allows us to get to other compilers for example.
+path = os.getenv('PATH', '')
+ldLibPath = os.getenv('LD_LIBRARY_PATH', '')
 
+if path == '':
+    print
+    print ("Error: set PATH environmental variable")
+    print
+    raise SystemExit
+
+if ldLibPath == '':
+    print
+    print ("Warning: LD_LIBRARY_PATH environmental variable not defined")
+    print
+    env = Environment(ENV = {'PATH' : os.environ['PATH']})
+else:
+    env = Environment(ENV = {'PATH' : os.environ['PATH'], 'LD_LIBRARY_PATH' : os.environ['LD_LIBRARY_PATH']})
+
+# env.Replace(CC = '/usr/lib64/ccache/clang', CXX = '/usr/lib64/ccache/clang++')
 
 ################################
 # 64 or 32 bit operating system?
 ################################
-    
+
 # How many bits is the operating system?
 # For Linux 64 bit x86 machines, the "machine' variable is x86_64,
 # but for Darwin or Solaris there is no obvious check so run
 # a configure-type test.
 is64bits = coda.is64BitMachine(env, platform, machine)
 if is64bits:
-    print("We're on a 64-bit machine")
+    print ("We're on a 64-bit machine")
 else:
-    print("We're on a 32-bit machine")
+    print ("We're on a 32-bit machine")
 
 
 #############################################
@@ -65,25 +80,13 @@ Help('\nlocal scons OPTIONS:\n')
 # debug option
 AddOption('--dbg', dest='ddebug', default=False, action='store_true')
 debug = GetOption('ddebug')
-if debug: print("Enable debugging")
+if debug: print ("Enable debugging")
 Help('--dbg               compile with debug flag\n')
-
-# vxworks 5.5 option
-AddOption('--vx5.5', dest='doVX55', default=False, action='store_true')
-useVxworks55 = GetOption('doVX55')
-if useVxworks55: print("Use vxWorks version 5.5")
-Help('--vx5.5             cross compile for vxworks 5.5\n')
-
-# vxworks 6.0 option
-AddOption('--vx6.0', dest='doVX60', default=False, action='store_true')
-useVxworks60 = GetOption('doVX60')
-if useVxworks60: print("Use vxWorks version 6.0")
-Help('--vx6.0             cross compile for vxworks 6.0\n')
 
 # 32 bit option
 AddOption('--32bits', dest='use32bits', default=False, action='store_true')
 use32bits = GetOption('use32bits')
-if use32bits: print("use 32-bit libs & executables even on 64 bit system")
+if use32bits: print ("use 32-bit libs & executables even on 64 bit system")
 Help('--32bits            compile 32bit libs & executables on 64bit system\n')
 
 # install directory option
@@ -106,39 +109,36 @@ AddOption('--bindir', dest='bindir', nargs=1, default=None, action='store')
 bindir = GetOption('bindir')
 Help('--bindir=<dir>      copy binary  files to directory <dir> when doing install\n')
 
+#########################
+# System checks
+#########################
+
+conf = Configure(env)
+if not conf.CheckCHeader('expat.h'):
+    print('expat must be installed!')
+    Exit(1)
+env = conf.Finish()
 
 #########################
 # Compile flags
 #########################
 
-# 2 possible versions of vxWorks
-useVxworks = False
-if useVxworks55:
-    useVxworks = True
-    vxVersion  = 5.5
-elif useVxworks60:
-    useVxworks = True
-    vxVersion  = 6.0
-
-
 # Debug/optimization flags
 debugSuffix = ''
 if debug:
     debugSuffix = '-dbg'
-# Compile with -g and add debugSuffix to all executable names
-    env.Append(CCFLAGS = '-g', PROGSUFFIX = debugSuffix)
-
-elif platform == 'SunOS':
-    env.Append(CCFLAGS = '-xO3')
-
+    # Compile with -g and add debugSuffix to all executable names
+    env.AppendUnique(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 else:
-    env.Append(CCFLAGS = '-O3')
+    env.AppendUnique(CCFLAGS = ['-O3'])
 
+# for unique_ptr now replacing auto_ptr
+env.Append(CXXFLAGS = ['-std=c++11'])
 
 # Take care of 64/32 bit issues
 if is64bits:
     # Setup 64 bit machine to compile either 32 or 64 bit libs & executables
-    coda.configure32bits(env, use32bits, platform)
+    coda.configure32bits(env, use32bits, platform, machine)
 elif not use32bits:
     use32bits = True
 
@@ -146,36 +146,21 @@ elif not use32bits:
 execLibs = ['']
 
 
-# If using vxworks ...
-if useVxworks:
-    
-    use32bits = True
-    osname = 'vxworks'+ str(vxVersion) + '-ppc'
+# Platform dependent quantities. Default to standard Linux libs.
+execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
 
-    if not coda.configureVxworks(env, vxVersion, platform):
-        print('\nCannot set enviroment for vxWorks ' + str(vxVersion) + ', exiting\n')
-        Exit(0)
+#env.AppendUnique(CCFLAGS = ['-Wall', '-Wextra', '-pedantic', '-Wno-unused-parameter'])
 
-else:
-    # Platform dependent quantities. Default to standard Linux libs.
-    execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
-    
-    if platform == 'SunOS':
-        execLibs = ['m', 'posix4', 'pthread', 'dl', 'expat', 'z']
-        env.Append(CCFLAGS = ['-mt'])
-        env.Append(CPPDEFINES = ['_GNU_SOURCE', '_REENTRANT', '_POSIX_PTHREAD_SEMANTICS', 'SunOS'])
-
-    elif platform == 'Darwin':
-        execLibs = ['pthread', 'dl', 'expat', 'z']
-        env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined','suppress','-undefined','dynamic_lookup'])
-        env.Append(CCFLAGS = ['-fmessage-length=0'])
+if platform == 'Darwin':
+    execLibs = ['pthread', 'dl', 'expat', 'z']
+    env.AppendUnique(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
+    env.AppendUnique(CCFLAGS = ['-fmessage-length=0'])
 
 
-
-if is64bits and use32bits and not useVxworks:
+if is64bits and use32bits:
     osname = osname + '-32'
 
-print("OSNAME =", osname)
+print ("OSNAME = " + osname)
 
 # hidden sub directory into which variant builds go
 archDir = '.' + osname + debugSuffix
@@ -201,26 +186,26 @@ if (incdir == None):
 if 'install' in COMMAND_LINE_TARGETS:
     # Determine installation directories
     installDirs = coda.getInstallationDirs(osname, prefix, incdir, libdir, bindir)
-    
+
     mainInstallDir    = installDirs[0]
     osDir             = installDirs[1]
     incInstallDir     = installDirs[2]
     archIncInstallDir = installDirs[3]
     libInstallDir     = installDirs[4]
     binInstallDir     = installDirs[5]
-    
+
     # Create the include directories (make symbolic link if possible)
     coda.makeIncludeDirs(incInstallDir, archIncInstallDir, osDir, archIncLocalLink)
 
-    print('Main install dir  = ', mainInstallDir)
-    print('bin  install dir  = ', binInstallDir)
-    print('lib  install dir  = ', libInstallDir)
-    print('inc  install dirs = ', incInstallDir, ", ", archIncInstallDir)
+    print ('Main install dir  = ', mainInstallDir)
+    print ('bin  install dir  = ', binInstallDir)
+    print ('lib  install dir  = ', libInstallDir)
+    print ('inc  install dirs = ', incInstallDir, ", ", archIncInstallDir)
 
 else:
-    print('No installation being done')
+    print ('No installation being done')
 
-print()
+print
 
 # use "install" on command line to install libs & headers
 Help('install             install libs, headers, and binaries\n')
@@ -234,7 +219,7 @@ Help('install -c          uninstall libs, headers, and binaries\n')
 ###############################
 
 if 'doc' in COMMAND_LINE_TARGETS:
-    coda.generateDocs(env, True, True, True, "java/org/jlab/coda/jevio")
+    coda.generateDocs(env, True, True, True)
 
 if 'undoc' in COMMAND_LINE_TARGETS:
     coda.removeDocs(env)
@@ -252,9 +237,6 @@ Help('undoc               remove javadoc (in ./doc)\n')
 #########################
 
 if 'tar' in COMMAND_LINE_TARGETS:
-    if platform == 'SunOS':
-        print('\nMake tar file from Linux or MacOS please\n')
-        Exit(0)
     coda.generateTarFile(env, 'evio', versionMajor, versionMinor)
 
 # use "tar" on command line to create tar file
@@ -269,14 +251,8 @@ Help('tar                 create tar file (in ./tar)\n')
 Export('env archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix')
 
 # Run lower level build files
-#if useVxworks:
-#    env.SConscript('src/libsrc/SConscript.vx',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
-#    env.SConscript('src/libsrc++/SConscript.vx', variant_dir='src/libsrc++/'+archDir, duplicate=0)
-#else:
 env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
-
-if not useVxworks:
-    env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
-    env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
-    env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
-    env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
+env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
+env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
+#env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
+#env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
