@@ -581,6 +581,54 @@ public final class CompositeData implements Cloneable {
 
 
     /**
+     * This method generates raw bytes of evio format from an array of CompositeData objects.
+     * The returned array consists of gluing together all the individual objects' rawByte arrays.
+     *
+     * @param data  array of CompositeData objects to turn into bytes.
+     * @param order byte order of generated array.
+     * @return array of raw, evio format bytes; null if arg is null or empty.
+     * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit).
+     */
+    static public byte[] generateRawBytes(CompositeData[] data, ByteOrder order) throws EvioException {
+
+        if (data == null || data.length < 1) {
+            return null;
+        }
+
+        // Get a total length (# bytes)
+        int totalLen = 0, len;
+        for (CompositeData cd : data) {
+            len = cd.getRawBytes().length;
+            if (Integer.MAX_VALUE - totalLen < len) {
+                throw new EvioException("added data overflowed containing structure");
+            }
+            totalLen += len;
+        }
+
+        // Allocate an array
+        byte[] rawBytes = new byte[totalLen];
+
+        // Copy everything in
+        int offset = 0;
+        for (CompositeData cd : data) {
+            len = cd.getRawBytes().length;
+            if (cd.byteOrder != order) {
+                // This CompositeData object has a rawBytes array of the wrong byte order, so swap it
+//System.out.println("CompositeData.generateRawBytes: call swapAll(), data in " + cd.byteOrder);
+                swapAll(cd.getRawBytes(), 0, rawBytes, offset, len/4, cd.byteOrder);
+            }
+            else {
+//System.out.println("CompositeData.generateRawBytes: call arraycopy()");
+                System.arraycopy(cd.getRawBytes(), 0, rawBytes, offset, len);
+            }
+            offset += len;
+        }
+
+        return rawBytes;
+    }
+
+
+    /**
      * Method to clone a CompositeData object.
      * Deep cloned so no connection exists between
      * clone and object cloned.
