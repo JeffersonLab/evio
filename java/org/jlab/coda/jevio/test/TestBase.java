@@ -27,6 +27,9 @@ public class TestBase {
     String[] string1;
     CompositeData[] cData;
 
+    // Only multiples of 2 shorts and 4 bytes allowed since padding does not exist for tag segments
+    byte[]     byteTagSeg;
+    short[]   shortTagSeg;
 
     void setDataSize(int elementCount) {
 
@@ -39,6 +42,13 @@ public class TestBase {
         string1 = new String[elementCount];
         cData   = new CompositeData[elementCount];
 
+        byteTagSeg  = new byte[16];
+        shortTagSeg = new short[16];
+
+        for (int j=0; j < 16; j++) {
+            byteTagSeg[j] = (byte) (j + 1);
+            shortTagSeg[j] = (short) (j + 1);
+        }
 
         for (int i = 0; i < elementCount; i++) {
             int1[i]    = i + 1;
@@ -270,12 +280,12 @@ public class TestBase {
 
         // add tagseg of bytes
         builder.openTagSegment(tag + 17, DataType.UCHAR8);
-        builder.addByteData(byte1);
+        builder.addByteData(byteTagSeg);
         builder.closeStructure();
 
         // add tagseg of shorts
         builder.openTagSegment(tag + 18, DataType.USHORT16);
-        builder.addShortData(short1);
+        builder.addShortData(shortTagSeg);
         builder.closeStructure();
 
         // add tagseg of longs
@@ -432,14 +442,14 @@ public class TestBase {
             builder.appendIntData(tagSegInts, int1);
             builder.addChild(bankBanks4, tagSegInts);
 
-            // tag segment of bytes
+            // tag segment of bytes (no padding used, so only multiples of 4 elements allowed!)
             EvioTagSegment tagSegBytes = new EvioTagSegment(tag+17, DataType.UCHAR8);
-            builder.appendByteData(tagSegBytes, byte1);
+            builder.appendByteData(tagSegBytes, byteTagSeg);
             builder.addChild(bankBanks4, tagSegBytes);
 
-            // tag segment of shorts
+            // tag segment of shorts (no padding used, so only multiples of 2 elements allowed!)
             EvioTagSegment tagSegShorts = new EvioTagSegment(tag+18, DataType.USHORT16);
-            builder.appendShortData(tagSegShorts, short1);
+            builder.appendShortData(tagSegShorts, shortTagSeg);
             builder.addChild(bankBanks4, tagSegShorts);
 
             // tag seg of longs
@@ -593,12 +603,12 @@ public class TestBase {
 
             // tag segment of bytes
             EvioTagSegment tagSegBytes = new EvioTagSegment(tag+17, DataType.UCHAR8);
-            tagSegBytes.appendByteData(byte1);
+            tagSegBytes.appendByteData(byteTagSeg);
             bankBanks4.insert(tagSegBytes, 1);
 
             // tag segment of shorts
             EvioTagSegment tagSegShorts = new EvioTagSegment(tag+18, DataType.USHORT16);
-            tagSegShorts.appendShortData(short1);
+            tagSegShorts.appendShortData(shortTagSeg);
             bankBanks4.insert(tagSegShorts, 2);
 
             // tag seg of longs

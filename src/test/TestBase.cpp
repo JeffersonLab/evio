@@ -105,14 +105,18 @@ namespace evio {
         short1  = new int16_t[elementCount];
         long1   = new int64_t[elementCount];
 
-        uint1    = new uint32_t[elementCount];
-        ubyte1   = new unsigned char[elementCount];
-        ushort1  = new uint16_t[elementCount];
-        ulong1   = new uint64_t[elementCount];
+        uint1   = new uint32_t[elementCount];
+        ubyte1  = new unsigned char[elementCount];
+        ushort1 = new uint16_t[elementCount];
+        ulong1  = new uint64_t[elementCount];
 
-
-        float1 = new float[elementCount];
+        float1  = new float[elementCount];
         double1 = new double[elementCount];
+
+        // Only multiples of 2 shorts and 4 bytes allowed since padding does not exist for tag segments
+        byteTagSeg  = new char[8];
+        shortTagSeg = new int16_t[8];
+
 
         intVec.reserve(elementCount);
         byteVec.reserve(elementCount);
@@ -128,6 +132,19 @@ namespace evio {
         doubleVec.reserve(elementCount);
         stringsVec.reserve(elementCount);
         cDataVec.reserve(elementCount);
+
+        byteTagSegVec.reserve(8);
+        shortTagSegVec.reserve(8);
+
+
+        for (int i = 0; i < 8; i++) {
+            byteTagSeg[i]  = (char)    (i + 1);
+            shortTagSeg[i] = (int16_t) (i + 1);
+
+            byteTagSegVec.push_back(byteTagSeg[i]);
+            shortTagSegVec.push_back(shortTagSeg[i]);
+        }
+
 
         for (int i = 0; i < elementCount; i++) {
             int1[i]  = i + 1;
@@ -301,13 +318,13 @@ namespace evio {
         builder->closeStructure();
 
         // add tagseg of bytes
-        builder->openTagSegment(tag + 17, DataType::UCHAR8);
-        builder->addUCharData(ubyte1, dataElementCount);
+        builder->openTagSegment(tag + 17, DataType::CHAR8);
+        builder->addCharData(byteTagSeg, 8);
         builder->closeStructure();
 
         // add tagseg of shorts
-        builder->openTagSegment(tag + 18, DataType::USHORT16);
-        builder->addUShortData(ushort1, dataElementCount);
+        builder->openTagSegment(tag + 18, DataType::SHORT16);
+        builder->addShortData(shortTagSeg, 8);
         builder->closeStructure();
 
         // add tagseg of longs
@@ -459,13 +476,13 @@ namespace evio {
             builder.addChild(bankTsegs, tsegInts);
 
             // tagsegments of bytes
-            auto tsegBytes = EvioTagSegment::getInstance(tag + 17, DataType::UCHAR8);
-            builder.setUCharData(tsegBytes, ubyteVec.data(), dataElementCount);
+            auto tsegBytes = EvioTagSegment::getInstance(tag + 17, DataType::CHAR8);
+            builder.setCharData(tsegBytes, byteTagSegVec.data(), 8);
             builder.addChild(bankTsegs, tsegBytes);
 
             // tagsegments of shorts
-            auto tsegShorts = EvioTagSegment::getInstance(tag + 18, DataType::USHORT16);
-            builder.setUShortData(tsegShorts, ushortVec.data(), dataElementCount);
+            auto tsegShorts = EvioTagSegment::getInstance(tag + 18, DataType::SHORT16);
+            builder.setShortData(tsegShorts, shortTagSegVec.data(), 8);
             builder.addChild(bankTsegs, tsegShorts);
 
             // tagsegments of longs
@@ -655,17 +672,17 @@ namespace evio {
             bankTsegs->insert(tsegInts, 0);
 
             // tagsegments of bytes
-            auto tsegBytes = EvioTagSegment::getInstance(tag + 17, DataType::UCHAR8);
-            auto &tcData = tsegBytes->getUCharData();
-            tcData.insert(tcData.begin(), ubyteVec.begin(), ubyteVec.end());
-            tsegBytes->updateUCharData();
+            auto tsegBytes = EvioTagSegment::getInstance(tag + 17, DataType::CHAR8);
+            auto &tcData = tsegBytes->getCharData();
+            tcData.insert(tcData.begin(), byteTagSegVec.begin(), byteTagSegVec.end());
+            tsegBytes->updateCharData();
             bankTsegs->insert(tsegBytes, 1);
 
             // tagsegments of shorts
-            auto tsegShorts = EvioTagSegment::getInstance(tag + 18, DataType::USHORT16);
-            auto &tsData = tsegShorts->getUShortData();
-            tsData.insert(tsData.begin(), ushortVec.begin(), ushortVec.end());
-            tsegShorts->updateUShortData();
+            auto tsegShorts = EvioTagSegment::getInstance(tag + 18, DataType::SHORT16);
+            auto &tsData = tsegShorts->getShortData();
+            tsData.insert(tsData.begin(), shortTagSegVec.begin(), shortTagSegVec.end());
+            tsegShorts->updateShortData();
             bankTsegs->insert(tsegShorts, 2);
 
             // tagsegments of longs

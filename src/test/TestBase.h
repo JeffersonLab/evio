@@ -42,6 +42,9 @@ namespace evio {
         float *float1;
         double *double1;
 
+        char    *byteTagSeg;
+        int16_t *shortTagSeg;
+
         std::vector<int32_t> intVec;
         std::vector<char>    byteVec;
         std::vector<int16_t> shortVec;
@@ -55,6 +58,9 @@ namespace evio {
         std::vector<float> floatVec;
         std::vector<double> doubleVec;
         std::vector<std::string> stringsVec;
+
+        std::vector<char>    byteTagSegVec;
+        std::vector<int16_t> shortTagSegVec;
 
         std::vector<std::shared_ptr<CompositeData>> cDataVec;
 
