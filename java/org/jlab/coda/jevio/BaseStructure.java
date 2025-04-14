@@ -199,11 +199,22 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
         DataType type = structure.getHeader().getDataType();
 
+        // Keep track of the padding and set its value in this structure's header once found.
+        // This needs to be calculated since the BaseStructure arg may be a tagsegment which
+        // has no associate padding data.
+        // Padding is only used for the small primitive types: shorts and bytes. Strings are
+        // stored in a format that takes care of its own padding and composite data is a
+        // container which by definition has no padding associated with it.
+        header.padding = 0;
+
         switch (type)  {
             case SHORT16:
             case USHORT16:
                 if (structure.shortData != null) {
                     shortData = structure.shortData.clone();
+                    if (structure.shortData.length % 2 != 0) {
+                        header.padding = 2;
+                    }
                 }
                 break;
 
@@ -238,6 +249,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             case UCHAR8:
                 if (structure.charData != null) {
                     charData = structure.charData.clone();
+                    header.padding = padCount[structure.charData.length % 4];
                 }
                 break;
 
@@ -282,8 +294,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * Clone this object. First call the Object class's clone() method
      * which creates a bitwise copy. Then clone all the mutable objects
      * so that this method does a safe (not deep) clone. This means all
-     * children get cloned as well. Remind me again why anyone would
-     * want to clone their bratty kids?
+     * children get cloned as well.
      */
     public Object clone() {
         try {
@@ -657,7 +668,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
 
         if (header.padding != 0) {
-            sb.append("  pad="+header.padding);
+            sb.append("  pad=");
+            sb.append(header.padding);
         }
 
         int numChildren = (children == null) ? 0 : children.size();
@@ -674,7 +686,34 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         return sb.toString();
     }
 
-	/**
+
+    /**
+     * Recursive method to obtain a string representation of the entire tree structure
+     * rooted at this structure.
+     * @param indent string containing indentation for this structure. Generally called with "".
+     * @return a string representation of the entire tree structure rooted at this structure.
+     */
+    public String treeToString(String indent) {
+        StringBuilder sb = new StringBuilder(100);
+        sb.append(indent);
+        sb.append(toString());
+
+        if (!(isLeaf())) {
+            sb.append("\n");
+            String myIndent = indent + "  ";
+            int childCount = getChildCount();
+            for (int i=0; i < childCount; i++) {
+                sb.append(children.get(i).treeToString(myIndent));
+                if (i < childCount - 1) {
+                    sb.append("\n");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+
+    /**
 	 * This is a method from the IEvioStructure Interface. Return the header for this structure.
 	 * 
 	 * @return the header for this structure.
@@ -738,7 +777,18 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     // calculate the data length so we're OK returning
                     // any reasonable value here.
                     numberDataItems = 1;
-                    if (compositeData != null) numberDataItems = compositeData.length;
+                    if (compositeData != null) {
+                        numberDataItems = compositeData.length;
+                    }
+                    else {
+                        try {
+                            CompositeData[] d = getCompositeData();
+                            if (d != null) {
+                                numberDataItems = d.length;
+                            }
+                        }
+                        catch (EvioException e) {/* nothing more can be done */}
+                    }
                     break;
                 default:
             }
@@ -761,7 +811,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 	/**
 	 * Get the raw data of the structure.
-	 * 
+	 * Warning, there are circumstances in which rawBytes is null.
+	 * For example if this structure contains other structures.
 	 * @return the raw data of the structure.
 	 */
 	public byte[] getRawBytes() {
@@ -813,7 +864,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * data types will be returned as long arrays. The application will have to deal
      * with reinterpreting signed longs that are negative as unsigned longs.
 	 * 
-	 * @return the data as an long array, or <code>null</code> if this makes no sense for the given content type.
+	 * @return the data as a long array, or <code>null</code> if this makes no sense for the given content type.
 	 */
 	public long[] getLongData() {
 
@@ -839,7 +890,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * This is a method from the IEvioStructure Interface. Gets the raw data as a float array,
      * if the content type as indicated by the header is appropriate.
 	 * 
-	 * @return the data as an double array, or <code>null</code> if this makes no sense for the given contents type.
+	 * @return the data as a double array, or <code>null</code> if this makes no sense for the given contents type.
 	 */
 	public float[] getFloatData() {
 
@@ -864,7 +915,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * This is a method from the IEvioStructure Interface. Gets the raw data as a double array,
      * if the content type as indicated by the header is appropriate.
 	 * 
-	 * @return the data as an double array, or <code>null</code> if this makes no sense for the given content type.
+	 * @return the data as a double array, or <code>null</code> if this makes no sense for the given content type.
 	 */
 	public double[] getDoubleData() {
 
@@ -892,7 +943,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * data types will be returned as short arrays. The application will have to deal
      * with reinterpreting signed shorts that are negative as unsigned shorts.
 	 *
-	 * @return the data as an short array, or <code>null</code> if this makes no sense for the given contents type.
+	 * @return the data as a short array, or <code>null</code> if this makes no sense for the given contents type.
 	 */
 	public short[] getShortData() {
 
@@ -1131,7 +1182,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
     /**
      * This method extracts an array of strings from byte array of raw evio string data.
-     * Don't go beyond the specified max character limit and stop that the first
+     * Don't go beyond the specified max character limit and stop at the first
      * non-character value.
      *
      * @param rawBytes    raw evio string data
@@ -1444,7 +1495,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	/**
 	 * Get an enumeration of all the children of this structure. If none, it returns a constant,
      * empty Enumeration. Part of the <code>MutableTreeNode</code> interface.
-	 */
+     * @return enumeration of children nodes
+     */
 	public Enumeration<? extends TreeNode> children() {
 		if (children == null) {
 			return DefaultMutableTreeNode.EMPTY_ENUMERATION;
@@ -1457,12 +1509,19 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * 
 	 * @param child the child to add.
 	 * @param index the target index. Part of the <code>MutableTreeNode</code> interface.
+     * @throws IndexOutOfBoundsException if index is too large.
 	 */
 	public void insert(MutableTreeNode child, int index) {
 		if (children == null) {
 			children = new ArrayList<BaseStructure>(10);
 		}
-		children.add(index, (BaseStructure) child);
+
+        MutableTreeNode oldParent = (MutableTreeNode)child.getParent();
+        if (oldParent != null) {
+            oldParent.remove(child);
+        }
+
+        children.add(index, (BaseStructure) child);
         child.setParent(this);
         isLeaf = false;
         lengthsUpToDate(false);
@@ -1471,15 +1530,28 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	/**
 	 * Convenience method to add a child at the end of the child list. In this application
 	 * where are not concerned with the ordering of the children.
-	 * 
+     * Each child can only be added once to a parent!
+	 *
 	 * @param child the child to add. It will be added to the end of child list.
 	 */
 	public void insert(MutableTreeNode child) {
-		if (children == null) {
-			children = new ArrayList<BaseStructure>(10);
-		}
-		//add to end
-		insert(child, children.size());
+        if (children == null) {
+            children = new ArrayList<BaseStructure>(10);
+        }
+
+        if (child == null) {
+            return;
+        }
+
+        // Add to end
+        if (child.getParent() == this) {
+            // If we are adding this potential child to same parent again, the insert(child, index) method will
+            // remove it first so each child only has 1 parent! Thus reduce index by 1.
+            insert(child, getChildCount() - 1);
+        }
+        else {
+            insert(child, getChildCount());
+        }
 	}
 
 	/**
@@ -1508,6 +1580,17 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         lengthsUpToDate(false);
 	}
 
+
+    /**
+     * Removes all of this node's children, setting their parents to null.
+     * If this node has no children, this method does nothing.
+     */
+    public void removeAllChildren() {
+        for (int i = getChildCount()-1; i >= 0; i--) {
+            remove(i);
+        }
+    }
+
 	/**
 	 * Remove this node from its parent. Part of the <code>MutableTreeNode</code> interface.
 	 */
@@ -1528,9 +1611,9 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * This is similar to listening to the event as it is being parsed,
      * but is done to a complete (already) parsed event.
      *
-     * @param listener an listener to notify as each structure is visited.
+     * @param listener a listener to notify as each structure is visited.
      */
-    public void vistAllStructures(IEvioListener listener) {
+    public void visitAllStructures(IEvioListener listener) {
         visitAllDescendants(this, listener, null);
     }
 
@@ -1538,13 +1621,13 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * Visit all the structures in this structure (including the structure itself --
      * which is considered its own descendant) in a depth first manner.
      *
-     * @param listener an listener to notify as each structure is visited.
+     * @param listener a listener to notify as each structure is visited.
      * @param filter an optional filter that must "accept" structures before
      *               they are passed to the listener. If <code>null</code>, all
      *               structures are passed. In this way, specific types of
      *               structures can be captured.
      */
-    public void vistAllStructures(IEvioListener listener, IEvioFilter filter) {
+    public void visitAllStructures(IEvioListener listener, IEvioFilter filter) {
         visitAllDescendants(this, listener, filter);
     }
 
@@ -1553,7 +1636,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * (which is considered a descendant of itself.)
      *
      * @param structure the starting structure.
-     * @param listener an listener to notify as each structure is visited.
+     * @param listener a listener to notify as each structure is visited.
      * @param filter an optional filter that must "accept" structures before
      *               they are passed to the listener. If <code>null</code>, all
      *               structures are passed. In this way, specific types of
@@ -1597,7 +1680,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             }
         };
 
-        vistAllStructures(listener, filter);
+        visitAllStructures(listener, filter);
 
         if (structures.size() == 0) {
             return null;
@@ -1631,7 +1714,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * @param index the target index.
 	 * @return the child at the given index or null if none
 	 */
-	public TreeNode getChildAt(int index) {
+	public BaseStructure getChildAt(int index) {
         if (children == null) return null;
 
         BaseStructure b = null;
@@ -1761,6 +1844,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 		}
 
 		try {
+            int count;
+            boolean isLast;
             String s;
             String indent = String.format("\n%s", xmlIndent);
 
@@ -1768,165 +1853,223 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 			switch (header.getDataType()) {
 			case DOUBLE64:
 				double doubledata[] = getDoubleData();
-                for (int i=0; i < doubledata.length; i++) {
+                count = doubledata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%25.17g  ", doubledata[i]);
+                    s = String.format("%25.17g", doubledata[i]);
                     xmlWriter.writeCharacters(s);
+                    if (!isLast && (i%2 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
 			case FLOAT32:
 				float floatdata[] = getFloatData();
-                for (int i=0; i < floatdata.length; i++) {
+                count = floatdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%15.8g  ", floatdata[i]);
+                    s = String.format("%15.8g", floatdata[i]);
                     xmlWriter.writeCharacters(s);
+                    if (!isLast && (i%4 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
 			case LONG64:
 				long[] longdata = getLongData();
-                for (int i=0; i < longdata.length; i++) {
+                count = longdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%016x  ", longdata[i]);
+                        s = String.format("0x%016x", longdata[i]);
                     }
                     else {
-                        s = String.format("%20d  ", longdata[i]);
+                        s = String.format("%20d", longdata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%2 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
             case ULONG64:
                 longdata = getLongData();
+                count = longdata.length;
                 BigInteger bg;
-                for (int i=0; i < longdata.length; i++) {
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%016x  ", longdata[i]);
+                        s = String.format("0x%016x", longdata[i]);
                     }
                     else {
                         bg = new BigInteger(1, ByteDataTransformer.toBytes(longdata[i], ByteOrder.BIG_ENDIAN));
-                        s = String.format("%20s  ", bg.toString());
+                        s = String.format("%20s", bg.toString());
                         // For java version 8+, no BigIntegers necessary:
                         //s = String.format("%20s  ", Long.toUnsignedString(longdata[i]));
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%2 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
 			case INT32:
                 int[] intdata = getIntData();
-                for (int i=0; i < intdata.length; i++) {
+                count = intdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%08x  ", intdata[i]);
+                        s = String.format("0x%08x", intdata[i]);
                     }
                     else {
-                        s = String.format("%11d  ", intdata[i]);
+                        s = String.format("%11d", intdata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%4 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
 			case UINT32:
 				intdata = getIntData();
-                for (int i=0; i < intdata.length; i++) {
+                count = intdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%08x  ", intdata[i]);
+                        s = String.format("0x%08x", intdata[i]);
                     }
                     else {
-                        s = String.format("%11d  ", ((long) intdata[i]) & 0xffffffffL);
+                        s = String.format("%11d", ((long) intdata[i]) & 0xffffffffL);
                         //s = String.format("%11s  ", Integer.toUnsignedString(intdata[i]));
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%4 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
             case SHORT16:
                 short[] shortdata = getShortData();
-                for (int i=0; i < shortdata.length; i++) {
+                count = shortdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%04x  ", shortdata[i]);
+                        s = String.format("0x%04x", shortdata[i]);
                     }
                     else {
-                        s = String.format("%6d  ", shortdata[i]);
+                        s = String.format("%6d", shortdata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
             case USHORT16:
 				shortdata = getShortData();
-                for (int i=0; i < shortdata.length; i++) {
+                count = shortdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%04x  ", shortdata[i]);
+                        s = String.format("0x%04x", shortdata[i]);
                     }
                     else {
-                        s = String.format("%6d  ", ((int) shortdata[i]) & 0xffff);
+                        s = String.format("%6d", ((int) shortdata[i]) & 0xffff);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
 			case CHAR8:
                 byte[] bytedata = getByteData();
-                for (int i=0; i < bytedata.length; i++) {
+                count = bytedata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%02x  ", bytedata[i]);
+                        s = String.format("0x%02x", bytedata[i]);
                     }
                     else {
-                        s = String.format("%4d  ", bytedata[i]);
+                        s = String.format("%4d", bytedata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
             case UNKNOWN32:
 			case UCHAR8:
                 bytedata = getByteData();
-                for (int i=0; i < bytedata.length; i++) {
+                count = bytedata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%02x  ", bytedata[i]);
+                        s = String.format("0x%02x", bytedata[i]);
                     }
                     else {
-                        s = String.format("%4d  ", ((short) bytedata[i]) & 0xff);
+                        s = String.format("%4d", ((short) bytedata[i]) & 0xff);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
@@ -1968,7 +2111,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * structures) this returns 0. For data types smaller than an
      * int, e.g. a short, it computes assuming padding to an
 	 * integer number of ints. For example, if we are writing a byte
-     * array of length 3 or 4, the it would return 1. If
+     * array of length 3 or 4, then it would return 1. If
 	 * the byte array is 5,6,7 or 8 it would return 2;
      *
      * The problem with the original method was that if the data was
@@ -2110,7 +2253,7 @@ System.err.println("Non leaf with null children!");
             for (BaseStructure child : children) {
                 len = child.setAllHeaderLengths();
                 // Add this check to make sure structure is not being overfilled
-                if (Integer.MAX_VALUE - datalen < len) {
+                if (Integer.MAX_VALUE - datalen < len + 1) {
                     throw new EvioException("added data overflowed containing structure");
                 }
                 datalen += len + 1;  // + 1 for the header length word of each child
@@ -2118,7 +2261,7 @@ System.err.println("Non leaf with null children!");
         }
 
         len =  header.getHeaderLength() - 1;  // - 1 for length header word
-        if (Integer.MAX_VALUE - datalen < len) {
+        if (Integer.MAX_VALUE - datalen < len + 1) {
             throw new EvioException("added data overflowed containing structure");
         }
 
@@ -2925,25 +3068,32 @@ System.err.println("Non leaf with null children!");
             else {
                 // Decode the raw data we have
                 CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
-
-                // Allocate array to hold everything
-                int len1 = cdArray.length, len2 = data.length;
-                int totalLen = len1 + len2;
-
-                if (Integer.MAX_VALUE - len1 < len2) {
-                    throw new EvioException("added data overflowed containing structure");
+                if (cdArray == null) {
+                    compositeData   = data;
+                    numberDataItems = data.length;
                 }
-                compositeData = new CompositeData[totalLen];
+                else {
+                    // Allocate array to hold everything
+                    int len1 = cdArray.length, len2 = data.length;
+                    int totalLen = len1 + len2;
 
-                // Fill with existing object first
-                for (int i=0; i < len1; i++) {
-                    compositeData[i] = cdArray[i];
+                    if (Integer.MAX_VALUE - len1 < len2) {
+                        throw new EvioException("added data overflowed containing structure");
+                    }
+                    compositeData = new CompositeData[totalLen];
+
+                    // Fill with existing object first
+                    System.arraycopy(cdArray, 0, compositeData, 0, len1);
+//                    for (int i = 0; i < len1; i++) {
+//                        compositeData[i] = cdArray[i];
+//                    }
+                    // Append new objects
+                    System.arraycopy(data, 0, compositeData, len1, len2);
+//                    for (int i = 0; i < len2; i++) {
+//                        compositeData[i+len1] = data[i];
+//                    }
+                    numberDataItems = totalLen;
                 }
-                // Append new objects
-                for (int i=len1; i < totalLen; i++) {
-                    compositeData[i] = cdArray[i];
-                }
-                numberDataItems = totalLen;
             }
         }
         else {
@@ -2958,22 +3108,18 @@ System.err.println("Non leaf with null children!");
             compositeData = new CompositeData[totalLen];
 
             // Fill with existing object first
-            for (int i=0; i < len1; i++) {
-                compositeData[i] = cdArray[i];
-            }
+            System.arraycopy(cdArray, 0, compositeData, 0, len1);
             // Append new objects
-            for (int i=len1; i < totalLen; i++) {
-                compositeData[i] = cdArray[i];
-            }
+            System.arraycopy(data, 0, compositeData, len1, len2);
+
             numberDataItems = totalLen;
         }
 
-        rawBytes  = CompositeData.generateRawBytes(compositeData);
+        rawBytes  = CompositeData.generateRawBytes(compositeData, byteOrder);
 //        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
 //        for (int i : intA) {
 //            System.out.println("Ox" + Integer.toHexString(i));
 //        }
-        byteOrder = data[0].getByteOrder();
 
         lengthsUpToDate(false);
 		setAllHeaderLengths();
