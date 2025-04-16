@@ -1,215 +1,95 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jlab.coda</groupId>
+  <artifactId>jevio</artifactId>
+  <version>6.0-SNAPSHOT</version>
+  <name>Jefferson Lab EVIO Java Library (JEVIO)</name>
+  <description>Java library for EVIO (Event Input/Output)</description>
+  <packaging>jar</packaging>
 
-    <!-- 
-        NOTE:  (N. Baltzell)
-        Since some of the third-party jars included with evio in java/jars do not have
-        remote maven repositories, we install them in the local maven repository during
-        the build procedure.  This is currently done in the "clean" lifecycle (with the
-        maven-install-plugin below), due to issues getting it to work properly during
-        "install" (which seems to maybe be a real maven limitation).  There may be a
-        better/easier way to do this and still have a simple maven build command ...
+  <!-- Properties for versions -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>   <!-- target Java version -->
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <lz4.version>1.8.0</lz4.version>
+    <disruptor.version>3.4.3</disruptor.version>
+    <aha.version>1.0</aha.version>  <!-- AHACompressionAPI is an external jar with no Maven repo -->
+    <java.jars.dir>${project.basedir}/java/jars</java.jars.dir>
+  </properties>
 
-        Therefore, meanwhile, you have to clean first:
-        1. mvn clean
-        2. mvn install
-    -->
+  <dependencies>
+    <!-- LZ4 compression library -->
+    <dependency>
+      <groupId>org.lz4</groupId>  <!-- Note: modern groupId for lz4-java might be org.lz4 or net.jpountz -->
+      <artifactId>lz4-java</artifactId>
+      <version>${lz4.version}</version>
+    </dependency>
+    <!-- LMAX Disruptor (for ring buffer concurrency) -->
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+      <version>${disruptor.version}</version>
+    </dependency>
 
-    <modelVersion>4.0.0</modelVersion>
+  <!-- AHA Compression API (third-party, not in Maven Central) -->
+  <!-- <dependency>
+      <groupId>com.aha.compression</groupId>
+      <artifactId>AHACompressionAPI</artifactId>
+      <version>${aha.version}</version>
+      <scope>system</scope>
+      <systemPath>${java.jars.dir}/AHACompressionAPI.jar</systemPath>
+  </dependency> -->
 
-    <!-- name to appear in generated jars etc. -->
-    <artifactId>jevio</artifactId>
+    <!-- (Add JUnit dependency here if we have any unit tests) -->
+  </dependencies>
 
-    <!-- name of the project -->
-    <name>Java EVIO Library</name>
+  <build>
+    <plugins>
+      <!-- Maven Compiler Plugin for Java compilation -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
 
-    <!-- description of project -->
-    <description>Java EVIO Library (JEVIO)</description>
 
-    <!-- group's ID e.g. JLab CODA group which determines directory structure in repo -->
-    <groupId>org.jlab.coda</groupId>
+      <!-- Maven Assembly Plugin to create an executable JAR with dependencies -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals><goal>single</goal></goals>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>org.jlab.coda.hipo.Evio6Converter</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <appendAssemblyId>false</appendAssemblyId>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- (global config if needed) -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
-    <!-- current rolling version using snapshot release -->
-    <version>6.0-SNAPSHOT</version>
-
-    <properties>
-
-        <!-- Make java version 8 jar -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-
-        <!-- define version numbers, for convenience below -->
-        <!-- the "1.0" are fake, for jars that come with jevio but w/o a version -->
-        <lz4.version>1.8.0</lz4.version>
-        <disruptor.version>3.4.3</disruptor.version>
-        <aha.version>1.0</aha.version>
-
-    </properties>
-
-    <!-- Package code into jar file -->
-    <packaging>jar</packaging>
-
-    <dependencies>
-        <dependency>
-            <groupId>net.jpountz.lz4</groupId>
-            <artifactId>lz4-java</artifactId>
-            <version>${lz4.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>${disruptor.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aha.compression</groupId>
-            <artifactId>AHACompressionAPI</artifactId>
-            <version>${aha.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <!-- build customization -->
-    <build>
-
-        <sourceDirectory>./java/</sourceDirectory>
-
-        <!--<defaultGoal>install</defaultGoal>-->
-
-        <!-- copy jar into external directory -->
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>2.8</version>
-            </extension>
-        </extensions>
-
-        <plugins>
-
-            <plugin>
-                <!-- install included 3rd-party jars into local maven repo, before compilation -->
-                <!--
-                    Couldn't figure out how to do this such that the install-file plugin runs
-                    automatically during install/package and early enough.  As is, you have to
-                    run "mvn clean" first (or "mvn clean install").
-                -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <id>aha</id>
-                        <phase>clean</phase>
-                        <goals><goal>install-file</goal></goals>
-                        <configuration>
-                            <file>java/jars/AHACompressionAPI.jar</file>
-                            <groupId>com.aha.compression</groupId>
-                            <artifactId>AHACompressionAPI</artifactId>
-                            <version>${aha.version}</version>
-                            <packaging>jar</packaging>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>disruptor</id>
-                        <phase>clean</phase>
-                        <goals><goal>install-file</goal></goals>
-                        <configuration>
-                            <file>java/jars/disruptor-${disruptor.version}.jar</file>
-                            <groupId>com.lmax</groupId>
-                            <artifactId>disruptor</artifactId>
-                            <version>${disruptor.version}</version>
-                            <packaging>jar</packaging>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>lz4</id>
-                        <phase>clean</phase>
-                        <goals><goal>install-file</goal></goals>
-                        <configuration>
-                            <file>java/jars/lz4-java-${lz4.version}.jar</file>
-                            <groupId>net.jpountz.lz4</groupId>
-                            <artifactId>lz4-java</artifactId>
-                            <version>${lz4.version}</version>
-                            <packaging>jar</packaging>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.jlab.coda.hipo.Evio6Converter</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <executions>
-                    <execution>
-                        <id>copy-installed</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>${project.packaging}</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <!--
-                                 This appears to just create an unnecessary output.
-                                 Maybe/probably this enire plugin is unnecessary.
-                                 <outputDirectory>${env.CODA}/common/jar</outputDirectory>
-                            -->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-
-    </build>
-
-    <!-- distribution for deployment -->
-    <distributionManagement>
-        <repository>
-            <id>ssh-clasweb</id>
-            <url>scpexe://clas12@jlabl5/group/clas/www/clasweb/html/clas12maven</url>
-        </repository>
-    </distributionManagement>
 
 </project>
