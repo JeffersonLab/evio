@@ -12,12 +12,16 @@
 
   <!-- Properties for versions -->
   <properties>
+
+    <!-- Set Java version -->
+    <!-- Compatibility: for Java 8 input 1.8 below   -->
+    <java.version>15</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>   <!-- target Java version -->
-    <maven.compiler.target>1.8</maven.compiler.target>
     <lz4.version>1.8.0</lz4.version>
-    <disruptor.version>3.4.3</disruptor.version>
-    <aha.version>1.0</aha.version>  <!-- AHACompressionAPI is an external jar with no Maven repo -->
+    <disruptor.version>4.0.0</disruptor.version>
     <java.jars.dir>${project.basedir}/java/jars</java.jars.dir>
   </properties>
 
@@ -33,63 +37,78 @@
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
       <version>${disruptor.version}</version>
-    </dependency>
-
-  <!-- AHA Compression API (third-party, not in Maven Central) -->
-  <!-- <dependency>
-      <groupId>com.aha.compression</groupId>
-      <artifactId>AHACompressionAPI</artifactId>
-      <version>${aha.version}</version>
       <scope>system</scope>
-      <systemPath>${java.jars.dir}/AHACompressionAPI.jar</systemPath>
-  </dependency> -->
-
-    <!-- (Add JUnit dependency here if we have any unit tests) -->
+      <systemPath>${project.basedir}/java/jars/java15/disruptor-${disruptor.version}.jar</systemPath>
+      </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <!-- Maven Compiler Plugin for Java compilation -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
-      </plugin>
 
+<build>
+ <sourceDirectory>${project.basedir}/java</sourceDirectory>
+  <plugins>
+    <!-- 1) Tell Maven to compile your non‑standard test folder -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>build-helper-maven-plugin</artifactId>
+      <version>3.6.0</version>
+      <executions>
+        <execution>
+          <id>add-jevio-tests</id>
+          <phase>generate-test-sources</phase>
+          <goals>
+            <goal>add-test-source</goal>
+          </goals>
+          <configuration>
+            <sources>
+              <source>java/org/jlab/coda/jevio/test</source>
+            </sources>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
 
-      <!-- Maven Assembly Plugin to create an executable JAR with dependencies -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals><goal>single</goal></goals>
-            <configuration>
-              <archive>
-                <manifest>
-                  <mainClass>org.jlab.coda.hipo.Evio6Converter</mainClass>
-                </manifest>
-              </archive>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
-              <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-          </execution>
-        </executions>
-        <configuration>
-          <!-- (global config if needed) -->
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <!-- 2) Make Surefire compile & (optionally) ignore JUnit‑style tests -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <version>3.0.0-M7</version>
+      <configuration>
+        <!-- pick up any *Test.java, even if they have no @Test annotations -->
+        <includes>
+          <include>**/**.java</include>
+        </includes>
+        <!-- don’t fail the build if no JUnit tests are found -->
+        <testFailureIgnore>true</testFailureIgnore>
+      </configuration>
+    </plugin>
 
+    <!-- 3) Exec each test’s main() during the test phase -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>3.1.0</version>
+      <executions>
+        <execution>
+          <id>run-FileWriteTest</id>
+          <phase>test</phase>
+          <goals>
+            <goal>java</goal>
+          </goals>
+          <configuration>
+            <classpathScope>test</classpathScope>
+            <mainClass>org.jlab.coda.jevio.test.FileWriteTest</mainClass>
+          </configuration>
+        </execution>
+        <!--
+          If you have other test classes (e.g. ReadWriteTest, FirstEventTest, etc.),
+          duplicate the <execution> block above, change the <id> and <mainClass>.
+        -->
+      </executions>
+    </plugin>
+
+    <!-- your existing compiler / assembly plugins go here… -->
+  </plugins>
+
+</build>
 
 </project>
