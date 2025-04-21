@@ -222,6 +222,10 @@ set(TEST
         src/test/ReadSequenceTest.cpp
         src/test/SequentialReaderTest.cpp
         src/test/SplitTest2.cpp
+        tutorials/WriteFilePseudoPhysicsEvent.cpp
+        tutorials/WriteFilePseudoPhysicsEventExtended.cpp
+        tutorials/PrintXMLDict.cpp
+        tutorials/EVIO_v4_to_v6.cpp
         )
 
 set(TESTC
@@ -240,6 +244,7 @@ set(TESTC
         src/testC/evWritePipe.c
         src/testC/splitTest.c
         src/testC/splitNameTest.c
+        src/libsrc/eviocopy.c
 )
 
 include(FindPackageHandleStandardArgs)

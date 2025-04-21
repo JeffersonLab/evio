@@ -194,7 +194,7 @@ namespace evio {
                 // Do a parsing listener test here
                 auto parser = reader3.getParser();
 
-                // Define a listener to be used with an event parser IEvioListener listener = new IEvioListener() { 
+                // Define a listener to be used with an event parserIEvioListener listener = new IEvioListener() {
                 class myListener : public IEvioListener {
                 public:
                     void gotStructure(std::shared_ptr<BaseStructure> topStructure,
@@ -213,7 +213,7 @@ namespace evio {
 
                 auto listener = std::make_shared<myListener>();
 
-                // Define a listener to be used with an event parser IEvioListener listener = new IEvioListener() { 
+                // Define a listener to be used with an event parserIEvioListener listener = new IEvioListener() {
                 class myListener2 : public IEvioListener {
                 public:
                     void gotStructure(std::shared_ptr<BaseStructure> topStructure,

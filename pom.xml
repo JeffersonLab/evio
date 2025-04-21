@@ -28,17 +28,18 @@
   <dependencies>
     <!-- LZ4 compression library -->
     <dependency>
-      <groupId>org.lz4</groupId>  <!-- Note: modern groupId for lz4-java might be org.lz4 or net.jpountz -->
+      <groupId>org.lz4</groupId>
       <artifactId>lz4-java</artifactId>
       <version>${lz4.version}</version>
     </dependency>
     <!-- LMAX Disruptor (for ring buffer concurrency) -->
     <dependency>
-      <groupId>com.lmax</groupId>
+      <groupId>com.lmax</groupId> 
       <artifactId>disruptor</artifactId>
       <version>${disruptor.version}</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/java/jars/java15/disruptor-${disruptor.version}.jar</systemPath>
+      <systemPath>/home/jzarling/super_evio_dev/disruptor/disruptor/disruptor-4.0.0.jar</systemPath>
+      <!-- <systemPath>${pom.basedir}/java/jars/java15/disruptor-${disruptor.version}.jar</systemPath> -->
       </dependency>
   </dependencies>
 
@@ -46,7 +47,8 @@
 <build>
  <sourceDirectory>${project.basedir}/java</sourceDirectory>
   <plugins>
-    <!-- 1) Tell Maven to compile your non‑standard test folder -->
+
+    <!-- Add sources in non-standard folder setup -->
     <plugin>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>build-helper-maven-plugin</artifactId>
@@ -67,29 +69,43 @@
       </executions>
     </plugin>
 
+    <!-- Make the fat jar file -->
     <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-            <archive>
-                <manifest>
-                    <mainClass>org.jlab.coda.hipo.Evio6Converter</mainClass>
-                    <mainClass>org.jlab.coda.jevio.test.RecordSupplyTest</mainClass>
-                </manifest>
-            </archive>
-            <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-            </descriptorRefs>
-        </configuration>
-        <executions>
-            <execution>
-                <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                <phase>package</phase> <!-- bind to the packaging phase -->
-                <goals>
-                    <goal>single</goal>
-                </goals>
-            </execution>
-        </executions>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <version>3.6.0</version>           <!-- upgrade to latest -->
+      
+      <configuration>
+        <!-- <appendAssemblyId>false</appendAssemblyId> -->
+        <descriptorRefs>
+          <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>        
+        <assembly>
+          <id>jar-with-dependencies</id>
+          <formats><format>jar</format></formats>
+          <includeBaseDirectory>false</includeBaseDirectory>
+          <dependencySets>
+            <dependencySet>
+              <scope>runtime</scope>
+              <unpack>true</unpack>
+            </dependencySet>
+            <dependencySet>
+              <scope>system</scope>
+              <useProjectArtifact>true</useProjectArtifact>
+              <unpack>false</unpack>
+              <outputDirectory>/</outputDirectory>
+            </dependencySet>
+          </dependencySets>
+        </assembly>
+      </configuration>
+      <executions>
+        <execution>
+          <id>make-assembly</id>
+          <phase>package</phase>
+          <goals>
+            <goal>single</goal>
+          </goals>
+        </execution>
+      </executions>
     </plugin>
 
     <!-- 2) Make Surefire compile & (optionally) ignore JUnit‑style tests -->
@@ -108,7 +124,6 @@
     </plugin>
 
 
-    <!-- your existing compiler / assembly plugins go here… -->
   </plugins>
 
 </build>
