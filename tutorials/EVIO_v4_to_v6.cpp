@@ -26,25 +26,23 @@ int main(int argc, char* argv[]) {
         EvioReader reader(f_in);
         // EvioCompactReader reader(f_in);
 
-        EventWriter   writerV6(f_out, "", "", 1, 0,
+        EventWriter   writer(f_out, "", "", 1, 0,
             maxRecordBytes, maxEventsPerRecord,
             ByteOrder::ENDIAN_LOCAL, "", true, false,
             nullptr, 1, 0, 1, 1,
             Compressor::CompressionType::UNCOMPRESSED,
             0, 0, bufferBytes);
 
-        for(int32_t i = 0; i < reader.getEventCount(); ++i) {
-
-            // **Create a top-level event (bank of banks)** with tag=1, num=1
-            EventBuilder builder(1, DataType::BANK, 1);
-            std::shared_ptr<EvioEvent> event = builder.getEvent();
-            
-            auto ev = reader.parseEvent(i + 1);
-            auto & dataVec = ev->getRawBytes();
-            Util::printBytes(dataVec.data(), dataVec.size()," Event #" + std::to_string(i));
-
+        // 5. Loop over all regular events and write them out
+        std::shared_ptr<EvioEvent> event;
+        while ((event = reader.parseNextEvent()) != nullptr) {
+            writer.writeEvent(event);
         }
 
+        // 6. Close writer to flush data and finalize file
+        writer.close();
+        std::cout << "Conversion complete. Output file contains " 
+                  << reader.getEventCount() << " events (plus any first event/dictionary)." << std::endl;
     }
         
 

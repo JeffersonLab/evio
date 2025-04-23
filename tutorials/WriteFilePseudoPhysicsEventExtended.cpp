@@ -47,6 +47,9 @@ int main(int argc, char** argv) {
     for (int i = 0; i < nEvents; ++i) {
         // **Create a top-level event (bank of banks)** with tag=1, num=1
         EventBuilder builder(1, DataType::BANK, 1);
+        // Create the buffer to hold everything
+        // auto buffer = std::make_shared<ByteBuffer>(8192);
+        // CompactEventBuilder builder(buffer);
         std::shared_ptr<EvioEvent> event = builder.getEvent();
 
         // Valid data types: int32, unint32, long64, ulong64, short16, ushort16, char8, uchar8, charstar8, float32, double64, bank, segment, tagsegment, composite, unknown32
