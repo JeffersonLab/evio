@@ -30,9 +30,9 @@ project(evio VERSION 6.0)
 include(GNUInstallDirs)
 
 # Allow users to set C++ standard via -DCMAKE_CXX_STANDARD
-# Only default to C++11 if not already set
+# Only default to C++14 if not already set
 if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 14)
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
@@ -222,10 +222,14 @@ set(TEST
         src/test/ReadSequenceTest.cpp
         src/test/SequentialReaderTest.cpp
         src/test/SplitTest2.cpp
+        # Jon added programs below
+        src/test/BigFileWrite.cpp
+        src/test/BigFileWritePrimitive.cpp
         tutorials/WriteFilePseudoPhysicsEvent.cpp
         tutorials/WriteFilePseudoPhysicsEventExtended.cpp
         tutorials/PrintXMLDict.cpp
         tutorials/EVIO_v4_to_v6.cpp
+        tutorials/ConvertFormats.cpp
         )
 
 set(TESTC

@@ -13,6 +13,8 @@ int main(int argc, char** argv) {
     }
     int nEvents = std::stoi(argv[1]);
 
+    
+
     // XML dictionary defining labels for the event structure
     std::string xmlDictionary = R"(
         <xmlDict>
@@ -46,7 +48,8 @@ int main(int argc, char** argv) {
                            1, 0,                       // runNumber=1, splitNumber=0 (no file splitting)
                            maxRecordBytes, maxEventsPerRecord,
                            ByteOrder::ENDIAN_LOCAL,    // use local endian byte order
-                           xmlDictionary, true, false,            // give dictionary, overwrite existing, no append
+                           xmlDictionary,           // xml dictionary 
+                           true, false,                // overwrite existing, no append
                            nullptr, 0, 0,              // no “first event” provided
                            1, 1,                       // stream id=1, starting block number=1
                            bufferBytes);
@@ -57,8 +60,9 @@ int main(int argc, char** argv) {
                          1, 0,                         // runNumber=1, no file splitting
                          maxRecordBytes, maxEventsPerRecord,
                          ByteOrder::ENDIAN_LOCAL, 
-                         xmlDictionary, true, false,              // dictionary, overwrite, no append
-                         nullptr, 1, 0, 1, 1,          // no first event, stream id=1, block=1
+                        xmlDictionary,           // xml dictionary 
+                        true, false,                // overwrite existing, no append
+                        nullptr, 1, 0, 1, 1,          // no first event, stream id=1, block=1
                          Compressor::CompressionType::UNCOMPRESSED, 
                          0, 0,                         // no compression, so 0 threads and default level
                          bufferBytes);
@@ -71,9 +75,10 @@ int main(int argc, char** argv) {
                            1, 0, 
                            maxRecordBytes, maxEventsPerRecord,
                            ByteOrder::ENDIAN_LOCAL, 
-                           xmlDictionary, true, false, 
+                           xmlDictionary,           // xml dictionary 
+                           true, false,                // overwrite existing, no append
                            nullptr, 1, 0, 1, 1,
-                           Compressor::CompressionType::UNCOMPRESSED,  // use LZ4 compression to trigger HIPO format
+                           Compressor::CompressionType::LZ4,  // use LZ4 compression to trigger HIPO format
                            0, 0, 
                            bufferBytes);
 

@@ -6,6 +6,8 @@ _*
 *.evio
 *.ev
 *.hipo
+*.dat
+*.txt
 # EventViewer Jar
 JEventViewer*.jar
 

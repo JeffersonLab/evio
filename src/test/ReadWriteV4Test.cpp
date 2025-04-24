@@ -253,14 +253,17 @@ namespace evio {
 
                 std::cout << "\n   Print out events (includes first event if evio version 4) :" << std::endl;
 
-                for (uint32_t i = 0; i < evCount2; i++) {
+/*                 for (uint32_t i = 0; i < evCount2; i++) {
                     // The "first event" is just the first event in the list (not treated specially)
                     std::cout << "      scanned event #" << (i+1) << " :" << std::endl;
                     std::shared_ptr<EvioNode> compactNode = reader1.getScannedEvent(i + 1);
                     std::cout << "      node ->\n         " << compactNode->toString() << std::endl;
 
                     std::shared_ptr<ByteBuffer> dataBuf = std::make_shared<ByteBuffer>(compactNode->getTotalBytes());
+                    std::cout << "GOT THIS FAR 1" << std::endl;
+
                     compactNode->getStructureBuffer(dataBuf, true);
+                    std::cout << "GOT THIS FAR 2" << std::endl;
 
                     if (i == 0) {
                         dataBuf0 = dataBuf;
@@ -268,7 +271,7 @@ namespace evio {
                                          "      Event #" + std::to_string(i+1));
                     }
                 }
-            }
+ */            }
             catch (EvioException &e) {
                 std::cout << "PROBLEM: " << e.what();
             }
