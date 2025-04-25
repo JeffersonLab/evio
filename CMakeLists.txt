@@ -30,9 +30,9 @@ project(evio VERSION 6.0)
 include(GNUInstallDirs)
 
 # Allow users to set C++ standard via -DCMAKE_CXX_STANDARD
-# Only default to C++14 if not already set
+# Only default to C++17 if not already set
 if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD 17)
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_DEBUG_POSTFIX -dbg)
