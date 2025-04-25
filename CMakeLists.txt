@@ -159,6 +159,7 @@ set(CPP_HEADER_FILES
         src/libsrc++/StructureFinder.h
         src/libsrc++/eviocc.h
         src/test/TestBase.h
+        tutorials/EvioTestHelper.h
 )
 
 set(CPP_LIB_FILES
@@ -200,6 +201,7 @@ set(CPP_LIB_FILES
         src/libsrc++/EventBuilder.cpp
         src/libsrc++/CompactEventBuilder.cpp
         src/test/TestBase.cpp
+        tutorials/EvioTestHelper.h
 )
 
 set(TEST
