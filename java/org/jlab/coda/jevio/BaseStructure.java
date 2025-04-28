@@ -13,6 +13,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.XMLOutputFactory;
 
+import static org.jlab.coda.jevio.DataType.COMPOSITE;
+
 /**
  * This is the base class for all evio structures: Banks, Segments, and TagSegments.
  * It implements <code>MutableTreeNode</code> because a tree representation of
@@ -779,7 +781,18 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     // calculate the data length so we're OK returning
                     // any reasonable value here.
                     numberDataItems = 1;
-                    if (compositeData != null) numberDataItems = compositeData.length;
+                    if (compositeData != null) {
+                        numberDataItems = compositeData.length;
+                    }
+                    else {
+                        try {
+                            CompositeData[] d = getCompositeData();
+                            if (d != null) {
+                                numberDataItems = d.length;
+                            }
+                        }
+                        catch (EvioException e) {/* nothing more can be done */}
+                    }
                     break;
                 default:
             }
@@ -1177,7 +1190,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
         // Don't read read more than maxLength ASCII characters
         length = length > maxLength ? maxLength : length;
-//System.out.println("unpackRawBytesToStrings: length = " + length);
+
         StringBuilder stringData = null;
         try {
             stringData = new StringBuilder(new String(rawBytes, offset, length, "US-ASCII"));
@@ -2698,6 +2711,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 		}
 
 		try {
+            int count;
+            boolean isLast;
             String s;
             String indent = String.format("\n%s", xmlIndent);
 
@@ -2705,165 +2720,223 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 			switch (header.getDataType()) {
 			case DOUBLE64:
 				double doubledata[] = getDoubleData();
-                for (int i=0; i < doubledata.length; i++) {
+                count = doubledata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%25.17g  ", doubledata[i]);
+                    s = String.format("%25.17g", doubledata[i]);
                     xmlWriter.writeCharacters(s);
+                    if (!isLast && (i%2 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
 			case FLOAT32:
 				float floatdata[] = getFloatData();
-                for (int i=0; i < floatdata.length; i++) {
+                count = floatdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%15.8g  ", floatdata[i]);
+                    s = String.format("%15.8g", floatdata[i]);
                     xmlWriter.writeCharacters(s);
+                    if (!isLast && (i%4 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
 			case LONG64:
 				long[] longdata = getLongData();
-                for (int i=0; i < longdata.length; i++) {
+                count = longdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%016x  ", longdata[i]);
+                        s = String.format("0x%016x", longdata[i]);
                     }
                     else {
-                        s = String.format("%20d  ", longdata[i]);
+                        s = String.format("%20d", longdata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%2 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
             case ULONG64:
                 longdata = getLongData();
+                count = longdata.length;
                 BigInteger bg;
-                for (int i=0; i < longdata.length; i++) {
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%016x  ", longdata[i]);
+                        s = String.format("0x%016x", longdata[i]);
                     }
                     else {
                         bg = new BigInteger(1, ByteDataTransformer.toBytes(longdata[i], ByteOrder.BIG_ENDIAN));
-                        s = String.format("%20s  ", bg.toString());
+                        s = String.format("%20s", bg.toString());
                         // For java version 8+, no BigIntegers necessary:
                         //s = String.format("%20s  ", Long.toUnsignedString(longdata[i]));
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%2 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
 			case INT32:
                 int[] intdata = getIntData();
-                for (int i=0; i < intdata.length; i++) {
+                count = intdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%08x  ", intdata[i]);
+                        s = String.format("0x%08x", intdata[i]);
                     }
                     else {
-                        s = String.format("%11d  ", intdata[i]);
+                        s = String.format("%11d", intdata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%4 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
 			case UINT32:
 				intdata = getIntData();
-                for (int i=0; i < intdata.length; i++) {
+                count = intdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%08x  ", intdata[i]);
+                        s = String.format("0x%08x", intdata[i]);
                     }
                     else {
-                        s = String.format("%11d  ", ((long) intdata[i]) & 0xffffffffL);
+                        s = String.format("%11d", ((long) intdata[i]) & 0xffffffffL);
                         //s = String.format("%11s  ", Integer.toUnsignedString(intdata[i]));
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%4 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
             case SHORT16:
                 short[] shortdata = getShortData();
-                for (int i=0; i < shortdata.length; i++) {
+                count = shortdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%04x  ", shortdata[i]);
+                        s = String.format("0x%04x", shortdata[i]);
                     }
                     else {
-                        s = String.format("%6d  ", shortdata[i]);
+                        s = String.format("%6d", shortdata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
             case USHORT16:
 				shortdata = getShortData();
-                for (int i=0; i < shortdata.length; i++) {
+                count = shortdata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%04x  ", shortdata[i]);
+                        s = String.format("0x%04x", shortdata[i]);
                     }
                     else {
-                        s = String.format("%6d  ", ((int) shortdata[i]) & 0xffff);
+                        s = String.format("%6d", ((int) shortdata[i]) & 0xffff);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
 			case CHAR8:
                 byte[] bytedata = getByteData();
-                for (int i=0; i < bytedata.length; i++) {
+                count = bytedata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%02x  ", bytedata[i]);
+                        s = String.format("0x%02x", bytedata[i]);
                     }
                     else {
-                        s = String.format("%4d  ", bytedata[i]);
+                        s = String.format("%4d", bytedata[i]);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
                 break;
 
             case UNKNOWN32:
 			case UCHAR8:
                 bytedata = getByteData();
-                for (int i=0; i < bytedata.length; i++) {
+                count = bytedata.length;
+                for (int i=0; i < count; i++) {
+                    isLast = (i == count - 1);
                     if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
 
                     if (hex) {
-                        s = String.format("0x%02x  ", bytedata[i]);
+                        s = String.format("0x%02x", bytedata[i]);
                     }
                     else {
-                        s = String.format("%4d  ", ((short) bytedata[i]) & 0xff);
+                        s = String.format("%4d", ((short) bytedata[i]) & 0xff);
                     }
                     xmlWriter.writeCharacters(s);
+
+                    if (!isLast && (i%8 == 0)) {
+                        xmlWriter.writeCharacters("  ");
+                    }
                 }
 				break;
 
