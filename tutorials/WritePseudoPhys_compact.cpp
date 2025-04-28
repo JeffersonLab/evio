@@ -1,13 +1,11 @@
-#include <iostream>
-#include <memory>
-#include <random>
-
 #include "EvioTestHelper.h"  // EVIO C++ API (EVIO 6 main branch)
 
 using namespace evio;
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
+
+    // Boilerplate
+    if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <number_of_events>\n";
         return 1;
     }
@@ -18,7 +16,6 @@ int main(int argc, char** argv) {
     std::shared_ptr<EventWriterV4> writerV4   = evioHelperObj->defaultEventWriterV4();
     std::shared_ptr<EventWriter>   writerV6   = evioHelperObj->defaultEventWriter();
     std::shared_ptr<EventWriter>   writerHipo = evioHelperObj->defaultEventWriterHIPO();
-
 
     for (int i = 0; i < nEvents; ++i) {
         // Create an event as a bank containing four 32-bit floats

@@ -110,7 +110,7 @@ using namespace evio;
         }
         
         std::vector<float> genXYZT(int i) {
-            std::vector<float> x4(5); // 5th entry for pyevio debugging
+            std::vector<float> x4(5); // 5th entry for pyevio bugfix
             x4[0] = gauss(gen);
             x4[1] = gauss(gen);
             x4[2] = 0.0f;

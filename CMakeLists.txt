@@ -227,7 +227,9 @@ set(TEST
         # Jon added programs below
         src/test/BigFileWrite.cpp
         src/test/BigFileWritePrimitive.cpp
-        tutorials/WriteFilePseudoPhysicsEvent.cpp
+        tutorials/WritePseudoPhys_simple.cpp
+        tutorials/WritePseudoPhys_builder.cpp
+        tutorials/WritePseudoPhys_compact.cpp
         tutorials/WriteFilePseudoPhysicsEventExtended.cpp
         tutorials/PrintXMLDict.cpp
         tutorials/EVIO_v4_to_v6.cpp
