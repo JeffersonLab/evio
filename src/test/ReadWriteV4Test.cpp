@@ -253,7 +253,7 @@ namespace evio {
 
                 std::cout << "\n   Print out events (includes first event if evio version 4) :" << std::endl;
 
-/*                 for (uint32_t i = 0; i < evCount2; i++) {
+                 for (uint32_t i = 0; i < evCount2; i++) {
                     // The "first event" is just the first event in the list (not treated specially)
                     std::cout << "      scanned event #" << (i+1) << " :" << std::endl;
                     std::shared_ptr<EvioNode> compactNode = reader1.getScannedEvent(i + 1);
@@ -271,7 +271,7 @@ namespace evio {
                                          "      Event #" + std::to_string(i+1));
                     }
                 }
- */            }
+             }
             catch (EvioException &e) {
                 std::cout << "PROBLEM: " << e.what();
             }
@@ -288,6 +288,7 @@ namespace evio {
             std::vector<uint8_t> dataVec;
             std::vector<uint8_t> dataVec0;
 
+
             try {
 
                 // TODO: Something WRONG with the parsing!!!
@@ -303,6 +304,8 @@ namespace evio {
 
                 std::cout << "\n   Print out events (includes first event if evio version 4) :" << std::endl;
 
+                std::cout << "Starting reader for " << reader1.getEventCount() << " events..." << std::endl;
+                
                 for (uint32_t i = 0; i < evCount2; i++) {
                     std::shared_ptr<EvioEvent> ev = reader1.parseEvent(i + 1);
                     std::cout << "      got & parsed ev " << (i+1) << std::endl;
@@ -311,7 +314,12 @@ namespace evio {
                         dataVec0 = ev->getRawBytes();
                     }
                     //std::shared_ptr<EvioEvent> evt = reader1.parseNextEvent();
+
+                    std::cout << "GOT THIS FAR 1" << std::endl;
                 }
+                std::cout << "GOT THIS FAR 2" << std::endl;
+
+
 // This has the same output as above
 //                int j=0;
 //                std::shared_ptr<EvioEvent> evt;
