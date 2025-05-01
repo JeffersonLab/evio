@@ -3,7 +3,7 @@
 # ignore all files/dirs beginning with _
 _*
 # ignore any .evio, .ev, or .hipo extension files 
-*.evio
+*.evio*
 *.ev
 *.hipo
 *.dat
@@ -20,6 +20,7 @@ cmake-*
 cmake_install.cmake
 coda.pyc
 build/
+build_old/
 jbuild/
 lib/
 bin/

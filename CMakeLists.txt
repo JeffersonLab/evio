@@ -234,6 +234,7 @@ set(TEST
         tutorials/PrintXMLDict.cpp
         tutorials/EVIO_v4_to_v6.cpp
         tutorials/ConvertFormats.cpp
+        tutorials/ReadCLASFile.cpp
         )
 
 set(TESTC
