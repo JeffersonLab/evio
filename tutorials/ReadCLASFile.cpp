@@ -1,8 +1,7 @@
 #include <iostream>
 #include <string>
 
-// Include EVIO6 C++ headers (adjust the include paths as needed for your installation)
-#include "eviocc.h"  // EVIO C++ API (EVIO 6 main branch)
+#include "eviocc.h"  // EVIO C++ API all inside
 
 // Use the EVIO namespace for convenience
 using namespace evio;
