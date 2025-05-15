@@ -96,10 +96,10 @@ file(GLOB C_LIB_FILES "src/libsrc/*.c")
 # C++ source files
 file(GLOB CPP_LIB_FILES "src/libsrc++/*.cpp")
 file(GLOB CPP_HEADER_FILES "src/libsrc++/*.h")
-file(GLOB TEST "src/test/*.cpp")
-file(GLOB TESTC "src/testC/*.c")
 # A few extras required
 if(MAKE_EXAMPLES)
+    file(GLOB TEST "src/test/*.cpp" "tutorials/*.cpp")
+    file(GLOB TESTC "src/testC/*.c")
     list(APPEND CPP_HEADER_FILES src/test/TestBase.h tutorials/EvioTestHelper.h)
     list(APPEND CPP_LIB_FILES src/test/TestBase.cxx tutorials/EvioTestHelper.h)
 endif()

@@ -96,9 +96,9 @@ namespace evio {
     public:
 
         /** First word in every HIPO file for identification purposes. */
-        static const uint32_t   HIPO_FILE_UNIQUE_WORD = 0x4F504948; // 0x4849504F = HIPO
+        static const uint32_t   HIPO_FILE_UNIQUE_WORD = 0x4F504948; // 0x4849504F for HIPO (= "OPIH" in ascii)
         /** First word in every Evio file for identification purposes. */
-        static const uint32_t   EVIO_FILE_UNIQUE_WORD = 0x4556494F; // = EVIO
+        static const uint32_t   EVIO_FILE_UNIQUE_WORD = 0x4556494F; // = "EVIO" in ascii
         /** Number of 32-bit words in a normal sized header. */
         static const uint32_t   HEADER_SIZE_WORDS = 14;
         /** Number of bytes in a normal sized header. */
