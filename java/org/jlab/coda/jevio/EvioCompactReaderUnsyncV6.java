@@ -10,6 +10,7 @@
 
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.HeaderType;
 import org.jlab.coda.hipo.HipoException;
 import org.jlab.coda.hipo.Reader;
 
@@ -85,6 +86,10 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
             if (!reader.isEvioFormat()) {
                 throw new EvioException("buffer not in evio format");
             }
+            if (reader.getFileHeader().getHeaderType() == HeaderType.HIPO_FILE) {
+                throw new EvioException("file not in evio format");
+            }
+            
         }
         catch (HipoException e) {
             throw new EvioException(e);
