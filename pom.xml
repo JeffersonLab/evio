@@ -14,8 +14,7 @@
   <properties>
 
     <!-- Set Java version -->
-    <!-- Compatibility: for Java 8 input 1.8 below   -->
-    <java.version>15</java.version>
+    <java.version>15</java.version> <!-- Compatibility: if Java 8 desired, put 1.8 here (not 8)   -->
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
@@ -24,6 +23,15 @@
     <disruptor.version>4.0.0</disruptor.version>
     <java.jars.dir>${pom.basedir}/java/jars</java.jars.dir>
   </properties>
+
+
+  <repositories>
+    <repository>
+      <id>local-disruptor</id>
+      <url>file://${project.basedir}/java/jars</url>
+      <releases><enabled>true</enabled></releases>
+    </repository>
+  </repositories>
 
   <dependencies>
     <!-- LZ4 compression library -->
@@ -37,8 +45,8 @@
       <groupId>com.lmax</groupId> 
       <artifactId>disruptor</artifactId>
       <version>${disruptor.version}</version>
-      <scope>system</scope>
-      <systemPath>/home/jzarling/super_evio_dev/disruptor/disruptor/disruptor-4.0.0.jar</systemPath>
+      <!-- <scope>system</scope> -->
+      <!-- <systemPath>/home/jzarling/super_evio_dev/disruptor/disruptor/disruptor-4.0.0.jar</systemPath> -->
       <!-- <systemPath>${pom.basedir}/java/jars/java15/disruptor-${disruptor.version}.jar</systemPath> -->
       </dependency>
   </dependencies>
@@ -108,7 +116,7 @@
       </executions>
     </plugin>
 
-    <!-- 2) Make Surefire compile & (optionally) ignore JUnit‑style tests -->
+    <!--  Make Surefire compile & (optionally) ignore JUnit‑style tests -->
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-surefire-plugin</artifactId>
