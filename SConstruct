@@ -21,6 +21,18 @@ from subprocess import Popen, PIPE
 # Get useful python functions we wrote
 import coda
 
+class color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
 # Created files & dirs will have this permission
 os.umask(0o2)
 
@@ -39,13 +51,13 @@ osname   = os.getenv('CODA_OSNAME', platform + '-' +  machine)
 path = os.getenv('PATH', '')
 ldLibPath = os.getenv('LD_LIBRARY_PATH', '')
 
-if path == '':
+if path == '' or path == None:
     print
     print ("Error: set PATH environmental variable")
     print
     raise SystemExit
 
-if ldLibPath == '':
+if ldLibPath == '' or ldLibPath == None:
     print
     print ("Warning: LD_LIBRARY_PATH environmental variable not defined")
     print
@@ -131,9 +143,9 @@ env = conf.Finish()
 
 # location of C++ version of disruptor
 disruptorHome = os.getenv('DISRUPTOR_CPP_HOME')
-if disruptorHome == "":
+if disruptorHome == "" or not os.path.exists(str(disruptorHome)):
     if not onlyC:
-        print('Disruptor-cpp must be installed by defining DISRUPTOR_CPP_HOME')
+        print ("Error: set DISRUPTOR_CPP_HOME environmental variable")
         Exit(1)
 else:
     print('Disruptor-cpp = ' + str(disruptorHome))
@@ -151,8 +163,8 @@ if debug:
 # Compile with -g and add debugSuffix to all executable names
     env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 
-# code for newlib++ written in C++11
-env.Append(CXXFLAGS = ['-std=c++11'])
+# code for newlib++ written in C++17
+env.Append(CXXFLAGS = ['-std=c++17'])
 
 # Take care of 64/32 bit issues
 if is64bits:
@@ -214,7 +226,7 @@ if (incdir == None):
 # If we going to install ...
 if 'install' in COMMAND_LINE_TARGETS:
     # Determine installation directories
-    print ("\Call getInstallationDirs with prefix = ", prefix)
+    print ("\nCall getInstallationDirs with prefix = ", prefix)
     installDirs = coda.getInstallationDirs(osname, prefix, incdir, libdir, bindir)
     
     mainInstallDir    = installDirs[0]
@@ -293,3 +305,8 @@ if not onlyC:
     env.SConscript('src/test/SConscript',      variant_dir='src/test/'+archDir,     duplicate=0)
 
 env.SConscript('src/testC/SConscript',     variant_dir='src/testC/'+archDir,     duplicate=0)
+
+print (color.BOLD + color.RED + "WARNING: using scons for EVIO C/C++ libraries is deprecated! \n"\
+                                "    option to build via `scons install` will be removed in future updates \n"\
+                                "    (use cmake instead)" + color.END)
+

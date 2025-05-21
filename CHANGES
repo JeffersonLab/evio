@@ -1,3 +1,8 @@
+*********************************************************************************
+JAVA CODE CHANGE LOG (oldest to newest)
+*********************************************************************************
+
+
 jevio-4.3.1.jar differences from previous jar :
 
     -check lengths when parsing evio so bad values are caught if possible
@@ -165,7 +170,7 @@ jevio-5.1.jar
 
 
 *********************************************************************************
-C CODE
+C/C++ CODE CHANGE LOG (oldest to newest)
 *********************************************************************************
 
 evio-4.3.3

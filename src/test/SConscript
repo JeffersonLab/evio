@@ -2,9 +2,9 @@
 Import('env', 'platform', 'archDir', 'incInstallDir', 'libInstallDir', 'binInstallDir', 'archIncInstallDir', 'execLibs', 'debugSuffix', 'disruptorHome')
 
 
-ccTestBase = 'TestBase.cpp'
+ccTestBase = 'TestBase.cxx'
 excluded_files = ccTestBase
-# list of all C++ files (excluding TestBase.cpp)
+# list of all C++ files (excluding TestBase.cxx)
 ccfileList = [f for f in Glob('*.cpp', strings=True) if f not in excluded_files]
 
 
@@ -17,7 +17,7 @@ if platform == 'Darwin':
 for fileName in ccfileList:
     compiledFile = env.Program(source  = [fileName, ccTestBase],
                             LIBS    = ['eviocc'+debugSuffix, 'Disruptor',
-                                       'boost_system', boostThdLib,  'boost_chrono',  execLibs],
+                                       'boost_system', boostThdLib,  'boost_chrono', 'boost_filesystem',  execLibs],
                             LIBPATH = ['#src/libsrc++/'+archDir, '/usr/lib64', '/usr/lib', '/usr/local/lib', str(disruptorHome)+'/build/Disruptor'],
                             CPPPATH = ['#src/libsrc++', '#src/test', disruptorHome, '/usr/local/include',
                                       '/usr/include/boost', '/usr/local/include/boost'])
