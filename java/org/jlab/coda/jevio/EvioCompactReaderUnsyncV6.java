@@ -86,9 +86,9 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
             if (!reader.isEvioFormat()) {
                 throw new EvioException("buffer not in evio format");
             }
-            if (reader.getFileHeader().getHeaderType() == HeaderType.HIPO_FILE) {
-                throw new EvioException("file not in evio format");
-            }
+            // if (reader.getFileHeader().getHeaderType() == HeaderType.HIPO_FILE) {
+            //     throw new EvioException("file not in evio format");
+            // }
             
         }
         catch (HipoException e) {

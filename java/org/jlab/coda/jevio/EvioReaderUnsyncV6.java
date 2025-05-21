@@ -129,9 +129,9 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
             reader = new Reader(file.getPath(), checkRecNumSeq, true);
             parser = new EventParser();
 
-            if (reader.getFileHeader().getHeaderType() == HeaderType.HIPO_FILE) {
-                throw new EvioException("file not in evio format");
-            }
+            // if (reader.getFileHeader().getHeaderType() == HeaderType.HIPO_FILE) {
+            //     throw new EvioException("file not in evio format");
+            // }
         }
         catch (HipoException e) {
             throw new EvioException(e);
@@ -169,9 +169,9 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
              if (!reader.isEvioFormat()) {
                  throw new EvioException("buffer not in evio format");
              }
-            if (reader.getFileHeader().getHeaderType() == HeaderType.HIPO_FILE) {
-                throw new EvioException("file not in evio format");
-            }
+            // if (reader.getFileHeader().getHeaderType() == HeaderType.HIPO_FILE) {
+            //     throw new EvioException("file not in evio format");
+            // }
              parser = new EventParser();
          }
          catch (HipoException e) {
