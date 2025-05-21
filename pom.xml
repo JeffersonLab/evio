@@ -21,15 +21,6 @@
     <java.jars.dir>${pom.basedir}/java/jars</java.jars.dir>
   </properties>
 
-
-  <repositories>
-    <repository>
-      <id>local-disruptor</id>
-      <url>file://${project.basedir}/java/jars</url>
-      <releases><enabled>true</enabled></releases>
-    </repository>
-  </repositories>
-
   <dependencies>
     <!-- LZ4 compression library -->
     <dependency>
@@ -52,6 +43,30 @@
 <build>
  <sourceDirectory>${project.basedir}/java</sourceDirectory>
   <plugins>
+
+    <!-- Install disruptor jar  -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-install-plugin</artifactId>
+      <version>3.1.4</version>  
+      <executions>
+        <execution>
+          <id>install-local-disruptor</id>
+          <phase>initialize</phase>
+          <goals>
+            <goal>install-file</goal>
+          </goals>
+          <configuration>
+            <file>${project.basedir}/java/jars/disruptor-${disruptor.version}.jar</file>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
+            <packaging>jar</packaging>
+            <generatePom>true</generatePom>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
 
     <!-- Add sources in non-standard folder setup -->
     <plugin>
