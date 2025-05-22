@@ -7,21 +7,22 @@
   <description>Java library for EVIO (Event Input/Output)</description>
   <packaging>jar</packaging>
 
-  <!-- Properties for versions -->
+  <!-- SOFTWARE VERSIONS USED -->
   <properties>
-
     <!-- Set Java version -->
     <java.version>15</java.version> <!-- Compatibility: if Java 8 desired, put 1.8 here (not 8)   -->
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Dependencies (versions for jars we'll need to bring in)  -->
     <lz4.version>1.8.0</lz4.version>
-    <disruptor.version>4.0.0</disruptor.version>
+    <disruptor.version>4.0.0</disruptor.version> <!-- Need from JLab source (not lmax default) -->
+    <!-- Other misc properties -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.jars.dir>${pom.basedir}/java/jars</java.jars.dir>
   </properties>
 
 
+  <!-- Add local folder to repositories mvn searches -->
   <repositories>
     <repository>
       <id>local-disruptor</id>
@@ -42,9 +43,6 @@
       <groupId>com.lmax</groupId> 
       <artifactId>disruptor</artifactId>
       <version>${disruptor.version}</version>
-      <!-- <scope>system</scope> -->
-      <!-- <systemPath>/home/jzarling/super_evio_dev/disruptor/disruptor/disruptor-4.0.0.jar</systemPath> -->
-      <!-- <systemPath>${pom.basedir}/java/jars/java15/disruptor-${disruptor.version}.jar</systemPath> -->
       </dependency>
   </dependencies>
 
