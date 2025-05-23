@@ -17,6 +17,7 @@
 # Get various python modules
 import re, sys, os, string, subprocess, SCons.Node.FS
 from subprocess import Popen, PIPE
+from os import sep, symlink
 
 # Useful python functions (previously in py)
 def recursiveDirs(root) :

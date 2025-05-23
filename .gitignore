@@ -20,12 +20,11 @@ cmake-*
 cmake_install.cmake
 coda.pyc
 build/
-build_old/
 jbuild/
 lib/
 bin/
 doxyerrors.log
-/target/
+target/
 doc/javadoc
 doc/doxygen/CC
 doc/doxygen/C
