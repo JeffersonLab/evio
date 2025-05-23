@@ -49,7 +49,6 @@ else()
     # Use default CMAKE_INSTALL_PREFIX
     set(INSTALL_DIR_DEFINED 1)
     message(STATUS "Installing to default location: ${CMAKE_INSTALL_PREFIX}")
-    # Don't set CMAKE_INSTALL_PREFIX here - use the CMake default
 endif()
 
 # Boost libs
