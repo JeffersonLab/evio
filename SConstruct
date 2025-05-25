@@ -714,11 +714,9 @@ env.SConscript('src/libsrc/SConscript', variant_dir='src/libsrc/'+archDir,   dup
 
 if not onlyC:
     env.SConscript('src/libsrc++/SConscript',  variant_dir='src/libsrc++/'+archDir, duplicate=0)
-    #env.SConscript('src/execsrc/SConscript',   variant_dir='src/execsrc/'+archDir,  duplicate=0)
-    #env.SConscript('src/examples/SConscript',  variant_dir='src/examples/'+archDir, duplicate=0)
-    env.SConscript('src/test/SConscript',      variant_dir='src/test/'+archDir,     duplicate=0)
+    env.SConscript('src/test/cpp/SConscript',      variant_dir='src/test/'+archDir,     duplicate=0)
 
-env.SConscript('src/testC/SConscript',     variant_dir='src/testC/'+archDir,     duplicate=0)
+env.SConscript('src/test/c/SConscript',     variant_dir='src/testC/'+archDir,     duplicate=0)
 
 print (color.BOLD + color.RED + "WARNING: using scons for EVIO C/C++ libraries is deprecated! \n"\
                                 "    option to build via `scons install` will be removed in future updates \n"\

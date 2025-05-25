@@ -97,10 +97,10 @@ file(GLOB CPP_LIB_FILES "src/libsrc++/*.cpp")
 file(GLOB CPP_HEADER_FILES "src/libsrc++/*.h")
 # A few extras required
 if(MAKE_EXAMPLES)
-    file(GLOB TEST "src/test/*.cpp" "tutorials/*.cpp")
-    file(GLOB TESTC "src/testC/*.c")
-    list(APPEND CPP_HEADER_FILES src/test/TestBase.h tutorials/EvioTestHelper.h)
-    list(APPEND CPP_LIB_FILES src/test/TestBase.cxx tutorials/EvioTestHelper.h)
+    file(GLOB TEST "src/test/cpp/*.cpp" "tutorials/*.cpp")
+    file(GLOB TESTC "src/test/c/*.c")
+    list(APPEND CPP_HEADER_FILES src/test/cpp/TestBase.h tutorials/EvioTestHelper.h)
+    list(APPEND CPP_LIB_FILES src/test/cpp/TestBase.cxx tutorials/EvioTestHelper.h)
 endif()
 
 # BUILD C++ LIBRARY (unless otherwise specified)
@@ -253,17 +253,18 @@ endif()
 
 
 # Uninstall target
-if(NOT TARGET uninstall)
-    configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-            "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-            IMMEDIATE @ONLY
-    )
+# Removed for now, not yet compatible with building disruptor-cpp internally
+# if(NOT TARGET uninstall)
+#     configure_file(
+#             "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+#             "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+#             IMMEDIATE @ONLY
+#     )
 
-    add_custom_target(uninstall
-            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-    )
-endif()
+#     add_custom_target(uninstall
+#             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+#     )
+# endif()
 
 # Options printout
 message(STATUS "Options table: ")

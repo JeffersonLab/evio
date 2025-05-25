@@ -7,6 +7,9 @@
   <description>Java library for EVIO (Event Input/Output)</description>
   <packaging>jar</packaging>
 
+  <!-- MAVEN CONVENTIONS -->
+  <!-- https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html -->
+
   <!-- SOFTWARE VERSIONS USED -->
   <properties>
     <!-- Set Java version -->
