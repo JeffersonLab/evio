@@ -272,8 +272,8 @@ namespace evio {
 
         uint16_t tag = 0;
         uint8_t  num = 0;
-        bool gotTag = dict.getTag("second(1)", &tag);
-        bool gotNum = dict.getNum("second(1)", &num);
+        // bool gotTag = dict.getTag("second(1)", &tag);
+        // bool gotNum = dict.getNum("second(1)", &num);
 
         bool exists = dict.exists("second(1)");
 
