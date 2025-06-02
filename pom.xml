@@ -58,7 +58,7 @@
 
 
 <build>
- <sourceDirectory>${project.basedir}/java</sourceDirectory>
+ <!-- <sourceDirectory>${project.basedir}/java</sourceDirectory> -->
   <plugins>
 
     <!-- Install disruptor jar  -->

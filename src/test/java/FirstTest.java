@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-@Tag("fast")
+@Tag("fast") // Run when selecting "fast" category of tests
+
 class FirstTest {
 
 	@Test
