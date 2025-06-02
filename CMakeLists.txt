@@ -98,10 +98,10 @@ file(GLOB CPP_LIB_FILES "src/libsrc++/*.cpp")
 file(GLOB CPP_HEADER_FILES "src/libsrc++/*.h")
 # A few extras required
 if(MAKE_EXAMPLES)
-    file(GLOB TEST "src/test/cpp/*.cpp" "tutorials/*.cpp")
+    file(GLOB TEST "src/test/cpp/*.cpp" "tutorials/cpp/*.cpp")
     file(GLOB TESTC "src/test/c/*.c")
-    list(APPEND CPP_HEADER_FILES src/test/cpp/TestBase.h tutorials/EvioTestHelper.h)
-    list(APPEND CPP_LIB_FILES src/test/cpp/TestBase.cxx tutorials/EvioTestHelper.h)
+    list(APPEND CPP_HEADER_FILES src/test/cpp/TestBase.h tutorials/cpp/EvioTestHelper.h)
+    list(APPEND CPP_LIB_FILES src/test/cpp/TestBase.cxx tutorials/cpp/EvioTestHelper.h)
 endif()
 
 # BUILD C++ LIBRARY (unless otherwise specified)
