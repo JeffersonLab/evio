@@ -1,0 +1,24 @@
+name: "C/C++ Tests"
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  cpp_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake build-essential libboost-filesystem-dev libboost-thread-dev libboost-chrono-dev liblz4-dev doxygen
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DMAKE_EXAMPLES=1
+
+      - name: Build
+        run: cmake --build build -- -j$(nproc)
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure

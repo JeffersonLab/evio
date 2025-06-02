@@ -14,6 +14,7 @@ add_compile_options(-Wall)
 
 include(GNUInstallDirs)
 include(FindPackageHandleStandardArgs) # find_package_handle_standard_args()
+include(CTest) 
 
 # Add custom find_package for Disruptor
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
@@ -251,6 +252,9 @@ if(NOT C_ONLY)
     )
 endif()
 
+# Unit testing setup
+# add_executable(test_basic src/test/cpp/test_basic.cpp) # Already done above
+# add_test(NAME ctest_test COMMAND bin/ctest_test)
 
 # Uninstall target
 # Removed for now, not yet compatible with building disruptor-cpp internally
