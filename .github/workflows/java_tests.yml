@@ -3,6 +3,7 @@ name: Java Tests (EVIO-6)
 on:
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   java_test:
