@@ -12,36 +12,84 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Future;
+
+import org.jlab.coda.hipo.*;
 import org.jlab.coda.jevio.*;
-import org.jlab.coda.jevio.unit_tests.EvioTestHelper;
+import org.jlab.coda.jevio.unit_tests.EvioTestHelper; // helper class for unit tests, also contained in java src files
 
 @Tag("fast") // Run when selecting "fast" category of tests
 
-class EvioWriteAndReadBack {
+class EvioWriteAndReadBack  {
 
     @Test
     @DisplayName("Evio Write and Read Back Test")
-    void evioWriteAndReadBack(TestInfo testInfo) throws EvioException {
 
+    // void evioWriteAndReadBack(TestInfo testInfo) throws IOException, EvioException {
+    //     evioWriteAndReadBack(testInfo, 10);
+    // }
+
+    void evioWriteAndReadBack(TestInfo testInfo) throws IOException, EvioException {
+
+        int nEvents = 10; // number of events to writeint nEvents
+
+        EvioTestHelper h = new EvioTestHelper();
 
         // Create a new EvioWriter
-        EvioWriter writer = EvioTestHelper.defaultEventWriter();
+        EventWriterUnsync writer = EvioTestHelper.defaultEventWriter();
 
-        // // Create an event with some data
-        // EvioEvent event = new EvioEvent(1);
-        // float[] data = {1.0f, 2.0f, 3.0f, 4.0f};
-        // event.addBank(new EvioBank("floatBank", 10, 1, data));
+        // Generate and write events
+        for (int i = 0; i < nEvents; i++) {
 
-        // // Write the event
-        // writer.writeEvent(event);
-        // writer.close();
+            // Build a new event (top-level bank) with tag=1, type=BANK, num=1
+            //-------------------------------------
+            int tag = 1;
+            int num = 1;
+            EventBuilder builder = new EventBuilder(tag, DataType.BANK, num);
+            float[] floatVec = h.genXYZT(i); // generate pseudo x, y, z, time values
 
-        // // Now read back the event
-        // EvioReader reader = new EvioReader("testEvents.evio");
-        // EvioEvent readEvent = reader.readEvent();
+            // Now to start defining event
+            EvioEvent event = builder.getEvent();
 
-        // // Verify the data
-        // assertEquals(1, readEvent.getEventNumber(), "Event number should match");
-        // assertEquals(4, readEvent.getBanks().get(0).getIntData().length, "Data length should match");
+            // THE OVERBANK
+            // First child of event = bank of banks
+            // EvioBank bankBanks = new EvioBank(tag+1, DataType.BANK, num+1);
+            // builder.addChild(event, bankBanks);
+
+            // (SUB)BANK 1 OF 1
+            // Create first (& only) child of bank of banks = bank of floats
+            EvioBank bankFloats = new EvioBank(tag+11, DataType.FLOAT32, num+11);
+            bankFloats.appendFloatData(floatVec); // add float data to bank of floats
+            builder.addChild(event, bankFloats);
+
+            try {
+                // Write the completed event to file
+                writer.writeEvent(event, false);
+            }
+            catch (EvioException e) {
+                System.out.println("EvioException: " + e.toString());
+            }
+        }
+        // End of writing events
+        try {
+            writer.close();
+        } 
+        catch (Exception e) {
+            System.out.println("EvioException: " + e.toString());
+            e.printStackTrace();
+        }
+
+        System.out.println(" Wrote  " + nEvents + " events to file. ");
+        
     }
 }

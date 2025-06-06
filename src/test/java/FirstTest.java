@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 import org.jlab.coda.jevio.*;
-// import EvioTestHelper;
 
 @Tag("fast") // Run when selecting "fast" category of tests
 
