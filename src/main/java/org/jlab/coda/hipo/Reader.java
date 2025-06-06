@@ -1817,9 +1817,9 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
         // Index in trailer gets first priority.
         // Index in file header gets next priority.
         boolean fileHasIndex = fileHeader.hasTrailerWithIndex() || (fileHeader.hasIndex());
-//System.out.println(" file has index = " + fileHasIndex
-//                    + ", has trailer w/ index = " + fileHeader.hasTrailerWithIndex()
-//                    + ", file hdr has index = " + fileHeader.hasIndex());
+    //System.out.println(" file has index = " + fileHasIndex
+    //                    + ", has trailer w/ index = " + fileHeader.hasTrailerWithIndex()
+    //                    + ", file hdr has index = " + fileHeader.hasIndex());
 
         // If there is no index, scan file
         if (!fileHasIndex) {

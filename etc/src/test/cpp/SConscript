@@ -2,9 +2,9 @@
 Import('env', 'platform', 'archDir', 'incInstallDir', 'libInstallDir', 'binInstallDir', 'archIncInstallDir', 'execLibs', 'debugSuffix', 'disruptorHome')
 
 
-ccTestBase = 'TestBase.cxx'
+ccTestBase = 'TestBase.cpp'
 excluded_files = ccTestBase
-# list of all C++ files (excluding TestBase.cxx)
+# list of all C++ files (excluding TestBase.cpp)
 ccfileList = [f for f in Glob('*.cpp', strings=True) if f not in excluded_files]
 
 

@@ -1,4 +1,4 @@
-#include "EvioTestHelper.h"  // EVIO C++ API (EVIO 6 main branch)
+#include "EvioTestHelper.h"  
 
 using namespace evio;
 
