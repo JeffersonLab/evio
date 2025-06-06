@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-import org.jlab.coda.*;
+import org.jlab.coda.jevio.*;
+// import EvioTestHelper;
 
 @Tag("fast") // Run when selecting "fast" category of tests
 
@@ -24,9 +25,6 @@ class FirstTest {
 
 		assertEquals(2, 1+1, "1 + 1 should equal 2");
 		assertEquals("My 1st JUnit 5 test! 😎", testInfo.getDisplayName(), () -> "TestInfo is injected correctly");
-
-		
-
 	}
 
 

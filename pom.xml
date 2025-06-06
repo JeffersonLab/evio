@@ -86,7 +86,7 @@
     </plugin>
 
     <!-- Add sources in non-standard folder setup -->
-    <plugin>
+    <!-- <plugin>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>build-helper-maven-plugin</artifactId>
       <version>3.6.0</version>
@@ -104,7 +104,7 @@
           </configuration>
         </execution>
       </executions>
-    </plugin>
+    </plugin> -->
 
     <!-- Make the fat jar file -->
     <plugin>
