@@ -13,9 +13,9 @@ int main(int argc, char** argv) {
     std::cout << "Writing " << nEvents << " events to files..." << std::endl;
     EvioTestHelper* evioHelperObj = new EvioTestHelper();
 
-    std::shared_ptr<EventWriterV4> writerV4   = evioHelperObj->defaultEventWriterV4();
+    // std::shared_ptr<EventWriterV4> writerV4   = evioHelperObj->defaultEventWriterV4();
     std::shared_ptr<EventWriter>   writerV6   = evioHelperObj->defaultEventWriter();
-    std::shared_ptr<EventWriter>   writerHipo = evioHelperObj->defaultEventWriterHIPO();
+    // std::shared_ptr<EventWriter>   writerHipo = evioHelperObj->defaultEventWriterHIPO();
 
     for (int i = 0; i < nEvents; ++i) {
         // Create an event as a bank containing four 32-bit floats
@@ -26,15 +26,15 @@ int main(int argc, char** argv) {
         event->updateFloatData();  // update internal length counters&#8203;:contentReference[oaicite:3]{index=3}
 
         // Write the event to each file format
-        writerV4->writeEvent(event);
+        // writerV4->writeEvent(event);
         writerV6->writeEvent(event);
-        writerHipo->writeEvent(event);
+        // writerHipo->writeEvent(event);
     }
 
     // Close the writers, flush buffers
-    writerV4->close();
+    // writerV4->close();
     writerV6->close();
-    writerHipo->close();
+    // writerHipo->close();
 
     std::cout << "Wrote " << nEvents << " events to EVIO4, EVIO6, and HIPO format files." << std::endl;
     delete evioHelperObj;

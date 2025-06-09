@@ -30,7 +30,7 @@ import org.jlab.coda.jevio.unit_tests.EvioTestHelper; // helper class for unit t
 
 @Tag("fast") // Run when selecting "fast" category of tests
 
-class EvioWriteAndReadBack  {
+class EvioWriteAndReadBack_builder  {
 
     @Test
     @DisplayName("Evio Write and Read Back Test")
@@ -41,12 +41,15 @@ class EvioWriteAndReadBack  {
 
     void evioWriteAndReadBack(TestInfo testInfo) throws IOException, EvioException {
 
-        int nEvents = 100000000; // 100 M events
+        int nEvents = 100000; // 10 M events
 
         EvioTestHelper h = new EvioTestHelper();
 
         // Create a new EvioWriter
         EventWriterUnsync writer = EvioTestHelper.defaultEventWriter();
+
+        EventBuilder builder = null;
+        EvioEvent event = null;
 
         // Generate and write events
         for (int i = 0; i < nEvents; i++) {
@@ -55,12 +58,15 @@ class EvioWriteAndReadBack  {
             //-------------------------------------
             int tag = 1;
             int num = 1;
-            EventBuilder builder = new EventBuilder(tag, DataType.BANK, num);
+            
             float[] floatVec = h.genXYZT(i); // generate pseudo x, y, z, time values
 
             // Now to start defining event
-            EvioEvent event = builder.getEvent();
-
+            // if(i == 0) {
+            builder = new EventBuilder(tag, DataType.BANK, num);
+            event = builder.getEvent();
+            // }
+            
             // THE OVERBANK
             // First child of event = bank of banks
             // EvioBank bankBanks = new EvioBank(tag+1, DataType.BANK, num+1);

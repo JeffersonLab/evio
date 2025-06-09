@@ -129,7 +129,7 @@ using namespace evio;
         std::string baseNameV4 = "testEventsV4.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
         std::string baseNameV6 = "testEventsV6.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
         std::string baseNameHIPO = "testEventsHIPO.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        const std::string directory = "";     // directory in which file is to be placed
+        const std::string directory = "tmp";     // directory in which file is to be placed
         const std::string runType = "";       // name of run type configuration to be used in naming files
         uint32_t runNumber = 1;
         uint64_t split = 0;                 // if < 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. 

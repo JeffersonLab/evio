@@ -10,6 +10,7 @@ _*
 *.txt
 # EventViewer Jar
 JEventViewer*.jar
+perf.data*
 
 # except these two
 !.gitignore
