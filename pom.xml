@@ -99,7 +99,7 @@
           </goals>
           <configuration>
             <sources>
-              <source>java/org/jlab/coda/jevio/test</source>
+              <source>etc/java/org/jlab/coda/jevio/test</source>
             </sources>
           </configuration>
         </execution>

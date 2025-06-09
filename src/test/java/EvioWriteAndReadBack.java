@@ -41,7 +41,7 @@ class EvioWriteAndReadBack  {
 
     void evioWriteAndReadBack(TestInfo testInfo) throws IOException, EvioException {
 
-        int nEvents = 10; // number of events to writeint nEvents
+        int nEvents = 100000000; // 100 M events
 
         EvioTestHelper h = new EvioTestHelper();
 

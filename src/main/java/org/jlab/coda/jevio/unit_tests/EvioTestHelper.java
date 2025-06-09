@@ -11,10 +11,10 @@ public class EvioTestHelper {
 
     // Parameters (simplified here for brevity)
     // apparently all files must have absolute paths!!!!!
-    private final String baseNameV4 = "/home/jzarling/super_evio_dev/evio/tmp/testEventsV4.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String baseNameV6 = "/home/jzarling/super_evio_dev/evio/tmp/testEventsV6.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String baseNameHIPO = "/home/jzarling/super_evio_dev/evio/tmp/testEventsHIPO.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String directory  = ""; // directory in which file is to be placed
+    private final static String baseNameV4 = "testEventsV4.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    private final static String baseNameV6 = "testEventsV6.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    private final static String baseNameHIPO = "testEventsHIPO.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    private final static String directory  = "/mnt/tmpfs"; // null=relative path (or directory in which file is to be placed)
     private final static String runType  = "";  // name of run type configuration to be used in naming files
     private final static int runNumber  = 1;    // arbitrary, usually experiment-specific
     private final static long split  = 0; // if < 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. 
@@ -59,6 +59,42 @@ public class EvioTestHelper {
         x4[2] = 0.0f;
         x4[3] = i * 2.008f;
         return x4;
+    }
+
+    public static EventWriterV4 defaultEventWriterV4() {
+
+        // EventWriterV4 w = null;
+
+        EventWriterV4 w = null;
+
+        try {
+                        
+            w = new EventWriterV4(
+                baseNameV4, 
+                directory, 
+                runType, 
+                runNumber,
+                split, 
+                maxRecordSize, 
+                maxEventCount, 
+                10000, 
+                byteOrder, 
+                XMLdictionary,
+                null, 
+                overWriteOK,
+                append,
+                firstEvent,
+                streamId,
+                splitNumber,
+                splitIncrement,
+                streamCount
+);
+        } 
+        catch (EvioException e) {
+            System.err.println("Error creating writer. Stack trace:\n ");
+            e.printStackTrace();
+        }
+        return w;
     }
 
     // Default writer
