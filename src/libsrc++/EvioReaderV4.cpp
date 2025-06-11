@@ -510,6 +510,9 @@ namespace evio {
 //                std::cout << std::endl << dec;
 
             // Read the header data
+            // Here's the offending setSize()
+            // std::cerr << "1) EvioReaderV4: doing setSize()" << std::endl;
+            // std::cerr << "Size: " << headerBuf->getInt() << std::endl;
             blockHeader4->setSize(        headerBuf->getInt());
             blockHeader4->setNumber(      headerBuf->getInt());
             blockHeader4->setHeaderLength(headerBuf->getInt());
@@ -784,8 +787,19 @@ namespace evio {
                 blockHeader->setBufferStartingPosition(byteBuffer->position());
             }
 
+            // DEBUG: print out the buffer information
+            std::cout << "EvioReaderV4: buffer pos = " << byteBuffer->position() <<
+                         ", limit = " << byteBuffer->limit() <<
+                         ", remaining = " << byteBuffer->remaining() <<
+                         ", capacity = " << byteBuffer->capacity() << std::endl;
+
+
             if (evioVersion >= 4) {
                 // Read the header data.
+
+                // Here's the offending setSize()
+                std::cerr << "2) EvioReaderV4: doing setSize()" << std::endl;
+                std::cerr << "Size: " << byteBuffer->getInt() << std::endl;
                 blockHeader4->setSize(byteBuffer->getInt());
                 blockHeader4->setNumber(byteBuffer->getInt());
                 blockHeader4->setHeaderLength(byteBuffer->getInt());
