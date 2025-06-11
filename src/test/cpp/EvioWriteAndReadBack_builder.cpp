@@ -17,9 +17,6 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<EventWriter>   writerV6   = evioHelperObj->defaultEventWriter();
     // std::shared_ptr<EventWriter>   writerHipo = evioHelperObj->defaultEventWriterHIPO();
 
-    std::shared_ptr<EventBuilder> builder = NULL;
-    std::shared_ptr<EvioEvent> event = NULL;
-
     for (int i = 0; i < nEvents; ++i) {
 
         // Build a new event (top-level bank) with tag=1, type=BANK, num=1
@@ -27,15 +24,15 @@ int main(int argc, char* argv[]) {
         uint16_t tag = 1;
         uint8_t  num = 1;
         // if(i == 0) {
-        builder = std::make_shared<EventBuilder>(tag, DataType::BANK, num);
-        event = builder->getEvent();
+        std::shared_ptr<EventBuilder> builder = std::make_shared<EventBuilder>(tag, DataType::BANK, num);
+        std::shared_ptr<EvioEvent> event = builder->getEvent();
         // }
         // else {
         //     builder = std::make_shared<EventBuilder>(event);
         // }
         
-        std::vector<float> floatVec = evioHelperObj->genXYZT(i); // generate pseudo x, y, z, time values
-        // std::vector<float> floatVec = {0.0f, 1.0f, 2.0f, 3.0f, 4.0f}; // Example data for testing
+        // std::vector<float> floatVec = evioHelperObj->genXYZT(i); // generate pseudo x, y, z, time values
+        std::vector<float> floatVec = {0.0f, 1.0f, 2.0f, 3.0f, 4.0f}; // Example data for testing
 
         // Now to start defining event
 
@@ -46,15 +43,21 @@ int main(int argc, char* argv[]) {
 
         // // (SUB)BANK 1 OF 1
         // // Create first (& only) child of bank of banks = bank of floats
-        auto bankFloats = EvioBank::getInstance(tag+11, DataType::FLOAT32, num+11); 
+        std::shared_ptr<evio::EvioBank> bankFloats = EvioBank::getInstance(tag+11, DataType::FLOAT32, num+11); 
         // // Write our data into bank
         builder->setFloatData(bankFloats, floatVec.data(), floatVec.size());
         builder->addChild(event, bankFloats);
 
-        // // Write the completed event to file
-        // writerV6->writeEvent(event);
+        // Write the completed event to file
+        writerV6->writeEvent(event);
+
+        // event.reset();
+        // bankFloats.reset();
+        // builder.reset();
+        // floatVec.clear();
     }
 
+    
     writerV6->close();  // close file writer (flush remaining data)&#8203;:contentReference[oaicite:6]{index=6}
     std::cout << "Wrote " << nEvents << " events to file." << std::endl;
     return 0;
