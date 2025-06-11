@@ -423,7 +423,7 @@ namespace evio {
     protected:
 
         /** This node's parent, or null if this node has no parent. */
-        std::shared_ptr<BaseStructure> parent = nullptr;
+        std::weak_ptr<BaseStructure> parent;
 
         /** Array of children, may be null if this node has no children. */
         std::vector<std::shared_ptr<BaseStructure>> children;
@@ -450,7 +450,7 @@ namespace evio {
 
     protected:
 
-        void setParent(std::shared_ptr<BaseStructure> newParent);
+        void setParent(std::weak_ptr<BaseStructure> newParent);
 
     public:
 

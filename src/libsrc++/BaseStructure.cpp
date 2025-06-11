@@ -367,7 +367,7 @@ namespace evio {
      *
      * @param newParent this node's new parent.
      */
-    void BaseStructure::setParent(const std::shared_ptr<BaseStructure> newParent) {parent = newParent;}
+    void BaseStructure::setParent(std::weak_ptr<BaseStructure> newParent) {parent = std::move(newParent);}
 
 
     /**
@@ -435,7 +435,7 @@ namespace evio {
             curIndex++;
         }
 
-        child->setParent(nullptr);
+        child->setParent(std::weak_ptr<BaseStructure>());
         setLengthsUpToDate(false);
     }
 
@@ -445,7 +445,7 @@ namespace evio {
      * Originally part of java's DefaultMutableTreeNode.
      * @return  this node's parent BaseStructure, or null if this node has no parent.
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getParent() const { return parent; }
+    std::shared_ptr<BaseStructure> BaseStructure::getParent() const { return parent.lock();}
 
 
     /**
@@ -2630,8 +2630,8 @@ namespace evio {
 
         if (!lenUpToDate) {
             // propagate back up the tree if lengths have been changed
-            if (parent != nullptr) {
-                parent->setLengthsUpToDate(false);
+            if (!parent.expired()) {
+                parent.lock()->setLengthsUpToDate(false);
             }
         }
     }

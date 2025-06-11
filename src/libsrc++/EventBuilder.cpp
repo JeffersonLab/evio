@@ -142,7 +142,7 @@ namespace evio {
         }
 
         child->removeFromParent();
-        child->setParent(nullptr);
+        child->setParent(std::weak_ptr<evio::BaseStructure>());
         setAllHeaderLengths();
     }
 
