@@ -2,19 +2,22 @@
 .*
 # ignore all files/dirs beginning with _
 _*
-# ignore any .evio, .ev, or .hipo extension files 
+# EventViewer Jar
+JEventViewer*.jar
+
+# except these two
+!.gitignore
+!.github/
+
+# ignore any .evio, .ev, or .hipo extension files (+ other common file types)
 *.evio*
 *.ev
 *.hipo
 *.dat
 *.txt
-# EventViewer Jar
-JEventViewer*.jar
+*.out.*
 perf.data*
 
-# except these two
-!.gitignore
-!.github/
 
 # ignore generated files/dirs
 cmake-*
