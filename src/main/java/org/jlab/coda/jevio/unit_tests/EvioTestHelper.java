@@ -11,10 +11,10 @@ public class EvioTestHelper {
 
     // Parameters (simplified here for brevity)
     // apparently all files must have absolute paths!!!!!
-    private final static String baseNameV4 = "testEventsV4.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String baseNameV6 = "testEventsV6.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String baseNameHIPO = "testEventsHIPO.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String directory  = null; // "/mnt/tmpfs" or null=relative path (or directory in which file is to be placed)
+    private final static String baseNameV4 = "testEventsV4_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    private final static String baseNameV6 = "testEventsV6_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    private final static String baseNameHIPO = "testEventsHIPO_javaAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    private final static String directory  = "tmp"; // "/mnt/tmpfs" or null=relative path (or directory in which file is to be placed)
     private final static String runType  = "";  // name of run type configuration to be used in naming files
     private final static int runNumber  = 1;    // arbitrary, usually experiment-specific
     private final static long split  = 0; // if < 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. 
@@ -53,7 +53,7 @@ public class EvioTestHelper {
 
     // Generate a float array similar to C++ vector<float>
     public float[] genXYZT(int i) {
-        float[] x4 = new float[5]; // matches C++ size
+        float[] x4 = new float[4];
         x4[0] = (float) random.nextGaussian() * 0.1f;
         x4[1] = (float) random.nextGaussian() * 0.1f;
         x4[2] = 0.0f;

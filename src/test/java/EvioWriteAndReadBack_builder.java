@@ -39,7 +39,7 @@ class EvioWriteAndReadBack_builder  {
     //     evioWriteAndReadBack(testInfo, 10);
     // }
 
-    void evioWriteAndReadBack(TestInfo testInfo) throws IOException, EvioException {
+    void evioWriteAndReadBackBuilder(TestInfo testInfo) throws IOException, EvioException {
 
         int nEvents = 100000; // 10 M events
 

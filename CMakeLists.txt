@@ -254,8 +254,8 @@ endif()
 
 # Unit testing setup
 # add_executable(test_basic src/test/cpp/test_basic.cpp) # Already done above
-add_test(NAME ctest_test COMMAND bin/ctest_test)
-add_test(NAME EvioWriteAndReadBack_builder COMMAND bin/EvioWriteAndReadBack_builder 10)
+add_test(NAME ctest_test COMMAND bin/ctest_test-dbg)
+add_test(NAME EvioWriteAndReadBack_builder COMMAND bin/EvioWriteAndReadBack_builder-dbg 10)
 
 # Uninstall target
 # Removed for now, not yet compatible with building disruptor-cpp internally

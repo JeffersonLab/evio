@@ -60,9 +60,14 @@ using namespace evio;
             );
         } 
 
-        std::shared_ptr<EventWriter>   defaultEventWriter() {
+        std::shared_ptr<EventWriter>   defaultEventWriter(std::string baseName = "") {
+            
+            if (baseName.empty()) {
+                baseName = baseNameV6; // Default to V6 if no base name is provided
+            }
+            
             return  std::make_shared<EventWriter>(
-                baseNameV6,   
+                baseName,   
                 directory,
                 runType,
                 runNumber,
@@ -126,10 +131,10 @@ using namespace evio;
         std::normal_distribution<float> gauss{0.0f, 0.1f};
 
             
-        std::string baseNameV4 = "testEventsV4.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        std::string baseNameV6 = "testEventsV6.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        std::string baseNameHIPO = "testEventsHIPO.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        const std::string directory = "tmp";     // directory in which file is to be placed
+        std::string baseNameV4 = "testEventsV4_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+        std::string baseNameV6 = "testEventsV6_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+        std::string baseNameHIPO = "testEventsHIPO_cppAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+        const std::string directory = "/home/jzarling/super_evio_dev/evio/tmp";     // directory in which file is to be placed
         const std::string runType = "";       // name of run type configuration to be used in naming files
         uint32_t runNumber = 1;
         uint64_t split = 0;                 // if < 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. 
