@@ -11,11 +11,11 @@ public class EvioTestHelper {
 
     // Parameters (simplified here for brevity)
     // apparently all files must have absolute paths!!!!!
-    private final static String baseNameV4 = "testEventsV4_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String baseNameV6 = "testEventsV6_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String baseNameHIPO = "testEventsHIPO_javaAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    private final static String directory  = "tmp"; // "/mnt/tmpfs" or null=relative path (or directory in which file is to be placed)
-    private final static String runType  = "";  // name of run type configuration to be used in naming files
+    public static String baseNameV4 = "testEventsV4_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    public static String baseNameV6 = "testEventsV6_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    public static String baseNameHIPO = "testEventsHIPO_javaAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+    public static String directory  = "tmp"; // "/mnt/tmpfs" or null=relative path (or directory in which file is to be placed)
+    final static String runType  = "";  // name of run type configuration to be used in naming files
     private final static int runNumber  = 1;    // arbitrary, usually experiment-specific
     private final static long split  = 0; // if < 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. 
     private final static int maxRecordSize = 33554432; // (32 MiB) max number of uncompressed data bytes each record can hold. Value of < 8MB results in default of 8MB. The size of the record will not be larger than this size unless a single event itself is larger
