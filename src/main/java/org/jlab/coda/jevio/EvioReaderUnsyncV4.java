@@ -1072,31 +1072,54 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
 
             if (evioVersion >= 4) {
                 // Read the header data.
-                blockHeader4.setSize(byteBuffer.getInt());
-                blockHeader4.setNumber(byteBuffer.getInt());
-                blockHeader4.setHeaderLength(byteBuffer.getInt());
-                blockHeader4.setEventCount(byteBuffer.getInt());
-                blockHeader4.setReserved1(byteBuffer.getInt());
-                // Use 6th word to set bit info
-                blockHeader4.parseToBitInfo(byteBuffer.getInt());
-                blockHeader4.setVersion(evioVersion);
-                lastBlock = blockHeader4.getBitInfo(1);
-                blockHeader4.setReserved2(byteBuffer.getInt());
-                blockHeader4.setMagicNumber(byteBuffer.getInt());
-                blockHeader = blockHeader4;
 
-                // Deal with non-standard header lengths here
-                int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
-                // If too small quit with error since headers have a minimum size
-                if (headerLenDiff < 0) {
+                System.out.println("GOT THIS FAR");
+
+                int[] words = new int[8];
+                for (int i=0; i < 8; i++) {
+                    if (byteBuffer.remaining() < 4) {
+                        System.out.println("Remaining: " + byteBuffer.remaining() );
+                        return ReadStatus.END_OF_FILE;
+                    }
+                    System.out.println("Filling word " + i);
+                    words[i] = byteBuffer.getInt();
+                }
+                if(words[7] != IBlockHeader.MAGIC_NUMBER) {
+                    System.err.println("ERROR magic # (" + words[7] +
+                                       ") != expected value " + IBlockHeader.MAGIC_NUMBER);
                     return ReadStatus.EVIO_EXCEPTION;
                 }
-                // If bigger, read extra ints
-                else if (headerLenDiff > 0) {
-                    for (int i=0; i < headerLenDiff; i++) {
-                        byteBuffer.getInt();
-                    }
+                else {
+                    System.out.println("Magic word is correct");
+                    return ReadStatus.EVIO_EXCEPTION;
                 }
+                
+                // blockHeader4.setSize(words[0]);
+                // blockHeader4.setNumber(words[1]);
+                // blockHeader4.setHeaderLength(words[2]);
+                // blockHeader4.setEventCount(words[3]);
+                // blockHeader4.setReserved1(words[4]);
+                // // Use 6th word to set bit info
+                // blockHeader4.parseToBitInfo(words[5]);
+                // blockHeader4.setVersion(evioVersion);
+                // lastBlock = blockHeader4.getBitInfo(1);
+                // blockHeader4.setReserved2(words[6]);
+                // blockHeader4.setMagicNumber(words[7]);
+                // blockHeader = blockHeader4;
+
+
+                // // Deal with non-standard header lengths here
+                // int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
+                // // If too small quit with error since headers have a minimum size
+                // if (headerLenDiff < 0) {
+                //     return ReadStatus.EVIO_EXCEPTION;
+                // }
+                // // If bigger, read extra ints
+                // else if (headerLenDiff > 0) {
+                //     for (int i=0; i < headerLenDiff; i++) {
+                //         byteBuffer.getInt();
+                //     }
+                // }
             }
             else if (evioVersion < 4) {
                 // read the header data
@@ -1121,9 +1144,8 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
             if (checkBlockNumberSequence) {
                 if (blockHeader.getNumber() != blockNumberExpected) {
 
-System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
-                   " expecting " + blockNumberExpected);
-
+                System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
+                                   " expecting " + blockNumberExpected);
                     return ReadStatus.EVIO_EXCEPTION;
                 }
                 blockNumberExpected++;

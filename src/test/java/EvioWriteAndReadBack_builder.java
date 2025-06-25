@@ -13,18 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.AsynchronousFileChannel;
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Future;
-
-import org.jlab.coda.hipo.*;
 import org.jlab.coda.jevio.*;
 import org.jlab.coda.jevio.unit_tests.EvioTestHelper; // helper class for unit tests, also contained in java src files
 
@@ -144,6 +132,16 @@ class EvioTestReadback_builder  {
             //     if (ev.getStructureType() == StructureType.BANK) {
             //         List<EvioBank> banks = ev.getChildBanks();
             //         assertEquals(1, banks.size(), "Expected 1 child bank in event " + i);
+            // // Look at each event with sequential type method (starts at 0)
+            // for (int i = 0; i < evCount; i++) {
+            //     EvioEvent ev = reader.parseNextEvent();
+            //     byte[] byteData = ev.getByteData();
+            //     Utilities.printBytes(byteData, 0, byteData.length, " Event #" + i);
+                
+            //     // Check if the event is a bank
+            //     if (ev.getStructureType() == StructureType.BANK) {
+            //         List<EvioBank> banks = ev.getChildBanks();
+            //         assertEquals(1, banks.size(), "Expected 1 child bank in event " + i);
                     
             //         EvioBank bank = banks.get(0);
             //         assertEquals(1, bank.getNum(), "Expected num=1 for bank in event " + i);
@@ -151,7 +149,19 @@ class EvioTestReadback_builder  {
             //         // Check the float data
             //         float[] data = bank.getFloatData();
             //         assertEquals(4, data.length, "Expected 4 float values in bank of event " + i);
+            //         // Check the float data
+            //         float[] data = bank.getFloatData();
+            //         assertEquals(4, data.length, "Expected 4 float values in bank of event " + i);
                     
+            //         // Validate the data
+            //         // float[] expectedData = EvioTestHelper.genXYZT(i);
+            //         assertEquals(expectedData[0], data[0], 0.001, "X value mismatch in event " + i);
+            //         assertEquals(expectedData[1], data[1], 0.001, "Y value mismatch in event " + i);
+            //         assertEquals(expectedData[2], data[2], 0.001, "Z value mismatch in event " + i);
+            //         assertEquals(expectedData[3], data[3], 0.001, "T value mismatch in event " + i);
+                // }
+            // }
+    }            
             //         // Validate the data
             //         float[] expectedData = EvioTestHelper.genXYZT(i);
             //         assertEquals(expectedData[0], data[0], 0.001, "X value mismatch in event " + i);

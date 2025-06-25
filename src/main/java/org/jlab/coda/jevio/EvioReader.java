@@ -53,6 +53,12 @@ public class EvioReader implements IEvioReader {
      */
     private ByteOrder byteOrder;
 
+    /** If enabled by setting > 0, then scan +/- this many words around expected
+     *    magic number when reading record header
+     */
+    private int magicNumRecoverWin = -1; 
+
+
     /** The buffer being read. */
     private final ByteBuffer byteBuffer;
 
