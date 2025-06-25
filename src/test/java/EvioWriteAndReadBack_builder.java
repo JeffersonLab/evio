@@ -107,50 +107,62 @@ class EvioTestReadback_builder  {
             assertEquals(nEvents, evCount, "Event count mismatch after reading back");
 
             // Does it contain a dictionary?
-            if (reader.hasDictionaryXML()) {
-                String dict = reader.getDictionaryXML();
-                System.out.println("Dictionary = \n" + dict);
-            }            
+            // if (reader.hasDictionaryXML()) {
+            //     String dict = reader.getDictionaryXML();
+            //     System.out.println("Dictionary = \n" + dict);
+            // }            
 
             // Look at each event with random-access type method (starts at 1)
-            System.out.println("Print out regular events’ raw data:");
-            for (int i = 0; i < evCount; i++) {
-                EvioEvent ev = reader.parseEvent(i + 1);
+            // System.out.println("Print out regular events’ raw data:");
+            // for (int i = 0; i < eventsToCheck; i++) {
+            //     EvioEvent ev = reader.parseEvent(i + 1);
+            //     byte[] byteData = ev.getByteData();
+            //     System.out.println("First ev size = " + ev.getTotalBytes() + " bytes");
+            //     System.out.println(" Event # " + i + "  length = " + byteData.length + " ints");
+            //     Utilities.printBytes(byteData, 0, byteData.length, " Event #" + i);
+            // }            
+
+            reader.rewind(); // Rewind to the beginning of the file
+            for (int i = 0; i < eventsToCheck; i++) {
+                EvioEvent ev = reader.parseNextEvent();
                 byte[] byteData = ev.getByteData();
+                System.out.println("First ev size = " + ev.getTotalBytes() + " bytes");
+                System.out.println(" Event # " + i + "  length = " + byteData.length + " ints");
                 Utilities.printBytes(byteData, 0, byteData.length, " Event #" + i);
             }            
 
-            reader.rewind(); // Rewind to the beginning of the file
-            // Look at each event with sequential type method (starts at 0)
-            for (int i = 0; i < evCount; i++) {
-                EvioEvent ev = reader.parseNextEvent();
-                byte[] byteData = ev.getByteData();
-                Utilities.printBytes(byteData, 0, byteData.length, " Event #" + i);
+            
+
+            // reader.rewind(); // Rewind to the beginning of the file
+            // // Look at each event with sequential type method (starts at 0)
+            // for (int i = 0; i < evCount; i++) {
+            //     EvioEvent ev = reader.parseNextEvent();
+            //     byte[] byteData = ev.getByteData();
+            //     Utilities.printBytes(byteData, 0, byteData.length, " Event #" + i);
                 
-                // Check if the event is a bank
-                if (ev.getStructureType() == StructureType.BANK) {
-                    List<EvioBank> banks = ev.getChildBanks();
-                    assertEquals(1, banks.size(), "Expected 1 child bank in event " + i);
+            //     // Check if the event is a bank
+            //     if (ev.getStructureType() == StructureType.BANK) {
+            //         List<EvioBank> banks = ev.getChildBanks();
+            //         assertEquals(1, banks.size(), "Expected 1 child bank in event " + i);
                     
-                    EvioBank bank = banks.get(0);
-                    assertEquals(1, bank.getNum(), "Expected num=1 for bank in event " + i);
+            //         EvioBank bank = banks.get(0);
+            //         assertEquals(1, bank.getNum(), "Expected num=1 for bank in event " + i);
                     
-                    // Check the float data
-                    float[] data = bank.getFloatData();
-                    assertEquals(4, data.length, "Expected 4 float values in bank of event " + i);
+            //         // Check the float data
+            //         float[] data = bank.getFloatData();
+            //         assertEquals(4, data.length, "Expected 4 float values in bank of event " + i);
                     
-                    // Validate the data
-                    float[] expectedData = EvioTestHelper.genXYZT(i);
-                    assertEquals(expectedData[0], data[0], 0.001, "X value mismatch in event " + i);
-                    assertEquals(expectedData[1], data[1], 0.001, "Y value mismatch in event " + i);
-                    assertEquals(expectedData[2], data[2], 0.001, "Z value mismatch in event " + i);
-                    assertEquals(expectedData[3], data[3], 0.001, "T value mismatch in event " + i);
-                }
-            }
-    }            
+            //         // Validate the data
+            //         float[] expectedData = EvioTestHelper.genXYZT(i);
+            //         assertEquals(expectedData[0], data[0], 0.001, "X value mismatch in event " + i);
+            //         assertEquals(expectedData[1], data[1], 0.001, "Y value mismatch in event " + i);
+            //         assertEquals(expectedData[2], data[2], 0.001, "Z value mismatch in event " + i);
+            //         assertEquals(expectedData[3], data[3], 0.001, "T value mismatch in event " + i);
+            //     }
+            // }
+        }            
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

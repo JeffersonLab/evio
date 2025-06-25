@@ -30,8 +30,8 @@ public class EvioTestHelper {
             "    <leaf name=\"time\"/>\n" +
             "    <leaf/>\n" +
             "  </bank>\n" +
-            "  <dictEntry name=\"jzint\" tag=\"11\" num=\"2\" type=\"int32\" />\n" +
-            "  <dictEntry name=\"example\" tag=\"12\" num=\"3\" type=\"charstar8\" />\n" +
+            // "  <dictEntry name=\"jzint\" tag=\"11\" num=\"2\" type=\"int32\" />\n" +
+            // "  <dictEntry name=\"example\" tag=\"12\" num=\"3\" type=\"charstar8\" />\n" +
             "</xmlDict>\n";
         private final static boolean overWriteOK = true;
         private final static boolean append = false;

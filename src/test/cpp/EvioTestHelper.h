@@ -115,13 +115,17 @@ using namespace evio;
         }
         
         std::vector<float> genXYZT(int i) {
-            std::vector<float> x4(5); // 5th entry for pyevio bugfix
+            std::vector<float> x4(4); // 5th entry for pyevio bugfix
             x4[0] = gauss(gen);
             x4[1] = gauss(gen);
             x4[2] = 0.0f;
             x4[3] = i*2.008f;
             return x4;
         }
+        std::string baseNameV4 = "testEventsV4_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+        std::string baseNameV6 = "testEventsV6_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+        std::string baseNameHIPO = "testEventsHIPO_cppAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
+        std::string directory = "/home/jzarling/super_evio_dev/evio/tmp";     // directory in which file is to be placed
 
     private:
 
@@ -131,10 +135,6 @@ using namespace evio;
         std::normal_distribution<float> gauss{0.0f, 0.1f};
 
             
-        std::string baseNameV4 = "testEventsV4_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        std::string baseNameV6 = "testEventsV6_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        std::string baseNameHIPO = "testEventsHIPO_cppAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        const std::string directory = "/home/jzarling/super_evio_dev/evio/tmp";     // directory in which file is to be placed
         const std::string runType = "";       // name of run type configuration to be used in naming files
         uint32_t runNumber = 1;
         uint64_t split = 0;                 // if < 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. 
@@ -150,10 +150,10 @@ using namespace evio;
                 <leaf name="time"/>
                 <leaf/>
               </bank>
-              <dictEntry name="jzint" tag="11" num="2" type="int32" />
-              <dictEntry name="example" tag="12" num="3" type="charstar8" />
-            </xmlDict>
-            )";
+              </xmlDict>
+              )";
+            //   <dictEntry name="jzint" tag="11" num="2" type="int32" />
+            //   <dictEntry name="example" tag="12" num="3" type="charstar8" />
         bool     overWriteOK = true;
         bool     append = false;
         std::shared_ptr< EvioBank >firstEvent = nullptr;  // The first event written into each file (after any dictionary) including all split files; may be null. Useful for adding common, static info into each split file
