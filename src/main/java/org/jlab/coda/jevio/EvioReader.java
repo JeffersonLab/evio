@@ -334,6 +334,9 @@ public class EvioReader implements IEvioReader {
     public boolean checkBlockNumberSequence() {return reader.checkBlockNumberSequence();}
 
     /** {@inheritDoc} */
+    public void addHeaderRecoveryCheck() {reader.addHeaderRecoveryCheck();}
+
+    /** {@inheritDoc} */
     public ByteOrder getByteOrder() {return reader.getByteOrder();}
 
     /** {@inheritDoc} */

@@ -18,6 +18,8 @@ JEventViewer*.jar
 *.out.*
 perf.data*
 
+# test programs to ignore
+src/main/java/org/jlab/coda/jevio/dev/*
 
 # ignore generated files/dirs
 cmake-*

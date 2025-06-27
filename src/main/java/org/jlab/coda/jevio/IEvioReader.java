@@ -39,6 +39,12 @@ public interface IEvioReader {
      */
     boolean checkBlockNumberSequence();
 
+    /** Invoke to try header recovery when block headers aren’t where expected
+     *    currently, having extraneous words is supported
+     *    it doesn't handle missing header words yet (more difficult)
+     */
+    void addHeaderRecoveryCheck();
+
     /**
      * Get the byte order of the file/buffer being read.
      * @return byte order of the file/buffer being read.

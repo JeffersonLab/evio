@@ -61,6 +61,12 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
     /** Parser object for file/buffer. */
     protected EventParser parser;
 
+    /** If true, attempt header recovery when block headers aren’t where expected
+     *    currently, having extraneous words is supported
+     *    it doesn't handle missing header words yet (more difficult)
+    */
+    protected boolean doHeaderRecoveryCheck = false;
+
 
     //------------------------
 
@@ -208,6 +214,13 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
     /** {@inheritDoc} */
     @Override
     public boolean checkBlockNumberSequence() {return reader.getCheckRecordNumberSequence();}
+
+    /** Invoke to try header recovery when block headers aren’t where expected
+     *    currently, having extraneous words is supported
+     *    it doesn't handle missing header words yet (more difficult)
+     */
+    @Override
+    public void addHeaderRecoveryCheck() {this.doHeaderRecoveryCheck=true;}
 
     /** {@inheritDoc} */
     @Override

@@ -111,13 +111,13 @@ class EvioTestReadback_builder  {
             // }            
 
             reader.rewind(); // Rewind to the beginning of the file
-            for (int i = 0; i < eventsToCheck; i++) {
-                EvioEvent ev = reader.parseNextEvent();
-                byte[] byteData = ev.getByteData();
-                System.out.println("First ev size = " + ev.getTotalBytes() + " bytes");
-                System.out.println(" Event # " + i + "  length = " + byteData.length + " ints");
-                Utilities.printBytes(byteData, 0, byteData.length, " Event #" + i);
-            }            
+            // for (int i = 0; i < eventsToCheck; i++) {
+            //     EvioEvent ev = reader.parseNextEvent();
+            //     byte[] byteData = ev.getByteData();
+            //     System.out.println("First ev size = " + ev.getTotalBytes() + " bytes");
+            //     // System.out.println(" Event # " + i + "  length = " + byteData.length + " ints");
+            //     Utilities.printBytes(byteData, 0, byteData.length, " Event #" + i);
+            // }            
 
             
 
@@ -161,7 +161,7 @@ class EvioTestReadback_builder  {
             //         assertEquals(expectedData[3], data[3], 0.001, "T value mismatch in event " + i);
                 // }
             // }
-    }            
+    // }            
             //         // Validate the data
             //         float[] expectedData = EvioTestHelper.genXYZT(i);
             //         assertEquals(expectedData[0], data[0], 0.001, "X value mismatch in event " + i);

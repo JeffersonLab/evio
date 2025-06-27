@@ -125,6 +125,13 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
     /** Block number expected when reading. Used to check sequence of blocks. */
     protected int blockNumberExpected = 1;
 
+    /** If true, attempt header recovery when block headers aren’t where expected
+     *    currently, having extraneous words is supported
+     *    it doesn't handle missing header words yet (more difficult)
+     *    also ignores lastBlock flag
+      */
+    protected boolean doHeaderRecoveryCheck = false;
+
     /** If true, throw an exception if block numbers are out of sequence. */
     protected boolean checkBlockNumberSequence;
 
@@ -612,6 +619,13 @@ public class EvioReaderUnsyncV4 implements IEvioReader {
     @Override
     public boolean checkBlockNumberSequence() { return checkBlockNumberSequence; }
 
+    /** Invoke to try header recovery when block headers aren’t where expected
+     *    currently, having extraneous words is supported
+     *    it doesn't handle missing header words yet (more difficult)
+     */
+    @Override
+    public void addHeaderRecoveryCheck() {this.doHeaderRecoveryCheck=true;}
+
     /**
      * Get the byte order of the file/buffer being read.
      * @return byte order of the file/buffer being read.
@@ -971,7 +985,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
     protected ReadStatus processNextBlock() throws IOException {
 
         // We already read the last block header
-        if (lastBlock) {
+        if (lastBlock && !doHeaderRecoveryCheck) {
             return ReadStatus.END_OF_FILE;
         }
 
@@ -1023,12 +1037,65 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                         return ReadStatus.END_OF_FILE;
                     }
 
+                    long initPos = fileChannel.position();
+                    
                     // Read len of block in 32 bit words
                     int blkSize = dataStream.readInt();
                     if (swap) blkSize = Integer.reverseBytes(blkSize);
-                    // Change to bytes
-                    int blkBytes = 4 * blkSize;
 
+                    // Check block size, attempt to recover if flag set
+                    // (otherwise return exception with a hint to set flag)
+                    // System.out.println("blkSize BEFORE = " + blkSize);
+                    if(doHeaderRecoveryCheck && fileSize - fileChannel.position() >= 10*4) {
+
+                        int expectedMagicPos = 27; // in words
+                        int words_to_skip = 0; // words_to_skip = foundMagicPos - expectedMagicPos
+                        
+                        // peek at 40 words around current position (32-bit ints, 4 bytes)
+                        //    WITHOUT changing current position
+                        ByteBuffer peek = ByteBuffer.allocate(40*4).order(byteOrder);
+                        // Perform positional read (does NOT move file position)
+                        int bytesRead = fileChannel.read(peek, initPos - 20 * 4);
+                        peek.flip(); // prepare for reading 
+                        if (bytesRead != 40 * 4) {
+                            throw new IOException("Failed to read sufficient data for header recovery.");
+                        }
+
+                        int foundMagicPos = -1000; // dummy val
+                        int[] words = new int[40];
+                        for (int i=0; i < 40; i++) {
+                            words[i] = peek.getInt();
+                            // System.out.println("            peeked word " + i + " = 0x" + Integer.toHexString(words[i]));
+                            if(words[i] == IBlockHeader.MAGIC_NUMBER) {
+                                foundMagicPos = i;
+                                // System.out.println("Found magic # at pos " + foundMagicPos);
+                            }
+                        }
+                        words_to_skip = foundMagicPos-expectedMagicPos;
+                        
+                        // It's a little more challenging to look backwards than forwards
+                        // (since e rely on a relative read just below)
+                        // Not sure why, but trying to reset position doesn't work
+                        if (words_to_skip <= -1) {
+                            System.out.println("Error: According to magic " +
+                            "word, block header began earlier than the current file position");
+                            // until implemented, return exception
+                            return ReadStatus.EVIO_EXCEPTION;
+                        }
+                        if (words_to_skip > 0) {
+                            // Skip over some this many words
+                            for (int i=0; i < (words_to_skip); i++) {
+                                blkSize = dataStream.readInt();
+                                if (swap) blkSize = Integer.reverseBytes(blkSize);
+                            }
+                        }
+                        blkSize+=words_to_skip; // Previous block pointed us to wrong place,  
+                                                // but this will fix for future blocks 
+                    }
+
+                    // Change to bytes
+                    int blkBytes = 4 * (blkSize); 
+                    
                     // Enough data left to read rest of block?
                     if (fileSize - fileChannel.position() < blkBytes-4) {
                         return ReadStatus.END_OF_FILE;
@@ -1071,55 +1138,43 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
             }
 
             if (evioVersion >= 4) {
+
                 // Read the header data.
+                blockHeader4.setSize(byteBuffer.getInt());
+                blockHeader4.setNumber(byteBuffer.getInt());
+                blockHeader4.setHeaderLength(byteBuffer.getInt());
+                blockHeader4.setEventCount(byteBuffer.getInt());
+                blockHeader4.setReserved1(byteBuffer.getInt());
+                // Use 6th word to set bit info
+                blockHeader4.parseToBitInfo(byteBuffer.getInt());
+                blockHeader4.setVersion(evioVersion);
+                lastBlock = blockHeader4.getBitInfo(1);
+                blockHeader4.setReserved2(byteBuffer.getInt());
+                blockHeader4.setMagicNumber(byteBuffer.getInt());
+                blockHeader = blockHeader4;
 
-                System.out.println("GOT THIS FAR");
+                // System.out.println("BlockHeader v4:");
+                // System.out.println("   block length  = " + blockHeader4.getSize());
+                // System.out.println("   block number  = " + blockHeader4.getNumber());
+                // System.out.println("   header length = " + blockHeader4.getHeaderLength());
+                // System.out.println("   event count   = " + blockHeader4.getEventCount());
+                // System.out.println("   version       = " + blockHeader4.getVersion());
+                // System.out.println("   has Dict      = " + blockHeader4.getBitInfo(0));
+                // System.out.println("   is End        = " + lastBlock);
 
-                int[] words = new int[8];
-                for (int i=0; i < 8; i++) {
-                    if (byteBuffer.remaining() < 4) {
-                        System.out.println("Remaining: " + byteBuffer.remaining() );
-                        return ReadStatus.END_OF_FILE;
+                // Deal with non-standard header lengths here
+                int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
+                // If too small quit with error since headers have a minimum size
+                if (headerLenDiff < 0) {
+                    return ReadStatus.EVIO_EXCEPTION;
+                }
+                // If bigger, read extra ints
+                else if (headerLenDiff > 0) {
+                    for (int i=0; i < headerLenDiff; i++) {
+                        byteBuffer.getInt();
                     }
-                    System.out.println("Filling word " + i);
-                    words[i] = byteBuffer.getInt();
-                }
-                if(words[7] != IBlockHeader.MAGIC_NUMBER) {
-                    System.err.println("ERROR magic # (" + words[7] +
-                                       ") != expected value " + IBlockHeader.MAGIC_NUMBER);
-                    return ReadStatus.EVIO_EXCEPTION;
-                }
-                else {
-                    System.out.println("Magic word is correct");
-                    return ReadStatus.EVIO_EXCEPTION;
                 }
                 
-                // blockHeader4.setSize(words[0]);
-                // blockHeader4.setNumber(words[1]);
-                // blockHeader4.setHeaderLength(words[2]);
-                // blockHeader4.setEventCount(words[3]);
-                // blockHeader4.setReserved1(words[4]);
-                // // Use 6th word to set bit info
-                // blockHeader4.parseToBitInfo(words[5]);
-                // blockHeader4.setVersion(evioVersion);
-                // lastBlock = blockHeader4.getBitInfo(1);
-                // blockHeader4.setReserved2(words[6]);
-                // blockHeader4.setMagicNumber(words[7]);
-                // blockHeader = blockHeader4;
-
-
-                // // Deal with non-standard header lengths here
-                // int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
-                // // If too small quit with error since headers have a minimum size
-                // if (headerLenDiff < 0) {
-                //     return ReadStatus.EVIO_EXCEPTION;
-                // }
-                // // If bigger, read extra ints
-                // else if (headerLenDiff > 0) {
-                //     for (int i=0; i < headerLenDiff; i++) {
-                //         byteBuffer.getInt();
-                //     }
-                // }
             }
             else if (evioVersion < 4) {
                 // read the header data
@@ -1156,7 +1211,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
             return ReadStatus.EVIO_EXCEPTION;
         }
         catch (BufferUnderflowException a) {
-System.err.println("ERROR endOfBuffer " + a);
+            System.err.println("ERROR endOfBuffer " + a);
             byteBuffer.clear();
             return ReadStatus.UNKNOWN_ERROR;
         }

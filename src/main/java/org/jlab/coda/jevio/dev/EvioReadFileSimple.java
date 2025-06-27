@@ -31,8 +31,10 @@ public class EvioReadFileSimple {
         
         try {
             EvioReader reader = new EvioReader(filename);
+            reader.addHeaderRecoveryCheck();
 
             int evCount = reader.getEventCount();
+            System.out.println("Number of events in file: " + evCount);
 
             reader.close();
         } catch (EvioException | IOException e) {
