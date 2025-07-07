@@ -14,7 +14,6 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.io.*;
 import org.jlab.coda.jevio.*;
-import org.jlab.coda.jevio.unit_tests.EvioTestHelper; // helper class for unit tests, also contained in java src files
 
 @Tag("fast") // Run when selecting "fast" category of tests
 

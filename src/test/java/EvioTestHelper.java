@@ -1,4 +1,4 @@
-package org.jlab.coda.jevio.unit_tests;
+
 import java.util.Random;
 import java.nio.ByteOrder;
 
@@ -10,7 +10,6 @@ public class EvioTestHelper {
     private final Random random;
 
     // Parameters (simplified here for brevity)
-    // apparently all files must have absolute paths!!!!!
     public static String baseNameV4 = "testEventsV4_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
     public static String baseNameV6 = "testEventsV6_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
     public static String baseNameHIPO = "testEventsHIPO_javaAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
