@@ -22,10 +22,16 @@ namespace evio {
      */
     EvioCompactReaderV6::EvioCompactReaderV6(std::string const & fileName) {
         if (fileName.empty()) {
-            throw EvioException("Buffer arg is emptyl");
+            throw EvioException("Buffer arg is empty");
         }
         path = fileName;
         reader.open(fileName);
+
+        if(reader.getFileHeader().getFileId() == reader.getFileHeader().HIPO_FILE_UNIQUE_WORD) {
+            throw EvioException("\n  File is in HIPO format, not evio. Use HIPO reader instead (https://github.com/gavalian/hipo)");
+        }
+
+
     }
 
 

@@ -2,10 +2,24 @@
 .*
 # ignore all files/dirs beginning with _
 _*
+# EventViewer Jar
+JEventViewer*.jar
 
 # except these two
 !.gitignore
 !.github/
+
+# ignore any .evio, .ev, or .hipo extension files (+ other common file types)
+*.evio*
+*.ev
+*.hipo
+*.dat
+*.txt
+*.out.*
+perf.data*
+
+# test programs to ignore
+src/main/java/org/jlab/coda/jevio/dev/*
 
 # ignore generated files/dirs
 cmake-*
@@ -13,10 +27,13 @@ cmake_install.cmake
 coda.pyc
 build/
 jbuild/
+lib/
+bin/
 doxyerrors.log
-/target/
+target/
 doc/javadoc
 doc/doxygen/CC
 doc/doxygen/C
 doc/source/
 config.log
+

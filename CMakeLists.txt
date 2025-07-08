@@ -1,54 +1,25 @@
-# To use this, do the following the first time:
-#   % mkdir build
-#   % cd build
-#   % cmake .. -DCMAKE_BUILD_TYPE=release -DMAKE_EXAMPLES=1
-#   % make (install)
-#
-# To only build C libraries and executables, replace the 3rd command above with
-#   % cmake .. -DCMAKE_BUILD_TYPE=release -DC_ONLY=1
-#
-# After doing this once can do the following to recompile
-#  % cd <top level evio dir>
-#  % cmake --build build (--target install)
-#
-# The installation will default to the CODA env variable if it's defined
-# This can be overridden on command line (in build dir) with:
-#   % cmake -DCODA_INSTALL=<my_dir> ..
-#   % make install
-
-# This call must be placed BEFORE "project" command
 cmake_minimum_required(VERSION 3.22)
+project(evio VERSION 6.0 LANGUAGES C CXX)
 
-# in cmake v 3.30 and later, new way to look for boost
-if(POLICY CMP0167)
-    cmake_policy(SET CMP0167 NEW)
-endif()
-
-project(evio VERSION 6.0)
-
-# This is better to be on the top of CMake!
-include(GNUInstallDirs)
-
-# Allow users to set C++ standard via -DCMAKE_CXX_STANDARD
-# Only default to C++11 if not already set
-if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
-endif()
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Build options (and defaults)
+option(C_ONLY                "SKIP building C++ library, build C only" OFF)
+option(MAKE_EXAMPLES         "Build example/test programs" OFF)
+option(USE_FILESYSTEMLIB     "Use C++17 <filesystem> instead of Boost" OFF)
+option(DISRUPTOR_FETCH       "Allow CMake to download Disruptor if not found" ON)
+# C/C++ standard and build options
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_DEBUG_POSTFIX -dbg)
 add_compile_options(-Wall)
+
+include(GNUInstallDirs)
+include(FindPackageHandleStandardArgs) # find_package_handle_standard_args()
+include(CTest) 
 
 # Add custom find_package for Disruptor
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
-# Build examples by default, but allow disabling
-option(MAKE_EXAMPLES "Build examples and tests" ON)
-option(C_ONLY "Build only C library (no C++)" OFF)
-
-# Option to enable/disable usage of <filesystem>
-option(USE_FILESYSTEMLIB "Use C++17 <filesystem> instead of Boost" OFF)
-
-# Later, when creating your library or executable, add a compile definition if it's ON
+# Add a compile definition if USE_FILESYSTEMLIB set, for when creating your library or executable
 if(USE_FILESYSTEMLIB)
     add_compile_definitions(USE_FILESYSTEMLIB=1)
 endif()
@@ -57,7 +28,7 @@ endif()
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-# Set architecture-related string for installation consistent with scons file
+# Set architecture-related string for installation (consistent with scons)
 set(ARCH ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_HOST_SYSTEM_PROCESSOR})
 message(STATUS "ARCH = " ${ARCH})
 
@@ -76,177 +47,13 @@ elseif (DEFINED ENV{CODA})
     set(CMAKE_INSTALL_INCLUDEDIR $ENV{CODA}/common/include)
     message(STATUS "CMAKE_INSTALL_PREFIX reset to " ${CMAKE_INSTALL_PREFIX})
 else()
-    # Always define installation, even without CODA, using the default CMAKE_INSTALL_PREFIX
+    # Use default CMAKE_INSTALL_PREFIX
     set(INSTALL_DIR_DEFINED 1)
-    message(STATUS "No CODA environment - will install to default location: ${CMAKE_INSTALL_PREFIX}")
-    # Don't set CMAKE_INSTALL_PREFIX here - use the CMake default
+    message(STATUS "Installing to default location: ${CMAKE_INSTALL_PREFIX}")
 endif()
 
-set(C_HEADER_FILES
-        src/libsrc/evio.h
-        src/libsrc/msinttypes.h
-)
-
-set(C_LIB_FILES
-        src/libsrc/evio.c
-        src/libsrc/evioswap.c
-        src/libsrc/eviofmt.c
-        src/libsrc/eviofmtdump.c
-        src/libsrc/eviofmtswap.c
-        src/libsrc/eviocopy.c
-)
-
-set(CPP_HEADER_FILES
-        src/libsrc++/FileWritingSupport.h
-        src/libsrc++/FileEventIndex.h
-        src/libsrc++/EvioException.h
-        src/libsrc++/ByteOrder.h
-        src/libsrc++/ByteBuffer.h
-        src/libsrc++/HeaderType.h
-        src/libsrc++/Compressor.h
-        src/libsrc++/FileHeader.h
-        src/libsrc++/RecordHeader.h
-        src/libsrc++/RecordInput.h
-        src/libsrc++/RecordOutput.h
-        src/libsrc++/Writer.h
-        src/libsrc++/WriterMT.h
-        src/libsrc++/EvioNode.h
-        src/libsrc++/DataType.h
-        src/libsrc++/StructureType.h
-        src/libsrc++/RecordNode.h
-        src/libsrc++/Reader.h
-        src/libsrc++/RecordSupply.h
-        src/libsrc++/RecordRingItem.h
-        src/libsrc++/Util.h
-        src/libsrc++/EventWriter.h
-        src/libsrc++/EventWriterV4.h
-        src/libsrc++/RecordCompressor.h
-        src/libsrc++/BaseStructure.h
-        src/libsrc++/BaseStructureHeader.h
-        src/libsrc++/CompositeData.h
-        src/libsrc++/BankHeader.h
-        src/libsrc++/SegmentHeader.h
-        src/libsrc++/TagSegmentHeader.h
-        src/libsrc++/EvioBank.h
-        src/libsrc++/EvioSegment.h
-        src/libsrc++/EvioTagSegment.h
-        src/libsrc++/EvioEvent.h
-        src/libsrc++/EventParser.h
-        src/libsrc++/IEvioFilter.h
-        src/libsrc++/IEvioListener.h
-        src/libsrc++/EventParser.h
-        src/libsrc++/EventHeaderParser.h
-        src/libsrc++/StructureTransformer.h
-        src/libsrc++/IBlockHeader.h
-        src/libsrc++/IEvioReader.h
-        src/libsrc++/EvioReader.h
-        src/libsrc++/EvioReaderV4.h
-        src/libsrc++/BlockHeaderV2.h
-        src/libsrc++/BlockHeaderV4.h
-        src/libsrc++/EvioReaderV6.h
-        src/libsrc++/EvioCompactReader.h
-        src/libsrc++/IEvioCompactReader.h
-        src/libsrc++/EvioXMLDictionary.h
-        src/libsrc++/EvioDictionaryEntry.h
-        src/libsrc++/pugixml.hpp
-        src/libsrc++/pugiconfig.hpp
-        src/libsrc++/EvioCompactReaderV4.h
-        src/libsrc++/EvioCompactReaderV6.h
-        src/libsrc++/EvioCompactStructureHandler.h
-        src/libsrc++/EventBuilder.h
-        src/libsrc++/CompactEventBuilder.h
-        src/libsrc++/EvioSwap.h
-        src/libsrc++/StructureFinder.h
-        src/libsrc++/eviocc.h
-        src/test/TestBase.h
-)
-
-set(CPP_LIB_FILES
-        src/libsrc++/FileEventIndex.cpp
-        src/libsrc++/ByteOrder.cpp
-        src/libsrc++/ByteBuffer.cpp
-        src/libsrc++/HeaderType.cpp
-        src/libsrc++/Compressor.cpp
-        src/libsrc++/FileHeader.cpp
-        src/libsrc++/RecordHeader.cpp
-        src/libsrc++/RecordInput.cpp
-        src/libsrc++/RecordOutput.cpp
-        src/libsrc++/Writer.cpp
-        src/libsrc++/WriterMT.cpp
-        src/libsrc++/EvioNode.cpp
-        src/libsrc++/DataType.cpp
-        src/libsrc++/StructureType.cpp
-        src/libsrc++/Reader.cpp
-        src/libsrc++/RecordSupply.cpp
-        src/libsrc++/RecordRingItem.cpp
-        src/libsrc++/EventWriter.cpp
-        src/libsrc++/EventWriterV4.cpp
-        src/libsrc++/BaseStructure.cpp
-        src/libsrc++/BaseStructureHeader.cpp
-        src/libsrc++/CompositeData.cpp
-        src/libsrc++/BankHeader.cpp
-        src/libsrc++/SegmentHeader.cpp
-        src/libsrc++/TagSegmentHeader.cpp
-        src/libsrc++/EventParser.cpp
-        src/libsrc++/EvioReader.cpp
-        src/libsrc++/EvioReaderV4.cpp
-        src/libsrc++/EvioReaderV6.cpp
-        src/libsrc++/EvioCompactReader.cpp
-        src/libsrc++/EvioXMLDictionary.cpp
-        src/libsrc++/pugixml.cpp
-        src/libsrc++/EvioCompactReaderV4.cpp
-        src/libsrc++/EvioCompactReaderV6.cpp
-        src/libsrc++/EvioCompactStructureHandler.cpp
-        src/libsrc++/EventBuilder.cpp
-        src/libsrc++/CompactEventBuilder.cpp
-        src/test/TestBase.cpp
-)
-
-set(TEST
-        src/test/CompactBuilder_Test.cpp
-        src/test/CompactReaderAddSubtractTest.cpp
-        src/test/CompactReaderBugTest.cpp
-        src/test/CompositeTester.cpp
-        src/test/EvioCompStructHandlerTest.cpp
-        src/test/DictTest.cpp
-        src/test/Hipo_Test.cpp
-        src/test/IndexArrayLenTest.cpp
-        src/test/ReadWriteTest.cpp
-        src/test/ReadWriteV4Test.cpp
-        src/test/RecordSupplyTest.cpp
-        src/test/RingBufferTest.cpp
-        src/test/Tree_Buf_Composite_Builder_Test.cpp
-        src/test/hallDEventFiles.cpp
-        src/test/FileWriteTest.cpp
-        src/test/SwapTest.cpp
-        src/test/ReadSequenceTest.cpp
-        src/test/SequentialReaderTest.cpp
-        src/test/SplitTest2.cpp
-        )
-
-set(TESTC
-        src/testC/evReadPipe.c
-        src/testC/evtest.c
-        src/testC/evtest2.c
-        src/testC/evtest3.c
-        src/testC/evtestAppend.c
-        src/testC/evtestBuf.c
-        src/testC/evtestBuf2.c
-        src/testC/evTestFile.c
-        src/testC/evtestWriteFile.c
-        src/testC/evtestRead.c
-        src/testC/evtestRio.c
-        src/testC/evtestSock.c
-        src/testC/evWritePipe.c
-        src/testC/splitTest.c
-        src/testC/splitNameTest.c
-)
-
-include(FindPackageHandleStandardArgs)
-
-# search for boost libs
+# Boost libs
 find_package(Boost REQUIRED COMPONENTS system thread chrono filesystem)
-
 if (Boost_FOUND)
     message(STATUS "Boost Found: libs = " ${Boost_LIBRARIES} ", include dirs = " ${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
@@ -255,14 +62,11 @@ elseif(NOT C_ONLY)
     message(FATAL_ERROR "Boost cannot be found, cmake will exit." )
 endif()
 
-# --------------------------------------------------
-# LZ4 detection
-# --------------------------------------------------
+# LZ4 library
 find_path(LZ4_INCLUDE_DIR
         NAMES lz4.h
         PATHS /usr/local/include /usr/include /usr/include/linux
 )
-
 find_library(LZ4_LIBRARY
         NAMES lz4 liblz4
         PATHS
@@ -273,16 +77,12 @@ find_library(LZ4_LIBRARY
         /usr/lib/x86_64-linux-gnu
         /usr/lib/x86_64-linux-gnu/mesa
 )
-
-include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LZ4
         REQUIRED_VARS LZ4_LIBRARY LZ4_INCLUDE_DIR
         HANDLE_COMPONENTS
 )
-
 if(NOT LZ4_FOUND)
     message(STATUS "LZ4 NOT found with the initial search; trying alternative approach ...")
-
     # Fallback or manual search logic if you have other unique paths or want
     # to do something different. Or just fail here if that's your preference.
     # e.g. message(FATAL_ERROR "No LZ4 found!")
@@ -290,8 +90,21 @@ else()
     message(STATUS "LZ4 Found: library = ${LZ4_LIBRARY}, include = ${LZ4_INCLUDE_DIR}")
 endif()
 
+# C source files
+file(GLOB C_HEADER_FILES "src/libsrc/*.h")
+file(GLOB C_LIB_FILES "src/libsrc/*.c")
+# C++ source files
+file(GLOB CPP_LIB_FILES "src/libsrc++/*.cpp")
+file(GLOB CPP_HEADER_FILES "src/libsrc++/*.h")
+# A few extras required
+if(MAKE_EXAMPLES)
+    file(GLOB TEST "src/test/cpp/*.cpp")
+    file(GLOB TESTC "src/test/c/*.c")
+    list(APPEND CPP_HEADER_FILES src/test/cpp/EvioTestHelper.h)
+    # list(APPEND CPP_LIB_FILES src/test/cpp/EvioTestHelper.h)
+endif()
 
-# If building C++ version, handle Disruptor dependency
+# BUILD C++ LIBRARY (unless otherwise specified)
 if(NOT C_ONLY)
 
     find_package(Disruptor REQUIRED)  # or find_package(Disruptor)
@@ -439,19 +252,22 @@ if(NOT C_ONLY)
     )
 endif()
 
+# Unit testing setup
+add_test(NAME EvioWriteAndReadBack_builder COMMAND bin/EvioWriteAndReadBack_builder 10)
 
 # Uninstall target
-if(NOT TARGET uninstall)
-    configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-            "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-            IMMEDIATE @ONLY
-    )
+# Removed for now, not yet compatible with building disruptor-cpp internally
+# if(NOT TARGET uninstall)
+#     configure_file(
+#             "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+#             "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+#             IMMEDIATE @ONLY
+#     )
 
-    add_custom_target(uninstall
-            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-    )
-endif()
+#     add_custom_target(uninstall
+#             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+#     )
+# endif()
 
 # Options printout
 message(STATUS "Options table: ")

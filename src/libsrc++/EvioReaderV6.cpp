@@ -37,7 +37,11 @@ namespace evio {
         synchronized = synced;
         reader = std::make_shared<Reader>(path, checkSeq, forceScan);
         parser = std::make_shared<EventParser>();
-     }
+
+        if (reader->getFileHeader().getFileId() == reader->getFileHeader().HIPO_FILE_UNIQUE_WORD) {
+            throw EvioException("\n  File is in HIPO format, not evio. Use HIPO reader instead (https://github.com/gavalian/hipo)");
+        }
+    }
 
 
     /**

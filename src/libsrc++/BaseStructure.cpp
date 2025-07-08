@@ -367,8 +367,8 @@ namespace evio {
      *
      * @param newParent this node's new parent.
      */
-    void BaseStructure::setParent(std::weak_ptr<BaseStructure> newParent) {parent = std::move(newParent);}
 
+    void BaseStructure::setParent(std::weak_ptr<BaseStructure> newParent) {parent = std::move(newParent);}
 
     /**
      * Removes <code>newChild</code> from its present parent (if it has a
