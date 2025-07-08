@@ -125,7 +125,7 @@ using namespace evio;
         std::string baseNameV4 = "testEventsV4_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
         std::string baseNameV6 = "testEventsV6_cppAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
         std::string baseNameHIPO = "testEventsHIPO_cppAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-        std::string directory = "/home/jzarling/super_evio_dev/evio/tmp";     // directory in which file is to be placed
+        std::string directory = "./";     // directory in which file is to be placed
 
     private:
 
