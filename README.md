@@ -27,6 +27,8 @@ toggle the following special flags:
 * `USE_FILESYSTEMLIB`: ue C++17 <filesystem> instead of Boost (default `-DUSE_FILESYSTEMLIB=0`)
 * `DISRUPTOR_FETCH`: allow CMake to download Disruptor if not found (default `-DDISRUPTOR_FETCH=1`)
 
+One can still also use `scons` instead of cmake to build the evio C/C++ library, though this feature
+will not be supported in future releases.
 
 ### Prerequisites
 
