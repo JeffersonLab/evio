@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jlab.coda</groupId>
   <artifactId>jevio</artifactId>
-  <version>6.0.0</version>
+  <version>6.1.0</version> <!-- JEVIO version tag -->
   <name>Jefferson Lab EVIO Java Library (JEVIO)</name>
   <description>Java library for EVIO (Event Input/Output)</description>
   <packaging>jar</packaging>
@@ -13,7 +13,7 @@
   <!-- SOFTWARE VERSIONS USED -->
   <properties>
     <!-- Set Java version -->
-    <java.version>15</java.version> <!-- Compatibility: if Java 8 desired, put 1.8 here (not 8)   -->
+    <java.version>17</java.version> <!-- Compatibility: if Java 8 desired, put 1.8 here (not 8)   -->
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <!-- Dependencies (versions for jars we'll need to bring in)  -->
@@ -42,6 +42,8 @@
       <version>${lz4.version}</version>
     </dependency>
     <!-- LMAX Disruptor (for ring buffer concurrency) -->
+    <!-- WARNING: we're assuming it finds the java/jars folder with the JLab forked version -->
+    <!--          else it will try to download from generic maven repo and fail!  -->
     <dependency>
       <groupId>com.lmax</groupId> 
       <artifactId>disruptor</artifactId>
@@ -58,7 +60,6 @@
 
 
 <build>
- <!-- <sourceDirectory>${project.basedir}/java</sourceDirectory> -->
   <plugins>
 
     <!-- Install disruptor jar  -->
@@ -85,33 +86,11 @@
       </executions>
     </plugin>
 
-    <!-- Add sources in non-standard folder setup -->
-    <!-- <plugin>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>build-helper-maven-plugin</artifactId>
-      <version>3.6.0</version>
-      <executions>
-        <execution>
-          <id>add-jevio-tests</id>
-          <phase>generate-test-sources</phase>
-          <goals>
-            <goal>add-test-source</goal>
-          </goals>
-          <configuration>
-            <sources>
-              <source>etc/java/org/jlab/coda/jevio/test</source>
-            </sources>
-          </configuration>
-        </execution>
-      </executions>
-    </plugin> -->
-
     <!-- Make the fat jar file -->
     <plugin>
       <artifactId>maven-assembly-plugin</artifactId>
-      <version>3.6.0</version>           <!-- upgrade to latest -->
+      <version>3.6.0</version> 
       <configuration>
-        <!-- <appendAssemblyId>false</appendAssemblyId> -->
         <descriptorRefs>
           <descriptorRef>jar-with-dependencies</descriptorRef>
         </descriptorRefs>        

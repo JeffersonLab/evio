@@ -77,6 +77,7 @@ Software Library Documentation:
 
 Other Links:
 * [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
+* [pyevio: Python Based EVIO parser](https://github.com/JeffersonLab/pyevio)
 
 
 The EVIO-6 data format is closely related to the HIPO data format, following the same data
