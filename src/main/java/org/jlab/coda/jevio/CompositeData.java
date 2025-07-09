@@ -1389,7 +1389,7 @@ public final class CompositeData implements Cloneable {
     /**
      *  This method transforms a composite, format-containing
      *  ASCII string to an int array. It is to be used in
-     *  conjunction with {@link #swapData(ByteBuffer, ByteBuffer, int, List)}
+     *  conjunction with {@link #swapData(ByteBuffer, ByteBuffer, int, int, List)}
      *  to swap the endianness of composite data.
      *  It's translated from the eviofmt C function.
      * <pre><code>
