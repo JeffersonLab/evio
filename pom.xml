@@ -58,7 +58,6 @@
 
 
 <build>
- <!-- <sourceDirectory>${project.basedir}/java</sourceDirectory> -->
   <plugins>
 
     <!-- Install disruptor jar  -->
@@ -85,33 +84,11 @@
       </executions>
     </plugin>
 
-    <!-- Add sources in non-standard folder setup -->
-    <!-- <plugin>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>build-helper-maven-plugin</artifactId>
-      <version>3.6.0</version>
-      <executions>
-        <execution>
-          <id>add-jevio-tests</id>
-          <phase>generate-test-sources</phase>
-          <goals>
-            <goal>add-test-source</goal>
-          </goals>
-          <configuration>
-            <sources>
-              <source>etc/java/org/jlab/coda/jevio/test</source>
-            </sources>
-          </configuration>
-        </execution>
-      </executions>
-    </plugin> -->
-
     <!-- Make the fat jar file -->
     <plugin>
       <artifactId>maven-assembly-plugin</artifactId>
-      <version>3.6.0</version>           <!-- upgrade to latest -->
+      <version>3.6.0</version> 
       <configuration>
-        <!-- <appendAssemblyId>false</appendAssemblyId> -->
         <descriptorRefs>
           <descriptorRef>jar-with-dependencies</descriptorRef>
         </descriptorRefs>        
