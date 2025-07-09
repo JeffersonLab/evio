@@ -224,7 +224,7 @@ if(DOXYGEN_FOUND)
 
     # Add target of "docC"
     doxygen_add_docs(docC src/libsrc COMMENT "Generating Doxygen documentation for C")
-elseif(NOT C_ONLY)
+else()
     message(WARNING "Doxygen NOT found, documentation will not be generated")
 endif()
 
