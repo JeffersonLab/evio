@@ -5,8 +5,8 @@ It was created by the Data Acquisition (DAQ) group and is maintained by the
 Experimental Physics Software and Computing Infrastructure (EPSCI) group at Thomas 
 Jefferson National Accelerator Facility (JLab).
 
-This software repository allows one to read & write evio format data, within
-either a C/C++ or Java programming environment.
+This software repository allows one to read & write `.evio` and `.ev` format data, 
+within either a C/C++ or Java programming environment.
 
 # **Getting Started**
 
@@ -76,7 +76,7 @@ Software Library Documentation:
 * [Doxygen for C++ Libary](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
 
 Other Links:
-*  [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
+* [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
 
 
 The EVIO-6 data format is closely related to the HIPO data format, following the same data

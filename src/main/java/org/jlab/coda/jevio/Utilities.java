@@ -223,66 +223,75 @@ final public class Utilities {
      * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
      * distinguish between the split files with splitNumber.</p>
      *
-     * <p>The given fileName may contain uyp to 3, C-style int format specifiers which will be substituted
+     * <p>The given fileName may contain up to 3, C-style int format specifiers which will be substituted
      * with runNumber, splitNumber and streamId in the manner described below.</p>
      *
      * <ul>
-     *     <li>If file is to be split:</li>
-     *          <ul>
-     *          <li>If no specifiers:</li>
-     *              <ul>
-     *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
-     *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
-     *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
-     *                  <li>No run numbers are ever tacked on without a specifier </li>
-     *              </ul>
-     *          <li>If 1 specifier:</li>
-     *              <ul>
-     *                  <li>add runNumber according to specifier</li>
-     *                  <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
-     *                  <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
-     *                      as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
-     *              </ul>
-     *          <li>If 2 specifiers:</li>
-     *              <ul>
-     *                  <li>add runNumber according to first specifier</li>
-     *                  <li>for one stream, add splitNumber according to second specifier</li>
-     *                  <li>for multiple streams, add splitNumber according to second specifier, but place
-     *                      <b>&lt;streamId&gt;.</b> just before the splitNumber</li>
-     *              </ul>
-     *          <li>If 3 specifiers:</li>
-     *              <ul>
-     *                  <li>add runNumber according to first specifier</li>
-     *                  <li>add streamId according to second specifier add splitNumber according to third specifier</li>
-     *              </ul>
-     *          </ul>
-     *
-     *      <li>If file is NOT split:</li>
-     *          <ul>
-     *          <li>If no specifiers:</li>
-     *              <ul>
-     *                  <li>streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
-     *                  <li>No run numbers are ever tacked on without a specifier.</li>
-     *              </ul>
-     *          <li>If 1 specifier:</li>
-     *              <ul>
-     *                  <li>add runNumber according to specifier</li>
-     *                  <li>for multiple streams, streamId is tacked onto the end of the file name as .<b>.&lt;streamId&gt;</b></li>
-     *              </ul>
-     *          <li>If 2 specifiers:</li>
-     *              <ul>
-     *                  <li>add runNumber according to first specifier</li>
-     *                  <li>remove second specifier</li>
-     *                  <li>for multiple streams, streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
-     *              </ul>
-     *          <li>If 3 specifiers:</li>
-     *              <ul>
-     *                  <li>add runNumber according to first specifier</li>
-     *                  <li>add streamId according to second specifier</li>
-     *                  <li>remove third specifier</li>
-     *              </ul>
-     *          </ul>
-     *  </ul>
+     *   <li>If file is to be split:
+     *     <ul>
+     *       <li>If no specifiers:
+     *         <ul>
+     *           <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+     *           <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+     *               as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+     *           <li>No run numbers are ever tacked on without a specifier </li>
+     *         </ul>
+     *       </li>
+     *       <li>If 1 specifier:
+     *         <ul>
+     *           <li>add runNumber according to specifier</li>
+     *           <li>for one stream, splitNumber is tacked onto the end of the file name as <b>.&lt;splitNumber&gt;</b></li>
+     *           <li>for multiple streams, streamId and splitNumber are tacked onto the end of the file name
+     *               as <b>.&lt;streamId&gt;.&lt;splitNumber&gt;</b></li>
+     *         </ul>
+     *       </li>
+     *       <li>If 2 specifiers:
+     *         <ul>
+     *           <li>add runNumber according to first specifier</li>
+     *           <li>for one stream, add splitNumber according to second specifier</li>
+     *           <li>for multiple streams, add splitNumber according to second specifier, but place
+     *               <b>&lt;streamId&gt;.</b> just before the splitNumber</li>
+     *         </ul>
+     *       </li>
+     *       <li>If 3 specifiers:
+     *         <ul>
+     *           <li>add runNumber according to first specifier</li>
+     *           <li>add streamId according to second specifier add splitNumber according to third specifier</li>
+     *         </ul>
+     *       </li>
+     *     </ul>
+     *   </li>
+     *   <li>If file is NOT split:
+     *     <ul>
+     *       <li>If no specifiers:
+     *         <ul>
+     *           <li>streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+     *           <li>No run numbers are ever tacked on without a specifier.</li>
+     *         </ul>
+     *       </li>
+     *       <li>If 1 specifier:
+     *         <ul>
+     *           <li>add runNumber according to specifier</li>
+     *           <li>for multiple streams, streamId is tacked onto the end of the file name as .<b>&lt;streamId&gt;</b></li>
+     *         </ul>
+     *       </li>
+     *       <li>If 2 specifiers:
+     *         <ul>
+     *           <li>add runNumber according to first specifier</li>
+     *           <li>remove second specifier</li>
+     *           <li>for multiple streams, streamId is tacked onto the end of the file name as <b>.&lt;streamId&gt;</b></li>
+     *         </ul>
+     *       </li>
+     *       <li>If 3 specifiers:
+     *         <ul>
+     *           <li>add runNumber according to first specifier</li>
+     *           <li>add streamId according to second specifier</li>
+     *           <li>remove third specifier</li>
+     *         </ul>
+     *       </li>
+     *     </ul>
+     *   </li>
+     * </ul>
      *
      * If there are more than 3 specifiers, <b>NO SUBSTITUTIONS ARE DONE on the extra specifiers</b>.
      *
