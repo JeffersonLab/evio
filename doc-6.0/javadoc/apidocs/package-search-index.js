@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"org.jlab.coda.hipo"},{"l":"org.jlab.coda.jevio"},{"l":"org.jlab.coda.jevio.dev"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"org.jlab.coda.hipo"},{"l":"org.jlab.coda.jevio"}];updateSearchResults();
