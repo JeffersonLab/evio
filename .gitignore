@@ -37,3 +37,5 @@ doc/doxygen/C
 doc/source/
 config.log
 
+# Ignore typical install directory type
+Linux-*/

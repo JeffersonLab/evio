@@ -51,6 +51,7 @@ elseif (DEFINED ENV{CODA})
 else()
     # Use default CMAKE_INSTALL_PREFIX
     set(INSTALL_DIR_DEFINED 1)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH})
     message(STATUS "Installing to default location: ${CMAKE_INSTALL_PREFIX}")
 endif()
 
@@ -98,12 +99,13 @@ file(GLOB C_LIB_FILES "src/libsrc/*.c")
 # C++ source files
 file(GLOB CPP_LIB_FILES "src/libsrc++/*.cpp")
 file(GLOB CPP_HEADER_FILES "src/libsrc++/*.h")
-# A few extras required
+# C++ utility files
+file(GLOB CPP_UTILS_FILES "src/utils/cpp/*.cpp")
+# A few extras required for examples
 if(MAKE_EXAMPLES)
+    list(APPEND CPP_HEADER_FILES src/test/cpp/EvioTestHelper.h)
     file(GLOB TEST "src/test/cpp/*.cpp")
     file(GLOB TESTC "src/test/c/*.c")
-    list(APPEND CPP_HEADER_FILES src/test/cpp/EvioTestHelper.h)
-    # list(APPEND CPP_LIB_FILES src/test/cpp/EvioTestHelper.h)
 endif()
 
 # BUILD C++ LIBRARY (unless otherwise specified)
@@ -141,6 +143,25 @@ if(NOT C_ONLY)
             ${LZ4_INCLUDE_DIRS}
             ${DISRUPTOR_INCLUDE_DIR}
     )
+
+    # Build utility programs
+    foreach(fileName ${CPP_UTILS_FILES})
+        # Get file name with no directory or extension as executable name
+        get_filename_component(execName ${fileName} NAME_WE)
+        # Create executable from file
+        add_executable(${execName} ${fileName})
+        # Put debug extension on if applicable
+        set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+        # Needs these libs
+        target_link_libraries(${execName} eviocc pthread ${Boost_LIBRARIES} ${LZ4_LIBRARY} expat dl z m)
+
+        # Only install if installation directory has been defined
+        if(DEFINED INSTALL_DIR_DEFINED)
+            message(STATUS "Installing utility executable: ${execName}")
+            # Install into bin/utils dir
+            install(TARGETS ${execName} RUNTIME DESTINATION bin/utils)
+        endif()
+    endforeach()
 
     # Add the C++ tests/examples
     if(MAKE_EXAMPLES)
