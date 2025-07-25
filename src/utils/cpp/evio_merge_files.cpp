@@ -106,12 +106,60 @@ void ctrlCHandle(int sig) {
 }
 
 // ---------- Process ----------
-void Process(unsigned int &NEvents, unsigned int &NEvents_read) {
-    std::cout << "Process() stub: would call into EVIO merge library here.\n";
-    std::cout << "Output file: " << OUTFILENAME << std::endl;
-    std::cout << "Number of input files: " << INFILENAMES.size() << std::endl;
+void Process(unsigned int &NEvents, unsigned int &NEvents_read)
+{
+    // Basic config
+    uint32_t maxRecordBytes     = 1000000;
+    uint32_t maxEventsPerRecord = 1000;
+    size_t   bufferBytes        = 1000000;
+    std::string outFile(OUTFILENAME);
 
-    // TODO: merge here
-    
+    // Use XML dict from first file, if any
+    std::string dictXml = "";
+    try {
+        if (!INFILENAMES.empty()) {
+            EvioReaderV4 dictReader(INFILENAMES[0]);
+            if (dictReader.hasDictionaryXML()) {
+                dictXml = dictReader.getDictionaryXML();
+                std::cout << "Dictionary found in first input file.\n";
+            } else {
+                std::cout << "No dictionary found in first input file.\n";
+            }
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Error retrieving dictionary from first file: " << e.what() << std::endl;
+    }
 
+    // Set up EVIO4 writer
+    std::unique_ptr<EventWriterV4> writer = std::make_unique<EventWriterV4>(
+        outFile,
+        "", "", 1, 0,
+        maxRecordBytes, maxEventsPerRecord,
+        ByteOrder::ENDIAN_LOCAL,
+        dictXml,
+        true, false,
+        nullptr, 1, 0, 1, 1,
+        bufferBytes
+    );
+
+    // Loop over all input files
+    for (auto filename : INFILENAMES) {
+        try {
+            std::cout << "Opening input file: " << filename << std::endl;
+            EvioReaderV4 reader(filename);
+            std::shared_ptr<EvioEvent> event;
+
+            while ((event = reader.parseNextEvent())) {
+                writer->writeEvent(event);
+                NEvents_read++;
+                NEvents++;
+            }
+        } catch (const std::exception &e) {
+            std::cerr << "Error processing file " << filename << ": " << e.what() << std::endl;
+            continue;
+        }
+    }
+
+    writer->close();
+    std::cout << "Done. " << NEvents_read << " events read, " << NEvents << " written." << std::endl;
 }
