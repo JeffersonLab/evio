@@ -1,18 +1,8 @@
 # **EVIO 6 SOFTWARE PACKAGE**
 
-EVIO stands for EVent Input/Output, a unique data format developed by Jefferson Lab. 
-It was created by the Data Acquisition (DAQ) group and is maintained by the 
-Experimental Physics Software and Computing Infrastructure (EPSCI) group at Thomas 
-Jefferson National Accelerator Facility (JLab).
+EVIO stands for EVent Input/Output, a unique data format developed by Jefferson Lab used by typical detector readout systems at the lab. This software repository allows one to read & write `.evio` and `.ev` format data, within either a C/C++ or Java programming environment.
 
-This software repository allows one to read & write `.evio` and `.ev` format data, 
-within either a C/C++ or Java programming environment.
-
-# **Getting Started**
-
------------------------------
-## **Useful Links**
-----------------------------
+# **Useful Links**
 
 Documentation on GitHub:
 
@@ -26,6 +16,7 @@ Software Library Documentation:
 * [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/C/html/index.html)
 * [Doxygen for C++ Libary](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
 
+# **Getting Started**
 
 ## **C/C++ Library**
 
@@ -77,9 +68,11 @@ Requires Maven (`mvn`) and an installation of Java on your system.
 work. See downloads from [OpenJDK](https://openjdk.org/install/) or [Oracle](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html).
 
 
-----------------------------
 # **Further Information**
-----------------------------
+
+
+The EVIO package was created by the Data Acquisition (DAQ) group and is maintained by the Experimental Physics Software and Computing Infrastructure (EPSCI) group at the Thomas Jefferson National Accelerator Facility (JLab). It has been developed by many authors over the years.
+
 
 Other Links:
 * [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
@@ -92,8 +85,8 @@ well as the software used to read and write to these respective `.evio` and `.hi
 More information on the HIPO data format can be found at https://github.com/gavalian/hipo,
 or from the CLAS12 Software Project Coordinator.
 
-----------------------------
+Contact: Jon Zarling (jzarling@jlab.org)
+
 # **Copyright**
-----------------------------
 
 For any issues regarding use and copyright, read the [license](LICENSE.txt) file.
