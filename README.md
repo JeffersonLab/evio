@@ -10,6 +10,23 @@ within either a C/C++ or Java programming environment.
 
 # **Getting Started**
 
+-----------------------------
+## **Useful Links**
+----------------------------
+
+Documentation on GitHub:
+
+* [All Links](https://jeffersonlab.github.io/evio)
+* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc-6.0/users_guide/evio_Users_Guide.pdf)
+* [EVIO Data Format Reference](https://jeffersonlab.github.io/evio/doc-6.0/format_guide/evio_Formats.pdf)
+
+Software Library Documentation:
+
+* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc-6.0/javadoc/index.html)
+* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/C/html/index.html)
+* [Doxygen for C++ Libary](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
+
+
 ## **C/C++ Library**
 
 To build C/C++ code from this repository:
@@ -59,23 +76,10 @@ Requires Maven (`mvn`) and an installation of Java on your system.
 **Running on "ifarm" at JLab will not work unless you install java yourself**. Note that the default java versions on the farm will be too old to 
 work. See downloads from [OpenJDK](https://openjdk.org/install/) or [Oracle](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html).
 
------------------------------
-
-# **Useful Links**
 
 ----------------------------
-
-Documentation on GitHub:
-
-* [All Documentation](https://jeffersonlab.github.io/evio)
-* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc-6.0/users_guide/evio_Users_Guide.pdf)
-* [EVIO Data Format Reference](https://jeffersonlab.github.io/evio/doc-6.0/format_guide/evio_Formats.pdf)
-
-Software Library Documentation:
-
-* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc-6.0/javadoc/index.html)
-* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/C/html/index.html)
-* [Doxygen for C++ Libary](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
+# **Further Information**
+----------------------------
 
 Other Links:
 * [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
@@ -89,9 +93,7 @@ More information on the HIPO data format can be found at https://github.com/gava
 or from the CLAS12 Software Project Coordinator.
 
 ----------------------------
-
 # **Copyright**
-
 ----------------------------
 
 For any issues regarding use and copyright, read the [license](LICENSE.txt) file.
