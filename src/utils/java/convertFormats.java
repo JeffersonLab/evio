@@ -12,13 +12,14 @@ public class convertFormats {
             printUsage();
             return;
         }
-        String outputFile = "merged.evio";             // default output name
+        String outputFile = "merged.evio";  // default output name
         java.util.List<String> inputFiles = new java.util.ArrayList<>();
         for (String arg : args) {
             if (arg.startsWith("-h")) {
                 printUsage();
                 return;
-            } else if (arg.startsWith("-o")) {
+            } 
+			else if (arg.startsWith("-o")) {
                 // If option is "-oOutputName", set output file name
                 outputFile = arg.substring(2);
                 System.out.println("Output file: " + outputFile);
@@ -27,10 +28,8 @@ public class convertFormats {
                     // System.out.println("Using current directory");
                     outputFile = "./" + outputFile;
                 }
-                
-            } else {
-                inputFiles.add(arg);
-            }
+            } 
+			else inputFiles.add(arg);
         }
         if (inputFiles.isEmpty()) {
             System.err.println("No input files specified.");
