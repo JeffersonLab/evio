@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-public class convertFormats {
+public class evio_merge_files {
     public static void main(String[] args) throws IOException, EvioException {
         // Parse command-line arguments
         if (args.length < 1) {
@@ -12,7 +12,7 @@ public class convertFormats {
             printUsage();
             return;
         }
-        String outputFile = "merged.evio";  // default output name
+        String outputFile = "./merged.evio";  // default output name
         java.util.List<String> inputFiles = new java.util.ArrayList<>();
         for (String arg : args) {
             if (arg.startsWith("-h")) {
