@@ -227,9 +227,11 @@ namespace  evio {
         // --which will be interpreted by the various "get data" methods.
         auto & bytes = structure->getRawBytes();
         ByteOrder byteOrder = structure->getByteOrder();
-
         if (bytes.empty()) {
-            throw EvioException("Null data in structure");
+            // throw EvioException("Null data in structure");
+            // printf("WARNING: no data inside structure! Skipping... \n");
+            // printf("   structure %s \n", structure->getHeader()->toString().c_str());
+            return;
         }
 
         size_t length = bytes.size();

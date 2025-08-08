@@ -150,6 +150,8 @@ void Process(unsigned int &NEvents, unsigned int &NEvents_read)
             std::shared_ptr<EvioEvent> event;
 
             while ((event = reader.parseNextEvent())) {
+                // for (uint32_t i = 4; i < reader.getEventCount(); i++) { // Non-sequential way to read
+                // std::shared_ptr<EvioEvent> event = reader.parseEvent(i);
                 writer->writeEvent(event);
                 NEvents_read++;
                 NEvents++;
