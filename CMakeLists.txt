@@ -1,22 +1,26 @@
+# See instructions in README.md for building and installing
+
+### VERSION DEFINITIONS ###
 cmake_minimum_required(VERSION 3.22)
 project(evio VERSION 6.1.0 LANGUAGES C CXX)
-
-# C/C++ standard and build options
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
+# C/C++ build options
+set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_DEBUG_POSTFIX -dbg)
-add_compile_options(-Wall)
+add_compile_options(-Wall) # Enable all warnings
 
-# Build options (and defaults)
+# Includes
+include(GNUInstallDirs)
+include(FindPackageHandleStandardArgs) # find_package_handle_standard_args()
+include(CTest) 
+
+# Build option parameters (and defaults)
 option(C_ONLY                "SKIP building C++ library, build C only" OFF)
 option(MAKE_EXAMPLES         "Build example/test programs" OFF)
 option(USE_FILESYSTEMLIB     "Use C++ <filesystem> instead of Boost" OFF)
 option(DISRUPTOR_FETCH       "Allow CMake to download Disruptor if not found" ON)
-include(GNUInstallDirs)
-include(FindPackageHandleStandardArgs) # find_package_handle_standard_args()
-include(CTest) 
 
 # Add custom find_package for Disruptor
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
@@ -52,7 +56,9 @@ else()
     # Use default CMAKE_INSTALL_PREFIX
     set(INSTALL_DIR_DEFINED 1)
     set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH})
+    set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include)
     message(STATUS "Installing to default location: ${CMAKE_INSTALL_PREFIX}")
+    message(STATUS "Installing includes to default location: ${CMAKE_INSTALL_INCLUDEDIR}")
 endif()
 
 # Boost libs
