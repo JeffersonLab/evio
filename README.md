@@ -20,15 +20,14 @@ Software Library Documentation:
 
 ## **C/C++ Library**
 
-To build C/C++ code from this repository:
+The C and C++ libraries are build using `cmake`. To build C/C++ code from this repository:
 
     git clone https://github.com/JeffersonLab/evio/
     cd evio; mkdir build
     cmake -S . -B build
     cmake --build build --target install --parallel
 
-Note that during the cmake configure step (first of two `cmake` commands above), one can
-toggle the following special flags:
+Note that during the cmake configure step (first of two `cmake` commands above), one can also include the following special flags:
 
 * `C_ONLY` : build C lib only, skip C++ (default `-DC_ONLY=0`)
 * `MAKE_EXAMPLES`: build example/test programs (default `-DMAKE_EXAMPLES=0`)
@@ -42,9 +41,10 @@ will not be supported in future releases.
 
 ### Prerequisites
 
-C++ 17 or higher, `cmake`, `lz4`, `boost_system`, `boost_thread`, and `boost_chrono`. If LZ4 is not
-already configured, it can be installed from [LZ4 on github](https://github.com/lz4/lz4). The boost
-libraries are typically system-specific. 
+C++ 17 or higher, `cmake`, `lz4`, `boost_system`, `boost_thread`, and `boost_chrono`. Compilation can 
+be done using `clang` or `gcc` (gcc 11 or higher recommended). If LZ4 is not
+already configured, it can be installed from [LZ4 on github](https://github.com/lz4/lz4). Installation of boost
+libraries are typically system-specific (e.g. using a command like `yum`, `dbn`, `rpm`, `apt-get`, etc.). 
 
 ## **Java Library**
 
