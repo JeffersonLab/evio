@@ -118,7 +118,7 @@ void Process(unsigned int &NEvents, unsigned int &NEvents_read)
     std::string dictXml = "";
     try {
         if (!INFILENAMES.empty()) {
-            EvioReaderV4 dictReader(INFILENAMES[0]);
+            EvioReader dictReader(INFILENAMES[0]);
             if (dictReader.hasDictionaryXML()) {
                 dictXml = dictReader.getDictionaryXML();
                 std::cout << "Dictionary found in first input file.\n";
@@ -131,7 +131,7 @@ void Process(unsigned int &NEvents, unsigned int &NEvents_read)
     }
 
     // Set up EVIO4 writer
-    std::unique_ptr<EventWriterV4> writer = std::make_unique<EventWriterV4>(
+    std::unique_ptr<EventWriter> writer = std::make_unique<EventWriter>(
         outFile,
         "", "", 1, 0,
         maxRecordBytes, maxEventsPerRecord,
@@ -139,6 +139,7 @@ void Process(unsigned int &NEvents, unsigned int &NEvents_read)
         dictXml,
         true, false,
         nullptr, 1, 0, 1, 1,
+        Compressor::UNCOMPRESSED, 1, 0,
         bufferBytes
     );
 
@@ -146,11 +147,11 @@ void Process(unsigned int &NEvents, unsigned int &NEvents_read)
     for (auto filename : INFILENAMES) {
         try {
             std::cout << "Opening input file: " << filename << std::endl;
-            EvioReaderV4 reader(filename);
+            EvioReader reader(filename);
             std::shared_ptr<EvioEvent> event;
 
-            while ((event = reader.parseNextEvent())) {
-                // for (uint32_t i = 4; i < reader.getEventCount(); i++) { // Non-sequential way to read
+            while ((event = reader.parseNextEvent())) { // Sequential read method
+                // for (uint32_t i = 4; i < reader.getEventCount(); i++) { // Non-sequential method
                 // std::shared_ptr<EvioEvent> event = reader.parseEvent(i);
                 writer->writeEvent(event);
                 NEvents_read++;
