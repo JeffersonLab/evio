@@ -1,22 +1,26 @@
+# See instructions in README.md for building and installing
+
+### VERSION DEFINITIONS ###
 cmake_minimum_required(VERSION 3.22)
 project(evio VERSION 6.1.0 LANGUAGES C CXX)
-
-# C/C++ standard and build options
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
+# C/C++ build options
+set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_DEBUG_POSTFIX -dbg)
-add_compile_options(-Wall)
+add_compile_options(-Wall) # Enable all warnings
 
-# Build options (and defaults)
+# Includes
+include(GNUInstallDirs)
+include(FindPackageHandleStandardArgs) # find_package_handle_standard_args()
+include(CTest) 
+
+# Build option parameters (and defaults)
 option(C_ONLY                "SKIP building C++ library, build C only" OFF)
 option(MAKE_EXAMPLES         "Build example/test programs" OFF)
 option(USE_FILESYSTEMLIB     "Use C++ <filesystem> instead of Boost" OFF)
 option(DISRUPTOR_FETCH       "Allow CMake to download Disruptor if not found" ON)
-include(GNUInstallDirs)
-include(FindPackageHandleStandardArgs) # find_package_handle_standard_args()
-include(CTest) 
 
 # Add custom find_package for Disruptor
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
@@ -51,7 +55,10 @@ elseif (DEFINED ENV{CODA})
 else()
     # Use default CMAKE_INSTALL_PREFIX
     set(INSTALL_DIR_DEFINED 1)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/${ARCH})
+    set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include)
     message(STATUS "Installing to default location: ${CMAKE_INSTALL_PREFIX}")
+    message(STATUS "Installing includes to default location: ${CMAKE_INSTALL_INCLUDEDIR}")
 endif()
 
 # Boost libs
@@ -98,12 +105,13 @@ file(GLOB C_LIB_FILES "src/libsrc/*.c")
 # C++ source files
 file(GLOB CPP_LIB_FILES "src/libsrc++/*.cpp")
 file(GLOB CPP_HEADER_FILES "src/libsrc++/*.h")
-# A few extras required
+# C++ utility files
+file(GLOB CPP_UTILS_FILES "src/utils/cpp/*.cpp")
+# A few extras required for examples
 if(MAKE_EXAMPLES)
+    list(APPEND CPP_HEADER_FILES src/test/cpp/EvioTestHelper.h)
     file(GLOB TEST "src/test/cpp/*.cpp")
     file(GLOB TESTC "src/test/c/*.c")
-    list(APPEND CPP_HEADER_FILES src/test/cpp/EvioTestHelper.h)
-    # list(APPEND CPP_LIB_FILES src/test/cpp/EvioTestHelper.h)
 endif()
 
 # BUILD C++ LIBRARY (unless otherwise specified)
@@ -141,6 +149,25 @@ if(NOT C_ONLY)
             ${LZ4_INCLUDE_DIRS}
             ${DISRUPTOR_INCLUDE_DIR}
     )
+
+    # Build utility programs
+    foreach(fileName ${CPP_UTILS_FILES})
+        # Get file name with no directory or extension as executable name
+        get_filename_component(execName ${fileName} NAME_WE)
+        # Create executable from file
+        add_executable(${execName} ${fileName})
+        # Put debug extension on if applicable
+        set_target_properties(${execName} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+        # Needs these libs
+        target_link_libraries(${execName} eviocc pthread ${Boost_LIBRARIES} ${LZ4_LIBRARY} expat dl z m)
+
+        # Only install if installation directory has been defined
+        if(DEFINED INSTALL_DIR_DEFINED)
+            message(STATUS "Installing utility executable: ${execName}")
+            # Install into bin/utils dir
+            install(TARGETS ${execName} RUNTIME DESTINATION bin/utils)
+        endif()
+    endforeach()
 
     # Add the C++ tests/examples
     if(MAKE_EXAMPLES)

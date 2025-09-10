@@ -215,6 +215,7 @@ public class EvioReader implements IEvioReader {
 
         // Parse file header to find the file's endianness & evio version #
         if (findEvioVersion() != ReadStatus.SUCCESS) {
+            rFile.close();
             throw new EvioException("Failed reading first block header");
         }
 

@@ -29,6 +29,7 @@ build/
 jbuild/
 lib/
 bin/
+tmp/
 doxyerrors.log
 target/
 doc/javadoc
@@ -37,3 +38,5 @@ doc/doxygen/C
 doc/source/
 config.log
 
+# Ignore typical install directory type
+Linux-*/
