@@ -15,6 +15,7 @@ add_compile_options(-Wall) # Enable all warnings
 include(GNUInstallDirs)
 include(FindPackageHandleStandardArgs) # find_package_handle_standard_args()
 include(CTest) 
+include(CMakePackageConfigHelpers)
 
 # Build option parameters (and defaults)
 option(C_ONLY                "SKIP building C++ library, build C only" OFF)
@@ -280,6 +281,17 @@ if(NOT C_ONLY)
             DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 endif()
+
+# Install config files for find_package
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/evioConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/evioConfig.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/evio/cmake"
+)
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/evioConfig.cmake"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/evio/cmake"
+)
 
 # Unit testing setup
 add_test(NAME EvioWriteAndReadBack_builder COMMAND bin/EvioWriteAndReadBack_builder 10)
