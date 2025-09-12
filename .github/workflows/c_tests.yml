@@ -17,7 +17,7 @@ jobs:
         run: cmake -S . -B build -DMAKE_EXAMPLES=1
 
       - name: Build
-        run: cmake --build build -- -j$(nproc)
+        run: cmake --build build --target install --parallel
 
       - name: Run tests
         working-directory: build

@@ -1046,7 +1046,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                     // Check block size, attempt to recover if flag set
                     // (otherwise return exception with a hint to set flag)
                     // System.out.println("blkSize BEFORE = " + blkSize);
-                    if(doHeaderRecoveryCheck && fileSize - fileChannel.position() >= 10*4) {
+                    if(doHeaderRecoveryCheck && (fileSize - fileChannel.position()) >= 10*4 && fileChannel.position() > 20*4) {
 
                         int expectedMagicPos = 27; // in words
                         int words_to_skip = 0; // words_to_skip = foundMagicPos - expectedMagicPos

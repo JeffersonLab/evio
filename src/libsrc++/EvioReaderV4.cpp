@@ -1090,7 +1090,7 @@ namespace evio {
         uint32_t eventDataSizeBytes = 4*(length - 1);
 
         try {
-            auto *bytes = new uint8_t[eventDataSizeBytes];
+            auto bytes = std::vector<uint8_t>(eventDataSizeBytes);
 
             uint32_t bytesToGo = eventDataSizeBytes;
             uint32_t offset = 0;
@@ -1106,7 +1106,7 @@ namespace evio {
                                               blkBytesRemaining : bytesToGo;
 
                     // Read in bytes remaining in internal buffer
-                    byteBuffer->getBytes(bytes + offset, bytesToReadNow);
+                    byteBuffer->getBytes(bytes.data() + offset, bytesToReadNow);
                     offset               += bytesToReadNow;
                     bytesToGo            -= bytesToReadNow;
                     blkBytesRemaining    -= bytesToReadNow;
@@ -1123,12 +1123,14 @@ namespace evio {
                         blkBytesRemaining = blockBytesRemaining();
                     }
                 }
+
+                
             }
 
             // Last (perhaps only) read
-            byteBuffer->getBytes(bytes + offset, bytesToGo);
+            byteBuffer->getBytes(bytes.data() + offset, bytesToGo);
 //std::cout << "nextEvent: eventDataSizeByte = " <<  eventDataSizeBytes << std::endl;
-            event->setRawBytes(bytes, eventDataSizeBytes);
+            event->setRawBytes(bytes.data(), eventDataSizeBytes);
             event->setByteOrder(byteOrder); // add this to track endianness, timmer
             // Don't worry about dictionaries here as version must be 1-3
             event->setEventNumber(++eventNumber);

@@ -1,40 +1,50 @@
 # **EVIO 6 SOFTWARE PACKAGE**
 
-EVIO stands for EVent Input/Output, a unique data format developed by Jefferson Lab. 
-It was created by the Data Acquisition (DAQ) group and is maintained by the 
-Experimental Physics Software and Computing Infrastructure (EPSCI) group at Thomas 
-Jefferson National Accelerator Facility (JLab).
+EVIO stands for EVent Input/Output, a unique data format developed by Jefferson Lab used by typical detector readout systems at the lab. This software repository allows one to read & write `.evio` and `.ev` format data, within either a C/C++ or Java programming environment.
 
-This software repository allows one to read & write `.evio` and `.ev` format data, 
-within either a C/C++ or Java programming environment.
+# **Useful Links**
+
+Documentation on GitHub:
+
+* [All Links](https://jeffersonlab.github.io/evio)
+* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc-6.0/users_guide/evio_Users_Guide.pdf)
+* [EVIO Data Format Reference](https://jeffersonlab.github.io/evio/doc-6.0/format_guide/evio_Formats.pdf)
+
+Software Library Documentation:
+
+* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc-6.0/javadoc/index.html)
+* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/C/html/index.html)
+* [Doxygen for C++ Libary](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
 
 # **Getting Started**
 
 ## **C/C++ Library**
 
-To build C/C++ code from this repository:
+The C and C++ libraries are build using `cmake`. To build C/C++ code from this repository:
 
     git clone https://github.com/JeffersonLab/evio/
     cd evio; mkdir build
     cmake -S . -B build
-    cmake --build build --parallel
+    cmake --build build --target install --parallel
 
-Note that during the cmake configure step (first of two `cmake` commands above), one can
-toggle the following special flags:
+Note that during the cmake configure step (first of two `cmake` commands above), one can also include the following special flags:
 
 * `C_ONLY` : build C lib only, skip C++ (default `-DC_ONLY=0`)
 * `MAKE_EXAMPLES`: build example/test programs (default `-DMAKE_EXAMPLES=0`)
 * `USE_FILESYSTEMLIB`: ue C++17 <filesystem> instead of Boost (default `-DUSE_FILESYSTEMLIB=0`)
 * `DISRUPTOR_FETCH`: allow CMake to download Disruptor if not found (default `-DDISRUPTOR_FETCH=1`)
+* `CODA_INSTALL`: installs in this base directory. If not used,
+then the env variable $CODA location is next checked. Otherwise defaults to \${CMAKE_HOST_SYSTEM_NAME}-\${CMAKE_HOST_SYSTEM_PROCESSOR}, typically something like `[evio_directory]/Linux-x86_64`.
 
 One can still also use `scons` instead of cmake to build the evio C/C++ library, though this feature
 will not be supported in future releases.
 
 ### Prerequisites
 
-C++ 17 or higher, `cmake`, `lz4`, `boost_system`, `boost_thread`, and `boost_chrono`. If LZ4 is not
-already configured, it can be installed from [LZ4 on github](https://github.com/lz4/lz4). The boost
-libraries are typically system-specific. 
+C++ 17 or higher, `cmake`, `lz4`, `boost_system`, `boost_thread`, and `boost_chrono`. Compilation can 
+be done using `clang` or `gcc` (gcc 11 or higher recommended). If LZ4 is not
+already configured, it can be installed from [LZ4 on github](https://github.com/lz4/lz4). Installation of boost
+libraries are typically system-specific (e.g. using a command like `yum`, `dbn`, `rpm`, `apt-get`, etc.). 
 
 ## **Java Library**
 
@@ -57,23 +67,12 @@ Requires Maven (`mvn`) and an installation of Java on your system.
 **Running on "ifarm" at JLab will not work unless you install java yourself**. Note that the default java versions on the farm will be too old to 
 work. See downloads from [OpenJDK](https://openjdk.org/install/) or [Oracle](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html).
 
------------------------------
 
-# **Useful Links**
+# **Further Information**
 
-----------------------------
 
-Documentation on GitHub:
+The EVIO package was created by the Data Acquisition (DAQ) group and is maintained by the Experimental Physics Software and Computing Infrastructure (EPSCI) group at the Thomas Jefferson National Accelerator Facility (JLab). It has been developed by many authors over the years.
 
-* [All Documentation](https://jeffersonlab.github.io/evio)
-* [User's Guide PDF](https://jeffersonlab.github.io/evio/doc-6.0/users_guide/evio_Users_Guide.pdf)
-* [EVIO Data Format Reference](https://jeffersonlab.github.io/evio/doc-6.0/format_guide/evio_Formats.pdf)
-
-Software Library Documentation:
-
-* [Javadoc for Java Library](https://jeffersonlab.github.io/evio/doc-6.0/javadoc/index.html)
-* [Doxygen for C Library](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/C/html/index.html)
-* [Doxygen for C++ Libary](https://jeffersonlab.github.io/evio/doc-6.0/doxygen/CC/html/index.html)
 
 Other Links:
 * [EVIO Event Viewer on GitHub](https://github.com/JeffersonLab/JEventViewer)
@@ -86,10 +85,8 @@ well as the software used to read and write to these respective `.evio` and `.hi
 More information on the HIPO data format can be found at https://github.com/gavalian/hipo,
 or from the CLAS12 Software Project Coordinator.
 
-----------------------------
+Contact: Jon Zarling (jzarling@jlab.org)
 
 # **Copyright**
-
-----------------------------
 
 For any issues regarding use and copyright, read the [license](LICENSE.txt) file.
