@@ -25,9 +25,9 @@ if(NOT DEFINED C_ONLY)
             message(WARNING "You may need to set DISRUPTOR_CPP_HOME environment variable.")
         endif()
     else()
-        # If evio was built with FetchContent, we make no assumptions
-        message(STATUS "evio was built with integrated Disruptor. You need to provide Disruptor separately.")
-    endif()
+      # Disruptor is built and exported together with evio
+        message(STATUS "evio includes Disruptor internally; you do not need to provide it separately.")
+   endif()
 endif()
 
 # Include the targets file

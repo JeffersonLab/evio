@@ -139,7 +139,8 @@ if(NOT C_ONLY)
             /usr/local/include
             ${Boost_INCLUDE_DIRS}
             ${LZ4_INCLUDE_DIRS}
-            ${DISRUPTOR_INCLUDE_DIR}
+            $<BUILD_INTERFACE:${DISRUPTOR_INCLUDE_DIR}>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Disruptor>
     )
 
     # Add the C++ tests/examples
@@ -232,6 +233,7 @@ endif()
 
 # Basic C library installation - minimal approach
 install(TARGETS evio
+        EXPORT evioTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -243,7 +245,8 @@ install(FILES ${C_HEADER_FILES}
 
 # C++ components if enabled
 if(NOT C_ONLY)
-    install(TARGETS eviocc
+    install(TARGETS eviocc ${DISRUPTOR_LIBRARY}
+            EXPORT evioTargets
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -253,6 +256,26 @@ if(NOT C_ONLY)
             DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 endif()
+
+# Export targets and install config for find_package()
+install(EXPORT evioTargets
+        FILE evioTargets.cmake
+        NAMESPACE evio::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/evio
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_SOURCE_DIR}/cmake/evioConfig.cmake.in
+    ${CMAKE_BINARY_DIR}/evioConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/evio
+)
+
+install(FILES
+    ${CMAKE_BINARY_DIR}/evioConfig.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/evio
+)
 
 # Unit testing setup
 add_test(NAME EvioWriteAndReadBack_builder COMMAND bin/EvioWriteAndReadBack_builder 10)
