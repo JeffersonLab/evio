@@ -34,7 +34,7 @@ Note that during the cmake configure step (first of two `cmake` commands above),
 * `USE_FILESYSTEMLIB`: ue C++17 <filesystem> instead of Boost (default `-DUSE_FILESYSTEMLIB=0`)
 * `DISRUPTOR_FETCH`: allow CMake to download Disruptor if not found (default `-DDISRUPTOR_FETCH=1`)
 * `CODA_INSTALL`: installs in this base directory. If not used,
-then the env variable $CODA location is next checked. Otherwise defaults to \${CMAKE_HOST_SYSTEM_NAME}-\${CMAKE_HOST_SYSTEM_PROCESSOR}, typically something like `[evio_directory]/Linux-x86_64`.
+then the env variable `$CODA` location is next checked. Otherwise defaults to \${CMAKE_HOST_SYSTEM_NAME}-\${CMAKE_HOST_SYSTEM_PROCESSOR}, typically something like `[evio_directory]/Linux-x86_64`.
 
 One can still also use `scons` instead of cmake to build the evio C/C++ library, though this feature
 will not be supported in future releases.
