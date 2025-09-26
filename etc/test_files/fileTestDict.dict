@@ -1,0 +1,8 @@
+<xmlDict>
+   <xmldumpDictEntry name="My Event"  tag="1"   num="1"  />
+   <xmldumpDictEntry name="Segments"  tag="2"   num="2"  />
+   <xmldumpDictEntry name="My Shorts" tag="3"    />
+   <xmldumpDictEntry name="Banks"     tag="4"   num="4"  />
+   <xmldumpDictEntry name="My chars"  tag="5"   num="5"  />
+   <xmldumpDictEntry name="Last Bank" tag="33"  num="66" />
+</xmlDict>
