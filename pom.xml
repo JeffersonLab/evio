@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jlab.coda</groupId>
   <artifactId>jevio</artifactId>
-  <version>6.1.2</version> <!-- JEVIO version tag -->
+  <version>6.1.3</version> <!-- JEVIO version tag -->
   <name>Jefferson Lab EVIO Java Library (JEVIO)</name>
   <description>Java library for EVIO (Event Input/Output)</description>
   <packaging>jar</packaging>
