@@ -1,0 +1,315 @@
+<xmlDict>
+
+  <xmldumpDictEntry name="gemc Event Tree"      tag="1"    num="0"/>
+  <xmldumpDictEntry name="event_n"              tag="1"    num="1"/>
+
+  <xmldumpDictEntry name="particle_generator"   tag="10"   num="10"/>
+  <xmldumpDictEntry name="generated_particle_1" tag="1"    num="10.10"/>
+  <xmldumpDictEntry name="generated_particle_2" tag="1"    num="10.20"/>
+  <xmldumpDictEntry name="generated_particle_3" tag="1"    num="10.30"/>
+  <xmldumpDictEntry name="generated_particle_4" tag="1"    num="10.40"/>
+  <xmldumpDictEntry name="generated_particle_5" tag="1"    num="10.50"/>
+  <xmldumpDictEntry name="generated_particle_6" tag="1"    num="10.60"/>
+  <xmldumpDictEntry name="generated_particle_7" tag="1"    num="10.70"/>
+
+  <!-- DC -->
+  <xmldumpDictEntry name="DC"                           tag="500"    num="0"/>
+  <xmldumpDictEntry name="DC_bitcompressed_id"          tag="500"    num="0.1"/>
+
+  <xmldumpDictEntry name="DC_digitized_output"          tag="500"    num="100"/>
+  <xmldumpDictEntry name="sector"                       tag="500"    num="100.23"/>
+  <xmldumpDictEntry name="SuperLayer"                   tag="500"    num="100.24"/>
+  <xmldumpDictEntry name="Layer"                        tag="500"    num="100.25"/>
+  <xmldumpDictEntry name="Wire"                         tag="500"    num="100.26"/>
+
+  <xmldumpDictEntry name="DC_Region1_raw_output"        tag="500"    num="200"/>
+  <xmldumpDictEntry name="Edep"                         tag="500"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                     tag="500"    num="200.2"/>
+  <xmldumpDictEntry name="global_y"                     tag="500"    num="200.3"/>
+  <xmldumpDictEntry name="global_z"                     tag="500"    num="200.4"/>
+  <xmldumpDictEntry name="local_x"                      tag="500"    num="200.5"/>
+  <xmldumpDictEntry name="local_y"                      tag="500"    num="200.6"/>
+  <xmldumpDictEntry name="local_z"                      tag="500"    num="200.7"/>
+  <xmldumpDictEntry name="time"                         tag="500"    num="200.8"/>
+  <xmldumpDictEntry name="particle_id"                  tag="500"    num="200.9"/>
+  <xmldumpDictEntry name="track_vertex_x"               tag="500"    num="200.10"/>
+  <xmldumpDictEntry name="track_vertex_y"               tag="500"    num="200.11"/>
+  <xmldumpDictEntry name="track_vertex_z"               tag="500"    num="200.12"/>
+  <xmldumpDictEntry name="track_energy"                 tag="500"    num="200.13"/>
+  <xmldumpDictEntry name="mother_particle_id"           tag="500"    num="200.14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"        tag="500"    num="200.15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"        tag="500"    num="200.16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"        tag="500"    num="200.17"/>
+  <xmldumpDictEntry name="LeftRight"                    tag="500"    num="200.18"/>
+  <xmldumpDictEntry name="doca"                         tag="500"    num="200.19"/>
+  <xmldumpDictEntry name="sdoca"                        tag="500"    num="200.20"/>
+  <xmldumpDictEntry name="time1"                        tag="500"    num="200.21"/>
+  <xmldumpDictEntry name="stime1"                       tag="500"    num="200.22"/>
+
+
+
+
+  <!-- BST -->
+  <xmldumpDictEntry name="BST"                     tag="400"    num="0"/>
+  <xmldumpDictEntry name="BST_bitcompressed_id"    tag="400"    num="0.1"/>
+
+  <xmldumpDictEntry name="BST_digitized_output"    tag="400"    num="100"/>
+  <xmldumpDictEntry name="layer"                   tag="400"    num="100.20"/>
+  <xmldumpDictEntry name="sector"                  tag="400"    num="100.21"/>
+  <xmldumpDictEntry name="strip"                   tag="400"    num="100.22"/>
+
+  <xmldumpDictEntry name="BST_raw_output"          tag="400"    num="200"/>
+  <xmldumpDictEntry name="Edep"                    tag="400"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                tag="400"    num="200.2"/>
+  <xmldumpDictEntry name="global_y"                tag="400"    num="200.3"/>
+  <xmldumpDictEntry name="global_z"                tag="400"    num="200.4"/>
+  <xmldumpDictEntry name="local_x"                 tag="400"    num="200.5"/>
+  <xmldumpDictEntry name="local_y"                 tag="400"    num="200.6"/>
+  <xmldumpDictEntry name="local_z"                 tag="400"    num="200.7"/>
+  <xmldumpDictEntry name="time"                    tag="400"    num="200.8"/>
+  <xmldumpDictEntry name="particle_id"             tag="400"    num="200.9"/>
+  <xmldumpDictEntry name="track_vertex_x"          tag="400"    num="200.10"/>
+  <xmldumpDictEntry name="track_vertex_y"          tag="400"    num="200.11"/>
+  <xmldumpDictEntry name="track_vertex_z"          tag="400"    num="200.12"/>
+  <xmldumpDictEntry name="track_energy"            tag="400"    num="200.13"/>
+  <xmldumpDictEntry name="mother_particle_id"      tag="400"    num="200.14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"   tag="400"    num="200.15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"   tag="400"    num="200.16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"   tag="400"    num="200.17"/>
+
+  <!-- FST -->
+  <xmldumpDictEntry name="FST" tag="410"                        num="0"/>
+  <xmldumpDictEntry name="FST_bitcompressed_id"    tag="410"    num="0.1"/>
+  <xmldumpDictEntry name="FST_digitized_output"    tag="410"    num="100"/>
+  <xmldumpDictEntry name="layer"                   tag="410"    num="20"/>
+  <xmldumpDictEntry name="sector"                  tag="410"    num="21"/>
+  <xmldumpDictEntry name="strip"                   tag="410"    num="22"/>
+  <xmldumpDictEntry name="FST_raw_output"          tag="410"    num="200"/>
+  <xmldumpDictEntry name="Edep"                    tag="410"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                tag="410"    num="2"/>
+  <xmldumpDictEntry name="global_y"                tag="410"    num="3"/>
+  <xmldumpDictEntry name="global_z"                tag="410"    num="4"/>
+  <xmldumpDictEntry name="local_x"                 tag="410"    num="5"/>
+  <xmldumpDictEntry name="local_y"                 tag="410"    num="6"/>
+  <xmldumpDictEntry name="local_z"                 tag="410"    num="7"/>
+  <xmldumpDictEntry name="time"                    tag="410"    num="8"/>
+  <xmldumpDictEntry name="particle_id"             tag="410"    num="9"/>
+  <xmldumpDictEntry name="track_vertex_x"          tag="410"    num="10"/>
+  <xmldumpDictEntry name="track_vertex_y"          tag="410"    num="11"/>
+  <xmldumpDictEntry name="track_vertex_z"          tag="410"    num="12"/>
+  <xmldumpDictEntry name="track_energy"            tag="410"    num="13"/>
+  <xmldumpDictEntry name="mother_particle_id"      tag="410"    num="14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"   tag="410"    num="15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"   tag="410"    num="16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"   tag="410"    num="17"/>
+
+
+  <!-- CTOF -->
+  <xmldumpDictEntry name="CTOF" tag="50"  num="0"/>
+  <xmldumpDictEntry name="CTOF_bitcompressed_id"   tag="50"    num="1"/>
+
+  <xmldumpDictEntry name="CTOF_digitized_output"   tag="50"    num="100"/>
+  <xmldumpDictEntry name="ADC_Left"                tag="50"    num="100.20"/>
+  <xmldumpDictEntry name="ADC_Right"               tag="50"    num="100.21"/>
+  <xmldumpDictEntry name="TDC_Left"                tag="50"    num="100.22"/>
+  <xmldumpDictEntry name="TDC_Right"               tag="50"    num="100.23"/>
+
+  <xmldumpDictEntry name="CTOF_raw_output"         tag="50"    num="200"/>
+  <xmldumpDictEntry name="Edep"                    tag="50"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                tag="50"    num="200.2"/>
+  <xmldumpDictEntry name="global_y"                tag="50"    num="200.3"/>
+  <xmldumpDictEntry name="global_z"                tag="50"    num="200.4"/>
+  <xmldumpDictEntry name="local_x"                 tag="50"    num="200.5"/>
+  <xmldumpDictEntry name="local_y"                 tag="50"    num="200.6"/>
+  <xmldumpDictEntry name="local_z"                 tag="50"    num="200.7"/>
+  <xmldumpDictEntry name="time"                    tag="50"    num="200.8"/>
+  <xmldumpDictEntry name="particle_id"             tag="50"    num="200.9"/>
+  <xmldumpDictEntry name="track_vertex_x"          tag="50"    num="200.10"/>
+  <xmldumpDictEntry name="track_vertex_y"          tag="50"    num="200.11"/>
+  <xmldumpDictEntry name="track_vertex_z"          tag="50"    num="200.12"/>
+  <xmldumpDictEntry name="track_energy"            tag="50"    num="200.13"/>
+  <xmldumpDictEntry name="mother_particle_id"      tag="50"    num="200.14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"   tag="50"    num="200.15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"   tag="50"    num="200.16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"   tag="50"    num="200.17"/>
+
+
+  <!-- CND -->
+  <xmldumpDictEntry name="CND" tag="55"  num="0"/>
+  <xmldumpDictEntry name="CND_bitcompressed_id"    tag="55"    num="1"/>
+
+  <xmldumpDictEntry name="CND_digitized_output"    tag="55"    num="100"/>
+  <xmldumpDictEntry name="layer"                   tag="55"    num="100.20"/>
+  <xmldumpDictEntry name="paddle"                  tag="55"    num="100.21"/>
+
+  <xmldumpDictEntry name="CND_raw_output"          tag="55"    num="200"/>
+  <xmldumpDictEntry name="Edep"                    tag="55"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                tag="55"    num="200.2"/>
+  <xmldumpDictEntry name="global_y"                tag="55"    num="200.3"/>
+  <xmldumpDictEntry name="global_z"                tag="55"    num="200.4"/>
+  <xmldumpDictEntry name="local_x"                 tag="55"    num="200.5"/>
+  <xmldumpDictEntry name="local_y"                 tag="55"    num="200.6"/>
+  <xmldumpDictEntry name="local_z"                 tag="55"    num="200.7"/>
+  <xmldumpDictEntry name="time"                    tag="55"    num="200.8"/>
+  <xmldumpDictEntry name="particle_id"             tag="55"    num="200.9"/>
+  <xmldumpDictEntry name="track_vertex_x"          tag="55"    num="200.10"/>
+  <xmldumpDictEntry name="track_vertex_y"          tag="55"    num="200.11"/>
+  <xmldumpDictEntry name="track_vertex_z"          tag="55"    num="200.12"/>
+  <xmldumpDictEntry name="track_energy"            tag="55"    num="200.13"/>
+  <xmldumpDictEntry name="mother_particle_id"      tag="55"    num="200.14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"   tag="55"    num="200.15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"   tag="55"    num="200.16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"   tag="55"    num="200.17"/>
+
+
+
+  <!-- OTOF Panel 1a-->
+  <xmldumpDictEntry name="OTOF_1A"                    tag="60"  num="0"/>
+  <xmldumpDictEntry name="OTOF_1A_bitcompressed_id"   tag="60"    num="1"/>
+
+  <xmldumpDictEntry name="OTOF_1A_digitized_output"   tag="60"    num="100"/>
+  <xmldumpDictEntry name="ADC_Left"                   tag="60"    num="100.20"/>
+  <xmldumpDictEntry name="ADC_Right"                  tag="60"    num="100.21"/>
+  <xmldumpDictEntry name="TDC_Left"                   tag="60"    num="100.22"/>
+  <xmldumpDictEntry name="TDC_Right"                  tag="60"    num="100.23"/>
+
+  <xmldumpDictEntry name="OTOF_1A_raw_output"         tag="60"    num="200"/>
+  <xmldumpDictEntry name="Edep"                       tag="60"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                   tag="60"    num="200.2"/>
+  <xmldumpDictEntry name="global_y"                   tag="60"    num="200.3"/>
+  <xmldumpDictEntry name="global_z"                   tag="60"    num="200.4"/>
+  <xmldumpDictEntry name="local_x"                    tag="60"    num="200.5"/>
+  <xmldumpDictEntry name="local_y"                    tag="60"    num="200.6"/>
+  <xmldumpDictEntry name="local_z"                    tag="60"    num="200.7"/>
+  <xmldumpDictEntry name="time"                       tag="60"    num="200.8"/>
+  <xmldumpDictEntry name="particle_id"                tag="60"    num="200.9"/>
+  <xmldumpDictEntry name="track_vertex_x"             tag="60"    num="200.10"/>
+  <xmldumpDictEntry name="track_vertex_y"             tag="60"    num="200.11"/>
+  <xmldumpDictEntry name="track_vertex_z"             tag="60"    num="200.12"/>
+  <xmldumpDictEntry name="track_energy"               tag="60"    num="200.13"/>
+  <xmldumpDictEntry name="mother_particle_id"         tag="60"    num="200.14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"      tag="60"    num="200.15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"      tag="60"    num="200.16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"      tag="60"    num="200.17"/>
+
+	
+  <!-- OTOF Panel 1b-->
+  <xmldumpDictEntry name="OTOF_1B"                    tag="70"  num="0"/>
+  <xmldumpDictEntry name="OTOF_1B_bitcompressed_id"   tag="70"    num="1"/>
+
+  <xmldumpDictEntry name="OTOF_1B_digitized_output"   tag="70"    num="100"/>
+  <xmldumpDictEntry name="ADC_Left"                   tag="70"    num="100.20"/>
+  <xmldumpDictEntry name="ADC_Right"                  tag="70"    num="100.21"/>
+  <xmldumpDictEntry name="TDC_Left"                   tag="70"    num="100.22"/>
+  <xmldumpDictEntry name="TDC_Right"                  tag="70"    num="100.23"/>
+
+  <xmldumpDictEntry name="OTOF_1B_raw_output"         tag="70"    num="200"/>
+  <xmldumpDictEntry name="Edep"                       tag="70"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                   tag="70"    num="200.2"/>
+  <xmldumpDictEntry name="global_y"                   tag="70"    num="200.3"/>
+  <xmldumpDictEntry name="global_z"                   tag="70"    num="200.4"/>
+  <xmldumpDictEntry name="local_x"                    tag="70"    num="200.5"/>
+  <xmldumpDictEntry name="local_y"                    tag="70"    num="200.6"/>
+  <xmldumpDictEntry name="local_z"                    tag="70"    num="200.7"/>
+  <xmldumpDictEntry name="time"                       tag="70"    num="200.8"/>
+  <xmldumpDictEntry name="particle_id"                tag="70"    num="200.9"/>
+  <xmldumpDictEntry name="track_vertex_x"             tag="70"    num="200.10"/>
+  <xmldumpDictEntry name="track_vertex_y"             tag="70"    num="200.11"/>
+  <xmldumpDictEntry name="track_vertex_z"             tag="70"    num="200.12"/>
+  <xmldumpDictEntry name="track_energy"               tag="70"    num="200.13"/>
+  <xmldumpDictEntry name="mother_particle_id"         tag="70"    num="200.14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"      tag="70"    num="200.15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"      tag="70"    num="200.16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"      tag="70"    num="200.17"/>
+
+	
+  <!-- OTOF Panel 2b-->
+  <xmldumpDictEntry name="OTOF_2B"                    tag="80"    num="0"/>
+  <xmldumpDictEntry name="OTOF_2B_bitcompressed_id"   tag="80"    num="1"/>
+
+  <xmldumpDictEntry name="OTOF_2B_digitized_output"   tag="80"    num="100"/>
+  <xmldumpDictEntry name="ADC_Left"                   tag="80"    num="100.20"/>
+  <xmldumpDictEntry name="ADC_Right"                  tag="80"    num="100.21"/>
+  <xmldumpDictEntry name="TDC_Left"                   tag="80"    num="100.22"/>
+  <xmldumpDictEntry name="TDC_Right"                  tag="80"    num="100.23"/>
+
+  <xmldumpDictEntry name="OTOF_2B_raw_output"         tag="80"    num="200"/>
+  <xmldumpDictEntry name="Edep"                       tag="80"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                   tag="80"    num="200.2"/>
+  <xmldumpDictEntry name="global_y"                   tag="80"    num="200.3"/>
+  <xmldumpDictEntry name="global_z"                   tag="80"    num="200.4"/>
+  <xmldumpDictEntry name="local_x"                    tag="80"    num="200.5"/>
+  <xmldumpDictEntry name="local_y"                    tag="80"    num="200.6"/>
+  <xmldumpDictEntry name="local_z"                    tag="80"    num="200.7"/>
+  <xmldumpDictEntry name="time"                       tag="80"    num="200.8"/>
+  <xmldumpDictEntry name="particle_id"                tag="80"    num="200.9"/>
+  <xmldumpDictEntry name="track_vertex_x"             tag="80"    num="200.10"/>
+  <xmldumpDictEntry name="track_vertex_y"             tag="80"    num="200.11"/>
+  <xmldumpDictEntry name="track_vertex_z"             tag="80"    num="200.12"/>
+  <xmldumpDictEntry name="track_energy"               tag="80"    num="200.13"/>
+  <xmldumpDictEntry name="mother_particle_id"         tag="80"    num="200.14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"      tag="80"    num="200.15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"      tag="80"    num="200.16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"      tag="80"    num="200.17"/>
+
+	
+  <!-- BMT -->
+  <xmldumpDictEntry name="BMT" tag="460"                        num="0"/>
+  <xmldumpDictEntry name="BMT_bitcompressed_id"    tag="460"    num="0.1"/>
+  <xmldumpDictEntry name="BMT_digitized_output"    tag="460"    num="100"/>
+  <xmldumpDictEntry name="layer"                   tag="460"    num="20"/>
+  <xmldumpDictEntry name="sector"                  tag="460"    num="21"/>
+  <xmldumpDictEntry name="strip"                   tag="460"    num="22"/>
+  <xmldumpDictEntry name="BMT_raw_output"          tag="460"    num="200"/>
+  <xmldumpDictEntry name="Edep"                    tag="460"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                tag="460"    num="2"/>
+  <xmldumpDictEntry name="global_y"                tag="460"    num="3"/>
+  <xmldumpDictEntry name="global_z"                tag="460"    num="4"/>
+  <xmldumpDictEntry name="local_x"                 tag="460"    num="5"/>
+  <xmldumpDictEntry name="local_y"                 tag="460"    num="6"/>
+  <xmldumpDictEntry name="local_z"                 tag="460"    num="7"/>
+  <xmldumpDictEntry name="time"                    tag="460"    num="8"/>
+  <xmldumpDictEntry name="particle_id"             tag="460"    num="9"/>
+  <xmldumpDictEntry name="track_vertex_x"          tag="460"    num="10"/>
+  <xmldumpDictEntry name="track_vertex_y"          tag="460"    num="11"/>
+  <xmldumpDictEntry name="track_vertex_z"          tag="460"    num="12"/>
+  <xmldumpDictEntry name="track_energy"            tag="460"    num="13"/>
+  <xmldumpDictEntry name="mother_particle_id"      tag="460"    num="14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"   tag="460"    num="15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"   tag="460"    num="16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"   tag="460"    num="17"/>
+  
+  <!-- FMT -->
+  <xmldumpDictEntry name="FMT" tag="450"                        num="0"/>
+  <xmldumpDictEntry name="FMT_bitcompressed_id"    tag="450"    num="0.1"/>
+  <xmldumpDictEntry name="FMT_digitized_output"    tag="450"    num="100"/>
+  <xmldumpDictEntry name="layer"                   tag="450"    num="20"/>
+  <xmldumpDictEntry name="sector"                  tag="450"    num="21"/>
+  <xmldumpDictEntry name="strip"                   tag="450"    num="22"/>
+  <xmldumpDictEntry name="FMT_raw_output"          tag="450"    num="200"/>
+  <xmldumpDictEntry name="Edep"                    tag="450"    num="200.1"/>
+  <xmldumpDictEntry name="global_x"                tag="450"    num="2"/>
+  <xmldumpDictEntry name="global_y"                tag="450"    num="3"/>
+  <xmldumpDictEntry name="global_z"                tag="450"    num="4"/>
+  <xmldumpDictEntry name="local_x"                 tag="450"    num="5"/>
+  <xmldumpDictEntry name="local_y"                 tag="450"    num="6"/>
+  <xmldumpDictEntry name="local_z"                 tag="450"    num="7"/>
+  <xmldumpDictEntry name="time"                    tag="450"    num="8"/>
+  <xmldumpDictEntry name="particle_id"             tag="450"    num="9"/>
+  <xmldumpDictEntry name="track_vertex_x"          tag="450"    num="10"/>
+  <xmldumpDictEntry name="track_vertex_y"          tag="450"    num="11"/>
+  <xmldumpDictEntry name="track_vertex_z"          tag="450"    num="12"/>
+  <xmldumpDictEntry name="track_energy"            tag="450"    num="13"/>
+  <xmldumpDictEntry name="mother_particle_id"      tag="450"    num="14"/>
+  <xmldumpDictEntry name="mother_track_vertex_x"   tag="450"    num="15"/>
+  <xmldumpDictEntry name="mother_track_vertex_y"   tag="450"    num="16"/>
+  <xmldumpDictEntry name="mother_track_vertex_z"   tag="450"    num="17"/>
+  
+	
+	
+	
+	
+	
+	
+	
+</xmlDict>

@@ -13,7 +13,7 @@ public class EvioTestHelper {
     public static String baseNameV4 = "testEventsV4_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
     public static String baseNameV6 = "testEventsV6_javaAPI.evio"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
     public static String baseNameHIPO = "testEventsHIPO_javaAPI.hipo"; // base name of file to be created. If split > 1, this is the base name of all files created. If split < 1, this is the name of the only file created.
-    public static String directory  = "tmp"; // "/mnt/tmpfs" or null=relative path (or directory in which file is to be placed)
+    public static String directory  = "etc/test_files"; // "/mnt/tmpfs" or null=relative path (or directory in which file is to be placed)
     final static String runType  = "";  // name of run type configuration to be used in naming files
     private final static int runNumber  = 1;    // arbitrary, usually experiment-specific
     private final static long split  = 0; // if < 1, do not split file, write to only one file of unlimited size. Else this is max size in bytes to make a file before closing it and starting writing another. 
