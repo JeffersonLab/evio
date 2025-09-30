@@ -24,7 +24,7 @@ The C and C++ libraries are build using `cmake`. To build C/C++ code from this r
 
     git clone https://github.com/JeffersonLab/evio/
     cd evio; mkdir build
-    cmake -S . -B build
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
     cmake --build build --target install --parallel
 
 Note that during the cmake configure step (first of two `cmake` commands above), one can also include the following special flags:

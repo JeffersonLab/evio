@@ -294,7 +294,7 @@ install(
 )
 
 # Unit testing setup
-add_test(NAME EvioWriteAndReadBack_builder COMMAND bin/EvioWriteAndReadBack_builder 10)
+add_test(NAME EvioWriteAndReadBack_builder COMMAND bin/EvioWriteAndReadBack_builder 10 ${CMAKE_CURRENT_SOURCE_DIR}/etc/test_files)
 
 # Uninstall target
 # Removed for now, not yet compatible with building disruptor-cpp internally
