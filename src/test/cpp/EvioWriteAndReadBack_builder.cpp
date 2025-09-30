@@ -8,18 +8,20 @@ void evioReadStep(std::string filename);
 int main(int argc, char* argv[]) {
 
     // Boilerplate
-    if (argc != 2) {
+    if (argc != 2 && argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <number_of_events>\n";
         return 1;
     }
     int nEvents = std::stoi(argv[1]);
-    std::cout << "Writing " << nEvents << " events to files..." << std::endl;
     EvioTestHelper* evioHelperObj = new EvioTestHelper();
-
+    if (argc == 3) evioHelperObj->directory = argv[2];
+    
     // std::shared_ptr<EventWriterV4> writerV4   = evioHelperObj->defaultEventWriterV4();
     std::shared_ptr<EventWriter>   writerV6   = evioHelperObj->defaultEventWriter();
     // std::shared_ptr<EventWriter>   writerHipo = evioHelperObj->defaultEventWriterHIPO();
-
+    
+    std::cout << "Writing " << nEvents << " events to files..." << std::endl;
+    
     for (int i = 0; i < nEvents; ++i) {
 
         // Build a new event (top-level bank) with tag=1, type=BANK, num=1
