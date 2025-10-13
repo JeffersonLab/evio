@@ -29,10 +29,12 @@ jobs:
           working-directory: '.'
           doxyfile-path: 'doc/doxygen/DoxyfileCC'
 
-      - name: Install Maven
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y maven
+        # Setup gradle and build Java
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        
+      - name: Build with Gradle
+        run: ./gradlew build
           
       # generate the javadoc files
       - name: Set up JDK 17
@@ -41,7 +43,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin' 
       - name: Javadoc Action
-        run: mvn javadoc:javadoc
+        run: ./gradlew javadoc
 
       # clean up the javadoc files including removing timestamps. OPTIONAL.
       - name: Tidy up the javadocs
