@@ -49,8 +49,8 @@ libraries are typically system-specific (e.g. using a command like `yum`, `dbn`,
 ## **Java Library**
 
 The Java version of evio (internally `org.jlab.coda.jevio`) can also be used for reading & writing
-`.evio` format files. A "fat" jar file with all dependencies is included in the `java/jars` folder,
-which should be all most users need to run and execute Java code utilizing the evio library.
+`.evio` format files. A "fat" jar file with all dependencies is included in the `java/jars` folder, 
+the only thing strictly required to run and execute `et` in Java.
 
 Java 17 is the default version used, however the Java evio library should be compatible with all
 java versions 8 and higher (note this has not been rigorously tested). If one wants to create a 
@@ -58,11 +58,11 @@ new jar file for any reason (e.g. to modify Java versions), do:
 
     git clone https://github.com/JeffersonLab/evio/
     cd evio
-    mvn clean install
+    ./gradlew
 
 ### Prerequisites
 
-Requires Maven (`mvn`) and an installation of Java on your system. 
+Gradle and an installation of Java on your system. 
 
 **Running on "ifarm" at JLab will not work unless you install java yourself**. Note that the default java versions on the farm will be too old to 
 work. See downloads from [OpenJDK](https://openjdk.org/install/) or [Oracle](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html).
