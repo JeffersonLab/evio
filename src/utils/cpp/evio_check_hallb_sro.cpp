@@ -461,10 +461,10 @@ void scanFile(const std::string &path, EventWriter *writer, Stats &totals) {
                     show = true;
                 }
 
-                if (show) {
-                    std::cout << "  ev " << stats.events
-                              << " seg2(tag=0x42) dataLen=" << len << '\n';
-                }
+                // if (show) {
+                //     std::cout << "  ev " << stats.events
+                //               << " seg2(tag=0x42) dataLen=" << len << '\n';
+                // }
             }
             catch (const std::exception &) {
                 ++stats.malformed;
