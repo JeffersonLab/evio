@@ -34,12 +34,107 @@ struct Hit {
     uint64_t time = 0;
 };
 
+struct MaskedChannel {
+    int crate = 0;
+    int slot = 0;
+    int channel = 0;
+};
+
+struct Options {
+    std::string path;
+    bool verbose = false;
+    std::vector<MaskedChannel> masks;
+};
+
 void ctrlCHandler(int) {
     gQuit.store(true);
 }
 
 void printUsage(const char *name) {
-    std::cerr << "Usage: " << name << " file.evio\n";
+    std::cerr << "Usage: " << name << " [-v] [--mask crate,slot,channel] file.evio\n";
+}
+
+MaskedChannel parseMaskSpec(const std::string &spec) {
+    size_t comma1 = spec.find(',');
+    size_t comma2 = (comma1 == std::string::npos) ? std::string::npos : spec.find(',', comma1 + 1);
+
+    if (comma1 == std::string::npos || comma2 == std::string::npos ||
+        spec.find(',', comma2 + 1) != std::string::npos) {
+        throw std::runtime_error("mask must be in crate,slot,channel form");
+    }
+
+    MaskedChannel mask;
+    mask.crate = std::stoi(spec.substr(0, comma1));
+    mask.slot = std::stoi(spec.substr(comma1 + 1, comma2 - comma1 - 1));
+    mask.channel = std::stoi(spec.substr(comma2 + 1));
+    return mask;
+}
+
+Options parseArgs(int argc, char *argv[]) {
+    Options options;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+
+        if (arg == "-h" || arg == "--help") {
+            printUsage(argv[0]);
+            std::exit(0);
+        }
+
+        if (arg == "-v" || arg == "--verbose") {
+            options.verbose = true;
+            continue;
+        }
+
+        if (arg == "--mask") {
+            if (i + 1 >= argc) {
+                throw std::runtime_error("missing argument after --mask");
+            }
+            options.masks.push_back(parseMaskSpec(argv[++i]));
+            continue;
+        }
+
+        if (arg.rfind("--mask=", 0) == 0) {
+            options.masks.push_back(parseMaskSpec(arg.substr(7)));
+            continue;
+        }
+
+        if (!arg.empty() && arg[0] == '-') {
+            throw std::runtime_error("unknown option: " + arg);
+        }
+
+        if (!options.path.empty()) {
+            throw std::runtime_error("only one input file may be specified");
+        }
+        options.path = arg;
+    }
+
+    if (options.path.empty()) {
+        throw std::runtime_error("missing input file");
+    }
+
+    return options;
+}
+
+bool isMasked(const Hit &hit, const std::vector<MaskedChannel> &masks) {
+    for (const auto &mask : masks) {
+        if (hit.crate == mask.crate &&
+            hit.slot == mask.slot &&
+            hit.channel == mask.channel) {
+            return true;
+        }
+    }
+    return false;
+}
+
+size_t countVisibleHits(const std::vector<Hit> &hits, const Options &options) {
+    size_t count = 0;
+    for (const auto &hit : hits) {
+        if (!isMasked(hit, options.masks)) {
+            ++count;
+        }
+    }
+    return count;
 }
 
 std::string formatHex16(uint16_t value) {
@@ -229,23 +324,30 @@ std::vector<Hit> decodeFadc250Payload(uint64_t frameTimestampNs,
     return hits;
 }
 
-void printDecodedHits(const std::vector<Hit> &hits) {
-    if (hits.empty()) {
-        std::cout << "      No FADC hits decoded from payload\n";
-        return;
-    }
-
+size_t printDecodedHits(const std::vector<Hit> &hits, const Options &options) {
+    size_t printed = 0;
     for (const auto &hit : hits) {
+        if (isMasked(hit, options.masks)) {
+            continue;
+        }
+
         std::cout << "      crate=" << hit.crate
                   << ", slot=" << hit.slot
                   << ", channel=" << hit.channel
                   << ", charge=" << hit.charge
                   << ", time=" << hit.time
                   << '\n';
+        ++printed;
     }
+
+    if (printed == 0 && options.verbose) {
+        std::cout << "      No FADC hits decoded from payload\n";
+    }
+
+    return printed;
 }
 
-void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event) {
+void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event, const Options &options) {
     if (event == nullptr) {
         return;
     }
@@ -273,7 +375,9 @@ void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event) {
         }
         else if (eventInfo != nullptr && eventInfo->getChildCount() > 0) {
             auto timeSliceSeg = eventInfo->getChildAt(0);
-            printStructureSummary("    Time Slice Segment", timeSliceSeg);
+            if (options.verbose) {
+                printStructureSummary("    Time Slice Segment", timeSliceSeg);
+            }
             if (readFrameInfo(timeSliceSeg, frameNumber, frameTimestamp)) {
                 haveFrameInfo = true;
                 std::cout << "      Frame=" << frameNumber
@@ -281,7 +385,7 @@ void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event) {
                           << '\n';
             }
 
-            if (eventInfo->getChildCount() > 1) {
+            if (options.verbose && eventInfo->getChildCount() > 1) {
                 printAggregationInfo(eventInfo->getChildAt(1));
             }
         }
@@ -308,14 +412,18 @@ void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event) {
         }
 
         auto sib = rocTSB->getChildAt(0);
-        printStructureSummary("    SIB", sib);
+        if (options.verbose) {
+            printStructureSummary("    SIB", sib);
+        }
 
         if (sib != nullptr && sib->getChildCount() > 0) {
             auto timeSliceSeg = sib->getChildAt(0);
             uint32_t rocFrameNumber = 0;
             uint64_t rocTimestamp = 0;
 
-            printStructureSummary("    Time Slice Segment", timeSliceSeg);
+            if (options.verbose) {
+                printStructureSummary("    Time Slice Segment", timeSliceSeg);
+            }
             if (readFrameInfo(timeSliceSeg, rocFrameNumber, rocTimestamp)) {
                 std::cout << "      Frame=" << rocFrameNumber
                           << " Timestamp=" << rocTimestamp
@@ -328,7 +436,7 @@ void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event) {
             }
         }
 
-        if (sib != nullptr && sib->getChildCount() > 1) {
+        if (options.verbose && sib != nullptr && sib->getChildCount() > 1) {
             printAggregationInfo(sib->getChildAt(1));
         }
 
@@ -337,25 +445,36 @@ void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event) {
             auto dataHeader = dataBank ? dataBank->getHeader() : nullptr;
             int slot = dataHeader ? dataHeader->getTag() : static_cast<int>(payloadIndex - 1);
 
-            std::cout << "    Payload[" << (payloadIndex - 1) << "]"
-                      << ": slot=" << slot
-                      << " tag=" << formatHex16(dataHeader ? dataHeader->getTag() : 0)
-                      << " type=" << (dataHeader ? dataHeader->getDataType().toString() : "UNKNOWN")
-                      << " bytes=" << (dataBank ? dataBank->getRawBytes().size() : 0)
-                      << '\n';
-
             if (dataBank == nullptr) {
-                std::cout << "      Payload bank missing\n";
+                if (options.verbose) {
+                    std::cout << "    Payload[" << (payloadIndex - 1) << "]"
+                              << ": slot=" << slot
+                              << " tag=" << formatHex16(0)
+                              << " type=UNKNOWN bytes=0\n";
+                    std::cout << "      Payload bank missing\n";
+                }
                 continue;
             }
 
             auto hits = decodeFadc250Payload(frameTimestamp, crate, slot,
                                              dataBank->getRawBytes(),
                                              dataBank->getByteOrder());
+            size_t visibleHits = countVisibleHits(hits, options);
+            if (!options.verbose && visibleHits == 0) {
+                continue;
+            }
+
+            std::cout << "    Payload[" << (payloadIndex - 1) << "]"
+                      << ": slot=" << slot
+                      << " tag=" << formatHex16(dataHeader ? dataHeader->getTag() : 0)
+                      << " type=" << (dataHeader ? dataHeader->getDataType().toString() : "UNKNOWN")
+                      << " bytes=" << dataBank->getRawBytes().size()
+                      << '\n';
+
             if (!haveFrameInfo) {
                 std::cout << "      Warning: no frame timestamp decoded, hit times use 0 as base\n";
             }
-            printDecodedHits(hits);
+            printDecodedHits(hits, options);
         }
     }
 }
@@ -440,16 +559,11 @@ int main(int argc, char *argv[]) {
     sa.sa_flags = 0;
     sigaction(SIGINT, &sa, nullptr);
 
-    if (argc != 2) {
-        printUsage(argv[0]);
-        return 1;
-    }
-
     try {
-        const std::string path = argv[1];
-        EvioReader reader(path);
+        Options options = parseArgs(argc, argv);
+        EvioReader reader(options.path);
 
-        std::cout << "Opened " << path << '\n';
+        std::cout << "Opened " << options.path << '\n';
         std::cout << "EVIO version: " << reader.getEvioVersion() << '\n';
         std::cout << "Byte order: " << reader.getByteOrder().getName() << '\n';
         std::cout << "Event count: " << reader.getEventCount() << '\n';
@@ -473,7 +587,7 @@ int main(int argc, char *argv[]) {
                 if (eventTag == TAG_BUILT_STREAMING) {
                     std::cout << "Built streaming event detected\n";
                 }
-                decodeStreamingEvent(event);
+                decodeStreamingEvent(event, options);
             }
 
             if (eventTag == TAG_END || gQuit.load()) {
