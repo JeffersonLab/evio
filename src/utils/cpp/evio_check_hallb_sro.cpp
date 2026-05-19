@@ -164,6 +164,10 @@ bool getFirstSegmentInfo(const std::shared_ptr<BaseStructure> &segment, FirstSeg
     }
 
     info.firstWord = Util::toInt(raw.data(), segment->getByteOrder());
+    if (info.firstWord == 0) {
+        // Suppress known bogus/spurious frame-zero entries from frame-based statistics.
+        return false;
+    }
 
     if (raw.size() < 3 * sizeof(uint32_t)) {
         return true;
