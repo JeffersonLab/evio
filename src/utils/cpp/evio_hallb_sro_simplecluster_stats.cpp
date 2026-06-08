@@ -5,14 +5,17 @@
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
+#include <filesystem>
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <poll.h>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <unistd.h>
 #include <vector>
 
@@ -51,11 +54,9 @@ struct ChannelId {
 };
 
 struct Options {
-    std::string path;
-    bool verbose = false;
-    bool cluster = false;
     bool clusterDebug = false;
     std::vector<MaskedChannel> masks;
+    std::vector<std::string> inputFiles;
 };
 
 struct ClusterScanConfig {
@@ -86,6 +87,36 @@ struct ClusterDebugStep {
     bool seedFound = false;
 };
 
+struct FrameResult {
+    bool haveFrameInfo = false;
+    uint32_t frameNumber = 0;
+    uint64_t frameTimestamp = 0;
+    uint64_t eventBytes = 0;
+    std::vector<Hit> visibleHits;
+    std::vector<Cluster> clusters;
+};
+
+struct RunStats {
+    uint64_t inputFiles = 0;
+    uint64_t inputBytes = 0;
+    uint64_t eventBytes = 0;
+    uint64_t events = 0;
+    uint64_t controlEvents = 0;
+    uint64_t frames = 0;
+    uint64_t builtStreamingEvents = 0;
+    uint64_t malformedFrames = 0;
+    uint64_t framesWithClusters = 0;
+    uint64_t visibleHits = 0;
+    uint64_t clusters = 0;
+    uint64_t associatedHits = 0;
+    bool frameNumberSeen = false;
+    uint32_t minFrameNumber = std::numeric_limits<uint32_t>::max();
+    uint32_t maxFrameNumber = 0;
+    bool timestampSeen = false;
+    uint64_t minTimestamp = std::numeric_limits<uint64_t>::max();
+    uint64_t maxTimestamp = 0;
+};
+
 using ClusterDebugCallback = std::function<bool(const ClusterDebugStep &)>;
 
 bool waitForPrompt(const std::string &prompt);
@@ -96,7 +127,7 @@ void ctrlCHandler(int) {
 
 void printUsage(const char *name) {
     std::cerr << "Usage: " << name
-              << " [-v] [--cluster] [--cluster-debug] [--mask crate,slot,channel] file.evio\n";
+              << " [--cluster-debug] [--mask crate,slot,channel] file1.evio [file2.evio ...]\n";
 }
 
 MaskedChannel parseMaskSpec(const std::string &spec) {
@@ -126,18 +157,7 @@ Options parseArgs(int argc, char *argv[]) {
             std::exit(0);
         }
 
-        if (arg == "-v" || arg == "--verbose") {
-            options.verbose = true;
-            continue;
-        }
-
-        if (arg == "--cluster") {
-            options.cluster = true;
-            continue;
-        }
-
         if (arg == "--cluster-debug") {
-            options.cluster = true;
             options.clusterDebug = true;
             continue;
         }
@@ -159,14 +179,11 @@ Options parseArgs(int argc, char *argv[]) {
             throw std::runtime_error("unknown option: " + arg);
         }
 
-        if (!options.path.empty()) {
-            throw std::runtime_error("only one input file may be specified");
-        }
-        options.path = arg;
+        options.inputFiles.push_back(arg);
     }
 
-    if (options.path.empty()) {
-        throw std::runtime_error("missing input file");
+    if (options.inputFiles.empty()) {
+        throw std::runtime_error("you must specify at least one input file");
     }
 
     return options;
@@ -181,16 +198,6 @@ bool isMasked(const Hit &hit, const std::vector<MaskedChannel> &masks) {
         }
     }
     return false;
-}
-
-size_t countVisibleHits(const std::vector<Hit> &hits, const Options &options) {
-    size_t count = 0;
-    for (const auto &hit : hits) {
-        if (!isMasked(hit, options.masks)) {
-            ++count;
-        }
-    }
-    return count;
 }
 
 void appendVisibleHits(const std::vector<Hit> &hits,
@@ -451,7 +458,7 @@ std::string formatHex16(uint16_t value) {
     return out.str();
 }
 
-std::string formatDouble(double value, int precision = 2) {
+std::string formatDouble(double value, int precision = 6) {
     std::ostringstream out;
     out << std::fixed << std::setprecision(precision) << value;
     return out.str();
@@ -469,34 +476,6 @@ uint64_t summedCharge(const std::vector<Hit> &hits) {
         }
     }
     return total;
-}
-
-double chargeWeightedAverageTime(const std::vector<Hit> &hits) {
-    long double weightedTime = 0.0L;
-    uint64_t totalCharge = 0;
-
-    for (const auto &hit : hits) {
-        if (hit.charge <= 0) {
-            continue;
-        }
-        const uint64_t charge = static_cast<uint64_t>(hit.charge);
-        weightedTime += static_cast<long double>(hit.time) * static_cast<long double>(charge);
-        totalCharge += charge;
-    }
-
-    if (totalCharge > 0) {
-        return static_cast<double>(weightedTime / static_cast<long double>(totalCharge));
-    }
-
-    if (hits.empty()) {
-        return 0.0;
-    }
-
-    long double timeSum = 0.0L;
-    for (const auto &hit : hits) {
-        timeSum += static_cast<long double>(hit.time);
-    }
-    return static_cast<double>(timeSum / static_cast<long double>(hits.size()));
 }
 
 double chargeWeightedAverageOffset(const std::vector<Hit> &hits, uint64_t frameStart) {
@@ -544,22 +523,9 @@ void printClusterDebugStep(const ClusterDebugStep &step) {
     std::cout << '\n';
 }
 
-void printClusters(const std::vector<Cluster> &clusters,
-                   size_t visibleHitCount,
-                   uint64_t frameStart,
-                   const ClusterScanConfig &config) {
-    std::cout << "  Simple cluster scan: frameStart=" << frameStart
-              << " frameEnd=" << (frameStart + config.timeframeNs)
-              << " visibleHits=" << visibleHitCount
-              << " clusters=" << clusters.size()
-              << '\n';
-
+void printClusterDetails(const std::vector<Cluster> &clusters, uint64_t frameStart) {
     for (size_t i = 0; i < clusters.size(); ++i) {
         const auto &cluster = clusters[i];
-        const uint64_t totalCharge = summedCharge(cluster.hits);
-        const double weightedTime = chargeWeightedAverageTime(cluster.hits);
-        const double weightedOffset = chargeWeightedAverageOffset(cluster.hits, frameStart);
-
         std::cout << "    Cluster[" << i << "]"
                   << ": seedWindow=[" << cluster.seedLeft << ", " << cluster.seedRight << ")"
                   << " frozenLeft=" << cluster.frozenLeft
@@ -568,9 +534,8 @@ void printClusters(const std::vector<Cluster> &clusters,
                   << ", " << offsetFromFrameStart(cluster.finalRight, frameStart) << ")"
                   << " hits=" << cluster.hits.size()
                   << " channels=" << countDistinctChannels(cluster.hits)
-                  << " summedCharge=" << totalCharge
-                  << " chargeWeightedTime=" << formatDouble(weightedTime)
-                  << " chargeWeightedOffset=" << formatDouble(weightedOffset)
+                  << " summedCharge=" << summedCharge(cluster.hits)
+                  << " chargeWeightedOffset=" << formatDouble(chargeWeightedAverageOffset(cluster.hits, frameStart), 2)
                   << '\n';
 
         for (size_t j = 0; j < cluster.hits.size(); ++j) {
@@ -596,22 +561,6 @@ uint32_t readWord(const std::vector<uint8_t> &bytes, size_t byteOffset, const By
         throw std::runtime_error("payload ended in the middle of a 32-bit word");
     }
     return Util::toInt(bytes.data() + byteOffset, order);
-}
-
-void printStructureSummary(const std::string &label, const std::shared_ptr<BaseStructure> &node) {
-    if (node == nullptr) {
-        std::cout << label << ": <null>\n";
-        return;
-    }
-
-    auto header = node->getHeader();
-    std::cout << label
-              << ": tag=" << formatHex16(header ? header->getTag() : 0)
-              << " type=" << (header ? header->getDataType().toString() : "UNKNOWN")
-              << " children=" << node->getChildCount()
-              << " dataItems=" << node->getNumberDataItems()
-              << " bytes=" << node->getRawBytes().size()
-              << '\n';
 }
 
 bool readFrameInfo(const std::shared_ptr<BaseStructure> &node,
@@ -657,80 +606,6 @@ bool readFrameInfo(const std::shared_ptr<BaseStructure> &node,
     return false;
 }
 
-void printAggregationInfo(const std::shared_ptr<BaseStructure> &aggInfoSeg) {
-    if (aggInfoSeg == nullptr) {
-        std::cout << "    Aggregation info: <missing>\n";
-        return;
-    }
-
-    auto header = aggInfoSeg->getHeader();
-    if (header == nullptr) {
-        std::cout << "    Aggregation info: <missing header>\n";
-        return;
-    }
-
-    std::cout << "    Aggregation info: tag=" << formatHex16(header->getTag())
-              << " type=" << header->getDataType().toString()
-              << " entries=" << aggInfoSeg->getNumberDataItems() << '\n';
-
-    try {
-        if (header->getDataType() == DataType::USHORT16 ||
-            header->getDataType() == DataType::SHORT16) {
-            auto payloads = aggInfoSeg->getUShortData();
-            for (size_t i = 0; i < payloads.size(); ++i) {
-                uint16_t entry = payloads[i];
-                uint16_t payloadPort = entry & 0x1f;
-                uint16_t laneId = (entry >> 5) & 0x3;
-                uint16_t bonded = (entry >> 7) & 0x1;
-                uint16_t moduleId = (entry >> 8) & 0xf;
-
-                std::cout << "      entry[" << i << "]"
-                          << ": raw=" << formatHex16(entry)
-                          << " payloadPort=" << payloadPort
-                          << " lane=" << laneId
-                          << " bond=" << bonded
-                          << " module=" << moduleId
-                          << '\n';
-            }
-            return;
-        }
-
-        if (header->getDataType() == DataType::UINT32 ||
-            header->getDataType() == DataType::INT32) {
-            std::vector<uint32_t> entries;
-            if (header->getDataType() == DataType::UINT32) {
-                entries = aggInfoSeg->getUIntData();
-            }
-            else {
-                auto signedEntries = aggInfoSeg->getIntData();
-                entries.assign(signedEntries.begin(), signedEntries.end());
-            }
-
-            for (size_t i = 0; i < entries.size(); ++i) {
-                uint32_t entry = entries[i];
-                uint16_t rocId = static_cast<uint16_t>((entry >> 16U) & 0xffffU);
-                uint8_t reserved = static_cast<uint8_t>((entry >> 8U) & 0xffU);
-                uint8_t status = static_cast<uint8_t>(entry & 0xffU);
-
-                std::cout << "      entry[" << i << "]"
-                          << ": raw=0x" << std::hex << std::setw(8) << std::setfill('0') << entry
-                          << std::dec << std::setfill(' ')
-                          << " rocId=" << rocId
-                          << " reserved=" << static_cast<unsigned int>(reserved)
-                          << " status=" << static_cast<unsigned int>(status)
-                          << '\n';
-            }
-            return;
-        }
-    }
-    catch (const std::exception &e) {
-        std::cout << "      Could not decode aggregation info payload: " << e.what() << '\n';
-        return;
-    }
-
-    std::cout << "      Unsupported aggregation info data type for specialized decode\n";
-}
-
 std::vector<Hit> decodeFadc250Payload(uint64_t frameTimestampNs,
                                       int crate,
                                       int slot,
@@ -762,80 +637,30 @@ std::vector<Hit> decodeFadc250Payload(uint64_t frameTimestampNs,
         hits.push_back(hit);
     }
 
-    std::sort(hits.begin(), hits.end(),
-              [](const Hit &a, const Hit &b) { return a.time < b.time; });
-
+    std::sort(hits.begin(), hits.end(), hitLess);
     return hits;
 }
 
-size_t printDecodedHits(const std::vector<Hit> &hits, const Options &options) {
-    size_t printed = 0;
-    for (const auto &hit : hits) {
-        if (isMasked(hit, options.masks)) {
-            continue;
-        }
-
-        std::cout << "      crate=" << hit.crate
-                  << ", slot=" << hit.slot
-                  << ", channel=" << hit.channel
-                  << ", charge=" << hit.charge
-                  << ", time=" << hit.time
-                  << '\n';
-        ++printed;
-    }
-
-    if (printed == 0 && options.verbose) {
-        std::cout << "      No FADC hits decoded from payload\n";
-    }
-
-    return printed;
-}
-
-void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event, const Options &options) {
+FrameResult decodeStreamingFrame(const std::shared_ptr<EvioEvent> &event,
+                                 const Options &options) {
+    FrameResult result;
     if (event == nullptr) {
-        return;
+        return result;
     }
 
-    auto eventHeader = event->getHeader();
-    std::cout << "Event header: tag=" << formatHex16(eventHeader ? eventHeader->getTag() : 0)
-              << " type=" << (eventHeader ? eventHeader->getDataType().toString() : "UNKNOWN")
-              << " num=" << static_cast<unsigned int>(eventHeader ? eventHeader->getNumber() : 0)
-              << " children=" << event->getChildCount()
-              << '\n';
-
-    uint32_t frameNumber = 0;
-    uint64_t frameTimestamp = 0;
-    bool haveFrameInfo = false;
-    std::vector<Hit> visibleFrameHits;
+    result.eventBytes = event->getTotalBytes();
 
     if (event->getChildCount() > 0) {
         auto eventInfo = event->getChildAt(0);
-        printStructureSummary("  Event Info", eventInfo);
 
-        if (readFrameInfo(eventInfo, frameNumber, frameTimestamp)) {
-            haveFrameInfo = true;
-            std::cout << "    Frame=" << frameNumber
-                      << " Timestamp=" << frameTimestamp
-                      << '\n';
+        if (readFrameInfo(eventInfo, result.frameNumber, result.frameTimestamp)) {
+            result.haveFrameInfo = true;
         }
         else if (eventInfo != nullptr && eventInfo->getChildCount() > 0) {
             auto timeSliceSeg = eventInfo->getChildAt(0);
-            if (options.verbose) {
-                printStructureSummary("    Time Slice Segment", timeSliceSeg);
+            if (readFrameInfo(timeSliceSeg, result.frameNumber, result.frameTimestamp)) {
+                result.haveFrameInfo = true;
             }
-            if (readFrameInfo(timeSliceSeg, frameNumber, frameTimestamp)) {
-                haveFrameInfo = true;
-                std::cout << "      Frame=" << frameNumber
-                          << " Timestamp=" << frameTimestamp
-                          << '\n';
-            }
-
-            if (options.verbose && eventInfo->getChildCount() > 1) {
-                printAggregationInfo(eventInfo->getChildAt(1));
-            }
-        }
-        else {
-            std::cout << "    Could not decode frame/timestamp from top-level event info\n";
         }
     }
 
@@ -844,45 +669,21 @@ void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event, const Options
         auto rocHeader = rocTSB ? rocTSB->getHeader() : nullptr;
         int crate = rocHeader ? rocHeader->getTag() : static_cast<int>(rocIndex - 1);
 
-        std::cout << "  ROC[" << (rocIndex - 1) << "]"
-                  << ": crate=" << crate
-                  << " tag=" << formatHex16(rocHeader ? rocHeader->getTag() : 0)
-                  << " type=" << (rocHeader ? rocHeader->getDataType().toString() : "UNKNOWN")
-                  << " children=" << (rocTSB ? rocTSB->getChildCount() : 0)
-                  << '\n';
-
         if (rocTSB == nullptr || rocTSB->getChildCount() == 0) {
-            std::cout << "    ROC bank has no children\n";
             continue;
         }
 
         auto sib = rocTSB->getChildAt(0);
-        if (options.verbose) {
-            printStructureSummary("    SIB", sib);
-        }
-
         if (sib != nullptr && sib->getChildCount() > 0) {
             auto timeSliceSeg = sib->getChildAt(0);
             uint32_t rocFrameNumber = 0;
             uint64_t rocTimestamp = 0;
 
-            if (options.verbose) {
-                printStructureSummary("    Time Slice Segment", timeSliceSeg);
+            if (readFrameInfo(timeSliceSeg, rocFrameNumber, rocTimestamp) && !result.haveFrameInfo) {
+                result.frameNumber = rocFrameNumber;
+                result.frameTimestamp = rocTimestamp;
+                result.haveFrameInfo = true;
             }
-            if (readFrameInfo(timeSliceSeg, rocFrameNumber, rocTimestamp)) {
-                std::cout << "      Frame=" << rocFrameNumber
-                          << " Timestamp=" << rocTimestamp
-                          << '\n';
-                if (!haveFrameInfo) {
-                    frameNumber = rocFrameNumber;
-                    frameTimestamp = rocTimestamp;
-                    haveFrameInfo = true;
-                }
-            }
-        }
-
-        if (options.verbose && sib != nullptr && sib->getChildCount() > 1) {
-            printAggregationInfo(sib->getChildAt(1));
         }
 
         for (size_t payloadIndex = 1; payloadIndex < rocTSB->getChildCount(); ++payloadIndex) {
@@ -891,59 +692,119 @@ void decodeStreamingEvent(const std::shared_ptr<EvioEvent> &event, const Options
             int slot = dataHeader ? dataHeader->getTag() : static_cast<int>(payloadIndex - 1);
 
             if (dataBank == nullptr) {
-                if (options.verbose) {
-                    std::cout << "    Payload[" << (payloadIndex - 1) << "]"
-                              << ": slot=" << slot
-                              << " tag=" << formatHex16(0)
-                              << " type=UNKNOWN bytes=0\n";
-                    std::cout << "      Payload bank missing\n";
-                }
                 continue;
             }
 
-            auto hits = decodeFadc250Payload(frameTimestamp, crate, slot,
+            auto hits = decodeFadc250Payload(result.frameTimestamp, crate, slot,
                                              dataBank->getRawBytes(),
                                              dataBank->getByteOrder());
-            size_t visibleHits = countVisibleHits(hits, options);
-            if (!options.verbose && visibleHits == 0) {
-                continue;
-            }
-
-            std::cout << "    Payload[" << (payloadIndex - 1) << "]"
-                      << ": slot=" << slot
-                      << " tag=" << formatHex16(dataHeader ? dataHeader->getTag() : 0)
-                      << " type=" << (dataHeader ? dataHeader->getDataType().toString() : "UNKNOWN")
-                      << " bytes=" << dataBank->getRawBytes().size()
-                      << '\n';
-
-            if (!haveFrameInfo) {
-                std::cout << "      Warning: no frame timestamp decoded, hit times use 0 as base\n";
-            }
-            printDecodedHits(hits, options);
-            appendVisibleHits(hits, options, visibleFrameHits);
+            appendVisibleHits(hits, options, result.visibleHits);
         }
     }
 
-    if (options.cluster) {
-        ClusterScanConfig clusterConfig;
-        const uint64_t clusterFrameStart = haveFrameInfo ? frameTimestamp : 0;
+    return result;
+}
 
-        ClusterDebugCallback debugCallback;
-        if (options.clusterDebug) {
-            debugCallback = [](const ClusterDebugStep &step) {
-                printClusterDebugStep(step);
-                return waitForPrompt("\nHit <Enter> for next cluster window (Ctrl+C to quit)");
-            };
-        }
+uint64_t safeFileSize(const std::string &path) {
+    std::error_code ec;
+    uint64_t size = std::filesystem::file_size(path, ec);
+    return ec ? 0 : size;
+}
 
-        std::vector<Cluster> clusters =
-            findSlidingWindowClusters(visibleFrameHits, clusterFrameStart,
-                                      clusterConfig, debugCallback);
-        if (!gQuit.load()) {
-            printClusters(clusters, visibleFrameHits.size(),
-                          clusterFrameStart, clusterConfig);
-        }
+void updateTimestampStats(const FrameResult &frame, RunStats &stats) {
+    if (!frame.haveFrameInfo) {
+        return;
     }
+
+    stats.frameNumberSeen = true;
+    stats.minFrameNumber = std::min(stats.minFrameNumber, frame.frameNumber);
+    stats.maxFrameNumber = std::max(stats.maxFrameNumber, frame.frameNumber);
+
+    stats.timestampSeen = true;
+    stats.minTimestamp = std::min(stats.minTimestamp, frame.frameTimestamp);
+    stats.maxTimestamp = std::max(stats.maxTimestamp, frame.frameTimestamp);
+}
+
+void addFrameStats(const FrameResult &frame, RunStats &stats) {
+    ++stats.frames;
+    stats.visibleHits += frame.visibleHits.size();
+    stats.clusters += frame.clusters.size();
+    if (!frame.clusters.empty()) {
+        ++stats.framesWithClusters;
+    }
+    for (const auto &cluster : frame.clusters) {
+        stats.associatedHits += cluster.hits.size();
+    }
+    updateTimestampStats(frame, stats);
+}
+
+void mergeStats(const RunStats &src, RunStats &dest) {
+    dest.inputFiles += src.inputFiles;
+    dest.inputBytes += src.inputBytes;
+    dest.eventBytes += src.eventBytes;
+    dest.events += src.events;
+    dest.controlEvents += src.controlEvents;
+    dest.frames += src.frames;
+    dest.builtStreamingEvents += src.builtStreamingEvents;
+    dest.malformedFrames += src.malformedFrames;
+    dest.framesWithClusters += src.framesWithClusters;
+    dest.visibleHits += src.visibleHits;
+    dest.clusters += src.clusters;
+    dest.associatedHits += src.associatedHits;
+
+    if (src.frameNumberSeen) {
+        dest.frameNumberSeen = true;
+        dest.minFrameNumber = std::min(dest.minFrameNumber, src.minFrameNumber);
+        dest.maxFrameNumber = std::max(dest.maxFrameNumber, src.maxFrameNumber);
+    }
+    if (src.timestampSeen) {
+        dest.timestampSeen = true;
+        dest.minTimestamp = std::min(dest.minTimestamp, src.minTimestamp);
+        dest.maxTimestamp = std::max(dest.maxTimestamp, src.maxTimestamp);
+    }
+}
+
+double secondsForFrames(uint64_t frames, const ClusterScanConfig &config) {
+    return static_cast<double>(frames) * static_cast<double>(config.timeframeNs) * 1.0e-9;
+}
+
+double divideOrZero(uint64_t numerator, double denominator) {
+    return denominator > 0.0 ? static_cast<double>(numerator) / denominator : 0.0;
+}
+
+void printFrameDebugHeader(const std::string &path,
+                           uint64_t eventIndex,
+                           uint16_t eventTag,
+                           const FrameResult &frame,
+                           const ClusterScanConfig &config) {
+    const double frameSeconds = secondsForFrames(1, config);
+    const double eventRateMBps = divideOrZero(frame.eventBytes, frameSeconds) / 1.0e6;
+
+    std::cout << "FRAME file=" << path
+              << " event=" << eventIndex
+              << " tag=" << formatHex16(eventTag);
+    if (frame.haveFrameInfo) {
+        std::cout << " frame=" << frame.frameNumber
+                  << " timestamp=" << frame.frameTimestamp;
+    }
+    else {
+        std::cout << " frame=n/a timestamp=n/a";
+    }
+    std::cout << " eventBytes=" << frame.eventBytes
+              << " eventRateMBps=" << formatDouble(eventRateMBps, 3)
+              << " visibleHits=" << frame.visibleHits.size()
+              << '\n';
+}
+
+void printFrameDebugSummary(const FrameResult &frame,
+                            const ClusterScanConfig &config) {
+    const uint64_t frameStart = frame.haveFrameInfo ? frame.frameTimestamp : 0;
+    std::cout << "  FRAME_SUMMARY frameStart=" << frameStart
+              << " frameEnd=" << (frameStart + config.timeframeNs)
+              << " visibleHits=" << frame.visibleHits.size()
+              << " clusters=" << frame.clusters.size()
+              << '\n';
+    printClusterDetails(frame.clusters, frameStart);
 }
 
 bool waitForPrompt(const std::string &prompt) {
@@ -1005,20 +866,141 @@ bool waitForPrompt(const std::string &prompt) {
     return true;
 }
 
-bool waitForUser() {
-    return waitForPrompt("\nHit <Enter> for next event (Ctrl+C to quit)");
+void scanFile(const std::string &path,
+              const Options &options,
+              const ClusterScanConfig &config,
+              RunStats &totals) {
+    RunStats fileStats;
+    fileStats.inputFiles = 1;
+    fileStats.inputBytes = safeFileSize(path);
+
+    EvioReader reader(path);
+    std::shared_ptr<EvioEvent> event;
+    uint64_t eventIndex = 0;
+
+    while (!gQuit.load() && (event = reader.parseNextEvent())) {
+        ++eventIndex;
+        ++fileStats.events;
+
+        const uint64_t eventBytes = event ? event->getTotalBytes() : 0;
+        fileStats.eventBytes += eventBytes;
+
+        auto header = event ? event->getHeader() : nullptr;
+        uint16_t eventTag = header ? header->getTag() : 0;
+
+        if (eventTag == TAG_PRESTART || eventTag == TAG_GO || eventTag == TAG_END) {
+            ++fileStats.controlEvents;
+            continue;
+        }
+
+        if (eventTag == TAG_BUILT_STREAMING) {
+            ++fileStats.builtStreamingEvents;
+        }
+
+        try {
+            FrameResult frame = decodeStreamingFrame(event, options);
+            frame.eventBytes = eventBytes;
+            const uint64_t frameStart = frame.haveFrameInfo ? frame.frameTimestamp : 0;
+
+            if (options.clusterDebug) {
+                printFrameDebugHeader(path, eventIndex, eventTag, frame, config);
+            }
+
+            ClusterDebugCallback debugCallback;
+            if (options.clusterDebug) {
+                debugCallback = [](const ClusterDebugStep &step) {
+                    printClusterDebugStep(step);
+                    bool keepGoing = waitForPrompt("\nHit <Enter> for next cluster window (Ctrl+C to quit)");
+                    if (!keepGoing) {
+                        gQuit.store(true);
+                    }
+                    return keepGoing;
+                };
+            }
+
+            frame.clusters = findSlidingWindowClusters(frame.visibleHits, frameStart,
+                                                       config, debugCallback);
+            addFrameStats(frame, fileStats);
+
+            if (options.clusterDebug && !gQuit.load()) {
+                printFrameDebugSummary(frame, config);
+            }
+        }
+        catch (const std::exception &e) {
+            ++fileStats.malformedFrames;
+            if (options.clusterDebug) {
+                std::cout << "FRAME file=" << path
+                          << " event=" << eventIndex
+                          << " tag=" << formatHex16(eventTag)
+                          << " malformed=" << e.what() << '\n';
+            }
+        }
+    }
+
+    mergeStats(fileStats, totals);
 }
 
-void printControlEventMessage(uint16_t eventTag) {
-    if (eventTag == TAG_PRESTART) {
-        std::cout << "Control event: PRESTART\n";
+void printOptionalRanges(const RunStats &stats) {
+    if (stats.frameNumberSeen) {
+        std::cout << " frameMin=" << stats.minFrameNumber
+                  << " frameMax=" << stats.maxFrameNumber;
     }
-    else if (eventTag == TAG_GO) {
-        std::cout << "Control event: GO\n";
+    else {
+        std::cout << " frameMin=n/a frameMax=n/a";
     }
-    else if (eventTag == TAG_END) {
-        std::cout << "Control event: END\n";
+
+    if (stats.timestampSeen) {
+        std::cout << " timestampMin=" << stats.minTimestamp
+                  << " timestampMax=" << stats.maxTimestamp;
     }
+    else {
+        std::cout << " timestampMin=n/a timestampMax=n/a";
+    }
+}
+
+void printFinalStats(const RunStats &stats, const ClusterScanConfig &config) {
+    const double liveSeconds = secondsForFrames(stats.frames, config);
+    const double clustersPerFrame = stats.frames > 0
+        ? static_cast<double>(stats.clusters) / static_cast<double>(stats.frames)
+        : 0.0;
+    const double clustersPerMillionFrames = clustersPerFrame * 1.0e6;
+    const double clusterRateHz = divideOrZero(stats.clusters, liveSeconds);
+    const double inputRateMBps = divideOrZero(stats.inputBytes, liveSeconds) / 1.0e6;
+    const double eventRateMBps = divideOrZero(stats.eventBytes, liveSeconds) / 1.0e6;
+
+    std::cout << "FINAL events=" << stats.events
+              << " controlEvents=" << stats.controlEvents
+              << " frames=" << stats.frames
+              << " builtStreamingEvents=" << stats.builtStreamingEvents
+              << " malformedFrames=" << stats.malformedFrames;
+    printOptionalRanges(stats);
+    std::cout << '\n';
+
+    std::cout << "FINAL_CLUSTER_STATS clusters=" << stats.clusters
+              << " framesWithClusters=" << stats.framesWithClusters
+              << " visibleHits=" << stats.visibleHits
+              << " associatedHits=" << stats.associatedHits
+              << " clustersPerFrame=" << formatDouble(clustersPerFrame)
+              << " clustersPerMillionFrames=" << formatDouble(clustersPerMillionFrames, 3)
+              << " clusterRateHz=" << formatDouble(clusterRateHz, 3)
+              << '\n';
+
+    std::cout << "FINAL_TIME_STATS timeframeNs=" << config.timeframeNs
+              << " liveSeconds=" << formatDouble(liveSeconds, 6)
+              << '\n';
+
+    std::cout << "FINAL_DATA_RATE inputFiles=" << stats.inputFiles
+              << " inputBytes=" << stats.inputBytes
+              << " eventBytes=" << stats.eventBytes
+              << " inputRateMBps=" << formatDouble(inputRateMBps, 3)
+              << " eventRateMBps=" << formatDouble(eventRateMBps, 3)
+              << " inputBytesPerFrame=" << formatDouble(stats.frames > 0
+                     ? static_cast<double>(stats.inputBytes) / static_cast<double>(stats.frames)
+                     : 0.0, 3)
+              << " eventBytesPerFrame=" << formatDouble(stats.frames > 0
+                     ? static_cast<double>(stats.eventBytes) / static_cast<double>(stats.frames)
+                     : 0.0, 3)
+              << '\n';
 }
 
 } // namespace
@@ -1032,53 +1014,25 @@ int main(int argc, char *argv[]) {
 
     try {
         Options options = parseArgs(argc, argv);
-        EvioReader reader(options.path);
+        ClusterScanConfig config;
 
-        std::cout << "Opened " << options.path << '\n';
-        std::cout << "EVIO version: " << reader.getEvioVersion() << '\n';
-        std::cout << "Byte order: " << reader.getByteOrder().getName() << '\n';
-        std::cout << "Event count: " << reader.getEventCount() << '\n';
-
-        size_t eventIndex = 0;
-        std::shared_ptr<EvioEvent> event;
-
-        while (!gQuit.load() && (event = reader.parseNextEvent())) {
-            ++eventIndex;
-
-            std::cout << "\n============================================================\n";
-            std::cout << "Event " << eventIndex << '\n';
-
-            auto header = event->getHeader();
-            uint16_t eventTag = header ? header->getTag() : 0;
-
-            if (eventTag == TAG_PRESTART || eventTag == TAG_GO || eventTag == TAG_END) {
-                printControlEventMessage(eventTag);
-            }
-            else {
-                if (eventTag == TAG_BUILT_STREAMING) {
-                    std::cout << "Built streaming event detected\n";
-                }
-                decodeStreamingEvent(event, options);
-            }
-
-            if (eventTag == TAG_END || gQuit.load()) {
+        RunStats totals;
+        for (const auto &path : options.inputFiles) {
+            if (gQuit.load()) {
                 break;
             }
-
-            if (!waitForUser()) {
-                break;
-            }
+            scanFile(path, options, config, totals);
         }
 
         if (gQuit.load()) {
-            std::cout << "\nSIGINT received, exiting.\n";
+            std::cout << "\nStop requested, printing stats collected so far.\n";
         }
-        else {
-            std::cout << "\nReached end of file.\n";
-        }
+
+        printFinalStats(totals, config);
     }
     catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << '\n';
+        printUsage(argv[0]);
         return 1;
     }
 
