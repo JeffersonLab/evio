@@ -603,11 +603,11 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            for (uint32_t frame = totals.minFirstWord; frame <= totals.maxFirstWord; ++frame) {
-                if (coverage.seenCounters.find(frame) == coverage.seenCounters.end()) {
-                    std::cout << "GLOBAL missing frame=" << frame << '\n';
-                }
-            }
+            // for (uint32_t frame = totals.minFirstWord; frame <= totals.maxFirstWord; ++frame) {
+            //     if (coverage.seenCounters.find(frame) == coverage.seenCounters.end()) {
+            //         std::cout << "GLOBAL missing frame=" << frame << '\n';
+            //     }
+            // }
         }
 
         CrossFileTimestampStats crossFileTs = computeCrossFileTimestampStats(options.inputFiles);
