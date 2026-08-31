@@ -209,17 +209,19 @@ namespace evio {
 //                            std::cout << "   RecordWriter: use outFile to write file, buf pos = " << buf->position() <<
 //                                 ", lim = " << buf->limit() << ", bytesToWrite = " << bytesToWrite << std::endl;
                             writer->outFile.write(reinterpret_cast<const char *>(buf->array()), bytesToWrite);
-                            if (writer->outFile.fail()) {
-                                throw EvioException("failed write to file");
-                            }
+                            bool writeFailed = writer->outFile.fail();
 
                             record->reset();
 
                             // Now we're done with this sequence
                             lastSeqProcessed = currentSeq;
 
-                            // Release back to supply
+                            // Always release before throwing so the ring slot is never orphaned
                             supply->releaseWriter(item);
+
+                            if (writeFailed) {
+                                throw EvioException("failed write to file");
+                            }
                         }
                     }
                 }
@@ -313,9 +315,9 @@ namespace evio {
         /** Do we add a record index to the trailer? */
         bool addTrailerIndex = false;
         /** Has close() been called? */
-        bool closed = false;
+        std::atomic<bool> closed {false};
         /** Has open() been called? */
-        bool opened = false;
+        std::atomic<bool> opened {false};
         /** Has a dictionary been defined? */
         bool haveDictionary = false;
         /** Has a first event been defined? */

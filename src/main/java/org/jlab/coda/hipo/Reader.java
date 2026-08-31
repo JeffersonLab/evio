@@ -1209,18 +1209,22 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             throw new HipoException("bad arg or info.length < 7");
         }
 
-        int offset = buf.position();
-        int totalCompressed = 0;
-        int totalBytes = 0;
+        // Use long accumulators to detect overflow on files larger than 2 GB.
+        long offset = buf.position();
+        long totalCompressed = 0L;
+        long totalBytes = 0L;
 
         while (true) {
             // Look at the record
-            findRecordInfo(buf, offset, info);
+            if (offset > Integer.MAX_VALUE) {
+                throw new HipoException("buffer offset overflow: cumulative record size exceeds 2 GB");
+            }
+            findRecordInfo(buf, (int)offset, info);
 
             // Total uncompressed length of record
-            totalBytes += info[3] + info[4] +
-                          4*Utilities.getWords(info[5]) + // user array + padding
-                          4*Utilities.getWords(info[6]);  // uncompressed data + padding
+            totalBytes += (long)info[3] + info[4] +
+                          4L*Utilities.getWords(info[5]) + // user array + padding
+                          4L*Utilities.getWords(info[6]);  // uncompressed data + padding
 
             // Track total uncompressed & compressed sizes
             totalCompressed += info[1];
@@ -1232,11 +1236,15 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             if (RecordHeader.isLastRecord(info[0])) break;
         }
 
-        // No longer input, we now use array for output
-        info[0] = totalCompressed;
-        info[1] = totalBytes;
+        if (totalCompressed > Integer.MAX_VALUE || totalBytes > Integer.MAX_VALUE) {
+            throw new HipoException("data size overflow: total exceeds 2 GB int limit");
+        }
 
-        return totalBytes;
+        // No longer input, we now use array for output
+        info[0] = (int)totalCompressed;
+        info[1] = (int)totalBytes;
+
+        return (int)totalBytes;
     }
 
 

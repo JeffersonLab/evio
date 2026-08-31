@@ -486,7 +486,13 @@ public class RecordSupply {
             // If we now have everything between last & max, release it all.
             // This way higher sequences are never released before lower.
             if ((maxSequence - lastSequenceReleased - 1L) == between) {
-                item.getSequenceObj().set(maxSequence);
+                // getSequenceObj() can return null if item was already reused by the ring
+                // (e.g. the other simultaneous write completed first and already advanced
+                // this sequence). Guard against NPE.
+                Sequence sq = item.getSequenceObj();
+                if (sq != null) {
+                    sq.set(maxSequence);
+                }
                 lastSequenceReleased = maxSequence;
                 between = 0;
             }

@@ -192,14 +192,25 @@ namespace evio {
             if (index >= header->getEntries()) {
                 index = header->getEntries() - 1;
             }
+            // Verify index table entry is within the buffer before reading.
+            if ((uint32_t)((index-1)*4 + 4) > dataBuffer->capacity()) {
+                throw EvioException("RecordInput::getEvent: index out of buffer bounds");
+            }
             // Remember, the index array of events lengths (at beginning of dataBuffer)
             // was overwritten in readRecord() to contain offsets to next event.
             firstPosition = dataBuffer->getInt( (index-1)*4 );
         }
 
+        if ((uint32_t)(index*4 + 4) > dataBuffer->capacity()) {
+            throw EvioException("RecordInput::getEvent: index out of buffer bounds");
+        }
         uint32_t lastPosition = dataBuffer->getUInt(index*4);
         uint32_t length = lastPosition - firstPosition;
         uint32_t offset = eventsOffset + firstPosition;
+
+        if (offset + length > dataBuffer->capacity()) {
+            throw EvioException("RecordInput::getEvent: event data out of buffer bounds");
+        }
 
         // TODO: Allocating memory here!!!
         auto event = std::shared_ptr<uint8_t>(new uint8_t[length], std::default_delete<uint8_t[]>());

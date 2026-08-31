@@ -516,6 +516,9 @@ namespace evio {
 
         // Find & update file header's trailer position word
         outFile.seekp(FileHeader::TRAILER_POSITION_OFFSET);
+        if (outFile.fail()) {
+            throw EvioException("error seeking in file " + fileName);
+        }
         if (byteOrder != ByteOrder::ENDIAN_LOCAL) {
             uint64_t pos = SWAP_64(trailerPosition);
             outFile.write(reinterpret_cast<const char *>(&pos), sizeof(uint64_t));
@@ -523,10 +526,16 @@ namespace evio {
         else {
             outFile.write(reinterpret_cast<const char *>(&trailerPosition), sizeof(uint64_t));
         }
+        if (outFile.fail()) {
+            throw EvioException("error writing trailer position in file " + fileName);
+        }
 
         // Find & update file header's bit-info word
         if (writeIndex && addTrailerIndex) {
             outFile.seekp(RecordHeader::BIT_INFO_OFFSET);
+            if (outFile.fail()) {
+                throw EvioException("error seeking in file " + fileName);
+            }
             int bitInfo = fileHeader.hasTrailerWithIndex(true);
             if (byteOrder != ByteOrder::ENDIAN_LOCAL) {
                 uint32_t bitSwap = SWAP_32(bitInfo);
@@ -534,6 +543,9 @@ namespace evio {
             }
             else {
                 outFile.write(reinterpret_cast<const char *>(&bitInfo), sizeof(uint32_t));
+            }
+            if (outFile.fail()) {
+                throw EvioException("error writing bit-info in file " + fileName);
             }
         }
     }
@@ -774,6 +786,11 @@ namespace evio {
         // Since the writer thread is the last to process each record,
         // wait until it's done with the last item, then exit the thread.
         recordWriterThreads[0].waitForLastItem();
+
+        // Propagate any write error that the writer thread caught and stored.
+        if (supply->haveError()) {
+            throw EvioException("error writing file: " + supply->getError());
+        }
 
         // Stop all compressing threads
         for (RecordCompressor &thd : recordCompressorThreads) {

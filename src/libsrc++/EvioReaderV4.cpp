@@ -264,7 +264,8 @@ namespace evio {
 
                 // Check to see if the whole block is within the mapped memory.
                 // If not return the amount of memory we've used/read.
-                if (4*blockSize > bytesLeft) {
+                // Cast to uint64_t before multiplying to prevent 32-bit overflow.
+                if (4ULL*blockSize > bytesLeft) {
 //std::cout << "    4*blockSize = " << std::to_string(4*blockSize) + " >? bytesLeft = " <<
 //             std::to_string(bytesLeft) + ", pos = " + std::to_string(position) << std::endl;
 //std::cout << "    return, not enough to read all block data" << std::endl;
@@ -295,7 +296,8 @@ namespace evio {
                 // it into account by skipping over it.
                 if (firstBlock && hasDictionary) {
                     // Get its length - bank's len does not include itself
-                    byteLen = 4*(bb->getUInt(position) + 1);
+                    // Cast to uint64_t before multiplying to prevent 32-bit overflow.
+                    byteLen = (uint32_t)(4ULL*(bb->getUInt(position) + 1ULL));
 
                     if (byteLen < 4) {
                         throw EvioException("Bad evio format: bad bank length");
@@ -424,7 +426,7 @@ namespace evio {
     /** {@inheritDoc} */
     bool EvioReaderV4::hasFirstEvent() {
         if (evioVersion < 4) {
-            firstBlockHeader2->hasFirstEvent();
+            return firstBlockHeader2->hasFirstEvent();
         }
         return firstBlockHeader4->hasFirstEvent();
     }
@@ -888,14 +890,17 @@ namespace evio {
         bytesRemaining -= 4;
 
         // get the raw data
+        if (length < 1) {
+            throw EvioException("Bad evio format: invalid dictionary event length");
+        }
         uint32_t eventDataSizeBytes = 4*(length - 1);
         if (bytesRemaining < eventDataSizeBytes) {
             throw EvioException("Not enough data in buffer");
         }
 
-        // Read in dictionary data
-        uint8_t bytes[eventDataSizeBytes];
-        buffer->getBytes(bytes, eventDataSizeBytes);
+        // Read in dictionary data (heap allocation avoids stack overflow on large/crafted lengths)
+        std::vector<uint8_t> bytes(eventDataSizeBytes);
+        buffer->getBytes(bytes.data(), eventDataSizeBytes);
         std::vector<std::string> strs;
 
         // This is the very first event and must be a dictionary
@@ -933,10 +938,8 @@ namespace evio {
      *                       if object closed
      */
     std::shared_ptr<EvioEvent> EvioReaderV4::getEventV4(size_t index) {
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (index > getEventCount()) {
             return nullptr;
@@ -987,10 +990,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::parseEvent(size_t index) {
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         auto event = getEvent(index);
         if (event != nullptr) parseEvent(event);
@@ -1000,11 +1001,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::nextEvent() {
-
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (!sequentialRead && evioVersion > 3) {
             return getEvent(eventNumber+1);
@@ -1145,10 +1143,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::parseNextEvent() {
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         auto event = nextEvent();
         if (event != nullptr) {
@@ -1218,10 +1214,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioReaderV4::rewind() {
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (closed) {
             throw EvioException("object closed");
@@ -1258,10 +1252,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     ssize_t EvioReaderV4::position() {
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (!sequentialRead && evioVersion > 3) return -1L;
 
@@ -1277,10 +1269,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioReaderV4::close() {
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (closed) {
             return;
@@ -1321,10 +1311,8 @@ namespace evio {
      * @throws EvioException if object closed; if failed file access
      */
     std::shared_ptr<EvioEvent> EvioReaderV4::gotoEventNumber(size_t evNumber, bool parse) {
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (closed) {
             throw EvioException("object closed");
@@ -1373,11 +1361,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     size_t EvioReaderV4::getEventCount() {
-
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (closed) {
                 throw EvioException("object closed");
@@ -1432,11 +1417,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     size_t EvioReaderV4::getBlockCount() {
-
-        // Lock this method
-        if (synchronized) {
-            const std::lock_guard<std::mutex> lock(mtx);
-        }
+        std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+        if (synchronized) lock.lock();
 
         if (closed) {
                 throw EvioException("object closed");
