@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <charconv>
 #include <cstdint>
 #include <exception>
 #include <iomanip>
@@ -23,6 +24,7 @@ constexpr size_t WARMUP_EVENTS = 20;
 struct Options {
     std::vector<std::string> inputFiles;
     std::string outputFile;
+    size_t nmissingPrint = 10;
 };
 
 struct Stats {
@@ -86,7 +88,9 @@ bool isExpectedBankOfSegments(const std::shared_ptr<BaseStructure> &s) {
 }
 
 void printUsage(const char *name) {
-    std::cerr << "Usage: " << name << " [-o output_v4.evio] file1.evio [file2.evio ...]\n";
+    std::cerr << "Usage: " << name
+              << " [-o output_v4.evio] [--nmissing-print N] file1.evio [file2.evio ...]\n"
+              << "  --nmissing-print N  Print the first N missing frame numbers (default: 10; 0 disables).\n";
 }
 
 Options parseArgs(int argc, char *argv[]) {
@@ -97,6 +101,18 @@ Options parseArgs(int argc, char *argv[]) {
         if (arg == "-h" || arg == "--help") {
             printUsage(argv[0]);
             std::exit(0);
+        }
+        if (arg == "--nmissing-print") {
+            if (i + 1 >= argc) {
+                throw std::runtime_error("missing count after --nmissing-print");
+            }
+            std::string value(argv[++i]);
+            auto result = std::from_chars(value.data(), value.data() + value.size(),
+                                          options.nmissingPrint);
+            if (result.ec != std::errc{} || result.ptr != value.data() + value.size()) {
+                throw std::runtime_error("--nmissing-print requires a non-negative integer");
+            }
+            continue;
         }
         if (arg == "-o") {
             if (i + 1 >= argc) {
@@ -263,6 +279,25 @@ std::vector<uint32_t> getFirstDuplicateFrames(const CoverageStats &coverage, siz
     std::sort(frames.begin(), frames.end());
     if (frames.size() > limit) {
         frames.resize(limit);
+    }
+    return frames;
+}
+
+std::vector<uint32_t> getFirstMissingFrames(const CoverageStats &coverage,
+                                           uint32_t globalMin,
+                                           uint32_t globalMax,
+                                           size_t limit) {
+    std::vector<uint32_t> frames;
+    if (coverage.uniqueCounters == coverage.rangeSize) {
+        return frames;
+    }
+
+    // Use a wider counter so incrementing UINT32_MAX cannot wrap around.
+    for (uint64_t frame = globalMin; frame <= globalMax && frames.size() < limit; ++frame) {
+        auto counter = static_cast<uint32_t>(frame);
+        if (coverage.seenCounters.find(counter) == coverage.seenCounters.end()) {
+            frames.push_back(counter);
+        }
     }
     return frames;
 }
@@ -521,6 +556,8 @@ int main(int argc, char *argv[]) {
         }
 
         Stats totals;
+        uint64_t missingFrameCount = 0;
+        std::vector<uint32_t> missingFrames;
         for (const auto &path : options.inputFiles) {
             scanFile(path, writer.get(), totals);
         }
@@ -539,6 +576,9 @@ int main(int argc, char *argv[]) {
         if (totals.firstWordSeen) {
             CoverageStats coverage =
                 computeCounterCoverage(options.inputFiles, totals.minFirstWord, totals.maxFirstWord);
+            missingFrameCount = coverage.rangeSize - coverage.uniqueCounters;
+            missingFrames = getFirstMissingFrames(coverage, totals.minFirstWord,
+                                                  totals.maxFirstWord, options.nmissingPrint);
 
             std::cout << "GLOBAL counter range min=" << totals.minFirstWord
                       << " max=" << totals.maxFirstWord
@@ -598,12 +638,6 @@ int main(int argc, char *argv[]) {
                     }
                 }
             }
-
-            // for (uint32_t frame = totals.minFirstWord; frame <= totals.maxFirstWord; ++frame) {
-            //     if (coverage.seenCounters.find(frame) == coverage.seenCounters.end()) {
-            //         std::cout << "GLOBAL missing frame=" << frame << '\n';
-            //     }
-            // }
         }
 
         CrossFileTimestampStats crossFileTs = computeCrossFileTimestampStats(options.inputFiles);
@@ -653,6 +687,12 @@ int main(int argc, char *argv[]) {
                     std::cout << '\n';
                 }
             }
+        }
+
+        std::cout << "GLOBAL missing frames=" << missingFrameCount
+                  << " (first " << missingFrames.size() << " by ascending frame number):\n";
+        for (uint32_t frame : missingFrames) {
+            std::cout << "  GLOBAL missing frame=" << frame << '\n';
         }
     }
     catch (const std::exception &e) {
